@@ -13,7 +13,9 @@ import {
   Database,
   Trash2,
   Moon,
-  Sun
+  Sun,
+  Circle,
+  LayoutGrid
 } from 'lucide-react';
 
 export default function TimelineControls() {
@@ -35,7 +37,9 @@ export default function TimelineControls() {
     absoluteEnd,
     panToPosition,
     isDarkMode,
-    toggleDarkMode
+    toggleDarkMode,
+    eventDisplayMode,
+    toggleEventDisplayMode
   } = useTimelineStore();
 
   // Get zoom level label for display
@@ -162,7 +166,7 @@ export default function TimelineControls() {
             step={0.01}
             value={getPanSliderValue()}
             onChange={(e) => handlePanSliderChange(parseFloat(e.target.value))}
-            className="w-48 h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer
+            className="w-32 h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer
               [&::-webkit-slider-thumb]:appearance-none
               [&::-webkit-slider-thumb]:w-3
               [&::-webkit-slider-thumb]:h-3
@@ -270,6 +274,18 @@ export default function TimelineControls() {
           title="Clear All Data"
         >
           <Trash2 className="w-4 h-4 text-red-600" />
+        </button>
+
+        <button
+          onClick={toggleEventDisplayMode}
+          className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
+          title={eventDisplayMode === 'circle' ? "Switch to Card View" : "Switch to Circle View"}
+        >
+          {eventDisplayMode === 'circle' ? (
+            <LayoutGrid className="w-4 h-4 text-slate-600 dark:text-slate-300" />
+          ) : (
+            <Circle className="w-4 h-4 text-slate-600 dark:text-slate-300" />
+          )}
         </button>
 
         <button

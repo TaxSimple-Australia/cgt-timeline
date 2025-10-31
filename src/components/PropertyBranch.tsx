@@ -2,8 +2,9 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Property, TimelineEvent } from '@/store/timeline';
+import { Property, TimelineEvent, useTimelineStore } from '@/store/timeline';
 import EventCircle from './EventCircle';
+import EventCardView from './EventCardView';
 import PropertyStatusBands from './PropertyStatusBands';
 import { cn, dateToPosition } from '@/lib/utils';
 
@@ -28,6 +29,7 @@ export default function PropertyBranch({
   timelineEnd,
   onEventClick,
 }: PropertyBranchProps) {
+  const { eventDisplayMode } = useTimelineStore();
   const branchY = 100 + branchIndex * 120; // Vertical spacing between branches
 
   // Calculate positions from dates for each event
@@ -160,17 +162,29 @@ export default function PropertyBranch({
         </div>
       </foreignObject>
       
-      {/* Event Circles */}
+      {/* Event Display - Circles or Cards based on mode */}
       {eventsWithTiers.map((event) => (
-        <EventCircle
-          key={event.id}
-          event={event}
-          cx={`${event.calculatedPosition}%`}
-          cy={branchY}
-          color={event.color}
-          onClick={() => onEventClick(event)}
-          tier={event.tier}
-        />
+        eventDisplayMode === 'circle' ? (
+          <EventCircle
+            key={event.id}
+            event={event}
+            cx={`${event.calculatedPosition}%`}
+            cy={branchY}
+            color={event.color}
+            onClick={() => onEventClick(event)}
+            tier={event.tier}
+          />
+        ) : (
+          <EventCardView
+            key={event.id}
+            event={event}
+            cx={`${event.calculatedPosition}%`}
+            cy={branchY}
+            color={event.color}
+            onClick={() => onEventClick(event)}
+            tier={event.tier}
+          />
+        )
       ))}
     </g>
   );

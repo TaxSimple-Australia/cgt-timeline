@@ -61,6 +61,8 @@ export type ZoomLevel =
   | 'weeks'       // 1-3 months
   | 'days';       // < 1 month
 
+export type EventDisplayMode = 'circle' | 'card';
+
 interface TimelineState {
   properties: Property[];
   events: TimelineEvent[];
@@ -75,6 +77,7 @@ interface TimelineState {
   zoomLevel: ZoomLevel;
   centerDate: Date; // The date at the center of the viewport
   isDarkMode: boolean; // Dark mode toggle
+  eventDisplayMode: EventDisplayMode; // Toggle between circle and card display
 
   // Actions
   addProperty: (property: Omit<Property, 'id' | 'branch'>) => void;
@@ -100,6 +103,7 @@ interface TimelineState {
   loadDemoData: () => void; // Load demo data from Excel sheet
   clearAllData: () => void; // Clear all properties and events
   toggleDarkMode: () => void; // Toggle dark mode
+  toggleEventDisplayMode: () => void; // Toggle between circle and card display
 }
 
 const propertyColors = [
@@ -291,6 +295,7 @@ export const useTimelineStore = create<TimelineState>((set, get) => ({
     (new Date(2020, 0, 1).getTime() + new Date().getTime()) / 2
   ),
   isDarkMode: false,
+  eventDisplayMode: 'circle',
   
   addProperty: (property) => {
     const properties = get().properties;
@@ -406,11 +411,22 @@ export const useTimelineStore = create<TimelineState>((set, get) => ({
     const nextLevel = getNextZoomLevel(state.zoomLevel);
 
     if (nextLevel) {
-      const { start, end } = calculateDateRange(state.centerDate, nextLevel);
+      // Smart zoom: Focus on last interacted event if available
+      let focusDate = state.centerDate;
+
+      if (state.lastInteractedEventId) {
+        const lastEvent = state.events.find(e => e.id === state.lastInteractedEventId);
+        if (lastEvent) {
+          focusDate = lastEvent.date;
+        }
+      }
+
+      const { start, end } = calculateDateRange(focusDate, nextLevel);
       set({
         timelineStart: start,
         timelineEnd: end,
         zoomLevel: nextLevel,
+        centerDate: focusDate,
       });
     }
   },
@@ -420,11 +436,22 @@ export const useTimelineStore = create<TimelineState>((set, get) => ({
     const prevLevel = getPreviousZoomLevel(state.zoomLevel);
 
     if (prevLevel) {
-      const { start, end } = calculateDateRange(state.centerDate, prevLevel);
+      // Smart zoom: Focus on last interacted event if available
+      let focusDate = state.centerDate;
+
+      if (state.lastInteractedEventId) {
+        const lastEvent = state.events.find(e => e.id === state.lastInteractedEventId);
+        if (lastEvent) {
+          focusDate = lastEvent.date;
+        }
+      }
+
+      const { start, end } = calculateDateRange(focusDate, prevLevel);
       set({
         timelineStart: start,
         timelineEnd: end,
         zoomLevel: prevLevel,
+        centerDate: focusDate,
       });
     }
   },
@@ -435,11 +462,22 @@ export const useTimelineStore = create<TimelineState>((set, get) => ({
     const targetLevel = zoomLevels[clampedIndex].level;
 
     if (targetLevel !== state.zoomLevel) {
-      const { start, end } = calculateDateRange(state.centerDate, targetLevel);
+      // Smart zoom: Focus on last interacted event if available
+      let focusDate = state.centerDate;
+
+      if (state.lastInteractedEventId) {
+        const lastEvent = state.events.find(e => e.id === state.lastInteractedEventId);
+        if (lastEvent) {
+          focusDate = lastEvent.date;
+        }
+      }
+
+      const { start, end } = calculateDateRange(focusDate, targetLevel);
       set({
         timelineStart: start,
         timelineEnd: end,
         zoomLevel: targetLevel,
+        centerDate: focusDate,
       });
     }
   },
@@ -670,5 +708,10 @@ export const useTimelineStore = create<TimelineState>((set, get) => ({
         document.documentElement.classList.remove('dark');
       }
     }
+  },
+
+  toggleEventDisplayMode: () => {
+    const state = get();
+    set({ eventDisplayMode: state.eventDisplayMode === 'circle' ? 'card' : 'circle' });
   },
 }));

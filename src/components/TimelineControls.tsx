@@ -20,6 +20,9 @@ import {
 
 export default function TimelineControls() {
   const [showSettings, setShowSettings] = useState(false);
+  const [panSliderValue, setPanSliderValue] = useState(0);
+  const [isPanning, setIsPanning] = useState(false);
+
   const {
     zoomLevel,
     zoomIn,
@@ -36,8 +39,8 @@ export default function TimelineControls() {
     absoluteStart,
     absoluteEnd,
     panToPosition,
-    isDarkMode,
-    toggleDarkMode,
+    theme,
+    toggleTheme,
     eventDisplayMode,
     toggleEventDisplayMode
   } = useTimelineStore();
@@ -67,8 +70,29 @@ export default function TimelineControls() {
     return Math.max(0, Math.min(100, percentage));
   };
 
-  const handlePanSliderChange = (percentage: number) => {
-    panToPosition(percentage);
+  // Update local state when not actively panning
+  React.useEffect(() => {
+    if (!isPanning) {
+      setPanSliderValue(getPanSliderValue());
+    }
+  }, [timelineStart, timelineEnd, absoluteStart, absoluteEnd, isPanning]);
+
+  const handlePanSliderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const percentage = parseFloat(e.target.value);
+    setPanSliderValue(percentage);
+
+    // Use requestAnimationFrame for smooth updates
+    requestAnimationFrame(() => {
+      panToPosition(percentage);
+    });
+  };
+
+  const handlePanStart = () => {
+    setIsPanning(true);
+  };
+
+  const handlePanEnd = () => {
+    setIsPanning(false);
   };
 
   const handleExport = () => {
@@ -90,6 +114,31 @@ export default function TimelineControls() {
           // Add price if amount exists
           if (event.amount) {
             historyItem.price = event.amount;
+          }
+
+          // Add land and building price breakdown if exists
+          if (event.landPrice !== undefined) {
+            historyItem.land_price = event.landPrice;
+          }
+          if (event.buildingPrice !== undefined) {
+            historyItem.building_price = event.buildingPrice;
+          }
+
+          // Add other relevant fields
+          if (event.description) {
+            historyItem.description = event.description;
+          }
+          if (event.isPPR) {
+            historyItem.is_ppr = event.isPPR;
+          }
+          if (event.contractDate) {
+            historyItem.contract_date = format(event.contractDate, 'yyyy-MM-dd');
+          }
+          if (event.settlementDate) {
+            historyItem.settlement_date = format(event.settlementDate, 'yyyy-MM-dd');
+          }
+          if (event.newStatus) {
+            historyItem.new_status = event.newStatus;
           }
 
           return historyItem;
@@ -163,10 +212,14 @@ export default function TimelineControls() {
             type="range"
             min={0}
             max={100}
-            step={0.01}
-            value={getPanSliderValue()}
-            onChange={(e) => handlePanSliderChange(parseFloat(e.target.value))}
-            className="w-32 h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer
+            step={0.1}
+            value={panSliderValue}
+            onChange={handlePanSliderChange}
+            onMouseDown={handlePanStart}
+            onMouseUp={handlePanEnd}
+            onTouchStart={handlePanStart}
+            onTouchEnd={handlePanEnd}
+            className="w-32 h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer
               [&::-webkit-slider-thumb]:appearance-none
               [&::-webkit-slider-thumb]:w-3
               [&::-webkit-slider-thumb]:h-3
@@ -174,14 +227,16 @@ export default function TimelineControls() {
               [&::-webkit-slider-thumb]:bg-blue-600
               [&::-webkit-slider-thumb]:cursor-pointer
               [&::-webkit-slider-thumb]:hover:bg-blue-700
-              [&::-webkit-slider-thumb]:transition-colors
+              [&::-webkit-slider-thumb]:transition-all
+              [&::-webkit-slider-thumb]:shadow-md
               [&::-moz-range-thumb]:w-3
               [&::-moz-range-thumb]:h-3
               [&::-moz-range-thumb]:rounded-full
               [&::-moz-range-thumb]:bg-blue-600
               [&::-moz-range-thumb]:border-0
               [&::-moz-range-thumb]:cursor-pointer
-              [&::-moz-range-thumb]:hover:bg-blue-700"
+              [&::-moz-range-thumb]:hover:bg-blue-700
+              [&::-moz-range-thumb]:shadow-md"
             title="Smooth timeline navigation"
           />
         </div>
@@ -190,14 +245,14 @@ export default function TimelineControls() {
       {/* Right Controls */}
       <div className="flex items-center gap-2">
         {/* Zoom Slider */}
-        <div className="flex items-center gap-2 border-r border-slate-200 pr-2">
+        <div className="flex items-center gap-2 border-r border-slate-200 dark:border-slate-700 pr-2">
           <input
             type="range"
             min="0"
             max="7"
             value={getZoomLevelIndex()}
             onChange={(e) => setZoomByIndex(parseInt(e.target.value))}
-            className="w-32 h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer
+            className="w-32 h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer
               [&::-webkit-slider-thumb]:appearance-none
               [&::-webkit-slider-thumb]:w-4
               [&::-webkit-slider-thumb]:h-4
@@ -205,13 +260,16 @@ export default function TimelineControls() {
               [&::-webkit-slider-thumb]:bg-slate-600
               [&::-webkit-slider-thumb]:cursor-pointer
               [&::-webkit-slider-thumb]:hover:bg-slate-700
+              [&::-webkit-slider-thumb]:transition-all
+              [&::-webkit-slider-thumb]:shadow-md
               [&::-moz-range-thumb]:w-4
               [&::-moz-range-thumb]:h-4
               [&::-moz-range-thumb]:rounded-full
               [&::-moz-range-thumb]:bg-slate-600
               [&::-moz-range-thumb]:border-0
               [&::-moz-range-thumb]:cursor-pointer
-              [&::-moz-range-thumb]:hover:bg-slate-700"
+              [&::-moz-range-thumb]:hover:bg-slate-700
+              [&::-moz-range-thumb]:shadow-md"
             title="Zoom Level Slider"
           />
         </div>
@@ -289,11 +347,11 @@ export default function TimelineControls() {
         </button>
 
         <button
-          onClick={toggleDarkMode}
+          onClick={toggleTheme}
           className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
-          title={isDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
+          title={theme === 'dark' ? "Switch to Light Mode" : "Switch to Dark Mode"}
         >
-          {isDarkMode ? (
+          {theme === 'dark' ? (
             <Sun className="w-4 h-4 text-slate-600 dark:text-slate-300" />
           ) : (
             <Moon className="w-4 h-4 text-slate-600 dark:text-slate-300" />

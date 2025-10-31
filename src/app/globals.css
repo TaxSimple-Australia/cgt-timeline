@@ -7,6 +7,41 @@
     --background: 0 0% 100%;
     --foreground: 222.2 84% 4.9%;
   }
+
+  /* Blue Theme Colors */
+  .blue {
+    /* Dark backgrounds with blue tint - Similar to dark mode but bluer */
+    --blue-bg-primary: #0a1929;        /* Very dark blue-black (similar to slate-950) */
+    --blue-bg-secondary: #0f1e2e;      /* Dark blue-gray (similar to slate-900) */
+    --blue-bg-tertiary: #1a2332;       /* Dark blue-slate (similar to slate-800) */
+    --blue-bg-elevated: #1e2d3d;       /* Elevated blue-slate (similar to slate-700) */
+    --blue-bg-hover: #243447;          /* Hover state - slightly lighter blue */
+
+    /* Bright blue accents - Azure/Cyan tones */
+    --blue-accent-primary: #4fc3f7;    /* Bright cyan */
+    --blue-accent-secondary: #29b6f6;  /* Sky blue */
+    --blue-accent-bright: #81d4fa;     /* Light cyan */
+    --blue-accent-dark: #0288d1;       /* Deep blue */
+    --blue-accent-electric: #00bcd4;   /* Electric cyan */
+
+    /* Text colors - Blue and light for dark backgrounds */
+    --blue-text-primary: #e3f2fd;      /* Very light blue/white */
+    --blue-text-secondary: #81d4fa;    /* Light cyan text */
+    --blue-text-muted: #8b9cb5;        /* Blue-gray muted */
+    --blue-text-accent: #4fc3f7;       /* Bright cyan accent */
+
+    /* Border colors - Subtle blue tones */
+    --blue-border-primary: #29b6f6;
+    --blue-border-secondary: #4fc3f7;
+    --blue-border-subtle: #2c3e50;
+
+    /* Status colors adjusted for blue theme */
+    --blue-status-blue: #64b5f6;
+    --blue-status-green: #4db6ac;
+    --blue-status-red: #ef5350;
+    --blue-status-purple: #9575cd;
+    --blue-status-orange: #ff9800;
+  }
 }
 
 @layer utilities {
@@ -72,6 +107,15 @@ body {
   animation: card-appear 0.3s ease-out;
 }
 
+/* Event card hover - subtle highlight */
+.event-card-group {
+  position: relative;
+}
+
+.event-card-group:hover {
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.15));
+}
+
 /* Branch path animation */
 @keyframes draw-branch {
   to {
@@ -104,4 +148,86 @@ body {
 
 .timeline-scroll::-webkit-scrollbar-thumb:hover {
   @apply bg-blue-500;
+}
+
+/* Blue Theme Styles - Dark Navy with Bright Blue Accents */
+
+/* Background colors - Dark navy/blue tones */
+.blue .bg-white { background-color: var(--blue-bg-secondary) !important; }
+.blue .bg-slate-50 { background-color: var(--blue-bg-tertiary) !important; }
+.blue .bg-slate-100 { background-color: var(--blue-bg-elevated) !important; }
+.blue .bg-slate-800 { background-color: var(--blue-bg-tertiary) !important; }
+.blue .bg-slate-900 { background-color: var(--blue-bg-primary) !important; }
+
+/* Specific backgrounds for colored sections - Dark blue with tints */
+.blue .bg-blue-50 { background-color: rgba(79, 195, 247, 0.15) !important; }
+.blue .bg-green-50 { background-color: rgba(77, 182, 172, 0.15) !important; }
+.blue .bg-purple-50 { background-color: rgba(149, 117, 205, 0.15) !important; }
+.blue .bg-red-50 { background-color: rgba(239, 83, 80, 0.15) !important; }
+.blue .bg-emerald-50 { background-color: rgba(77, 182, 172, 0.15) !important; }
+
+/* Hover states - Slightly lighter blue */
+.blue .hover\:bg-slate-100:hover { background-color: var(--blue-bg-hover) !important; }
+.blue .hover\:bg-slate-700:hover { background-color: var(--blue-bg-hover) !important; }
+.blue .hover\:bg-red-50:hover { background-color: rgba(239, 83, 80, 0.2) !important; }
+
+/* Text colors - Bright blue and cyan for dark backgrounds */
+.blue .text-slate-800,
+.blue .text-slate-900 { color: var(--blue-text-primary) !important; }
+.blue .text-slate-700 { color: var(--blue-text-secondary) !important; }
+.blue .text-slate-600 { color: var(--blue-text-secondary) !important; }
+.blue .text-slate-500,
+.blue .text-slate-400 { color: var(--blue-text-muted) !important; }
+.blue .text-slate-300 { color: var(--blue-text-secondary) !important; }
+.blue .text-slate-100 { color: var(--blue-text-primary) !important; }
+.blue .text-white { color: var(--blue-text-primary) !important; }
+
+/* Preserve color emphasis on blue theme */
+.blue .text-blue-600,
+.blue .text-blue-700,
+.blue .text-blue-900 { color: var(--blue-status-blue) !important; }
+.blue .text-green-600,
+.blue .text-green-900 { color: var(--blue-status-green) !important; }
+.blue .text-purple-600,
+.blue .text-purple-900 { color: var(--blue-status-purple) !important; }
+.blue .text-red-600,
+.blue .text-red-900 { color: var(--blue-status-red) !important; }
+.blue .text-emerald-600,
+.blue .text-emerald-900 { color: var(--blue-status-green) !important; }
+
+/* Border colors - Bright blue accents */
+.blue .border-slate-200 { border-color: var(--blue-border-subtle) !important; }
+.blue .border-slate-300 { border-color: var(--blue-border-secondary) !important; }
+.blue .border-slate-700 { border-color: var(--blue-border-primary) !important; }
+
+/* Gradients - Dark blue to navy gradient with blue tint */
+.blue .bg-gradient-to-br {
+  background-image: linear-gradient(to bottom right, var(--blue-bg-primary), var(--blue-bg-elevated)) !important;
+}
+
+/* Scrollbars for blue theme - Bright blue accent scrollbars */
+.blue ::-webkit-scrollbar-track {
+  background-color: var(--blue-bg-tertiary) !important;
+}
+
+.blue ::-webkit-scrollbar-thumb {
+  background-color: var(--blue-accent-secondary) !important;
+  border-radius: 4px;
+}
+
+.blue ::-webkit-scrollbar-thumb:hover {
+  background-color: var(--blue-accent-bright) !important;
+}
+
+.blue .timeline-scroll::-webkit-scrollbar-track {
+  background-color: var(--blue-bg-tertiary) !important;
+}
+
+.blue .timeline-scroll::-webkit-scrollbar-thumb {
+  background-color: var(--blue-accent-secondary) !important;
+  border-radius: 5px;
+}
+
+.blue .timeline-scroll::-webkit-scrollbar-thumb:hover {
+  background-color: var(--blue-accent-bright) !important;
 }

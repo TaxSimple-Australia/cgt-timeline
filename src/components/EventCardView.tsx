@@ -34,7 +34,8 @@ export default function EventCardView({
   const [isHovered, setIsHovered] = useState(false);
 
   // Calculate card Y position based on tier
-  const TIER_SPACING = 130; // Pixels between tiers (cards are taller than circles)
+  // Use dynamic spacing that accounts for the tallest possible card
+  const TIER_SPACING = 160; // Pixels between tiers (cards are dynamic height, max ~145px)
   const BASE_CARD_OFFSET = -50; // Base offset from branch center (place above branch)
   const cardY = cy + BASE_CARD_OFFSET + (tier * TIER_SPACING);
 
@@ -80,10 +81,36 @@ export default function EventCardView({
 
   const hasAmount = event.amount !== undefined && event.amount > 0;
   const isPPR = event.isPPR === true;
+  const hasPriceSplit = event.landPrice !== undefined || event.buildingPrice !== undefined;
+  const hasDescription = !hasAmount && event.description && event.description.length > 0;
 
-  // Card dimensions - slightly taller to accommodate all content
+  // Calculate dynamic card height based on content
+  const calculateCardHeight = () => {
+    let height = 85; // Base height: header (32px) + title (20px) + date (18px) + padding (15px)
+
+    // Add height for amount/price information
+    if (hasAmount) {
+      if (hasPriceSplit) {
+        height += 50; // Land + Building + Total breakdown (3 lines with spacing)
+      } else {
+        height += 22; // Single amount line
+      }
+    }
+
+    // Add height for description (when no amount)
+    if (hasDescription) {
+      height += 30; // Description text (2 lines max)
+    }
+
+    // Add height for hover indicator
+    height += 14; // "Click to edit" text
+
+    return height;
+  };
+
+  // Card dimensions - dynamic height, fixed width
   const cardWidth = 180;
-  const cardHeight = 115;
+  const cardHeight = calculateCardHeight();
 
   return (
     <g
@@ -104,8 +131,9 @@ export default function EventCardView({
         stroke={color}
         strokeWidth="2"
         strokeDasharray="4,4"
-        opacity={0.6}
+        opacity={isHovered ? 0.8 : 0.6}
         className="pointer-events-none"
+        style={{ transition: 'opacity 0.2s' }}
       />
 
       {/* Small circle marker on branch line */}
@@ -152,8 +180,8 @@ export default function EventCardView({
           {isHovered && (
             <motion.div
               initial={{ opacity: 0 }}
-              animate={{ opacity: 0.6 }}
-              className="absolute inset-0 rounded-xl blur-md"
+              animate={{ opacity: 0.7 }}
+              className="absolute inset-0 rounded-xl blur-lg"
               style={{ backgroundColor: color }}
             />
           )}
@@ -195,34 +223,55 @@ export default function EventCardView({
             </div>
 
             {/* Body */}
-            <div className="flex-1 px-2.5 py-1.5 flex flex-col min-h-0">
+            <div className="flex-1 px-2.5 py-2 flex flex-col">
               {/* Title */}
-              <div className="font-bold text-[13px] text-slate-900 dark:text-slate-100 truncate mb-1">
+              <div className="font-bold text-[13px] text-slate-900 dark:text-slate-100 truncate mb-1.5">
                 {event.title}
               </div>
 
               {/* Date */}
-              <div className="text-[11px] text-slate-600 dark:text-slate-400 mb-auto">
+              <div className="text-[11px] text-slate-600 dark:text-slate-400 mb-2">
                 {format(new Date(event.date), 'MMM dd, yyyy')}
               </div>
 
-              {/* Amount */}
-              {hasAmount && (
-                <div className="text-[13px] font-bold mt-1 truncate" style={{ color: color }}>
+              {/* Amount - Show breakdown if land/building split exists */}
+              {hasAmount && hasPriceSplit && (
+                <div className="space-y-1">
+                  <div className="text-[10px] text-slate-600 dark:text-slate-400 flex justify-between items-center">
+                    <span>Land:</span>
+                    <span className="font-semibold">${(event.landPrice || 0).toLocaleString()}</span>
+                  </div>
+                  <div className="text-[10px] text-slate-600 dark:text-slate-400 flex justify-between items-center">
+                    <span>Building:</span>
+                    <span className="font-semibold">${(event.buildingPrice || 0).toLocaleString()}</span>
+                  </div>
+                  <div className="text-[11px] font-bold flex justify-between items-center pt-1 mt-1 border-t border-slate-200 dark:border-slate-600" style={{ color: color }}>
+                    <span>Total:</span>
+                    <span>${event.amount?.toLocaleString()}</span>
+                  </div>
+                </div>
+              )}
+
+              {/* Regular amount (no breakdown) */}
+              {hasAmount && !hasPriceSplit && (
+                <div className="text-[13px] font-bold truncate" style={{ color: color }}>
                   ${event.amount?.toLocaleString()}
                 </div>
               )}
 
               {/* Description snippet (if exists and no amount) */}
-              {!hasAmount && event.description && (
-                <div className="text-[10px] text-slate-500 dark:text-slate-500 line-clamp-2 mt-1">
+              {hasDescription && (
+                <div className="text-[10px] text-slate-500 dark:text-slate-500 line-clamp-2">
                   {event.description}
                 </div>
               )}
 
+              {/* Spacer */}
+              <div className="flex-1 min-h-[4px]" />
+
               {/* Hover indicator */}
               {isHovered && (
-                <div className="text-[8px] text-slate-400 dark:text-slate-500 text-right mt-0.5">
+                <div className="text-[8px] text-slate-400 dark:text-slate-500 text-right">
                   Click to edit
                 </div>
               )}

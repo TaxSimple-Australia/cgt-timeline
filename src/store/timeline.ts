@@ -34,6 +34,9 @@ export interface TimelineEvent {
   settlementDate?: Date;    // Actual settlement date
   newStatus?: PropertyStatus; // For status_change events
   isPPR?: boolean;          // Is this event related to PPR?
+  // Price breakdown for purchases (land + building)
+  landPrice?: number;       // Price of land component
+  buildingPrice?: number;   // Price of building component
 }
 
 export interface Property {
@@ -63,6 +66,8 @@ export type ZoomLevel =
 
 export type EventDisplayMode = 'circle' | 'card';
 
+export type Theme = 'light' | 'dark';
+
 interface TimelineState {
   properties: Property[];
   events: TimelineEvent[];
@@ -76,7 +81,7 @@ interface TimelineState {
   zoom: number;
   zoomLevel: ZoomLevel;
   centerDate: Date; // The date at the center of the viewport
-  isDarkMode: boolean; // Dark mode toggle
+  theme: Theme; // Current theme: light, dark, or golden
   eventDisplayMode: EventDisplayMode; // Toggle between circle and card display
 
   // Actions
@@ -102,7 +107,7 @@ interface TimelineState {
   panToPosition: (position: number) => void; // Position 0-100 on absolute timeline
   loadDemoData: () => void; // Load demo data from Excel sheet
   clearAllData: () => void; // Clear all properties and events
-  toggleDarkMode: () => void; // Toggle dark mode
+  toggleTheme: () => void; // Cycle through themes: light -> dark -> golden -> light
   toggleEventDisplayMode: () => void; // Toggle between circle and card display
 }
 
@@ -294,8 +299,8 @@ export const useTimelineStore = create<TimelineState>((set, get) => ({
   centerDate: new Date(
     (new Date(2020, 0, 1).getTime() + new Date().getTime()) / 2
   ),
-  isDarkMode: false,
-  eventDisplayMode: 'circle',
+  theme: 'dark',
+  eventDisplayMode: 'card',
   
   addProperty: (property) => {
     const properties = get().properties;
@@ -695,14 +700,16 @@ export const useTimelineStore = create<TimelineState>((set, get) => ({
     });
   },
 
-  toggleDarkMode: () => {
+  toggleTheme: () => {
     const state = get();
-    const newDarkMode = !state.isDarkMode;
-    set({ isDarkMode: newDarkMode });
+    // Simple toggle between dark and light
+    const nextTheme: Theme = state.theme === 'dark' ? 'light' : 'dark';
+
+    set({ theme: nextTheme });
 
     // Update document class for Tailwind dark mode
     if (typeof window !== 'undefined') {
-      if (newDarkMode) {
+      if (nextTheme === 'dark') {
         document.documentElement.classList.add('dark');
       } else {
         document.documentElement.classList.remove('dark');

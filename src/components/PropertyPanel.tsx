@@ -119,7 +119,8 @@ export default function PropertyPanel() {
               </button>
             </div>
           </div>
-          
+
+
           {property.address && (
             <div className="flex items-center gap-2 mt-2 text-sm text-slate-600">
               <MapPin className="w-3 h-3" />
@@ -136,9 +137,27 @@ export default function PropertyPanel() {
                 <DollarSign className="w-4 h-4" />
                 <span className="text-xs font-medium">Purchase Price</span>
               </div>
-              <div className="text-lg font-bold text-blue-900">
-                {purchaseEvent ? formatCurrency(purchaseEvent.amount || 0) : '-'}
-              </div>
+              {purchaseEvent ? (
+                <>
+                  <div className="text-lg font-bold text-blue-900">
+                    {formatCurrency(purchaseEvent.amount || 0)}
+                  </div>
+                  {(purchaseEvent.landPrice !== undefined || purchaseEvent.buildingPrice !== undefined) && (
+                    <div className="text-[10px] text-blue-700 mt-1 space-y-0.5">
+                      <div className="flex justify-between">
+                        <span>Land:</span>
+                        <span className="font-semibold">{formatCurrency(purchaseEvent.landPrice || 0)}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Building:</span>
+                        <span className="font-semibold">{formatCurrency(purchaseEvent.buildingPrice || 0)}</span>
+                      </div>
+                    </div>
+                  )}
+                </>
+              ) : (
+                <div className="text-lg font-bold text-blue-900">-</div>
+              )}
             </div>
             
             <div className="bg-green-50 p-3 rounded-lg">
@@ -235,9 +254,24 @@ export default function PropertyPanel() {
                         </span>
                       </div>
                       {event.amount && (
-                        <div className="text-sm font-bold" style={{ color: event.color }}>
-                          {formatCurrency(event.amount)}
-                        </div>
+                        <>
+                          <div className="text-sm font-bold" style={{ color: event.color }}>
+                            {formatCurrency(event.amount)}
+                          </div>
+                          {/* Show land/building breakdown for purchases if available */}
+                          {event.type === 'purchase' && (event.landPrice !== undefined || event.buildingPrice !== undefined) && (
+                            <div className="text-[10px] text-slate-600 mt-1 space-y-0.5 border-t border-slate-100 pt-1">
+                              <div className="flex justify-between">
+                                <span>Land:</span>
+                                <span className="font-semibold">{formatCurrency(event.landPrice || 0)}</span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span>Building:</span>
+                                <span className="font-semibold">{formatCurrency(event.buildingPrice || 0)}</span>
+                              </div>
+                            </div>
+                          )}
+                        </>
                       )}
                       {event.description && (
                         <p className="text-xs text-slate-600 mt-1">

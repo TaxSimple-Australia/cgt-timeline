@@ -26,6 +26,9 @@ export default function Timeline({ className }: TimelineProps) {
   const [hoveredDate, setHoveredDate] = useState<Date | null>(null);
   const [editingEvent, setEditingEvent] = useState<TimelineEvent | null>(null);
   const [editingEventPropertyName, setEditingEventPropertyName] = useState<string>('');
+  const [isDraggingTimebar, setIsDraggingTimebar] = useState(false);
+  const [dragStartX, setDragStartX] = useState(0);
+  const [initialPanPosition, setInitialPanPosition] = useState(0);
   
   const {
     properties,
@@ -38,18 +41,21 @@ export default function Timeline({ className }: TimelineProps) {
     addEvent,
     moveEvent,
     selectEvent,
+    panToPosition,
+    absoluteStart,
+    absoluteEnd,
   } = useTimelineStore();
 
   // Handle timeline click to add events
   const handleTimelineClick = (e: MouseEvent<HTMLDivElement>) => {
-    if (isDragging) return;
-    
+    if (isDragging || isDraggingTimebar) return;
+
     const rect = timelineRef.current?.getBoundingClientRect();
     if (!rect) return;
-    
+
     const x = e.clientX - rect.left;
     const position = (x / rect.width) * 100;
-    
+
     setClickPosition(position);
     setQuickAddPosition({ x: e.clientX, y: e.clientY });
     setShowQuickAdd(true);
@@ -72,13 +78,69 @@ export default function Timeline({ className }: TimelineProps) {
     setEditingEventPropertyName(propertyName);
   };
 
+  // Handle timebar drag to pan
+  const handleTimebarMouseDown = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsDraggingTimebar(true);
+    setDragStartX(e.clientX);
+
+    // Calculate initial pan position
+    const totalDuration = absoluteEnd.getTime() - absoluteStart.getTime();
+    const currentStart = timelineStart.getTime() - absoluteStart.getTime();
+    const initialPosition = (currentStart / totalDuration) * 100;
+    setInitialPanPosition(initialPosition);
+  };
+
+  const handleTimebarMouseMove = (e: React.MouseEvent) => {
+    if (!isDraggingTimebar) return;
+
+    const rect = timelineRef.current?.getBoundingClientRect();
+    if (!rect) return;
+
+    const deltaX = e.clientX - dragStartX;
+    const percentDelta = (deltaX / rect.width) * 100;
+
+    // Calculate new pan position
+    const newPosition = Math.max(0, Math.min(100, initialPanPosition + percentDelta));
+
+    requestAnimationFrame(() => {
+      panToPosition(newPosition);
+    });
+  };
+
+  const handleTimebarMouseUp = () => {
+    if (isDraggingTimebar) {
+      // Small delay to prevent click event from firing
+      setTimeout(() => {
+        setIsDraggingTimebar(false);
+      }, 50);
+    }
+  };
+
   // Generate intelligent markers based on zoom level
   const timelineMarkers = generateTimelineMarkers(timelineStart, timelineEnd);
 
-  // Calculate minimum height needed for all properties
-  const minContentHeight = properties.length > 0
-    ? Math.max(400, 100 + properties.length * 120 + 100) // Base offset + spacing per property + bottom padding
-    : 400;
+  // Calculate minimum height needed for all properties and their events
+  // Account for cards that may be positioned far down due to tier stacking
+  const calculateMinHeight = () => {
+    if (properties.length === 0) return 400;
+
+    // Base calculation for branches
+    const branchesHeight = 100 + properties.length * 120;
+
+    // Account for card positioning
+    // Cards in card view can be in tiers 0-3
+    // Tier spacing: 160px per tier, base offset: -50px, max card height: ~145px
+    // Maximum card extension: -50 + (3 * 160) + 145 = 575px below branch
+    const maxCardExtension = 575;
+
+    // Calculate total height: last branch Y + max card extension + bottom padding
+    const totalHeight = branchesHeight + maxCardExtension + 100;
+
+    return Math.max(400, totalHeight);
+  };
+
+  const minContentHeight = calculateMinHeight();
 
   // Handle drag start
   const handleDragStart = (eventId: string) => {
@@ -99,7 +161,7 @@ export default function Timeline({ className }: TimelineProps) {
     const handleMouseMove = (e: MouseEvent) => {
       const rect = timelineRef.current?.getBoundingClientRect();
       if (!rect) return;
-      
+
       const x = e.clientX - rect.left;
       const position = Math.max(0, Math.min(100, (x / rect.width) * 100));
       moveEvent(draggedEventId, position);
@@ -117,6 +179,40 @@ export default function Timeline({ className }: TimelineProps) {
       document.removeEventListener('mouseup', handleMouseUp);
     };
   }, [isDragging, draggedEventId, moveEvent]);
+
+  // Handle timebar drag move - global event handlers
+  useEffect(() => {
+    if (!isDraggingTimebar) return;
+
+    const handleMouseMove = (e: globalThis.MouseEvent) => {
+      const rect = timelineRef.current?.getBoundingClientRect();
+      if (!rect) return;
+
+      const deltaX = e.clientX - dragStartX;
+      const percentDelta = (deltaX / rect.width) * 100;
+
+      // Calculate new pan position
+      const newPosition = Math.max(0, Math.min(100, initialPanPosition + percentDelta));
+
+      requestAnimationFrame(() => {
+        panToPosition(newPosition);
+      });
+    };
+
+    const handleMouseUp = () => {
+      setTimeout(() => {
+        setIsDraggingTimebar(false);
+      }, 50);
+    };
+
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [isDraggingTimebar, dragStartX, initialPanPosition, panToPosition]);
 
   return (
     <div className={cn('relative w-full h-full bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800', className)}>
@@ -143,7 +239,13 @@ export default function Timeline({ className }: TimelineProps) {
             </div>
 
             {/* Timeline Markers - Sticky */}
-            <div className="sticky top-0 left-0 right-0 h-12 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 z-20">
+            <div
+              className="sticky top-0 left-0 right-0 h-12 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 z-20 select-none"
+              style={{ cursor: isDraggingTimebar ? 'grabbing' : 'grab' }}
+              onMouseDown={handleTimebarMouseDown}
+              onMouseMove={handleTimebarMouseMove}
+              onMouseUp={handleTimebarMouseUp}
+            >
             {timelineMarkers.map((marker, index) => {
               const isYear = marker.type === 'year';
               const isMinor = marker.isMinor;

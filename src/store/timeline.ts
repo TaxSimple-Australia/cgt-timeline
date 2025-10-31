@@ -83,6 +83,7 @@ interface TimelineState {
   centerDate: Date; // The date at the center of the viewport
   theme: Theme; // Current theme: light, dark, or golden
   eventDisplayMode: EventDisplayMode; // Toggle between circle and card display
+  lockFutureDates: boolean; // Prevent panning beyond today's date
 
   // Actions
   addProperty: (property: Omit<Property, 'id' | 'branch'>) => void;
@@ -109,6 +110,7 @@ interface TimelineState {
   clearAllData: () => void; // Clear all properties and events
   toggleTheme: () => void; // Cycle through themes: light -> dark -> golden -> light
   toggleEventDisplayMode: () => void; // Toggle between circle and card display
+  toggleLockFutureDates: () => void; // Toggle lock future dates setting
 }
 
 const propertyColors = [
@@ -301,6 +303,7 @@ export const useTimelineStore = create<TimelineState>((set, get) => ({
   ),
   theme: 'dark',
   eventDisplayMode: 'card',
+  lockFutureDates: true,
   
   addProperty: (property) => {
     const properties = get().properties;
@@ -720,5 +723,10 @@ export const useTimelineStore = create<TimelineState>((set, get) => ({
   toggleEventDisplayMode: () => {
     const state = get();
     set({ eventDisplayMode: state.eventDisplayMode === 'circle' ? 'card' : 'circle' });
+  },
+
+  toggleLockFutureDates: () => {
+    const state = get();
+    set({ lockFutureDates: !state.lockFutureDates });
   },
 }));

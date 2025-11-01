@@ -15,13 +15,15 @@ import {
   Moon,
   Sun,
   Circle,
-  LayoutGrid
+  LayoutGrid,
+  Check
 } from 'lucide-react';
 
 export default function TimelineControls() {
   const [showSettings, setShowSettings] = useState(false);
   const [panSliderValue, setPanSliderValue] = useState(0);
   const [isPanning, setIsPanning] = useState(false);
+  const [useDummyData, setUseDummyData] = useState(false);
 
   const {
     zoomLevel,
@@ -181,6 +183,18 @@ export default function TimelineControls() {
     reader.readAsText(file);
   };
 
+  const handleToggleDummyData = () => {
+    if (!useDummyData) {
+      // Turning ON: Load demo data
+      loadDemoData();
+      setUseDummyData(true);
+    } else {
+      // Turning OFF: Clear all data
+      clearAllData();
+      setUseDummyData(false);
+    }
+  };
+
   return (
     <div className="absolute top-0 left-0 right-0 h-16 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 px-8 flex items-center justify-between z-30">
       {/* Left Controls */}
@@ -319,11 +333,19 @@ export default function TimelineControls() {
         </label>
 
         <button
-          onClick={loadDemoData}
-          className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
-          title="Load Demo Data"
+          onClick={handleToggleDummyData}
+          className={`p-2 rounded-lg transition-colors ${
+            useDummyData
+              ? 'bg-blue-100 dark:bg-blue-900 hover:bg-blue-200 dark:hover:bg-blue-800'
+              : 'hover:bg-slate-100 dark:hover:bg-slate-700'
+          }`}
+          title={useDummyData ? 'Turn off dummy data' : 'Load dummy data'}
         >
-          <Database className="w-4 h-4 text-slate-600 dark:text-slate-300" />
+          <Database className={`w-4 h-4 ${
+            useDummyData
+              ? 'text-blue-600 dark:text-blue-400'
+              : 'text-slate-600 dark:text-slate-300'
+          }`} />
         </button>
 
         <button

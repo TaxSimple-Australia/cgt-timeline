@@ -2,7 +2,9 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
+import { AlertTriangle } from 'lucide-react';
 import { Property, TimelineEvent, useTimelineStore } from '@/store/timeline';
+import { useValidationStore } from '@/store/validation';
 import EventCircle from './EventCircle';
 import EventCardView from './EventCardView';
 import PropertyStatusBands from './PropertyStatusBands';
@@ -30,7 +32,13 @@ export default function PropertyBranch({
   onEventClick,
 }: PropertyBranchProps) {
   const { eventDisplayMode } = useTimelineStore();
+  const { getIssuesForProperty } = useValidationStore();
   const branchY = 100 + branchIndex * 120; // Vertical spacing between branches
+
+  // Get validation issues for this property
+  const propertyIssues = getIssuesForProperty(property.name) || getIssuesForProperty(property.address);
+  const hasIssues = propertyIssues && propertyIssues.length > 0;
+  const criticalIssues = propertyIssues?.filter(issue => issue.severity === 'high' || issue.type === 'error') || [];
 
   // Calculate positions from dates for each event
   const eventsWithPositions = events.map(event => ({
@@ -127,11 +135,45 @@ export default function PropertyBranch({
         propertyColor={property.color}
       />
 
+      {/* Warning Glow Effect for Properties with Issues */}
+      {hasIssues && (
+        <>
+          {/* Animated red glow */}
+          <motion.path
+            d={generateBranchPath()}
+            fill="none"
+            stroke="#EF4444"
+            strokeWidth={12}
+            strokeLinecap="round"
+            opacity={0.3}
+            filter="url(#glow)"
+            initial={{ opacity: 0.1 }}
+            animate={{ opacity: [0.2, 0.4, 0.2] }}
+            transition={{ duration: 2, repeat: Infinity }}
+          />
+          {/* Solid red underline for critical issues */}
+          {criticalIssues.length > 0 && (
+            <motion.path
+              d={generateBranchPath()}
+              fill="none"
+              stroke="#DC2626"
+              strokeWidth={2}
+              strokeLinecap="round"
+              strokeDasharray="5,5"
+              opacity={0.8}
+              initial={{ strokeDashoffset: 0 }}
+              animate={{ strokeDashoffset: 10 }}
+              transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+            />
+          )}
+        </>
+      )}
+
       {/* Branch Line */}
       <motion.path
         d={generateBranchPath()}
         fill="none"
-        stroke={property.color}
+        stroke={hasIssues ? '#EF4444' : property.color}
         strokeWidth={isSelected ? 4 : 3}
         strokeLinecap="round"
         opacity={isSelected ? 1 : 0.7}

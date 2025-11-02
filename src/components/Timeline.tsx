@@ -27,8 +27,8 @@ export default function Timeline({ className }: TimelineProps) {
   const [editingEvent, setEditingEvent] = useState<TimelineEvent | null>(null);
   const [editingEventPropertyName, setEditingEventPropertyName] = useState<string>('');
   const [isDraggingTimebar, setIsDraggingTimebar] = useState(false);
-  const [dragStartX, setDragStartX] = useState(0);
-  const [initialPanPosition, setInitialPanPosition] = useState(0);
+  const [grabbedDateTimestamp, setGrabbedDateTimestamp] = useState<number>(0);
+  const [grabbedViewDuration, setGrabbedViewDuration] = useState<number>(0);
   
   const {
     properties,
@@ -41,9 +41,8 @@ export default function Timeline({ className }: TimelineProps) {
     addEvent,
     moveEvent,
     selectEvent,
-    panToPosition,
-    absoluteStart,
-    absoluteEnd,
+    theme,
+    lockFutureDates,
   } = useTimelineStore();
 
   // Handle timeline click to add events
@@ -81,30 +80,54 @@ export default function Timeline({ className }: TimelineProps) {
   // Handle timebar drag to pan
   const handleTimebarMouseDown = (e: React.MouseEvent) => {
     e.stopPropagation();
-    setIsDraggingTimebar(true);
-    setDragStartX(e.clientX);
-
-    // Calculate initial pan position
-    const totalDuration = absoluteEnd.getTime() - absoluteStart.getTime();
-    const currentStart = timelineStart.getTime() - absoluteStart.getTime();
-    const initialPosition = (currentStart / totalDuration) * 100;
-    setInitialPanPosition(initialPosition);
-  };
-
-  const handleTimebarMouseMove = (e: React.MouseEvent) => {
-    if (!isDraggingTimebar) return;
+    e.preventDefault();
 
     const rect = timelineRef.current?.getBoundingClientRect();
     if (!rect) return;
 
-    const deltaX = e.clientX - dragStartX;
-    const percentDelta = (deltaX / rect.width) * 100;
+    // Calculate which date/time is at the cursor position
+    const mouseX = e.clientX - rect.left;
+    const mousePercentage = (mouseX / rect.width) * 100;
 
-    // Calculate new pan position
-    const newPosition = Math.max(0, Math.min(100, initialPanPosition + percentDelta));
+    // Calculate the timestamp at this position in the current view
+    const viewDuration = timelineEnd.getTime() - timelineStart.getTime();
+    const grabbedTimestamp = timelineStart.getTime() + (viewDuration * mousePercentage / 100);
 
-    requestAnimationFrame(() => {
-      panToPosition(newPosition);
+    // Store the grabbed timestamp and view duration (both stay constant during drag)
+    setGrabbedDateTimestamp(grabbedTimestamp);
+    setGrabbedViewDuration(viewDuration);
+    setIsDraggingTimebar(true);
+  };
+
+  const handleTimebarMouseMove = (e: React.MouseEvent) => {
+    // Don't process if not dragging or missing required state
+    if (!isDraggingTimebar || !grabbedDateTimestamp || !grabbedViewDuration) return;
+
+    const rect = timelineRef.current?.getBoundingClientRect();
+    if (!rect) return;
+
+    // Calculate current mouse position as percentage of timeline width
+    const mouseX = e.clientX - rect.left;
+    const mousePercentage = (mouseX / rect.width) * 100;
+
+    // Calculate what timelineStart should be so that grabbedDateTimestamp appears at mousePercentage
+    // Formula: timelineStart = grabbedTimestamp - (viewDuration * mousePercentage / 100)
+    let newStartTime = grabbedDateTimestamp - (grabbedViewDuration * mousePercentage / 100);
+    let newEndTime = newStartTime + grabbedViewDuration;
+
+    // Apply future date lock if enabled
+    if (lockFutureDates) {
+      const now = new Date().getTime();
+      if (newEndTime > now) {
+        newEndTime = now;
+        newStartTime = newEndTime - grabbedViewDuration;
+      }
+    }
+
+    useTimelineStore.setState({
+      timelineStart: new Date(newStartTime),
+      timelineEnd: new Date(newEndTime),
+      centerDate: new Date(newStartTime + grabbedViewDuration / 2),
     });
   };
 
@@ -113,6 +136,8 @@ export default function Timeline({ className }: TimelineProps) {
       // Small delay to prevent click event from firing
       setTimeout(() => {
         setIsDraggingTimebar(false);
+        setGrabbedDateTimestamp(0);
+        setGrabbedViewDuration(0);
       }, 50);
     }
   };
@@ -182,26 +207,42 @@ export default function Timeline({ className }: TimelineProps) {
 
   // Handle timebar drag move - global event handlers
   useEffect(() => {
-    if (!isDraggingTimebar) return;
+    if (!isDraggingTimebar || !grabbedDateTimestamp || !grabbedViewDuration) return;
 
     const handleMouseMove = (e: globalThis.MouseEvent) => {
       const rect = timelineRef.current?.getBoundingClientRect();
       if (!rect) return;
 
-      const deltaX = e.clientX - dragStartX;
-      const percentDelta = (deltaX / rect.width) * 100;
+      // Calculate current mouse position as percentage of timeline width
+      const mouseX = e.clientX - rect.left;
+      const mousePercentage = (mouseX / rect.width) * 100;
 
-      // Calculate new pan position
-      const newPosition = Math.max(0, Math.min(100, initialPanPosition + percentDelta));
+      // Calculate what timelineStart should be so that grabbedDateTimestamp appears at mousePercentage
+      // Formula: timelineStart = grabbedTimestamp - (viewDuration * mousePercentage / 100)
+      let newStartTime = grabbedDateTimestamp - (grabbedViewDuration * mousePercentage / 100);
+      let newEndTime = newStartTime + grabbedViewDuration;
 
-      requestAnimationFrame(() => {
-        panToPosition(newPosition);
+      // Apply future date lock if enabled
+      if (lockFutureDates) {
+        const now = new Date().getTime();
+        if (newEndTime > now) {
+          newEndTime = now;
+          newStartTime = newEndTime - grabbedViewDuration;
+        }
+      }
+
+      useTimelineStore.setState({
+        timelineStart: new Date(newStartTime),
+        timelineEnd: new Date(newEndTime),
+        centerDate: new Date(newStartTime + grabbedViewDuration / 2),
       });
     };
 
     const handleMouseUp = () => {
       setTimeout(() => {
         setIsDraggingTimebar(false);
+        setGrabbedDateTimestamp(0);
+        setGrabbedViewDuration(0);
       }, 50);
     };
 
@@ -212,7 +253,7 @@ export default function Timeline({ className }: TimelineProps) {
       document.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('mouseup', handleMouseUp);
     };
-  }, [isDraggingTimebar, dragStartX, initialPanPosition, panToPosition]);
+  }, [isDraggingTimebar, grabbedDateTimestamp, grabbedViewDuration, lockFutureDates]);
 
   return (
     <div className={cn('relative w-full h-full bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800', className)}>
@@ -240,7 +281,12 @@ export default function Timeline({ className }: TimelineProps) {
 
             {/* Timeline Markers - Sticky */}
             <div
-              className="sticky top-0 left-0 right-0 h-12 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 z-20 select-none"
+              className={cn(
+                "sticky top-0 left-0 right-0 h-12 border-b border-slate-200 dark:border-slate-700 z-20 select-none transition-all duration-150",
+                isDraggingTimebar
+                  ? "bg-slate-100 dark:bg-slate-700 shadow-md"
+                  : "bg-slate-50 dark:bg-slate-800"
+              )}
               style={{ cursor: isDraggingTimebar ? 'grabbing' : 'grab' }}
               onMouseDown={handleTimebarMouseDown}
               onMouseMove={handleTimebarMouseMove}

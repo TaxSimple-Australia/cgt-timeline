@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { format } from 'date-fns';
 import { useTimelineStore } from '@/store/timeline';
+import SettingsModal from './SettingsModal';
 import {
   ZoomIn,
   ZoomOut,
@@ -388,6 +389,12 @@ export default function TimelineControls() {
           <Settings className="w-4 h-4 text-slate-600 dark:text-slate-300" />
         </button>
       </div>
+
+      {/* Settings Modal */}
+      <SettingsModal
+        isOpen={showSettings}
+        onClose={() => setShowSettings(false)}
+      />
     </div>
   );
 }

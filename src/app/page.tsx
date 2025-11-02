@@ -23,6 +23,13 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Load demo data on initial mount
+  useEffect(() => {
+    if (properties.length === 0) {
+      loadDemoData();
+    }
+  }, []); // Only run once on mount
+
   // Check API connection on mount
   useEffect(() => {
     // Check if API is configured

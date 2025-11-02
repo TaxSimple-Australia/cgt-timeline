@@ -1,0 +1,317 @@
+{
+  "name": "Complex Mixed Portfolio",
+  "description": "A complex scenario with PPR changes, rentals, improvements, refinancing, and sales",
+  "properties": [
+    {
+      "id": "prop-1",
+      "name": "First Home (Sold)",
+      "address": "23 Starter Street, Melbourne, VIC 3000",
+      "color": "#3B82F6",
+      "purchasePrice": 420000,
+      "purchaseDate": "2010-01-20T00:00:00.000Z",
+      "salePrice": 680000,
+      "saleDate": "2018-06-15T00:00:00.000Z",
+      "currentStatus": "sold",
+      "branch": 0
+    },
+    {
+      "id": "prop-2",
+      "name": "Investment Property",
+      "address": "88 Rental Avenue, Melbourne, VIC 3001",
+      "color": "#8B5CF6",
+      "purchasePrice": 380000,
+      "purchaseDate": "2012-08-10T00:00:00.000Z",
+      "currentValue": 620000,
+      "currentStatus": "rental",
+      "branch": 1
+    },
+    {
+      "id": "prop-3",
+      "name": "Current Home",
+      "address": "5 Dream Street, Melbourne, VIC 3002",
+      "color": "#10B981",
+      "purchasePrice": 850000,
+      "purchaseDate": "2018-07-20T00:00:00.000Z",
+      "currentValue": 1100000,
+      "currentStatus": "ppr",
+      "branch": 2
+    },
+    {
+      "id": "prop-4",
+      "name": "Holiday House",
+      "address": "12 Beach Road, Torquay, VIC 3228",
+      "color": "#F59E0B",
+      "purchasePrice": 720000,
+      "purchaseDate": "2020-02-15T00:00:00.000Z",
+      "currentValue": 880000,
+      "currentStatus": "vacant",
+      "branch": 3
+    },
+    {
+      "id": "prop-5",
+      "name": "Recent Investment",
+      "address": "45 New Development, Melbourne, VIC 3003",
+      "color": "#EC4899",
+      "purchasePrice": 680000,
+      "purchaseDate": "2022-11-30T00:00:00.000Z",
+      "currentValue": 720000,
+      "currentStatus": "rental",
+      "branch": 4
+    }
+  ],
+  "events": [
+    {
+      "id": "event-1",
+      "propertyId": "prop-1",
+      "type": "purchase",
+      "date": "2010-01-20T00:00:00.000Z",
+      "title": "Purchase First Home",
+      "amount": 420000,
+      "position": 0,
+      "color": "#3B82F6",
+      "isPPR": true
+    },
+    {
+      "id": "event-2",
+      "propertyId": "prop-1",
+      "type": "move_in",
+      "date": "2010-01-20T00:00:00.000Z",
+      "title": "Move In",
+      "position": 0,
+      "color": "#10B981",
+      "isPPR": true
+    },
+    {
+      "id": "event-3",
+      "propertyId": "prop-2",
+      "type": "purchase",
+      "date": "2012-08-10T00:00:00.000Z",
+      "title": "Purchase Investment",
+      "amount": 380000,
+      "position": 0,
+      "color": "#3B82F6"
+    },
+    {
+      "id": "event-4",
+      "propertyId": "prop-2",
+      "type": "rent_start",
+      "date": "2012-09-01T00:00:00.000Z",
+      "title": "Start Rent",
+      "amount": 1800,
+      "position": 0,
+      "color": "#F59E0B"
+    },
+    {
+      "id": "event-5",
+      "propertyId": "prop-1",
+      "type": "improvement",
+      "date": "2013-05-15T00:00:00.000Z",
+      "title": "Kitchen Renovation",
+      "amount": 35000,
+      "position": 0,
+      "color": "#06B6D4"
+    },
+    {
+      "id": "event-6",
+      "propertyId": "prop-1",
+      "type": "refinance",
+      "date": "2014-03-20T00:00:00.000Z",
+      "title": "Refinance",
+      "amount": 450000,
+      "position": 0,
+      "color": "#6366F1"
+    },
+    {
+      "id": "event-7",
+      "propertyId": "prop-2",
+      "type": "rent_end",
+      "date": "2015-06-30T00:00:00.000Z",
+      "title": "End Rent",
+      "position": 0,
+      "color": "#F97316"
+    },
+    {
+      "id": "event-8",
+      "propertyId": "prop-2",
+      "type": "improvement",
+      "date": "2015-07-15T00:00:00.000Z",
+      "title": "Full Renovation",
+      "amount": 55000,
+      "position": 0,
+      "color": "#06B6D4"
+    },
+    {
+      "id": "event-9",
+      "propertyId": "prop-2",
+      "type": "rent_start",
+      "date": "2015-09-01T00:00:00.000Z",
+      "title": "Restart Rent",
+      "amount": 2400,
+      "position": 0,
+      "color": "#F59E0B"
+    },
+    {
+      "id": "event-10",
+      "propertyId": "prop-1",
+      "type": "improvement",
+      "date": "2016-11-10T00:00:00.000Z",
+      "title": "Bathroom Update",
+      "amount": 28000,
+      "position": 0,
+      "color": "#06B6D4"
+    },
+    {
+      "id": "event-11",
+      "propertyId": "prop-1",
+      "type": "move_out",
+      "date": "2018-06-10T00:00:00.000Z",
+      "title": "Move Out",
+      "position": 0,
+      "color": "#EF4444"
+    },
+    {
+      "id": "event-12",
+      "propertyId": "prop-1",
+      "type": "sale",
+      "date": "2018-06-15T00:00:00.000Z",
+      "title": "Sold",
+      "amount": 680000,
+      "position": 0,
+      "color": "#8B5CF6",
+      "isPPR": true,
+      "contractDate": "2018-05-10T00:00:00.000Z",
+      "settlementDate": "2018-06-15T00:00:00.000Z"
+    },
+    {
+      "id": "event-13",
+      "propertyId": "prop-3",
+      "type": "purchase",
+      "date": "2018-07-20T00:00:00.000Z",
+      "title": "Purchase New Home",
+      "amount": 850000,
+      "position": 0,
+      "color": "#3B82F6",
+      "isPPR": true
+    },
+    {
+      "id": "event-14",
+      "propertyId": "prop-3",
+      "type": "move_in",
+      "date": "2018-07-20T00:00:00.000Z",
+      "title": "Move In",
+      "position": 0,
+      "color": "#10B981",
+      "isPPR": true
+    },
+    {
+      "id": "event-15",
+      "propertyId": "prop-3",
+      "type": "improvement",
+      "date": "2019-04-15T00:00:00.000Z",
+      "title": "Pool Installation",
+      "amount": 65000,
+      "position": 0,
+      "color": "#06B6D4"
+    },
+    {
+      "id": "event-16",
+      "propertyId": "prop-2",
+      "type": "refinance",
+      "date": "2019-09-12T00:00:00.000Z",
+      "title": "Refinance",
+      "amount": 420000,
+      "position": 0,
+      "color": "#6366F1"
+    },
+    {
+      "id": "event-17",
+      "propertyId": "prop-4",
+      "type": "purchase",
+      "date": "2020-02-15T00:00:00.000Z",
+      "title": "Purchase Holiday House",
+      "amount": 720000,
+      "position": 0,
+      "color": "#3B82F6"
+    },
+    {
+      "id": "event-18",
+      "propertyId": "prop-3",
+      "type": "improvement",
+      "date": "2020-11-20T00:00:00.000Z",
+      "title": "Home Office",
+      "amount": 42000,
+      "position": 0,
+      "color": "#06B6D4"
+    },
+    {
+      "id": "event-19",
+      "propertyId": "prop-4",
+      "type": "improvement",
+      "date": "2021-03-10T00:00:00.000Z",
+      "title": "Renovation",
+      "amount": 85000,
+      "position": 0,
+      "color": "#06B6D4"
+    },
+    {
+      "id": "event-20",
+      "propertyId": "prop-3",
+      "type": "improvement",
+      "date": "2021-08-15T00:00:00.000Z",
+      "title": "Solar Panels",
+      "amount": 18000,
+      "position": 0,
+      "color": "#06B6D4"
+    },
+    {
+      "id": "event-21",
+      "propertyId": "prop-2",
+      "type": "improvement",
+      "date": "2022-02-20T00:00:00.000Z",
+      "title": "Kitchen Update",
+      "amount": 38000,
+      "position": 0,
+      "color": "#06B6D4"
+    },
+    {
+      "id": "event-22",
+      "propertyId": "prop-5",
+      "type": "purchase",
+      "date": "2022-11-30T00:00:00.000Z",
+      "title": "Purchase Investment",
+      "amount": 680000,
+      "position": 0,
+      "color": "#3B82F6"
+    },
+    {
+      "id": "event-23",
+      "propertyId": "prop-5",
+      "type": "rent_start",
+      "date": "2023-01-15T00:00:00.000Z",
+      "title": "Start Rent",
+      "amount": 3200,
+      "position": 0,
+      "color": "#F59E0B"
+    },
+    {
+      "id": "event-24",
+      "propertyId": "prop-3",
+      "type": "refinance",
+      "date": "2023-05-10T00:00:00.000Z",
+      "title": "Refinance",
+      "amount": 780000,
+      "position": 0,
+      "color": "#6366F1"
+    },
+    {
+      "id": "event-25",
+      "propertyId": "prop-3",
+      "type": "improvement",
+      "date": "2023-10-05T00:00:00.000Z",
+      "title": "Landscaping",
+      "amount": 45000,
+      "position": 0,
+      "color": "#06B6D4"
+    }
+  ]
+}

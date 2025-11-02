@@ -37,6 +37,7 @@ export default function TimelineControls() {
     events,
     loadDemoData,
     clearAllData,
+    importTimelineData,
     setZoomByIndex,
     getZoomLevelIndex,
     absoluteStart,
@@ -174,14 +175,26 @@ export default function TimelineControls() {
     reader.onload = (event) => {
       try {
         const data = JSON.parse(event.target?.result as string);
-        // In a real app, you'd validate and import this data
-        console.log('Imported data:', data);
-        // You would call store methods to import the data here
+        console.log('📥 Importing timeline data:', data);
+
+        // Import the data using the store method
+        importTimelineData(data);
+
+        // Update dummy data state if data was loaded
+        setUseDummyData(false);
+
+        // Show success notification
+        console.log('✅ Timeline data imported successfully!');
+        alert(`Successfully imported ${data.properties?.length || 0} properties and ${data.events?.length || 0} events!`);
       } catch (error) {
-        console.error('Failed to import data:', error);
+        console.error('❌ Failed to import data:', error);
+        alert('Failed to import timeline data. Please check the file format.');
       }
     };
     reader.readAsText(file);
+
+    // Reset the file input so the same file can be imported again
+    e.target.value = '';
   };
 
   const handleToggleDummyData = () => {

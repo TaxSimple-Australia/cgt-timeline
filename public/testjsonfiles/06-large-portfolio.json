@@ -1,0 +1,338 @@
+{
+  "name": "Large Investment Portfolio",
+  "description": "A serious property investor with 10 properties across multiple cities",
+  "properties": [
+    {
+      "id": "prop-1",
+      "name": "Sydney CBD Unit",
+      "address": "15/200 George Street, Sydney, NSW 2000",
+      "color": "#3B82F6",
+      "purchasePrice": 650000,
+      "purchaseDate": "2012-03-10T00:00:00.000Z",
+      "currentValue": 920000,
+      "currentStatus": "rental",
+      "branch": 0
+    },
+    {
+      "id": "prop-2",
+      "name": "Melbourne Apartment",
+      "address": "8/350 Collins Street, Melbourne, VIC 3000",
+      "color": "#8B5CF6",
+      "purchasePrice": 580000,
+      "purchaseDate": "2013-07-22T00:00:00.000Z",
+      "currentValue": 780000,
+      "currentStatus": "rental",
+      "branch": 1
+    },
+    {
+      "id": "prop-3",
+      "name": "Brisbane House",
+      "address": "42 River Road, Brisbane, QLD 4000",
+      "color": "#10B981",
+      "purchasePrice": 520000,
+      "purchaseDate": "2014-11-15T00:00:00.000Z",
+      "currentValue": 720000,
+      "currentStatus": "rental",
+      "branch": 2
+    },
+    {
+      "id": "prop-4",
+      "name": "Perth Townhouse",
+      "address": "7 Kings Park Road, Perth, WA 6000",
+      "color": "#F59E0B",
+      "purchasePrice": 480000,
+      "purchaseDate": "2015-05-08T00:00:00.000Z",
+      "currentValue": 620000,
+      "currentStatus": "rental",
+      "branch": 3
+    },
+    {
+      "id": "prop-5",
+      "name": "Adelaide Villa",
+      "address": "23 North Terrace, Adelaide, SA 5000",
+      "color": "#EC4899",
+      "purchasePrice": 420000,
+      "purchaseDate": "2016-09-20T00:00:00.000Z",
+      "currentValue": 560000,
+      "currentStatus": "rental",
+      "branch": 4
+    },
+    {
+      "id": "prop-6",
+      "name": "Gold Coast Unit",
+      "address": "12/88 Surfers Paradise Blvd, Gold Coast, QLD 4217",
+      "color": "#14B8A6",
+      "purchasePrice": 550000,
+      "purchaseDate": "2017-02-14T00:00:00.000Z",
+      "currentValue": 680000,
+      "currentStatus": "rental",
+      "branch": 5
+    },
+    {
+      "id": "prop-7",
+      "name": "Canberra House",
+      "address": "65 Commonwealth Avenue, Canberra, ACT 2600",
+      "color": "#F97316",
+      "purchasePrice": 620000,
+      "purchaseDate": "2018-06-30T00:00:00.000Z",
+      "currentValue": 780000,
+      "currentStatus": "rental",
+      "branch": 6
+    },
+    {
+      "id": "prop-8",
+      "name": "Newcastle Property",
+      "address": "34 Hunter Street, Newcastle, NSW 2300",
+      "color": "#A855F7",
+      "purchasePrice": 450000,
+      "purchaseDate": "2019-10-12T00:00:00.000Z",
+      "currentValue": 590000,
+      "currentStatus": "rental",
+      "branch": 7
+    },
+    {
+      "id": "prop-9",
+      "name": "Hobart Apartment",
+      "address": "9/120 Elizabeth Street, Hobart, TAS 7000",
+      "color": "#06B6D4",
+      "purchasePrice": 380000,
+      "purchaseDate": "2020-08-25T00:00:00.000Z",
+      "currentValue": 510000,
+      "currentStatus": "rental",
+      "branch": 8
+    },
+    {
+      "id": "prop-10",
+      "name": "Darwin Investment",
+      "address": "18 The Esplanade, Darwin, NT 0800",
+      "color": "#EAB308",
+      "purchasePrice": 520000,
+      "purchaseDate": "2021-12-05T00:00:00.000Z",
+      "currentValue": 580000,
+      "currentStatus": "rental",
+      "branch": 9
+    }
+  ],
+  "events": [
+    {
+      "id": "event-1",
+      "propertyId": "prop-1",
+      "type": "purchase",
+      "date": "2012-03-10T00:00:00.000Z",
+      "title": "Purchase",
+      "amount": 650000,
+      "position": 0,
+      "color": "#3B82F6"
+    },
+    {
+      "id": "event-2",
+      "propertyId": "prop-1",
+      "type": "rent_start",
+      "date": "2012-04-01T00:00:00.000Z",
+      "title": "Start Rent",
+      "amount": 3000,
+      "position": 0,
+      "color": "#F59E0B"
+    },
+    {
+      "id": "event-3",
+      "propertyId": "prop-2",
+      "type": "purchase",
+      "date": "2013-07-22T00:00:00.000Z",
+      "title": "Purchase",
+      "amount": 580000,
+      "position": 0,
+      "color": "#3B82F6"
+    },
+    {
+      "id": "event-4",
+      "propertyId": "prop-2",
+      "type": "rent_start",
+      "date": "2013-08-15T00:00:00.000Z",
+      "title": "Start Rent",
+      "amount": 2600,
+      "position": 0,
+      "color": "#F59E0B"
+    },
+    {
+      "id": "event-5",
+      "propertyId": "prop-3",
+      "type": "purchase",
+      "date": "2014-11-15T00:00:00.000Z",
+      "title": "Purchase",
+      "amount": 520000,
+      "position": 0,
+      "color": "#3B82F6"
+    },
+    {
+      "id": "event-6",
+      "propertyId": "prop-3",
+      "type": "rent_start",
+      "date": "2014-12-01T00:00:00.000Z",
+      "title": "Start Rent",
+      "amount": 2400,
+      "position": 0,
+      "color": "#F59E0B"
+    },
+    {
+      "id": "event-7",
+      "propertyId": "prop-4",
+      "type": "purchase",
+      "date": "2015-05-08T00:00:00.000Z",
+      "title": "Purchase",
+      "amount": 480000,
+      "position": 0,
+      "color": "#3B82F6"
+    },
+    {
+      "id": "event-8",
+      "propertyId": "prop-4",
+      "type": "rent_start",
+      "date": "2015-06-01T00:00:00.000Z",
+      "title": "Start Rent",
+      "amount": 2200,
+      "position": 0,
+      "color": "#F59E0B"
+    },
+    {
+      "id": "event-9",
+      "propertyId": "prop-5",
+      "type": "purchase",
+      "date": "2016-09-20T00:00:00.000Z",
+      "title": "Purchase",
+      "amount": 420000,
+      "position": 0,
+      "color": "#3B82F6"
+    },
+    {
+      "id": "event-10",
+      "propertyId": "prop-5",
+      "type": "rent_start",
+      "date": "2016-10-15T00:00:00.000Z",
+      "title": "Start Rent",
+      "amount": 1900,
+      "position": 0,
+      "color": "#F59E0B"
+    },
+    {
+      "id": "event-11",
+      "propertyId": "prop-6",
+      "type": "purchase",
+      "date": "2017-02-14T00:00:00.000Z",
+      "title": "Purchase",
+      "amount": 550000,
+      "position": 0,
+      "color": "#3B82F6"
+    },
+    {
+      "id": "event-12",
+      "propertyId": "prop-6",
+      "type": "rent_start",
+      "date": "2017-03-01T00:00:00.000Z",
+      "title": "Start Rent",
+      "amount": 2800,
+      "position": 0,
+      "color": "#F59E0B"
+    },
+    {
+      "id": "event-13",
+      "propertyId": "prop-7",
+      "type": "purchase",
+      "date": "2018-06-30T00:00:00.000Z",
+      "title": "Purchase",
+      "amount": 620000,
+      "position": 0,
+      "color": "#3B82F6"
+    },
+    {
+      "id": "event-14",
+      "propertyId": "prop-7",
+      "type": "rent_start",
+      "date": "2018-07-20T00:00:00.000Z",
+      "title": "Start Rent",
+      "amount": 3200,
+      "position": 0,
+      "color": "#F59E0B"
+    },
+    {
+      "id": "event-15",
+      "propertyId": "prop-8",
+      "type": "purchase",
+      "date": "2019-10-12T00:00:00.000Z",
+      "title": "Purchase",
+      "amount": 450000,
+      "position": 0,
+      "color": "#3B82F6"
+    },
+    {
+      "id": "event-16",
+      "propertyId": "prop-8",
+      "type": "rent_start",
+      "date": "2019-11-01T00:00:00.000Z",
+      "title": "Start Rent",
+      "amount": 2000,
+      "position": 0,
+      "color": "#F59E0B"
+    },
+    {
+      "id": "event-17",
+      "propertyId": "prop-9",
+      "type": "purchase",
+      "date": "2020-08-25T00:00:00.000Z",
+      "title": "Purchase",
+      "amount": 380000,
+      "position": 0,
+      "color": "#3B82F6"
+    },
+    {
+      "id": "event-18",
+      "propertyId": "prop-9",
+      "type": "rent_start",
+      "date": "2020-09-15T00:00:00.000Z",
+      "title": "Start Rent",
+      "amount": 1700,
+      "position": 0,
+      "color": "#F59E0B"
+    },
+    {
+      "id": "event-19",
+      "propertyId": "prop-10",
+      "type": "purchase",
+      "date": "2021-12-05T00:00:00.000Z",
+      "title": "Purchase",
+      "amount": 520000,
+      "position": 0,
+      "color": "#3B82F6"
+    },
+    {
+      "id": "event-20",
+      "propertyId": "prop-10",
+      "type": "rent_start",
+      "date": "2022-01-10T00:00:00.000Z",
+      "title": "Start Rent",
+      "amount": 2500,
+      "position": 0,
+      "color": "#F59E0B"
+    },
+    {
+      "id": "event-21",
+      "propertyId": "prop-3",
+      "type": "improvement",
+      "date": "2018-03-15T00:00:00.000Z",
+      "title": "Kitchen Upgrade",
+      "amount": 35000,
+      "position": 0,
+      "color": "#06B6D4"
+    },
+    {
+      "id": "event-22",
+      "propertyId": "prop-6",
+      "type": "improvement",
+      "date": "2020-05-20T00:00:00.000Z",
+      "title": "Renovation",
+      "amount": 42000,
+      "position": 0,
+      "color": "#06B6D4"
+    }
+  ]
+}

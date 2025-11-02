@@ -1,0 +1,42 @@
+{
+  "name": "Recent First-Time Buyer",
+  "description": "A recent purchase with minimal history, just getting started",
+  "properties": [
+    {
+      "id": "prop-1",
+      "name": "New Apartment",
+      "address": "10/55 Main Street, Sydney, NSW 2000",
+      "color": "#3B82F6",
+      "purchasePrice": 780000,
+      "purchaseDate": "2024-01-15T00:00:00.000Z",
+      "currentValue": 790000,
+      "currentStatus": "ppr",
+      "branch": 0
+    }
+  ],
+  "events": [
+    {
+      "id": "event-1",
+      "propertyId": "prop-1",
+      "type": "purchase",
+      "date": "2024-01-15T00:00:00.000Z",
+      "title": "Purchase First Home",
+      "amount": 780000,
+      "position": 0,
+      "color": "#3B82F6",
+      "isPPR": true,
+      "landPrice": 390000,
+      "buildingPrice": 390000
+    },
+    {
+      "id": "event-2",
+      "propertyId": "prop-1",
+      "type": "move_in",
+      "date": "2024-01-15T00:00:00.000Z",
+      "title": "Move In",
+      "position": 0,
+      "color": "#10B981",
+      "isPPR": true
+    }
+  ]
+}

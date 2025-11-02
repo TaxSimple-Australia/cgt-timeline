@@ -1,0 +1,200 @@
+{
+  "name": "Downsizer Scenario",
+  "description": "A retiree who sold their family home and downsized to a smaller property",
+  "properties": [
+    {
+      "id": "prop-1",
+      "name": "Family Home (Sold)",
+      "address": "78 Long Street, Perth, WA 6000",
+      "color": "#3B82F6",
+      "purchasePrice": 280000,
+      "purchaseDate": "1995-03-15T00:00:00.000Z",
+      "salePrice": 1250000,
+      "saleDate": "2023-02-20T00:00:00.000Z",
+      "currentStatus": "sold",
+      "branch": 0
+    },
+    {
+      "id": "prop-2",
+      "name": "Retirement Unit",
+      "address": "5/88 Beachside Avenue, Perth, WA 6009",
+      "color": "#8B5CF6",
+      "purchasePrice": 580000,
+      "purchaseDate": "2023-03-15T00:00:00.000Z",
+      "currentValue": 590000,
+      "currentStatus": "ppr",
+      "branch": 1
+    },
+    {
+      "id": "prop-3",
+      "name": "Investment Property",
+      "address": "12 Rental Street, Perth, WA 6010",
+      "color": "#10B981",
+      "purchasePrice": 350000,
+      "purchaseDate": "2005-08-20T00:00:00.000Z",
+      "currentValue": 620000,
+      "currentStatus": "rental",
+      "branch": 2
+    }
+  ],
+  "events": [
+    {
+      "id": "event-1",
+      "propertyId": "prop-1",
+      "type": "purchase",
+      "date": "1995-03-15T00:00:00.000Z",
+      "title": "Purchase Family Home",
+      "amount": 280000,
+      "position": 0,
+      "color": "#3B82F6",
+      "isPPR": true
+    },
+    {
+      "id": "event-2",
+      "propertyId": "prop-1",
+      "type": "move_in",
+      "date": "1995-03-15T00:00:00.000Z",
+      "title": "Move In",
+      "position": 0,
+      "color": "#10B981",
+      "isPPR": true
+    },
+    {
+      "id": "event-3",
+      "propertyId": "prop-1",
+      "type": "improvement",
+      "date": "2000-06-10T00:00:00.000Z",
+      "title": "Extension",
+      "amount": 85000,
+      "position": 0,
+      "color": "#06B6D4",
+      "description": "Added second story"
+    },
+    {
+      "id": "event-4",
+      "propertyId": "prop-3",
+      "type": "purchase",
+      "date": "2005-08-20T00:00:00.000Z",
+      "title": "Purchase Investment",
+      "amount": 350000,
+      "position": 0,
+      "color": "#3B82F6"
+    },
+    {
+      "id": "event-5",
+      "propertyId": "prop-3",
+      "type": "rent_start",
+      "date": "2005-09-15T00:00:00.000Z",
+      "title": "Start Rent",
+      "amount": 1600,
+      "position": 0,
+      "color": "#F59E0B"
+    },
+    {
+      "id": "event-6",
+      "propertyId": "prop-1",
+      "type": "improvement",
+      "date": "2008-04-20T00:00:00.000Z",
+      "title": "Kitchen Renovation",
+      "amount": 45000,
+      "position": 0,
+      "color": "#06B6D4"
+    },
+    {
+      "id": "event-7",
+      "propertyId": "prop-1",
+      "type": "improvement",
+      "date": "2012-09-15T00:00:00.000Z",
+      "title": "Bathroom Renovations",
+      "amount": 55000,
+      "position": 0,
+      "color": "#06B6D4",
+      "description": "Updated all 3 bathrooms"
+    },
+    {
+      "id": "event-8",
+      "propertyId": "prop-3",
+      "type": "improvement",
+      "date": "2015-03-10T00:00:00.000Z",
+      "title": "Full Renovation",
+      "amount": 62000,
+      "position": 0,
+      "color": "#06B6D4"
+    },
+    {
+      "id": "event-9",
+      "propertyId": "prop-1",
+      "type": "improvement",
+      "date": "2018-11-05T00:00:00.000Z",
+      "title": "Solar System",
+      "amount": 22000,
+      "position": 0,
+      "color": "#06B6D4"
+    },
+    {
+      "id": "event-10",
+      "propertyId": "prop-1",
+      "type": "improvement",
+      "date": "2022-05-15T00:00:00.000Z",
+      "title": "Pre-sale Refresh",
+      "amount": 35000,
+      "position": 0,
+      "color": "#06B6D4",
+      "description": "Painting and minor updates for sale"
+    },
+    {
+      "id": "event-11",
+      "propertyId": "prop-1",
+      "type": "move_out",
+      "date": "2023-02-15T00:00:00.000Z",
+      "title": "Move Out",
+      "position": 0,
+      "color": "#EF4444"
+    },
+    {
+      "id": "event-12",
+      "propertyId": "prop-1",
+      "type": "sale",
+      "date": "2023-02-20T00:00:00.000Z",
+      "title": "Sold Family Home",
+      "amount": 1250000,
+      "position": 0,
+      "color": "#8B5CF6",
+      "isPPR": true,
+      "contractDate": "2023-01-15T00:00:00.000Z",
+      "settlementDate": "2023-02-20T00:00:00.000Z"
+    },
+    {
+      "id": "event-13",
+      "propertyId": "prop-2",
+      "type": "purchase",
+      "date": "2023-03-15T00:00:00.000Z",
+      "title": "Purchase Retirement Unit",
+      "amount": 580000,
+      "position": 0,
+      "color": "#3B82F6",
+      "isPPR": true
+    },
+    {
+      "id": "event-14",
+      "propertyId": "prop-2",
+      "type": "move_in",
+      "date": "2023-03-15T00:00:00.000Z",
+      "title": "Move In",
+      "position": 0,
+      "color": "#10B981",
+      "isPPR": true
+    },
+    {
+      "id": "event-15",
+      "propertyId": "prop-2",
+      "type": "improvement",
+      "date": "2023-08-20T00:00:00.000Z",
+      "title": "Accessibility Updates",
+      "amount": 28000,
+      "position": 0,
+      "color": "#06B6D4",
+      "description": "Accessibility modifications for aging in place"
+    }
+  ]
+}

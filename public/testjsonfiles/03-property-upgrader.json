@@ -1,0 +1,193 @@
+{
+  "name": "Property Upgrader",
+  "description": "Someone who has moved through 3 progressively better homes over time",
+  "properties": [
+    {
+      "id": "prop-1",
+      "name": "Starter Apartment",
+      "address": "3/15 Station Road, Brisbane, QLD 4000",
+      "color": "#3B82F6",
+      "purchasePrice": 320000,
+      "purchaseDate": "2010-04-12T00:00:00.000Z",
+      "salePrice": 425000,
+      "saleDate": "2015-09-20T00:00:00.000Z",
+      "currentStatus": "sold",
+      "branch": 0
+    },
+    {
+      "id": "prop-2",
+      "name": "Family House",
+      "address": "28 Riverside Drive, Brisbane, QLD 4101",
+      "color": "#8B5CF6",
+      "purchasePrice": 680000,
+      "purchaseDate": "2015-10-15T00:00:00.000Z",
+      "salePrice": 920000,
+      "saleDate": "2022-03-10T00:00:00.000Z",
+      "currentStatus": "sold",
+      "branch": 1
+    },
+    {
+      "id": "prop-3",
+      "name": "Dream Home",
+      "address": "5 Hilltop Avenue, Brisbane, QLD 4066",
+      "color": "#10B981",
+      "purchasePrice": 1200000,
+      "purchaseDate": "2022-04-05T00:00:00.000Z",
+      "currentValue": 1280000,
+      "currentStatus": "ppr",
+      "branch": 2
+    }
+  ],
+  "events": [
+    {
+      "id": "event-1",
+      "propertyId": "prop-1",
+      "type": "purchase",
+      "date": "2010-04-12T00:00:00.000Z",
+      "title": "Purchase First Home",
+      "amount": 320000,
+      "position": 0,
+      "color": "#3B82F6",
+      "isPPR": true
+    },
+    {
+      "id": "event-2",
+      "propertyId": "prop-1",
+      "type": "move_in",
+      "date": "2010-04-12T00:00:00.000Z",
+      "title": "Move In",
+      "position": 0,
+      "color": "#10B981",
+      "isPPR": true
+    },
+    {
+      "id": "event-3",
+      "propertyId": "prop-1",
+      "type": "improvement",
+      "date": "2013-05-20T00:00:00.000Z",
+      "title": "Kitchen Renovation",
+      "amount": 25000,
+      "position": 0,
+      "color": "#06B6D4"
+    },
+    {
+      "id": "event-4",
+      "propertyId": "prop-1",
+      "type": "move_out",
+      "date": "2015-09-15T00:00:00.000Z",
+      "title": "Move Out",
+      "position": 0,
+      "color": "#EF4444"
+    },
+    {
+      "id": "event-5",
+      "propertyId": "prop-1",
+      "type": "sale",
+      "date": "2015-09-20T00:00:00.000Z",
+      "title": "Sold",
+      "amount": 425000,
+      "position": 0,
+      "color": "#8B5CF6",
+      "isPPR": true,
+      "contractDate": "2015-08-25T00:00:00.000Z",
+      "settlementDate": "2015-09-20T00:00:00.000Z"
+    },
+    {
+      "id": "event-6",
+      "propertyId": "prop-2",
+      "type": "purchase",
+      "date": "2015-10-15T00:00:00.000Z",
+      "title": "Purchase Family Home",
+      "amount": 680000,
+      "position": 0,
+      "color": "#3B82F6",
+      "isPPR": true
+    },
+    {
+      "id": "event-7",
+      "propertyId": "prop-2",
+      "type": "move_in",
+      "date": "2015-10-15T00:00:00.000Z",
+      "title": "Move In",
+      "position": 0,
+      "color": "#10B981",
+      "isPPR": true
+    },
+    {
+      "id": "event-8",
+      "propertyId": "prop-2",
+      "type": "improvement",
+      "date": "2017-11-10T00:00:00.000Z",
+      "title": "Extension",
+      "amount": 120000,
+      "position": 0,
+      "color": "#06B6D4",
+      "description": "Added second floor with 2 bedrooms"
+    },
+    {
+      "id": "event-9",
+      "propertyId": "prop-2",
+      "type": "improvement",
+      "date": "2020-03-05T00:00:00.000Z",
+      "title": "Landscaping",
+      "amount": 35000,
+      "position": 0,
+      "color": "#06B6D4",
+      "description": "Complete garden renovation"
+    },
+    {
+      "id": "event-10",
+      "propertyId": "prop-2",
+      "type": "move_out",
+      "date": "2022-03-05T00:00:00.000Z",
+      "title": "Move Out",
+      "position": 0,
+      "color": "#EF4444"
+    },
+    {
+      "id": "event-11",
+      "propertyId": "prop-2",
+      "type": "sale",
+      "date": "2022-03-10T00:00:00.000Z",
+      "title": "Sold",
+      "amount": 920000,
+      "position": 0,
+      "color": "#8B5CF6",
+      "isPPR": true,
+      "contractDate": "2022-02-15T00:00:00.000Z",
+      "settlementDate": "2022-03-10T00:00:00.000Z"
+    },
+    {
+      "id": "event-12",
+      "propertyId": "prop-3",
+      "type": "purchase",
+      "date": "2022-04-05T00:00:00.000Z",
+      "title": "Purchase Dream Home",
+      "amount": 1200000,
+      "position": 0,
+      "color": "#3B82F6",
+      "isPPR": true
+    },
+    {
+      "id": "event-13",
+      "propertyId": "prop-3",
+      "type": "move_in",
+      "date": "2022-04-05T00:00:00.000Z",
+      "title": "Move In",
+      "position": 0,
+      "color": "#10B981",
+      "isPPR": true
+    },
+    {
+      "id": "event-14",
+      "propertyId": "prop-3",
+      "type": "improvement",
+      "date": "2023-08-15T00:00:00.000Z",
+      "title": "Solar & Battery",
+      "amount": 28000,
+      "position": 0,
+      "color": "#06B6D4",
+      "description": "Solar panels and battery storage"
+    }
+  ]
+}

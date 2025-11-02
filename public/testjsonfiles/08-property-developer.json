@@ -1,0 +1,210 @@
+{
+  "name": "Property Developer",
+  "description": "A developer who builds new properties from land acquisitions",
+  "properties": [
+    {
+      "id": "prop-1",
+      "name": "Development Site 1",
+      "address": "Lot 5, New Estate Drive, Brisbane, QLD 4000",
+      "color": "#3B82F6",
+      "purchasePrice": 350000,
+      "purchaseDate": "2018-03-10T00:00:00.000Z",
+      "salePrice": 850000,
+      "saleDate": "2019-11-20T00:00:00.000Z",
+      "currentStatus": "sold",
+      "branch": 0
+    },
+    {
+      "id": "prop-2",
+      "name": "Development Site 2",
+      "address": "Lot 12, Vista Heights, Brisbane, QLD 4101",
+      "color": "#8B5CF6",
+      "purchasePrice": 420000,
+      "purchaseDate": "2019-06-15T00:00:00.000Z",
+      "salePrice": 920000,
+      "saleDate": "2021-03-25T00:00:00.000Z",
+      "currentStatus": "sold",
+      "branch": 1
+    },
+    {
+      "id": "prop-3",
+      "name": "Townhouse Development",
+      "address": "15-17 Builder Street, Brisbane, QLD 4066",
+      "color": "#10B981",
+      "purchasePrice": 680000,
+      "purchaseDate": "2020-09-05T00:00:00.000Z",
+      "currentValue": 1450000,
+      "currentStatus": "construction",
+      "branch": 2
+    }
+  ],
+  "events": [
+    {
+      "id": "event-1",
+      "propertyId": "prop-1",
+      "type": "purchase",
+      "date": "2018-03-10T00:00:00.000Z",
+      "title": "Land Purchase",
+      "amount": 350000,
+      "position": 0,
+      "color": "#3B82F6",
+      "landPrice": 350000,
+      "buildingPrice": 0
+    },
+    {
+      "id": "event-2",
+      "propertyId": "prop-1",
+      "type": "status_change",
+      "date": "2018-05-01T00:00:00.000Z",
+      "title": "Construction Started",
+      "position": 0,
+      "color": "#A855F7",
+      "newStatus": "construction"
+    },
+    {
+      "id": "event-3",
+      "propertyId": "prop-1",
+      "type": "improvement",
+      "date": "2018-05-01T00:00:00.000Z",
+      "title": "Build New House",
+      "amount": 320000,
+      "position": 0,
+      "color": "#06B6D4",
+      "description": "New 4-bedroom house construction"
+    },
+    {
+      "id": "event-4",
+      "propertyId": "prop-1",
+      "type": "improvement",
+      "date": "2019-02-15T00:00:00.000Z",
+      "title": "Landscaping",
+      "amount": 45000,
+      "position": 0,
+      "color": "#06B6D4",
+      "description": "Complete landscaping and driveways"
+    },
+    {
+      "id": "event-5",
+      "propertyId": "prop-1",
+      "type": "sale",
+      "date": "2019-11-20T00:00:00.000Z",
+      "title": "Sold Completed House",
+      "amount": 850000,
+      "position": 0,
+      "color": "#8B5CF6",
+      "contractDate": "2019-10-15T00:00:00.000Z",
+      "settlementDate": "2019-11-20T00:00:00.000Z"
+    },
+    {
+      "id": "event-6",
+      "propertyId": "prop-2",
+      "type": "purchase",
+      "date": "2019-06-15T00:00:00.000Z",
+      "title": "Land Purchase",
+      "amount": 420000,
+      "position": 0,
+      "color": "#3B82F6",
+      "landPrice": 420000,
+      "buildingPrice": 0
+    },
+    {
+      "id": "event-7",
+      "propertyId": "prop-2",
+      "type": "status_change",
+      "date": "2019-09-01T00:00:00.000Z",
+      "title": "Construction Started",
+      "position": 0,
+      "color": "#A855F7",
+      "newStatus": "construction"
+    },
+    {
+      "id": "event-8",
+      "propertyId": "prop-2",
+      "type": "improvement",
+      "date": "2019-09-01T00:00:00.000Z",
+      "title": "Build Luxury Home",
+      "amount": 380000,
+      "position": 0,
+      "color": "#06B6D4",
+      "description": "5-bedroom luxury home with pool"
+    },
+    {
+      "id": "event-9",
+      "propertyId": "prop-2",
+      "type": "improvement",
+      "date": "2020-08-10T00:00:00.000Z",
+      "title": "Premium Finishes",
+      "amount": 65000,
+      "position": 0,
+      "color": "#06B6D4",
+      "description": "High-end kitchen and bathroom upgrades"
+    },
+    {
+      "id": "event-10",
+      "propertyId": "prop-2",
+      "type": "sale",
+      "date": "2021-03-25T00:00:00.000Z",
+      "title": "Sold",
+      "amount": 920000,
+      "position": 0,
+      "color": "#8B5CF6",
+      "contractDate": "2021-02-20T00:00:00.000Z",
+      "settlementDate": "2021-03-25T00:00:00.000Z"
+    },
+    {
+      "id": "event-11",
+      "propertyId": "prop-3",
+      "type": "purchase",
+      "date": "2020-09-05T00:00:00.000Z",
+      "title": "Land Purchase - Dual Lot",
+      "amount": 680000,
+      "position": 0,
+      "color": "#3B82F6",
+      "landPrice": 680000,
+      "buildingPrice": 0
+    },
+    {
+      "id": "event-12",
+      "propertyId": "prop-3",
+      "type": "status_change",
+      "date": "2021-06-01T00:00:00.000Z",
+      "title": "Construction Started",
+      "position": 0,
+      "color": "#A855F7",
+      "newStatus": "construction"
+    },
+    {
+      "id": "event-13",
+      "propertyId": "prop-3",
+      "type": "improvement",
+      "date": "2021-06-01T00:00:00.000Z",
+      "title": "Build Duplex - Stage 1",
+      "amount": 420000,
+      "position": 0,
+      "color": "#06B6D4",
+      "description": "First townhouse construction"
+    },
+    {
+      "id": "event-14",
+      "propertyId": "prop-3",
+      "type": "improvement",
+      "date": "2022-03-15T00:00:00.000Z",
+      "title": "Build Duplex - Stage 2",
+      "amount": 430000,
+      "position": 0,
+      "color": "#06B6D4",
+      "description": "Second townhouse construction"
+    },
+    {
+      "id": "event-15",
+      "propertyId": "prop-3",
+      "type": "improvement",
+      "date": "2023-01-10T00:00:00.000Z",
+      "title": "Finishing Touches",
+      "amount": 85000,
+      "position": 0,
+      "color": "#06B6D4",
+      "description": "Landscaping and external works"
+    }
+  ]
+}

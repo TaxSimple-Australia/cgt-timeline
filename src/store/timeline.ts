@@ -108,6 +108,7 @@ interface TimelineState {
   panToPosition: (position: number) => void; // Position 0-100 on absolute timeline
   loadDemoData: () => void; // Load demo data from Excel sheet
   clearAllData: () => void; // Clear all properties and events
+  importTimelineData: (data: any) => void; // Import timeline data from JSON
   toggleTheme: () => void; // Cycle through themes: light -> dark -> golden -> light
   toggleEventDisplayMode: () => void; // Toggle between circle and card display
   toggleLockFutureDates: () => void; // Toggle lock future dates setting
@@ -701,6 +702,148 @@ export const useTimelineStore = create<TimelineState>((set, get) => ({
       selectedEvent: null,
       lastInteractedEventId: null,
     });
+  },
+
+  importTimelineData: (data: any) => {
+    try {
+      let importedProperties: Property[] = [];
+      let importedEvents: TimelineEvent[] = [];
+
+      // Check if it's the simple format (properties and events arrays)
+      if (data.properties && data.events) {
+        // Simple format with direct properties and events arrays
+        importedProperties = data.properties.map((prop: any, index: number) => ({
+          id: prop.id || `import-prop-${Date.now()}-${index}`,
+          name: prop.name || 'Imported Property',
+          address: prop.address || '',
+          color: prop.color || propertyColors[index % propertyColors.length],
+          purchasePrice: prop.purchasePrice,
+          purchaseDate: prop.purchaseDate ? new Date(prop.purchaseDate) : undefined,
+          currentValue: prop.currentValue,
+          salePrice: prop.salePrice,
+          saleDate: prop.saleDate ? new Date(prop.saleDate) : undefined,
+          currentStatus: prop.currentStatus || 'ppr',
+          branch: prop.branch !== undefined ? prop.branch : index,
+          isRental: prop.isRental,
+        }));
+
+        importedEvents = data.events.map((event: any, index: number) => ({
+          id: event.id || `import-event-${Date.now()}-${index}`,
+          propertyId: event.propertyId,
+          type: event.type as EventType,
+          date: new Date(event.date),
+          title: event.title || event.type,
+          amount: event.amount,
+          description: event.description,
+          position: event.position !== undefined ? event.position : 0,
+          color: event.color || eventColors[event.type as EventType] || '#3B82F6',
+          contractDate: event.contractDate ? new Date(event.contractDate) : undefined,
+          settlementDate: event.settlementDate ? new Date(event.settlementDate) : undefined,
+          newStatus: event.newStatus,
+          isPPR: event.isPPR,
+          landPrice: event.landPrice,
+          buildingPrice: event.buildingPrice,
+        }));
+      } else if (data.properties && Array.isArray(data.properties)) {
+        // Export format with property_history inside properties
+        data.properties.forEach((prop: any, propIndex: number) => {
+          const propertyId = `import-prop-${Date.now()}-${propIndex}`;
+
+          // Parse address (might be combined with name)
+          const addressParts = prop.address ? prop.address.split(', ') : [];
+          const name = addressParts[0] || 'Imported Property';
+          const address = addressParts.slice(1).join(', ');
+
+          // Determine property status and dates from history
+          let purchasePrice: number | undefined;
+          let purchaseDate: Date | undefined;
+          let salePrice: number | undefined;
+          let saleDate: Date | undefined;
+          let currentStatus: PropertyStatus = 'ppr';
+
+          const propertyEvents: TimelineEvent[] = [];
+
+          if (prop.property_history && Array.isArray(prop.property_history)) {
+            prop.property_history.forEach((historyItem: any, eventIndex: number) => {
+              const eventDate = new Date(historyItem.date);
+              const eventType = historyItem.event as EventType;
+
+              // Extract property-level info from events
+              if (eventType === 'purchase' && !purchaseDate) {
+                purchasePrice = historyItem.price || historyItem.land_price + historyItem.building_price;
+                purchaseDate = eventDate;
+              }
+              if (eventType === 'sale') {
+                salePrice = historyItem.price;
+                saleDate = eventDate;
+                currentStatus = 'sold';
+              }
+
+              // Create event
+              const event: TimelineEvent = {
+                id: `import-event-${Date.now()}-${propIndex}-${eventIndex}`,
+                propertyId,
+                type: eventType,
+                date: eventDate,
+                title: historyItem.description || eventType.replace('_', ' '),
+                amount: historyItem.price,
+                description: historyItem.description,
+                position: 0,
+                color: eventColors[eventType] || '#3B82F6',
+                contractDate: historyItem.contract_date ? new Date(historyItem.contract_date) : undefined,
+                settlementDate: historyItem.settlement_date ? new Date(historyItem.settlement_date) : undefined,
+                newStatus: historyItem.new_status,
+                isPPR: historyItem.is_ppr,
+                landPrice: historyItem.land_price,
+                buildingPrice: historyItem.building_price,
+              };
+
+              propertyEvents.push(event);
+            });
+          }
+
+          // Create property
+          const property: Property = {
+            id: propertyId,
+            name,
+            address,
+            color: propertyColors[propIndex % propertyColors.length],
+            purchasePrice,
+            purchaseDate,
+            salePrice,
+            saleDate,
+            currentStatus,
+            branch: propIndex,
+          };
+
+          importedProperties.push(property);
+          importedEvents.push(...propertyEvents);
+        });
+      }
+
+      // Calculate timeline boundaries
+      const allDates = importedEvents.map(e => e.date.getTime());
+      const minDate = allDates.length > 0 ? new Date(Math.min(...allDates)) : new Date(2000, 0, 1);
+      const maxDate = new Date(); // Always use today as max
+
+      // Set the imported data
+      set({
+        properties: importedProperties,
+        events: importedEvents,
+        timelineStart: minDate,
+        timelineEnd: maxDate,
+        absoluteStart: minDate,
+        absoluteEnd: maxDate,
+        centerDate: new Date((minDate.getTime() + maxDate.getTime()) / 2),
+        zoomLevel: calculateZoomLevel(minDate, maxDate),
+        selectedProperty: null,
+        selectedEvent: null,
+        lastInteractedEventId: null,
+      });
+    } catch (error) {
+      console.error('Error importing timeline data:', error);
+      throw error;
+    }
   },
 
   toggleTheme: () => {

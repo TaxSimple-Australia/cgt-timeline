@@ -1,0 +1,227 @@
+{
+  "name": "Property Flipper",
+  "description": "Someone who buys, renovates, and sells properties for profit",
+  "properties": [
+    {
+      "id": "prop-1",
+      "name": "Flip #1 - Dated Unit",
+      "address": "7/45 Beach Road, Adelaide, SA 5000",
+      "color": "#3B82F6",
+      "purchasePrice": 280000,
+      "purchaseDate": "2018-01-15T00:00:00.000Z",
+      "salePrice": 365000,
+      "saleDate": "2018-09-20T00:00:00.000Z",
+      "currentStatus": "sold",
+      "branch": 0
+    },
+    {
+      "id": "prop-2",
+      "name": "Flip #2 - Old House",
+      "address": "22 Victoria Street, Adelaide, SA 5034",
+      "color": "#8B5CF6",
+      "purchasePrice": 420000,
+      "purchaseDate": "2018-11-10T00:00:00.000Z",
+      "salePrice": 595000,
+      "saleDate": "2019-08-15T00:00:00.000Z",
+      "currentStatus": "sold",
+      "branch": 1
+    },
+    {
+      "id": "prop-3",
+      "name": "Flip #3 - Fixer Upper",
+      "address": "88 Park Terrace, Adelaide, SA 5067",
+      "color": "#10B981",
+      "purchasePrice": 510000,
+      "purchaseDate": "2019-10-05T00:00:00.000Z",
+      "salePrice": 725000,
+      "saleDate": "2020-07-22T00:00:00.000Z",
+      "currentStatus": "sold",
+      "branch": 2
+    },
+    {
+      "id": "prop-4",
+      "name": "Flip #4 - Warehouse Conversion",
+      "address": "12 Industrial Lane, Adelaide, SA 5000",
+      "color": "#F59E0B",
+      "purchasePrice": 680000,
+      "purchaseDate": "2020-09-12T00:00:00.000Z",
+      "salePrice": 950000,
+      "saleDate": "2021-11-30T00:00:00.000Z",
+      "currentStatus": "sold",
+      "branch": 3
+    },
+    {
+      "id": "prop-5",
+      "name": "Current Project",
+      "address": "34 Riverside Avenue, Adelaide, SA 5081",
+      "color": "#EC4899",
+      "purchasePrice": 820000,
+      "purchaseDate": "2022-02-18T00:00:00.000Z",
+      "currentValue": 1150000,
+      "currentStatus": "construction",
+      "branch": 4
+    }
+  ],
+  "events": [
+    {
+      "id": "event-1",
+      "propertyId": "prop-1",
+      "type": "purchase",
+      "date": "2018-01-15T00:00:00.000Z",
+      "title": "Purchase",
+      "amount": 280000,
+      "position": 0,
+      "color": "#3B82F6"
+    },
+    {
+      "id": "event-2",
+      "propertyId": "prop-1",
+      "type": "improvement",
+      "date": "2018-02-01T00:00:00.000Z",
+      "title": "Full Renovation",
+      "amount": 55000,
+      "position": 0,
+      "color": "#06B6D4",
+      "description": "Kitchen, bathroom, flooring"
+    },
+    {
+      "id": "event-3",
+      "propertyId": "prop-1",
+      "type": "sale",
+      "date": "2018-09-20T00:00:00.000Z",
+      "title": "Sold",
+      "amount": 365000,
+      "position": 0,
+      "color": "#8B5CF6",
+      "contractDate": "2018-08-15T00:00:00.000Z"
+    },
+    {
+      "id": "event-4",
+      "propertyId": "prop-2",
+      "type": "purchase",
+      "date": "2018-11-10T00:00:00.000Z",
+      "title": "Purchase",
+      "amount": 420000,
+      "position": 0,
+      "color": "#3B82F6"
+    },
+    {
+      "id": "event-5",
+      "propertyId": "prop-2",
+      "type": "improvement",
+      "date": "2018-12-01T00:00:00.000Z",
+      "title": "Major Renovation",
+      "amount": 95000,
+      "position": 0,
+      "color": "#06B6D4",
+      "description": "Complete interior renovation and new roof"
+    },
+    {
+      "id": "event-6",
+      "propertyId": "prop-2",
+      "type": "sale",
+      "date": "2019-08-15T00:00:00.000Z",
+      "title": "Sold",
+      "amount": 595000,
+      "position": 0,
+      "color": "#8B5CF6",
+      "contractDate": "2019-07-20T00:00:00.000Z"
+    },
+    {
+      "id": "event-7",
+      "propertyId": "prop-3",
+      "type": "purchase",
+      "date": "2019-10-05T00:00:00.000Z",
+      "title": "Purchase",
+      "amount": 510000,
+      "position": 0,
+      "color": "#3B82F6"
+    },
+    {
+      "id": "event-8",
+      "propertyId": "prop-3",
+      "type": "improvement",
+      "date": "2019-11-01T00:00:00.000Z",
+      "title": "Full Renovation",
+      "amount": 125000,
+      "position": 0,
+      "color": "#06B6D4",
+      "description": "Complete renovation including structural work"
+    },
+    {
+      "id": "event-9",
+      "propertyId": "prop-3",
+      "type": "sale",
+      "date": "2020-07-22T00:00:00.000Z",
+      "title": "Sold",
+      "amount": 725000,
+      "position": 0,
+      "color": "#8B5CF6",
+      "contractDate": "2020-06-30T00:00:00.000Z"
+    },
+    {
+      "id": "event-10",
+      "propertyId": "prop-4",
+      "type": "purchase",
+      "date": "2020-09-12T00:00:00.000Z",
+      "title": "Purchase",
+      "amount": 680000,
+      "position": 0,
+      "color": "#3B82F6"
+    },
+    {
+      "id": "event-11",
+      "propertyId": "prop-4",
+      "type": "improvement",
+      "date": "2020-10-15T00:00:00.000Z",
+      "title": "Warehouse Conversion",
+      "amount": 165000,
+      "position": 0,
+      "color": "#06B6D4",
+      "description": "Converted warehouse to luxury apartments"
+    },
+    {
+      "id": "event-12",
+      "propertyId": "prop-4",
+      "type": "sale",
+      "date": "2021-11-30T00:00:00.000Z",
+      "title": "Sold",
+      "amount": 950000,
+      "position": 0,
+      "color": "#8B5CF6",
+      "contractDate": "2021-11-05T00:00:00.000Z"
+    },
+    {
+      "id": "event-13",
+      "propertyId": "prop-5",
+      "type": "purchase",
+      "date": "2022-02-18T00:00:00.000Z",
+      "title": "Purchase",
+      "amount": 820000,
+      "position": 0,
+      "color": "#3B82F6"
+    },
+    {
+      "id": "event-14",
+      "propertyId": "prop-5",
+      "type": "improvement",
+      "date": "2022-04-01T00:00:00.000Z",
+      "title": "Major Renovation Started",
+      "amount": 180000,
+      "position": 0,
+      "color": "#06B6D4",
+      "description": "Ongoing major renovation project"
+    },
+    {
+      "id": "event-15",
+      "propertyId": "prop-5",
+      "type": "improvement",
+      "date": "2023-09-10T00:00:00.000Z",
+      "title": "Additional Work",
+      "amount": 55000,
+      "position": 0,
+      "color": "#06B6D4",
+      "description": "Landscaping and outdoor area"
+    }
+  ]
+}

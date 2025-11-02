@@ -1,0 +1,147 @@
+{
+  "name": "Property Investor Portfolio",
+  "description": "An investor with 4 rental properties purchased over time",
+  "properties": [
+    {
+      "id": "prop-1",
+      "name": "Investment Unit 1",
+      "address": "5/22 George Street, Sydney, NSW 2000",
+      "color": "#3B82F6",
+      "purchasePrice": 480000,
+      "purchaseDate": "2015-02-10T00:00:00.000Z",
+      "currentValue": 650000,
+      "currentStatus": "rental",
+      "branch": 0
+    },
+    {
+      "id": "prop-2",
+      "name": "Investment Unit 2",
+      "address": "12/88 Collins Street, Melbourne, VIC 3000",
+      "color": "#8B5CF6",
+      "purchasePrice": 520000,
+      "purchaseDate": "2017-05-20T00:00:00.000Z",
+      "currentValue": 680000,
+      "currentStatus": "rental",
+      "branch": 1
+    },
+    {
+      "id": "prop-3",
+      "name": "Investment House",
+      "address": "45 Ocean Drive, Gold Coast, QLD 4217",
+      "color": "#10B981",
+      "purchasePrice": 720000,
+      "purchaseDate": "2019-08-15T00:00:00.000Z",
+      "currentValue": 890000,
+      "currentStatus": "rental",
+      "branch": 2
+    },
+    {
+      "id": "prop-4",
+      "name": "Investment Townhouse",
+      "address": "8 Park Avenue, Perth, WA 6000",
+      "color": "#F59E0B",
+      "purchasePrice": 650000,
+      "purchaseDate": "2021-11-30T00:00:00.000Z",
+      "currentValue": 720000,
+      "currentStatus": "rental",
+      "branch": 3
+    }
+  ],
+  "events": [
+    {
+      "id": "event-1",
+      "propertyId": "prop-1",
+      "type": "purchase",
+      "date": "2015-02-10T00:00:00.000Z",
+      "title": "Purchase",
+      "amount": 480000,
+      "position": 0,
+      "color": "#3B82F6"
+    },
+    {
+      "id": "event-2",
+      "propertyId": "prop-1",
+      "type": "rent_start",
+      "date": "2015-03-01T00:00:00.000Z",
+      "title": "Start Rent",
+      "amount": 2000,
+      "position": 0,
+      "color": "#F59E0B",
+      "description": "$500/week rental income"
+    },
+    {
+      "id": "event-3",
+      "propertyId": "prop-2",
+      "type": "purchase",
+      "date": "2017-05-20T00:00:00.000Z",
+      "title": "Purchase",
+      "amount": 520000,
+      "position": 0,
+      "color": "#3B82F6"
+    },
+    {
+      "id": "event-4",
+      "propertyId": "prop-2",
+      "type": "rent_start",
+      "date": "2017-06-15T00:00:00.000Z",
+      "title": "Start Rent",
+      "amount": 2200,
+      "position": 0,
+      "color": "#F59E0B",
+      "description": "$550/week rental income"
+    },
+    {
+      "id": "event-5",
+      "propertyId": "prop-3",
+      "type": "purchase",
+      "date": "2019-08-15T00:00:00.000Z",
+      "title": "Purchase",
+      "amount": 720000,
+      "position": 0,
+      "color": "#3B82F6"
+    },
+    {
+      "id": "event-6",
+      "propertyId": "prop-3",
+      "type": "rent_start",
+      "date": "2019-09-01T00:00:00.000Z",
+      "title": "Start Rent",
+      "amount": 3000,
+      "position": 0,
+      "color": "#F59E0B",
+      "description": "$750/week rental income"
+    },
+    {
+      "id": "event-7",
+      "propertyId": "prop-3",
+      "type": "improvement",
+      "date": "2021-03-10T00:00:00.000Z",
+      "title": "Pool Installation",
+      "amount": 45000,
+      "position": 0,
+      "color": "#06B6D4",
+      "description": "Installed swimming pool"
+    },
+    {
+      "id": "event-8",
+      "propertyId": "prop-4",
+      "type": "purchase",
+      "date": "2021-11-30T00:00:00.000Z",
+      "title": "Purchase",
+      "amount": 650000,
+      "position": 0,
+      "color": "#3B82F6"
+    },
+    {
+      "id": "event-9",
+      "propertyId": "prop-4",
+      "type": "rent_start",
+      "date": "2022-01-15T00:00:00.000Z",
+      "title": "Start Rent",
+      "amount": 2600,
+      "position": 0,
+      "color": "#F59E0B",
+      "description": "$650/week rental income"
+    }
+  ]
+}

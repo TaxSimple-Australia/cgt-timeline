@@ -1,0 +1,172 @@
+{
+  "name": "Long-Term Property Holder",
+  "description": "Someone who bought a property 20+ years ago and continuously improved it",
+  "properties": [
+    {
+      "id": "prop-1",
+      "name": "Forever Home",
+      "address": "156 Oak Street, Canberra, ACT 2600",
+      "color": "#3B82F6",
+      "purchasePrice": 185000,
+      "purchaseDate": "2000-06-15T00:00:00.000Z",
+      "currentValue": 980000,
+      "currentStatus": "ppr",
+      "branch": 0
+    }
+  ],
+  "events": [
+    {
+      "id": "event-1",
+      "propertyId": "prop-1",
+      "type": "purchase",
+      "date": "2000-06-15T00:00:00.000Z",
+      "title": "Purchase",
+      "amount": 185000,
+      "position": 0,
+      "color": "#3B82F6",
+      "isPPR": true
+    },
+    {
+      "id": "event-2",
+      "propertyId": "prop-1",
+      "type": "move_in",
+      "date": "2000-06-15T00:00:00.000Z",
+      "title": "Move In",
+      "position": 0,
+      "color": "#10B981",
+      "isPPR": true
+    },
+    {
+      "id": "event-3",
+      "propertyId": "prop-1",
+      "type": "improvement",
+      "date": "2003-03-20T00:00:00.000Z",
+      "title": "Kitchen Renovation",
+      "amount": 22000,
+      "position": 0,
+      "color": "#06B6D4",
+      "description": "New kitchen cabinets and appliances"
+    },
+    {
+      "id": "event-4",
+      "propertyId": "prop-1",
+      "type": "improvement",
+      "date": "2006-09-10T00:00:00.000Z",
+      "title": "Bathroom Upgrade",
+      "amount": 18000,
+      "position": 0,
+      "color": "#06B6D4",
+      "description": "Main bathroom renovation"
+    },
+    {
+      "id": "event-5",
+      "propertyId": "prop-1",
+      "type": "improvement",
+      "date": "2008-11-15T00:00:00.000Z",
+      "title": "New Roof",
+      "amount": 25000,
+      "position": 0,
+      "color": "#06B6D4",
+      "description": "Replaced entire roof"
+    },
+    {
+      "id": "event-6",
+      "propertyId": "prop-1",
+      "type": "improvement",
+      "date": "2011-05-22T00:00:00.000Z",
+      "title": "Deck Addition",
+      "amount": 35000,
+      "position": 0,
+      "color": "#06B6D4",
+      "description": "Built large entertaining deck"
+    },
+    {
+      "id": "event-7",
+      "propertyId": "prop-1",
+      "type": "refinance",
+      "date": "2012-08-30T00:00:00.000Z",
+      "title": "Refinance",
+      "amount": 450000,
+      "position": 0,
+      "color": "#6366F1",
+      "description": "Refinanced to lower rate"
+    },
+    {
+      "id": "event-8",
+      "propertyId": "prop-1",
+      "type": "improvement",
+      "date": "2014-02-15T00:00:00.000Z",
+      "title": "Second Bathroom",
+      "amount": 42000,
+      "position": 0,
+      "color": "#06B6D4",
+      "description": "Added ensuite bathroom"
+    },
+    {
+      "id": "event-9",
+      "propertyId": "prop-1",
+      "type": "improvement",
+      "date": "2017-07-10T00:00:00.000Z",
+      "title": "Landscaping",
+      "amount": 28000,
+      "position": 0,
+      "color": "#06B6D4",
+      "description": "Complete garden makeover"
+    },
+    {
+      "id": "event-10",
+      "propertyId": "prop-1",
+      "type": "improvement",
+      "date": "2019-04-05T00:00:00.000Z",
+      "title": "Solar Panels",
+      "amount": 15000,
+      "position": 0,
+      "color": "#06B6D4",
+      "description": "6.6kW solar system installed"
+    },
+    {
+      "id": "event-11",
+      "propertyId": "prop-1",
+      "type": "improvement",
+      "date": "2020-10-20T00:00:00.000Z",
+      "title": "Home Office",
+      "amount": 32000,
+      "position": 0,
+      "color": "#06B6D4",
+      "description": "Converted garage to home office"
+    },
+    {
+      "id": "event-12",
+      "propertyId": "prop-1",
+      "type": "improvement",
+      "date": "2022-01-15T00:00:00.000Z",
+      "title": "Kitchen Update",
+      "amount": 48000,
+      "position": 0,
+      "color": "#06B6D4",
+      "description": "Second kitchen renovation with premium finishes"
+    },
+    {
+      "id": "event-13",
+      "propertyId": "prop-1",
+      "type": "refinance",
+      "date": "2023-03-20T00:00:00.000Z",
+      "title": "Refinance",
+      "amount": 350000,
+      "position": 0,
+      "color": "#6366F1",
+      "description": "Refinanced for home improvements"
+    },
+    {
+      "id": "event-14",
+      "propertyId": "prop-1",
+      "type": "improvement",
+      "date": "2023-06-10T00:00:00.000Z",
+      "title": "Pool Installation",
+      "amount": 65000,
+      "position": 0,
+      "color": "#06B6D4",
+      "description": "In-ground swimming pool"
+    }
+  ]
+}

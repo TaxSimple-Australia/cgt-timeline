@@ -55,7 +55,8 @@ export interface Property {
 }
 
 export type ZoomLevel =
-  | 'decade'      // 10+ years
+  | 'multi-decade' // 15+ years
+  | 'decade'      // 10-15 years
   | 'multi-year'  // 5-10 years
   | 'years'       // 2-5 years
   | 'year'        // 1-2 years
@@ -146,7 +147,8 @@ export const statusColors: Record<PropertyStatus, string> = {
 
 // Zoom level definitions with their time spans in days
 export const zoomLevels: Array<{ level: ZoomLevel; minDays: number; maxDays: number; label: string }> = [
-  { level: 'decade', minDays: 3650, maxDays: Infinity, label: '10+ Years' },
+  { level: 'multi-decade', minDays: 5475, maxDays: Infinity, label: '15+ Years' },
+  { level: 'decade', minDays: 3650, maxDays: 5475, label: '10-15 Years' },
   { level: 'multi-year', minDays: 1825, maxDays: 3650, label: '5-10 Years' },
   { level: 'years', minDays: 730, maxDays: 1825, label: '2-5 Years' },
   { level: 'year', minDays: 365, maxDays: 730, label: '1-2 Years' },
@@ -166,7 +168,7 @@ const calculateZoomLevel = (start: Date, end: Date): ZoomLevel => {
     }
   }
 
-  return 'decade';
+  return 'multi-decade';
 };
 
 // Get next zoom level (more detailed)
@@ -690,7 +692,7 @@ export const useTimelineStore = create<TimelineState>((set, get) => ({
       absoluteStart: new Date(2003, 0, 1),
       absoluteEnd: new Date(),
       centerDate: new Date(2013, 0, 1),
-      zoomLevel: 'decade',
+      zoomLevel: 'multi-decade',
     });
   },
 

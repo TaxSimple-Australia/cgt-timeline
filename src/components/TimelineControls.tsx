@@ -51,7 +51,8 @@ export default function TimelineControls() {
 
   // Get zoom level label for display
   const zoomLevelLabels: Record<string, string> = {
-    'decade': '10+ Years',
+    'multi-decade': '15+ Years',
+    'decade': '10-15 Years',
     'multi-year': '5-10 Years',
     'years': '2-5 Years',
     'year': '1-2 Years',
@@ -62,7 +63,7 @@ export default function TimelineControls() {
   };
 
   const canZoomIn = zoomLevel !== 'days';
-  const canZoomOut = zoomLevel !== 'decade';
+  const canZoomOut = zoomLevel !== 'multi-decade';
 
   // Smooth panning slider - uses absolute timeline positions
   const getPanSliderValue = () => {
@@ -277,7 +278,7 @@ export default function TimelineControls() {
           <input
             type="range"
             min="0"
-            max="7"
+            max="8"
             value={getZoomLevelIndex()}
             onChange={(e) => setZoomByIndex(parseInt(e.target.value))}
             className="w-32 h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer

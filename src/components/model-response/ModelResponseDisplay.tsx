@@ -12,6 +12,8 @@ import PropertyComparisonChart from './PropertyComparisonChart';
 import PropertyTimelineChart from './PropertyTimelineChart';
 import DetailedReportModal from './DetailedReportModal';
 import VisualSummary from './VisualSummary';
+import VerificationDashboard from './VerificationDashboard';
+import ValidationMetricsDisplay from './ValidationMetricsDisplay';
 import type { CGTModelResponse, Issue } from '@/types/model-response';
 
 interface ModelResponseDisplayProps {
@@ -121,8 +123,8 @@ export default function ModelResponseDisplay({
           />
         )}
 
-        {/* Visual Charts Section */}
-        {hasBreakdown && (
+        {/* Visual Charts Section - Show section if we have ANY charts to display */}
+        {(hasBreakdown || properties.length > 0) && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -133,31 +135,43 @@ export default function ModelResponseDisplay({
             <div className="flex items-center gap-2">
               <BarChart3 className="w-5 h-5 text-purple-600 dark:text-purple-400" />
               <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100">
-                Visual Breakdown
+                Visual Analysis
               </h3>
             </div>
 
-            {/* Charts Grid - 2 columns on desktop */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* CGT Breakdown Bar Chart */}
-              {response.detailed_breakdown && (
-                <CGTBreakdownChart data={response.detailed_breakdown} delay={0.3} />
-              )}
+            {/* Financial Charts Grid - 2 columns on desktop */}
+            {hasBreakdown && (
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* CGT Breakdown Bar Chart */}
+                {response.detailed_breakdown && (
+                  <CGTBreakdownChart data={response.detailed_breakdown} delay={0.3} />
+                )}
 
-              {/* Tax Breakdown Pie Chart */}
-              {response.detailed_breakdown && (
-                <TaxBreakdownPieChart data={response.detailed_breakdown} delay={0.4} />
-              )}
-            </div>
+                {/* Tax Breakdown Pie Chart */}
+                {response.detailed_breakdown && (
+                  <TaxBreakdownPieChart data={response.detailed_breakdown} delay={0.4} />
+                )}
+              </div>
+            )}
 
-            {/* Property Comparison - Full Width */}
+            {/* Property Comparison - Full Width (for multi-property portfolios) */}
             {properties.length > 1 && (
               <PropertyComparisonChart properties={properties} delay={0.5} />
             )}
 
-            {/* Portfolio Timeline - Full Width */}
-            <PropertyTimelineChart properties={properties} delay={0.6} />
+            {/* Portfolio Timeline - ALWAYS show if properties exist */}
+            {properties.length > 0 && (
+              <PropertyTimelineChart properties={properties} delay={0.6} />
+            )}
           </motion.div>
+        )}
+
+        {/* Validation & Verification Section */}
+        {response.validation && (
+          <ValidationMetricsDisplay
+            validation={response.validation}
+            metadata={response.metadata}
+          />
         )}
 
         {/* Issues and Actions Section */}

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { Send, Loader2 } from 'lucide-react';
+import { Send, Loader2, HelpCircle, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface Message {
@@ -20,6 +20,7 @@ export default function ConversationBox({ onSendQuery, isLoading = false }: Conv
   const [query, setQuery] = useState('');
   const [messages, setMessages] = useState<Message[]>([]);
   const [isExpanded, setIsExpanded] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -57,13 +58,49 @@ export default function ConversationBox({ onSendQuery, isLoading = false }: Conv
     setIsExpanded(true);
   };
 
+  const handleOpen = () => {
+    setIsOpen(true);
+    // Auto-focus input when opening
+    setTimeout(() => inputRef.current?.focus(), 100);
+  };
+
+  const handleClose = () => {
+    setIsOpen(false);
+    setIsExpanded(false);
+    setQuery('');
+  };
+
   return (
-    <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-40 w-full max-w-2xl px-4">
-      <motion.div
-        initial={false}
-        animate={{ height: isExpanded ? 'auto' : 'auto' }}
-        className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700"
-      >
+    <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-40">
+      <AnimatePresence mode="wait">
+        {!isOpen ? (
+          // Collapsed: Question Mark Button
+          <motion.button
+            key="collapsed"
+            initial={{ scale: 0, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0, opacity: 0 }}
+            transition={{ duration: 0.2, type: 'spring', stiffness: 300, damping: 25 }}
+            onClick={handleOpen}
+            className="w-16 h-16 bg-gradient-to-br from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700
+                     text-white rounded-full shadow-2xl hover:shadow-3xl transition-all duration-300
+                     flex items-center justify-center group hover:scale-110 active:scale-95"
+            aria-label="Ask a question about your CGT"
+          >
+            <HelpCircle className="w-8 h-8 group-hover:rotate-12 transition-transform duration-300" />
+          </motion.button>
+        ) : (
+          // Expanded: Input Form
+          <motion.div
+            key="expanded"
+            initial={{ scale: 0.8, opacity: 0, y: 20 }}
+            animate={{ scale: 1, opacity: 1, y: 0 }}
+            exit={{ scale: 0.8, opacity: 0, y: 20 }}
+            transition={{ duration: 0.2, type: 'spring', stiffness: 300, damping: 25 }}
+            className="w-full max-w-2xl px-4"
+          >
+            <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700"
+            >
         {/* Messages History */}
         <AnimatePresence>
           {isExpanded && messages.length > 0 && (
@@ -110,6 +147,17 @@ export default function ConversationBox({ onSendQuery, isLoading = false }: Conv
         {/* Input Form */}
         <form onSubmit={handleSubmit} className="p-4">
           <div className="relative flex items-center gap-2">
+            {/* Close Button */}
+            <button
+              type="button"
+              onClick={handleClose}
+              className="p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200
+                       hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-all"
+              aria-label="Close question input"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
             <input
               ref={inputRef}
               type="text"
@@ -145,7 +193,10 @@ export default function ConversationBox({ onSendQuery, isLoading = false }: Conv
             </p>
           )}
         </form>
-      </motion.div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

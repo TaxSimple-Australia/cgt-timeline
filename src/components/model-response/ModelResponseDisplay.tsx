@@ -14,6 +14,8 @@ import DetailedReportModal from './DetailedReportModal';
 import VisualSummary from './VisualSummary';
 import VerificationDashboard from './VerificationDashboard';
 import ValidationMetricsDisplay from './ValidationMetricsDisplay';
+import PropertyGanttChart from './PropertyGanttChart';
+import TimelineAnalysisChart from './TimelineAnalysisChart';
 import type { CGTModelResponse, Issue } from '@/types/model-response';
 
 interface ModelResponseDisplayProps {
@@ -30,6 +32,11 @@ export default function ModelResponseDisplay({
   // Safely extract response and properties with fallbacks
   const response = responseData?.response;
   const properties = responseData?.properties || [];
+
+  // Get verification and timeline data from response (new API format)
+  const apiData = (responseData as any);
+  const verification = apiData.verification || apiData.pre_verification;
+  const timelineAnalysis = verification?.timeline_analysis;
 
   // If no response data, show error
   if (!response) {
@@ -163,7 +170,22 @@ export default function ModelResponseDisplay({
             {properties.length > 0 && (
               <PropertyTimelineChart properties={properties} delay={0.6} />
             )}
+
+            {/* Property Gantt Chart - Visual timeline for properties */}
+            {properties.length > 0 && (
+              <PropertyGanttChart properties={properties} />
+            )}
+
+            {/* Timeline Analysis Chart - Show gaps and overlaps */}
+            {timelineAnalysis && (
+              <TimelineAnalysisChart timelineAnalysis={timelineAnalysis} />
+            )}
           </motion.div>
+        )}
+
+        {/* Verification Dashboard - Data quality and verification status */}
+        {verification && (
+          <VerificationDashboard verification={verification} />
         )}
 
         {/* Validation & Verification Section */}

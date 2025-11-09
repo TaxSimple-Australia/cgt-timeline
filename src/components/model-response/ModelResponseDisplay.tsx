@@ -11,6 +11,7 @@ import TaxBreakdownPieChart from './TaxBreakdownPieChart';
 import PropertyComparisonChart from './PropertyComparisonChart';
 import PropertyTimelineChart from './PropertyTimelineChart';
 import DetailedReportModal from './DetailedReportModal';
+import VisualSummary from './VisualSummary';
 import type { CGTModelResponse, Issue } from '@/types/model-response';
 
 interface ModelResponseDisplayProps {
@@ -104,6 +105,11 @@ export default function ModelResponseDisplay({
               {responseData.user_query}
             </p>
           </motion.div>
+        )}
+
+        {/* Visual Metrics Summary (Data Completeness & Confidence) */}
+        {response.visual_metrics && (
+          <VisualSummary metrics={response.visual_metrics} delay={0.05} />
         )}
 
         {/* Hero Summary Card - Full Width */}
@@ -305,6 +311,52 @@ export default function ModelResponseDisplay({
                           currency: 'AUD',
                           minimumFractionDigits: 0,
                         }).format(response.detailed_breakdown.tax_payable)}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </motion.div>
+            )}
+
+            {/* Analysis Metadata Info */}
+            {response.metadata && (response.metadata.confidence !== undefined || response.metadata.llm_used) && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: 1.0 }}
+                className="bg-white dark:bg-gray-900 rounded-xl p-5 border border-gray-200 dark:border-gray-700 shadow-sm"
+              >
+                <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
+                  Analysis Info
+                </h4>
+                <div className="space-y-2">
+                  {response.metadata.confidence !== undefined && (
+                    <div className="flex justify-between items-center text-sm">
+                      <span className="text-gray-600 dark:text-gray-400">
+                        Confidence
+                      </span>
+                      <span className="font-semibold text-blue-600 dark:text-blue-400">
+                        {response.metadata.confidence}%
+                      </span>
+                    </div>
+                  )}
+                  {response.metadata.llm_used && (
+                    <div className="flex justify-between items-center text-sm">
+                      <span className="text-gray-600 dark:text-gray-400">
+                        Model
+                      </span>
+                      <span className="font-semibold text-gray-900 dark:text-gray-100 text-xs">
+                        {response.metadata.llm_used}
+                      </span>
+                    </div>
+                  )}
+                  {response.metadata.chunks_retrieved !== undefined && (
+                    <div className="flex justify-between items-center text-sm">
+                      <span className="text-gray-600 dark:text-gray-400">
+                        Sources Reviewed
+                      </span>
+                      <span className="font-semibold text-gray-900 dark:text-gray-100">
+                        {response.metadata.chunks_retrieved}
                       </span>
                     </div>
                   )}

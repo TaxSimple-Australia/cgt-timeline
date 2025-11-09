@@ -9,7 +9,6 @@ import EventCard from './EventCard';
 import TimelineControls from './TimelineControls';
 import PropertyBranch from './PropertyBranch';
 import QuickAddMenu from './QuickAddMenu';
-import TimelineSlider from './TimelineSlider';
 import EventDetailsModal from './EventDetailsModal';
 
 interface TimelineProps {
@@ -376,11 +375,6 @@ export default function Timeline({ className }: TimelineProps) {
             )}
           </div>
         </div>
-      </div>
-
-      {/* Timeline Slider */}
-      <div className="absolute bottom-0 left-0 right-0">
-        <TimelineSlider />
       </div>
 
       {/* Quick Add Menu */}

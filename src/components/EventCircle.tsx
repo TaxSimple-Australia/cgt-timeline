@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { TimelineEvent } from '@/store/timeline';
+import { TimelineEvent, useTimelineStore } from '@/store/timeline';
 import { Home, DollarSign, TrendingUp } from 'lucide-react';
 
 interface EventCircleProps {
@@ -16,6 +16,10 @@ interface EventCircleProps {
 
 export default function EventCircle({ event, cx, cy, color, onClick, tier = 0 }: EventCircleProps) {
   const [isHovered, setIsHovered] = useState(false);
+
+  // Get AI feedback issues for this event
+  const { timelineIssues, selectIssue } = useTimelineStore();
+  const eventIssues = timelineIssues.filter(issue => issue.eventId === event.id);
 
   // Calculate label Y position based on tier
   // Each tier adds vertical space to avoid overlap
@@ -111,6 +115,66 @@ export default function EventCircle({ event, cx, cy, color, onClick, tier = 0 }:
           transition={{ delay: 0.2, type: 'spring' }}
           style={{ transformOrigin: `${cx} ${cy}` }}
         />
+      )}
+
+      {/* Warning Badge */}
+      {eventIssues.length > 0 && (
+        <g
+          onClick={(e) => {
+            e.stopPropagation();
+            selectIssue(eventIssues[0].id);
+          }}
+          className="cursor-pointer"
+        >
+          {/* Warning circle at top-left */}
+          <g transform={`translate(${cx}, ${cy})`}>
+            <circle
+              cx="-12"
+              cy="-12"
+              r="8"
+              fill={eventIssues.some(i => i.severity === 'critical') ? '#EF4444' : '#F59E0B'}
+              stroke="white"
+              strokeWidth="2"
+              className="hover:opacity-90 transition-opacity"
+              style={{ filter: 'drop-shadow(0 2px 3px rgba(0,0,0,0.3))' }}
+            />
+            {/* Warning icon */}
+            <text
+              x="-12"
+              y="-10"
+              textAnchor="middle"
+              dominantBaseline="middle"
+              fontSize="12"
+              fontWeight="bold"
+              fill="white"
+            >
+              !
+            </text>
+            {/* Badge count */}
+            {eventIssues.length > 1 && (
+              <>
+                <circle
+                  cx="-6"
+                  cy="-16"
+                  r="5"
+                  fill="white"
+                  stroke="#E5E7EB"
+                  strokeWidth="1"
+                />
+                <text
+                  x="-6"
+                  y="-14"
+                  textAnchor="middle"
+                  fontSize="8"
+                  fontWeight="bold"
+                  fill="#1F2937"
+                >
+                  {eventIssues.length}
+                </text>
+              </>
+            )}
+          </g>
+        </g>
       )}
 
       {/* Hover tooltip */}

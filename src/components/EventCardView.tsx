@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { TimelineEvent } from '@/store/timeline';
+import { TimelineEvent, useTimelineStore } from '@/store/timeline';
 import {
   Home,
   DollarSign,
@@ -32,6 +32,10 @@ export default function EventCardView({
   tier = 0
 }: EventCardViewProps) {
   const [isHovered, setIsHovered] = useState(false);
+
+  // Get AI feedback issues for this event
+  const { timelineIssues, selectIssue } = useTimelineStore();
+  const eventIssues = timelineIssues.filter(issue => issue.eventId === event.id);
 
   // Calculate card Y position based on tier
   // Use dynamic spacing that accounts for the tallest possible card
@@ -151,6 +155,65 @@ export default function EventCardView({
           filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.2))',
         }}
       />
+
+      {/* Warning Badge - Positioned at top-left of card */}
+      {eventIssues.length > 0 && (
+        <g
+          transform={`translate(${cx}, ${cardY})`}
+          onClick={(e) => {
+            e.stopPropagation();
+            selectIssue(eventIssues[0].id);
+          }}
+          className="cursor-pointer"
+        >
+          {/* Warning circle - offset to top-left corner of card */}
+          <circle
+            cx={-cardWidth / 2 + 12}
+            cy={12}
+            r="12"
+            fill={eventIssues.some(i => i.severity === 'critical') ? '#EF4444' : '#F59E0B'}
+            stroke="white"
+            strokeWidth="2"
+            className="hover:opacity-90 transition-opacity"
+            style={{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))' }}
+          />
+          {/* Warning icon (exclamation mark) */}
+          <text
+            x={-cardWidth / 2 + 12}
+            y={13}
+            textAnchor="middle"
+            dominantBaseline="middle"
+            fontSize="16"
+            fontWeight="bold"
+            fill="white"
+          >
+            !
+          </text>
+          {/* Badge count */}
+          {eventIssues.length > 1 && (
+            <g>
+              <circle
+                cx={-cardWidth / 2 + 20}
+                cy={6}
+                r="6"
+                fill="white"
+                stroke="#E5E7EB"
+                strokeWidth="1"
+              />
+              <text
+                x={-cardWidth / 2 + 20}
+                y={9}
+                textAnchor="middle"
+                fontSize="9"
+                fontWeight="bold"
+                fill="#1F2937"
+              >
+                {eventIssues.length}
+              </text>
+            </g>
+          )}
+        </g>
+      )}
 
       {/* Card Container */}
       <foreignObject

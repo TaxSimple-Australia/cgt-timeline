@@ -17,8 +17,59 @@ export default function SummaryCard({ summary, recommendation, delay = 0 }: Summ
     return match ? match[0] : null;
   };
 
+  // Extract brief summary from markdown content
+  const extractBriefSummary = (text: string): string => {
+    // If it's markdown (starts with #), extract the first meaningful paragraph
+    if (text.startsWith('#')) {
+      // Find the first section after headings
+      const lines = text.split('\n');
+      let inContent = false;
+      let briefText = '';
+
+      for (const line of lines) {
+        const trimmed = line.trim();
+
+        // Skip headings and empty lines at the start
+        if (!inContent && (trimmed.startsWith('#') || trimmed === '' || trimmed.startsWith('**'))) {
+          continue;
+        }
+
+        // Start collecting content
+        if (!inContent && trimmed !== '') {
+          inContent = true;
+        }
+
+        if (inContent) {
+          briefText += trimmed + ' ';
+
+          // Stop after collecting a reasonable amount (200 chars or first paragraph)
+          if (briefText.length > 200 || trimmed === '') {
+            break;
+          }
+        }
+      }
+
+      // Clean up markdown syntax
+      briefText = briefText
+        .replace(/\*\*/g, '') // Remove bold
+        .replace(/\*/g, '')   // Remove italic
+        .replace(/\[([^\]]+)\]\([^\)]+\)/g, '$1') // Remove links but keep text
+        .replace(/`/g, '')    // Remove code backticks
+        .trim();
+
+      // If we got something, return it
+      if (briefText.length > 50) {
+        return briefText.substring(0, 300) + (briefText.length > 300 ? '...' : '');
+      }
+    }
+
+    // Otherwise, return the first 300 characters
+    return text.substring(0, 300) + (text.length > 300 ? '...' : '');
+  };
+
   const amount = extractAmount(summary);
   const isPositive = summary.toLowerCase().includes('refund') || summary.toLowerCase().includes('credit');
+  const displaySummary = extractBriefSummary(summary);
 
   return (
     <motion.div
@@ -67,7 +118,10 @@ export default function SummaryCard({ summary, recommendation, delay = 0 }: Summ
               </motion.div>
             )}
             <p className="text-gray-700 dark:text-gray-300 text-lg leading-relaxed">
-              {summary}
+              {displaySummary}
+            </p>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
+              Click "View Detailed Report" below to see the full analysis
             </p>
           </div>
         </div>

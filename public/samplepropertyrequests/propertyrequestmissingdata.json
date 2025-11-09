@@ -1,0 +1,74 @@
+{
+  "properties": [
+    {
+      "address": "Property A - Missing Purchase Price",
+      "property_history": [
+        {
+          "date": "2010-03-01",
+          "event": "move_in",
+          "is_ppr": true
+        },
+        {
+          "date": "2020-08-15",
+          "event": "sale",
+          "price": 750000,
+          "is_ppr": true,
+          "contract_date": "2020-08-15"
+        }
+      ],
+      "notes": "sold"
+    },
+    {
+      "address": "Property B - Missing Sale Price",
+      "property_history": [
+        {
+          "date": "2012-06-10",
+          "event": "purchase",
+          "price": 500000,
+          "is_ppr": true
+        },
+        {
+          "date": "2012-06-10",
+          "event": "move_in",
+          "is_ppr": true
+        },
+        {
+          "date": "2021-12-20",
+          "event": "sale",
+          "is_ppr": true,
+          "contract_date": "2021-12-20"
+        }
+      ],
+      "notes": "sold"
+    },
+    {
+      "address": "Property C - Land Only (Missing Building Cost)",
+      "property_history": [
+        {
+          "date": "2015-09-01",
+          "event": "purchase",
+          "price": 200000,
+          "is_ppr": true
+        },
+        {
+          "date": "2016-03-15",
+          "event": "move_in",
+          "is_ppr": true
+        },
+        {
+          "date": "2023-05-30",
+          "event": "sale",
+          "price": 650000,
+          "is_ppr": true,
+          "contract_date": "2023-05-30"
+        }
+      ],
+      "notes": "Bought land, built house - only have land price",
+      "land_price": 200000
+    }
+  ],
+  "user_query": "Calculate CGT for these 3 sold properties",
+  "additional_info": {
+    "australian_resident": true
+  }
+}

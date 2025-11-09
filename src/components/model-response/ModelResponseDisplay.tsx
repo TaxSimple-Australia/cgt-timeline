@@ -313,23 +313,6 @@ export default function ModelResponseDisplay({
             )}
           </div>
         </div>
-
-        {/* Powered by AI Badge */}
-        {responseData.use_claude && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.4, delay: 1.0 }}
-            className="flex justify-center"
-          >
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-950/30 dark:to-blue-950/30 border border-purple-200 dark:border-purple-800 rounded-full">
-              <div className="w-2 h-2 bg-purple-500 rounded-full animate-pulse" />
-              <span className="text-xs font-medium text-gray-700 dark:text-gray-300">
-                Powered by Claude AI
-              </span>
-            </div>
-          </motion.div>
-        )}
       </motion.div>
 
       {/* Detailed Report Modal */}

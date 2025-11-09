@@ -7,6 +7,7 @@ import ConversationBox from '@/components/ConversationBox';
 import { ModelResponseDisplay } from '@/components/model-response';
 import LoadingSpinner from '@/components/model-response/LoadingSpinner';
 import ErrorDisplay from '@/components/model-response/ErrorDisplay';
+import FeedbackModal from '@/components/FeedbackModal';
 import { useTimelineStore } from '@/store/timeline';
 import { useValidationStore } from '@/store/validation';
 import { transformTimelineToAPIFormat } from '@/lib/transform-timeline-data';
@@ -16,7 +17,16 @@ import { motion, AnimatePresence } from 'framer-motion';
 import type { CGTModelResponse } from '@/types/model-response';
 
 export default function Home() {
-  const { selectedProperty, loadDemoData, properties, events } = useTimelineStore();
+  const {
+    selectedProperty,
+    loadDemoData,
+    properties,
+    events,
+    selectedIssue,
+    timelineIssues,
+    selectIssue,
+    resolveIssue
+  } = useTimelineStore();
   const { setValidationIssues, clearValidationIssues, setApiConnected } = useValidationStore();
   const [showAnalysis, setShowAnalysis] = useState(false);
   const [analysisData, setAnalysisData] = useState<CGTModelResponse | null>(null);
@@ -186,6 +196,13 @@ export default function Home() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* AI Feedback Modal */}
+      <FeedbackModal
+        issue={selectedIssue ? timelineIssues.find(i => i.id === selectedIssue) || null : null}
+        onClose={() => selectIssue(null)}
+        onResolve={resolveIssue}
+      />
     </main>
   );
 }

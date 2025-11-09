@@ -1,0 +1,249 @@
+{
+  "status": "success",
+  "timestamp": "2025-11-05T08:09:18.399696",
+  "num_properties": 1,
+  "analysis": "# CGT ANALYSIS - PROPERTY PORTFOLIO\n\n## PROPERTY 1: 123 Main Street, Sydney, NSW 2000\n\n### 1. Scenario and Applicable Rules\n\n**Scenario:** Main Residence Exemption\n\n**Timeline:**\n- 15 January 2015: Purchased\n- 15 January 2015: Moved in (same day)\n- 30 June 2023: Sold\n- **Total ownership period:** 8 years, 5 months, 15 days (3,088 days)\n- **Period as main residence:** 3,088 days (100% of ownership)\n\n**Applicable Rules:**\n\nThis property qualifies for analysis under **RULE 4** (main_residence_complete_guide.pdf, page 3), which states:\n\n> \"Your main residence (your home) is exempt from CGT if you're an Australian resident and the dwelling:\n> - has been the home of you, your partner and other dependants for the whole period you have owned it\n> - hasn't been used to produce income\n> - is on land of 2 hectares or less.\"\n\n### 2. Capital Gain Calculation\n\n**Not applicable** - Full exemption applies (see below)\n\nSince no purchase price or sale price was provided in the portfolio data, I cannot calculate the actual capital gain amount. However, the calculation methodology would be:\n\n```\nCapital Gain = Sale Proceeds - Cost Base - Selling Costs\n```\n\n### 3. Exemptions\n\n**FULL MAIN RESIDENCE EXEMPTION APPLIES**\n\nBased on the facts provided:\n\n\u2705 **Moved in immediately upon purchase** (15 January 2015)\n\u2705 **Lived in property for entire ownership period** (100% of 3,088 days)\n\u2705 **No income-producing use mentioned** (no rental, business, or flipping activity)\n\u2705 **No indication of land exceeding 2 hectares**\n\n**Conclusion per RULE 4:**\n> \"If you meet these conditions, you don't pay tax on any capital gain when you sell your home and you ignore any capital loss.\"\n\n**CGT Liability for Property 1: $0**\n\n### 4. Cross-Property Considerations\n\n**Impact from other properties:** NONE\n\nThis is a single-property portfolio. There are no other properties that could:\n- Compete for main residence status\n- Trigger six-year rule complications\n- Create partial exemption issues\n\n**Impact on other properties:** N/A (no other properties exist)\n\n---\n\n## TOTAL PORTFOLIO CGT LIABILITY\n\n### Summary Table\n\n| Property | Address | Capital Gain | Exemption | Taxable Gain | CGT Payable |\n|----------|---------|--------------|-----------|--------------|-------------|\n| 1 | 123 Main Street, Sydney | Not calculated* | 100% | $0 | **$0** |\n\n*Insufficient data provided (no purchase/sale prices)\n\n### **TOTAL CGT LIABILITY: $0**\n\n---\n\n## RECOMMENDATIONS\n\n### \u2705 Compliance Actions Required\n\n1. **Record Keeping (RULE 1 requirement)**\n   - Maintain proof of purchase date (15 Jan 2015)\n   - Keep evidence of move-in date (15 Jan 2015)\n   - Retain utility bills, electoral roll records, mail delivery evidence\n   - Keep sale contract (30 June 2023)\n   - Document that land is \u22642 hectares (site plans)\n\n2. **Tax Return Reporting**\n   - Even though CGT is $0, you should report the sale in your 2022-23 tax return\n   - Complete the CGT schedule showing the exemption claimed\n   - This creates an audit trail and demonstrates compliance\n\n3. **Documentation to Retain**\n   Per RULE 1:\n   > \"evidence of how your property qualifies as a main residence\"\n   \n   Keep for 5 years after the sale:\n   - Settlement statements\n   - Rates notices showing your name\n   - Driver's license records\n   - Bank statements with property address\n   - Electoral roll evidence\n\n### \ud83c\udfaf Optimization Opportunities\n\n**NONE REQUIRED** - This is the optimal outcome. You have achieved:\n- 100% main residence exemption\n- Zero CGT liability\n- No partial exemption calculations needed\n\n### \u26a0\ufe0f Potential Issues Identified\n\n**NONE** - This is a straightforward, clean main residence exemption case with no complications.\n\n---\n\n## CONFLICTS OR ISSUES\n\n### No Conflicts Detected\n\nThis portfolio presents **no CGT conflicts or complications** because:\n\n1. \u2705 Single property only (no competing main residence claims)\n2. \u2705 Occupied immediately and continuously\n3. \u2705 No income-producing use\n4. \u2705 No absence periods requiring six-year rule analysis\n5. \u2705 No land size issues (assumed \u22642 hectares)\n6. \u2705 No partial exemption calculations required\n\n---\n\n## FINAL ANSWER\n\n**Your CGT on this property sale is: $0 (NIL)**\n\nYou qualify for the **full main residence exemption** under section 118-110 of the Income Tax Assessment Act 1997. The property was your home for the entire period of ownership, was not used to produce income, and meets all eligibility criteria per RULE 4.\n\n**Action Required:** Report the sale in your 2022-23 tax return with the main residence exemption claimed, and retain all supporting documentation for 5 years.",
+  "metadata": {
+    "chunks_retrieved": 5,
+    "llm_used": "claude",
+    "confidence": 85.0,
+    "warnings": [],
+    "retrieved_documents": [
+      {
+        "content": "You must keep records when you claim the main residence exemption\nfrom CGT.\nWe sometimes request evidence (for a review or audit) to support your\nincome tax self-assessment.\nThe records you may be asked to provide include, but are not limited\nto:\nproof of the compulsory acquisition arrangement\nevidence of how your property qualifies as a main residence\ncalculations of your capital gain or loss\nsite plans or other documents showing that the total compulsorily\nacquired land during your ownership is 2 hectares or less.\nQC66036\nHome on more than 2 hectares\nChoose which part of your property is exempt from CGT if\nit's larger than 2 hectares.\nLast updated 23 June 2025\nWhich part of your land is exempt\nWhen selling your home you can claim the main residence exemption\nfrom capital gains tax \u0000CGT\u0000 for up to 2 hectares of the land your home\nis on.\nIf your land is used for private purposes and is greater than 2 hectares,\nyou can choose which 2 hectares are exempt. The rest is subject to\nCGT.\nIf any part of the land is used to produce income it is not exempt. This\nis the case even if the total land area is less than 2 hectares.\nThe 2 hectares you choose must include the land that is under your\ndwelling.",
+        "metadata": {
+          "page_num": 38,
+          "source_file": "main_residence_complete_guide.pdf",
+          "chunk_type": "section",
+          "people": "",
+          "category": "land_size",
+          "word_count": 220,
+          "sections": ""
+        },
+        "score": 0.09334051609039307,
+        "retrieval_strategy": "semantic_search"
+      },
+      {
+        "content": "QC66035\nCompulsory acquisition of your\nhome\nFind out if the payment you receive for compulsory\nacquisition of your home is exempt from CGT.\nLast updated 23 June 2025\nHow CGT applies when your home is\ncompulsorily acquired\nIf all or part of your home is compulsorily acquired, you can apply the\nmain residence exemption to any money or other compensation you\nreceive.\nIf your home is compulsorily acquired and you are entitled to the full\nmain residence exemption, you ignore any capital gain or loss.\nYou are also covered by the main residence exemption if only part of\nyour property is compulsorily acquired, such as:\nland adjacent to your home\na structure associated with your home, such as a garage.\nYou can apply the main residence exemption to a maximum of\n2 hectares of your property during your ownership.\nTo be exempt the land must be used for private purposes.\nIf the land you use for private purposes is larger than 2 hectares, you\ncan nominate which part the exemption will apply to. However, the 2-\nhectare total must always include the land underneath your dwelling.\nThis limit may be reached in stages through multiple capital gains tax\n\u0000CGT\u0000 events.\nYou also ignore a capital gain or loss from the compulsory acquisition\nof land adjacent to an inherited dwelling.",
+        "metadata": {
+          "category": "land_size",
+          "page_num": 36,
+          "source_file": "main_residence_complete_guide.pdf",
+          "word_count": 219,
+          "people": "",
+          "sections": "",
+          "chunk_type": "section"
+        },
+        "score": 0.09320008754730225,
+        "retrieval_strategy": "semantic_search"
+      },
+      {
+        "content": "The surviving joint owner (or if none, the trustee of the deceased\nestate) can choose to treat the land and dwelling as the deceased's\nmain residence. The conditions are the same, except that the\nexemption period ends when the deceased died.\nQC66034\nDestruction of your home\nCheck if your insurance payment or land is exempt from\nCGT.\nLast updated 23 June 2025\nIf your home is destroyed accidentally (such as through a natural\ndisaster), you can apply the main residence exemption to any money\nyou receive as a result.\nThis means if your home was fully exempt before it was destroyed,\nthen:\nif you sell your vacant land, it is exempt from capital gains tax \u0000CGT\u0000\nany insurance payment or other compensation is exempt from CGT.\nIf your home was only partially exempt before it was destroyed, CGT\nwill apply to the part that was not exempt. For example, CGT will apply\nif:\nyou used part of your home for rental or business\nyour home was on more than 2 hectares of land.\nIf you move to a new home before you sell the vacant land of your\nformer home, you can treat both as your main residence for up to\n6 months.\nIf you build a new home on your land, you can treat the land as your\nmain residence for up to 4 years before you move in. During this period\nyou can't claim the main residence exemption for any other dwelling.\nWe can help you deal with a disaster \u2013 for example, by helping you\nreconstruct your tax records or allowing early access to refunds.",
+        "metadata": {
+          "chunk_type": "section",
+          "people": "",
+          "sections": "",
+          "word_count": 268,
+          "page_num": 35,
+          "source_file": "main_residence_complete_guide.pdf",
+          "category": "land_size"
+        },
+        "score": 0.08944690227508545,
+        "retrieval_strategy": "semantic_search"
+      },
+      {
+        "content": "Check if you qualify for the main residence exemption and\nwhether your home is considered a dwelling.\nLast updated 23 June 2025\nEligibility conditions\nYour main residence (your home) is exempt from CGT if you're an\nAustralian resident and the dwelling:\nhas been the home of you, your partner and other dependants for\nthe whole period you have owned it\nhasn't been used to produce income \u2013 that is, you have not run a\nbusiness from it, rented it out or 'flipped' it (bought it to renovate\nand sell at a profit)\nis on land of 2 hectares or less.\nIf you meet these conditions, you don't pay tax on any capital gain\nwhen you sell your home and you ignore any capital loss.\nIf you don't meet all these conditions, you may still be entitled to a\npartial exemption. You can work out the proportion that is exempt\nusing the CGT property exemption tool.\nCGT property exemption tool\nFor a summary fact sheet with common scenarios about CGT and\neligibility for the main residence exemption, go to the ATO Publication\nOrdering Service to download Capital gains tax and the main\nresidence exemption .\nWhat is a main residence?\nGenerally, a dwelling is considered to be your main residence if:\nyou and your family live in it\nyour personal belongings are in it\nit is the address your mail is delivered to\nit is your address on the electoral roll",
+        "metadata": {
+          "category": "partial_exemption",
+          "word_count": 240,
+          "people": "",
+          "page_num": 3,
+          "chunk_type": "section",
+          "sections": "",
+          "source_file": "main_residence_complete_guide.pdf"
+        },
+        "score": 0.07911157608032227,
+        "retrieval_strategy": "semantic_search"
+      },
+      {
+        "content": "Erin didn\u2019t want to treat the old house as her main residence\nunder the \u2018continuing main residence status after moving out\u2019\noption as she wanted the new house to be treated as her main\nresidence from the date she moved into it.\nIn June 2025 Erin sold the old house for $696,000. Erin is taken\nto have acquired the old house for $650,000 on 2 August 2024\nand calculates her capital gain to be $46,000.\nBecause Erin is taken to have acquired the old house on 2 August\n2024, she is taken to have owned it for less than 12 months and\ncan\u2019t use the CGT discount to reduce her capital gain.\nWatch: Selling a rental property that was your home\nMedia:Running a business from home\nhttp://tv.ato.gov.au/ato-tv/media?v=bd1bdiubfs6pgq\nMedia: Selling a rental property that was your home\nhttps://tv.ato.gov.au/ato-tv/media?v=bd1bdiubfs6pgq (Duration:\n3\u000017\u0000\nRental property becomes your main\nresidence\nIf your rental property becomes your main residence, your eligibility for\na main residence exemption is limited to the period you lived in the\nproperty. For the period the property was rented out, you will be liable\nfor CGT when you sell the property.\nUse the following formula to work out your CGT when you sell your\nproperty:\nCapital gain or loss \u00d7 (number of days the property was used to\nproduce income \u00f7 total number of days you owned the property)",
+        "metadata": {
+          "chunk_type": "section",
+          "word_count": 227,
+          "source_file": "main_residence_complete_guide.pdf",
+          "people": "Erin",
+          "sections": "",
+          "page_num": 31,
+          "category": "main_residence"
+        },
+        "score": 0.02515721321105957,
+        "retrieval_strategy": "semantic_search"
+      }
+    ]
+  },
+  "validation": {
+    "citation_check": {
+      "total_citations": 5,
+      "valid_citations": 5,
+      "invalid_citations": [
+        "section 118"
+      ],
+      "citation_details": [
+        {
+          "rule_number": "4",
+          "source": "main_residence_complete_guide.pdf",
+          "page": 3,
+          "valid": true
+        },
+        {
+          "rule_number": "4",
+          "source": "main_residence_complete_guide.pdf",
+          "page": 3,
+          "valid": true
+        },
+        {
+          "rule_number": "1",
+          "source": "main_residence_complete_guide.pdf",
+          "page": 38,
+          "valid": true
+        },
+        {
+          "rule_number": "1",
+          "source": "main_residence_complete_guide.pdf",
+          "page": 38,
+          "valid": true
+        },
+        {
+          "rule_number": "4",
+          "source": "main_residence_complete_guide.pdf",
+          "page": 3,
+          "valid": true
+        }
+      ]
+    },
+    "calculation_check": {
+      "calculations_found": 0,
+      "calculations_verified": 0,
+      "calculation_errors": []
+    },
+    "logic_check": {
+      "logic_checks": [
+        {
+          "check": "missing_information_flagged",
+          "status": "pass",
+          "note": "Analysis correctly identifies missing information"
+        },
+        {
+          "check": "multiple_scenarios",
+          "status": "pass",
+          "note": "Analysis considers multiple scenarios/outcomes"
+        },
+        {
+          "check": "recommendations_provided",
+          "status": "pass",
+          "note": "Clear recommendations provided"
+        }
+      ],
+      "completeness_score": 100.0,
+      "consistency_issues": []
+    },
+    "warnings": [],
+    "overall_confidence": 85.0
+  },
+  "error": null,
+  "pre_verification": {
+    "status": "passed",
+    "summary": {
+      "critical_issues": 0,
+      "warnings": 0,
+      "resolved_false_positives": 1,
+      "total_issues_flagged": 1,
+      "total_issues_after_llm": 0
+    },
+    "issues": [],
+    "clarification_questions": [],
+    "normalized_data": {
+      "properties": [
+        {
+          "address": "123 Main Street, Sydney, NSW 2000",
+          "property_history": [
+            {
+              "date": "2015-01-15",
+              "event": "purchase",
+              "price": 650000.0,
+              "price_per_week": null,
+              "is_ppr": true,
+              "contract_date": null
+            },
+            {
+              "date": "2015-01-15",
+              "event": "move_in",
+              "price": null,
+              "price_per_week": null,
+              "is_ppr": true,
+              "contract_date": null
+            },
+            {
+              "date": "2023-06-30",
+              "event": "sale",
+              "price": 900000.0,
+              "price_per_week": null,
+              "is_ppr": true,
+              "contract_date": "2023-06-30"
+            }
+          ],
+          "notes": "sold"
+        }
+      ],
+      "user_query": "What is my CGT on this property sale?",
+      "additional_info": {
+        "australian_resident": true,
+        "other_property_owned": false,
+        "land_size_hectares": null,
+        "marginal_tax_rate": null
+      }
+    },
+    "timeline_analysis": {
+      "status": "success",
+      "analysis_period": {
+        "start": "2015-01-15",
+        "end": "2023-06-30",
+        "total_days": 3089
+      },
+      "gaps": [
+        {
+          "start_date": "2015-01-15",
+          "end_date": "2023-06-30",
+          "duration_days": 3089,
+          "owned_properties": []
+        }
+      ],
+      "overlaps": [],
+      "statistics": {
+        "total_days": 3089,
+        "gap_days": 3089,
+        "overlap_days": 0,
+        "accounted_days": 0,
+        "accounted_percentage": 0.0,
+        "total_gaps": 1,
+        "total_overlaps": 0
+      },
+      "has_issues": true
+    },
+    "llm_decision": {
+      "critical": [],
+      "resolved": [
+        {
+          "index": 0,
+          "issue_category": "timeline_gap",
+          "reasoning": "The timeline gap from 2015-01-15 to 2023-06-30 is filled by the ownership and residence in the property at 123 Main Street, Sydney, NSW 2000. The user purchased and moved into this property on 2015-01-15 and sold it on 2023-06-30. Therefore, there is no actual gap in the timeline.",
+          "original_message": "Timeline gap: 2015-01-15 to 2023-06-30 (3089 days). Where were you living?"
+        }
+      ],
+      "clarify": [],
+      "summary": "The property at 123 Main Street was owned and lived in by the user from 2015-01-15 to 2023-06-30, filling the entire timeline. The property was sold with complete data (purchase: 650,000, sale: 900,000). No critical issues - data is complete.",
+      "verification_passed": true
+    },
+    "llm_summary": "The property at 123 Main Street was owned and lived in by the user from 2015-01-15 to 2023-06-30, filling the entire timeline. The property was sold with complete data (purchase: 650,000, sale: 900,000). No critical issues - data is complete."
+  }
+}

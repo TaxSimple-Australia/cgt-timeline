@@ -17,7 +17,8 @@ import {
   Sun,
   Circle,
   LayoutGrid,
-  Check
+  Check,
+  Sparkles
 } from 'lucide-react';
 
 export default function TimelineControls() {
@@ -46,7 +47,9 @@ export default function TimelineControls() {
     theme,
     toggleTheme,
     eventDisplayMode,
-    toggleEventDisplayMode
+    toggleEventDisplayMode,
+    analyzePortfolio,
+    isAnalyzing
   } = useTimelineStore();
 
   // Get zoom level label for display
@@ -272,12 +275,37 @@ export default function TimelineControls() {
 
       {/* Right Controls */}
       <div className="flex items-center gap-2">
+        {/* Analyze Button */}
+        <button
+          onClick={() => analyzePortfolio()}
+          disabled={isAnalyzing || properties.length === 0}
+          className="
+            flex items-center gap-2 px-4 py-2
+            bg-gradient-to-r from-purple-600 to-blue-600
+            hover:from-purple-700 hover:to-blue-700
+            disabled:from-gray-400 disabled:to-gray-500
+            disabled:cursor-not-allowed
+            text-white
+            rounded-lg
+            font-medium
+            transition-all
+            shadow-lg hover:shadow-xl
+            border-r border-slate-200 dark:border-slate-700 mr-2
+          "
+          title="Analyze portfolio with AI"
+        >
+          <Sparkles className={`w-4 h-4 ${isAnalyzing ? 'animate-spin' : ''}`} />
+          <span className="text-sm">
+            {isAnalyzing ? 'Analyzing...' : 'Analyze'}
+          </span>
+        </button>
+
         {/* Zoom Slider */}
         <div className="flex items-center gap-2 border-r border-slate-200 dark:border-slate-700 pr-2">
           <input
             type="range"
             min="0"
-            max="7"
+            max="8"
             value={getZoomLevelIndex()}
             onChange={(e) => setZoomByIndex(parseInt(e.target.value))}
             className="w-32 h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer

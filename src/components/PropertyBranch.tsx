@@ -8,7 +8,9 @@ import { useValidationStore } from '@/store/validation';
 import EventCircle from './EventCircle';
 import EventCardView from './EventCardView';
 import PropertyStatusBands from './PropertyStatusBands';
+import TimelineGap from './TimelineGap';
 import { cn, dateToPosition } from '@/lib/utils';
+import type { PositionedGap } from '@/types/ai-feedback';
 
 interface PropertyBranchProps {
   property: Property;
@@ -31,9 +33,22 @@ export default function PropertyBranch({
   timelineEnd,
   onEventClick,
 }: PropertyBranchProps) {
-  const { eventDisplayMode } = useTimelineStore();
+  const { eventDisplayMode, positionedGaps, selectIssue } = useTimelineStore();
   const { getIssuesForProperty } = useValidationStore();
   const branchY = 100 + branchIndex * 120; // Vertical spacing between branches
+
+  // Get gaps that apply to this property
+  const propertyGaps = positionedGaps.filter(gap =>
+    gap.propertyIds.includes(property.id)
+  );
+
+  // Debug logging to help troubleshoot gap display
+  if (positionedGaps.length > 0) {
+    console.log('PropertyBranch:', property.name, 'ID:', property.id);
+    console.log('Total gaps:', positionedGaps.length);
+    console.log('Gaps for this property:', propertyGaps.length);
+    console.log('Property gaps:', propertyGaps);
+  }
 
   // Get validation issues for this property
   const propertyIssues = getIssuesForProperty(property.name) || getIssuesForProperty(property.address);
@@ -134,6 +149,25 @@ export default function PropertyBranch({
         timelineEnd={timelineEnd}
         propertyColor={property.color}
       />
+
+      {/* Timeline Gaps for this Property */}
+      {propertyGaps.map((gap) => (
+        <TimelineGap
+          key={gap.id}
+          gap={gap}
+          timelineHeight={40} // Height of branch line area
+          branchY={branchY}
+          onClick={() => {
+            // Find and select the related issue
+            const gapIssue = useTimelineStore.getState().timelineIssues.find(
+              issue => issue.gapId === gap.id
+            );
+            if (gapIssue) {
+              selectIssue(gapIssue.id);
+            }
+          }}
+        />
+      ))}
 
       {/* Warning Glow Effect for Properties with Issues */}
       {hasIssues && (

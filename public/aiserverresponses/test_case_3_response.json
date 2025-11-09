@@ -1,0 +1,378 @@
+{
+  "status": "success",
+  "timestamp": "2025-11-05T00:16:31.438448",
+  "num_properties": 5,
+  "analysis": "# COMPREHENSIVE CGT ANALYSIS - PROPERTY PORTFOLIO\n\n## EXECUTIVE SUMMARY\n**Total CGT Liability: CANNOT BE CALCULATED** - Insufficient financial data provided (purchase prices, sale prices, costs).\n\nHowever, I can provide a complete structural analysis of exemption eligibility and cross-property impacts.\n\n---\n\n## PROPERTY-BY-PROPERTY ANALYSIS\n\n### PROPERTY 1: First Home (SOLD) \u26a0\ufe0f **CGT EVENT OCCURRED**\n\n**Timeline:**\n- 10 Jan 2005: Purchase & Move in\n- 15 Jun 2010: Move out (5.43 years as main residence)\n- 1 Jul 2010: Rent start\n- 20 Nov 2018: Sale (8.39 years as rental)\n- **Total ownership: 13.86 years**\n\n**Applicable Rules & Analysis:**\n\n#### Main Residence Period (10 Jan 2005 - 15 Jun 2010)\n- **Fully exempt** under main residence exemption [RULE 4]\n- Conditions met: lived in, no income production, Australian resident\n- **5.43 years = 100% exempt**\n\n#### Rental Period (1 Jul 2010 - 20 Nov 2018)\n\n**Six-Year Rule Assessment:**\nThe six-year rule allows continued main residence exemption for up to 6 years after moving out IF:\n1. The property was your main residence before renting\n2. You don't treat another property as your main residence during this period\n\n**CRITICAL CROSS-PROPERTY CONFLICT:**\n\n| Period | Property 1 Status | Other Main Residence | Six-Year Rule Valid? |\n|--------|------------------|---------------------|---------------------|\n| 1 Jul 2010 - 30 Aug 2012 | Rental (2.16 yrs) | **Property 2 (tenant)** | \u274c NO - You were renting |\n| 1 Sep 2012 - 1 Jul 2016 | Rental (3.84 yrs) | **Property 4 (owned & occupied)** | \u274c NO - Treating P4 as main residence |\n| 2 Jul 2016 - 20 Nov 2018 | Rental (2.39 yrs) | **Property 4 (owned & occupied)** | \u274c NO - Treating P4 as main residence |\n\n**Conclusion:** The six-year rule is **INVALIDATED** because:\n1. You treated Property 2 as your main residence (2010-2012) [RULE 5 - only one main residence at a time]\n2. You treated Property 4 as your main residence (2012-2020)\n\n#### CGT Calculation for Property 1:\n\n**Exempt portion:** 5.43 years \u00f7 13.86 years = **39.18% exempt**\n\n**Taxable portion:** 8.39 years \u00f7 13.86 years = **60.52% taxable**\n\n**Formula:**\n```\nCapital Gain = Sale Price - Purchase Price - Costs\nTaxable Gain = Capital Gain \u00d7 60.52%\nCGT Discount (if held >12 months) = 50% reduction\nNet Taxable Gain = Taxable Gain \u00d7 50%\nCGT Liability = Net Taxable Gain \u00d7 Marginal Tax Rate\n```\n\n**Missing Data Required:**\n- Purchase price (2005)\n- Sale price (2018)\n- Purchase costs (stamp duty, legal fees)\n- Sale costs (agent fees, legal fees)\n- Capital improvements during ownership\n- Marginal tax rate for 2018-19 financial year\n\n---\n\n### PROPERTY 2: Apartment (RENTED AS TENANT) \u2705 **NO CGT**\n\n**Status:** You were a **tenant**, not owner\n- No CGT implications\n- This was your main residence 20 Jun 2010 - 30 Aug 2012\n- **Impact on Property 1:** Prevents six-year rule application during this period\n\n---\n\n### PROPERTY 3: Investment Property \u2705 **NOT SOLD - NO CGT EVENT**\n\n**Timeline:**\n- 15 Mar 2011: Purchase\n- 1 Apr 2011: Rent start\n- Never occupied as main residence\n\n**Status:** Pure investment property\n- **No main residence exemption available** [RULE 5 - never lived in]\n- When sold: Full CGT applies (with 50% discount if held >12 months)\n- Currently held: 13+ years (discount eligible)\n\n**Future CGT Calculation (when sold):**\n```\nCapital Gain = Sale Price - Purchase Price - Costs\nLess: 50% CGT discount\nTaxable Gain = Capital Gain \u00d7 50%\n```\n\n---\n\n### PROPERTY 4: Second Home \u2705 **NOT SOLD - NO CGT EVENT**\n\n**Timeline:**\n- 1 Sep 2012: Purchase & Move in\n- 10 Mar 2020: Move out\n- **7.53 years as main residence**\n- Never rented or used for income\n\n**Status:** Fully exempt main residence\n- 100% main residence exemption available [RULE 4]\n- No income production\n- Occupied entire ownership period until move-out\n\n**When sold:** Likely 100% exempt (unless rented after move-out)\n\n**Impact on Property 1:** Your occupation of Property 4 prevented six-year rule application to Property 1 during 2012-2018\n\n---\n\n### PROPERTY 5: Current Home \u2705 **NOT SOLD - NO CGT EVENT**\n\n**Timeline:**\n- 15 Mar 2020: Purchase & Move in\n- Current main residence\n\n**Status:** Current main residence\n- Will be fully exempt if sold while occupied [RULE 4]\n- No CGT issues currently\n\n---\n\n## CROSS-PROPERTY IMPACT ANALYSIS\n\n### Main Residence Timeline (Critical for Property 1 CGT)\n\n```\n2005-2010: Property 1 (owned & occupied) \u2705\n2010-2012: Property 2 (rented as tenant) \u26a0\ufe0f Blocks P1 six-year rule\n2012-2020: Property 4 (owned & occupied) \u26a0\ufe0f Blocks P1 six-year rule\n2020-now:  Property 5 (owned & occupied)\n```\n\n**Key Finding:** You maintained continuous main residence coverage, but this **prevents** the six-year absence rule from applying to Property 1's rental period.\n\n---\n\n## TOTAL CGT LIABILITY CALCULATION\n\n### Properties with CGT Events:\n**Only Property 1** has been sold.\n\n### CGT Liability Formula:\n\n```\nProperty 1 CGT = [(Sale Price - Purchase Price - Costs) \u00d7 60.52% \u00d7 50%] \u00d7 MTR\n\nWhere:\n- 60.52% = taxable portion (rental period)\n- 50% = CGT discount (held >12 months)\n- MTR = Marginal Tax Rate (2018-19)\n```\n\n### Example Calculation (Illustrative):\nAssuming:\n- Purchase price: $400,000\n- Sale price: $800,000\n- Costs: $50,000\n- Marginal tax rate: 37%\n\n```\nCapital Gain = $800,000 - $400,000 - $50,000 = $350,000\nTaxable portion = $350,000 \u00d7 60.52% = $211,820\nAfter CGT discount = $211,820 \u00d7 50% = $105,910\nCGT Liability = $105,910 \u00d7 37% = $39,187\n```\n\n**ACTUAL LIABILITY: Cannot be determined without financial data**\n\n---\n\n## RECOMMENDATIONS\n\n### 1. **Immediate Actions for Property 1 (Already Sold)**\n\n\u2705 **Obtain all financial records:**\n- Property 1 purchase contract (2005)\n- Property 1 sale contract (2018)\n- All improvement receipts (renovations, extensions)\n- Rental income records (2010-2018)\n- Depreciation schedules\n\n\u2705 **Prepare CGT calculation:**\n- Use partial exemption formula (39.18% exempt)\n- Apply 50% CGT discount\n- Report in 2018-19 tax return (if not already done)\n\n\u26a0\ufe0f **If not yet reported:** This is now 5+ years overdue. Consider:\n- Voluntary disclosure to ATO\n- Engage tax professional immediately\n- Potential penalties and interest apply\n\n### 2. **Future Planning for Property 3 (Investment)**\n\nThis property has **zero main residence exemption** available.\n\n**Options to minimize CGT:**\n- Hold until retirement (lower tax bracket)\n- Consider timing of sale with lower income years\n- Offset against capital losses from other investments\n- 50% discount applies (held >12 months)\n\n**Do NOT:**\n- Move into Property 3 temporarily before sale (won't help - already established as pure investment)\n\n### 3. **Property 4 Strategy**\n\nCurrently vacant (moved out Mar 2020).\n\n**Options:**\n\n**Option A: Sell soon (before renting)**\n- 100% main residence exemption\n- No CGT liability\n- **Best CGT outcome**\n\n**Option B: Rent out**\n- Can use six-year rule IF you don't buy another main residence\n- But you already own Property 5 as main residence\n- Six-year rule **NOT available**\n- Partial exemption only\n\n**Recommendation:** If considering selling Property 4, do so **before** renting it out to preserve full exemption.\n\n### 4. **Property 5 (Current Home)**\n\nNo issues. Maintain as main residence.\n\n### 5. **Record Keeping** [RULE 2]\n\nEnsure you maintain for all properties:\n- Purchase/sale contracts\n- Improvement receipts\n- Occupancy records\n- Rental agreements and income records\n- Utility bills showing occupancy\n- Electoral roll evidence\n\n---\n\n## CONFLICTS & ISSUES IDENTIFIED\n\n### \u26a0\ufe0f **Issue 1: Property 1 Six-Year Rule Failure**\n\n**Problem:** The scenario label suggests \"rental_property_exemption\" but the six-year rule does NOT apply because you maintained another main residence throughout the rental period.\n\n**Impact:** 60.52% of Property 1's gain is taxable (not fully exempt as scenario name suggests)\n\n### \u26a0\ufe0f **Issue 2: Potential Unreported CGT**\n\nProperty 1 sold in November 2018 (FY 2018-19). If CGT not reported:\n- Tax return amendment required\n- Penalties: Up to 75% of tax shortfall\n- Interest: General Interest Charge from due date\n- **Action required immediately**\n\n### \u26a0\ufe0f **Issue 3: Property 4 Timing Risk**\n\nProperty 4 vacant since March 2020 (4+ years ago).\n\n**Risk:** If you rent it out now:\n- Lose full main residence exemption\n- Six-year rule won't apply (Property 5 is main residence)\n- Partial exemption only\n\n**Recommendation:** Sell before renting if disposal planned.\n\n---\n\n## SUMMARY TABLE\n\n| Property | Status | CGT Event? | Exemption | CGT Liability |\n|----------|--------|-----------|-----------|---------------|\n| Property 1 | Sold 2018 | \u2705 YES | 39.18% exempt | **TAXABLE** - Data needed |\n| Property 2 | Tenant | \u274c NO | N/A | $0 (not owned) |\n| Property 3 | Held | \u274c NO | 0% exempt | Future liability |\n| Property 4 | Held | \u274c NO | 100% exempt (if sold now) | $0 (if sold before renting) |\n| Property 5 | Held | \u274c NO | 100% exempt | $0 |\n\n**TOTAL CURRENT CGT LIABILITY: Property 1 only - amount cannot be calculated without financial data**\n\n---\n\n## REQUIRED INFORMATION TO CALCULATE EXACT LIABILITY\n\nPlease provide for Property 1:\n1. Purchase price (2005)\n2. Sale price (2018)\n3. Purchase costs (stamp duty, legal, etc.)\n4. Sale costs (agent commission, legal, etc.)\n5. Capital improvements (with dates and amounts)\n6. Your marginal tax rate in 2018-19\n7. Confirmation whether this was reported in 2018-19 tax return\n\n---\n\n**URGENT:** If Property 1 CGT has not been reported, seek professional tax advice immediately to minimize penalties.",
+  "metadata": {
+    "chunks_retrieved": 5,
+    "llm_used": "claude",
+    "confidence": 75.0,
+    "warnings": [],
+    "retrieved_documents": [
+      {
+        "content": "The surviving joint owner (or if none, the trustee of the deceased\nestate) can choose to treat the land and dwelling as the deceased's\nmain residence. The conditions are the same, except that the\nexemption period ends when the deceased died.\nQC66034\nDestruction of your home\nCheck if your insurance payment or land is exempt from\nCGT.\nLast updated 23 June 2025\nIf your home is destroyed accidentally (such as through a natural\ndisaster), you can apply the main residence exemption to any money\nyou receive as a result.\nThis means if your home was fully exempt before it was destroyed,\nthen:\nif you sell your vacant land, it is exempt from capital gains tax \u0000CGT\u0000\nany insurance payment or other compensation is exempt from CGT.\nIf your home was only partially exempt before it was destroyed, CGT\nwill apply to the part that was not exempt. For example, CGT will apply\nif:\nyou used part of your home for rental or business\nyour home was on more than 2 hectares of land.\nIf you move to a new home before you sell the vacant land of your\nformer home, you can treat both as your main residence for up to\n6 months.\nIf you build a new home on your land, you can treat the land as your\nmain residence for up to 4 years before you move in. During this period\nyou can't claim the main residence exemption for any other dwelling.\nWe can help you deal with a disaster \u2013 for example, by helping you\nreconstruct your tax records or allowing early access to refunds.",
+        "metadata": {
+          "category": "land_size",
+          "word_count": 268,
+          "source_file": "main_residence_complete_guide.pdf",
+          "chunk_type": "section",
+          "page_num": 35,
+          "people": "",
+          "sections": ""
+        },
+        "score": 0.192643940448761,
+        "retrieval_strategy": "semantic_search"
+      },
+      {
+        "content": "You must keep records when you claim the main residence exemption\nfrom CGT.\nWe sometimes request evidence (for a review or audit) to support your\nincome tax self-assessment.\nThe records you may be asked to provide include, but are not limited\nto:\nproof of the compulsory acquisition arrangement\nevidence of how your property qualifies as a main residence\ncalculations of your capital gain or loss\nsite plans or other documents showing that the total compulsorily\nacquired land during your ownership is 2 hectares or less.\nQC66036\nHome on more than 2 hectares\nChoose which part of your property is exempt from CGT if\nit's larger than 2 hectares.\nLast updated 23 June 2025\nWhich part of your land is exempt\nWhen selling your home you can claim the main residence exemption\nfrom capital gains tax \u0000CGT\u0000 for up to 2 hectares of the land your home\nis on.\nIf your land is used for private purposes and is greater than 2 hectares,\nyou can choose which 2 hectares are exempt. The rest is subject to\nCGT.\nIf any part of the land is used to produce income it is not exempt. This\nis the case even if the total land area is less than 2 hectares.\nThe 2 hectares you choose must include the land that is under your\ndwelling.",
+        "metadata": {
+          "category": "land_size",
+          "source_file": "main_residence_complete_guide.pdf",
+          "chunk_type": "section",
+          "sections": "",
+          "page_num": 38,
+          "people": "",
+          "word_count": 220
+        },
+        "score": 0.09507298469543457,
+        "retrieval_strategy": "semantic_search"
+      },
+      {
+        "content": "QC66035\nCompulsory acquisition of your\nhome\nFind out if the payment you receive for compulsory\nacquisition of your home is exempt from CGT.\nLast updated 23 June 2025\nHow CGT applies when your home is\ncompulsorily acquired\nIf all or part of your home is compulsorily acquired, you can apply the\nmain residence exemption to any money or other compensation you\nreceive.\nIf your home is compulsorily acquired and you are entitled to the full\nmain residence exemption, you ignore any capital gain or loss.\nYou are also covered by the main residence exemption if only part of\nyour property is compulsorily acquired, such as:\nland adjacent to your home\na structure associated with your home, such as a garage.\nYou can apply the main residence exemption to a maximum of\n2 hectares of your property during your ownership.\nTo be exempt the land must be used for private purposes.\nIf the land you use for private purposes is larger than 2 hectares, you\ncan nominate which part the exemption will apply to. However, the 2-\nhectare total must always include the land underneath your dwelling.\nThis limit may be reached in stages through multiple capital gains tax\n\u0000CGT\u0000 events.\nYou also ignore a capital gain or loss from the compulsory acquisition\nof land adjacent to an inherited dwelling.",
+        "metadata": {
+          "page_num": 36,
+          "chunk_type": "section",
+          "word_count": 219,
+          "category": "land_size",
+          "sections": "",
+          "people": "",
+          "source_file": "main_residence_complete_guide.pdf"
+        },
+        "score": 0.09279930591583252,
+        "retrieval_strategy": "semantic_search"
+      },
+      {
+        "content": "Check if you qualify for the main residence exemption and\nwhether your home is considered a dwelling.\nLast updated 23 June 2025\nEligibility conditions\nYour main residence (your home) is exempt from CGT if you're an\nAustralian resident and the dwelling:\nhas been the home of you, your partner and other dependants for\nthe whole period you have owned it\nhasn't been used to produce income \u2013 that is, you have not run a\nbusiness from it, rented it out or 'flipped' it (bought it to renovate\nand sell at a profit)\nis on land of 2 hectares or less.\nIf you meet these conditions, you don't pay tax on any capital gain\nwhen you sell your home and you ignore any capital loss.\nIf you don't meet all these conditions, you may still be entitled to a\npartial exemption. You can work out the proportion that is exempt\nusing the CGT property exemption tool.\nCGT property exemption tool\nFor a summary fact sheet with common scenarios about CGT and\neligibility for the main residence exemption, go to the ATO Publication\nOrdering Service to download Capital gains tax and the main\nresidence exemption .\nWhat is a main residence?\nGenerally, a dwelling is considered to be your main residence if:\nyou and your family live in it\nyour personal belongings are in it\nit is the address your mail is delivered to\nit is your address on the electoral roll",
+        "metadata": {
+          "word_count": 240,
+          "category": "partial_exemption",
+          "chunk_type": "section",
+          "sections": "",
+          "people": "",
+          "source_file": "main_residence_complete_guide.pdf",
+          "page_num": 3
+        },
+        "score": 0.060927510261535645,
+        "retrieval_strategy": "semantic_search"
+      },
+      {
+        "content": "Capital gains tax and the main residence exemption (continued)\nCommon scenarios when you sell your property and are not eligible for the main\nresidence exemption and what to report in your tax return\nScenario\u2026\nDuring property Eligibility for main What to include\nownership period residence exemption (MRE) in your tax return\nYou own your home If you own 2 homes at the same time \u2013 Report CGT gain or loss amount.\nand a holiday house for example, your home and a holiday\nhouse. You can only apply the main\nresidence exemption for one property\nat a time. If you are intending to claim a\nfull MRE for your home, you will need to\nreport a capital gain or loss when you\nsell your holiday house.\nFor more information, see Holiday homes.\nYou rented the You\u2019re not eligible for the MRE. Not eligible for MRE.\nproperty and never\nFor more information, see Report CGT gain or loss amount.\nlived in it\nCGT when selling your rental property\nYou bought vacant You\u2019re not eligible for the MRE if you sold Not eligible for MRE.\nland with the intent vacant land, even if your intention was\nReport CGT gain or loss amount.\nto build a new home, to build a home on it.\nbut didn\u2019t build and\nFor more information, see:\nsold it as vacant land\n\u2022 Eligibility for main residence exemption\n\u2022 Vacant land and subdividing.\nYou demolished You\u2019re not eligible for a MRE when you Not eligible for MRE.\nyour house and sold sell vacant land, even if you lived in the\nReport CGT gain or loss amount.\nas vacant land house as your main residence before\ndemolishing it.\nFor more information, see\nVacant land and subdividing.\nYou subdivided You\u2019re not eligible for the MRE if you Not eligible for MRE.\nand sold the new subdivide a block and sell as vacant land.\nReport CGT gain or loss amount.\nsubdivision as\nFor more information, see\nvacant land\nSubdividing and combining land.\nYou subdivided You\u2019re not eligible for a MRE when you Not eligible for MRE.\nthe land your main sell the new subdivided property.\nReport CGT gain or loss amount.\nresidence is on and\nFor more information, see\nbuilt a house on the\nSubdividing and combining land.\nsubdivision then\nsold it\nYou\u2019re a foreign You\u2019re not eligible for a MRE unless you If you don\u2019t satisfy the life\nresident and sold satisfy the life events test. This is even events test:\nyour property after if you were a resident for some of the\n\u2022 you're not eligible for MRE\n30 June 2020 time you owned the property.\n\u2022 Report CGT gain or loss amount\nFor more information, see\n\u2022 claim any CGT foreign resident\nMain residence exemption for\nwithholding credit.\nforeign residents.\nIf you satisfy the life events test:\n\u2022 report MRE\n\u2022 claim any CGT foreign resident\nwithholding credit.\n3",
+        "metadata": {
+          "page_num": 3,
+          "chunk_type": "section",
+          "people": "You",
+          "word_count": 480,
+          "source_file": "main_residence_toolkit.pdf",
+          "sections": "",
+          "category": "foreign_resident"
+        },
+        "score": 0.002086460590362549,
+        "retrieval_strategy": "semantic_search"
+      }
+    ]
+  },
+  "validation": {
+    "citation_check": {
+      "total_citations": 8,
+      "valid_citations": 6,
+      "invalid_citations": [
+        "2012",
+        "2020"
+      ],
+      "citation_details": [
+        {
+          "rule_number": "4",
+          "source": "main_residence_complete_guide.pdf",
+          "page": 3,
+          "valid": true
+        },
+        {
+          "rule_number": "5",
+          "source": "main_residence_toolkit.pdf",
+          "page": 3,
+          "valid": true
+        },
+        {
+          "rule_number": "5",
+          "source": "main_residence_toolkit.pdf",
+          "page": 3,
+          "valid": true
+        },
+        {
+          "rule_number": "4",
+          "source": "main_residence_complete_guide.pdf",
+          "page": 3,
+          "valid": true
+        },
+        {
+          "rule_number": "4",
+          "source": "main_residence_complete_guide.pdf",
+          "page": 3,
+          "valid": true
+        },
+        {
+          "rule_number": "2012",
+          "valid": false,
+          "reason": "Rule number exceeds available chunks"
+        },
+        {
+          "rule_number": "2020",
+          "valid": false,
+          "reason": "Rule number exceeds available chunks"
+        },
+        {
+          "rule_number": "2",
+          "source": "main_residence_complete_guide.pdf",
+          "page": 38,
+          "valid": true
+        }
+      ]
+    },
+    "calculation_check": {
+      "calculations_found": 0,
+      "calculations_verified": 0,
+      "calculation_errors": []
+    },
+    "logic_check": {
+      "logic_checks": [
+        {
+          "check": "missing_information_flagged",
+          "status": "pass",
+          "note": "Analysis correctly identifies missing information"
+        },
+        {
+          "check": "multiple_scenarios",
+          "status": "pass",
+          "note": "Analysis considers multiple scenarios/outcomes"
+        },
+        {
+          "check": "recommendations_provided",
+          "status": "pass",
+          "note": "Clear recommendations provided"
+        }
+      ],
+      "completeness_score": 100.0,
+      "consistency_issues": []
+    },
+    "warnings": [],
+    "overall_confidence": 75.0
+  },
+  "error": null,
+  "pre_verification": {
+    "status": "passed",
+    "summary": {
+      "critical_issues": 0,
+      "warnings": 0,
+      "resolved_false_positives": 1,
+      "total_issues_flagged": 1,
+      "total_issues_after_llm": 0
+    },
+    "issues": [],
+    "clarification_questions": [],
+    "normalized_data": {
+      "properties": [
+        {
+          "address": "Property 1: First Home (Sold)",
+          "property_history": [
+            {
+              "date": "2005-01-10",
+              "event": "purchase",
+              "price": 350000.0,
+              "price_per_week": null,
+              "is_ppr": true,
+              "contract_date": null
+            },
+            {
+              "date": "2005-01-10",
+              "event": "move_in",
+              "price": null,
+              "price_per_week": null,
+              "is_ppr": true,
+              "contract_date": null
+            },
+            {
+              "date": "2010-06-15",
+              "event": "move_out",
+              "price": null,
+              "price_per_week": null,
+              "is_ppr": null,
+              "contract_date": null
+            },
+            {
+              "date": "2010-07-01",
+              "event": "rent_start",
+              "price": null,
+              "price_per_week": null,
+              "is_ppr": null,
+              "contract_date": null
+            },
+            {
+              "date": "2018-11-20",
+              "event": "sale",
+              "price": 620000.0,
+              "price_per_week": null,
+              "is_ppr": null,
+              "contract_date": "2018-11-20"
+            }
+          ],
+          "notes": "sold"
+        },
+        {
+          "address": "Property 2: Apartment I RENTED (Tenant)",
+          "property_history": [
+            {
+              "date": "2010-06-20",
+              "event": "move_in",
+              "price": null,
+              "price_per_week": null,
+              "is_ppr": null,
+              "contract_date": null
+            },
+            {
+              "date": "2012-08-30",
+              "event": "move_out",
+              "price": null,
+              "price_per_week": null,
+              "is_ppr": null,
+              "contract_date": null
+            }
+          ],
+          "notes": "rental - I was renting this as a tenant"
+        },
+        {
+          "address": "Property 3: Investment Property",
+          "property_history": [
+            {
+              "date": "2011-03-15",
+              "event": "purchase",
+              "price": 480000.0,
+              "price_per_week": null,
+              "is_ppr": null,
+              "contract_date": null
+            },
+            {
+              "date": "2011-04-01",
+              "event": "rent_start",
+              "price": null,
+              "price_per_week": null,
+              "is_ppr": null,
+              "contract_date": null
+            }
+          ],
+          "notes": "rental - investment property (never lived here)"
+        },
+        {
+          "address": "Property 4: Second Home",
+          "property_history": [
+            {
+              "date": "2012-09-01",
+              "event": "purchase",
+              "price": 580000.0,
+              "price_per_week": null,
+              "is_ppr": true,
+              "contract_date": null
+            },
+            {
+              "date": "2012-09-01",
+              "event": "move_in",
+              "price": null,
+              "price_per_week": null,
+              "is_ppr": true,
+              "contract_date": null
+            },
+            {
+              "date": "2020-03-10",
+              "event": "move_out",
+              "price": null,
+              "price_per_week": null,
+              "is_ppr": null,
+              "contract_date": null
+            }
+          ],
+          "notes": "ppr - lived here, now vacant"
+        },
+        {
+          "address": "Property 5: Current Home",
+          "property_history": [
+            {
+              "date": "2020-03-15",
+              "event": "purchase",
+              "price": 720000.0,
+              "price_per_week": null,
+              "is_ppr": true,
+              "contract_date": null
+            },
+            {
+              "date": "2020-03-15",
+              "event": "move_in",
+              "price": null,
+              "price_per_week": null,
+              "is_ppr": true,
+              "contract_date": null
+            }
+          ],
+          "notes": "ppr - current residence"
+        }
+      ],
+      "user_query": "What is my total CGT liability? Property 1 was sold.",
+      "additional_info": {
+        "australian_resident": true,
+        "other_property_owned": false,
+        "land_size_hectares": null,
+        "marginal_tax_rate": null
+      }
+    },
+    "timeline_analysis": {
+      "status": "success",
+      "analysis_period": {
+        "start": "2005-01-10",
+        "end": "2020-03-15",
+        "total_days": 5544
+      },
+      "gaps": [
+        {
+          "start_date": "2005-01-10",
+          "end_date": "2020-03-15",
+          "duration_days": 5544,
+          "owned_properties": []
+        }
+      ],
+      "overlaps": [],
+      "statistics": {
+        "total_days": 5544,
+        "gap_days": 5544,
+        "overlap_days": 0,
+        "accounted_days": 0,
+        "accounted_percentage": 0.0,
+        "total_gaps": 1,
+        "total_overlaps": 0
+      },
+      "has_issues": true
+    },
+    "llm_decision": {
+      "critical": [],
+      "resolved": [
+        {
+          "index": 0,
+          "issue_category": "timeline_gap",
+          "reasoning": "Property 2 is a tenant rental (move_in without purchase). The person was renting there between moving out of Property 1 and moving into Property 4. This fills the timeline gap.",
+          "original_message": "Timeline gap: 2005-01-10 to 2020-03-15 (5544 days). Where were you living?"
+        }
+      ],
+      "clarify": [],
+      "summary": "All properties analyzed. Property 1 sold with complete data (purchase: 350,000, sale: 620,000). Property 2 is a tenant rental filling the timeline gap. Property 3 is an investment property, and Property 4 and 5 are still owned. NO CRITICAL ISSUES - data complete.",
+      "verification_passed": true
+    },
+    "llm_summary": "All properties analyzed. Property 1 sold with complete data (purchase: 350,000, sale: 620,000). Property 2 is a tenant rental filling the timeline gap. Property 3 is an investment property, and Property 4 and 5 are still owned. NO CRITICAL ISSUES - data complete."
+  }
+}

@@ -39,6 +39,21 @@ export interface ModelResponse {
     discount_applied?: number;
     tax_payable?: number;
   };
+  // Additional fields from new API format
+  metadata?: {
+    chunks_retrieved?: number;
+    llm_used?: string;
+    confidence?: number;
+    warnings?: string[];
+    retrieved_documents?: any[];
+  };
+  validation?: {
+    citation_check?: any;
+    calculation_check?: any;
+    logic_check?: any;
+    warnings?: string[];
+    overall_confidence?: number;
+  };
 }
 
 export interface AdditionalInfo {

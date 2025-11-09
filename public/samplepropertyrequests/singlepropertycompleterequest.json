@@ -1,0 +1,32 @@
+{
+  "properties": [
+    {
+      "address": "123 Main Street, Sydney, NSW 2000",
+      "property_history": [
+        {
+          "date": "2015-01-15",
+          "event": "purchase",
+          "price": 650000,
+          "is_ppr": true
+        },
+        {
+          "date": "2015-01-15",
+          "event": "move_in",
+          "is_ppr": true
+        },
+        {
+          "date": "2023-06-30",
+          "event": "sale",
+          "price": 900000,
+          "is_ppr": true,
+          "contract_date": "2023-06-30"
+        }
+      ],
+      "notes": "sold"
+    }
+  ],
+  "user_query": "What is my CGT on this property sale?",
+  "additional_info": {
+    "australian_resident": true
+  }
+}

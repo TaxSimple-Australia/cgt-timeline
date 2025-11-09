@@ -1,0 +1,211 @@
+ {
+  "status": "verification_failed",
+  "timestamp": "2025-11-05T08:17:45.521897",
+  "verification": {
+    "status": "failed",
+    "summary": {
+      "critical_issues": 3,
+      "warnings": 0,
+      "resolved_false_positives": 0,
+      "total_issues_flagged": 3,
+      "total_issues_after_llm": 3
+    },
+    "issues": [
+      {
+        "severity": "critical",
+        "category": "cost_base_missing",
+        "message": "No purchase price or cost base information provided",
+        "field": null,
+        "property_id": "Property A - Missing Purchase Price",
+        "property_index": 0,
+        "detected_value": null,
+        "question": "What was the total purchase price of the property (or land price + building cost)?",
+        "suggestion": null,
+        "impact": "Cannot calculate capital gain without cost base",
+        "reasoning": null
+      },
+      {
+        "severity": "warning",
+        "category": "completeness_missing_purchase",
+        "message": "No purchase event found in property history",
+        "field": null,
+        "property_id": "Property A - Missing Purchase Price",
+        "property_index": 0,
+        "detected_value": null,
+        "question": "When did you acquire this property?",
+        "suggestion": "Add a 'purchased' event with date and price",
+        "impact": null,
+        "reasoning": null
+      },
+      {
+        "severity": "critical",
+        "category": "timeline_gap",
+        "message": "Timeline gap: 2010-03-01 to 2023-05-30 (4839 days). Where were you living?",
+        "field": null,
+        "property_id": null,
+        "property_index": null,
+        "detected_value": null,
+        "question": "From 2010-03-01 to 2023-05-30 (4839 days), where were you living? (You didn't own any of the analyzed properties during this period)",
+        "suggestion": null,
+        "impact": "Cannot determine main residence exemption for 4839 days",
+        "reasoning": null
+      }
+    ],
+    "clarification_questions": [
+      "What was the purchase price of Property A?",
+      "When was Property A purchased?",
+      "Where were you living between 2010-03-01 and 2023-05-30?"
+    ],
+    "normalized_data": {
+      "properties": [
+        {
+          "address": "Property A - Missing Purchase Price",
+          "property_history": [
+            {
+              "date": "2010-03-01",
+              "event": "move_in",
+              "price": null,
+              "price_per_week": null,
+              "is_ppr": true,
+              "contract_date": null
+            },
+            {
+              "date": "2020-08-15",
+              "event": "sale",
+              "price": 750000.0,
+              "price_per_week": null,
+              "is_ppr": true,
+              "contract_date": "2020-08-15"
+            }
+          ],
+          "notes": "sold"
+        },
+        {
+          "address": "Property B - Missing Sale Price",
+          "property_history": [
+            {
+              "date": "2012-06-10",
+              "event": "purchase",
+              "price": 500000.0,
+              "price_per_week": null,
+              "is_ppr": true,
+              "contract_date": null
+            },
+            {
+              "date": "2012-06-10",
+              "event": "move_in",
+              "price": null,
+              "price_per_week": null,
+              "is_ppr": true,
+              "contract_date": null
+            },
+            {
+              "date": "2021-12-20",
+              "event": "sale",
+              "price": null,
+              "price_per_week": null,
+              "is_ppr": true,
+              "contract_date": "2021-12-20"
+            }
+          ],
+          "notes": "sold"
+        },
+        {
+          "address": "Property C - Land Only (Missing Building Cost)",
+          "property_history": [
+            {
+              "date": "2015-09-01",
+              "event": "purchase",
+              "price": 200000.0,
+              "price_per_week": null,
+              "is_ppr": true,
+              "contract_date": null
+            },
+            {
+              "date": "2016-03-15",
+              "event": "move_in",
+              "price": null,
+              "price_per_week": null,
+              "is_ppr": true,
+              "contract_date": null
+            },
+            {
+              "date": "2023-05-30",
+              "event": "sale",
+              "price": 650000.0,
+              "price_per_week": null,
+              "is_ppr": true,
+              "contract_date": "2023-05-30"
+            }
+          ],
+          "notes": "Bought land, built house - only have land price"
+        }
+      ],
+      "user_query": "Calculate CGT for these 3 sold properties",
+      "additional_info": {
+        "australian_resident": true,
+        "other_property_owned": false,
+        "land_size_hectares": null,
+        "marginal_tax_rate": null
+      }
+    },
+    "timeline_analysis": {
+      "status": "success",
+      "analysis_period": {
+        "start": "2010-03-01",
+        "end": "2023-05-30",
+        "total_days": 4839
+      },
+      "gaps": [
+        {
+          "start_date": "2010-03-01",
+          "end_date": "2023-05-30",
+          "duration_days": 4839,
+          "owned_properties": []
+        }
+      ],
+      "overlaps": [],
+      "statistics": {
+        "total_days": 4839,
+        "gap_days": 4839,
+        "overlap_days": 0,
+        "accounted_days": 0,
+        "accounted_percentage": 0.0,
+        "total_gaps": 1,
+        "total_overlaps": 0
+      },
+      "has_issues": true
+    },
+    "llm_decision": {
+      "critical": [
+        {
+          "index": 0,
+          "issue_category": "cost_base_missing",
+          "reasoning": "Property A was sold but does not have a purchase price. This is critical for calculating the capital gain.",
+          "question": "What was the purchase price of Property A?",
+          "impact": "Cannot calculate CGT without cost base"
+        },
+        {
+          "index": 1,
+          "issue_category": "completeness_missing_purchase",
+          "reasoning": "Property A was sold but lacks a purchase event. This is critical for establishing the cost base.",
+          "question": "When was Property A purchased?",
+          "impact": "Cannot calculate CGT without purchase date"
+        },
+        {
+          "index": 2,
+          "issue_category": "timeline_gap",
+          "reasoning": "There is a significant timeline gap from 2010-03-01 to 2023-05-30. This needs clarification to ensure all living arrangements are accounted for.",
+          "question": "Where were you living between 2010-03-01 and 2023-05-30?",
+          "impact": "Cannot accurately assess main residence exemption without complete timeline"
+        }
+      ],
+      "resolved": [],
+      "clarify": [],
+      "summary": "Property A is missing critical purchase information needed for CGT calculation. There is also a significant timeline gap that needs clarification. VERDICT: FAIL - need purchase price and timeline clarification.",
+      "verification_passed": false
+    },
+    "llm_summary": "Property A is missing critical purchase information needed for CGT calculation. There is also a significant timeline gap that needs clarification. VERDICT: FAIL - need purchase price and timeline clarification."
+  },
+  "message": "Data verification failed. The LLM Verifier (with cross-property intelligence) has identified critical issues that must be resolved before CGT analysis can proceed. Check the 'llm_decision' field for detailed reasoning."
+}

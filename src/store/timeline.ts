@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { addDays, format } from 'date-fns';
+import type { AIResponse, TimelineIssue, PositionedGap } from '../types/ai-feedback';
 
 export type EventType =
   | 'purchase'
@@ -55,7 +56,8 @@ export interface Property {
 }
 
 export type ZoomLevel =
-  | 'decade'      // 10+ years
+  | '30-years'    // 30 years
+  | 'decade'      // 10-30 years
   | 'multi-year'  // 5-10 years
   | 'years'       // 2-5 years
   | 'year'        // 1-2 years
@@ -85,6 +87,13 @@ interface TimelineState {
   eventDisplayMode: EventDisplayMode; // Toggle between circle and card display
   lockFutureDates: boolean; // Prevent panning beyond today's date
 
+  // AI Feedback State
+  aiResponse: AIResponse | null; // Latest AI analysis response
+  timelineIssues: TimelineIssue[]; // Processed issues for UI display
+  positionedGaps: PositionedGap[]; // Gaps with timeline positions
+  selectedIssue: string | null; // Currently viewing issue details
+  isAnalyzing: boolean; // Loading state during AI analysis
+
   // Actions
   addProperty: (property: Omit<Property, 'id' | 'branch'>) => void;
   updateProperty: (id: string, property: Partial<Property>) => void;
@@ -102,8 +111,8 @@ interface TimelineState {
   setTimelineRange: (start: Date, end: Date) => void;
   zoomIn: () => void;
   zoomOut: () => void;
-  setZoomByIndex: (index: number) => void; // Set zoom level by index (0-7)
-  getZoomLevelIndex: () => number; // Get current zoom level index (0-7)
+  setZoomByIndex: (index: number) => void; // Set zoom level by index (0-8)
+  getZoomLevelIndex: () => number; // Get current zoom level index (0-8)
   setCenterDate: (date: Date) => void;
   panToPosition: (position: number) => void; // Position 0-100 on absolute timeline
   loadDemoData: () => void; // Load demo data from Excel sheet
@@ -112,6 +121,13 @@ interface TimelineState {
   toggleTheme: () => void; // Cycle through themes: light -> dark -> golden -> light
   toggleEventDisplayMode: () => void; // Toggle between circle and card display
   toggleLockFutureDates: () => void; // Toggle lock future dates setting
+
+  // AI Feedback Actions
+  setAIResponse: (response: AIResponse) => void; // Store AI analysis response
+  selectIssue: (issueId: string | null) => void; // Select issue for viewing
+  resolveIssue: (issueId: string, response: string) => void; // Mark issue resolved with user response
+  clearAIFeedback: () => void; // Clear all AI feedback
+  analyzePortfolio: () => Promise<void>; // Trigger AI analysis of current timeline
 }
 
 const propertyColors = [
@@ -146,7 +162,8 @@ export const statusColors: Record<PropertyStatus, string> = {
 
 // Zoom level definitions with their time spans in days
 export const zoomLevels: Array<{ level: ZoomLevel; minDays: number; maxDays: number; label: string }> = [
-  { level: 'decade', minDays: 3650, maxDays: Infinity, label: '10+ Years' },
+  { level: '30-years', minDays: 10950, maxDays: Infinity, label: '30 Years' },
+  { level: 'decade', minDays: 3650, maxDays: 10950, label: '10-30 Years' },
   { level: 'multi-year', minDays: 1825, maxDays: 3650, label: '5-10 Years' },
   { level: 'years', minDays: 730, maxDays: 1825, label: '2-5 Years' },
   { level: 'year', minDays: 365, maxDays: 730, label: '1-2 Years' },
@@ -166,7 +183,7 @@ const calculateZoomLevel = (start: Date, end: Date): ZoomLevel => {
     }
   }
 
-  return 'decade';
+  return '30-years';
 };
 
 // Get next zoom level (more detailed)
@@ -287,25 +304,38 @@ export const calculateStatusPeriods = (events: TimelineEvent[]): StatusPeriod[] 
 const defaultAbsoluteStart = new Date(1900, 0, 1);
 const defaultAbsoluteEnd = new Date();
 
-export const useTimelineStore = create<TimelineState>((set, get) => ({
-  properties: [],
-  events: [],
-  selectedProperty: null,
-  selectedEvent: null,
-  lastInteractedEventId: null,
-  timelineStart: new Date(2020, 0, 1),
-  timelineEnd: new Date(), // Today's date
-  absoluteStart: defaultAbsoluteStart,
-  absoluteEnd: defaultAbsoluteEnd,
-  zoom: 1,
-  zoomLevel: calculateZoomLevel(new Date(2020, 0, 1), new Date()),
-  centerDate: new Date(
-    (new Date(2020, 0, 1).getTime() + new Date().getTime()) / 2
-  ),
-  theme: 'dark',
-  eventDisplayMode: 'card',
-  lockFutureDates: true,
-  
+export const useTimelineStore = create<TimelineState>((set, get) => {
+  // Calculate initial 30-year range
+  const today = new Date();
+  const thirtyYearsAgo = new Date(today);
+  thirtyYearsAgo.setFullYear(today.getFullYear() - 30);
+
+  return {
+    properties: [],
+    events: [],
+    selectedProperty: null,
+    selectedEvent: null,
+    lastInteractedEventId: null,
+    timelineStart: thirtyYearsAgo,
+    timelineEnd: today,
+    absoluteStart: defaultAbsoluteStart,
+    absoluteEnd: defaultAbsoluteEnd,
+    zoom: 1,
+    zoomLevel: calculateZoomLevel(thirtyYearsAgo, today),
+    centerDate: new Date(
+      (thirtyYearsAgo.getTime() + today.getTime()) / 2
+    ),
+    theme: 'dark',
+    eventDisplayMode: 'card',
+    lockFutureDates: true,
+
+    // AI Feedback Initial State
+    aiResponse: null,
+    timelineIssues: [],
+    positionedGaps: [],
+    selectedIssue: null,
+    isAnalyzing: false,
+
   addProperty: (property) => {
     const properties = get().properties;
     const newProperty: Property = {
@@ -681,16 +711,21 @@ export const useTimelineStore = create<TimelineState>((set, get) => ({
       description: 'Living in a rental property',
     });
 
-    // Set the demo data
+    // Set the demo data with 30-year range
+    const today = new Date();
+    const thirtyYearsAgo = new Date(today);
+    thirtyYearsAgo.setFullYear(today.getFullYear() - 30);
+    const centerDate = new Date((thirtyYearsAgo.getTime() + today.getTime()) / 2);
+
     set({
       properties: demoProperties,
       events: demoEvents,
-      timelineStart: new Date(2003, 0, 1),
-      timelineEnd: new Date(),
+      timelineStart: thirtyYearsAgo,
+      timelineEnd: today,
       absoluteStart: new Date(2003, 0, 1),
-      absoluteEnd: new Date(),
-      centerDate: new Date(2013, 0, 1),
-      zoomLevel: 'decade',
+      absoluteEnd: today,
+      centerDate: centerDate,
+      zoomLevel: '30-years',
     });
   },
 
@@ -872,4 +907,204 @@ export const useTimelineStore = create<TimelineState>((set, get) => ({
     const state = get();
     set({ lockFutureDates: !state.lockFutureDates });
   },
-}));
+
+  // AI Feedback Action Implementations
+  setAIResponse: (response: AIResponse) => {
+    const state = get();
+    const { getIssuesFromResponse, getGapsFromResponse, isSuccessResponse } = require('../types/ai-feedback');
+    type AIIssue = import('../types/ai-feedback').AIIssue;
+    type TimelineGap = import('../types/ai-feedback').TimelineGap;
+
+    // Extract issues and gaps from response
+    const rawIssues = getIssuesFromResponse(response);
+    const gaps = getGapsFromResponse(response);
+
+    // Map issues to timeline issues with event/property links
+    const timelineIssues: TimelineIssue[] = rawIssues.map((issue: AIIssue, index: number) => {
+      const timelineIssue: TimelineIssue = {
+        id: `issue-${Date.now()}-${index}`,
+        severity: issue.severity,
+        category: issue.category,
+        message: issue.message,
+        question: issue.question,
+        impact: issue.impact,
+        suggestion: issue.suggestion,
+        resolved: false,
+      };
+
+      // Link to property if property_id exists
+      if (issue.property_id) {
+        const property = state.properties.find(p => p.address === issue.property_id || p.name === issue.property_id);
+        if (property) {
+          timelineIssue.propertyId = property.id;
+
+          // Try to link to specific event based on issue field
+          if (issue.field) {
+            const event = state.events.find(e =>
+              e.propertyId === property.id &&
+              e.type === issue.field
+            );
+            if (event) {
+              timelineIssue.eventId = event.id;
+              console.log('Linked issue to event:', issue.message, '-> event:', event.title, 'ID:', event.id);
+            }
+          }
+        }
+      }
+
+      // For timeline gap issues, add date information
+      if (issue.category === 'timeline_gap') {
+        const relatedGap = gaps.find((gap: TimelineGap) => issue.message.includes(gap.start_date));
+        if (relatedGap) {
+          timelineIssue.startDate = new Date(relatedGap.start_date);
+          timelineIssue.endDate = new Date(relatedGap.end_date);
+          timelineIssue.duration = relatedGap.duration_days;
+          timelineIssue.gapId = `gap-${relatedGap.start_date}-${relatedGap.end_date}`;
+        }
+      }
+
+      return timelineIssue;
+    });
+
+    // Calculate positioned gaps for timeline visualization
+    const { timelineStart, timelineEnd } = state;
+    const timelineRange = timelineEnd.getTime() - timelineStart.getTime();
+
+    const positionedGaps: PositionedGap[] = gaps.map((gap: TimelineGap, index: number) => {
+      const gapStart = new Date(gap.start_date);
+      const gapEnd = new Date(gap.end_date);
+
+      // Calculate x position relative to visible timeline
+      const startOffset = gapStart.getTime() - timelineStart.getTime();
+      const endOffset = gapEnd.getTime() - timelineStart.getTime();
+
+      // Convert to percentage (0-100)
+      const xPercent = (startOffset / timelineRange) * 100;
+      const widthPercent = ((endOffset - startOffset) / timelineRange) * 100;
+
+      // Find related issue for this gap
+      const relatedIssue = rawIssues.find((issue: AIIssue) =>
+        issue.category === 'timeline_gap' &&
+        issue.message.includes(gap.start_date)
+      );
+
+      // Map owned_properties addresses to property IDs
+      const propertyIds = gap.owned_properties
+        .map((address: string) => {
+          const property = state.properties.find(
+            p => p.address === address || p.name === address
+          );
+          console.log('Gap mapping:', address, '-> property:', property?.name, 'ID:', property?.id);
+          return property?.id;
+        })
+        .filter((id): id is string => id !== undefined);
+
+      console.log('Created positioned gap:', {
+        start: gap.start_date,
+        end: gap.end_date,
+        addresses: gap.owned_properties,
+        propertyIds,
+        x: xPercent,
+        width: widthPercent,
+      });
+
+      return {
+        ...gap,
+        id: `gap-${gap.start_date}-${gap.end_date}`,
+        x: xPercent,
+        width: widthPercent,
+        relatedIssue: relatedIssue || undefined,
+        propertyIds,
+      };
+    });
+
+    set({
+      aiResponse: response,
+      timelineIssues,
+      positionedGaps,
+    });
+  },
+
+  selectIssue: (issueId: string | null) => {
+    set({ selectedIssue: issueId });
+  },
+
+  resolveIssue: (issueId: string, response: string) => {
+    const state = get();
+    const updatedIssues = state.timelineIssues.map(issue =>
+      issue.id === issueId
+        ? { ...issue, userResponse: response, resolved: true }
+        : issue
+    );
+    set({ timelineIssues: updatedIssues, selectedIssue: null });
+  },
+
+  clearAIFeedback: () => {
+    set({
+      aiResponse: null,
+      timelineIssues: [],
+      positionedGaps: [],
+      selectedIssue: null,
+    });
+  },
+
+  analyzePortfolio: async () => {
+    const state = get();
+    set({ isAnalyzing: true });
+
+    try {
+      // Transform properties and events to API format
+      const requestData = {
+        properties: state.properties.map(property => ({
+          address: property.address || property.name,
+          property_history: state.events
+            .filter(e => e.propertyId === property.id)
+            .sort((a, b) => a.date.getTime() - b.date.getTime())
+            .map(event => ({
+              date: format(event.date, 'yyyy-MM-dd'),
+              event: event.type,
+              ...(event.amount && { price: event.amount }),
+              ...(event.isPPR !== undefined && { is_ppr: event.isPPR }),
+              ...(event.contractDate && { contract_date: format(event.contractDate, 'yyyy-MM-dd') }),
+              ...(event.landPrice && { land_price: event.landPrice }),
+              ...(event.buildingPrice && { building_price: event.buildingPrice }),
+            })),
+          notes: property.currentStatus || (property.isRental ? 'rental' : 'ppr'),
+        })),
+        user_query: "Please analyze my CGT obligations for these properties",
+        additional_info: {
+          australian_resident: true,
+        },
+      };
+
+      // Call the API
+      const response = await fetch('/api/analyze-cgt', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestData),
+      });
+
+      if (!response.ok) {
+        throw new Error(`API request failed: ${response.statusText}`);
+      }
+
+      const result = await response.json();
+
+      if (result.success && result.data) {
+        // Store the AI response and process it
+        get().setAIResponse(result.data);
+      } else {
+        console.error('API returned error:', result.error);
+        throw new Error(result.error || 'Unknown API error');
+      }
+    } catch (error) {
+      console.error('Error analyzing portfolio:', error);
+      // You might want to add error state here
+    } finally {
+      set({ isAnalyzing: false });
+    }
+  },
+};
+});

@@ -1,0 +1,351 @@
+{
+  "status": "success",
+  "timestamp": "2025-11-05T08:21:43.334268",
+  "num_properties": 4,
+  "analysis": "# COMPREHENSIVE CGT ANALYSIS - PROPERTY PORTFOLIO\n\n## CRITICAL CROSS-PROPERTY ISSUE IDENTIFIED\n\n**Main Residence Conflict**: Properties 3 and 4 both claim main residence status with overlapping occupancy periods, which violates the fundamental rule that **only ONE property can be your main residence at any given time**.\n\n---\n\n## PROPERTY-BY-PROPERTY ANALYSIS\n\n### PROPERTY 1: 45 Collard Road, Humpty Doo, NT 0836\n**Scenario**: Rental Property Exemption (6-year rule attempt)\n\n**Timeline**:\n- 01/01/2003: Purchase & Move in\n- 01/01/2020: Started renting (17 years as main residence)\n- 14/07/2023: Sold (3.54 years as rental)\n\n**Analysis**:\n\n**Period 1 (01/01/2003 - 01/01/2020): 17 years**\n- Fully exempt as main residence [RULE 4: dwelling was home, no income-producing use]\n\n**Period 2 (01/01/2020 - 14/07/2023): 3.54 years**\n- Attempting to use 6-year absence rule\n- **PROBLEM**: The 6-year rule requires that you don't treat another property as your main residence during the absence period [RULE 5]\n- Property 3 (Boyne Island) was purchased and occupied as main residence from 30/09/2021\n- **VIOLATION**: From 30/09/2021 onwards, Property 3 was the main residence, which **disqualifies** the 6-year rule for Property 1\n\n**Exemption Calculation**:\n- Total ownership: 20.54 years (7,500 days)\n- Exempt period: 17 years + 1.71 years (until Property 3 became main residence) = 18.71 years (6,832 days)\n- Taxable period: 1.83 years (668 days)\n\n**Partial Exemption**: 6,832 / 7,500 = **91.1% exempt**\n\n**CGT Calculation** (assuming figures):\n- Without actual purchase/sale prices, cannot calculate specific gain\n- **Formula**: Capital Gain \u00d7 8.9% \u00d7 50% (CGT discount) = **4.45% of total gain is taxable**\n\n**Status**: \u26a0\ufe0f **PARTIAL CGT LIABILITY** - 6-year rule fails due to Property 3\n\n---\n\n### PROPERTY 2: 50 Flynn Circuit, Bellamack, NT 0832\n**Scenario**: Rental Property (attempting exemption)\n\n**Timeline**:\n- 05/06/2014: Purchase\n- 20/06/2014: Rent started (15 days later)\n- Still owned (not sold)\n\n**Analysis**:\n- **Never occupied as main residence** - rented immediately after purchase\n- Cannot claim main residence exemption [RULE 4: must be \"the home of you\"]\n- Cannot use 6-year absence rule (requires property to first be established as main residence)\n- **NO EXEMPTION AVAILABLE**\n\n**CGT Status**: \n- **NO CGT EVENT YET** (property not sold)\n- When sold: **100% taxable** (may qualify for 50% CGT discount if held >12 months)\n\n**Status**: \u26a0\ufe0f **FULL CGT LIABILITY WHEN SOLD** - Never a main residence\n\n---\n\n### PROPERTY 3: 5 Wanda Dr, Boyne Island, Qld 4680\n**Scenario**: Main Residence Exemption\n\n**Timeline**:\n- 30/09/2021: Purchase & Move in\n- 15/04/2022: Improvement (cost base addition)\n- Still owned (not sold)\n\n**Analysis**:\n- Occupied as main residence from purchase\n- **CONFLICT**: Property 4 claims to be main residence from 01/01/2020\n- **RESOLUTION REQUIRED**: You cannot have two main residences simultaneously\n\n**If Property 3 is designated as main residence from 30/09/2021**:\n- Fully exempt for period owned [RULE 4]\n- Improvements add to cost base (no CGT implication if fully exempt)\n- Land must be \u22642 hectares [RULE 2]\n\n**CGT Status**:\n- **NO CGT EVENT YET** (property not sold)\n- **Potentially 100% exempt** if properly designated as main residence\n\n**Status**: \u26a0\ufe0f **CONFLICTS WITH PROPERTY 4** - Designation required\n\n---\n\n### PROPERTY 4: Rental Property, Boyne Island, Qld 4680\n**Scenario**: Claims Main Residence Exemption\n\n**Timeline**:\n- 01/01/2020: Move in\n- No purchase date provided (concerning)\n- Still owned (not sold)\n\n**Critical Issues**:\n1. **No purchase date recorded** - cannot determine ownership period\n2. **Conflicts with Property 1**: From 01/01/2020, if this is main residence, Property 1 cannot use 6-year rule\n3. **Conflicts with Property 3**: From 30/09/2021, both claim main residence status\n\n**Analysis**:\n- **IMPOSSIBLE SCENARIO**: Cannot be main residence while Property 3 is also main residence\n- Must choose ONE property as main residence for each time period\n\n**CGT Status**:\n- **NO CGT EVENT YET** (property not sold)\n- Exemption depends on main residence designation choices\n\n**Status**: \u26a0\ufe0f **MAJOR CONFLICT** - Overlapping main residence claims\n\n---\n\n## CROSS-PROPERTY IMPACT MATRIX\n\n| Time Period | Property 1 | Property 2 | Property 3 | Property 4 | Issue |\n|-------------|-----------|-----------|-----------|-----------|-------|\n| 2003-2014 | Main Res \u2713 | Not owned | Not owned | Unknown | \u2713 Valid |\n| 2014-2020 | Main Res \u2713 | Rental | Not owned | Unknown | \u2713 Valid |\n| 2020-Sep 2021 | Rental | Rental | Not owned | Claims Main Res | \u26a0\ufe0f If P4 is main res, P1 loses 6-year rule |\n| Sep 2021-Jul 2023 | Rental | Rental | Main Res? | Claims Main Res? | \u274c CONFLICT: Two main residences |\n| Jul 2023-Present | Sold | Rental | Main Res? | Claims Main Res? | \u274c CONFLICT: Two main residences |\n\n---\n\n## TOTAL CGT LIABILITY CALCULATION\n\n### Properties with CGT Events (Sold):\n\n**Property 1 Only** (sold 14/07/2023):\n- **Partial exemption**: 91.1% exempt, 8.9% taxable\n- **Requires**: Purchase price, sale price, costs\n- **Estimated liability**: 4.45% of capital gain (after 50% discount)\n\n### Properties Not Yet Sold:\n- **Property 2**: 100% taxable when sold\n- **Property 3**: Potentially 100% exempt (if designated main residence)\n- **Property 4**: Status unclear due to conflicts\n\n### **CURRENT TOTAL CGT LIABILITY**: \n**Cannot calculate without purchase/sale prices for Property 1**\n\n**Formula for Property 1**:\n```\nCapital Gain = Sale Price - (Purchase Price + Costs)\nTaxable Gain = Capital Gain \u00d7 8.9%\nDiscounted Gain = Taxable Gain \u00d7 50%\nCGT Liability = Discounted Gain \u00d7 Marginal Tax Rate\n```\n\n---\n\n## CRITICAL RECOMMENDATIONS\n\n### 1. **IMMEDIATE: Resolve Main Residence Conflicts**\n\n**For 01/01/2020 - 30/09/2021 period**:\n- **Option A**: Designate Property 4 as main residence\n  - Result: Property 1 loses 6-year rule from 01/01/2020\n  - Property 1 exemption: 17/20.54 years = 82.8% exempt\n  \n- **Option B**: Continue Property 1 as main residence (absence rule)\n  - Result: Property 4 cannot be main residence\n  - Property 1 exemption: 18.71/20.54 years = 91.1% exempt (BETTER)\n\n**For 30/09/2021 onwards**:\n- **MUST CHOOSE**: Property 3 OR Property 4 as main residence\n- **Recommendation**: Choose Property 3 (actual residence with move-in date)\n- Property 4 becomes fully taxable investment property\n\n### 2. **Property 1 - Optimization**\n\n**Best Strategy**:\n- Do NOT designate Property 4 as main residence for 2020-2021 period\n- Claim Property 1 under 6-year rule until 30/09/2021\n- Accept partial exemption from 30/09/2021 to sale (when Property 3 became main residence)\n- **Result**: 91.1% exempt, minimal CGT\n\n### 3. **Property 2 - Future Planning**\n\n- **No exemption available** - always been rental\n- Consider timing of sale relative to other capital gains\n- Ensure all rental expenses and depreciation properly claimed\n- 50% CGT discount applies (held >12 months)\n\n### 4. **Property 3 - Designation**\n\n- **Formally designate** as main residence from 30/09/2021\n- Ensure land is \u22642 hectares [RULE 2]\n- Keep records of occupancy [RULE 1]\n- Should be 100% exempt when sold\n\n### 5. **Property 4 - Clarification Needed**\n\n**Missing Information**:\n- Purchase date\n- Actual occupancy evidence\n- Whether actually lived in or investment property\n\n**Recommendation**:\n- If actually occupied: Designate as main residence ONLY for period before Property 3 (but this hurts Property 1)\n- If investment property: Treat as rental from purchase\n- **Best outcome**: Do NOT designate as main residence at all\n\n### 6. **Documentation Required**\n\nFor each property, gather:\n- \u2713 Purchase contracts and settlement statements\n- \u2713 Sale contracts (Property 1)\n- \u2713 Utility bills showing occupancy\n- \u2713 Electoral roll records\n- \u2713 Rental agreements and income records\n- \u2713 Improvement receipts (Property 3)\n- \u2713 Land size certificates [RULE 2]\n\n---\n\n## MAIN RESIDENCE ELECTION STRATEGY\n\n### **Recommended Timeline**:\n\n| Period | Main Residence | Rationale |\n|--------|---------------|-----------|\n| 2003-2020 | Property 1 | Actual residence |\n| 2020-Sep 2021 | Property 1 (6-year rule) | Maximizes Property 1 exemption |\n| Sep 2021-Present | Property 3 | Actual residence, full exemption |\n\n**Property 4**: Do NOT elect as main residence for any period\n\n---\n\n## SUMMARY OF CGT POSITIONS\n\n| Property | Status | CGT Liability | Action Required |\n|----------|--------|---------------|-----------------|\n| **Property 1** | SOLD | **4.45% of gain taxable** | Calculate & pay CGT in tax return |\n| **Property 2** | HELD | **100% taxable when sold** | Plan sale timing |\n| **Property 3** | HELD | **0% - Fully exempt** | Maintain as main residence |\n| **Property 4** | HELD | **Status unclear** | Clarify purchase date & designation |\n\n---\n\n## COMPLIANCE ISSUES\n\n### \u26a0\ufe0f **High Priority**:\n\n1. **Property 1 CGT must be reported** in 2022-23 tax return (sold 14/07/2023)\n2. **Main residence designation** must be documented for ATO\n3. **Property 4 information** is incomplete - cannot properly assess\n\n### \ud83d\udccb **ATO Reporting**:\n- Property 1 sale MUST be reported [RULE 5: non-reporting is a key ATO concern]\n- Include main residence exemption calculation in CGT section\n- Keep records for 5 years after sale\n\n---\n\n## FINAL ANSWER: TOTAL CGT LIABILITY\n\n### **Current Realized CGT** (Property 1 only):\n**Cannot calculate exact amount without purchase and sale prices**\n\n**Provide the following for precise calculation**:\n- Property 1 purchase price (2003)\n- Property 1 sale price (2023)\n- Purchase costs (stamp duty, legal fees)\n- Sale costs (agent fees, legal fees)\n- Any improvement costs\n\n**Formula**: \n```\nCGT = [(Sale Price - Purchase Price - Costs) \u00d7 8.9% \u00d7 50%] \u00d7 Your Marginal Tax Rate\n```\n\n### **Future CGT Exposure**:\n- **Property 2**: 100% of gain taxable (with 50% discount)\n- **Property 3**: $0 (fully exempt)\n- **Property 4**: Unknown (requires clarification)\n\n---\n\n**Would you like me to calculate the exact CGT liability for Property 1 if you provide the purchase and sale prices?**",
+  "metadata": {
+    "chunks_retrieved": 5,
+    "llm_used": "claude",
+    "confidence": 85.0,
+    "warnings": [],
+    "retrieved_documents": [
+      {
+        "content": "QC66035\nCompulsory acquisition of your\nhome\nFind out if the payment you receive for compulsory\nacquisition of your home is exempt from CGT.\nLast updated 23 June 2025\nHow CGT applies when your home is\ncompulsorily acquired\nIf all or part of your home is compulsorily acquired, you can apply the\nmain residence exemption to any money or other compensation you\nreceive.\nIf your home is compulsorily acquired and you are entitled to the full\nmain residence exemption, you ignore any capital gain or loss.\nYou are also covered by the main residence exemption if only part of\nyour property is compulsorily acquired, such as:\nland adjacent to your home\na structure associated with your home, such as a garage.\nYou can apply the main residence exemption to a maximum of\n2 hectares of your property during your ownership.\nTo be exempt the land must be used for private purposes.\nIf the land you use for private purposes is larger than 2 hectares, you\ncan nominate which part the exemption will apply to. However, the 2-\nhectare total must always include the land underneath your dwelling.\nThis limit may be reached in stages through multiple capital gains tax\n\u0000CGT\u0000 events.\nYou also ignore a capital gain or loss from the compulsory acquisition\nof land adjacent to an inherited dwelling.",
+        "metadata": {
+          "chunk_type": "section",
+          "word_count": 219,
+          "category": "land_size",
+          "page_num": 36,
+          "sections": "",
+          "people": "",
+          "source_file": "main_residence_complete_guide.pdf"
+        },
+        "score": 0.12067294120788574,
+        "retrieval_strategy": "semantic_search"
+      },
+      {
+        "content": "You must keep records when you claim the main residence exemption\nfrom CGT.\nWe sometimes request evidence (for a review or audit) to support your\nincome tax self-assessment.\nThe records you may be asked to provide include, but are not limited\nto:\nproof of the compulsory acquisition arrangement\nevidence of how your property qualifies as a main residence\ncalculations of your capital gain or loss\nsite plans or other documents showing that the total compulsorily\nacquired land during your ownership is 2 hectares or less.\nQC66036\nHome on more than 2 hectares\nChoose which part of your property is exempt from CGT if\nit's larger than 2 hectares.\nLast updated 23 June 2025\nWhich part of your land is exempt\nWhen selling your home you can claim the main residence exemption\nfrom capital gains tax \u0000CGT\u0000 for up to 2 hectares of the land your home\nis on.\nIf your land is used for private purposes and is greater than 2 hectares,\nyou can choose which 2 hectares are exempt. The rest is subject to\nCGT.\nIf any part of the land is used to produce income it is not exempt. This\nis the case even if the total land area is less than 2 hectares.\nThe 2 hectares you choose must include the land that is under your\ndwelling.",
+        "metadata": {
+          "category": "land_size",
+          "people": "",
+          "chunk_type": "section",
+          "page_num": 38,
+          "source_file": "main_residence_complete_guide.pdf",
+          "sections": "",
+          "word_count": 220
+        },
+        "score": 0.1074380874633789,
+        "retrieval_strategy": "semantic_search"
+      },
+      {
+        "content": "The surviving joint owner (or if none, the trustee of the deceased\nestate) can choose to treat the land and dwelling as the deceased's\nmain residence. The conditions are the same, except that the\nexemption period ends when the deceased died.\nQC66034\nDestruction of your home\nCheck if your insurance payment or land is exempt from\nCGT.\nLast updated 23 June 2025\nIf your home is destroyed accidentally (such as through a natural\ndisaster), you can apply the main residence exemption to any money\nyou receive as a result.\nThis means if your home was fully exempt before it was destroyed,\nthen:\nif you sell your vacant land, it is exempt from capital gains tax \u0000CGT\u0000\nany insurance payment or other compensation is exempt from CGT.\nIf your home was only partially exempt before it was destroyed, CGT\nwill apply to the part that was not exempt. For example, CGT will apply\nif:\nyou used part of your home for rental or business\nyour home was on more than 2 hectares of land.\nIf you move to a new home before you sell the vacant land of your\nformer home, you can treat both as your main residence for up to\n6 months.\nIf you build a new home on your land, you can treat the land as your\nmain residence for up to 4 years before you move in. During this period\nyou can't claim the main residence exemption for any other dwelling.\nWe can help you deal with a disaster \u2013 for example, by helping you\nreconstruct your tax records or allowing early access to refunds.",
+        "metadata": {
+          "page_num": 35,
+          "people": "",
+          "sections": "",
+          "category": "land_size",
+          "chunk_type": "section",
+          "word_count": 268,
+          "source_file": "main_residence_complete_guide.pdf"
+        },
+        "score": 0.08769983053207397,
+        "retrieval_strategy": "semantic_search"
+      },
+      {
+        "content": "Check if you qualify for the main residence exemption and\nwhether your home is considered a dwelling.\nLast updated 23 June 2025\nEligibility conditions\nYour main residence (your home) is exempt from CGT if you're an\nAustralian resident and the dwelling:\nhas been the home of you, your partner and other dependants for\nthe whole period you have owned it\nhasn't been used to produce income \u2013 that is, you have not run a\nbusiness from it, rented it out or 'flipped' it (bought it to renovate\nand sell at a profit)\nis on land of 2 hectares or less.\nIf you meet these conditions, you don't pay tax on any capital gain\nwhen you sell your home and you ignore any capital loss.\nIf you don't meet all these conditions, you may still be entitled to a\npartial exemption. You can work out the proportion that is exempt\nusing the CGT property exemption tool.\nCGT property exemption tool\nFor a summary fact sheet with common scenarios about CGT and\neligibility for the main residence exemption, go to the ATO Publication\nOrdering Service to download Capital gains tax and the main\nresidence exemption .\nWhat is a main residence?\nGenerally, a dwelling is considered to be your main residence if:\nyou and your family live in it\nyour personal belongings are in it\nit is the address your mail is delivered to\nit is your address on the electoral roll",
+        "metadata": {
+          "chunk_type": "section",
+          "page_num": 3,
+          "sections": "",
+          "category": "partial_exemption",
+          "people": "",
+          "word_count": 240,
+          "source_file": "main_residence_complete_guide.pdf"
+        },
+        "score": -0.0019658803939819336,
+        "retrieval_strategy": "semantic_search"
+      },
+      {
+        "content": "Print whole section\nMain residence exemption tips\nThere are many circumstances where the main residence\nexemption should be considered. Read our tips.\nPublished 18 June 2024\nThe main residence exemption needs to be considered in a variety of\nsituations. We're seeing issues with non-reporting of a capital gain,\nloss or main residence exemption for property sales. Make sure you\nquestion your clients to ensure their tax return is completed correctly\nthis tax time.\nThese tips may help:\nAsk your clients if they've started earning income from their home.\nThey may need to get a market valuation for capital gains tax \u0000CGT\u0000\npurposes, particularly if they are\nrenting out some or all of their home\nrunning a business from it.\nWhen renting out a property that was their main residence, your\nclients need to consider whether to use the 6-year absence rule\nwhen they sell their property. If they choose to use the 6-year\nabsence rule, make this election in your client's return by including\nthe main residence exemption in the CGT section.\nDon't ignore prompts in your software advising a client has\ntransferred property. Details of property transfers are available in\nOnline services for agents to remind you. The details include the\nproperty address\ncontract date\nsettlement date\nsale price.",
+        "metadata": {
+          "sections": "",
+          "word_count": 210,
+          "source_file": "main_residence_tips.pdf",
+          "page_num": 1,
+          "chunk_type": "section",
+          "people": "",
+          "category": "main_residence"
+        },
+        "score": -0.01249849796295166,
+        "retrieval_strategy": "semantic_search"
+      }
+    ]
+  },
+  "validation": {
+    "citation_check": {
+      "total_citations": 10,
+      "valid_citations": 10,
+      "invalid_citations": [],
+      "citation_details": [
+        {
+          "rule_number": "4",
+          "source": "main_residence_complete_guide.pdf",
+          "page": 3,
+          "valid": true
+        },
+        {
+          "rule_number": "5",
+          "source": "main_residence_tips.pdf",
+          "page": 1,
+          "valid": true
+        },
+        {
+          "rule_number": "4",
+          "source": "main_residence_complete_guide.pdf",
+          "page": 3,
+          "valid": true
+        },
+        {
+          "rule_number": "4",
+          "source": "main_residence_complete_guide.pdf",
+          "page": 3,
+          "valid": true
+        },
+        {
+          "rule_number": "2",
+          "source": "main_residence_complete_guide.pdf",
+          "page": 38,
+          "valid": true
+        },
+        {
+          "rule_number": "3",
+          "source": "main_residence_complete_guide.pdf",
+          "page": 35,
+          "valid": true
+        },
+        {
+          "rule_number": "2",
+          "source": "main_residence_complete_guide.pdf",
+          "page": 38,
+          "valid": true
+        },
+        {
+          "rule_number": "1",
+          "source": "main_residence_complete_guide.pdf",
+          "page": 36,
+          "valid": true
+        },
+        {
+          "rule_number": "2",
+          "source": "main_residence_complete_guide.pdf",
+          "page": 38,
+          "valid": true
+        },
+        {
+          "rule_number": "5",
+          "source": "main_residence_tips.pdf",
+          "page": 1,
+          "valid": true
+        }
+      ]
+    },
+    "calculation_check": {
+      "calculations_found": 0,
+      "calculations_verified": 0,
+      "calculation_errors": []
+    },
+    "logic_check": {
+      "logic_checks": [
+        {
+          "check": "missing_information_flagged",
+          "status": "pass",
+          "note": "Analysis correctly identifies missing information"
+        },
+        {
+          "check": "multiple_scenarios",
+          "status": "pass",
+          "note": "Analysis considers multiple scenarios/outcomes"
+        },
+        {
+          "check": "recommendations_provided",
+          "status": "pass",
+          "note": "Clear recommendations provided"
+        }
+      ],
+      "completeness_score": 100.0,
+      "consistency_issues": []
+    },
+    "warnings": [],
+    "overall_confidence": 85.0
+  },
+  "error": null,
+  "pre_verification": {
+    "status": "passed",
+    "summary": {
+      "critical_issues": 0,
+      "warnings": 0,
+      "resolved_false_positives": 1,
+      "total_issues_flagged": 1,
+      "total_issues_after_llm": 0
+    },
+    "issues": [],
+    "clarification_questions": [],
+    "normalized_data": {
+      "properties": [
+        {
+          "address": "Humpty Doo, NT 0836, 45 Collard Road",
+          "property_history": [
+            {
+              "date": "2003-01-01",
+              "event": "purchase",
+              "price": 106000.0,
+              "price_per_week": null,
+              "is_ppr": true,
+              "contract_date": null
+            },
+            {
+              "date": "2003-01-01",
+              "event": "move_in",
+              "price": null,
+              "price_per_week": null,
+              "is_ppr": true,
+              "contract_date": null
+            },
+            {
+              "date": "2020-01-01",
+              "event": "rent_start",
+              "price": null,
+              "price_per_week": null,
+              "is_ppr": null,
+              "contract_date": null
+            },
+            {
+              "date": "2023-07-14",
+              "event": "sale",
+              "price": 450000.0,
+              "price_per_week": null,
+              "is_ppr": true,
+              "contract_date": "2023-07-14"
+            }
+          ],
+          "notes": "sold"
+        },
+        {
+          "address": "Bellamack, NT 0832, 50 Flynn Circuit",
+          "property_history": [
+            {
+              "date": "2014-06-05",
+              "event": "purchase",
+              "price": 705000.0,
+              "price_per_week": null,
+              "is_ppr": null,
+              "contract_date": null
+            },
+            {
+              "date": "2014-06-20",
+              "event": "rent_start",
+              "price": null,
+              "price_per_week": null,
+              "is_ppr": null,
+              "contract_date": null
+            }
+          ],
+          "notes": "rental"
+        },
+        {
+          "address": "Boyne Island, Qld 4680, 5 Wanda Dr",
+          "property_history": [
+            {
+              "date": "2021-09-30",
+              "event": "purchase",
+              "price": 530000.0,
+              "price_per_week": null,
+              "is_ppr": true,
+              "contract_date": null
+            },
+            {
+              "date": "2021-09-30",
+              "event": "move_in",
+              "price": null,
+              "price_per_week": null,
+              "is_ppr": true,
+              "contract_date": null
+            },
+            {
+              "date": "2022-04-15",
+              "event": "improvement",
+              "price": 45000.0,
+              "price_per_week": null,
+              "is_ppr": null,
+              "contract_date": null
+            }
+          ],
+          "notes": "ppr"
+        },
+        {
+          "address": "Boyne Island Rental, Qld 4680, Rental Property",
+          "property_history": [
+            {
+              "date": "2020-01-01",
+              "event": "move_in",
+              "price": null,
+              "price_per_week": null,
+              "is_ppr": null,
+              "contract_date": null
+            }
+          ],
+          "notes": "rental"
+        }
+      ],
+      "user_query": "What is my total CGT liability across 4 properties?",
+      "additional_info": {
+        "australian_resident": true,
+        "other_property_owned": false,
+        "land_size_hectares": null,
+        "marginal_tax_rate": null
+      }
+    },
+    "timeline_analysis": {
+      "status": "success",
+      "analysis_period": {
+        "start": "2003-01-01",
+        "end": "2023-07-14",
+        "total_days": 7500
+      },
+      "gaps": [
+        {
+          "start_date": "2003-01-01",
+          "end_date": "2023-07-14",
+          "duration_days": 7500,
+          "owned_properties": []
+        }
+      ],
+      "overlaps": [],
+      "statistics": {
+        "total_days": 7500,
+        "gap_days": 7500,
+        "overlap_days": 0,
+        "accounted_days": 0,
+        "accounted_percentage": 0.0,
+        "total_gaps": 1,
+        "total_overlaps": 0
+      },
+      "has_issues": true
+    },
+    "llm_decision": {
+      "critical": [],
+      "resolved": [
+        {
+          "index": 0,
+          "issue_category": "timeline_gap",
+          "reasoning": "Property 4 is a tenant rental (move_in without purchase). The person was renting there between selling Property 1 and buying Property 3. This fills the timeline gap.",
+          "original_message": "Timeline gap: 2003-01-01 to 2023-07-14 (7500 days). Where were you living?"
+        }
+      ],
+      "clarify": [],
+      "summary": "All properties analyzed. Property 1 sold with complete data (purchase: 106k, sale: 450k). Property 4 is a tenant rental filling the timeline. Property 3 is still owned. NO CRITICAL ISSUES - data complete.",
+      "verification_passed": true
+    },
+    "llm_summary": "All properties analyzed. Property 1 sold with complete data (purchase: 106k, sale: 450k). Property 4 is a tenant rental filling the timeline. Property 3 is still owned. NO CRITICAL ISSUES - data complete."
+  }
+}

@@ -1,0 +1,83 @@
+{
+  "properties": [
+    {
+      "address": "Humpty Doo, NT 0836, 45 Collard Road",
+      "property_history": [
+        {
+          "date": "2003-01-01",
+          "event": "purchase",
+          "price": 106000,
+          "is_ppr": true
+        },
+        {
+          "date": "2003-01-01",
+          "event": "move_in",
+          "is_ppr": true
+        },
+        {
+          "date": "2020-01-01",
+          "event": "rent_start"
+        },
+        {
+          "date": "2023-07-14",
+          "event": "sale",
+          "price": 450000,
+          "is_ppr": true,
+          "contract_date": "2023-07-14"
+        }
+      ],
+      "notes": "sold"
+    },
+    {
+      "address": "Bellamack, NT 0832, 50 Flynn Circuit",
+      "property_history": [
+        {
+          "date": "2014-06-05",
+          "event": "purchase",
+          "price": 705000
+        },
+        {
+          "date": "2014-06-20",
+          "event": "rent_start"
+        }
+      ],
+      "notes": "rental"
+    },
+    {
+      "address": "Boyne Island, Qld 4680, 5 Wanda Dr",
+      "property_history": [
+        {
+          "date": "2021-09-30",
+          "event": "purchase",
+          "price": 530000,
+          "is_ppr": true
+        },
+        {
+          "date": "2021-09-30",
+          "event": "move_in",
+          "is_ppr": true
+        },
+        {
+          "date": "2022-04-15",
+          "event": "improvement",
+          "price": 45000
+        }
+      ],
+      "notes": "ppr"
+    },
+    {
+      "address": "Boyne Island Rental, Qld 4680, Rental Property",
+      "property_history": [
+        {
+          "date": "2020-01-01",
+          "event": "move_in"
+        }
+      ],
+      "notes": "rental"
+    }
+  ],
+  "user_query": "What is my total CGT liability across 4 properties?",
+  "additional_info": {
+    "australian_resident": true
+  }
+}

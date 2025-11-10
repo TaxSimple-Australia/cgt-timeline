@@ -762,7 +762,7 @@ export default function DetailedReportModal({
                       </div>
                     </div>
                   </div>
-                  <div className="p-6 max-w-none">
+                  <div className="p-6 max-w-none text-gray-900 dark:text-gray-100">
                     <MarkdownDisplay content={getEnhancedMarkdown()} />
                   </div>
                 </motion.div>

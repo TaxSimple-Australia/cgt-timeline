@@ -145,75 +145,56 @@ export default function Home() {
         <ConversationBox
           onSendQuery={handleQuerySubmit}
           isLoading={isLoading}
+          showViewAnalysisButton={!!analysisData}
+          onViewAnalysis={() => setShowAnalysis(true)}
         />
       )}
 
-      {/* CGT Analysis Panel (Collapsible Bottom Panel) */}
+      {/* CGT Analysis Panel (Full Screen Overlay) */}
       <AnimatePresence>
         {showAnalysis && (
           <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            className="border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-950"
+            initial={{ y: '100%' }}
+            animate={{ y: 0 }}
+            exit={{ y: '100%' }}
+            transition={{ type: 'spring', stiffness: 300, damping: 30, duration: 0.4 }}
+            className="absolute inset-0 z-50 bg-gray-50 dark:bg-gray-950 flex flex-col"
           >
-            <div className="relative">
-              {/* Toggle Header */}
-              <div className="sticky top-0 z-10 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 px-6 py-3 flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Sparkles className="w-5 h-5 text-purple-600 dark:text-purple-400" />
-                  <h2 className="font-semibold text-gray-900 dark:text-gray-100">
-                    CGT Analysis Results
-                  </h2>
-                  {isLoading && (
-                    <span className="text-sm text-gray-500 dark:text-gray-400 ml-2">
-                      Analyzing...
-                    </span>
-                  )}
-                </div>
-                <button
-                  onClick={() => setShowAnalysis(false)}
-                  className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
-                  aria-label="Minimize analysis panel"
-                >
-                  <ChevronDown className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-                </button>
+            {/* Toggle Header */}
+            <div className="flex-shrink-0 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 px-6 py-3 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Sparkles className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+                <h2 className="font-semibold text-gray-900 dark:text-gray-100">
+                  CGT Analysis Results
+                </h2>
+                {isLoading && (
+                  <span className="text-sm text-gray-500 dark:text-gray-400 ml-2">
+                    Analyzing...
+                  </span>
+                )}
               </div>
+              <button
+                onClick={() => setShowAnalysis(false)}
+                className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+                aria-label="Close analysis panel"
+              >
+                <ChevronDown className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+              </button>
+            </div>
 
-              {/* Scrollable Content */}
-              <div className="max-h-[60vh] overflow-y-auto p-6">
-                <div className="max-w-7xl mx-auto">
-                  {isLoading ? (
-                    <LoadingSpinner message="Analyzing your CGT with AI..." />
-                  ) : error ? (
-                    <ErrorDisplay message={error} onRetry={handleRetry} />
-                  ) : analysisData ? (
-                    <ModelResponseDisplay responseData={analysisData} />
-                  ) : null}
-                </div>
+            {/* Scrollable Content - Takes remaining space */}
+            <div className="flex-1 overflow-y-auto p-6">
+              <div className="max-w-7xl mx-auto">
+                {isLoading ? (
+                  <LoadingSpinner />
+                ) : error ? (
+                  <ErrorDisplay message={error} onRetry={handleRetry} />
+                ) : analysisData ? (
+                  <ModelResponseDisplay responseData={analysisData} />
+                ) : null}
               </div>
             </div>
           </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Floating Button to Reopen Analysis Panel - Shows when panel is collapsed but data exists */}
-      <AnimatePresence>
-        {!showAnalysis && analysisData && (
-          <motion.button
-            initial={{ y: 100, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            exit={{ y: 100, opacity: 0 }}
-            transition={{ duration: 0.3, type: 'spring', stiffness: 300, damping: 30 }}
-            onClick={() => setShowAnalysis(true)}
-            className="fixed bottom-6 right-6 z-50 flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-200"
-            aria-label="Show CGT analysis results"
-          >
-            <Sparkles className="w-5 h-5" />
-            <span className="font-semibold">View CGT Analysis</span>
-            <ChevronUp className="w-5 h-5" />
-          </motion.button>
         )}
       </AnimatePresence>
 

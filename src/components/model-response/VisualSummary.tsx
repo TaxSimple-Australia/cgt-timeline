@@ -190,9 +190,6 @@ export default function VisualSummary({ metrics, delay = 0 }: VisualSummaryProps
                 >
                   {confidencePercentage}%
                 </motion.div>
-                <div className="text-xs text-gray-500 dark:text-gray-400">
-                  {(confidence_score * 100).toFixed(1)}
-                </div>
               </div>
             </div>
 

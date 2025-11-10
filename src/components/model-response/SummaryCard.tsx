@@ -2,74 +2,181 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { TrendingUp, TrendingDown, DollarSign, Lightbulb } from 'lucide-react';
+import { TrendingUp, TrendingDown, DollarSign, Lightbulb, AlertCircle, CheckCircle } from 'lucide-react';
+
+interface Issue {
+  type: 'missing_data' | 'warning' | 'info' | 'error';
+  field?: string;
+  message: string;
+  severity?: 'low' | 'medium' | 'high';
+}
 
 interface SummaryCardProps {
   summary: string;
   recommendation?: string;
   delay?: number;
+  detailedBreakdown?: {
+    capital_gain?: number;
+    cost_base?: number;
+    discount_applied?: number;
+    tax_payable?: number;
+  };
+  issues?: Issue[];
 }
 
-export default function SummaryCard({ summary, recommendation, delay = 0 }: SummaryCardProps) {
-  // Extract dollar amount from summary if present
-  const extractAmount = (text: string): string | null => {
-    const match = text.match(/(?:AUD|AU\$|\$)\s*[\d,]+/i);
-    return match ? match[0] : null;
-  };
+export default function SummaryCard({ summary, recommendation, delay = 0, detailedBreakdown, issues = [] }: SummaryCardProps) {
+  // Determine if there are critical errors/missing data
+  const hasCriticalIssues = issues.some(issue =>
+    issue.type === 'error' ||
+    issue.type === 'missing_data' ||
+    issue.severity === 'high'
+  );
 
-  // Extract brief summary from markdown content
-  const extractBriefSummary = (text: string): string => {
-    // If it's markdown (starts with #), extract the first meaningful paragraph
-    if (text.startsWith('#')) {
-      // Find the first section after headings
-      const lines = text.split('\n');
-      let inContent = false;
-      let briefText = '';
+  const criticalIssueCount = issues.filter(issue =>
+    issue.type === 'error' ||
+    issue.type === 'missing_data' ||
+    issue.severity === 'high'
+  ).length;
 
-      for (const line of lines) {
-        const trimmed = line.trim();
+  // Create a relevant summary prioritizing errors, then key insights
+  const createRelevantSummary = (): string => {
+    // PRIORITY 1: If there are critical errors, show that first
+    if (hasCriticalIssues) {
+      const errorMessages = [];
 
-        // Skip headings and empty lines at the start
-        if (!inContent && (trimmed.startsWith('#') || trimmed === '' || trimmed.startsWith('**'))) {
-          continue;
-        }
-
-        // Start collecting content
-        if (!inContent && trimmed !== '') {
-          inContent = true;
-        }
-
-        if (inContent) {
-          briefText += trimmed + ' ';
-
-          // Stop after collecting a reasonable amount (200 chars or first paragraph)
-          if (briefText.length > 200 || trimmed === '') {
-            break;
-          }
-        }
+      if (criticalIssueCount === 1) {
+        errorMessages.push(`There is ${criticalIssueCount} critical issue that needs attention before we can provide an accurate CGT calculation`);
+      } else if (criticalIssueCount > 1) {
+        errorMessages.push(`There are ${criticalIssueCount} critical issues that need attention before we can provide an accurate CGT calculation`);
       }
 
-      // Clean up markdown syntax
-      briefText = briefText
-        .replace(/\*\*/g, '') // Remove bold
-        .replace(/\*/g, '')   // Remove italic
-        .replace(/\[([^\]]+)\]\([^\)]+\)/g, '$1') // Remove links but keep text
-        .replace(/`/g, '')    // Remove code backticks
-        .trim();
+      // Add context about what's missing
+      const missingDataIssues = issues.filter(i => i.type === 'missing_data');
+      if (missingDataIssues.length > 0) {
+        errorMessages.push(`Please provide the missing information to get a complete analysis`);
+      }
 
-      // If we got something, return it
-      if (briefText.length > 50) {
-        return briefText.substring(0, 300) + (briefText.length > 300 ? '...' : '');
+      return errorMessages.join('. ') + '.';
+    }
+
+    // PRIORITY 2: Extract key insights from summary (what this MEANS for the user)
+    if (summary) {
+      const sentences = summary.split(/[.!?]+/).filter(s => s.trim().length > 20);
+
+      // Look for insight-oriented sentences (interpretation, not just facts)
+      const insightKeywords = [
+        'qualify', 'eligible', 'exempt', 'discount', 'reduction',
+        'benefit', 'advantage', 'opportunity', 'recommend', 'should',
+        'main residence', 'primary residence', '50% discount', 'cgt discount',
+        'consider', 'important', 'note', 'aware', 'significant'
+      ];
+
+      const insightSentence = sentences.find(s => {
+        const lower = s.toLowerCase();
+        return insightKeywords.some(keyword => lower.includes(keyword));
+      });
+
+      if (insightSentence) {
+        return insightSentence.trim() + '.';
       }
     }
 
-    // Otherwise, return the first 300 characters
-    return text.substring(0, 300) + (text.length > 300 ? '...' : '');
+    // PRIORITY 3: Show tax outcome with meaningful context
+    if (detailedBreakdown) {
+      const parts = [];
+
+      // Add discount context if significant
+      if (detailedBreakdown.discount_applied !== undefined && detailedBreakdown.discount_applied > 0) {
+        const discountFormatted = new Intl.NumberFormat('en-AU', {
+          style: 'currency',
+          currency: 'AUD',
+          minimumFractionDigits: 0,
+        }).format(detailedBreakdown.discount_applied);
+        parts.push(`You received ${discountFormatted} in CGT discount (50% of your capital gain)`);
+      }
+
+      // Tax payable outcome
+      if (detailedBreakdown.tax_payable !== undefined) {
+        const taxFormatted = new Intl.NumberFormat('en-AU', {
+          style: 'currency',
+          currency: 'AUD',
+          minimumFractionDigits: 0,
+        }).format(detailedBreakdown.tax_payable);
+
+        if (detailedBreakdown.tax_payable > 0) {
+          if (parts.length === 0) {
+            parts.push(`Your estimated CGT liability is ${taxFormatted}`);
+          } else {
+            parts.push(`resulting in ${taxFormatted} tax payable`);
+          }
+        } else if (detailedBreakdown.tax_payable === 0) {
+          parts.push(`You have no Capital Gains Tax liability`);
+        } else {
+          parts.push(`You may be eligible for a tax credit`);
+        }
+      }
+
+      if (parts.length > 0) {
+        return parts.join(', ') + '.';
+      }
+    }
+
+    // PRIORITY 4: Extract any meaningful sentence from summary
+    if (summary) {
+      const sentences = summary.split(/[.!?]+/).filter(s => s.trim().length > 30);
+
+      // Skip purely factual sentences about amounts/dates
+      const meaningfulSentence = sentences.find(s => {
+        const lower = s.toLowerCase();
+        return !lower.match(/^\s*(the\s+)?(total|amount|price|date|property)\s/i);
+      });
+
+      if (meaningfulSentence) {
+        return meaningfulSentence.trim() + '.';
+      }
+
+      if (sentences.length > 0) {
+        return sentences[0].trim() + '.';
+      }
+    }
+
+    return 'Review your detailed CGT analysis below for complete information.';
   };
 
-  const amount = extractAmount(summary);
-  const isPositive = summary.toLowerCase().includes('refund') || summary.toLowerCase().includes('credit');
-  const displaySummary = extractBriefSummary(summary);
+  // Determine the primary amount to display - ONLY show tax payable
+  const getPrimaryAmount = (): string | null => {
+    // Only show tax payable amount - the most important figure
+    if (detailedBreakdown?.tax_payable !== undefined) {
+      return new Intl.NumberFormat('en-AU', {
+        style: 'currency',
+        currency: 'AUD',
+        minimumFractionDigits: 0,
+      }).format(detailedBreakdown.tax_payable);
+    }
+
+    // Fallback: Try to extract tax payable from summary text
+    const taxMatch = summary.match(/(?:tax\s+payable|cgt\s+liability)[:\s]+(?:AUD|AU\$|\$)?\s*([\d,]+)/i);
+    if (taxMatch) {
+      return `$${taxMatch[1]}`;
+    }
+
+    // Look for explicit "tax payable" amounts in the summary
+    const lines = summary.split('\n');
+    for (const line of lines) {
+      if (line.toLowerCase().includes('tax payable') || line.toLowerCase().includes('cgt liability')) {
+        const amountMatch = line.match(/(?:AUD|AU\$|\$)\s*[\d,]+/);
+        if (amountMatch) {
+          return amountMatch[0];
+        }
+      }
+    }
+
+    return null;
+  };
+
+  const amount = getPrimaryAmount();
+  const isPositive = summary.toLowerCase().includes('refund') || summary.toLowerCase().includes('credit') || (detailedBreakdown?.tax_payable !== undefined && detailedBreakdown.tax_payable < 0);
+  const displaySummary = createRelevantSummary();
 
   return (
     <motion.div
@@ -91,23 +198,27 @@ export default function SummaryCard({ summary, recommendation, delay = 0 }: Summ
             animate={{ scale: 1 }}
             transition={{ duration: 0.5, delay: delay + 0.2, type: 'spring' }}
             className={`p-3 rounded-xl ${
-              isPositive
+              hasCriticalIssues
+                ? 'bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400'
+                : isPositive
                 ? 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400'
                 : 'bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400'
             }`}
           >
-            {isPositive ? (
+            {hasCriticalIssues ? (
+              <AlertCircle className="w-6 h-6" />
+            ) : isPositive ? (
               <TrendingDown className="w-6 h-6" />
             ) : (
-              <DollarSign className="w-6 h-6" />
+              <CheckCircle className="w-6 h-6" />
             )}
           </motion.div>
 
           <div className="flex-1">
             <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">
-              Your CGT Summary
+              {hasCriticalIssues ? 'Action Required' : 'Your CGT Summary'}
             </h3>
-            {amount && (
+            {!hasCriticalIssues && amount && (
               <motion.div
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
@@ -117,12 +228,19 @@ export default function SummaryCard({ summary, recommendation, delay = 0 }: Summ
                 {amount}
               </motion.div>
             )}
-            <p className="text-gray-700 dark:text-gray-300 text-lg leading-relaxed">
+            <p className={`${hasCriticalIssues ? 'text-red-700 dark:text-red-300' : 'text-gray-700 dark:text-gray-300'} text-lg leading-relaxed`}>
               {displaySummary}
             </p>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
-              Click "View Detailed Report" below to see the full analysis
-            </p>
+            {!hasCriticalIssues && (
+              <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
+                Click "View Detailed Report" below to see the full analysis
+              </p>
+            )}
+            {hasCriticalIssues && (
+              <p className="text-sm text-red-600 dark:text-red-400 mt-2">
+                Review the issues below and provide the missing information
+              </p>
+            )}
           </div>
         </div>
 

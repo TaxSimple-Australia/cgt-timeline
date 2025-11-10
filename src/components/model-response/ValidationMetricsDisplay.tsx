@@ -11,8 +11,16 @@ import {
   XCircle,
   AlertTriangle,
   TrendingUp,
-  BookOpen
+  BookOpen,
+  CheckCircle,
+  AlertCircle
 } from 'lucide-react';
+import {
+  RadialBarChart,
+  RadialBar,
+  ResponsiveContainer,
+  PolarAngleAxis,
+} from 'recharts';
 
 interface ValidationMetrics {
   citation_check?: {
@@ -46,18 +54,65 @@ interface Metadata {
   warnings?: string[];
 }
 
+interface VisualMetrics {
+  data_completeness: number;
+  confidence_score: number;
+}
+
 interface ValidationMetricsDisplayProps {
   validation?: ValidationMetrics;
   metadata?: Metadata;
+  visualMetrics?: VisualMetrics;
 }
 
 export default function ValidationMetricsDisplay({
   validation,
-  metadata
+  metadata,
+  visualMetrics
 }: ValidationMetricsDisplayProps) {
-  if (!validation && !metadata) return null;
+  if (!validation && !metadata && !visualMetrics) return null;
 
   const confidence = validation?.overall_confidence || metadata?.confidence || 0;
+
+  // Visual metrics data
+  const dataCompleteness = visualMetrics?.data_completeness || 0;
+  const confidenceScore = visualMetrics?.confidence_score || 0;
+  const confidencePercentage = Math.round(confidenceScore * 100);
+
+  // Helper functions for visual metrics
+  const getCompletenessStatus = (value: number) => {
+    if (value >= 90) return { color: '#10B981', label: 'Excellent', icon: CheckCircle };
+    if (value >= 70) return { color: '#3B82F6', label: 'Good', icon: TrendingUp };
+    if (value >= 50) return { color: '#F59E0B', label: 'Fair', icon: AlertCircle };
+    return { color: '#EF4444', label: 'Needs Improvement', icon: AlertCircle };
+  };
+
+  const getConfidenceStatusVisual = (value: number) => {
+    if (value >= 90) return { color: '#10B981', label: 'Very High' };
+    if (value >= 70) return { color: '#3B82F6', label: 'High' };
+    if (value >= 50) return { color: '#F59E0B', label: 'Moderate' };
+    return { color: '#EF4444', label: 'Low' };
+  };
+
+  const completenessStatus = getCompletenessStatus(dataCompleteness);
+  const confidenceStatusVisual = getConfidenceStatusVisual(confidencePercentage);
+
+  // Data for radial charts
+  const completenessData = [
+    {
+      name: 'Completeness',
+      value: dataCompleteness,
+      fill: completenessStatus.color,
+    },
+  ];
+
+  const confidenceData = [
+    {
+      name: 'Confidence',
+      value: confidencePercentage,
+      fill: confidenceStatusVisual.color,
+    },
+  ];
 
   const getConfidenceColor = (score: number) => {
     if (score >= 80) return 'text-green-600 dark:text-green-400';
@@ -96,7 +151,117 @@ export default function ValidationMetricsDisplay({
       </div>
 
       <div className="p-6 space-y-6">
+        {/* Visual Metrics Charts - Data Completeness & Confidence Score */}
+        {visualMetrics && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            {/* Data Completeness Chart */}
+            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20 rounded-xl p-6 border border-blue-200 dark:border-blue-800">
+              <div className="relative h-48">
+                <ResponsiveContainer width="100%" height="100%">
+                  <RadialBarChart
+                    cx="50%"
+                    cy="50%"
+                    innerRadius="60%"
+                    outerRadius="90%"
+                    data={completenessData}
+                    startAngle={90}
+                    endAngle={-270}
+                  >
+                    <PolarAngleAxis type="number" domain={[0, 100]} angleAxisId={0} tick={false} />
+                    <RadialBar
+                      background
+                      dataKey="value"
+                      cornerRadius={10}
+                      fill={completenessStatus.color}
+                    />
+                  </RadialBarChart>
+                </ResponsiveContainer>
+
+                {/* Center text */}
+                <div className="absolute inset-0 flex flex-col items-center justify-center">
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.3, delay: 0.2 }}
+                    className="text-2xl font-bold text-gray-800 dark:text-gray-200"
+                  >
+                    {dataCompleteness}%
+                  </motion.div>
+                </div>
+              </div>
+
+              <div className="mt-4">
+                <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Data Completeness
+                </h4>
+                <span
+                  className="inline-block px-3 py-1 rounded-full text-xs font-medium"
+                  style={{
+                    backgroundColor: `${completenessStatus.color}20`,
+                    color: completenessStatus.color,
+                  }}
+                >
+                  {completenessStatus.label}
+                </span>
+              </div>
+            </div>
+
+            {/* Confidence Score Chart */}
+            <div className="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-950/20 dark:to-pink-950/20 rounded-xl p-6 border border-purple-200 dark:border-purple-800">
+              <div className="relative h-48">
+                <ResponsiveContainer width="100%" height="100%">
+                  <RadialBarChart
+                    cx="50%"
+                    cy="50%"
+                    innerRadius="60%"
+                    outerRadius="90%"
+                    data={confidenceData}
+                    startAngle={90}
+                    endAngle={-270}
+                  >
+                    <PolarAngleAxis type="number" domain={[0, 100]} angleAxisId={0} tick={false} />
+                    <RadialBar
+                      background
+                      dataKey="value"
+                      cornerRadius={10}
+                      fill={confidenceStatusVisual.color}
+                    />
+                  </RadialBarChart>
+                </ResponsiveContainer>
+
+                {/* Center text */}
+                <div className="absolute inset-0 flex flex-col items-center justify-center">
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.3, delay: 0.2 }}
+                    className="text-2xl font-bold text-gray-800 dark:text-gray-200"
+                  >
+                    {confidencePercentage}%
+                  </motion.div>
+                </div>
+              </div>
+
+              <div className="mt-4">
+                <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Confidence Score
+                </h4>
+                <span
+                  className="inline-block px-3 py-1 rounded-full text-xs font-medium"
+                  style={{
+                    backgroundColor: `${confidenceStatusVisual.color}20`,
+                    color: confidenceStatusVisual.color,
+                  }}
+                >
+                  {confidenceStatusVisual.label}
+                </span>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Overall Confidence Score */}
+        {(validation || metadata) && (
         <div className="text-center">
           <div className="inline-flex flex-col items-center">
             <div className="relative w-32 h-32 mb-3">
@@ -156,6 +321,7 @@ export default function ValidationMetricsDisplay({
             </p>
           </div>
         </div>
+        )}
 
         {/* Citation Check */}
         {validation?.citation_check && (
@@ -342,7 +508,7 @@ export default function ValidationMetricsDisplay({
               </h4>
             </div>
 
-            <div className="grid grid-cols-2 gap-3 text-sm">
+            {/*<div className="grid grid-cols-2 gap-3 text-sm">
               {metadata.llm_used && (
                 <div>
                   <span className="text-gray-600 dark:text-gray-400">Model:</span>
@@ -359,7 +525,7 @@ export default function ValidationMetricsDisplay({
                   </span>
                 </div>
               )}
-            </div>
+            </div>*/}
 
             {metadata.warnings && metadata.warnings.length > 0 && (
               <div className="mt-3 p-3 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-lg">

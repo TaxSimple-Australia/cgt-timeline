@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { motion } from 'framer-motion';
 import {
   Dialog,
@@ -29,6 +30,7 @@ import {
   Mail,
   X,
   Eye,
+  ArrowLeft,
 } from 'lucide-react';
 import type { CGTModelResponse } from '@/types/model-response';
 import { format } from 'date-fns';
@@ -53,7 +55,7 @@ export default function DetailedReportModal({
   const breakdown = response.detailed_breakdown;
 
   // State for tab navigation
-  const [activeTab, setActiveTab] = useState<'summary' | 'properties' | 'timeline' | 'classic' | 'report' | 'raw'>('summary');
+  const [activeTab, setActiveTab] = useState<'summary' | 'properties' | 'timeline' | 'raw'>('raw');
   const [copiedMarkdown, setCopiedMarkdown] = useState(false);
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
 
@@ -93,23 +95,6 @@ export default function DetailedReportModal({
   // Generate enhanced markdown with citations and reasoning
   const getEnhancedMarkdown = () => {
     let enhanced = response.summary || 'No content available';
-
-    // Add metadata section
-    if (metadata) {
-      enhanced += '\n\n---\n\n# Analysis Metadata\n\n';
-
-      if (metadata.confidence !== undefined) {
-        enhanced += `**Confidence Score:** ${metadata.confidence}%\n\n`;
-      }
-
-      if (metadata.llm_used) {
-        enhanced += `**Model Used:** ${metadata.llm_used}\n\n`;
-      }
-
-      if (metadata.chunks_retrieved !== undefined) {
-        enhanced += `**Documents Retrieved:** ${metadata.chunks_retrieved}\n\n`;
-      }
-    }
 
     // Add validation checks section
     if (validationMetrics) {
@@ -220,12 +205,10 @@ export default function DetailedReportModal({
   };
 
   const tabs = [
+    { id: 'raw' as const, label: 'Full Document', icon: <FileText className="w-4 h-4" /> },
     { id: 'summary' as const, label: 'Summary', icon: <Layout className="w-4 h-4" /> },
     { id: 'properties' as const, label: 'Properties', icon: <Home className="w-4 h-4" /> },
     { id: 'timeline' as const, label: 'Timeline', icon: <BarChart3 className="w-4 h-4" /> },
-    { id: 'classic' as const, label: 'Classic View', icon: <Eye className="w-4 h-4" /> },
-    { id: 'report' as const, label: 'Full Analysis', icon: <FileText className="w-4 h-4" /> },
-    { id: 'raw' as const, label: 'Full Document', icon: <FileText className="w-4 h-4" /> },
   ];
 
   // Handle copying markdown to clipboard
@@ -372,6 +355,10 @@ export default function DetailedReportModal({
 
             {/* Action Buttons */}
             <div className="flex gap-2">
+              <Button variant="outline" size="sm" onClick={onClose} className="mr-2">
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Back
+              </Button>
               <Button variant="outline" size="sm" onClick={() => window.print()}>
                 <Printer className="w-4 h-4 mr-2" />
                 Print
@@ -704,108 +691,6 @@ export default function DetailedReportModal({
               </div>
             )}
 
-            {/* CLASSIC VIEW TAB - Full ModelResponseDisplay */}
-            {activeTab === 'classic' && (
-              <ModelResponseDisplay responseData={data} />
-            )}
-
-            {/* FULL ANALYSIS TAB */}
-            {activeTab === 'report' && (
-              <div className="space-y-6">
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.3 }}
-                  className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden"
-                >
-                  <div className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-950/30 dark:to-purple-950/30 px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-                    <h3 className="font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
-                      <FileText className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-                      Complete Analysis Report
-                    </h3>
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                      Detailed breakdown with all calculations and recommendations
-                    </p>
-                  </div>
-                  <div className="p-6">
-                    <ExpandableMarkdownSections content={response.summary} />
-                  </div>
-                </motion.div>
-
-                {/* Property Details */}
-                {properties.length > 0 && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3, delay: 0.1 }}
-                    className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden"
-                  >
-                    <div className="bg-gray-50 dark:bg-gray-800 px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-                      <h3 className="font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
-                        <Home className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-                        Property Event History
-                      </h3>
-                    </div>
-                    <div className="divide-y divide-gray-200 dark:divide-gray-700">
-                      {properties.map((property, index) => (
-                        <div key={index} className="p-6">
-                          <h4 className="font-medium text-gray-900 dark:text-gray-100 mb-4">
-                            {property.address}
-                          </h4>
-                          <div className="space-y-3">
-                            {property.property_history.map((event, eventIndex) => (
-                              <div
-                                key={eventIndex}
-                                className="flex items-start gap-4 p-3 rounded-lg bg-gray-50 dark:bg-gray-800"
-                              >
-                                <div className="p-2 bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700">
-                                  <Calendar className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-                                </div>
-                                <div className="flex-1 min-w-0">
-                                  <div className="flex items-center justify-between mb-1">
-                                    <span className="font-medium text-gray-900 dark:text-gray-100 capitalize">
-                                      {event.event.replace('_', ' ')}
-                                    </span>
-                                    <span className="text-sm text-gray-500 dark:text-gray-400">
-                                      {formatDate(event.date)}
-                                    </span>
-                                  </div>
-                                  <div className="flex flex-wrap gap-4 text-sm">
-                                    {event.price !== undefined && (
-                                      <span className="text-gray-700 dark:text-gray-300">
-                                        Price: {formatCurrency(event.price)}
-                                      </span>
-                                    )}
-                                    {event.price_per_week !== undefined && (
-                                      <span className="text-gray-700 dark:text-gray-300">
-                                        Rent: ${event.price_per_week}/week
-                                      </span>
-                                    )}
-                                  </div>
-                                  {event.description && (
-                                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                                      {event.description}
-                                    </p>
-                                  )}
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                          {property.notes && (
-                            <div className="mt-4 p-3 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-lg">
-                              <p className="text-sm text-amber-900 dark:text-amber-200">
-                                <span className="font-medium">Note:</span> {property.notes}
-                              </p>
-                            </div>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  </motion.div>
-                )}
-              </div>
-            )}
-
             {/* RAW MARKDOWN TAB */}
             {activeTab === 'raw' && (
               <div className="space-y-6">
@@ -888,11 +773,24 @@ export default function DetailedReportModal({
       </DialogContent>
     </Dialog>
 
-    {/* Email Dialog - Outside main dialog for proper z-index */}
-    {showEmailDialog && (
-      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[9999]" onClick={() => setShowEmailDialog(false)}>
+    {/* Email Dialog - Rendered via Portal for proper z-index */}
+    {showEmailDialog && typeof document !== 'undefined' && createPortal(
+      <div
+        className="fixed inset-0 flex items-center justify-center"
+        style={{
+          zIndex: 2147483647,
+          backgroundColor: 'rgba(0, 0, 0, 0.8)',
+          pointerEvents: 'auto'
+        }}
+        onClick={() => setShowEmailDialog(false)}
+      >
           <div
-            className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md w-full mx-4 shadow-xl"
+            className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md w-full mx-4 shadow-2xl"
+            style={{
+              position: 'relative',
+              zIndex: 2147483647,
+              pointerEvents: 'auto'
+            }}
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between mb-4">
@@ -975,8 +873,9 @@ export default function DetailedReportModal({
               </>
             )}
           </div>
-        </div>
-      )}
+        </div>,
+      document.body
+    )}
     </>
   );
 }

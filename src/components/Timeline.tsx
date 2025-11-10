@@ -260,7 +260,7 @@ export default function Timeline({ className }: TimelineProps) {
       <TimelineControls />
 
       {/* Main Timeline Container */}
-      <div className="relative h-full pt-20 pb-24 px-8">
+      <div className="relative h-full pt-20 pb-4 px-8">
         <div
           ref={timelineRef}
           className="timeline-scroll relative h-full bg-white dark:bg-slate-900 rounded-2xl shadow-lg border border-slate-200 dark:border-slate-700 overflow-y-auto overflow-x-hidden transition-all duration-300"

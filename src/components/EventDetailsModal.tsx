@@ -30,6 +30,19 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
   const [landPrice, setLandPrice] = useState(event.landPrice?.toString() || '');
   const [buildingPrice, setBuildingPrice] = useState(event.buildingPrice?.toString() || '');
 
+  // Cost Base fields
+  const [purchaseLegalFees, setPurchaseLegalFees] = useState(event.purchaseLegalFees?.toString() || '');
+  const [valuationFees, setValuationFees] = useState(event.valuationFees?.toString() || '');
+  const [stampDuty, setStampDuty] = useState(event.stampDuty?.toString() || '');
+  const [purchaseAgentFees, setPurchaseAgentFees] = useState(event.purchaseAgentFees?.toString() || '');
+  const [landTax, setLandTax] = useState(event.landTax?.toString() || '');
+  const [insurance, setInsurance] = useState(event.insurance?.toString() || '');
+  const [improvementCost, setImprovementCost] = useState(event.improvementCost?.toString() || '');
+  const [titleLegalFees, setTitleLegalFees] = useState(event.titleLegalFees?.toString() || '');
+  const [saleLegalFees, setSaleLegalFees] = useState(event.saleLegalFees?.toString() || '');
+  const [saleAgentFees, setSaleAgentFees] = useState(event.saleAgentFees?.toString() || '');
+  const [marketValuation, setMarketValuation] = useState(event.marketValuation?.toString() || '');
+
   const handleSave = () => {
     try {
       setIsSaving(true);
@@ -88,6 +101,19 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
       if (newStatus) {
         updates.newStatus = newStatus as PropertyStatus;
       }
+
+      // Cost Base fields
+      updates.purchaseLegalFees = purchaseLegalFees && !isNaN(parseFloat(purchaseLegalFees)) ? parseFloat(purchaseLegalFees) : undefined;
+      updates.valuationFees = valuationFees && !isNaN(parseFloat(valuationFees)) ? parseFloat(valuationFees) : undefined;
+      updates.stampDuty = stampDuty && !isNaN(parseFloat(stampDuty)) ? parseFloat(stampDuty) : undefined;
+      updates.purchaseAgentFees = purchaseAgentFees && !isNaN(parseFloat(purchaseAgentFees)) ? parseFloat(purchaseAgentFees) : undefined;
+      updates.landTax = landTax && !isNaN(parseFloat(landTax)) ? parseFloat(landTax) : undefined;
+      updates.insurance = insurance && !isNaN(parseFloat(insurance)) ? parseFloat(insurance) : undefined;
+      updates.improvementCost = improvementCost && !isNaN(parseFloat(improvementCost)) ? parseFloat(improvementCost) : undefined;
+      updates.titleLegalFees = titleLegalFees && !isNaN(parseFloat(titleLegalFees)) ? parseFloat(titleLegalFees) : undefined;
+      updates.saleLegalFees = saleLegalFees && !isNaN(parseFloat(saleLegalFees)) ? parseFloat(saleLegalFees) : undefined;
+      updates.saleAgentFees = saleAgentFees && !isNaN(parseFloat(saleAgentFees)) ? parseFloat(saleAgentFees) : undefined;
+      updates.marketValuation = marketValuation && !isNaN(parseFloat(marketValuation)) ? parseFloat(marketValuation) : undefined;
 
       updateEvent(event.id, updates);
 
@@ -321,6 +347,251 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
               )}
             </div>
 
+            {/* Cost Base Section (for CGT calculation) */}
+            {(event.type === 'purchase' || event.type === 'sale' || event.type === 'improvement' || event.type === 'move_out') && (
+              <div className="space-y-4 pt-2 border-t border-slate-200 dark:border-slate-700">
+                <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide">
+                  Cost Base Elements (for CGT)
+                </h3>
+                <p className="text-xs text-slate-500 dark:text-slate-400">
+                  These costs form part of the cost base for Capital Gains Tax calculations
+                </p>
+
+                {/* Purchase Event Cost Base */}
+                {event.type === 'purchase' && (
+                  <div className="space-y-3">
+                    <h4 className="text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase">Acquisition Costs</h4>
+
+                    {/* Professional Fees */}
+                    <div>
+                      <label className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                        Professional Fees
+                      </label>
+                      <div className="relative">
+                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400">$</span>
+                        <input
+                          type="number"
+                          value={purchaseLegalFees}
+                          onChange={(e) => setPurchaseLegalFees(e.target.value)}
+                          className="w-full pl-8 pr-4 py-2.5 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          placeholder="0.00"
+                          step="0.01"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Valuation Fees */}
+                    <div>
+                      <label className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                        Valuation Fees
+                      </label>
+                      <div className="relative">
+                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400">$</span>
+                        <input
+                          type="number"
+                          value={valuationFees}
+                          onChange={(e) => setValuationFees(e.target.value)}
+                          className="w-full pl-8 pr-4 py-2.5 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          placeholder="0.00"
+                          step="0.01"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Stamp Duty */}
+                    <div>
+                      <label className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                        Stamp Duty
+                      </label>
+                      <div className="relative">
+                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400">$</span>
+                        <input
+                          type="number"
+                          value={stampDuty}
+                          onChange={(e) => setStampDuty(e.target.value)}
+                          className="w-full pl-8 pr-4 py-2.5 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          placeholder="0.00"
+                          step="0.01"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Agent Commission */}
+                    <div>
+                      <label className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                        Agent Commission (Purchase)
+                      </label>
+                      <div className="relative">
+                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400">$</span>
+                        <input
+                          type="number"
+                          value={purchaseAgentFees}
+                          onChange={(e) => setPurchaseAgentFees(e.target.value)}
+                          className="w-full pl-8 pr-4 py-2.5 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          placeholder="0.00"
+                          step="0.01"
+                        />
+                      </div>
+                    </div>
+
+                    <h4 className="text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase mt-4">Holding Costs (if not claimed as deductions)</h4>
+
+                    {/* Land Tax */}
+                    <div>
+                      <label className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                        Land Tax
+                        <span className="text-xs text-slate-500 dark:text-slate-400">(only if not deductible)</span>
+                      </label>
+                      <div className="relative">
+                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400">$</span>
+                        <input
+                          type="number"
+                          value={landTax}
+                          onChange={(e) => setLandTax(e.target.value)}
+                          className="w-full pl-8 pr-4 py-2.5 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          placeholder="0.00"
+                          step="0.01"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Insurance */}
+                    <div>
+                      <label className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                        Insurance
+                        <span className="text-xs text-slate-500 dark:text-slate-400">(only if not deductible)</span>
+                      </label>
+                      <div className="relative">
+                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400">$</span>
+                        <input
+                          type="number"
+                          value={insurance}
+                          onChange={(e) => setInsurance(e.target.value)}
+                          className="w-full pl-8 pr-4 py-2.5 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          placeholder="0.00"
+                          step="0.01"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Title Legal Fees */}
+                    <div>
+                      <label className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                        Legal Fees (Title Defense)
+                      </label>
+                      <div className="relative">
+                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400">$</span>
+                        <input
+                          type="number"
+                          value={titleLegalFees}
+                          onChange={(e) => setTitleLegalFees(e.target.value)}
+                          className="w-full pl-8 pr-4 py-2.5 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          placeholder="0.00"
+                          step="0.01"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Sale Event Cost Base */}
+                {event.type === 'sale' && (
+                  <div className="space-y-3">
+                    <h4 className="text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase">Disposal Costs</h4>
+
+                    {/* Legal Fees */}
+                    <div>
+                      <label className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                        Legal Fees (Sale)
+                      </label>
+                      <div className="relative">
+                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400">$</span>
+                        <input
+                          type="number"
+                          value={saleLegalFees}
+                          onChange={(e) => setSaleLegalFees(e.target.value)}
+                          className="w-full pl-8 pr-4 py-2.5 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          placeholder="0.00"
+                          step="0.01"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Agent Commission */}
+                    <div>
+                      <label className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                        Agent Commission (Sale)
+                      </label>
+                      <div className="relative">
+                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400">$</span>
+                        <input
+                          type="number"
+                          value={saleAgentFees}
+                          onChange={(e) => setSaleAgentFees(e.target.value)}
+                          className="w-full pl-8 pr-4 py-2.5 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          placeholder="0.00"
+                          step="0.01"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Improvement Event Cost Base */}
+                {event.type === 'improvement' && (
+                  <div className="space-y-3">
+                    <h4 className="text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase">Capital Improvement</h4>
+
+                    {/* Improvement Cost */}
+                    <div>
+                      <label className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                        Cost of Renovation/Improvement
+                      </label>
+                      <div className="relative">
+                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400">$</span>
+                        <input
+                          type="number"
+                          value={improvementCost}
+                          onChange={(e) => setImprovementCost(e.target.value)}
+                          className="w-full pl-8 pr-4 py-2.5 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          placeholder="0.00"
+                          step="0.01"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Move Out Event - Market Valuation */}
+                {event.type === 'move_out' && (
+                  <div className="space-y-3">
+                    <h4 className="text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase">Market Valuation</h4>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">
+                      The market value of the property at the time of moving out (required for CGT purposes)
+                    </p>
+
+                    {/* Market Valuation */}
+                    <div>
+                      <label className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                        Market Value at Move Out
+                      </label>
+                      <div className="relative">
+                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400">$</span>
+                        <input
+                          type="number"
+                          value={marketValuation}
+                          onChange={(e) => setMarketValuation(e.target.value)}
+                          className="w-full pl-8 pr-4 py-2.5 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          placeholder="0.00"
+                          step="0.01"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
             {/* Additional Information Section */}
             <div className="space-y-4 pt-2">
               <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide">Additional Information</h3>
@@ -338,26 +609,6 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
                   className="w-full px-4 py-2.5 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
                   placeholder="Add notes about this event..."
                 />
-              </div>
-
-              {/* PPR Checkbox */}
-              <div className="flex items-start gap-3 p-4 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-lg border border-green-200 dark:border-green-800">
-                <input
-                  type="checkbox"
-                  id="isPPR-modal"
-                  checked={isPPR}
-                  onChange={(e) => setIsPPR(e.target.checked)}
-                  className="w-5 h-5 text-green-600 border-gray-300 dark:border-gray-600 rounded focus:ring-green-500 mt-0.5"
-                />
-                <label htmlFor="isPPR-modal" className="text-sm font-medium text-slate-700 dark:text-slate-300 cursor-pointer flex-1">
-                  <div className="flex items-center gap-2 mb-1">
-                    <Home className="w-4 h-4 text-green-600 dark:text-green-400" />
-                    Principal Place of Residence (PPR)
-                  </div>
-                  <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-                    Mark this event as related to your main residence. Important for CGT main residence exemption eligibility.
-                  </p>
-                </label>
               </div>
             </div>
 

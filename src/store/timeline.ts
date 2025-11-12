@@ -38,6 +38,30 @@ export interface TimelineEvent {
   // Price breakdown for purchases (land + building)
   landPrice?: number;       // Price of land component
   buildingPrice?: number;   // Price of building component
+
+  // Cost Base Elements (for CGT calculation)
+  // Element 1: Purchase/Acquisition costs
+  purchaseLegalFees?: number;      // Legal fees for purchase
+  valuationFees?: number;          // Valuation fees
+  stampDuty?: number;              // Stamp duty paid on acquisition
+  purchaseAgentFees?: number;      // Agent commission for purchase
+
+  // Element 2: Incidental holding costs
+  landTax?: number;                // Land tax (only if not claimed as deduction)
+  insurance?: number;              // Insurance costs (only if not claimed as deduction)
+
+  // Element 3: Capital improvements (for improvement events)
+  improvementCost?: number;        // Cost of renovations/improvements
+
+  // Element 4: Title costs
+  titleLegalFees?: number;         // Legal costs to defend/establish title
+
+  // Element 5: Disposal costs (for sale events)
+  saleLegalFees?: number;          // Legal fees for sale
+  saleAgentFees?: number;          // Agent commission for sale
+
+  // Market valuation (for move_out events)
+  marketValuation?: number;        // Market value at time of moving out
 }
 
 export interface Property {
@@ -778,6 +802,18 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
           isPPR: event.isPPR,
           landPrice: event.landPrice,
           buildingPrice: event.buildingPrice,
+          // Cost base fields
+          purchaseLegalFees: event.purchaseLegalFees || event.purchase_legal_fees,
+          valuationFees: event.valuationFees || event.valuation_fees,
+          stampDuty: event.stampDuty || event.stamp_duty,
+          purchaseAgentFees: event.purchaseAgentFees || event.purchase_agent_fees,
+          landTax: event.landTax || event.land_tax,
+          insurance: event.insurance,
+          improvementCost: event.improvementCost || event.improvement_cost,
+          titleLegalFees: event.titleLegalFees || event.title_legal_fees,
+          saleLegalFees: event.saleLegalFees || event.sale_legal_fees,
+          saleAgentFees: event.saleAgentFees || event.sale_agent_fees,
+          marketValuation: event.marketValuation || event.market_valuation,
         }));
       } else if (data.properties && Array.isArray(data.properties)) {
         // Export format with property_history inside properties
@@ -831,6 +867,18 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
                 isPPR: historyItem.is_ppr,
                 landPrice: historyItem.land_price,
                 buildingPrice: historyItem.building_price,
+                // Cost base fields
+                purchaseLegalFees: historyItem.purchase_legal_fees,
+                valuationFees: historyItem.valuation_fees,
+                stampDuty: historyItem.stamp_duty,
+                purchaseAgentFees: historyItem.purchase_agent_fees,
+                landTax: historyItem.land_tax,
+                insurance: historyItem.insurance,
+                improvementCost: historyItem.improvement_cost,
+                titleLegalFees: historyItem.title_legal_fees,
+                saleLegalFees: historyItem.sale_legal_fees,
+                saleAgentFees: historyItem.sale_agent_fees,
+                marketValuation: historyItem.market_valuation,
               };
 
               propertyEvents.push(event);

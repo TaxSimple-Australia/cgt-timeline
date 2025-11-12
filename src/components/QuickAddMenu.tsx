@@ -41,6 +41,7 @@ export default function QuickAddMenu({ position, timelinePosition, onClose }: Qu
   const [propertyName, setPropertyName] = useState('');
   const [propertyAddress, setPropertyAddress] = useState('');
   const [isPPR, setIsPPR] = useState(false);
+  const [isRentalProperty, setIsRentalProperty] = useState(false);
   const [adjustedPosition, setAdjustedPosition] = useState({ x: position.x, y: position.y });
   const [isPositioned, setIsPositioned] = useState(false);
 
@@ -134,15 +135,17 @@ export default function QuickAddMenu({ position, timelinePosition, onClose }: Qu
 
   const handleAddProperty = () => {
     if (!propertyName) return;
-    
+
     addProperty({
       name: propertyName,
       address: propertyAddress,
       color: `#${Math.floor(Math.random()*16777215).toString(16)}`,
+      isRental: isRentalProperty || undefined,
     });
-    
+
     setPropertyName('');
     setPropertyAddress('');
+    setIsRentalProperty(false);
     setShowPropertyForm(false);
     onClose();
   };
@@ -219,6 +222,18 @@ export default function QuickAddMenu({ position, timelinePosition, onClose }: Qu
               placeholder="e.g., 123 Main St"
               className="w-full mt-1 px-3 py-2 border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
             />
+          </div>
+          <div className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              id="isRentalProperty"
+              checked={isRentalProperty}
+              onChange={(e) => setIsRentalProperty(e.target.checked)}
+              className="w-4 h-4 text-blue-600 border-gray-300 dark:border-gray-600 rounded focus:ring-blue-500"
+            />
+            <label htmlFor="isRentalProperty" className="text-xs font-medium text-slate-600 dark:text-slate-300 cursor-pointer">
+              This is a rental property (I don't own it)
+            </label>
           </div>
           <button
             onClick={handleAddProperty}

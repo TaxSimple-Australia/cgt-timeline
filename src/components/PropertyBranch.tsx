@@ -33,9 +33,15 @@ export default function PropertyBranch({
   timelineEnd,
   onEventClick,
 }: PropertyBranchProps) {
-  const { eventDisplayMode, positionedGaps, selectIssue } = useTimelineStore();
+  const { eventDisplayMode, positionedGaps, selectIssue, selectProperty } = useTimelineStore();
   const { getIssuesForProperty } = useValidationStore();
   const branchY = 100 + branchIndex * 120; // Vertical spacing between branches
+
+  // Handle property circle click to select property
+  const handlePropertyClick = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent triggering timeline click (QuickAddMenu)
+    selectProperty(property.id);
+  };
 
   // Get gaps that apply to this property
   const propertyGaps = positionedGaps.filter(gap =>
@@ -219,16 +225,20 @@ export default function PropertyBranch({
       
       {/* Branch Label */}
       <foreignObject x="10" y={branchY - 30} width="200" height="60">
-        <div className="flex items-center gap-2">
-          <div 
+        <div className="flex items-center gap-2 group select-none">
+          <div
             className={cn(
-              "w-3 h-3 rounded-full",
-              isSelected && "ring-2 ring-offset-2 ring-slate-400"
+              "w-5 h-5 rounded-full transition-all cursor-pointer",
+              isSelected && "ring-2 ring-offset-2 ring-slate-400 dark:ring-slate-500",
+              "hover:ring-2 hover:ring-offset-1 hover:ring-slate-300 dark:hover:ring-slate-500",
+              "hover:scale-110"
             )}
             style={{ backgroundColor: property.color }}
+            onClick={handlePropertyClick}
+            title={`Click to view ${property.name} details`}
           />
           <span className={cn(
-            "font-semibold text-sm transition-all",
+            "font-semibold text-sm transition-all pointer-events-none",
             isSelected
               ? "text-slate-900 dark:text-slate-100"
               : "text-slate-600 dark:text-slate-400"

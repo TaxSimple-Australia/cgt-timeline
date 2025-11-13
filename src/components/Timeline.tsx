@@ -10,6 +10,7 @@ import TimelineControls from './TimelineControls';
 import PropertyBranch from './PropertyBranch';
 import QuickAddMenu from './QuickAddMenu';
 import EventDetailsModal from './EventDetailsModal';
+import TimelineSnapshot from './TimelineSnapshot';
 
 interface TimelineProps {
   className?: string;
@@ -399,6 +400,9 @@ export default function Timeline({ className }: TimelineProps) {
           propertyName={editingEventPropertyName}
         />
       )}
+
+      {/* Timeline Snapshot Widget */}
+      <TimelineSnapshot />
     </div>
   );
 }

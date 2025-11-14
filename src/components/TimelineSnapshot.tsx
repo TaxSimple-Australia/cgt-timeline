@@ -175,8 +175,8 @@ export default function TimelineSnapshot({ className }: TimelineSnapshotProps) {
                 className="absolute h-2 rounded-full opacity-70 cursor-pointer hover:opacity-90 transition-opacity"
                 style={{
                   backgroundColor: property.color,
-                  left: '0%',
-                  right: '0%',
+                  left: '64px',
+                  right: '64px',
                 }}
                 onClick={(e) => handlePropertyClick(e, property)}
                 whileHover={{ scaleY: 1.2 }}
@@ -184,24 +184,26 @@ export default function TimelineSnapshot({ className }: TimelineSnapshotProps) {
               />
 
               <div
-                className="absolute left-0 w-5 h-5 rounded-full border-2 border-white dark:border-slate-900 shadow-lg -translate-y-1/2"
+                className="absolute w-5 h-5 rounded-full border-2 border-white dark:border-slate-900 shadow-lg -translate-y-1/2"
                 style={{
                   backgroundColor: property.color,
                   top: '4px',
+                  left: '64px',
                 }}
               />
 
               <div
-                className="absolute right-0 w-5 h-5 rounded-full border-2 border-white dark:border-slate-900 shadow-lg -translate-y-1/2"
+                className="absolute w-5 h-5 rounded-full border-2 border-white dark:border-slate-900 shadow-lg -translate-y-1/2"
                 style={{
                   backgroundColor: property.color,
                   top: '4px',
+                  right: '64px',
                 }}
               />
 
               <motion.div
-                className="absolute -top-8 left-2 text-sm font-semibold text-slate-600 dark:text-slate-400 truncate max-w-[300px] cursor-pointer hover:underline"
-                style={{ color: property.color }}
+                className="absolute -top-8 text-sm font-semibold text-slate-600 dark:text-slate-400 truncate max-w-[300px] cursor-pointer hover:underline"
+                style={{ color: property.color, left: '72px' }}
                 onClick={(e) => handlePropertyClick(e, property)}
                 whileHover={{ scale: 1.05 }}
                 title="Click for property details"

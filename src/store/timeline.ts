@@ -623,7 +623,7 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
       propertyId: prop1.id,
       type: 'sale',
       date: new Date(2023, 6, 14),
-      title: 'Sold as PPR',
+      title: 'Sold',
       amount: 450000,
       position: 0,
       color: eventColors.sale,

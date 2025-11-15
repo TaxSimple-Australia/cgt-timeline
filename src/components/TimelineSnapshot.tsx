@@ -1,626 +1,570 @@
 'use client';
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Camera, X, MapPin, Calendar, DollarSign, Home, TrendingUp } from 'lucide-react';
+import { Camera, X, Download, MapPin } from 'lucide-react';
 import { useTimelineStore, Property, TimelineEvent } from '@/store/timeline';
-import { cn, dateToPosition, formatCurrency } from '@/lib/utils';
 import { format } from 'date-fns';
+import html2canvas from 'html2canvas';
 
-interface TimelineSnapshotProps {
-  className?: string;
-}
-
-export default function TimelineSnapshot({ className }: TimelineSnapshotProps) {
-  const [isFullscreen, setIsFullscreen] = useState(false);
-  const [hoveredEventId, setHoveredEventId] = useState<string | null>(null);
-  const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
-  const miniTimelineRef = useRef<HTMLDivElement>(null);
+export default function TimelineSnapshot() {
+  const [isOpen, setIsOpen] = useState(false);
+  const [hoveredEvent, setHoveredEvent] = useState<{ event: TimelineEvent; property: Property } | null>(null);
+  const [hoveredProperty, setHoveredProperty] = useState<Property | null>(null);
+  const [isDownloading, setIsDownloading] = useState(false);
+  const [showMarkerTooltip, setShowMarkerTooltip] = useState(false);
+  const snapshotRef = useRef<HTMLDivElement>(null);
 
   const {
     properties,
     events,
     absoluteStart,
     absoluteEnd,
+    timelineStart,
+    timelineEnd,
     theme,
   } = useTimelineStore();
 
-  const handleOpen = () => {
-    setIsFullscreen(true);
+  // Calculate position as percentage (0-100) based on absolute timeline
+  const getDatePosition = (date: Date): number => {
+    const totalRange = absoluteEnd.getTime() - absoluteStart.getTime();
+    const offset = date.getTime() - absoluteStart.getTime();
+    return (offset / totalRange) * 100;
   };
 
-  const handleClose = () => {
-    setIsFullscreen(false);
-    setSelectedProperty(null);
-  };
-
-  const handlePropertyClick = (e: React.MouseEvent, property: Property) => {
-    e.stopPropagation();
-    setSelectedProperty(property);
-  };
-
-  const getPropertyEvents = (propertyId: string) => {
-    return events
-      .filter((e) => e.propertyId === propertyId)
-      .sort((a, b) => a.date.getTime() - b.date.getTime());
-  };
-
-  const getPropertyStats = (property: Property) => {
-    const propertyEvents = getPropertyEvents(property.id);
-    const purchaseEvent = propertyEvents.find(e => e.type === 'purchase');
-    const saleEvent = propertyEvents.find(e => e.type === 'sale');
-
-    const totalEvents = propertyEvents.length;
-    const purchasePrice = property.purchasePrice || purchaseEvent?.amount;
-    const salePrice = property.salePrice || saleEvent?.amount;
-    const gain = salePrice && purchasePrice ? salePrice - purchasePrice : null;
-    const gainPercent = gain && purchasePrice ? (gain / purchasePrice) * 100 : null;
-
+  // Calculate viewport marker position
+  const getViewportMarker = () => {
+    const startPos = getDatePosition(timelineStart);
+    const endPos = getDatePosition(timelineEnd);
     return {
-      totalEvents,
-      purchasePrice,
-      salePrice,
-      gain,
-      gainPercent,
-      purchaseDate: property.purchaseDate || purchaseEvent?.date,
-      saleDate: property.saleDate || saleEvent?.date,
+      left: startPos,
+      width: endPos - startPos,
     };
   };
 
-  // ESC key handler
-  useEffect(() => {
-    const handleEsc = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        if (selectedProperty) {
-          setSelectedProperty(null);
-        } else {
-          handleClose();
+  // Calculate event tiers for vertical stacking when events overlap
+  const calculateEventTiers = (propertyEvents: TimelineEvent[]) => {
+    const sortedEvents = [...propertyEvents].sort((a, b) => a.date.getTime() - b.date.getTime());
+    const tiers = new Map<string, number>();
+    const overlapThreshold = 3; // Position percentage threshold for overlap
+
+    sortedEvents.forEach((event, index) => {
+      const eventPos = getDatePosition(event.date);
+      let tier = 0;
+
+      for (let i = 0; i < index; i++) {
+        const prevEvent = sortedEvents[i];
+        const prevPos = getDatePosition(prevEvent.date);
+        const prevTier = tiers.get(prevEvent.id) || 0;
+
+        if (Math.abs(eventPos - prevPos) < overlapThreshold && tier === prevTier) {
+          tier = prevTier + 1;
         }
       }
-    };
+      tiers.set(event.id, tier);
+    });
 
-    if (isFullscreen) {
-      document.addEventListener('keydown', handleEsc);
-      return () => document.removeEventListener('keydown', handleEsc);
+    return tiers;
+  };
+
+  // Download snapshot as PNG
+  const handleDownload = async () => {
+    if (!snapshotRef.current) return;
+
+    setIsDownloading(true);
+    try {
+      const canvas = await html2canvas(snapshotRef.current, {
+        backgroundColor: theme === 'dark' ? '#0f172a' : '#ffffff',
+        scale: 2,
+        logging: false,
+        ignoreElements: (element) => {
+          return element.hasAttribute('data-html2canvas-ignore');
+        },
+      });
+
+      const link = document.createElement('a');
+      link.download = `timeline-snapshot-${format(new Date(), 'yyyy-MM-dd-HHmmss')}.png`;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    } catch (error) {
+      console.error('Error generating snapshot:', error);
+    } finally {
+      setIsDownloading(false);
     }
-  }, [isFullscreen, selectedProperty]);
-
-  // Calculate dynamic height based on number of properties
-  const calculateContainerHeight = () => {
-    if (properties.length === 0) return '75vh';
-
-    // Each property needs about 120px of space to avoid overlap
-    // Add extra space for header (64px), year markers (~80px), and padding
-    const minSpacePerProperty = 120;
-    const headerSpace = 64;
-    const yearMarkerSpace = 80;
-    const paddingSpace = 80;
-    const calculatedHeight = (properties.length * minSpacePerProperty) + headerSpace + yearMarkerSpace + paddingSpace;
-
-    // Convert to vh, but ensure minimum of 75vh
-    const viewportHeight = window.innerHeight;
-    const calculatedVh = (calculatedHeight / viewportHeight) * 100;
-
-    // Max 95vh to leave some breathing room, min 75vh
-    return `${Math.min(95, Math.max(75, calculatedVh))}vh`;
   };
 
-  // Render year markers
-  const renderYearMarkers = () => {
-    if (properties.length === 0) return null;
+  const viewportMarker = getViewportMarker();
 
-    const startYear = absoluteStart.getFullYear();
-    const endYear = absoluteEnd.getFullYear();
-    const yearCount = endYear - startYear + 1;
-    const markerInterval = yearCount > 20 ? 5 : yearCount > 10 ? 2 : 1;
-    const years = [];
+  // Calculate maximum tiers for each property to determine spacing
+  const propertyData = properties.map((property) => {
+    const propertyEvents = events.filter((e) => e.propertyId === property.id);
+    const tiers = calculateEventTiers(propertyEvents);
+    const maxTier = propertyEvents.length > 0 ? Math.max(...Array.from(tiers.values())) : 0;
+    return { property, maxTier, eventCount: propertyEvents.length };
+  });
 
-    for (let year = startYear; year <= endYear; year += markerInterval) {
-      const yearDate = new Date(year, 0, 1);
-      const position = dateToPosition(yearDate, absoluteStart, absoluteEnd);
-      years.push({ year, position });
-    }
+  // Calculate dynamic spacing to fit all properties in viewport
+  // Available height = viewport height - header (64px) - padding (32px top+bottom) - year markers (60px)
+  const availableHeight = typeof window !== 'undefined' ? window.innerHeight - 96 - 64 - 60 : 600;
 
-    return (
-      <div className="absolute top-2 left-0 right-0 h-20 px-16">
-        {years.map(({ year, position }) => (
-          <div
-            key={year}
-            className="absolute"
-            style={{ left: `${position}%` }}
-          >
-            <div className="absolute top-0 -translate-x-1/2 text-sm font-semibold text-slate-700 dark:text-slate-300 whitespace-nowrap bg-white/80 dark:bg-slate-800/80 px-2 py-1 rounded shadow-sm">
-              {year}
-            </div>
-            <div className="absolute top-12 w-px h-full bg-slate-300 dark:bg-slate-600 -translate-x-1/2 opacity-30" />
-          </div>
-        ))}
-      </div>
-    );
-  };
+  // Base spacing for property line + label
+  const basePropertyHeight = 40;
+  // Spacing per tier of events (increased to prevent overlap)
+  const tierSpacing = 35;
 
-  // Render property branches
-  const renderPropertyBranches = () => {
-    if (properties.length === 0) return null;
+  // Calculate total "weight" (space needed) for all properties
+  const totalWeight = propertyData.reduce((sum, { maxTier, eventCount }) => {
+    return sum + basePropertyHeight + (maxTier + 1) * tierSpacing;
+  }, 0);
 
-    const propertyEvents = properties.map(p =>
-      events.filter(e => e.propertyId === p.id)
-    );
-    const maxEventsPerProperty = Math.max(...propertyEvents.map(events => events.length), 1);
-
-    // Calculate spacing to prevent overlap
-    // Give each property a fixed percentage of space
-    const startPos = 15; // Start a bit higher to use more space
-    const endPos = 85; // End position (leave some space at bottom)
-    const totalSpace = endPos - startPos;
-
-    // Distribute properties evenly in the available space
-    const spacingPerProperty = properties.length > 1
-      ? totalSpace / (properties.length - 1)
-      : 0;
-
-    return (
-      <div className="absolute inset-0">
-        {properties.map((property, index) => {
-          const yPos = startPos + (index * spacingPerProperty);
-          const propertyEventList = events.filter(e => e.propertyId === property.id);
-
-          return (
-            <div
-              key={property.id}
-              className="absolute left-0 right-0"
-              style={{ top: `${yPos}%` }}
-            >
-              <motion.div
-                className="absolute h-2 rounded-full opacity-70 cursor-pointer hover:opacity-90 transition-opacity"
-                style={{
-                  backgroundColor: property.color,
-                  left: '64px',
-                  right: '64px',
-                }}
-                onClick={(e) => handlePropertyClick(e, property)}
-                whileHover={{ scaleY: 1.2 }}
-                title="Click for property details"
-              />
-
-              <div
-                className="absolute w-5 h-5 rounded-full border-2 border-white dark:border-slate-900 shadow-lg -translate-y-1/2"
-                style={{
-                  backgroundColor: property.color,
-                  top: '4px',
-                  left: '64px',
-                }}
-              />
-
-              <div
-                className="absolute w-5 h-5 rounded-full border-2 border-white dark:border-slate-900 shadow-lg -translate-y-1/2"
-                style={{
-                  backgroundColor: property.color,
-                  top: '4px',
-                  right: '64px',
-                }}
-              />
-
-              <motion.div
-                className="absolute -top-8 text-sm font-semibold text-slate-600 dark:text-slate-400 truncate max-w-[300px] cursor-pointer hover:underline"
-                style={{ color: property.color, left: '72px' }}
-                onClick={(e) => handlePropertyClick(e, property)}
-                whileHover={{ scale: 1.05 }}
-                title="Click for property details"
-              >
-                {property.name}
-              </motion.div>
-
-              {events
-                .filter((e) => e.propertyId === property.id)
-                .map((event, eventIndex) => {
-                  const eventPos = dateToPosition(
-                    event.date,
-                    absoluteStart,
-                    absoluteEnd
-                  );
-                  const isHovered = hoveredEventId === event.id;
-                  const isBottomProperty = index >= properties.length - 2;
-
-                  return (
-                    <div
-                      key={event.id}
-                      className="absolute -translate-x-1/2"
-                      style={{
-                        left: `${eventPos}%`,
-                        top: '-4px',
-                        zIndex: isHovered ? 100 : 10 + eventIndex,
-                      }}
-                      onMouseEnter={() => setHoveredEventId(event.id)}
-                      onMouseLeave={() => setHoveredEventId(null)}
-                    >
-                      <div
-                        className="absolute left-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-4 rounded-full border-2 border-white dark:border-slate-900 shadow-md"
-                        style={{
-                          backgroundColor: event.color,
-                          top: '0',
-                        }}
-                      />
-
-                      <motion.div
-                        className={cn(
-                          "px-3 py-2 shadow-md cursor-pointer mt-3",
-                          "border-2 border-white dark:border-slate-900",
-                          "text-xs font-semibold text-white whitespace-nowrap"
-                        )}
-                        style={{
-                          backgroundColor: event.color,
-                          borderRadius: '10px',
-                        }}
-                        whileHover={{ scale: 1.1, y: -4 }}
-                        animate={{
-                          scale: isHovered ? 1.05 : 1,
-                          y: isHovered ? -2 : 0
-                        }}
-                        transition={{ duration: 0.2 }}
-                      >
-                        {event.title}
-                      </motion.div>
-
-                      <AnimatePresence>
-                        {isHovered && (
-                          <motion.div
-                            initial={{ opacity: 0, y: isBottomProperty ? -5 : 5 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: isBottomProperty ? -5 : 5 }}
-                            className={cn(
-                              "absolute left-1/2 -translate-x-1/2 pointer-events-none",
-                              isBottomProperty ? "bottom-full mb-2" : "top-full mt-2"
-                            )}
-                            style={{ zIndex: 200 }}
-                          >
-                            <div className="bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 px-3 py-2 rounded-lg shadow-xl whitespace-nowrap">
-                              <div className="text-xs font-bold">
-                                {format(event.date, 'MMM dd, yyyy')}
-                              </div>
-                              {event.amount && (
-                                <div className="text-xs opacity-90 mt-0.5">
-                                  {formatCurrency(event.amount)}
-                                </div>
-                              )}
-                              <div className="text-xs opacity-75 mt-0.5">
-                                {property.name}
-                              </div>
-                              <div
-                                className={cn(
-                                  "absolute left-1/2 -translate-x-1/2 w-2 h-2 bg-slate-900 dark:bg-slate-100 rotate-45",
-                                  isBottomProperty ? "-bottom-1" : "-top-1"
-                                )}
-                              />
-                            </div>
-                          </motion.div>
-                        )}
-                      </AnimatePresence>
-                    </div>
-                  );
-                })}
-            </div>
-          );
-        })}
-      </div>
-    );
-  };
-
-  // Render property statistics for modal
-  const renderPropertyStats = (property: Property) => {
-    if (!property) return null;
-
-    const stats = getPropertyStats(property);
-    return (
-      <div className="grid grid-cols-2 gap-4 mb-6">
-        {/* Status */}
-        <div className="bg-slate-50 dark:bg-slate-800 p-4 rounded-lg border border-slate-200 dark:border-slate-700">
-          <div className="text-xs text-slate-500 dark:text-slate-400 mb-1">Status</div>
-          <div className="text-lg font-bold text-slate-800 dark:text-slate-200 capitalize">
-            {property.currentStatus || 'Unknown'}
-          </div>
-        </div>
-
-        {/* Total Events */}
-        <div className="bg-slate-50 dark:bg-slate-800 p-4 rounded-lg border border-slate-200 dark:border-slate-700">
-          <div className="text-xs text-slate-500 dark:text-slate-400 mb-1">Total Events</div>
-          <div className="text-lg font-bold text-slate-800 dark:text-slate-200">
-            {stats.totalEvents}
-          </div>
-        </div>
-
-        {/* Purchase Price */}
-        {stats.purchasePrice && (
-          <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg border border-green-200 dark:border-green-700">
-            <div className="flex items-center gap-2 mb-1">
-              <DollarSign className="w-4 h-4 text-green-600 dark:text-green-400" />
-              <div className="text-xs text-green-600 dark:text-green-400">Purchase Price</div>
-            </div>
-            <div className="text-lg font-bold text-green-700 dark:text-green-300">
-              {formatCurrency(stats.purchasePrice)}
-            </div>
-            {stats.purchaseDate && (
-              <div className="text-xs text-green-600 dark:text-green-400 mt-1">
-                {format(stats.purchaseDate, 'MMM dd, yyyy')}
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Sale Price */}
-        {stats.salePrice && (
-          <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-700">
-            <div className="flex items-center gap-2 mb-1">
-              <TrendingUp className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-              <div className="text-xs text-blue-600 dark:text-blue-400">Sale Price</div>
-            </div>
-            <div className="text-lg font-bold text-blue-700 dark:text-blue-300">
-              {formatCurrency(stats.salePrice)}
-            </div>
-            {stats.saleDate && (
-              <div className="text-xs text-blue-600 dark:text-blue-400 mt-1">
-                {format(stats.saleDate, 'MMM dd, yyyy')}
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Capital Gain */}
-        {stats.gain !== null && (
-          <div className={cn(
-            "p-4 rounded-lg border col-span-2",
-            stats.gain >= 0
-              ? "bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-700"
-              : "bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-700"
-          )}>
-            <div className="text-xs mb-1"
-              style={{ color: stats.gain >= 0 ? '#059669' : '#dc2626' }}
-            >
-              Capital Gain
-            </div>
-            <div className="flex items-baseline gap-3">
-              <div className="text-2xl font-bold"
-                style={{ color: stats.gain >= 0 ? '#047857' : '#b91c1c' }}
-              >
-                {formatCurrency(Math.abs(stats.gain))}
-              </div>
-              {stats.gainPercent !== null && (
-                <div className="text-sm font-semibold"
-                  style={{ color: stats.gain >= 0 ? '#059669' : '#dc2626' }}
-                >
-                  ({stats.gainPercent >= 0 ? '+' : ''}{stats.gainPercent.toFixed(1)}%)
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-      </div>
-    );
-  };
+  // Calculate spacing scale factor
+  const spacingScale = totalWeight > 0 ? availableHeight / totalWeight : 1;
 
   return (
     <div>
       {/* Floating Camera Button */}
       <AnimatePresence>
-        {!isFullscreen && (
+        {!isOpen && (
           <motion.button
             initial={{ scale: 0, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0, opacity: 0 }}
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.95 }}
-            onClick={handleOpen}
-            className={cn(
-              'fixed bottom-6 right-6 z-40',
-              'w-14 h-14 rounded-full shadow-lg',
-              'bg-gradient-to-br from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700',
-              'flex items-center justify-center',
-              'transition-all duration-300',
-              'border-2 border-white/20',
-              className
-            )}
-            title="Open Timeline Overview"
+            onClick={() => setIsOpen(true)}
+            className="fixed bottom-6 right-6 z-40 w-14 h-14 rounded-full shadow-lg bg-gradient-to-br from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 flex items-center justify-center transition-all duration-300 border-2 border-white/20"
+            title="Open Timeline Snapshot"
           >
             <Camera className="w-6 h-6 text-white" />
           </motion.button>
         )}
       </AnimatePresence>
 
-      {/* 3/4 Screen Overlay - 75vh height, centered vertically */}
+      {/* Full Screen Modal */}
       <AnimatePresence>
-        {isFullscreen && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.95 }}
-            transition={{ duration: 0.3 }}
-            className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-8"
-            style={{ isolation: 'isolate' }}
-            onClick={handleClose}
-          >
-            {/* Dynamic height container - grows with number of properties */}
-            <motion.div
-              initial={{ y: 50 }}
-              animate={{ y: 0 }}
-              exit={{ y: 50 }}
-              className="bg-white dark:bg-slate-950 rounded-2xl shadow-2xl border-2 border-slate-200 dark:border-slate-700 overflow-hidden w-full max-w-7xl"
-              style={{ height: calculateContainerHeight() }}
-              onClick={(e) => e.stopPropagation()}
-            >
-              {/* Header */}
-              <div className="h-16 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-slate-900 dark:to-slate-800 border-b-2 border-slate-200 dark:border-slate-700 px-6 flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <Camera className="w-6 h-6 text-blue-600 dark:text-blue-400" />
-                  <div>
-                    <h2 className="text-xl font-bold text-slate-800 dark:text-slate-200">
-                      Timeline Overview
-                    </h2>
-                    <p className="text-xs text-slate-500 dark:text-slate-400">
-                      {format(absoluteStart, 'MMM yyyy')} - {format(absoluteEnd, 'MMM yyyy')} •
-                      {' '}{properties.length} {properties.length === 1 ? 'Property' : 'Properties'} •
-                      {' '}{events.length} {events.length === 1 ? 'Event' : 'Events'}
-                    </p>
-                  </div>
-                </div>
-                <button
-                  onClick={handleClose}
-                  className="p-2 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-lg transition-colors"
-                  title="Close Timeline Overview"
-                >
-                  <X className="w-5 h-5 text-slate-600 dark:text-slate-400" />
-                </button>
-              </div>
-
-              {/* Timeline Content - Takes remaining height */}
-              <div className="relative overflow-hidden" style={{ height: `calc(${calculateContainerHeight()} - 64px)` }}>
-                {/* Background - full width with gradient */}
-                <div className="absolute inset-0 bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-950">
-
-                  {/* Background Grid */}
-                  <div className="absolute inset-0 opacity-10">
-                    <div
-                      className="h-full w-full"
-                      style={{
-                        backgroundImage:
-                          'linear-gradient(90deg, currentColor 1px, transparent 1px), linear-gradient(currentColor 1px, transparent 1px)',
-                        backgroundSize: '40px 40px',
-                      }}
-                    />
-                  </div>
-
-                  {/* Content wrapper with padding */}
-                  <div className="absolute inset-0 px-10">
-                    {/* UPDATED: Year markers at TOP - moved 60px higher to not touch events */}
-                    {renderYearMarkers()}
-
-                    {/* UPDATED: Property Branches - dynamic spacing based on event count */}
-                    {renderPropertyBranches()}
-
-                    {/* Empty State */}
-                    {properties.length === 0 && (
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="text-center text-slate-400 dark:text-slate-600">
-                        <Camera className="w-16 h-16 mx-auto mb-2 opacity-30" />
-                        <p className="text-base">No timeline data yet</p>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Property Details Modal */}
-      <AnimatePresence>
-        {selectedProperty && (
+        {isOpen && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[60] bg-black/50 backdrop-blur-sm flex items-center justify-center p-8"
-            onClick={() => setSelectedProperty(null)}
+            className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm p-4"
+            onClick={() => setIsOpen(false)}
           >
             <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
+              initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-              className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border-2 border-slate-200 dark:border-slate-700 max-w-2xl w-full max-h-[80vh] overflow-hidden"
+              exit={{ scale: 0.95, opacity: 0 }}
+              className="h-full w-full bg-white dark:bg-slate-950 overflow-hidden rounded-[10px] shadow-2xl"
               onClick={(e) => e.stopPropagation()}
             >
-              {/* Modal Header */}
-              <div
-                className="px-6 py-4 border-b-2 border-slate-200 dark:border-slate-700"
-                style={{ backgroundColor: `${selectedProperty.color}20` }}
-              >
-                <div className="flex items-start justify-between">
-                  <div className="flex items-start gap-3">
-                    <Home
-                      className="w-8 h-8 mt-1"
-                      style={{ color: selectedProperty.color }}
-                    />
-                    <div>
-                      <h3 className="text-2xl font-bold text-slate-800 dark:text-slate-200">
-                        {selectedProperty.name}
-                      </h3>
-                      {selectedProperty.address && (
-                        <div className="flex items-center gap-2 mt-1 text-slate-600 dark:text-slate-400">
-                          <MapPin className="w-4 h-4" />
-                          <span className="text-sm">{selectedProperty.address}</span>
-                        </div>
-                      )}
-                    </div>
+              {/* Header */}
+              <div className="h-16 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-slate-900 dark:to-slate-800 border-b-2 border-slate-200 dark:border-slate-700 px-6 flex items-center justify-between rounded-t-[10px]">
+                <div className="flex items-center gap-3">
+                  <Camera className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+                  <div>
+                    <h2 className="text-xl font-bold text-slate-800 dark:text-slate-200">
+                      Timeline Snapshot
+                    </h2>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">
+                      {format(absoluteStart, 'MMM yyyy')} - {format(absoluteEnd, 'MMM yyyy')} •{' '}
+                      {properties.length} {properties.length === 1 ? 'Property' : 'Properties'} •{' '}
+                      {events.length} {events.length === 1 ? 'Event' : 'Events'}
+                    </p>
                   </div>
+                </div>
+                <div className="flex items-center gap-2">
                   <button
-                    onClick={() => setSelectedProperty(null)}
-                    className="p-2 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition-colors"
+                    onClick={handleDownload}
+                    disabled={isDownloading}
+                    className="px-4 py-2 bg-blue-500 hover:bg-blue-600 disabled:bg-blue-300 text-white rounded-lg transition-colors flex items-center gap-2 font-medium"
+                    title="Download Snapshot"
+                  >
+                    <Download className="w-4 h-4" />
+                    {isDownloading ? 'Downloading...' : 'Download'}
+                  </button>
+                  <button
+                    onClick={() => setIsOpen(false)}
+                    className="p-2 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-lg transition-colors"
+                    title="Close"
                   >
                     <X className="w-5 h-5 text-slate-600 dark:text-slate-400" />
                   </button>
                 </div>
               </div>
 
-              {/* Modal Content */}
-              <div className="p-6 overflow-y-auto max-h-[calc(80vh-200px)]">
-                {/* Property Statistics */}
-                {renderPropertyStats(selectedProperty)}
-
-                {/* Events Timeline */}
-                <div>
-                  <h4 className="text-lg font-semibold text-slate-800 dark:text-slate-200 mb-3 flex items-center gap-2">
-                    <Calendar className="w-5 h-5" />
-                    Event History
-                  </h4>
-                  <div className="space-y-2">
-                    {getPropertyEvents(selectedProperty.id).map((event, index) => (
-                      <motion.div
-                        key={event.id}
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: index * 0.05 }}
-                        className="flex items-start gap-3 p-3 bg-slate-50 dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors"
-                      >
-                        <div
-                          className="w-3 h-3 rounded-full mt-1 flex-shrink-0"
-                          style={{ backgroundColor: event.color }}
-                        />
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-start justify-between gap-2">
-                            <div className="font-semibold text-slate-800 dark:text-slate-200">
-                              {event.title}
-                            </div>
-                            <div className="text-xs text-slate-500 dark:text-slate-400 whitespace-nowrap">
-                              {format(event.date, 'MMM dd, yyyy')}
-                            </div>
-                          </div>
-                          {event.amount && (
-                            <div className="text-sm text-slate-600 dark:text-slate-400 mt-1">
-                              {formatCurrency(event.amount)}
-                            </div>
-                          )}
-                          {event.description && (
-                            <div className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                              {event.description}
-                            </div>
-                          )}
-                        </div>
-                      </motion.div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              {/* Modal Footer */}
-              <div className="px-6 py-4 bg-slate-50 dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700 flex justify-end">
-                <button
-                  onClick={() => setSelectedProperty(null)}
-                  className="px-4 py-2 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-200 rounded-lg transition-colors font-medium"
+              {/* Snapshot Content */}
+              <div className="h-[calc(100vh-96px)] overflow-hidden rounded-b-[10px]">
+                <div
+                  ref={snapshotRef}
+                  className="relative bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-950 p-8 rounded-b-[10px] h-full"
                 >
-                  Close
-                </button>
+                  {/* Background Grid */}
+                  <div className="absolute inset-0 opacity-5">
+                    <div
+                      className="h-full w-full"
+                      style={{
+                        backgroundImage:
+                          'linear-gradient(90deg, currentColor 1px, transparent 1px), linear-gradient(currentColor 1px, transparent 1px)',
+                        backgroundSize: '50px 50px',
+                      }}
+                    />
+                  </div>
+
+                  {/* Date Markers at Top */}
+                  <div className="relative h-20 mb-12">
+                    {(() => {
+                      const startYear = absoluteStart.getFullYear();
+                      const endYear = absoluteEnd.getFullYear();
+                      const yearCount = endYear - startYear + 1;
+                      const markerInterval = yearCount > 20 ? 5 : yearCount > 10 ? 2 : 1;
+                      const years = [];
+
+                      for (let year = startYear; year <= endYear; year += markerInterval) {
+                        const yearDate = new Date(year, 0, 1);
+                        const position = getDatePosition(yearDate);
+                        years.push({ year, position });
+                      }
+
+                      return years.map(({ year, position }) => (
+                        <div
+                          key={year}
+                          className="absolute top-0"
+                          style={{ left: `${position}%` }}
+                        >
+                          <div className="absolute -translate-x-1/2 text-sm font-bold text-slate-700 dark:text-slate-300 bg-white/80 dark:bg-slate-800/80 px-3 py-1 rounded shadow-sm">
+                            {year}
+                          </div>
+                          <div className="absolute top-10 w-px bg-slate-300 dark:bg-slate-600 -translate-x-1/2 opacity-40" style={{ height: `${availableHeight}px` }} />
+                        </div>
+                      ));
+                    })()}
+                  </div>
+
+                  {/* Viewport Position Marker - Excluded from download */}
+                  <div
+                    className="absolute top-22 bg-blue-500/15 dark:bg-blue-400/15 border-l-4 border-r-4 border-blue-500 dark:border-blue-400 z-20"
+                    style={{
+                      left: `${viewportMarker.left}%`,
+                      width: `${viewportMarker.width}%`,
+                      height: `${availableHeight}px`,
+                    }}
+                    data-html2canvas-ignore="true"
+                  >
+                    {/* Red Pin Icon */}
+                    <div
+                      className="absolute -top-3 left-1/2 -translate-x-1/2 bg-red-500 text-white p-2 rounded-full shadow-lg z-30 cursor-pointer"
+                      onMouseEnter={() => setShowMarkerTooltip(true)}
+                      onMouseLeave={() => setShowMarkerTooltip(false)}
+                    >
+                      <MapPin className="w-5 h-5" fill="currentColor" />
+
+                      {/* Tooltip */}
+                      <AnimatePresence>
+                        {showMarkerTooltip && (
+                          <motion.div
+                            initial={{ opacity: 0, y: -5 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -5 }}
+                            className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 px-3 py-2 rounded-lg shadow-xl whitespace-nowrap text-xs font-semibold"
+                          >
+                            Current position on timeline
+                            <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-1 w-2 h-2 bg-slate-900 dark:bg-slate-100 rotate-45" />
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </div>
+
+                    {/* Vertical Red Line */}
+                    <div
+                      className="absolute top-8 bottom-0 w-1 bg-red-500 left-1/2 -translate-x-1/2 opacity-60 z-10 pointer-events-none"
+                      style={{ boxShadow: '0 0 10px rgba(239, 68, 68, 0.5)' }}
+                    />
+                  </div>
+
+                  {/* Property Branches */}
+                  <div className="relative px-20" style={{ height: `${availableHeight}px` }}>
+                    {properties.map((property, propertyIndex) => {
+                      const propertyEvents = events.filter((e) => e.propertyId === property.id).sort((a, b) => a.date.getTime() - b.date.getTime());
+                      const eventTiers = calculateEventTiers(propertyEvents);
+                      const maxTiers = propertyEvents.length > 0 ? Math.max(...Array.from(eventTiers.values())) : 0;
+
+                      // Calculate Y position with dynamic spacing based on previous properties
+                      const yOffset = propertyData
+                        .slice(0, propertyIndex)
+                        .reduce((sum, { maxTier }) => {
+                          return sum + (basePropertyHeight + (maxTier + 1) * tierSpacing) * spacingScale;
+                        }, 0);
+
+                      // Determine property end date
+                      const isSold = property.currentStatus === 'sold' || property.saleDate;
+                      const saleEvent = propertyEvents.find((e) => e.type === 'sale');
+                      const endDate = isSold
+                        ? (property.saleDate || saleEvent?.date || absoluteEnd)
+                        : absoluteEnd;
+
+                      const startPos = getDatePosition(property.purchaseDate || propertyEvents[0]?.date || absoluteStart);
+                      const endPos = getDatePosition(endDate);
+
+                      return (
+                        <div
+                          key={property.id}
+                          className="absolute left-0 right-0"
+                          style={{ top: `${yOffset}px` }}
+                        >
+                          {/* Property Bar */}
+                          <div
+                            className="absolute h-2.5 rounded-full opacity-80 cursor-pointer hover:opacity-100 transition-opacity"
+                            style={{
+                              backgroundColor: property.color,
+                              left: `${startPos}%`,
+                              width: `${endPos - startPos}%`,
+                            }}
+                            onMouseEnter={() => setHoveredProperty(property)}
+                            onMouseLeave={() => setHoveredProperty(null)}
+                          />
+
+                          {/* Start Circle */}
+                          <div
+                            className="absolute w-6 h-6 rounded-full border-2 border-white dark:border-slate-900 shadow-md -translate-y-1/2 cursor-pointer hover:scale-110 transition-transform"
+                            style={{
+                              backgroundColor: property.color,
+                              left: `${startPos}%`,
+                              top: '5px',
+                            }}
+                            onMouseEnter={() => setHoveredProperty(property)}
+                            onMouseLeave={() => setHoveredProperty(null)}
+                          />
+
+                          {/* End Circle */}
+                          <div
+                            className="absolute w-6 h-6 rounded-full border-2 border-white dark:border-slate-900 shadow-md -translate-y-1/2 cursor-pointer hover:scale-110 transition-transform"
+                            style={{
+                              backgroundColor: property.color,
+                              left: `${endPos}%`,
+                              top: '5px',
+                            }}
+                            onMouseEnter={() => setHoveredProperty(property)}
+                            onMouseLeave={() => setHoveredProperty(null)}
+                          />
+
+                          {/* Property Label */}
+                          <div
+                            className="absolute -top-6 text-xs font-bold truncate max-w-xs cursor-pointer hover:underline"
+                            style={{ color: property.color, left: `${startPos}%` }}
+                            onMouseEnter={() => setHoveredProperty(property)}
+                            onMouseLeave={() => setHoveredProperty(null)}
+                          >
+                            {property.name}
+                          </div>
+
+                          {/* Property Hover Tooltip */}
+                          <AnimatePresence>
+                            {hoveredProperty?.id === property.id && (
+                              <motion.div
+                                initial={{ opacity: 0, y: -5 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -5 }}
+                                className="absolute -top-16 left-1/2 -translate-x-1/2 bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 px-4 py-3 rounded-lg shadow-xl z-50 pointer-events-none min-w-[220px]"
+                              >
+                                <div className="text-sm font-bold mb-2" style={{ color: property.color }}>
+                                  {property.name}
+                                </div>
+                                {property.address && (
+                                  <div className="text-xs opacity-75 mb-2">
+                                    {property.address}
+                                  </div>
+                                )}
+                                <div className="text-xs opacity-90 mb-1">
+                                  Status: <span className="font-semibold capitalize">{property.currentStatus || 'Unknown'}</span>
+                                </div>
+                                {property.purchaseDate && (
+                                  <div className="text-xs opacity-90">
+                                    Purchased: {format(property.purchaseDate, 'MMM dd, yyyy')}
+                                  </div>
+                                )}
+                                {property.saleDate && (
+                                  <div className="text-xs opacity-90">
+                                    Sold: {format(property.saleDate, 'MMM dd, yyyy')}
+                                  </div>
+                                )}
+                                {property.purchasePrice && (
+                                  <div className="text-xs opacity-90 mt-2">
+                                    Purchase Price: ${property.purchasePrice.toLocaleString()}
+                                  </div>
+                                )}
+                                {property.salePrice && (
+                                  <div className="text-xs opacity-90">
+                                    Sale Price: ${property.salePrice.toLocaleString()}
+                                  </div>
+                                )}
+                                <div className="text-xs opacity-60 mt-2 border-t border-white/20 dark:border-slate-900/20 pt-2">
+                                  {propertyEvents.length} {propertyEvents.length === 1 ? 'event' : 'events'}
+                                </div>
+                                <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 w-2 h-2 bg-slate-900 dark:bg-slate-100 rotate-45" />
+                              </motion.div>
+                            )}
+                          </AnimatePresence>
+
+                          {/* Events with Tier Stacking */}
+                          {propertyEvents.map((event) => {
+                            const eventPos = getDatePosition(event.date);
+                            const tier = eventTiers.get(event.id) || 0;
+                            const tierOffset = tier * tierSpacing; // Dynamic tier spacing
+                            // Increase base offset to prevent overlap with property names above
+                            const baseOffset = 20;
+
+                            return (
+                              <div
+                                key={event.id}
+                                className="absolute -translate-x-1/2 z-10"
+                                style={{
+                                  left: `${eventPos}%`,
+                                  top: `${baseOffset + tierOffset}px`,
+                                }}
+                              >
+                                {/* Event Dot */}
+                                <div
+                                  className="absolute left-1/2 -translate-x-1/2 w-3 h-3 rounded-full border-2 border-white dark:border-slate-900 shadow-sm -top-3 pointer-events-none"
+                                  style={{ backgroundColor: event.color }}
+                                />
+
+                                {/* Event Card */}
+                                <motion.div
+                                  className="px-2.5 py-1.5 rounded-lg shadow-md cursor-pointer border border-white dark:border-slate-900 relative z-20"
+                                  style={{ backgroundColor: event.color }}
+                                  whileHover={{ scale: 1.05, y: -2 }}
+                                  onMouseEnter={() => setHoveredEvent({ event, property })}
+                                  onMouseLeave={() => setHoveredEvent(null)}
+                                >
+                                  <div className="text-xs font-semibold text-white whitespace-nowrap">
+                                    {event.title}
+                                  </div>
+                                </motion.div>
+
+                                {/* Enhanced Hover Tooltip */}
+                                <AnimatePresence>
+                                  {hoveredEvent?.event.id === event.id && (() => {
+                                    const isBottomHalf = propertyIndex >= properties.length / 2;
+                                    return (
+                                      <motion.div
+                                        initial={{ opacity: 0, y: isBottomHalf ? -5 : 5 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        exit={{ opacity: 0, y: isBottomHalf ? -5 : 5 }}
+                                        className={`absolute ${isBottomHalf ? 'bottom-full mb-2' : 'top-full mt-2'} left-1/2 -translate-x-1/2 bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 px-4 py-3 rounded-lg shadow-2xl z-[200] min-w-[240px] max-w-[320px] pointer-events-none`}
+                                      >
+                                        <div className="text-sm font-bold mb-1">
+                                          {event.title}
+                                        </div>
+                                        <div className="text-xs opacity-75 mb-2 capitalize">
+                                          {event.type.replace('_', ' ')}
+                                        </div>
+
+                                        {/* Date Information */}
+                                        <div className="space-y-1 mb-2 border-b border-white/20 dark:border-slate-900/20 pb-2">
+                                          <div className="text-xs font-semibold">
+                                            Date: {format(event.date, 'MMM dd, yyyy')}
+                                          </div>
+                                          {event.contractDate && (
+                                            <div className="text-xs opacity-90">
+                                              Contract: {format(event.contractDate, 'MMM dd, yyyy')}
+                                            </div>
+                                          )}
+                                          {event.settlementDate && (
+                                            <div className="text-xs opacity-90">
+                                              Settlement: {format(event.settlementDate, 'MMM dd, yyyy')}
+                                            </div>
+                                          )}
+                                        </div>
+
+                                        {/* Price Information */}
+                                        {(event.amount || event.landPrice || event.buildingPrice) && (
+                                          <div className="space-y-1 mb-2 border-b border-white/20 dark:border-slate-900/20 pb-2">
+                                            {event.amount && (
+                                              <div className="text-xs font-semibold">
+                                                Amount: ${event.amount.toLocaleString()}
+                                              </div>
+                                            )}
+                                            {event.landPrice && (
+                                              <div className="text-xs opacity-90">
+                                                Land: ${event.landPrice.toLocaleString()}
+                                              </div>
+                                            )}
+                                            {event.buildingPrice && (
+                                              <div className="text-xs opacity-90">
+                                                Building: ${event.buildingPrice.toLocaleString()}
+                                              </div>
+                                            )}
+                                          </div>
+                                        )}
+
+                                        {/* Fees and Costs */}
+                                        {(event.stampDuty || event.purchaseLegalFees || event.valuationFees || event.purchaseAgentFees) && (
+                                          <div className="space-y-1 mb-2 border-b border-white/20 dark:border-slate-900/20 pb-2">
+                                            <div className="text-xs font-semibold opacity-75">Associated Costs:</div>
+                                            {event.stampDuty && (
+                                              <div className="text-xs opacity-90">
+                                                Stamp Duty: ${event.stampDuty.toLocaleString()}
+                                              </div>
+                                            )}
+                                            {event.purchaseLegalFees && (
+                                              <div className="text-xs opacity-90">
+                                                Legal Fees: ${event.purchaseLegalFees.toLocaleString()}
+                                              </div>
+                                            )}
+                                            {event.valuationFees && (
+                                              <div className="text-xs opacity-90">
+                                                Valuation: ${event.valuationFees.toLocaleString()}
+                                              </div>
+                                            )}
+                                            {event.purchaseAgentFees && (
+                                              <div className="text-xs opacity-90">
+                                                Agent Fees: ${event.purchaseAgentFees.toLocaleString()}
+                                              </div>
+                                            )}
+                                          </div>
+                                        )}
+
+                                        {/* Description */}
+                                        {event.description && (
+                                          <div className="text-xs opacity-75 mb-2">
+                                            {event.description}
+                                          </div>
+                                        )}
+
+                                        {/* PPR Status */}
+                                        {event.isPPR !== undefined && (
+                                          <div className="text-xs opacity-90 mb-2">
+                                            {event.isPPR ? '🏠 Primary Residence' : 'Investment Property'}
+                                          </div>
+                                        )}
+
+                                        <div className="text-xs opacity-60 mt-2 pt-2 border-t border-white/20 dark:border-slate-900/20">
+                                          Property: {property.name}
+                                        </div>
+                                        <div className={`absolute ${isBottomHalf ? '-bottom-1' : '-top-1'} left-1/2 -translate-x-1/2 w-2 h-2 bg-slate-900 dark:bg-slate-100 rotate-45`} />
+                                      </motion.div>
+                                    );
+                                  })()}
+                                </AnimatePresence>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {/* Empty State */}
+                  {properties.length === 0 && (
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="text-center text-slate-400 dark:text-slate-600">
+                        <Camera className="w-16 h-16 mx-auto mb-4 opacity-30" />
+                        <p className="text-lg font-semibold">No timeline data yet</p>
+                        <p className="text-sm mt-2">Add properties and events to see your timeline</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
             </motion.div>
           </motion.div>

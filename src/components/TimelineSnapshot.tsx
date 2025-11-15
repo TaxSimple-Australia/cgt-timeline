@@ -2,16 +2,34 @@
 
 import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Camera, X, Download, MapPin } from 'lucide-react';
-import { useTimelineStore, Property, TimelineEvent } from '@/store/timeline';
+import {
+  Camera, X, MapPin, Home, ShoppingCart, DollarSign,
+  LogIn, LogOut, Calendar, CalendarX, Hammer, CheckCircle,
+  Plus, Receipt, TrendingUp, Building
+} from 'lucide-react';
+import { useTimelineStore, Property, TimelineEvent, EventType } from '@/store/timeline';
 import { format } from 'date-fns';
-import html2canvas from 'html2canvas';
+
+// Helper function to get icon for each event type
+const getEventIcon = (eventType: EventType) => {
+  const iconMap: Record<string, React.ComponentType<any>> = {
+    purchase: ShoppingCart,
+    sale: DollarSign,
+    move_in: LogIn,
+    move_out: LogOut,
+    rent_start: Calendar,
+    rent_end: CalendarX,
+    improvement: Hammer,
+    refinance: DollarSign,
+    status_change: CheckCircle,
+  };
+  return iconMap[eventType] || Calendar;
+};
 
 export default function TimelineSnapshot() {
   const [isOpen, setIsOpen] = useState(false);
   const [hoveredEvent, setHoveredEvent] = useState<{ event: TimelineEvent; property: Property } | null>(null);
   const [hoveredProperty, setHoveredProperty] = useState<Property | null>(null);
-  const [isDownloading, setIsDownloading] = useState(false);
   const [showMarkerTooltip, setShowMarkerTooltip] = useState(false);
   const snapshotRef = useRef<HTMLDivElement>(null);
 
@@ -25,11 +43,31 @@ export default function TimelineSnapshot() {
     theme,
   } = useTimelineStore();
 
-  // Calculate position as percentage (0-100) based on absolute timeline
+  // Debug: Log data when snapshot opens or data changes
+  React.useEffect(() => {
+    if (isOpen) {
+      console.log('=== SNAPSHOT DATA UPDATED ===');
+      console.log('Properties:', properties.length, properties);
+      console.log('Events:', events.length, events);
+      console.log('Date Range:', absoluteStart, 'to', absoluteEnd);
+    }
+  }, [isOpen, properties, events, absoluteStart, absoluteEnd]);
+
+  // Auto-refresh when data changes while snapshot is open
+  React.useEffect(() => {
+    if (isOpen) {
+      console.log('Data changed - snapshot will auto-refresh');
+    }
+  }, [properties.length, events.length]);
+
+  // Calculate position as percentage with edge margins (5% on each side)
+  const EDGE_MARGIN = 5; // 5% margin on left and right
   const getDatePosition = (date: Date): number => {
     const totalRange = absoluteEnd.getTime() - absoluteStart.getTime();
     const offset = date.getTime() - absoluteStart.getTime();
-    return (offset / totalRange) * 100;
+    const basePosition = (offset / totalRange) * 100;
+    // Scale to 90% width (100 - 2*EDGE_MARGIN) and add left margin
+    return EDGE_MARGIN + (basePosition * (100 - 2 * EDGE_MARGIN) / 100);
   };
 
   // Calculate viewport marker position
@@ -67,32 +105,6 @@ export default function TimelineSnapshot() {
     return tiers;
   };
 
-  // Download snapshot as PNG
-  const handleDownload = async () => {
-    if (!snapshotRef.current) return;
-
-    setIsDownloading(true);
-    try {
-      const canvas = await html2canvas(snapshotRef.current, {
-        backgroundColor: theme === 'dark' ? '#0f172a' : '#ffffff',
-        scale: 2,
-        logging: false,
-        ignoreElements: (element) => {
-          return element.hasAttribute('data-html2canvas-ignore');
-        },
-      });
-
-      const link = document.createElement('a');
-      link.download = `timeline-snapshot-${format(new Date(), 'yyyy-MM-dd-HHmmss')}.png`;
-      link.href = canvas.toDataURL('image/png');
-      link.click();
-    } catch (error) {
-      console.error('Error generating snapshot:', error);
-    } finally {
-      setIsDownloading(false);
-    }
-  };
-
   const viewportMarker = getViewportMarker();
 
   // Calculate maximum tiers for each property to determine spacing
@@ -104,16 +116,16 @@ export default function TimelineSnapshot() {
   });
 
   // Calculate dynamic spacing to fit all properties in viewport
-  // Available height = viewport height - header (64px) - padding (32px top+bottom) - year markers (60px)
-  const availableHeight = typeof window !== 'undefined' ? window.innerHeight - 96 - 64 - 60 : 600;
+  // 30px gap between date markers and first property
+  const availableHeight = typeof window !== 'undefined' ? window.innerHeight - 96 - 64 - 30 : 600;
 
   // Base spacing for property line + label
   const basePropertyHeight = 40;
-  // Spacing per tier of events (increased to prevent overlap)
+  // Spacing per tier of events
   const tierSpacing = 35;
 
   // Calculate total "weight" (space needed) for all properties
-  const totalWeight = propertyData.reduce((sum, { maxTier, eventCount }) => {
+  const totalWeight = propertyData.reduce((sum, { maxTier }) => {
     return sum + basePropertyHeight + (maxTier + 1) * tierSpacing;
   }, 0);
 
@@ -173,18 +185,10 @@ export default function TimelineSnapshot() {
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <button
-                    onClick={handleDownload}
-                    disabled={isDownloading}
-                    className="px-4 py-2 bg-blue-500 hover:bg-blue-600 disabled:bg-blue-300 text-white rounded-lg transition-colors flex items-center gap-2 font-medium"
-                    title="Download Snapshot"
-                  >
-                    <Download className="w-4 h-4" />
-                    {isDownloading ? 'Downloading...' : 'Download'}
-                  </button>
+                  {/* Close Button */}
                   <button
                     onClick={() => setIsOpen(false)}
-                    className="p-2 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-lg transition-colors"
+                    className="p-2.5 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-lg transition-colors"
                     title="Close"
                   >
                     <X className="w-5 h-5 text-slate-600 dark:text-slate-400" />
@@ -196,6 +200,7 @@ export default function TimelineSnapshot() {
               <div className="h-[calc(100vh-96px)] overflow-hidden rounded-b-[10px]">
                 <div
                   ref={snapshotRef}
+                  data-snapshot-content="true"
                   className="relative bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-950 p-8 rounded-b-[10px] h-full"
                 >
                   {/* Background Grid */}
@@ -210,8 +215,8 @@ export default function TimelineSnapshot() {
                     />
                   </div>
 
-                  {/* Date Markers at Top */}
-                  <div className="relative h-20 mb-12">
+                  {/* Date Markers at Top - 30px gap */}
+                  <div className="relative h-12 mb-8">
                     {(() => {
                       const startYear = absoluteStart.getFullYear();
                       const endYear = absoluteEnd.getFullYear();
@@ -242,7 +247,7 @@ export default function TimelineSnapshot() {
 
                   {/* Viewport Position Marker - Excluded from download */}
                   <div
-                    className="absolute top-22 bg-blue-500/15 dark:bg-blue-400/15 border-l-4 border-r-4 border-blue-500 dark:border-blue-400 z-20"
+                    className="absolute top-20 bg-blue-500/15 dark:bg-blue-400/15 border-l-4 border-r-4 border-blue-500 dark:border-blue-400 z-20"
                     style={{
                       left: `${viewportMarker.left}%`,
                       width: `${viewportMarker.width}%`,
@@ -267,7 +272,7 @@ export default function TimelineSnapshot() {
                             exit={{ opacity: 0, y: -5 }}
                             className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 px-3 py-2 rounded-lg shadow-xl whitespace-nowrap text-xs font-semibold"
                           >
-                            Current position on timeline
+                            Current viewport position
                             <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-1 w-2 h-2 bg-slate-900 dark:bg-slate-100 rotate-45" />
                           </motion.div>
                         )}
@@ -286,7 +291,6 @@ export default function TimelineSnapshot() {
                     {properties.map((property, propertyIndex) => {
                       const propertyEvents = events.filter((e) => e.propertyId === property.id).sort((a, b) => a.date.getTime() - b.date.getTime());
                       const eventTiers = calculateEventTiers(propertyEvents);
-                      const maxTiers = propertyEvents.length > 0 ? Math.max(...Array.from(eventTiers.values())) : 0;
 
                       // Calculate Y position with dynamic spacing based on previous properties
                       const yOffset = propertyData
@@ -323,33 +327,39 @@ export default function TimelineSnapshot() {
                             onMouseLeave={() => setHoveredProperty(null)}
                           />
 
-                          {/* Start Circle */}
+                          {/* Start Circle with Home Icon - Double size, 10px radius */}
                           <div
-                            className="absolute w-6 h-6 rounded-full border-2 border-white dark:border-slate-900 shadow-md -translate-y-1/2 cursor-pointer hover:scale-110 transition-transform"
+                            className="absolute w-8 h-8 border-2 border-white dark:border-slate-900 shadow-md -translate-y-1/2 cursor-pointer hover:scale-110 transition-transform flex items-center justify-center"
                             style={{
                               backgroundColor: property.color,
                               left: `${startPos}%`,
                               top: '5px',
+                              borderRadius: '10px',
                             }}
                             onMouseEnter={() => setHoveredProperty(property)}
                             onMouseLeave={() => setHoveredProperty(null)}
-                          />
+                          >
+                            <Home className="w-5 h-5 text-white" />
+                          </div>
 
-                          {/* End Circle */}
+                          {/* End Circle with Home Icon - Double size, 10px radius */}
                           <div
-                            className="absolute w-6 h-6 rounded-full border-2 border-white dark:border-slate-900 shadow-md -translate-y-1/2 cursor-pointer hover:scale-110 transition-transform"
+                            className="absolute w-8 h-8 border-2 border-white dark:border-slate-900 shadow-md -translate-y-1/2 cursor-pointer hover:scale-110 transition-transform flex items-center justify-center"
                             style={{
                               backgroundColor: property.color,
                               left: `${endPos}%`,
                               top: '5px',
+                              borderRadius: '10px',
                             }}
                             onMouseEnter={() => setHoveredProperty(property)}
                             onMouseLeave={() => setHoveredProperty(null)}
-                          />
+                          >
+                            <Home className="w-5 h-5 text-white" />
+                          </div>
 
                           {/* Property Label */}
                           <div
-                            className="absolute -top-6 text-xs font-bold truncate max-w-xs cursor-pointer hover:underline"
+                            className="absolute -top-7 text-xs font-bold truncate max-w-xs cursor-pointer hover:underline"
                             style={{ color: property.color, left: `${startPos}%` }}
                             onMouseEnter={() => setHoveredProperty(property)}
                             onMouseLeave={() => setHoveredProperty(null)}
@@ -364,7 +374,7 @@ export default function TimelineSnapshot() {
                                 initial={{ opacity: 0, y: -5 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 exit={{ opacity: 0, y: -5 }}
-                                className="absolute -top-16 left-1/2 -translate-x-1/2 bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 px-4 py-3 rounded-lg shadow-xl z-50 pointer-events-none min-w-[220px]"
+                                className="absolute -top-12 left-1/2 -translate-x-1/2 bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 px-4 py-3 rounded-lg shadow-xl z-50 pointer-events-none min-w-[220px]"
                               >
                                 <div className="text-sm font-bold mb-2" style={{ color: property.color }}>
                                   {property.name}
@@ -409,14 +419,13 @@ export default function TimelineSnapshot() {
                           {propertyEvents.map((event) => {
                             const eventPos = getDatePosition(event.date);
                             const tier = eventTiers.get(event.id) || 0;
-                            const tierOffset = tier * tierSpacing; // Dynamic tier spacing
-                            // Increase base offset to prevent overlap with property names above
+                            const tierOffset = tier * tierSpacing;
                             const baseOffset = 20;
 
                             return (
                               <div
                                 key={event.id}
-                                className="absolute -translate-x-1/2 z-10"
+                                className="absolute -translate-x-1/2"
                                 style={{
                                   left: `${eventPos}%`,
                                   top: `${baseOffset + tierOffset}px`,
@@ -424,34 +433,50 @@ export default function TimelineSnapshot() {
                               >
                                 {/* Event Dot */}
                                 <div
-                                  className="absolute left-1/2 -translate-x-1/2 w-3 h-3 rounded-full border-2 border-white dark:border-slate-900 shadow-sm -top-3 pointer-events-none"
+                                  className="absolute left-1/2 -translate-x-1/2 w-3 h-3 rounded-full border-2 border-white dark:border-slate-900 shadow-sm -top-3 pointer-events-none z-10"
                                   style={{ backgroundColor: event.color }}
                                 />
 
-                                {/* Event Card */}
-                                <motion.div
-                                  className="px-2.5 py-1.5 rounded-lg shadow-md cursor-pointer border border-white dark:border-slate-900 relative z-20"
-                                  style={{ backgroundColor: event.color }}
-                                  whileHover={{ scale: 1.05, y: -2 }}
-                                  onMouseEnter={() => setHoveredEvent({ event, property })}
-                                  onMouseLeave={() => setHoveredEvent(null)}
-                                >
-                                  <div className="text-xs font-semibold text-white whitespace-nowrap">
-                                    {event.title}
-                                  </div>
-                                </motion.div>
+                                {/* Event Card with Hover */}
+                                <div className="relative z-40">
+                                  <motion.div
+                                    className="px-2.5 py-1.5 rounded-lg shadow-md cursor-pointer border border-white dark:border-slate-900 flex items-center gap-1.5 relative z-40"
+                                    style={{ backgroundColor: event.color }}
+                                    whileHover={{ scale: 1.05, y: -2 }}
+                                    onMouseEnter={() => {
+                                      console.log('Hovering event:', event.title);
+                                      setHoveredEvent({ event, property });
+                                    }}
+                                    onMouseLeave={() => {
+                                      console.log('Leaving event:', event.title);
+                                      setHoveredEvent(null);
+                                    }}
+                                  >
+                                    {(() => {
+                                      const EventIcon = getEventIcon(event.type);
+                                      return <EventIcon className="w-3 h-3 text-white flex-shrink-0" />;
+                                    })()}
+                                    <div className="text-xs font-semibold text-white whitespace-nowrap">
+                                      {event.title}
+                                    </div>
+                                  </motion.div>
 
-                                {/* Enhanced Hover Tooltip */}
-                                <AnimatePresence>
-                                  {hoveredEvent?.event.id === event.id && (() => {
-                                    const isBottomHalf = propertyIndex >= properties.length / 2;
-                                    return (
+                                  {/* Enhanced Hover Card */}
+                                  <AnimatePresence>
+                                    {hoveredEvent?.event.id === event.id && (
                                       <motion.div
-                                        initial={{ opacity: 0, y: isBottomHalf ? -5 : 5 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        exit={{ opacity: 0, y: isBottomHalf ? -5 : 5 }}
-                                        className={`absolute ${isBottomHalf ? 'bottom-full mb-2' : 'top-full mt-2'} left-1/2 -translate-x-1/2 bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 px-4 py-3 rounded-lg shadow-2xl z-[200] min-w-[240px] max-w-[320px] pointer-events-none`}
+                                        initial={{ opacity: 0, scale: 0.95, y: 5 }}
+                                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                                        exit={{ opacity: 0, scale: 0.95, y: 5 }}
+                                        transition={{ duration: 0.15 }}
+                                        className="fixed bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 px-4 py-3 rounded-lg shadow-2xl z-[9999] min-w-[280px] max-w-[360px] pointer-events-none border border-white/10"
+                                        style={{
+                                          left: '50%',
+                                          top: '50%',
+                                          transform: 'translate(-50%, -50%)',
+                                        }}
                                       >
+                                        {/* Title and Type */}
                                         <div className="text-sm font-bold mb-1">
                                           {event.title}
                                         </div>
@@ -526,7 +551,7 @@ export default function TimelineSnapshot() {
 
                                         {/* Description */}
                                         {event.description && (
-                                          <div className="text-xs opacity-75 mb-2">
+                                          <div className="text-xs opacity-75 mb-2 border-b border-white/20 dark:border-slate-900/20 pb-2">
                                             {event.description}
                                           </div>
                                         )}
@@ -534,18 +559,18 @@ export default function TimelineSnapshot() {
                                         {/* PPR Status */}
                                         {event.isPPR !== undefined && (
                                           <div className="text-xs opacity-90 mb-2">
-                                            {event.isPPR ? '🏠 Primary Residence' : 'Investment Property'}
+                                            {event.isPPR ? '🏠 Primary Residence' : '💼 Investment Property'}
                                           </div>
                                         )}
 
+                                        {/* Property Name */}
                                         <div className="text-xs opacity-60 mt-2 pt-2 border-t border-white/20 dark:border-slate-900/20">
                                           Property: {property.name}
                                         </div>
-                                        <div className={`absolute ${isBottomHalf ? '-bottom-1' : '-top-1'} left-1/2 -translate-x-1/2 w-2 h-2 bg-slate-900 dark:bg-slate-100 rotate-45`} />
                                       </motion.div>
-                                    );
-                                  })()}
-                                </AnimatePresence>
+                                    )}
+                                  </AnimatePresence>
+                                </div>
                               </div>
                             );
                           })}

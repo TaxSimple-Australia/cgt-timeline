@@ -131,7 +131,7 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
         updates.description = undefined;
       }
 
-      // Include PPR status
+      // Include Main Residence status
       updates.isPPR = isPPR ? true : undefined;
 
       // Include new status if applicable
@@ -251,7 +251,7 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
               {isPPR && (
                 <span className="px-2 py-1 rounded-full text-xs font-semibold bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 flex items-center gap-1">
                   <CheckCircle className="w-3 h-3" />
-                  PPR
+                  Main Residence
                 </span>
               )}
             </div>
@@ -313,7 +313,11 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
               )}
 
               {/* Single Amount Input (when not using split or not a purchase) */}
-              {!(event.type === 'purchase' && usePriceSplit) && (
+              {!(event.type === 'purchase' && usePriceSplit) &&
+               event.type !== 'move_in' &&
+               event.type !== 'move_out' &&
+               event.type !== 'living_in_rental_start' &&
+               event.type !== 'living_in_rental_end' && (
                 <div>
                   <label className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                     <DollarSign className="w-4 h-4" />
@@ -390,7 +394,7 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
             </div>
 
             {/* Cost Base Section (for CGT calculation) - NEW COMPONENT */}
-            {(event.type === 'purchase' || event.type === 'sale' || event.type === 'improvement' || event.type === 'move_in' || event.type === 'move_out' || event.type === 'rent_start' || event.type === 'rent_end' || event.type === 'status_change' || event.type === 'refinance') && (
+            {(event.type === 'purchase' || event.type === 'sale' || event.type === 'improvement' || event.type === 'rent_start' || event.type === 'rent_end' || event.type === 'status_change' || event.type === 'refinance') && (
               <div className="space-y-4 pt-2 border-t border-slate-200 dark:border-slate-700">
                 <CostBaseSelector
                   eventType={event.type}

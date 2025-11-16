@@ -18,9 +18,12 @@ interface PropertyBranchProps {
   branchIndex: number;
   onDragStart: (eventId: string) => void;
   isSelected: boolean;
+  isHovered?: boolean;
   timelineStart: Date;
   timelineEnd: Date;
   onEventClick: (event: TimelineEvent) => void;
+  onBranchClick: (propertyId: string, position: number, clientX: number, clientY: number) => void;
+  onHoverChange: (isHovered: boolean) => void;
 }
 
 export default function PropertyBranch({
@@ -29,9 +32,12 @@ export default function PropertyBranch({
   branchIndex,
   onDragStart,
   isSelected,
+  isHovered = false,
   timelineStart,
   timelineEnd,
   onEventClick,
+  onBranchClick,
+  onHoverChange,
 }: PropertyBranchProps) {
   const { eventDisplayMode, positionedGaps, selectIssue, selectProperty, enableDragEvents, updateEvent } = useTimelineStore();
   const { getIssuesForProperty } = useValidationStore();
@@ -41,6 +47,21 @@ export default function PropertyBranch({
   const handlePropertyClick = (e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent triggering timeline click (QuickAddMenu)
     selectProperty(property.id);
+  };
+
+  // Handle branch line click to add event
+  const handleBranchLineClick = (e: React.MouseEvent<SVGPathElement>) => {
+    e.stopPropagation(); // Prevent triggering timeline click
+
+    // Get SVG element to calculate position
+    const svgElement = e.currentTarget.ownerSVGElement;
+    if (!svgElement) return;
+
+    const rect = svgElement.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const position = (x / rect.width) * 100;
+
+    onBranchClick(property.id, position, e.clientX, e.clientY);
   };
 
   // Get gaps that apply to this property
@@ -146,15 +167,20 @@ export default function PropertyBranch({
   };
   
   return (
-    <g className="property-branch">
-      {/* Status Bands - Show PPR/Rental/Vacant periods */}
-      <PropertyStatusBands
-        events={events}
-        branchY={branchY}
-        timelineStart={timelineStart}
-        timelineEnd={timelineEnd}
-        propertyColor={property.color}
-      />
+    <>
+      <g className="property-branch">
+        {/* Status Bands - Show Main Residence/Rental/Vacant periods */}
+        <PropertyStatusBands
+          events={events}
+          branchY={branchY}
+          timelineStart={timelineStart}
+          timelineEnd={timelineEnd}
+          propertyColor={property.color}
+          propertyId={property.id}
+          isHovered={isHovered}
+          onHoverChange={onHoverChange}
+          onBandClick={onBranchClick}
+        />
 
       {/* Timeline Gaps for this Property */}
       {propertyGaps.map((gap) => (
@@ -209,26 +235,30 @@ export default function PropertyBranch({
         </>
       )}
 
-      {/* Branch Line */}
+      {/* Branch Line - Visual only, non-interactive */}
       <motion.path
         d={generateBranchPath()}
         fill="none"
         stroke={hasIssues ? '#EF4444' : property.color}
-        strokeWidth={isSelected ? 4 : 3}
+        strokeWidth={isHovered ? 6 : (isSelected ? 4 : 3)}
         strokeLinecap="round"
-        opacity={isSelected ? 1 : 0.7}
+        opacity={isHovered ? 1 : (isSelected ? 1 : 0.7)}
         initial={{ pathLength: 0 }}
         animate={{ pathLength: 1 }}
         transition={{ duration: 1, ease: "easeInOut" }}
         className="drop-shadow-sm"
+        style={{
+          transition: 'stroke-width 0.2s ease, opacity 0.2s ease',
+          pointerEvents: 'none'
+        }}
       />
-      
+
       {/* Branch Label */}
-      <foreignObject x="10" y={branchY - 30} width="200" height="60">
+      <foreignObject x="10" y={branchY - 30} width="300" height="60">
         <div className="flex items-center gap-2 group select-none">
           <div
             className={cn(
-              "w-5 h-5 rounded-full transition-all cursor-pointer",
+              "w-5 h-5 rounded-full transition-all cursor-pointer flex-shrink-0",
               isSelected && "ring-2 ring-offset-2 ring-slate-400 dark:ring-slate-500",
               "hover:ring-2 hover:ring-offset-1 hover:ring-slate-300 dark:hover:ring-slate-500",
               "hover:scale-110"
@@ -238,7 +268,7 @@ export default function PropertyBranch({
             title={`Click to view ${property.name} details`}
           />
           <span className={cn(
-            "font-semibold text-sm transition-all pointer-events-none",
+            "font-semibold text-sm transition-all pointer-events-none truncate",
             isSelected
               ? "text-slate-900 dark:text-slate-100"
               : "text-slate-600 dark:text-slate-400"
@@ -247,7 +277,7 @@ export default function PropertyBranch({
           </span>
         </div>
       </foreignObject>
-      
+
       {/* Event Display - Circles or Cards based on mode */}
       {eventsWithTiers.map((event) => (
         eventDisplayMode === 'circle' ? (
@@ -280,6 +310,8 @@ export default function PropertyBranch({
           />
         )
       ))}
-    </g>
+
+      </g>
+    </>
   );
 }

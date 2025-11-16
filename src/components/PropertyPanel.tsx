@@ -30,8 +30,9 @@ export default function PropertyPanel() {
   } = useTimelineStore();
 
   const [isEditing, setIsEditing] = useState(false);
+  const [editedName, setEditedName] = useState('');
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  
+
   const property = properties.find(p => p.id === selectedProperty);
   if (!property) return null;
   
@@ -109,9 +110,21 @@ export default function PropertyPanel() {
   const ownershipYears = Math.floor(ownershipDays / 365);
   const ownershipMonths = Math.floor((ownershipDays % 365) / 30);
   
-  const handleSave = (field: string, value: string) => {
-    updateProperty(property.id, { [field]: value });
+  const handleStartEditing = () => {
+    setEditedName(property.name);
+    setIsEditing(true);
+  };
+
+  const handleSaveEdit = () => {
+    if (editedName.trim() !== '') {
+      updateProperty(property.id, { name: editedName });
+    }
     setIsEditing(false);
+  };
+
+  const handleCancelEdit = () => {
+    setIsEditing(false);
+    setEditedName('');
   };
 
   const handleDeleteClick = () => {
@@ -145,32 +158,39 @@ export default function PropertyPanel() {
         >
           {/* Header */}
           <div className="sticky top-0 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 p-4 z-10">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div 
-                className="w-4 h-4 rounded-full"
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-3 min-w-0 flex-1">
+              <div
+                className="w-4 h-4 rounded-full flex-shrink-0"
                 style={{ backgroundColor: property.color }}
               />
               {isEditing ? (
                 <input
                   type="text"
-                  value={property.name}
-                  onChange={(e) => handleSave('name', e.target.value)}
-                  onBlur={() => setIsEditing(false)}
-                  className="text-lg font-bold border-b border-slate-300 dark:border-slate-600 bg-transparent text-slate-900 dark:text-slate-100 outline-none"
+                  value={editedName}
+                  onChange={(e) => setEditedName(e.target.value)}
+                  onBlur={handleSaveEdit}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      handleSaveEdit();
+                    } else if (e.key === 'Escape') {
+                      handleCancelEdit();
+                    }
+                  }}
+                  className="text-lg font-bold border-b border-slate-300 dark:border-slate-600 bg-transparent text-slate-900 dark:text-slate-100 outline-none min-w-0 flex-1"
                   autoFocus
                 />
               ) : (
-                <h2 className="text-lg font-bold text-slate-800 dark:text-slate-100">{property.name}</h2>
+                <h2 className="text-lg font-bold text-slate-800 dark:text-slate-100 min-w-0 truncate">{property.name}</h2>
               )}
               <button
-                onClick={() => setIsEditing(true)}
-                className="p-1 hover:bg-slate-100 dark:hover:bg-slate-700 rounded"
+                onClick={handleStartEditing}
+                className="p-1 hover:bg-slate-100 dark:hover:bg-slate-700 rounded flex-shrink-0"
               >
                 <Edit2 className="w-3 h-3 text-slate-500 dark:text-slate-400" />
               </button>
             </div>
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1 flex-shrink-0">
               <button
                 onClick={handleDeleteClick}
                 className="p-2 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors group"

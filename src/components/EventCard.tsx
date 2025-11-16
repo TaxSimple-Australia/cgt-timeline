@@ -5,12 +5,12 @@ import { format } from 'date-fns';
 import { motion } from 'framer-motion';
 import { TimelineEvent, useTimelineStore } from '@/store/timeline';
 import { cn, formatCurrency } from '@/lib/utils';
-import { 
-  Home, 
-  DollarSign, 
-  Key, 
-  Package, 
-  TrendingUp, 
+import {
+  Home,
+  DollarSign,
+  Key,
+  Package,
+  TrendingUp,
   Hammer,
   Calendar,
   X,
@@ -206,10 +206,10 @@ export default function EventCard({
             <div className="text-xs opacity-75 mb-2">{event.description}</div>
           )}
 
-          {/* PPR Status */}
+          {/* Main Residence Status */}
           {event.isPPR !== undefined && (
             <div className="text-xs opacity-90">
-              {event.isPPR ? '🏠 Primary Residence' : 'Investment Property'}
+              {event.isPPR ? '🏠 Main Residence' : 'Investment Property'}
             </div>
           )}
 

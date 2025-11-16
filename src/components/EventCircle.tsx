@@ -158,7 +158,7 @@ export default function EventCircle({ event, cx, cy, color, onClick, tier = 0, e
         />
       )}
 
-      {/* PPR indicator ring */}
+      {/* Main Residence indicator ring */}
       {isPPR && (
         <motion.circle
           cx={displayCx}

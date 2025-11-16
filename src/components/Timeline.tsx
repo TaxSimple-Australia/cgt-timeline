@@ -23,7 +23,9 @@ export default function Timeline({ className }: TimelineProps) {
   const [showQuickAdd, setShowQuickAdd] = useState(false);
   const [quickAddPosition, setQuickAddPosition] = useState({ x: 0, y: 0 });
   const [clickPosition, setClickPosition] = useState(0);
+  const [preselectedPropertyId, setPreselectedPropertyId] = useState<string | null>(null);
   const [hoveredDate, setHoveredDate] = useState<Date | null>(null);
+  const [hoveredPropertyId, setHoveredPropertyId] = useState<string | null>(null);
   const [editingEvent, setEditingEvent] = useState<TimelineEvent | null>(null);
   const [editingEventPropertyName, setEditingEventPropertyName] = useState<string>('');
   const [isDraggingTimebar, setIsDraggingTimebar] = useState(false);
@@ -57,6 +59,15 @@ export default function Timeline({ className }: TimelineProps) {
 
     setClickPosition(position);
     setQuickAddPosition({ x: e.clientX, y: e.clientY });
+    setPreselectedPropertyId(null); // No property preselected for general timeline clicks
+    setShowQuickAdd(true);
+  };
+
+  // Handle branch line click to add events for a specific property
+  const handleBranchClick = (propertyId: string, position: number, clientX: number, clientY: number) => {
+    setClickPosition(position);
+    setQuickAddPosition({ x: clientX, y: clientY });
+    setPreselectedPropertyId(propertyId); // Preselect the property
     setShowQuickAdd(true);
   };
 
@@ -340,19 +351,22 @@ export default function Timeline({ className }: TimelineProps) {
               className="absolute top-12 left-0 w-full"
               style={{ height: `${minContentHeight - 48}px` }}
             >
-            {properties.map((property, index) => (
-              <PropertyBranch
-                key={property.id}
-                property={property}
-                events={events.filter(e => e.propertyId === property.id)}
-                branchIndex={index}
-                onDragStart={handleDragStart}
-                isSelected={selectedProperty === property.id}
-                timelineStart={timelineStart}
-                timelineEnd={timelineEnd}
-                onEventClick={(event) => handleEventClick(event, property.name)}
-              />
-            ))}
+              {properties.map((property, index) => (
+                <PropertyBranch
+                  key={property.id}
+                  property={property}
+                  events={events.filter(e => e.propertyId === property.id)}
+                  branchIndex={index}
+                  onDragStart={handleDragStart}
+                  isSelected={selectedProperty === property.id}
+                  isHovered={hoveredPropertyId === property.id}
+                  timelineStart={timelineStart}
+                  timelineEnd={timelineEnd}
+                  onEventClick={(event) => handleEventClick(event, property.name)}
+                  onBranchClick={handleBranchClick}
+                  onHoverChange={(isHovered) => setHoveredPropertyId(isHovered ? property.id : null)}
+                />
+              ))}
             </svg>
 
             {/* No Properties Message */}
@@ -385,6 +399,7 @@ export default function Timeline({ className }: TimelineProps) {
             position={quickAddPosition}
             timelinePosition={clickPosition}
             onClose={() => setShowQuickAdd(false)}
+            preselectedPropertyId={preselectedPropertyId}
           />
         )}
       </AnimatePresence>

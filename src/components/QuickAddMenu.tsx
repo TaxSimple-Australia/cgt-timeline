@@ -4,39 +4,44 @@ import React, { useState, useEffect, useRef, useLayoutEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useTimelineStore, EventType } from '@/store/timeline';
 import { positionToDate } from '@/lib/utils';
-import { 
-  Home, 
-  DollarSign, 
-  Key, 
-  Package, 
-  TrendingUp, 
+import {
+  Home,
+  DollarSign,
+  Key,
+  Package,
+  TrendingUp,
   Hammer,
   Plus,
   Building,
-  X
+  X,
+  UserPlus,
+  UserMinus
 } from 'lucide-react';
 
 interface QuickAddMenuProps {
   position: { x: number; y: number };
   timelinePosition: number;
   onClose: () => void;
+  preselectedPropertyId?: string | null;
 }
 
 const eventTypes: { type: EventType; label: string; icon: React.ReactNode; color: string }[] = [
   { type: 'purchase', label: 'Purchase', icon: <Home className="w-4 h-4" />, color: '#3B82F6' },
+  { type: 'sale', label: 'Sale', icon: <TrendingUp className="w-4 h-4" />, color: '#8B5CF6' },
   { type: 'move_in', label: 'Move In', icon: <Key className="w-4 h-4" />, color: '#10B981' },
   { type: 'move_out', label: 'Move Out', icon: <Package className="w-4 h-4" />, color: '#EF4444' },
   { type: 'rent_start', label: 'Start Rent', icon: <DollarSign className="w-4 h-4" />, color: '#F59E0B' },
   { type: 'rent_end', label: 'End Rent', icon: <DollarSign className="w-4 h-4" />, color: '#F97316' },
-  { type: 'sale', label: 'Sale', icon: <TrendingUp className="w-4 h-4" />, color: '#8B5CF6' },
+  { type: 'living_in_rental_start', label: 'Living in Rental (Start)', icon: <UserPlus className="w-4 h-4" />, color: '#F472B6' },
+  { type: 'living_in_rental_end', label: 'Living in Rental (End)', icon: <UserMinus className="w-4 h-4" />, color: '#FB923C' },
   { type: 'improvement', label: 'Improvement', icon: <Hammer className="w-4 h-4" />, color: '#06B6D4' },
   { type: 'refinance', label: 'Refinance', icon: <DollarSign className="w-4 h-4" />, color: '#6366F1' },
 ];
 
-export default function QuickAddMenu({ position, timelinePosition, onClose }: QuickAddMenuProps) {
+export default function QuickAddMenu({ position, timelinePosition, onClose, preselectedPropertyId }: QuickAddMenuProps) {
   const menuRef = useRef<HTMLDivElement>(null);
   const [showPropertyForm, setShowPropertyForm] = useState(false);
-  const [selectedProperty, setSelectedProperty] = useState<string>('');
+  const [selectedProperty, setSelectedProperty] = useState<string>(preselectedPropertyId || '');
   const [eventAmount, setEventAmount] = useState<string>('');
   const [propertyName, setPropertyName] = useState('');
   const [propertyAddress, setPropertyAddress] = useState('');
@@ -47,6 +52,11 @@ export default function QuickAddMenu({ position, timelinePosition, onClose }: Qu
 
   const { properties, addProperty, addEvent, timelineStart, timelineEnd } = useTimelineStore();
   const clickDate = positionToDate(timelinePosition, timelineStart, timelineEnd);
+
+  // Get the preselected property details if available
+  const preselectedProperty = preselectedPropertyId
+    ? properties.find(p => p.id === preselectedPropertyId)
+    : null;
 
   // Calculate smart position based on viewport and menu size
   const calculatePosition = (menuWidth: number, menuHeight: number) => {
@@ -138,13 +148,12 @@ export default function QuickAddMenu({ position, timelinePosition, onClose }: Qu
 
     addProperty({
       name: propertyName,
-      address: propertyAddress,
+      address: '', // Address is now included in the name field
       color: `#${Math.floor(Math.random()*16777215).toString(16)}`,
       isRental: isRentalProperty || undefined,
     });
 
     setPropertyName('');
-    setPropertyAddress('');
     setIsRentalProperty(false);
     setShowPropertyForm(false);
     onClose();
@@ -159,6 +168,9 @@ export default function QuickAddMenu({ position, timelinePosition, onClose }: Qu
     const property = properties.find(p => p.id === selectedProperty) || properties[0];
     if (!property) return;
 
+    // Events that don't have amounts
+    const noAmountEvents = ['move_in', 'move_out', 'living_in_rental_start', 'living_in_rental_end'];
+
     addEvent({
       propertyId: property.id,
       type,
@@ -166,7 +178,7 @@ export default function QuickAddMenu({ position, timelinePosition, onClose }: Qu
       title: eventTypes.find(e => e.type === type)?.label || type,
       position: timelinePosition,
       color: eventTypes.find(e => e.type === type)?.color || '#3B82F6',
-      amount: eventAmount ? parseFloat(eventAmount) : undefined,
+      amount: !noAmountEvents.includes(type) && eventAmount ? parseFloat(eventAmount) : undefined,
       isPPR: isPPR || undefined, // Only include if true
     });
 
@@ -203,24 +215,14 @@ export default function QuickAddMenu({ position, timelinePosition, onClose }: Qu
       {properties.length === 0 || showPropertyForm ? (
         <div className="space-y-3 mb-4">
           <div>
-            <label className="text-xs font-medium text-slate-600 dark:text-slate-300">Property Name</label>
+            <label className="text-xs font-medium text-slate-600 dark:text-slate-300">Property Name & Address (optional)</label>
             <input
               type="text"
               value={propertyName}
               onChange={(e) => setPropertyName(e.target.value)}
-              placeholder="e.g., Main Residence"
+              placeholder="e.g., Main Residence, 123 Main St"
               className="w-full mt-1 px-3 py-2 border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
               autoFocus
-            />
-          </div>
-          <div>
-            <label className="text-xs font-medium text-slate-600 dark:text-slate-300">Address (optional)</label>
-            <input
-              type="text"
-              value={propertyAddress}
-              onChange={(e) => setPropertyAddress(e.target.value)}
-              placeholder="e.g., 123 Main St"
-              className="w-full mt-1 px-3 py-2 border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
             />
           </div>
           <div className="flex items-center gap-2">
@@ -241,6 +243,28 @@ export default function QuickAddMenu({ position, timelinePosition, onClose }: Qu
           >
             <Building className="w-4 h-4" />
             Add Property
+          </button>
+        </div>
+      ) : preselectedProperty ? (
+        <div className="mb-4">
+          <label className="text-xs font-medium text-slate-600 dark:text-slate-300">Adding event to</label>
+          <div className="mt-1 px-3 py-2 border-2 border-blue-400 dark:border-blue-500 bg-blue-50 dark:bg-blue-900/20 rounded-lg flex items-center gap-2">
+            <div
+              className="w-3 h-3 rounded-full flex-shrink-0"
+              style={{ backgroundColor: preselectedProperty.color }}
+            />
+            <span className="text-sm font-semibold text-slate-900 dark:text-slate-100">
+              {preselectedProperty.name}
+            </span>
+          </div>
+          <button
+            onClick={() => {
+              setSelectedProperty('');
+              setShowPropertyForm(false);
+            }}
+            className="mt-2 text-xs text-blue-500 hover:text-blue-600"
+          >
+            Change property or add new
           </button>
         </div>
       ) : (
@@ -267,34 +291,20 @@ export default function QuickAddMenu({ position, timelinePosition, onClose }: Qu
         </div>
       )}
 
-      {/* Amount Input (optional) */}
+      {/* Main Residence Checkbox */}
       {selectedProperty && (
-        <>
-          <div className="mb-4">
-            <label className="text-xs font-medium text-slate-600 dark:text-slate-300">Amount (optional)</label>
-            <input
-              type="number"
-              value={eventAmount}
-              onChange={(e) => setEventAmount(e.target.value)}
-              placeholder="e.g., 500000"
-              className="w-full mt-1 px-3 py-2 border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
-            />
-          </div>
-
-          {/* PPR Checkbox */}
-          <div className="mb-4 flex items-center gap-2">
-            <input
-              type="checkbox"
-              id="isPPR"
-              checked={isPPR}
-              onChange={(e) => setIsPPR(e.target.checked)}
-              className="w-4 h-4 text-blue-600 border-gray-300 dark:border-gray-600 rounded focus:ring-blue-500"
-            />
-            <label htmlFor="isPPR" className="text-xs font-medium text-slate-600 dark:text-slate-300 cursor-pointer">
-              Principal Place of Residence (PPR)
-            </label>
-          </div>
-        </>
+        <div className="mb-4 flex items-center gap-2">
+          <input
+            type="checkbox"
+            id="isPPR"
+            checked={isPPR}
+            onChange={(e) => setIsPPR(e.target.checked)}
+            className="w-4 h-4 text-blue-600 border-gray-300 dark:border-gray-600 rounded focus:ring-blue-500"
+          />
+          <label htmlFor="isPPR" className="text-xs font-medium text-slate-600 dark:text-slate-300 cursor-pointer">
+            Main Residence
+          </label>
+        </div>
       )}
 
       {/* Event Type Grid */}

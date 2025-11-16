@@ -145,48 +145,12 @@ export default function TimelineControls() {
             historyItem.new_status = event.newStatus;
           }
 
-          // Add cost base fields for CGT calculation
-          // Element 1: Purchase/Acquisition costs
-          if (event.purchaseLegalFees !== undefined) {
-            historyItem.purchase_legal_fees = event.purchaseLegalFees;
-          }
-          if (event.valuationFees !== undefined) {
-            historyItem.valuation_fees = event.valuationFees;
-          }
-          if (event.stampDuty !== undefined) {
-            historyItem.stamp_duty = event.stampDuty;
-          }
-          if (event.purchaseAgentFees !== undefined) {
-            historyItem.purchase_agent_fees = event.purchaseAgentFees;
+          // NEW: Export cost bases array
+          if (event.costBases && event.costBases.length > 0) {
+            historyItem.costBases = event.costBases;
           }
 
-          // Element 2: Holding costs
-          if (event.landTax !== undefined) {
-            historyItem.land_tax = event.landTax;
-          }
-          if (event.insurance !== undefined) {
-            historyItem.insurance = event.insurance;
-          }
-
-          // Element 3: Capital improvements
-          if (event.improvementCost !== undefined) {
-            historyItem.improvement_cost = event.improvementCost;
-          }
-
-          // Element 4: Title costs
-          if (event.titleLegalFees !== undefined) {
-            historyItem.title_legal_fees = event.titleLegalFees;
-          }
-
-          // Element 5: Disposal costs
-          if (event.saleLegalFees !== undefined) {
-            historyItem.sale_legal_fees = event.saleLegalFees;
-          }
-          if (event.saleAgentFees !== undefined) {
-            historyItem.sale_agent_fees = event.saleAgentFees;
-          }
-
-          // Market valuation for move_out events
+          // Market valuation for move_out events (not part of cost bases)
           if (event.marketValuation !== undefined) {
             historyItem.market_valuation = event.marketValuation;
           }

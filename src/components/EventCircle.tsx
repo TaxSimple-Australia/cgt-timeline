@@ -1,8 +1,9 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { TimelineEvent, useTimelineStore } from '@/store/timeline';
+import { positionToDate } from '@/lib/utils';
 import { Home, DollarSign, TrendingUp } from 'lucide-react';
 
 interface EventCircleProps {
@@ -12,10 +13,19 @@ interface EventCircleProps {
   color: string;
   onClick: () => void;
   tier?: number; // Vertical tier for label positioning (0 = default, 1-3 = higher tiers)
+  enableDrag?: boolean; // Enable drag functionality
+  timelineStart?: Date; // Timeline start for date conversion
+  timelineEnd?: Date; // Timeline end for date conversion
+  onUpdateEvent?: (id: string, updates: Partial<TimelineEvent>) => void; // Update event callback
 }
 
-export default function EventCircle({ event, cx, cy, color, onClick, tier = 0 }: EventCircleProps) {
+export default function EventCircle({ event, cx, cy, color, onClick, tier = 0, enableDrag = false, timelineStart, timelineEnd, onUpdateEvent }: EventCircleProps) {
   const [isHovered, setIsHovered] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragPosition, setDragPosition] = useState<number | null>(null);
+  const [hasDragged, setHasDragged] = useState(false);
+  const svgRef = useRef<SVGGElement>(null);
+  const dragStartPosRef = useRef<number | null>(null);
 
   // Get AI feedback issues for this event
   const { timelineIssues, selectIssue } = useTimelineStore();
@@ -45,20 +55,99 @@ export default function EventCircle({ event, cx, cy, color, onClick, tier = 0 }:
   const hasAmount = event.amount !== undefined && event.amount > 0;
   const isPPR = event.isPPR === true;
 
+  // Drag handlers
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (!enableDrag || !timelineStart || !timelineEnd || !onUpdateEvent) return;
+
+    e.stopPropagation();
+
+    // Store starting mouse position
+    const svgElement = svgRef.current?.ownerSVGElement;
+    if (svgElement) {
+      const rect = svgElement.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const position = (x / rect.width) * 100;
+      dragStartPosRef.current = position;
+    }
+
+    setIsDragging(true);
+    setHasDragged(false);
+  };
+
+  useEffect(() => {
+    if (!isDragging) return;
+
+    const handleMouseMove = (e: MouseEvent) => {
+      // Find the parent SVG element to get its bounding rect
+      const svgElement = svgRef.current?.ownerSVGElement;
+      if (!svgElement || !timelineStart || !timelineEnd) return;
+
+      const rect = svgElement.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const position = (x / rect.width) * 100;
+
+      // Clamp position between 0 and 100
+      const clampedPosition = Math.max(0, Math.min(100, position));
+
+      // Check if we've actually moved (threshold: 0.5% of timeline width)
+      if (dragStartPosRef.current !== null && Math.abs(clampedPosition - dragStartPosRef.current) > 0.5) {
+        setHasDragged(true);
+      }
+
+      setDragPosition(clampedPosition);
+    };
+
+    const handleMouseUp = () => {
+      if (dragPosition !== null && hasDragged && onUpdateEvent && timelineStart && timelineEnd) {
+        // Convert position to date
+        const newDate = positionToDate(dragPosition, timelineStart, timelineEnd);
+
+        // Update the event
+        onUpdateEvent(event.id, { date: newDate });
+      }
+
+      setIsDragging(false);
+      setDragPosition(null);
+      dragStartPosRef.current = null;
+
+      // Clear hasDragged after a short delay to prevent click event
+      if (hasDragged) {
+        setTimeout(() => setHasDragged(false), 100);
+      }
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseup', handleMouseUp);
+
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [isDragging, dragPosition, hasDragged, event.id, timelineStart, timelineEnd, onUpdateEvent]);
+
+  // Use drag position if dragging, otherwise use cx
+  const displayCx = isDragging && dragPosition !== null ? `${dragPosition}%` : cx;
+
   return (
     <g
-      className="event-circle-group cursor-pointer"
+      ref={svgRef}
+      className={enableDrag ? "event-circle-group cursor-grab" : "event-circle-group cursor-pointer"}
+      style={{ cursor: isDragging ? 'grabbing' : undefined }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
+      onMouseDown={handleMouseDown}
       onClick={(e) => {
         e.stopPropagation();
-        onClick();
+        // Don't trigger onClick if we just finished dragging
+        if (!isDragging && !hasDragged) {
+          onClick();
+        }
       }}
     >
       {/* Glow effect on hover */}
       {isHovered && (
         <motion.circle
-          cx={cx}
+          cx={displayCx}
           cy={cy}
           r="24"
           fill={color}
@@ -72,7 +161,7 @@ export default function EventCircle({ event, cx, cy, color, onClick, tier = 0 }:
       {/* PPR indicator ring */}
       {isPPR && (
         <motion.circle
-          cx={cx}
+          cx={displayCx}
           cy={cy}
           r="20"
           fill="none"
@@ -87,7 +176,7 @@ export default function EventCircle({ event, cx, cy, color, onClick, tier = 0 }:
 
       {/* Main event circle */}
       <motion.circle
-        cx={cx}
+        cx={displayCx}
         cy={cy}
         r="14"
         fill={color}
@@ -98,13 +187,14 @@ export default function EventCircle({ event, cx, cy, color, onClick, tier = 0 }:
         transition={{ type: 'spring', stiffness: 300, damping: 20 }}
         style={{
           filter: 'drop-shadow(0 2px 6px rgba(0,0,0,0.25))',
+          opacity: isDragging ? 0.7 : 1,
         }}
       />
 
       {/* Amount indicator badge */}
       {hasAmount && (
         <motion.circle
-          cx={cx}
+          cx={displayCx}
           cy={cy}
           r="5"
           fill="white"
@@ -113,7 +203,7 @@ export default function EventCircle({ event, cx, cy, color, onClick, tier = 0 }:
           initial={{ scale: 0, x: 10, y: -10 }}
           animate={{ scale: 1 }}
           transition={{ delay: 0.2, type: 'spring' }}
-          style={{ transformOrigin: `${cx} ${cy}` }}
+          style={{ transformOrigin: `${displayCx} ${cy}` }}
         />
       )}
 
@@ -127,7 +217,7 @@ export default function EventCircle({ event, cx, cy, color, onClick, tier = 0 }:
           className="cursor-pointer"
         >
           {/* Warning circle at top-left */}
-          <g transform={`translate(${cx}, ${cy})`}>
+          <g transform={`translate(${displayCx}, ${cy})`}>
             <circle
               cx="-12"
               cy="-12"
@@ -178,9 +268,9 @@ export default function EventCircle({ event, cx, cy, color, onClick, tier = 0 }:
       )}
 
       {/* Hover tooltip */}
-      {isHovered && (
+      {isHovered && !isDragging && (
         <foreignObject
-          x={cx}
+          x={displayCx}
           y={cy - 50}
           width="160"
           height="80"
@@ -223,8 +313,8 @@ export default function EventCircle({ event, cx, cy, color, onClick, tier = 0 }:
       {/* Connecting line from circle to label (if label is offset) */}
       {tier > 0 && (
         <line
-          x1={cx}
-          x2={cx}
+          x1={displayCx}
+          x2={displayCx}
           y1={cy + 14}
           y2={labelY - 8}
           stroke={color}
@@ -237,7 +327,7 @@ export default function EventCircle({ event, cx, cy, color, onClick, tier = 0 }:
 
       {/* Label below circle (positioned based on tier) */}
       <text
-        x={cx}
+        x={displayCx}
         y={labelY}
         textAnchor="middle"
         className="text-[14px] font-bold fill-slate-900 dark:fill-slate-100 pointer-events-none"

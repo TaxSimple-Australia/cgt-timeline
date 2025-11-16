@@ -11,7 +11,7 @@ interface SettingsModalProps {
 }
 
 export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
-  const { lockFutureDates, toggleLockFutureDates, eventDisplayMode, toggleEventDisplayMode } = useTimelineStore();
+  const { lockFutureDates, toggleLockFutureDates, eventDisplayMode, toggleEventDisplayMode, enableDragEvents, toggleDragEvents } = useTimelineStore();
 
   return (
     <AnimatePresence>
@@ -115,6 +115,33 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                       <span
                         className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
                           eventDisplayMode === 'card' ? 'translate-x-6' : 'translate-x-1'
+                        }`}
+                      />
+                    </button>
+                  </div>
+
+                  {/* Enable Event Dragging Toggle */}
+                  <div className="flex items-center justify-between p-3 rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700">
+                    <div className="flex-1">
+                      <label htmlFor="drag-events" className="text-sm font-medium text-slate-900 dark:text-slate-100 cursor-pointer">
+                        Enable Event Dragging
+                      </label>
+                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                        Drag events along the timeline to change dates
+                      </p>
+                    </div>
+                    <button
+                      id="drag-events"
+                      onClick={toggleDragEvents}
+                      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-slate-800 ${
+                        enableDragEvents
+                          ? 'bg-blue-600'
+                          : 'bg-slate-300 dark:bg-slate-600'
+                      }`}
+                    >
+                      <span
+                        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                          enableDragEvents ? 'translate-x-6' : 'translate-x-1'
                         }`}
                       />
                     </button>

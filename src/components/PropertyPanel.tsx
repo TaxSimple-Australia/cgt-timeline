@@ -49,7 +49,7 @@ export default function PropertyPanel() {
   const totalInvestment = (purchaseEvent?.amount || 0) + improvements;
   const capitalGain = saleEvent ? (saleEvent.amount || 0) - totalInvestment : null;
 
-  // Calculate total cost base for CGT
+  // Calculate total cost base for CGT using new costBases array
   const calculateCostBase = () => {
     let costBase = 0;
 
@@ -58,33 +58,46 @@ export default function PropertyPanel() {
       costBase += purchaseEvent.amount;
     }
 
-    // Element 2: Acquisition costs
-    if (purchaseEvent?.purchaseLegalFees) costBase += purchaseEvent.purchaseLegalFees;
-    if (purchaseEvent?.valuationFees) costBase += purchaseEvent.valuationFees;
-    if (purchaseEvent?.stampDuty) costBase += purchaseEvent.stampDuty;
-    if (purchaseEvent?.purchaseAgentFees) costBase += purchaseEvent.purchaseAgentFees;
-
-    // Element 3: Holding costs
-    if (purchaseEvent?.landTax) costBase += purchaseEvent.landTax;
-    if (purchaseEvent?.insurance) costBase += purchaseEvent.insurance;
-
-    // Element 4: Capital improvements
-    propertyEvents.filter(e => e.type === 'improvement').forEach(e => {
-      if (e.improvementCost) costBase += e.improvementCost;
-      if (e.amount && !e.improvementCost) costBase += e.amount; // fallback to amount
+    // Sum all cost bases from all events for this property
+    propertyEvents.forEach(event => {
+      if (event.costBases && event.costBases.length > 0) {
+        event.costBases.forEach(cb => {
+          costBase += cb.amount;
+        });
+      }
     });
-
-    // Element 5: Title legal fees
-    if (purchaseEvent?.titleLegalFees) costBase += purchaseEvent.titleLegalFees;
-
-    // Element 6: Disposal costs (if sold)
-    if (saleEvent?.saleLegalFees) costBase += saleEvent.saleLegalFees;
-    if (saleEvent?.saleAgentFees) costBase += saleEvent.saleAgentFees;
 
     return costBase;
   };
 
   const totalCostBase = calculateCostBase();
+
+  // Group all cost bases by category for display
+  const groupCostBasesByCategory = () => {
+    const grouped: Record<string, Array<{name: string; amount: number; eventTitle?: string}>> = {
+      element1: [],
+      element2: [],
+      element3: [],
+      element4: [],
+      element5: [],
+    };
+
+    propertyEvents.forEach(event => {
+      if (event.costBases && event.costBases.length > 0) {
+        event.costBases.forEach(cb => {
+          grouped[cb.category].push({
+            name: cb.name,
+            amount: cb.amount,
+            eventTitle: event.title,
+          });
+        });
+      }
+    });
+
+    return grouped;
+  };
+
+  const groupedCostBases = groupCostBasesByCategory();
   
   // Calculate ownership period
   const ownershipDays = purchaseEvent && saleEvent
@@ -247,8 +260,8 @@ export default function PropertyPanel() {
             </div>
           </div>
 
-          {/* Cost Base Breakdown for CGT */}
-          {purchaseEvent && (
+          {/* Cost Base Breakdown for CGT - NEW: Using dynamic costBases array */}
+          {(purchaseEvent || totalCostBase > 0) && (
             <div className="bg-gradient-to-br from-indigo-50 to-blue-50 dark:from-indigo-900/20 dark:to-blue-900/20 p-4 rounded-lg border border-indigo-200 dark:border-indigo-700 dark:border-indigo-800">
               <div className="flex items-center gap-2 text-indigo-700 dark:text-indigo-200 dark:text-indigo-300 mb-3">
                 <Calculator className="w-4 h-4" />
@@ -256,112 +269,82 @@ export default function PropertyPanel() {
               </div>
 
               <div className="space-y-2 text-xs">
-                {/* Element 1: Purchase Price */}
-                {purchaseEvent.amount && (
+                {/* Purchase Price (separate from cost bases) */}
+                {purchaseEvent?.amount && (
                   <div className="flex justify-between items-center">
                     <span className="text-indigo-600 dark:text-indigo-300">Purchase Price</span>
                     <span className="font-semibold text-indigo-900 dark:text-indigo-100">{formatCurrency(purchaseEvent.amount)}</span>
                   </div>
                 )}
 
-                {/* Element 2: Acquisition Costs */}
-                {(purchaseEvent.purchaseLegalFees || purchaseEvent.valuationFees || purchaseEvent.stampDuty || purchaseEvent.purchaseAgentFees) && (
+                {/* Element 1: Acquisition Costs (from costBases) */}
+                {groupedCostBases.element1.length > 0 && (
                   <>
                     <div className="text-[10px] font-semibold text-indigo-500 dark:text-indigo-400 uppercase pt-2 border-t border-indigo-200">Acquisition Costs</div>
-                    {purchaseEvent.purchaseLegalFees && (
-                      <div className="flex justify-between items-center pl-2">
-                        <span className="text-indigo-600 dark:text-indigo-300">Professional Fees</span>
-                        <span className="font-semibold text-indigo-900 dark:text-indigo-100">{formatCurrency(purchaseEvent.purchaseLegalFees)}</span>
-                      </div>
-                    )}
-                    {purchaseEvent.valuationFees && (
-                      <div className="flex justify-between items-center pl-2">
-                        <span className="text-indigo-600 dark:text-indigo-300">Valuation Fees</span>
-                        <span className="font-semibold text-indigo-900 dark:text-indigo-100">{formatCurrency(purchaseEvent.valuationFees)}</span>
-                      </div>
-                    )}
-                    {purchaseEvent.stampDuty && (
-                      <div className="flex justify-between items-center pl-2">
-                        <span className="text-indigo-600 dark:text-indigo-300">Stamp Duty</span>
-                        <span className="font-semibold text-indigo-900 dark:text-indigo-100">{formatCurrency(purchaseEvent.stampDuty)}</span>
-                      </div>
-                    )}
-                    {purchaseEvent.purchaseAgentFees && (
-                      <div className="flex justify-between items-center pl-2">
-                        <span className="text-indigo-600 dark:text-indigo-300">Agent Fees</span>
-                        <span className="font-semibold text-indigo-900 dark:text-indigo-100">{formatCurrency(purchaseEvent.purchaseAgentFees)}</span>
-                      </div>
-                    )}
-                  </>
-                )}
-
-                {/* Element 3: Holding Costs */}
-                {(purchaseEvent.landTax || purchaseEvent.insurance) && (
-                  <>
-                    <div className="text-[10px] font-semibold text-indigo-500 dark:text-indigo-400 uppercase pt-2 border-t border-indigo-200">Holding Costs</div>
-                    {purchaseEvent.landTax && (
-                      <div className="flex justify-between items-center pl-2">
-                        <span className="text-indigo-600 dark:text-indigo-300">Land Tax</span>
-                        <span className="font-semibold text-indigo-900 dark:text-indigo-100">{formatCurrency(purchaseEvent.landTax)}</span>
-                      </div>
-                    )}
-                    {purchaseEvent.insurance && (
-                      <div className="flex justify-between items-center pl-2">
-                        <span className="text-indigo-600 dark:text-indigo-300">Insurance</span>
-                        <span className="font-semibold text-indigo-900 dark:text-indigo-100">{formatCurrency(purchaseEvent.insurance)}</span>
-                      </div>
-                    )}
-                  </>
-                )}
-
-                {/* Element 4: Capital Improvements */}
-                {propertyEvents.filter(e => e.type === 'improvement' && (e.improvementCost || e.amount)).length > 0 && (
-                  <>
-                    <div className="text-[10px] font-semibold text-indigo-500 dark:text-indigo-400 uppercase pt-2 border-t border-indigo-200">Capital Improvements</div>
-                    {propertyEvents.filter(e => e.type === 'improvement').map(impEvent => (
-                      <div key={impEvent.id} className="flex justify-between items-center pl-2">
-                        <span className="text-indigo-600 truncate">{impEvent.title}</span>
-                        <span className="font-semibold text-indigo-900 dark:text-indigo-100">
-                          {formatCurrency(impEvent.improvementCost || impEvent.amount || 0)}
-                        </span>
+                    {groupedCostBases.element1.map((cb, idx) => (
+                      <div key={`e1-${idx}`} className="flex justify-between items-center pl-2">
+                        <span className="text-indigo-600 dark:text-indigo-300 truncate">{cb.name}</span>
+                        <span className="font-semibold text-indigo-900 dark:text-indigo-100">{formatCurrency(cb.amount)}</span>
                       </div>
                     ))}
                   </>
                 )}
 
-                {/* Element 5: Title Legal Fees */}
-                {purchaseEvent.titleLegalFees && (
+                {/* Element 2: Incidental Costs */}
+                {groupedCostBases.element2.length > 0 && (
                   <>
-                    <div className="text-[10px] font-semibold text-indigo-500 dark:text-indigo-400 uppercase pt-2 border-t border-indigo-200">Title Defense</div>
-                    <div className="flex justify-between items-center pl-2">
-                      <span className="text-indigo-600 dark:text-indigo-300">Legal Fees (Title)</span>
-                      <span className="font-semibold text-indigo-900 dark:text-indigo-100">{formatCurrency(purchaseEvent.titleLegalFees)}</span>
-                    </div>
+                    <div className="text-[10px] font-semibold text-indigo-500 dark:text-indigo-400 uppercase pt-2 border-t border-indigo-200">Incidental Costs</div>
+                    {groupedCostBases.element2.map((cb, idx) => (
+                      <div key={`e2-${idx}`} className="flex justify-between items-center pl-2">
+                        <span className="text-indigo-600 dark:text-indigo-300 truncate">{cb.name}</span>
+                        <span className="font-semibold text-indigo-900 dark:text-indigo-100">{formatCurrency(cb.amount)}</span>
+                      </div>
+                    ))}
                   </>
                 )}
 
-                {/* Element 6: Disposal Costs */}
-                {saleEvent && (saleEvent.saleLegalFees || saleEvent.saleAgentFees) && (
+                {/* Element 3: Holding Costs */}
+                {groupedCostBases.element3.length > 0 && (
                   <>
-                    <div className="text-[10px] font-semibold text-indigo-500 dark:text-indigo-400 uppercase pt-2 border-t border-indigo-200">Disposal Costs</div>
-                    {saleEvent.saleLegalFees && (
-                      <div className="flex justify-between items-center pl-2">
-                        <span className="text-indigo-600 dark:text-indigo-300">Legal Fees (Sale)</span>
-                        <span className="font-semibold text-indigo-900 dark:text-indigo-100">{formatCurrency(saleEvent.saleLegalFees)}</span>
+                    <div className="text-[10px] font-semibold text-indigo-500 dark:text-indigo-400 uppercase pt-2 border-t border-indigo-200">Holding Costs</div>
+                    {groupedCostBases.element3.map((cb, idx) => (
+                      <div key={`e3-${idx}`} className="flex justify-between items-center pl-2">
+                        <span className="text-indigo-600 dark:text-indigo-300 truncate">{cb.name}</span>
+                        <span className="font-semibold text-indigo-900 dark:text-indigo-100">{formatCurrency(cb.amount)}</span>
                       </div>
-                    )}
-                    {saleEvent.saleAgentFees && (
-                      <div className="flex justify-between items-center pl-2">
-                        <span className="text-indigo-600 dark:text-indigo-300">Agent Fees (Sale)</span>
-                        <span className="font-semibold text-indigo-900 dark:text-indigo-100">{formatCurrency(saleEvent.saleAgentFees)}</span>
+                    ))}
+                  </>
+                )}
+
+                {/* Element 4: Capital Improvements */}
+                {groupedCostBases.element4.length > 0 && (
+                  <>
+                    <div className="text-[10px] font-semibold text-indigo-500 dark:text-indigo-400 uppercase pt-2 border-t border-indigo-200">Capital Improvements</div>
+                    {groupedCostBases.element4.map((cb, idx) => (
+                      <div key={`e4-${idx}`} className="flex justify-between items-center pl-2">
+                        <span className="text-indigo-600 dark:text-indigo-300 truncate">{cb.name}</span>
+                        <span className="font-semibold text-indigo-900 dark:text-indigo-100">{formatCurrency(cb.amount)}</span>
                       </div>
-                    )}
+                    ))}
+                  </>
+                )}
+
+                {/* Element 5: Title Costs */}
+                {groupedCostBases.element5.length > 0 && (
+                  <>
+                    <div className="text-[10px] font-semibold text-indigo-500 dark:text-indigo-400 uppercase pt-2 border-t border-indigo-200">Title Costs</div>
+                    {groupedCostBases.element5.map((cb, idx) => (
+                      <div key={`e5-${idx}`} className="flex justify-between items-center pl-2">
+                        <span className="text-indigo-600 dark:text-indigo-300 truncate">{cb.name}</span>
+                        <span className="font-semibold text-indigo-900 dark:text-indigo-100">{formatCurrency(cb.amount)}</span>
+                      </div>
+                    ))}
                   </>
                 )}
 
                 {/* Total Cost Base */}
                 <div className="flex justify-between items-center pt-2 mt-2 border-t-2 border-indigo-300">
-                  <span className="font-bold text-indigo-700">Total Cost Base</span>
+                  <span className="font-bold text-indigo-700 dark:text-indigo-200">Total Cost Base</span>
                   <span className="font-bold text-lg text-indigo-900 dark:text-indigo-100">{formatCurrency(totalCostBase)}</span>
                 </div>
               </div>

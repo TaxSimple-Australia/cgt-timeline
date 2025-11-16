@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { addDays, format } from 'date-fns';
 import type { AIResponse, TimelineIssue, PositionedGap } from '../types/ai-feedback';
+import type { CostBaseCategory } from '../lib/cost-base-definitions';
 
 export type EventType =
   | 'purchase'
@@ -19,6 +20,19 @@ export type PropertyStatus =
   | 'vacant'        // Empty/not used
   | 'construction'  // Being built/renovated
   | 'sold';         // Sold
+
+/**
+ * Dynamic cost base item for CGT calculations
+ */
+export interface CostBaseItem {
+  id: string;                  // Unique identifier for this cost base entry
+  definitionId: string;        // References COST_BASE_DEFINITIONS id, or 'custom' for user-created
+  name: string;                // Display name (e.g., "Stamp Duty", "Custom Legal Fees")
+  amount: number;              // Cost amount in dollars
+  category: CostBaseCategory;  // Which of the 5 CGT elements this belongs to
+  isCustom: boolean;           // true if user-created, false if from predefined list
+  description?: string;        // Optional notes about this cost
+}
 
 export interface TimelineEvent {
   id: string;
@@ -39,29 +53,32 @@ export interface TimelineEvent {
   landPrice?: number;       // Price of land component
   buildingPrice?: number;   // Price of building component
 
-  // Cost Base Elements (for CGT calculation)
-  // Element 1: Purchase/Acquisition costs
-  purchaseLegalFees?: number;      // Legal fees for purchase
-  valuationFees?: number;          // Valuation fees
-  stampDuty?: number;              // Stamp duty paid on acquisition
-  purchaseAgentFees?: number;      // Agent commission for purchase
+  // NEW: Dynamic Cost Base Items
+  costBases?: CostBaseItem[];  // Array of cost base items for this event
 
-  // Element 2: Incidental holding costs
-  landTax?: number;                // Land tax (only if not claimed as deduction)
-  insurance?: number;              // Insurance costs (only if not claimed as deduction)
-
-  // Element 3: Capital improvements (for improvement events)
-  improvementCost?: number;        // Cost of renovations/improvements
-
-  // Element 4: Title costs
-  titleLegalFees?: number;         // Legal costs to defend/establish title
-
-  // Element 5: Disposal costs (for sale events)
-  saleLegalFees?: number;          // Legal fees for sale
-  saleAgentFees?: number;          // Agent commission for sale
-
-  // Market valuation (for move_out events)
-  marketValuation?: number;        // Market value at time of moving out
+  // DEPRECATED: Legacy cost base fields (kept for backward compatibility during migration)
+  /** @deprecated Use costBases array instead */
+  purchaseLegalFees?: number;
+  /** @deprecated Use costBases array instead */
+  valuationFees?: number;
+  /** @deprecated Use costBases array instead */
+  stampDuty?: number;
+  /** @deprecated Use costBases array instead */
+  purchaseAgentFees?: number;
+  /** @deprecated Use costBases array instead */
+  landTax?: number;
+  /** @deprecated Use costBases array instead */
+  insurance?: number;
+  /** @deprecated Use costBases array instead */
+  improvementCost?: number;
+  /** @deprecated Use costBases array instead */
+  titleLegalFees?: number;
+  /** @deprecated Use costBases array instead */
+  saleLegalFees?: number;
+  /** @deprecated Use costBases array instead */
+  saleAgentFees?: number;
+  /** @deprecated Use costBases array instead */
+  marketValuation?: number;
 }
 
 export interface Property {
@@ -110,6 +127,7 @@ interface TimelineState {
   theme: Theme; // Current theme: light, dark, or golden
   eventDisplayMode: EventDisplayMode; // Toggle between circle and card display
   lockFutureDates: boolean; // Prevent panning beyond today's date
+  enableDragEvents: boolean; // Allow dragging events along timeline to change dates
 
   // AI Feedback State
   aiResponse: AIResponse | null; // Latest AI analysis response
@@ -145,6 +163,7 @@ interface TimelineState {
   toggleTheme: () => void; // Cycle through themes: light -> dark -> golden -> light
   toggleEventDisplayMode: () => void; // Toggle between circle and card display
   toggleLockFutureDates: () => void; // Toggle lock future dates setting
+  toggleDragEvents: () => void; // Toggle event dragging functionality
 
   // AI Feedback Actions
   setAIResponse: (response: AIResponse) => void; // Store AI analysis response
@@ -352,6 +371,7 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
     theme: 'dark',
     eventDisplayMode: 'card',
     lockFutureDates: true,
+    enableDragEvents: false,
 
     // AI Feedback Initial State
     aiResponse: null,
@@ -786,35 +806,77 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
           isRental: prop.isRental,
         }));
 
-        importedEvents = data.events.map((event: any, index: number) => ({
-          id: event.id || `import-event-${Date.now()}-${index}`,
-          propertyId: event.propertyId,
-          type: event.type as EventType,
-          date: new Date(event.date),
-          title: event.title || event.type,
-          amount: event.amount,
-          description: event.description,
-          position: event.position !== undefined ? event.position : 0,
-          color: event.color || eventColors[event.type as EventType] || '#3B82F6',
-          contractDate: event.contractDate ? new Date(event.contractDate) : undefined,
-          settlementDate: event.settlementDate ? new Date(event.settlementDate) : undefined,
-          newStatus: event.newStatus,
-          isPPR: event.isPPR,
-          landPrice: event.landPrice,
-          buildingPrice: event.buildingPrice,
-          // Cost base fields
-          purchaseLegalFees: event.purchaseLegalFees || event.purchase_legal_fees,
-          valuationFees: event.valuationFees || event.valuation_fees,
-          stampDuty: event.stampDuty || event.stamp_duty,
-          purchaseAgentFees: event.purchaseAgentFees || event.purchase_agent_fees,
-          landTax: event.landTax || event.land_tax,
-          insurance: event.insurance,
-          improvementCost: event.improvementCost || event.improvement_cost,
-          titleLegalFees: event.titleLegalFees || event.title_legal_fees,
-          saleLegalFees: event.saleLegalFees || event.sale_legal_fees,
-          saleAgentFees: event.saleAgentFees || event.sale_agent_fees,
-          marketValuation: event.marketValuation || event.market_valuation,
-        }));
+        importedEvents = data.events.map((event: any, index: number) => {
+          // Import new costBases array if it exists, otherwise migrate from legacy fields
+          let costBases: any[] | undefined = undefined;
+
+          if (event.costBases && Array.isArray(event.costBases)) {
+            // New format with costBases array
+            costBases = event.costBases;
+          } else {
+            // Migrate from legacy fields
+            const legacyMappings: Array<{
+              value: any;
+              definitionId: string;
+            }> = [
+              { value: event.purchaseLegalFees || event.purchase_legal_fees, definitionId: 'purchase_legal_fees' },
+              { value: event.valuationFees || event.valuation_fees, definitionId: 'valuation_fees' },
+              { value: event.stampDuty || event.stamp_duty, definitionId: 'stamp_duty' },
+              { value: event.purchaseAgentFees || event.purchase_agent_fees, definitionId: 'purchase_agent_fees' },
+              { value: event.landTax || event.land_tax, definitionId: 'land_tax' },
+              { value: event.insurance, definitionId: 'insurance' },
+              { value: event.improvementCost || event.improvement_cost, definitionId: 'renovation_whole_house' },
+              { value: event.titleLegalFees || event.title_legal_fees, definitionId: 'title_legal_fees' },
+              { value: event.saleLegalFees || event.sale_legal_fees, definitionId: 'sale_legal_fees' },
+              { value: event.saleAgentFees || event.sale_agent_fees, definitionId: 'sale_agent_fees' },
+            ];
+
+            const migrated: any[] = [];
+            legacyMappings.forEach(({ value, definitionId }) => {
+              if (value && parseFloat(value) > 0) {
+                const { getCostBaseDefinition } = require('../lib/cost-base-definitions');
+                const definition = getCostBaseDefinition(definitionId);
+                if (definition) {
+                  migrated.push({
+                    id: `cb-import-${definitionId}-${Date.now()}-${index}`,
+                    definitionId: definition.id,
+                    name: definition.name,
+                    amount: parseFloat(value),
+                    category: definition.category,
+                    isCustom: false,
+                    description: definition.description,
+                  });
+                }
+              }
+            });
+
+            if (migrated.length > 0) {
+              costBases = migrated;
+            }
+          }
+
+          return {
+            id: event.id || `import-event-${Date.now()}-${index}`,
+            propertyId: event.propertyId,
+            type: event.type as EventType,
+            date: new Date(event.date),
+            title: event.title || event.type,
+            amount: event.amount,
+            description: event.description,
+            position: event.position !== undefined ? event.position : 0,
+            color: event.color || eventColors[event.type as EventType] || '#3B82F6',
+            contractDate: event.contractDate ? new Date(event.contractDate) : undefined,
+            settlementDate: event.settlementDate ? new Date(event.settlementDate) : undefined,
+            newStatus: event.newStatus,
+            isPPR: event.isPPR,
+            landPrice: event.landPrice,
+            buildingPrice: event.buildingPrice,
+            // NEW: Cost bases array
+            costBases,
+            // DEPRECATED: Keep legacy fields undefined (migration happens to costBases)
+            marketValuation: event.marketValuation || event.market_valuation,
+          };
+        });
       } else if (data.properties && Array.isArray(data.properties)) {
         // Export format with property_history inside properties
         data.properties.forEach((prop: any, propIndex: number) => {
@@ -850,6 +912,54 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
                 currentStatus = 'sold';
               }
 
+              // Import new costBases array if it exists, otherwise migrate from legacy fields
+              let costBases: any[] | undefined = undefined;
+
+              if (historyItem.costBases && Array.isArray(historyItem.costBases)) {
+                // New format with costBases array
+                costBases = historyItem.costBases;
+              } else {
+                // Migrate from legacy fields
+                const legacyMappings: Array<{
+                  value: any;
+                  definitionId: string;
+                }> = [
+                  { value: historyItem.purchase_legal_fees, definitionId: 'purchase_legal_fees' },
+                  { value: historyItem.valuation_fees, definitionId: 'valuation_fees' },
+                  { value: historyItem.stamp_duty, definitionId: 'stamp_duty' },
+                  { value: historyItem.purchase_agent_fees, definitionId: 'purchase_agent_fees' },
+                  { value: historyItem.land_tax, definitionId: 'land_tax' },
+                  { value: historyItem.insurance, definitionId: 'insurance' },
+                  { value: historyItem.improvement_cost, definitionId: 'renovation_whole_house' },
+                  { value: historyItem.title_legal_fees, definitionId: 'title_legal_fees' },
+                  { value: historyItem.sale_legal_fees, definitionId: 'sale_legal_fees' },
+                  { value: historyItem.sale_agent_fees, definitionId: 'sale_agent_fees' },
+                ];
+
+                const migrated: any[] = [];
+                legacyMappings.forEach(({ value, definitionId }) => {
+                  if (value && parseFloat(value) > 0) {
+                    const { getCostBaseDefinition } = require('../lib/cost-base-definitions');
+                    const definition = getCostBaseDefinition(definitionId);
+                    if (definition) {
+                      migrated.push({
+                        id: `cb-import-${definitionId}-${Date.now()}-${propIndex}-${eventIndex}`,
+                        definitionId: definition.id,
+                        name: definition.name,
+                        amount: parseFloat(value),
+                        category: definition.category,
+                        isCustom: false,
+                        description: definition.description,
+                      });
+                    }
+                  }
+                });
+
+                if (migrated.length > 0) {
+                  costBases = migrated;
+                }
+              }
+
               // Create event
               const event: TimelineEvent = {
                 id: `import-event-${Date.now()}-${propIndex}-${eventIndex}`,
@@ -867,17 +977,9 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
                 isPPR: historyItem.is_ppr,
                 landPrice: historyItem.land_price,
                 buildingPrice: historyItem.building_price,
-                // Cost base fields
-                purchaseLegalFees: historyItem.purchase_legal_fees,
-                valuationFees: historyItem.valuation_fees,
-                stampDuty: historyItem.stamp_duty,
-                purchaseAgentFees: historyItem.purchase_agent_fees,
-                landTax: historyItem.land_tax,
-                insurance: historyItem.insurance,
-                improvementCost: historyItem.improvement_cost,
-                titleLegalFees: historyItem.title_legal_fees,
-                saleLegalFees: historyItem.sale_legal_fees,
-                saleAgentFees: historyItem.sale_agent_fees,
+                // NEW: Cost bases array
+                costBases,
+                // DEPRECATED: Legacy fields are migrated to costBases
                 marketValuation: historyItem.market_valuation,
               };
 
@@ -954,6 +1056,11 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
   toggleLockFutureDates: () => {
     const state = get();
     set({ lockFutureDates: !state.lockFutureDates });
+  },
+
+  toggleDragEvents: () => {
+    const state = get();
+    set({ enableDragEvents: !state.enableDragEvents });
   },
 
   // AI Feedback Action Implementations

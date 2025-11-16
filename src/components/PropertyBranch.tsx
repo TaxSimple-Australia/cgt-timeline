@@ -33,7 +33,7 @@ export default function PropertyBranch({
   timelineEnd,
   onEventClick,
 }: PropertyBranchProps) {
-  const { eventDisplayMode, positionedGaps, selectIssue, selectProperty } = useTimelineStore();
+  const { eventDisplayMode, positionedGaps, selectIssue, selectProperty, enableDragEvents, updateEvent } = useTimelineStore();
   const { getIssuesForProperty } = useValidationStore();
   const branchY = 100 + branchIndex * 120; // Vertical spacing between branches
 
@@ -259,6 +259,10 @@ export default function PropertyBranch({
             color={event.color}
             onClick={() => onEventClick(event)}
             tier={event.tier}
+            enableDrag={enableDragEvents}
+            timelineStart={timelineStart}
+            timelineEnd={timelineEnd}
+            onUpdateEvent={updateEvent}
           />
         ) : (
           <EventCardView
@@ -269,6 +273,10 @@ export default function PropertyBranch({
             color={event.color}
             onClick={() => onEventClick(event)}
             tier={event.tier}
+            enableDrag={enableDragEvents}
+            timelineStart={timelineStart}
+            timelineEnd={timelineEnd}
+            onUpdateEvent={updateEvent}
           />
         )
       ))}

@@ -144,13 +144,8 @@ export default function DeletePropertyModal({
                 </span>
               </div>
 
-              {/* Cost Base Data */}
-              {events.some(e =>
-                e.purchaseLegalFees || e.valuationFees || e.stampDuty ||
-                e.purchaseAgentFees || e.landTax || e.insurance ||
-                e.improvementCost || e.titleLegalFees ||
-                e.saleLegalFees || e.saleAgentFees
-              ) && (
+              {/* Cost Base Data - Updated to use new costBases array */}
+              {events.some(e => e.costBases && e.costBases.length > 0) && (
                 <div className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg">
                   <div className="flex items-center gap-2">
                     <DollarSign className="w-4 h-4 text-slate-500 dark:text-slate-400" />

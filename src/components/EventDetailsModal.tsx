@@ -2,9 +2,11 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { TimelineEvent, PropertyStatus, useTimelineStore } from '@/store/timeline';
+import { TimelineEvent, PropertyStatus, useTimelineStore, CostBaseItem } from '@/store/timeline';
 import { format } from 'date-fns';
 import { X, Calendar, DollarSign, Home, Tag, FileText, CheckCircle } from 'lucide-react';
+import CostBaseSelector from './CostBaseSelector';
+import { getCostBaseDefinition } from '@/lib/cost-base-definitions';
 
 interface EventDetailsModalProps {
   event: TimelineEvent;
@@ -30,17 +32,52 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
   const [landPrice, setLandPrice] = useState(event.landPrice?.toString() || '');
   const [buildingPrice, setBuildingPrice] = useState(event.buildingPrice?.toString() || '');
 
-  // Cost Base fields
-  const [purchaseLegalFees, setPurchaseLegalFees] = useState(event.purchaseLegalFees?.toString() || '');
-  const [valuationFees, setValuationFees] = useState(event.valuationFees?.toString() || '');
-  const [stampDuty, setStampDuty] = useState(event.stampDuty?.toString() || '');
-  const [purchaseAgentFees, setPurchaseAgentFees] = useState(event.purchaseAgentFees?.toString() || '');
-  const [landTax, setLandTax] = useState(event.landTax?.toString() || '');
-  const [insurance, setInsurance] = useState(event.insurance?.toString() || '');
-  const [improvementCost, setImprovementCost] = useState(event.improvementCost?.toString() || '');
-  const [titleLegalFees, setTitleLegalFees] = useState(event.titleLegalFees?.toString() || '');
-  const [saleLegalFees, setSaleLegalFees] = useState(event.saleLegalFees?.toString() || '');
-  const [saleAgentFees, setSaleAgentFees] = useState(event.saleAgentFees?.toString() || '');
+  // NEW: Dynamic Cost Bases
+  const [costBases, setCostBases] = useState<CostBaseItem[]>(() => {
+    // Migrate legacy fields to new cost base structure on initial load
+    if (event.costBases && event.costBases.length > 0) {
+      return event.costBases;
+    }
+
+    // Migrate from legacy fields
+    const migrated: CostBaseItem[] = [];
+    const legacyMappings: Array<{
+      value: number | undefined;
+      definitionId: string;
+    }> = [
+      { value: event.purchaseLegalFees, definitionId: 'purchase_legal_fees' },
+      { value: event.valuationFees, definitionId: 'valuation_fees' },
+      { value: event.stampDuty, definitionId: 'stamp_duty' },
+      { value: event.purchaseAgentFees, definitionId: 'purchase_agent_fees' },
+      { value: event.landTax, definitionId: 'land_tax' },
+      { value: event.insurance, definitionId: 'insurance' },
+      { value: event.improvementCost, definitionId: 'renovation_whole_house' },
+      { value: event.titleLegalFees, definitionId: 'title_legal_fees' },
+      { value: event.saleLegalFees, definitionId: 'sale_legal_fees' },
+      { value: event.saleAgentFees, definitionId: 'sale_agent_fees' },
+    ];
+
+    legacyMappings.forEach(({ value, definitionId }) => {
+      if (value && value > 0) {
+        const definition = getCostBaseDefinition(definitionId);
+        if (definition) {
+          migrated.push({
+            id: `cb-migrated-${definitionId}-${Date.now()}`,
+            definitionId: definition.id,
+            name: definition.name,
+            amount: value,
+            category: definition.category,
+            isCustom: false,
+            description: definition.description,
+          });
+        }
+      }
+    });
+
+    // Market valuation is special - it's not a cost base item
+    return migrated;
+  });
+
   const [marketValuation, setMarketValuation] = useState(event.marketValuation?.toString() || '');
 
   const handleSave = () => {
@@ -102,17 +139,22 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
         updates.newStatus = newStatus as PropertyStatus;
       }
 
-      // Cost Base fields
-      updates.purchaseLegalFees = purchaseLegalFees && !isNaN(parseFloat(purchaseLegalFees)) ? parseFloat(purchaseLegalFees) : undefined;
-      updates.valuationFees = valuationFees && !isNaN(parseFloat(valuationFees)) ? parseFloat(valuationFees) : undefined;
-      updates.stampDuty = stampDuty && !isNaN(parseFloat(stampDuty)) ? parseFloat(stampDuty) : undefined;
-      updates.purchaseAgentFees = purchaseAgentFees && !isNaN(parseFloat(purchaseAgentFees)) ? parseFloat(purchaseAgentFees) : undefined;
-      updates.landTax = landTax && !isNaN(parseFloat(landTax)) ? parseFloat(landTax) : undefined;
-      updates.insurance = insurance && !isNaN(parseFloat(insurance)) ? parseFloat(insurance) : undefined;
-      updates.improvementCost = improvementCost && !isNaN(parseFloat(improvementCost)) ? parseFloat(improvementCost) : undefined;
-      updates.titleLegalFees = titleLegalFees && !isNaN(parseFloat(titleLegalFees)) ? parseFloat(titleLegalFees) : undefined;
-      updates.saleLegalFees = saleLegalFees && !isNaN(parseFloat(saleLegalFees)) ? parseFloat(saleLegalFees) : undefined;
-      updates.saleAgentFees = saleAgentFees && !isNaN(parseFloat(saleAgentFees)) ? parseFloat(saleAgentFees) : undefined;
+      // NEW: Dynamic Cost Bases
+      updates.costBases = costBases.length > 0 ? costBases : undefined;
+
+      // DEPRECATED: Clear legacy cost base fields (they're now in costBases array)
+      updates.purchaseLegalFees = undefined;
+      updates.valuationFees = undefined;
+      updates.stampDuty = undefined;
+      updates.purchaseAgentFees = undefined;
+      updates.landTax = undefined;
+      updates.insurance = undefined;
+      updates.improvementCost = undefined;
+      updates.titleLegalFees = undefined;
+      updates.saleLegalFees = undefined;
+      updates.saleAgentFees = undefined;
+
+      // Market valuation is separate (not a cost base)
       updates.marketValuation = marketValuation && !isNaN(parseFloat(marketValuation)) ? parseFloat(marketValuation) : undefined;
 
       updateEvent(event.id, updates);
@@ -347,248 +389,45 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
               )}
             </div>
 
-            {/* Cost Base Section (for CGT calculation) */}
-            {(event.type === 'purchase' || event.type === 'sale' || event.type === 'improvement' || event.type === 'move_out') && (
+            {/* Cost Base Section (for CGT calculation) - NEW COMPONENT */}
+            {(event.type === 'purchase' || event.type === 'sale' || event.type === 'improvement' || event.type === 'move_in' || event.type === 'move_out' || event.type === 'rent_start' || event.type === 'rent_end' || event.type === 'status_change' || event.type === 'refinance') && (
               <div className="space-y-4 pt-2 border-t border-slate-200 dark:border-slate-700">
-                <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide">
-                  Cost Base Elements (for CGT)
-                </h3>
-                <p className="text-xs text-slate-500 dark:text-slate-400">
-                  These costs form part of the cost base for Capital Gains Tax calculations
-                </p>
+                <CostBaseSelector
+                  eventType={event.type}
+                  costBases={costBases}
+                  onChange={setCostBases}
+                />
+              </div>
+            )}
 
-                {/* Purchase Event Cost Base */}
-                {event.type === 'purchase' && (
-                  <div className="space-y-3">
-                    <h4 className="text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase">Acquisition Costs</h4>
-
-                    {/* Professional Fees */}
-                    <div>
-                      <label className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                        Professional Fees
-                      </label>
-                      <div className="relative">
-                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400">$</span>
-                        <input
-                          type="number"
-                          value={purchaseLegalFees}
-                          onChange={(e) => setPurchaseLegalFees(e.target.value)}
-                          className="w-full pl-8 pr-4 py-2.5 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                          placeholder="0.00"
-                          step="0.01"
-                        />
-                      </div>
-                    </div>
-
-                    {/* Valuation Fees */}
-                    <div>
-                      <label className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                        Valuation Fees
-                      </label>
-                      <div className="relative">
-                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400">$</span>
-                        <input
-                          type="number"
-                          value={valuationFees}
-                          onChange={(e) => setValuationFees(e.target.value)}
-                          className="w-full pl-8 pr-4 py-2.5 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                          placeholder="0.00"
-                          step="0.01"
-                        />
-                      </div>
-                    </div>
-
-                    {/* Stamp Duty */}
-                    <div>
-                      <label className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                        Stamp Duty
-                      </label>
-                      <div className="relative">
-                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400">$</span>
-                        <input
-                          type="number"
-                          value={stampDuty}
-                          onChange={(e) => setStampDuty(e.target.value)}
-                          className="w-full pl-8 pr-4 py-2.5 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                          placeholder="0.00"
-                          step="0.01"
-                        />
-                      </div>
-                    </div>
-
-                    {/* Agent Commission */}
-                    <div>
-                      <label className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                        Agent Commission (Purchase)
-                      </label>
-                      <div className="relative">
-                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400">$</span>
-                        <input
-                          type="number"
-                          value={purchaseAgentFees}
-                          onChange={(e) => setPurchaseAgentFees(e.target.value)}
-                          className="w-full pl-8 pr-4 py-2.5 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                          placeholder="0.00"
-                          step="0.01"
-                        />
-                      </div>
-                    </div>
-
-                    <h4 className="text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase mt-4">Holding Costs (if not claimed as deductions)</h4>
-
-                    {/* Land Tax */}
-                    <div>
-                      <label className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                        Land Tax
-                        <span className="text-xs text-slate-500 dark:text-slate-400">(only if not deductible)</span>
-                      </label>
-                      <div className="relative">
-                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400">$</span>
-                        <input
-                          type="number"
-                          value={landTax}
-                          onChange={(e) => setLandTax(e.target.value)}
-                          className="w-full pl-8 pr-4 py-2.5 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                          placeholder="0.00"
-                          step="0.01"
-                        />
-                      </div>
-                    </div>
-
-                    {/* Insurance */}
-                    <div>
-                      <label className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                        Insurance
-                        <span className="text-xs text-slate-500 dark:text-slate-400">(only if not deductible)</span>
-                      </label>
-                      <div className="relative">
-                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400">$</span>
-                        <input
-                          type="number"
-                          value={insurance}
-                          onChange={(e) => setInsurance(e.target.value)}
-                          className="w-full pl-8 pr-4 py-2.5 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                          placeholder="0.00"
-                          step="0.01"
-                        />
-                      </div>
-                    </div>
-
-                    {/* Title Legal Fees */}
-                    <div>
-                      <label className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                        Legal Fees (Title Defense)
-                      </label>
-                      <div className="relative">
-                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400">$</span>
-                        <input
-                          type="number"
-                          value={titleLegalFees}
-                          onChange={(e) => setTitleLegalFees(e.target.value)}
-                          className="w-full pl-8 pr-4 py-2.5 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                          placeholder="0.00"
-                          step="0.01"
-                        />
-                      </div>
+            {/* Move Out Event - Market Valuation (separate from cost bases) */}
+            {event.type === 'move_out' && (
+              <div className="space-y-4 pt-2 border-t border-slate-200 dark:border-slate-700">
+                <div className="space-y-3">
+                  <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide">
+                    Market Valuation
+                  </h3>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                    The market value of the property at the time of moving out (required for CGT purposes)
+                  </p>
+                  <div>
+                    <label className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                      <DollarSign className="w-4 h-4" />
+                      Market Value at Move Out
+                    </label>
+                    <div className="relative">
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400">$</span>
+                      <input
+                        type="number"
+                        value={marketValuation}
+                        onChange={(e) => setMarketValuation(e.target.value)}
+                        className="w-full pl-8 pr-4 py-2.5 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="0.00"
+                        step="0.01"
+                      />
                     </div>
                   </div>
-                )}
-
-                {/* Sale Event Cost Base */}
-                {event.type === 'sale' && (
-                  <div className="space-y-3">
-                    <h4 className="text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase">Disposal Costs</h4>
-
-                    {/* Legal Fees */}
-                    <div>
-                      <label className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                        Legal Fees (Sale)
-                      </label>
-                      <div className="relative">
-                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400">$</span>
-                        <input
-                          type="number"
-                          value={saleLegalFees}
-                          onChange={(e) => setSaleLegalFees(e.target.value)}
-                          className="w-full pl-8 pr-4 py-2.5 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                          placeholder="0.00"
-                          step="0.01"
-                        />
-                      </div>
-                    </div>
-
-                    {/* Agent Commission */}
-                    <div>
-                      <label className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                        Agent Commission (Sale)
-                      </label>
-                      <div className="relative">
-                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400">$</span>
-                        <input
-                          type="number"
-                          value={saleAgentFees}
-                          onChange={(e) => setSaleAgentFees(e.target.value)}
-                          className="w-full pl-8 pr-4 py-2.5 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                          placeholder="0.00"
-                          step="0.01"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* Improvement Event Cost Base */}
-                {event.type === 'improvement' && (
-                  <div className="space-y-3">
-                    <h4 className="text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase">Capital Improvement</h4>
-
-                    {/* Improvement Cost */}
-                    <div>
-                      <label className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                        Cost of Renovation/Improvement
-                      </label>
-                      <div className="relative">
-                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400">$</span>
-                        <input
-                          type="number"
-                          value={improvementCost}
-                          onChange={(e) => setImprovementCost(e.target.value)}
-                          className="w-full pl-8 pr-4 py-2.5 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                          placeholder="0.00"
-                          step="0.01"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* Move Out Event - Market Valuation */}
-                {event.type === 'move_out' && (
-                  <div className="space-y-3">
-                    <h4 className="text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase">Market Valuation</h4>
-                    <p className="text-xs text-slate-500 dark:text-slate-400">
-                      The market value of the property at the time of moving out (required for CGT purposes)
-                    </p>
-
-                    {/* Market Valuation */}
-                    <div>
-                      <label className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                        Market Value at Move Out
-                      </label>
-                      <div className="relative">
-                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400">$</span>
-                        <input
-                          type="number"
-                          value={marketValuation}
-                          onChange={(e) => setMarketValuation(e.target.value)}
-                          className="w-full pl-8 pr-4 py-2.5 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                          placeholder="0.00"
-                          step="0.01"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                )}
+                </div>
               </div>
             )}
 

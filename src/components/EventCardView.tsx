@@ -136,7 +136,7 @@ export default function EventCardView({
 
     e.stopPropagation();
 
-    // Store starting mouse position
+    // Store starting mouse position but DON'T set isDragging yet
     const svgElement = svgRef.current?.ownerSVGElement;
     if (svgElement) {
       const rect = svgElement.getBoundingClientRect();
@@ -145,12 +145,13 @@ export default function EventCardView({
       dragStartPosRef.current = position;
     }
 
-    setIsDragging(true);
+    // Set isDragging only after we detect movement
     setHasDragged(false);
   };
 
   useEffect(() => {
-    if (!isDragging) return;
+    // Only start listening if we have a drag start position
+    if (dragStartPosRef.current === null) return;
 
     const handleMouseMove = (e: MouseEvent) => {
       // Find the parent SVG element to get its bounding rect
@@ -166,10 +167,16 @@ export default function EventCardView({
 
       // Check if we've actually moved (threshold: 0.5% of timeline width)
       if (dragStartPosRef.current !== null && Math.abs(clampedPosition - dragStartPosRef.current) > 0.5) {
+        // Start dragging mode
+        if (!isDragging) {
+          setIsDragging(true);
+        }
         setHasDragged(true);
       }
 
-      setDragPosition(clampedPosition);
+      if (isDragging) {
+        setDragPosition(clampedPosition);
+      }
     };
 
     const handleMouseUp = () => {
@@ -198,10 +205,51 @@ export default function EventCardView({
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('mouseup', handleMouseUp);
     };
-  }, [isDragging, dragPosition, hasDragged, event.id, timelineStart, timelineEnd, onUpdateEvent]);
+  }, [isDragging, dragPosition, hasDragged, event.id, timelineStart, timelineEnd, onUpdateEvent, dragStartPosRef.current]);
 
   // Use drag position if dragging, otherwise use cx
   const displayCx = isDragging && dragPosition !== null ? `${dragPosition}%` : cx;
+
+  // Store original parent and next sibling for cleanup
+  const originalParentRef = React.useRef<Node | null>(null);
+  const originalNextSiblingRef = React.useRef<Node | null>(null);
+
+  // Re-order the element in DOM when hovered to bring it to front
+  React.useEffect(() => {
+    if (!svgRef.current) return;
+
+    if (isHovered || isDragging) {
+      // Store original position before moving (only first time)
+      if (!originalParentRef.current) {
+        originalParentRef.current = svgRef.current.parentNode;
+        originalNextSiblingRef.current = svgRef.current.nextSibling;
+      }
+
+      // Find the root SVG element (go up the tree to find the main SVG container)
+      let rootSvg = svgRef.current.ownerSVGElement;
+
+      if (rootSvg) {
+        // Move this element to the end of the SVG root (renders on top of ALL elements)
+        rootSvg.appendChild(svgRef.current);
+      }
+    }
+
+    // Cleanup: restore original position when component unmounts
+    return () => {
+      if (svgRef.current && originalParentRef.current) {
+        try {
+          // Restore to original position
+          if (originalNextSiblingRef.current) {
+            originalParentRef.current.insertBefore(svgRef.current, originalNextSiblingRef.current);
+          } else {
+            originalParentRef.current.appendChild(svgRef.current);
+          }
+        } catch (e) {
+          // Silently catch if element was already removed
+        }
+      }
+    };
+  }, [isHovered, isDragging]);
 
   return (
     <g
@@ -215,6 +263,8 @@ export default function EventCardView({
         e.stopPropagation();
         // Don't trigger onClick if we just finished dragging
         if (!isDragging && !hasDragged) {
+          // Clear drag start position to prevent mouse tracking after click
+          dragStartPosRef.current = null;
           onClick();
         }
       }}
@@ -375,7 +425,7 @@ export default function EventCardView({
                     color: '#10B981'
                   }}
                 >
-                  PPR
+                  Main Res
                 </div>
               )}
             </div>

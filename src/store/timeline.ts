@@ -12,14 +12,17 @@ export type EventType =
   | 'sale'
   | 'improvement'
   | 'refinance'
-  | 'status_change';
+  | 'status_change'
+  | 'living_in_rental_start'  // Person starts living in a rental they don't own
+  | 'living_in_rental_end';    // Person stops living in a rental they don't own
 
 export type PropertyStatus =
-  | 'ppr'           // Principal Place of Residence
-  | 'rental'        // Rented to tenants
-  | 'vacant'        // Empty/not used
-  | 'construction'  // Being built/renovated
-  | 'sold';         // Sold
+  | 'ppr'              // Main Residence (owner lives in it)
+  | 'rental'           // Rented to tenants
+  | 'vacant'           // Empty/not used
+  | 'construction'     // Being built/renovated
+  | 'sold'             // Sold
+  | 'living_in_rental'; // Person living in a rental they don't own
 
 /**
  * Dynamic cost base item for CGT calculations
@@ -48,7 +51,7 @@ export interface TimelineEvent {
   contractDate?: Date;      // For sales - contract date vs settlement
   settlementDate?: Date;    // Actual settlement date
   newStatus?: PropertyStatus; // For status_change events
-  isPPR?: boolean;          // Is this event related to PPR?
+  isPPR?: boolean;          // Is this event related to Main Residence?
   // Price breakdown for purchases (land + building)
   landPrice?: number;       // Price of land component
   buildingPrice?: number;   // Price of building component
@@ -192,15 +195,18 @@ const eventColors: Record<EventType, string> = {
   improvement: '#06B6D4',
   refinance: '#6366F1',
   status_change: '#A855F7',
+  living_in_rental_start: '#F472B6',  // Pink - Start living in rental
+  living_in_rental_end: '#FB923C',    // Orange - End living in rental
 };
 
 // Status colors for visualization
 export const statusColors: Record<PropertyStatus, string> = {
-  ppr: '#10B981',         // Green - Principal Place of Residence
+  ppr: '#10B981',         // Green - Main Residence
   rental: '#3B82F6',      // Blue - Rental/Investment
   vacant: '#94A3B8',      // Gray - Vacant
   construction: '#F59E0B', // Orange - Under construction
   sold: '#8B5CF6',        // Purple - Sold
+  living_in_rental: '#F472B6', // Pink - Living in rental (not owned)
 };
 
 // Zoom level definitions with their time spans in days
@@ -309,6 +315,14 @@ export const calculateStatusPeriods = (events: TimelineEvent[]): StatusPeriod[] 
       case 'rent_end':
         newStatus = 'vacant';
         break;
+      case 'living_in_rental_start':
+        // Person starts living in a rental they don't own
+        newStatus = 'living_in_rental';
+        break;
+      case 'living_in_rental_end':
+        // Person stops living in the rental
+        newStatus = 'vacant';
+        break;
       case 'sale':
         newStatus = 'sold';
         break;
@@ -371,7 +385,7 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
     theme: 'dark',
     eventDisplayMode: 'card',
     lockFutureDates: true,
-    enableDragEvents: false,
+    enableDragEvents: true,
 
     // AI Feedback Initial State
     aiResponse: null,
@@ -739,7 +753,8 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
       name: 'Boyne Island Rental, Qld 4680',
       address: 'Rental Property',
       color: propertyColors[3],
-      currentStatus: 'rental' as PropertyStatus,
+      currentStatus: 'living_in_rental' as PropertyStatus,
+      isRental: true,
       branch: 3,
     };
     demoProperties.push(prop4);
@@ -747,12 +762,23 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
     demoEvents.push({
       id: 'demo-event-4-1',
       propertyId: prop4.id,
-      type: 'move_in',
+      type: 'living_in_rental_start',
       date: new Date(2020, 0, 1),
-      title: 'Living in Rental',
+      title: 'Living in Rental (Start)',
       position: 0,
-      color: eventColors.move_in,
-      description: 'Living in a rental property',
+      color: eventColors.living_in_rental_start,
+      description: 'Started living in rental property',
+    });
+
+    demoEvents.push({
+      id: 'demo-event-4-2',
+      propertyId: prop4.id,
+      type: 'living_in_rental_end',
+      date: new Date(2021, 8, 29), // September 29, 2021
+      title: 'Living in Rental (End)',
+      position: 0,
+      color: eventColors.living_in_rental_end,
+      description: 'Stopped living in rental property',
     });
 
     // Set the demo data with 30-year range

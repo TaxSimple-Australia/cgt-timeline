@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Camera, X, MapPin, Home, ShoppingCart, DollarSign,
@@ -28,7 +29,7 @@ const getEventIcon = (eventType: EventType) => {
 
 export default function TimelineSnapshot() {
   const [isOpen, setIsOpen] = useState(false);
-  const [hoveredEvent, setHoveredEvent] = useState<{ event: TimelineEvent; property: Property } | null>(null);
+  const [clickedEvent, setClickedEvent] = useState<{ event: TimelineEvent; property: Property; clientX: number; clientY: number } | null>(null);
   const [hoveredProperty, setHoveredProperty] = useState<Property | null>(null);
   const [showMarkerTooltip, setShowMarkerTooltip] = useState(false);
   const snapshotRef = useRef<HTMLDivElement>(null);
@@ -103,6 +104,51 @@ export default function TimelineSnapshot() {
     });
 
     return tiers;
+  };
+
+  // Calculate popup position near cursor while keeping it on screen
+  const calculatePopupPosition = (clientX: number, clientY: number) => {
+    const POPUP_WIDTH = 400; // max-w-[400px]
+    const POPUP_MAX_HEIGHT = window.innerHeight * 0.9; // max-h-[90vh]
+    const MARGIN = 16; // margin from edges
+    const OFFSET = 12; // offset from cursor
+
+    let left = clientX + OFFSET;
+    let top = clientY + OFFSET;
+
+    // Check right edge
+    if (left + POPUP_WIDTH + MARGIN > window.innerWidth) {
+      // Try positioning to the left of cursor
+      left = clientX - POPUP_WIDTH - OFFSET;
+
+      // If still off screen, align to right edge
+      if (left < MARGIN) {
+        left = window.innerWidth - POPUP_WIDTH - MARGIN;
+      }
+    }
+
+    // Check left edge
+    if (left < MARGIN) {
+      left = MARGIN;
+    }
+
+    // Check bottom edge
+    if (top + POPUP_MAX_HEIGHT + MARGIN > window.innerHeight) {
+      // Try positioning above cursor
+      top = clientY - POPUP_MAX_HEIGHT - OFFSET;
+
+      // If still off screen, align to bottom edge
+      if (top < MARGIN) {
+        top = window.innerHeight - POPUP_MAX_HEIGHT - MARGIN;
+      }
+    }
+
+    // Check top edge
+    if (top < MARGIN) {
+      top = MARGIN;
+    }
+
+    return { left, top };
   };
 
   const viewportMarker = getViewportMarker();
@@ -202,6 +248,12 @@ export default function TimelineSnapshot() {
                   ref={snapshotRef}
                   data-snapshot-content="true"
                   className="relative bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-950 p-8 rounded-b-[10px] h-full"
+                  onClick={() => {
+                    // Close popup when clicking background
+                    if (clickedEvent) {
+                      setClickedEvent(null);
+                    }
+                  }}
                 >
                   {/* Background Grid */}
                   <div className="absolute inset-0 opacity-5">
@@ -247,7 +299,7 @@ export default function TimelineSnapshot() {
 
                   {/* Viewport Position Marker - Excluded from download */}
                   <div
-                    className="absolute top-20 bg-blue-500/15 dark:bg-blue-400/15 border-l-4 border-r-4 border-blue-500 dark:border-blue-400 z-20"
+                    className="absolute top-20 bg-blue-500/15 dark:bg-blue-400/15 border-l-4 border-r-4 border-blue-500 dark:border-blue-400 z-20 pointer-events-none"
                     style={{
                       left: `${viewportMarker.left}%`,
                       width: `${viewportMarker.width}%`,
@@ -257,7 +309,7 @@ export default function TimelineSnapshot() {
                   >
                     {/* Red Pin Icon */}
                     <div
-                      className="absolute -top-3 left-1/2 -translate-x-1/2 bg-red-500 text-white p-2 rounded-full shadow-lg z-30 cursor-pointer"
+                      className="absolute -top-3 left-1/2 -translate-x-1/2 bg-red-500 text-white p-2 rounded-full shadow-lg z-30 cursor-pointer pointer-events-auto"
                       onMouseEnter={() => setShowMarkerTooltip(true)}
                       onMouseLeave={() => setShowMarkerTooltip(false)}
                     >
@@ -438,139 +490,19 @@ export default function TimelineSnapshot() {
                                 />
 
                                 {/* Event Card with Hover */}
-                                <div className="relative z-40">
-                                  <motion.div
-                                    className="px-2.5 py-1.5 rounded-lg shadow-md cursor-pointer border border-white dark:border-slate-900 flex items-center gap-1.5 relative z-40"
-                                    style={{ backgroundColor: event.color }}
-                                    whileHover={{ scale: 1.05, y: -2 }}
-                                    onMouseEnter={() => {
-                                      console.log('Hovering event:', event.title);
-                                      setHoveredEvent({ event, property });
-                                    }}
-                                    onMouseLeave={() => {
-                                      console.log('Leaving event:', event.title);
-                                      setHoveredEvent(null);
-                                    }}
-                                  >
-                                    {(() => {
-                                      const EventIcon = getEventIcon(event.type);
-                                      return <EventIcon className="w-3 h-3 text-white flex-shrink-0" />;
-                                    })()}
-                                    <div className="text-xs font-semibold text-white whitespace-nowrap">
-                                      {event.title}
-                                    </div>
-                                  </motion.div>
-
-                                  {/* Enhanced Hover Card */}
-                                  <AnimatePresence>
-                                    {hoveredEvent?.event.id === event.id && (
-                                      <motion.div
-                                        initial={{ opacity: 0, scale: 0.95, y: 5 }}
-                                        animate={{ opacity: 1, scale: 1, y: 0 }}
-                                        exit={{ opacity: 0, scale: 0.95, y: 5 }}
-                                        transition={{ duration: 0.15 }}
-                                        className="fixed bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 px-4 py-3 rounded-lg shadow-2xl z-[9999] min-w-[280px] max-w-[360px] pointer-events-none border border-white/10"
-                                        style={{
-                                          left: '50%',
-                                          top: '50%',
-                                          transform: 'translate(-50%, -50%)',
-                                        }}
-                                      >
-                                        {/* Title and Type */}
-                                        <div className="text-sm font-bold mb-1">
-                                          {event.title}
-                                        </div>
-                                        <div className="text-xs opacity-75 mb-2 capitalize">
-                                          {event.type.replace('_', ' ')}
-                                        </div>
-
-                                        {/* Date Information */}
-                                        <div className="space-y-1 mb-2 border-b border-white/20 dark:border-slate-900/20 pb-2">
-                                          <div className="text-xs font-semibold">
-                                            Date: {format(event.date, 'MMM dd, yyyy')}
-                                          </div>
-                                          {event.contractDate && (
-                                            <div className="text-xs opacity-90">
-                                              Contract: {format(event.contractDate, 'MMM dd, yyyy')}
-                                            </div>
-                                          )}
-                                          {event.settlementDate && (
-                                            <div className="text-xs opacity-90">
-                                              Settlement: {format(event.settlementDate, 'MMM dd, yyyy')}
-                                            </div>
-                                          )}
-                                        </div>
-
-                                        {/* Price Information */}
-                                        {(event.amount || event.landPrice || event.buildingPrice) && (
-                                          <div className="space-y-1 mb-2 border-b border-white/20 dark:border-slate-900/20 pb-2">
-                                            {event.amount && (
-                                              <div className="text-xs font-semibold">
-                                                Amount: ${event.amount.toLocaleString()}
-                                              </div>
-                                            )}
-                                            {event.landPrice && (
-                                              <div className="text-xs opacity-90">
-                                                Land: ${event.landPrice.toLocaleString()}
-                                              </div>
-                                            )}
-                                            {event.buildingPrice && (
-                                              <div className="text-xs opacity-90">
-                                                Building: ${event.buildingPrice.toLocaleString()}
-                                              </div>
-                                            )}
-                                          </div>
-                                        )}
-
-                                        {/* Fees and Costs */}
-                                        {(event.stampDuty || event.purchaseLegalFees || event.valuationFees || event.purchaseAgentFees) && (
-                                          <div className="space-y-1 mb-2 border-b border-white/20 dark:border-slate-900/20 pb-2">
-                                            <div className="text-xs font-semibold opacity-75">Associated Costs:</div>
-                                            {event.stampDuty && (
-                                              <div className="text-xs opacity-90">
-                                                Stamp Duty: ${event.stampDuty.toLocaleString()}
-                                              </div>
-                                            )}
-                                            {event.purchaseLegalFees && (
-                                              <div className="text-xs opacity-90">
-                                                Legal Fees: ${event.purchaseLegalFees.toLocaleString()}
-                                              </div>
-                                            )}
-                                            {event.valuationFees && (
-                                              <div className="text-xs opacity-90">
-                                                Valuation: ${event.valuationFees.toLocaleString()}
-                                              </div>
-                                            )}
-                                            {event.purchaseAgentFees && (
-                                              <div className="text-xs opacity-90">
-                                                Agent Fees: ${event.purchaseAgentFees.toLocaleString()}
-                                              </div>
-                                            )}
-                                          </div>
-                                        )}
-
-                                        {/* Description */}
-                                        {event.description && (
-                                          <div className="text-xs opacity-75 mb-2 border-b border-white/20 dark:border-slate-900/20 pb-2">
-                                            {event.description}
-                                          </div>
-                                        )}
-
-                                        {/* PPR Status */}
-                                        {event.isPPR !== undefined && (
-                                          <div className="text-xs opacity-90 mb-2">
-                                            {event.isPPR ? '🏠 Primary Residence' : '💼 Investment Property'}
-                                          </div>
-                                        )}
-
-                                        {/* Property Name */}
-                                        <div className="text-xs opacity-60 mt-2 pt-2 border-t border-white/20 dark:border-slate-900/20">
-                                          Property: {property.name}
-                                        </div>
-                                      </motion.div>
-                                    )}
-                                  </AnimatePresence>
-                                </div>
+                                <motion.div
+                                  className="px-2.5 py-1.5 rounded-lg shadow-md border border-white dark:border-slate-900 flex items-center gap-1.5 relative z-40"
+                                  style={{ backgroundColor: event.color }}
+                                  whileHover={{ scale: 1.05, y: -2 }}
+                                >
+                                  {(() => {
+                                    const EventIcon = getEventIcon(event.type);
+                                    return <EventIcon className="w-3 h-3 text-white flex-shrink-0" />;
+                                  })()}
+                                  <div className="text-xs font-semibold text-white whitespace-nowrap">
+                                    {event.title}
+                                  </div>
+                                </motion.div>
                               </div>
                             );
                           })}
@@ -591,10 +523,144 @@ export default function TimelineSnapshot() {
                   )}
                 </div>
               </div>
+
             </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Event Details Popup - Rendered via Portal at Document Body Level */}
+      {typeof document !== 'undefined' && clickedEvent && createPortal(
+        <AnimatePresence>
+          {(() => {
+            const popupPosition = calculatePopupPosition(clickedEvent.clientX, clickedEvent.clientY);
+            console.log('Popup position:', popupPosition, 'Cursor:', clickedEvent.clientX, clickedEvent.clientY);
+            return (
+              <motion.div
+                key="event-popup"
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.9 }}
+                transition={{ duration: 0.2 }}
+                className="fixed bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 px-4 py-3 rounded-lg shadow-2xl min-w-[320px] max-w-[400px] max-h-[90vh] overflow-y-auto border-2 border-blue-500"
+                style={{
+                  top: `${popupPosition.top}px`,
+                  left: `${popupPosition.left}px`,
+                  maxWidth: 'calc(100vw - 32px)',
+                  maxHeight: 'calc(100vh - 32px)',
+                  zIndex: 99999,
+                  transform: 'none',
+                  position: 'fixed',
+                }}
+                onClick={(e) => e.stopPropagation()}
+              >
+                    {/* Close Button */}
+                    <button
+                      onClick={() => {
+                        setClickedEvent(null);
+                      }}
+                      className="absolute top-2 right-2 p-1 hover:bg-white/20 dark:hover:bg-slate-900/20 rounded transition-colors"
+                      title="Close"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                    {/* Title and Type */}
+                    <div className="text-sm font-bold mb-1">
+                      {clickedEvent.event.title}
+                    </div>
+                    <div className="text-xs opacity-75 mb-2 capitalize">
+                      {clickedEvent.event.type.replace('_', ' ')}
+                    </div>
+
+                    {/* Date Information */}
+                    <div className="space-y-1 mb-2 border-b border-white/20 dark:border-slate-900/20 pb-2">
+                      <div className="text-xs font-semibold">
+                        Date: {format(clickedEvent.event.date, 'MMM dd, yyyy')}
+                      </div>
+                      {clickedEvent.event.contractDate && (
+                        <div className="text-xs opacity-90">
+                          Contract: {format(clickedEvent.event.contractDate, 'MMM dd, yyyy')}
+                        </div>
+                      )}
+                      {clickedEvent.event.settlementDate && (
+                        <div className="text-xs opacity-90">
+                          Settlement: {format(clickedEvent.event.settlementDate, 'MMM dd, yyyy')}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Price Information */}
+                    {(clickedEvent.event.amount || clickedEvent.event.landPrice || clickedEvent.event.buildingPrice) && (
+                      <div className="space-y-1 mb-2 border-b border-white/20 dark:border-slate-900/20 pb-2">
+                        {clickedEvent.event.amount && (
+                          <div className="text-xs font-semibold">
+                            Amount: ${clickedEvent.event.amount.toLocaleString()}
+                          </div>
+                        )}
+                        {clickedEvent.event.landPrice && (
+                          <div className="text-xs opacity-90">
+                            Land: ${clickedEvent.event.landPrice.toLocaleString()}
+                          </div>
+                        )}
+                        {clickedEvent.event.buildingPrice && (
+                          <div className="text-xs opacity-90">
+                            Building: ${clickedEvent.event.buildingPrice.toLocaleString()}
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Fees and Costs */}
+                    {(clickedEvent.event.stampDuty || clickedEvent.event.purchaseLegalFees || clickedEvent.event.valuationFees || clickedEvent.event.purchaseAgentFees) && (
+                      <div className="space-y-1 mb-2 border-b border-white/20 dark:border-slate-900/20 pb-2">
+                        <div className="text-xs font-semibold opacity-75">Associated Costs:</div>
+                        {clickedEvent.event.stampDuty && (
+                          <div className="text-xs opacity-90">
+                            Stamp Duty: ${clickedEvent.event.stampDuty.toLocaleString()}
+                          </div>
+                        )}
+                        {clickedEvent.event.purchaseLegalFees && (
+                          <div className="text-xs opacity-90">
+                            Legal Fees: ${clickedEvent.event.purchaseLegalFees.toLocaleString()}
+                          </div>
+                        )}
+                        {clickedEvent.event.valuationFees && (
+                          <div className="text-xs opacity-90">
+                            Valuation: ${clickedEvent.event.valuationFees.toLocaleString()}
+                          </div>
+                        )}
+                        {clickedEvent.event.purchaseAgentFees && (
+                          <div className="text-xs opacity-90">
+                            Agent Fees: ${clickedEvent.event.purchaseAgentFees.toLocaleString()}
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Description */}
+                    {clickedEvent.event.description && (
+                      <div className="text-xs opacity-75 mb-2 border-b border-white/20 dark:border-slate-900/20 pb-2">
+                        {clickedEvent.event.description}
+                      </div>
+                    )}
+
+                    {/* Main Residence Status */}
+                    {clickedEvent.event.isPPR !== undefined && (
+                      <div className="text-xs opacity-90 mb-2">
+                        {clickedEvent.event.isPPR ? '🏠 Main Residence' : '💼 Investment Property'}
+                      </div>
+                    )}
+
+                {/* Property Name */}
+                <div className="text-xs opacity-60 mt-2 pt-2 border-t border-white/20 dark:border-slate-900/20">
+                  Property: {clickedEvent.property.name}
+                </div>
+              </motion.div>
+            );
+          })()}
+        </AnimatePresence>,
+        document.body
+      )}
     </div>
   );
 }

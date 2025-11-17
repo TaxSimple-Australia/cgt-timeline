@@ -3,10 +3,11 @@
 import React, { useState, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import html2canvas from 'html2canvas';
 import {
-  Camera, X, MapPin, Home, ShoppingCart, DollarSign,
+  Camera, X, Home, ShoppingCart, DollarSign,
   LogIn, LogOut, Calendar, CalendarX, Hammer, CheckCircle,
-  Plus, Receipt, TrendingUp, Building
+  Plus, Receipt, TrendingUp, Building, Download
 } from 'lucide-react';
 import { useTimelineStore, Property, TimelineEvent, EventType } from '@/store/timeline';
 import { format } from 'date-fns';
@@ -31,7 +32,7 @@ export default function TimelineSnapshot() {
   const [isOpen, setIsOpen] = useState(false);
   const [clickedEvent, setClickedEvent] = useState<{ event: TimelineEvent; property: Property; clientX: number; clientY: number } | null>(null);
   const [hoveredProperty, setHoveredProperty] = useState<Property | null>(null);
-  const [showMarkerTooltip, setShowMarkerTooltip] = useState(false);
+  const [hoveredPropertyElement, setHoveredPropertyElement] = useState<{ property: Property; rect: DOMRect } | null>(null);
   const snapshotRef = useRef<HTMLDivElement>(null);
 
   const {
@@ -69,16 +70,6 @@ export default function TimelineSnapshot() {
     const basePosition = (offset / totalRange) * 100;
     // Scale to 90% width (100 - 2*EDGE_MARGIN) and add left margin
     return EDGE_MARGIN + (basePosition * (100 - 2 * EDGE_MARGIN) / 100);
-  };
-
-  // Calculate viewport marker position
-  const getViewportMarker = () => {
-    const startPos = getDatePosition(timelineStart);
-    const endPos = getDatePosition(timelineEnd);
-    return {
-      left: startPos,
-      width: endPos - startPos,
-    };
   };
 
   // Calculate event tiers for vertical stacking when events overlap
@@ -151,7 +142,25 @@ export default function TimelineSnapshot() {
     return { left, top };
   };
 
-  const viewportMarker = getViewportMarker();
+  // Handle download snapshot as PNG
+  const handleDownload = async () => {
+    if (!snapshotRef.current) return;
+
+    try {
+      const canvas = await html2canvas(snapshotRef.current, {
+        backgroundColor: null,
+        scale: 2, // Higher quality
+        logging: false,
+      });
+
+      const link = document.createElement('a');
+      link.download = `timeline-snapshot-${format(new Date(), 'yyyy-MM-dd-HHmmss')}.png`;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    } catch (error) {
+      console.error('Failed to download snapshot:', error);
+    }
+  };
 
   // Calculate maximum tiers for each property to determine spacing
   const propertyData = properties.map((property) => {
@@ -231,6 +240,14 @@ export default function TimelineSnapshot() {
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
+                  {/* Download Button */}
+                  <button
+                    onClick={handleDownload}
+                    className="p-2.5 hover:bg-blue-100 dark:hover:bg-blue-900/30 rounded-lg transition-colors"
+                    title="Download as PNG"
+                  >
+                    <Download className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                  </button>
                   {/* Close Button */}
                   <button
                     onClick={() => setIsOpen(false)}
@@ -297,46 +314,6 @@ export default function TimelineSnapshot() {
                     })()}
                   </div>
 
-                  {/* Viewport Position Marker - Excluded from download */}
-                  <div
-                    className="absolute top-20 bg-blue-500/15 dark:bg-blue-400/15 border-l-4 border-r-4 border-blue-500 dark:border-blue-400 z-20 pointer-events-none"
-                    style={{
-                      left: `${viewportMarker.left}%`,
-                      width: `${viewportMarker.width}%`,
-                      height: `${availableHeight}px`,
-                    }}
-                    data-html2canvas-ignore="true"
-                  >
-                    {/* Red Pin Icon */}
-                    <div
-                      className="absolute -top-3 left-1/2 -translate-x-1/2 bg-red-500 text-white p-2 rounded-full shadow-lg z-30 cursor-pointer pointer-events-auto"
-                      onMouseEnter={() => setShowMarkerTooltip(true)}
-                      onMouseLeave={() => setShowMarkerTooltip(false)}
-                    >
-                      <MapPin className="w-5 h-5" fill="currentColor" />
-
-                      {/* Tooltip */}
-                      <AnimatePresence>
-                        {showMarkerTooltip && (
-                          <motion.div
-                            initial={{ opacity: 0, y: -5 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: -5 }}
-                            className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 px-3 py-2 rounded-lg shadow-xl whitespace-nowrap text-xs font-semibold"
-                          >
-                            Current viewport position
-                            <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-1 w-2 h-2 bg-slate-900 dark:bg-slate-100 rotate-45" />
-                          </motion.div>
-                        )}
-                      </AnimatePresence>
-                    </div>
-
-                    {/* Vertical Red Line */}
-                    <div
-                      className="absolute top-8 bottom-0 w-1 bg-red-500 left-1/2 -translate-x-1/2 opacity-60 z-10 pointer-events-none"
-                      style={{ boxShadow: '0 0 10px rgba(239, 68, 68, 0.5)' }}
-                    />
-                  </div>
 
                   {/* Property Branches */}
                   <div className="relative px-20" style={{ height: `${availableHeight}px` }}>
@@ -374,9 +351,16 @@ export default function TimelineSnapshot() {
                               backgroundColor: property.color,
                               left: `${startPos}%`,
                               width: `${endPos - startPos}%`,
+                              zIndex: hoveredProperty?.id === property.id ? 50 : 10,
                             }}
-                            onMouseEnter={() => setHoveredProperty(property)}
-                            onMouseLeave={() => setHoveredProperty(null)}
+                            onMouseEnter={(e) => {
+                              setHoveredProperty(property);
+                              setHoveredPropertyElement({ property, rect: e.currentTarget.getBoundingClientRect() });
+                            }}
+                            onMouseLeave={() => {
+                              setHoveredProperty(null);
+                              setHoveredPropertyElement(null);
+                            }}
                           />
 
                           {/* Start Circle with Home Icon - Double size, 10px radius */}
@@ -387,9 +371,16 @@ export default function TimelineSnapshot() {
                               left: `${startPos}%`,
                               top: '5px',
                               borderRadius: '10px',
+                              zIndex: hoveredProperty?.id === property.id ? 50 : 10,
                             }}
-                            onMouseEnter={() => setHoveredProperty(property)}
-                            onMouseLeave={() => setHoveredProperty(null)}
+                            onMouseEnter={(e) => {
+                              setHoveredProperty(property);
+                              setHoveredPropertyElement({ property, rect: e.currentTarget.getBoundingClientRect() });
+                            }}
+                            onMouseLeave={() => {
+                              setHoveredProperty(null);
+                              setHoveredPropertyElement(null);
+                            }}
                           >
                             <Home className="w-5 h-5 text-white" />
                           </div>
@@ -402,9 +393,16 @@ export default function TimelineSnapshot() {
                               left: `${endPos}%`,
                               top: '5px',
                               borderRadius: '10px',
+                              zIndex: hoveredProperty?.id === property.id ? 50 : 10,
                             }}
-                            onMouseEnter={() => setHoveredProperty(property)}
-                            onMouseLeave={() => setHoveredProperty(null)}
+                            onMouseEnter={(e) => {
+                              setHoveredProperty(property);
+                              setHoveredPropertyElement({ property, rect: e.currentTarget.getBoundingClientRect() });
+                            }}
+                            onMouseLeave={() => {
+                              setHoveredProperty(null);
+                              setHoveredPropertyElement(null);
+                            }}
                           >
                             <Home className="w-5 h-5 text-white" />
                           </div>
@@ -412,59 +410,95 @@ export default function TimelineSnapshot() {
                           {/* Property Label */}
                           <div
                             className="absolute -top-7 text-xs font-bold truncate max-w-xs cursor-pointer hover:underline"
-                            style={{ color: property.color, left: `${startPos}%` }}
-                            onMouseEnter={() => setHoveredProperty(property)}
-                            onMouseLeave={() => setHoveredProperty(null)}
+                            style={{
+                              color: property.color,
+                              left: `${startPos}%`,
+                              zIndex: hoveredProperty?.id === property.id ? 50 : 10,
+                            }}
+                            onMouseEnter={(e) => {
+                              setHoveredProperty(property);
+                              setHoveredPropertyElement({ property, rect: e.currentTarget.getBoundingClientRect() });
+                            }}
+                            onMouseLeave={() => {
+                              setHoveredProperty(null);
+                              setHoveredPropertyElement(null);
+                            }}
                           >
                             {property.name}
                           </div>
 
                           {/* Property Hover Tooltip */}
                           <AnimatePresence>
-                            {hoveredProperty?.id === property.id && (
-                              <motion.div
-                                initial={{ opacity: 0, y: -5 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                exit={{ opacity: 0, y: -5 }}
-                                className="absolute -top-12 left-1/2 -translate-x-1/2 bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 px-4 py-3 rounded-lg shadow-xl z-50 pointer-events-none min-w-[220px]"
-                              >
-                                <div className="text-sm font-bold mb-2" style={{ color: property.color }}>
-                                  {property.name}
-                                </div>
-                                {property.address && (
-                                  <div className="text-xs opacity-75 mb-2">
-                                    {property.address}
+                            {hoveredProperty?.id === property.id && hoveredPropertyElement && (() => {
+                              const rect = hoveredPropertyElement.rect;
+                              const CARD_WIDTH = 220;
+                              const OFFSET = 16;
+
+                              // Determine if card should appear on left or right
+                              const spaceOnRight = window.innerWidth - rect.right;
+                              const spaceOnLeft = rect.left;
+                              const showOnRight = spaceOnRight >= CARD_WIDTH + OFFSET || spaceOnRight > spaceOnLeft;
+
+                              return (
+                                <motion.div
+                                  initial={{ opacity: 0, x: showOnRight ? -10 : 10 }}
+                                  animate={{ opacity: 1, x: 0 }}
+                                  exit={{ opacity: 0, x: showOnRight ? -10 : 10 }}
+                                  transition={{ duration: 0.2 }}
+                                  className="fixed bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 px-4 py-3 rounded-lg shadow-xl z-50 pointer-events-none"
+                                  style={{
+                                    top: `${rect.top + rect.height / 2}px`,
+                                    [showOnRight ? 'left' : 'right']: showOnRight
+                                      ? `${rect.right + OFFSET}px`
+                                      : `${window.innerWidth - rect.left + OFFSET}px`,
+                                    transform: 'translateY(-50%)',
+                                    minWidth: `${CARD_WIDTH}px`,
+                                  }}
+                                >
+                                  <div className="text-sm font-bold mb-2" style={{ color: property.color }}>
+                                    {property.name}
                                   </div>
-                                )}
-                                <div className="text-xs opacity-90 mb-1">
-                                  Status: <span className="font-semibold capitalize">{property.currentStatus || 'Unknown'}</span>
-                                </div>
-                                {property.purchaseDate && (
-                                  <div className="text-xs opacity-90">
-                                    Purchased: {format(property.purchaseDate, 'MMM dd, yyyy')}
+                                  {property.address && (
+                                    <div className="text-xs opacity-75 mb-2">
+                                      {property.address}
+                                    </div>
+                                  )}
+                                  <div className="text-xs opacity-90 mb-1">
+                                    Status: <span className="font-semibold capitalize">{property.currentStatus || 'Unknown'}</span>
                                   </div>
-                                )}
-                                {property.saleDate && (
-                                  <div className="text-xs opacity-90">
-                                    Sold: {format(property.saleDate, 'MMM dd, yyyy')}
+                                  {property.purchaseDate && (
+                                    <div className="text-xs opacity-90">
+                                      Purchased: {format(property.purchaseDate, 'MMM dd, yyyy')}
+                                    </div>
+                                  )}
+                                  {property.saleDate && (
+                                    <div className="text-xs opacity-90">
+                                      Sold: {format(property.saleDate, 'MMM dd, yyyy')}
+                                    </div>
+                                  )}
+                                  {property.purchasePrice && (
+                                    <div className="text-xs opacity-90 mt-2">
+                                      Purchase Price: ${property.purchasePrice.toLocaleString()}
+                                    </div>
+                                  )}
+                                  {property.salePrice && (
+                                    <div className="text-xs opacity-90">
+                                      Sale Price: ${property.salePrice.toLocaleString()}
+                                    </div>
+                                  )}
+                                  <div className="text-xs opacity-60 mt-2 border-t border-white/20 dark:border-slate-900/20 pt-2">
+                                    {propertyEvents.length} {propertyEvents.length === 1 ? 'event' : 'events'}
                                   </div>
-                                )}
-                                {property.purchasePrice && (
-                                  <div className="text-xs opacity-90 mt-2">
-                                    Purchase Price: ${property.purchasePrice.toLocaleString()}
-                                  </div>
-                                )}
-                                {property.salePrice && (
-                                  <div className="text-xs opacity-90">
-                                    Sale Price: ${property.salePrice.toLocaleString()}
-                                  </div>
-                                )}
-                                <div className="text-xs opacity-60 mt-2 border-t border-white/20 dark:border-slate-900/20 pt-2">
-                                  {propertyEvents.length} {propertyEvents.length === 1 ? 'event' : 'events'}
-                                </div>
-                                <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 w-2 h-2 bg-slate-900 dark:bg-slate-100 rotate-45" />
-                              </motion.div>
-                            )}
+                                  {/* Arrow pointing to property */}
+                                  <div
+                                    className="absolute top-1/2 -translate-y-1/2 w-2 h-2 bg-slate-900 dark:bg-slate-100 rotate-45"
+                                    style={{
+                                      [showOnRight ? 'left' : 'right']: '-4px',
+                                    }}
+                                  />
+                                </motion.div>
+                              );
+                            })()}
                           </AnimatePresence>
 
                           {/* Events with Tier Stacking */}
@@ -473,6 +507,7 @@ export default function TimelineSnapshot() {
                             const tier = eventTiers.get(event.id) || 0;
                             const tierOffset = tier * tierSpacing;
                             const baseOffset = 20;
+                            const isPropertyHovered = hoveredProperty?.id === property.id;
 
                             return (
                               <div
@@ -481,18 +516,25 @@ export default function TimelineSnapshot() {
                                 style={{
                                   left: `${eventPos}%`,
                                   top: `${baseOffset + tierOffset}px`,
+                                  zIndex: isPropertyHovered ? 60 : 20,
                                 }}
                               >
                                 {/* Event Dot */}
                                 <div
-                                  className="absolute left-1/2 -translate-x-1/2 w-3 h-3 rounded-full border-2 border-white dark:border-slate-900 shadow-sm -top-3 pointer-events-none z-10"
-                                  style={{ backgroundColor: event.color }}
+                                  className="absolute left-1/2 -translate-x-1/2 w-3 h-3 rounded-full border-2 border-white dark:border-slate-900 shadow-sm -top-3 pointer-events-none"
+                                  style={{
+                                    backgroundColor: event.color,
+                                    zIndex: isPropertyHovered ? 61 : 21,
+                                  }}
                                 />
 
                                 {/* Event Card with Hover */}
                                 <motion.div
-                                  className="px-2.5 py-1.5 rounded-lg shadow-md border border-white dark:border-slate-900 flex items-center gap-1.5 relative z-40"
-                                  style={{ backgroundColor: event.color }}
+                                  className="px-2.5 py-1.5 rounded-lg shadow-md border border-white dark:border-slate-900 flex items-center gap-1.5 relative"
+                                  style={{
+                                    backgroundColor: event.color,
+                                    zIndex: isPropertyHovered ? 62 : 22,
+                                  }}
                                   whileHover={{ scale: 1.05, y: -2 }}
                                 >
                                   {(() => {

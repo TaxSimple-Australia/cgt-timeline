@@ -149,9 +149,18 @@ export default function TimelineSnapshot() {
 
     try {
       const canvas = await html2canvas(snapshotRef.current, {
-        backgroundColor: null,
-        scale: 2, // Higher quality
+        backgroundColor: '#ffffff',
+        scale: 3, // Higher quality for better text rendering
         logging: false,
+        useCORS: true, // Allow cross-origin images
+        allowTaint: true,
+        windowWidth: snapshotRef.current.scrollWidth,
+        windowHeight: snapshotRef.current.scrollHeight,
+        scrollX: 0,
+        scrollY: 0,
+        // Capture all content including overflow
+        width: snapshotRef.current.scrollWidth,
+        height: snapshotRef.current.scrollHeight,
       });
 
       const link = document.createElement('a');
@@ -225,54 +234,58 @@ export default function TimelineSnapshot() {
               className="h-full w-full bg-white dark:bg-slate-950 overflow-hidden rounded-[10px] shadow-2xl"
               onClick={(e) => e.stopPropagation()}
             >
-              {/* Header */}
-              <div className="h-16 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-slate-900 dark:to-slate-800 border-b-2 border-slate-200 dark:border-slate-700 px-6 flex items-center justify-between rounded-t-[10px]">
-                <div className="flex items-center gap-3">
-                  <Camera className="w-6 h-6 text-blue-600 dark:text-blue-400" />
-                  <div>
-                    <h2 className="text-xl font-bold text-slate-800 dark:text-slate-200">
-                      Timeline Snapshot
-                    </h2>
-                    <p className="text-xs text-slate-500 dark:text-slate-400">
-                      {format(absoluteStart, 'MMM yyyy')} - {format(absoluteEnd, 'MMM yyyy')} •{' '}
-                      {properties.length} {properties.length === 1 ? 'Property' : 'Properties'} •{' '}
-                      {events.length} {events.length === 1 ? 'Event' : 'Events'}
-                    </p>
+              {/* Wrapper for Export - Includes Header + Content */}
+              <div
+                ref={snapshotRef}
+                className="h-full w-full flex flex-col overflow-hidden rounded-[10px]"
+              >
+                {/* Header */}
+                <div className="h-16 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-slate-900 dark:to-slate-800 border-b-2 border-slate-200 dark:border-slate-700 px-6 flex items-center justify-between rounded-t-[10px] flex-shrink-0">
+                  <div className="flex items-center gap-3">
+                    <Camera className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+                    <div>
+                      <h2 className="text-xl font-bold text-slate-800 dark:text-slate-200">
+                        Timeline Snapshot
+                      </h2>
+                      <p className="text-xs text-slate-500 dark:text-slate-400">
+                        {format(absoluteStart, 'MMM yyyy')} - {format(absoluteEnd, 'MMM yyyy')} •{' '}
+                        {properties.length} {properties.length === 1 ? 'Property' : 'Properties'} •{' '}
+                        {events.length} {events.length === 1 ? 'Event' : 'Events'}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2" data-html2canvas-ignore="true">
+                    {/* Download Button - Hidden from export */}
+                    <button
+                      onClick={handleDownload}
+                      className="p-2.5 hover:bg-blue-100 dark:hover:bg-blue-900/30 rounded-lg transition-colors"
+                      title="Download as PNG"
+                    >
+                      <Download className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                    </button>
+                    {/* Close Button - Hidden from export */}
+                    <button
+                      onClick={() => setIsOpen(false)}
+                      className="p-2.5 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-lg transition-colors"
+                      title="Close"
+                    >
+                      <X className="w-5 h-5 text-slate-600 dark:text-slate-400" />
+                    </button>
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  {/* Download Button */}
-                  <button
-                    onClick={handleDownload}
-                    className="p-2.5 hover:bg-blue-100 dark:hover:bg-blue-900/30 rounded-lg transition-colors"
-                    title="Download as PNG"
-                  >
-                    <Download className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-                  </button>
-                  {/* Close Button */}
-                  <button
-                    onClick={() => setIsOpen(false)}
-                    className="p-2.5 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-lg transition-colors"
-                    title="Close"
-                  >
-                    <X className="w-5 h-5 text-slate-600 dark:text-slate-400" />
-                  </button>
-                </div>
-              </div>
 
-              {/* Snapshot Content */}
-              <div className="h-[calc(100vh-96px)] overflow-hidden rounded-b-[10px]">
-                <div
-                  ref={snapshotRef}
-                  data-snapshot-content="true"
-                  className="relative bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-950 p-8 rounded-b-[10px] h-full"
-                  onClick={() => {
-                    // Close popup when clicking background
-                    if (clickedEvent) {
-                      setClickedEvent(null);
-                    }
-                  }}
-                >
+                {/* Snapshot Content */}
+                <div className="flex-1 overflow-auto rounded-b-[10px]">
+                  <div
+                    data-snapshot-content="true"
+                    className="relative bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-950 p-8 min-h-full"
+                    onClick={() => {
+                      // Close popup when clicking background
+                      if (clickedEvent) {
+                        setClickedEvent(null);
+                      }
+                    }}
+                  >
                   {/* Background Grid */}
                   <div className="absolute inset-0 opacity-5">
                     <div
@@ -410,11 +423,12 @@ export default function TimelineSnapshot() {
 
                           {/* Property Label */}
                           <div
-                            className="absolute -top-7 text-xs font-bold truncate max-w-xs cursor-pointer hover:underline"
+                            className="absolute -top-7 text-xs font-bold cursor-pointer hover:underline whitespace-nowrap"
                             style={{
                               color: property.color,
                               left: `${startPos}%`,
                               zIndex: hoveredProperty?.id === property.id ? 8 : 4,
+                              maxWidth: 'none',
                             }}
                             onMouseEnter={(e) => {
                               setHoveredProperty(property);
@@ -460,11 +474,12 @@ export default function TimelineSnapshot() {
 
                                 {/* Event Card - Hidden when hovered (clone shown in portal) */}
                                 <div
-                                  className="px-2.5 py-1.5 rounded-lg shadow-md border border-white dark:border-slate-900 flex items-center gap-1.5 relative cursor-pointer transition-all"
+                                  className="px-3 py-2 rounded-lg shadow-md border border-white dark:border-slate-900 flex items-center justify-center gap-2 relative cursor-pointer transition-all"
                                   style={{
                                     backgroundColor: event.color,
                                     zIndex: isPropertyHovered || isEventHovered ? 10 : 7,
                                     opacity: isEventHovered ? 0 : 1,
+                                    minHeight: '28px',
                                   }}
                                   onMouseEnter={(e) => {
                                     const rect = e.currentTarget.getBoundingClientRect();
@@ -477,9 +492,9 @@ export default function TimelineSnapshot() {
                                 >
                                   {(() => {
                                     const EventIcon = getEventIcon(event.type);
-                                    return <EventIcon className="w-3 h-3 text-white flex-shrink-0" />;
+                                    return <EventIcon className="w-4 h-4 text-white flex-shrink-0" />;
                                   })()}
-                                  <div className="text-xs font-semibold text-white whitespace-nowrap">
+                                  <div className="text-xs font-semibold text-white whitespace-nowrap leading-none">
                                     {event.title}
                                   </div>
                                 </div>
@@ -503,7 +518,7 @@ export default function TimelineSnapshot() {
                   )}
                 </div>
               </div>
-
+            </div>
             </motion.div>
           </motion.div>
         )}
@@ -752,21 +767,22 @@ export default function TimelineSnapshot() {
               animate={{ scale: 1.05, y: -2 }}
               exit={{ scale: 1, y: 0 }}
               transition={{ duration: 0.15 }}
-              className="fixed px-2.5 py-1.5 rounded-lg shadow-xl border-2 border-white dark:border-slate-900 flex items-center gap-1.5 pointer-events-none"
+              className="fixed px-3 py-2 rounded-lg shadow-xl border-2 border-white dark:border-slate-900 flex items-center justify-center gap-2 pointer-events-none"
               style={{
                 backgroundColor: hoveredEvent.event.color,
                 left: `${hoveredEvent.rect.left}px`,
                 top: `${hoveredEvent.rect.top}px`,
                 width: `${hoveredEvent.rect.width}px`,
                 height: `${hoveredEvent.rect.height}px`,
+                minHeight: '28px',
                 zIndex: 1000000,
               }}
             >
               {(() => {
                 const EventIcon = getEventIcon(hoveredEvent.event.type);
-                return <EventIcon className="w-3 h-3 text-white flex-shrink-0" />;
+                return <EventIcon className="w-4 h-4 text-white flex-shrink-0" />;
               })()}
-              <div className="text-xs font-semibold text-white whitespace-nowrap">
+              <div className="text-xs font-semibold text-white whitespace-nowrap leading-none">
                 {hoveredEvent.event.title}
               </div>
             </motion.div>

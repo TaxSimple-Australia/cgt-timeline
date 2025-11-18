@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { addDays, format } from 'date-fns';
-import type { AIResponse, TimelineIssue, PositionedGap } from '../types/ai-feedback';
+import type { AIResponse, TimelineIssue } from '../types/ai-feedback';
 import type { CostBaseCategory } from '../lib/cost-base-definitions';
 
 export type EventType =
@@ -135,7 +135,6 @@ interface TimelineState {
   // AI Feedback State
   aiResponse: AIResponse | null; // Latest AI analysis response
   timelineIssues: TimelineIssue[]; // Processed issues for UI display
-  positionedGaps: PositionedGap[]; // Gaps with timeline positions
   selectedIssue: string | null; // Currently viewing issue details
   isAnalyzing: boolean; // Loading state during AI analysis
 
@@ -390,7 +389,6 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
     // AI Feedback Initial State
     aiResponse: null,
     timelineIssues: [],
-    positionedGaps: [],
     selectedIssue: null,
     isAnalyzing: false,
 
@@ -603,27 +601,27 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
     const demoProperties: Property[] = [];
     const demoEvents: TimelineEvent[] = [];
 
-    // Property 1: 45 Collard Road, Humpty Doo
+    // Property 1: First main residence (2010-2015)
     const prop1 = {
       id: 'demo-prop-1',
       name: 'Humpty Doo, NT 0836',
       address: '45 Collard Road',
       color: propertyColors[0],
       purchasePrice: 106000,
-      purchaseDate: new Date(2003, 0, 1),
-      salePrice: 450000,
-      saleDate: new Date(2023, 6, 14),
+      purchaseDate: new Date(2010, 0, 1),
+      salePrice: 250000,
+      saleDate: new Date(2016, 5, 1),
       currentStatus: 'sold' as PropertyStatus,
       branch: 0,
     };
     demoProperties.push(prop1);
 
-    // Events for Property 1
+    // Events for Property 1 - Lived here 2010-2015, then moved out
     demoEvents.push({
       id: 'demo-event-1-1',
       propertyId: prop1.id,
       type: 'purchase',
-      date: new Date(2003, 0, 1),
+      date: new Date(2010, 0, 1),
       title: 'Purchase',
       amount: 106000,
       position: 0,
@@ -635,7 +633,7 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
       id: 'demo-event-1-2',
       propertyId: prop1.id,
       type: 'move_in',
-      date: new Date(2003, 0, 1),
+      date: new Date(2010, 0, 1),
       title: 'Move In',
       position: 0,
       color: eventColors.move_in,
@@ -645,24 +643,24 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
     demoEvents.push({
       id: 'demo-event-1-3',
       propertyId: prop1.id,
-      type: 'rent_start',
-      date: new Date(2020, 0, 1),
-      title: 'Start Rent',
+      type: 'move_out',
+      date: new Date(2015, 11, 31), // Dec 31, 2015
+      title: 'Move Out',
       position: 0,
-      color: eventColors.rent_start,
+      color: eventColors.move_out,
+      description: 'Moved out - creates GAP until Jul 1, 2016',
     });
 
     demoEvents.push({
       id: 'demo-event-1-4',
       propertyId: prop1.id,
       type: 'sale',
-      date: new Date(2023, 6, 14),
+      date: new Date(2016, 5, 1), // Jun 1, 2016
       title: 'Sold',
-      amount: 450000,
+      amount: 250000,
       position: 0,
       color: eventColors.sale,
-      isPPR: true,
-      contractDate: new Date(2023, 6, 14),
+      contractDate: new Date(2016, 5, 1),
     });
 
     // Property 2: 50 Flynn Circuit, Bellamack
@@ -699,14 +697,14 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
       color: eventColors.rent_start,
     });
 
-    // Property 3: 5 Wanda Dr, Boyne Island
+    // Property 3: Second main residence (2019-2020, then 2021-present)
     const prop3 = {
       id: 'demo-prop-3',
       name: 'Boyne Island, Qld 4680',
       address: '5 Wanda Dr',
       color: propertyColors[2],
       purchasePrice: 530000,
-      purchaseDate: new Date(2021, 8, 30),
+      purchaseDate: new Date(2019, 2, 1), // Mar 1, 2019
       currentStatus: 'ppr' as PropertyStatus,
       branch: 2,
     };
@@ -716,7 +714,7 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
       id: 'demo-event-3-1',
       propertyId: prop3.id,
       type: 'purchase',
-      date: new Date(2021, 8, 30),
+      date: new Date(2019, 2, 1), // Mar 1, 2019
       title: 'Purchase',
       amount: 530000,
       position: 0,
@@ -728,15 +726,39 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
       id: 'demo-event-3-2',
       propertyId: prop3.id,
       type: 'move_in',
-      date: new Date(2021, 8, 30),
+      date: new Date(2019, 3, 1), // Apr 1, 2019 - GAP 2 ended
       title: 'Move In',
       position: 0,
       color: eventColors.move_in,
       isPPR: true,
+      description: '3 month GAP before moving in',
     });
 
     demoEvents.push({
       id: 'demo-event-3-3',
+      propertyId: prop3.id,
+      type: 'move_out',
+      date: new Date(2020, 11, 31), // Dec 31, 2020
+      title: 'Move Out',
+      position: 0,
+      color: eventColors.move_out,
+      description: 'Moved out temporarily - creates GAP 3 until Jul 1, 2021',
+    });
+
+    demoEvents.push({
+      id: 'demo-event-3-4',
+      propertyId: prop3.id,
+      type: 'move_in',
+      date: new Date(2021, 6, 1), // Jul 1, 2021 - GAP 3 ended
+      title: 'Move In (Return)',
+      position: 0,
+      color: eventColors.move_in,
+      isPPR: true,
+      description: 'Moved back in after 6 month GAP',
+    });
+
+    demoEvents.push({
+      id: 'demo-event-3-5',
       propertyId: prop3.id,
       type: 'improvement',
       date: new Date(2022, 3, 15),
@@ -747,11 +769,11 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
       description: 'Kitchen and bathroom renovation',
     });
 
-    // Property 4: Boyne Island Rental (Living as tenant)
+    // Property 4: First Rental Period (2016-2018) - After GAP 1
     const prop4 = {
       id: 'demo-prop-4',
-      name: 'Boyne Island Rental, Qld 4680',
-      address: 'Rental Property',
+      name: 'First Rental, Qld 4680',
+      address: 'Rental Property 1',
       color: propertyColors[3],
       currentStatus: 'living_in_rental' as PropertyStatus,
       isRental: true,
@@ -763,22 +785,22 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
       id: 'demo-event-4-1',
       propertyId: prop4.id,
       type: 'living_in_rental_start',
-      date: new Date(2020, 0, 1),
+      date: new Date(2016, 6, 1), // Jul 1, 2016 - GAP 1 ended
       title: 'Living in Rental (Start)',
       position: 0,
       color: eventColors.living_in_rental_start,
-      description: 'Started living in rental property',
+      description: 'Started living in rental - 6 month GAP before this',
     });
 
     demoEvents.push({
       id: 'demo-event-4-2',
       propertyId: prop4.id,
       type: 'living_in_rental_end',
-      date: new Date(2021, 8, 29), // September 29, 2021
+      date: new Date(2018, 11, 31), // Dec 31, 2018
       title: 'Living in Rental (End)',
       position: 0,
       color: eventColors.living_in_rental_end,
-      description: 'Stopped living in rental property',
+      description: 'Ended rental - creates GAP 2 until Apr 1, 2019',
     });
 
     // Set the demo data with 30-year range
@@ -792,7 +814,7 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
       events: demoEvents,
       timelineStart: thirtyYearsAgo,
       timelineEnd: today,
-      absoluteStart: new Date(2003, 0, 1),
+      absoluteStart: new Date(2010, 0, 1), // Updated to match new demo data start
       absoluteEnd: today,
       centerDate: centerDate,
       zoomLevel: '30-years',
@@ -1092,13 +1114,11 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
   // AI Feedback Action Implementations
   setAIResponse: (response: AIResponse) => {
     const state = get();
-    const { getIssuesFromResponse, getGapsFromResponse, isSuccessResponse } = require('../types/ai-feedback');
+    const { getIssuesFromResponse, isSuccessResponse } = require('../types/ai-feedback');
     type AIIssue = import('../types/ai-feedback').AIIssue;
-    type TimelineGap = import('../types/ai-feedback').TimelineGap;
 
-    // Extract issues and gaps from response
+    // Extract issues from response
     const rawIssues = getIssuesFromResponse(response);
-    const gaps = getGapsFromResponse(response);
 
     // Map issues to timeline issues with event/property links
     const timelineIssues: TimelineIssue[] = rawIssues.map((issue: AIIssue, index: number) => {
@@ -1133,76 +1153,13 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
         }
       }
 
-      // For timeline gap issues, add date information
-      if (issue.category === 'timeline_gap') {
-        const relatedGap = gaps.find((gap: TimelineGap) => issue.message.includes(gap.start_date));
-        if (relatedGap) {
-          timelineIssue.startDate = new Date(relatedGap.start_date);
-          timelineIssue.endDate = new Date(relatedGap.end_date);
-          timelineIssue.duration = relatedGap.duration_days;
-          timelineIssue.gapId = `gap-${relatedGap.start_date}-${relatedGap.end_date}`;
-        }
-      }
 
       return timelineIssue;
-    });
-
-    // Calculate positioned gaps for timeline visualization
-    const { timelineStart, timelineEnd } = state;
-    const timelineRange = timelineEnd.getTime() - timelineStart.getTime();
-
-    const positionedGaps: PositionedGap[] = gaps.map((gap: TimelineGap, index: number) => {
-      const gapStart = new Date(gap.start_date);
-      const gapEnd = new Date(gap.end_date);
-
-      // Calculate x position relative to visible timeline
-      const startOffset = gapStart.getTime() - timelineStart.getTime();
-      const endOffset = gapEnd.getTime() - timelineStart.getTime();
-
-      // Convert to percentage (0-100)
-      const xPercent = (startOffset / timelineRange) * 100;
-      const widthPercent = ((endOffset - startOffset) / timelineRange) * 100;
-
-      // Find related issue for this gap
-      const relatedIssue = rawIssues.find((issue: AIIssue) =>
-        issue.category === 'timeline_gap' &&
-        issue.message.includes(gap.start_date)
-      );
-
-      // Map owned_properties addresses to property IDs
-      const propertyIds = gap.owned_properties
-        .map((address: string) => {
-          const property = state.properties.find(
-            p => p.address === address || p.name === address
-          );
-          console.log('Gap mapping:', address, '-> property:', property?.name, 'ID:', property?.id);
-          return property?.id;
-        })
-        .filter((id): id is string => id !== undefined);
-
-      console.log('Created positioned gap:', {
-        start: gap.start_date,
-        end: gap.end_date,
-        addresses: gap.owned_properties,
-        propertyIds,
-        x: xPercent,
-        width: widthPercent,
-      });
-
-      return {
-        ...gap,
-        id: `gap-${gap.start_date}-${gap.end_date}`,
-        x: xPercent,
-        width: widthPercent,
-        relatedIssue: relatedIssue || undefined,
-        propertyIds,
-      };
     });
 
     set({
       aiResponse: response,
       timelineIssues,
-      positionedGaps,
     });
   },
 
@@ -1224,7 +1181,6 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
     set({
       aiResponse: null,
       timelineIssues: [],
-      positionedGaps: [],
       selectedIssue: null,
     });
   },

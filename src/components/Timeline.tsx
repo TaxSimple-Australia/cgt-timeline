@@ -45,6 +45,8 @@ export default function Timeline({ className }: TimelineProps) {
     selectEvent,
     theme,
     lockFutureDates,
+    selectIssue,
+    timelineIssues,
   } = useTimelineStore();
 
   // Handle timeline click to add events

@@ -623,11 +623,12 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
 
   loadDemoData: async () => {
     try {
-      const response = await fetch('/NewRequestsAndResponses/5_new_3_properties_2_sold_request.json');
+      // Load the request file that matches the gap response (4_new_response_with_gaps.json)
+      const response = await fetch('/NewRequestsAndResponses/4_new_timeline_request_with_gaps.json');
       const data = await response.json();
       const store = get();
       store.importTimelineData(data);
-      console.log('✅ Loaded default timeline data');
+      console.log('✅ Loaded timeline data with gaps for testing');
     } catch (error) {
       console.error('❌ Failed to load default timeline data:', error);
       // Fallback to hardcoded demo data if JSON file fails

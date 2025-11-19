@@ -54,6 +54,33 @@ export default function Home() {
     }
   }, []); // Only run once on mount
 
+  // TEST: Auto-load verification alerts from demo response on mount
+  useEffect(() => {
+    const loadDemoVerificationAlerts = async () => {
+      try {
+        const response = await fetch('/NewRequestsAndResponses/4_new_response_with_gaps.json');
+        const demoResponse = await response.json();
+        console.log('🧪 TEST: Loading demo response with gaps:', demoResponse);
+
+        // Extract verification alerts
+        const alerts = extractVerificationAlerts(demoResponse, properties);
+        console.log('🧪 TEST: Extracted alerts from demo response:', alerts);
+
+        if (alerts.length > 0) {
+          setVerificationAlerts(alerts);
+          console.log('🧪 TEST: Set verification alerts in store');
+        }
+      } catch (err) {
+        console.error('🧪 TEST: Failed to load demo verification alerts:', err);
+      }
+    };
+
+    // Only load after properties are loaded
+    if (properties.length > 0 && verificationAlerts.length === 0) {
+      loadDemoVerificationAlerts();
+    }
+  }, [properties.length]); // Re-run when properties change
+
   // Check API connection on mount
   useEffect(() => {
     // Check if API is configured

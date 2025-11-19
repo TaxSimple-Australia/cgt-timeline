@@ -43,6 +43,12 @@ export function extractVerificationAlerts(
       propertiesFound: verificationProperties.length,
       globalIssuesFound: globalIssues.length,
       clarificationQuestionsFound: clarificationQuestions.length,
+      timelinePropertiesAvailable: timelineProperties.map(p => ({
+        id: p.id,
+        name: p.name,
+        address: p.address,
+        fullAddress: `${p.name}, ${p.address}`,
+      })),
     });
 
     // Helper function to find possible answers for a question
@@ -87,13 +93,22 @@ export function extractVerificationAlerts(
         // Only create alert if we have at least an address and some dates
         if (propertyAddress && (startDate || endDate)) {
           // Try to match with timeline property
-          const matchedProperty = timelineProperties.find(
-            p =>
-              p.address?.toLowerCase().includes(propertyAddress.toLowerCase()) ||
-              p.name?.toLowerCase().includes(propertyAddress.toLowerCase()) ||
-              propertyAddress.toLowerCase().includes(p.address?.toLowerCase() || '') ||
-              propertyAddress.toLowerCase().includes(p.name?.toLowerCase() || '')
-          );
+          // Create combined address for better matching
+          const matchedProperty = timelineProperties.find(p => {
+            const pFullAddress = `${p.name}, ${p.address}`.toLowerCase();
+            const pAddress = p.address?.toLowerCase() || '';
+            const pName = p.name?.toLowerCase() || '';
+            const propAddr = propertyAddress.toLowerCase();
+
+            return (
+              pAddress.includes(propAddr) ||
+              pName.includes(propAddr) ||
+              pFullAddress.includes(propAddr) ||
+              propAddr.includes(pAddress) ||
+              propAddr.includes(pName) ||
+              propAddr.includes(pFullAddress)
+            );
+          });
 
           // Find possible answers from clarification_questions
           const clarificationQuestion = issue.clarification_question || resolutionText;
@@ -111,7 +126,10 @@ export function extractVerificationAlerts(
             severity: issue.severity || 'warning',
           };
 
-          console.log('✅ Created alert:', alert);
+          console.log('✅ Created alert:', {
+            ...alert,
+            matchedProperty: matchedProperty ? { id: matchedProperty.id, name: matchedProperty.name, address: matchedProperty.address } : null,
+          });
           alerts.push(alert);
         } else {
           console.warn('⚠️ Skipping issue with incomplete data:', {
@@ -142,13 +160,22 @@ export function extractVerificationAlerts(
       const endDate = issue.affected_period?.end_date || issue.affected_period?.end || '';
 
       if (startDate || endDate) {
-        const matchedProperty = timelineProperties.find(
-          p =>
-            p.address?.toLowerCase().includes(propertyAddress.toLowerCase()) ||
-            p.name?.toLowerCase().includes(propertyAddress.toLowerCase()) ||
-            propertyAddress.toLowerCase().includes(p.address?.toLowerCase() || '') ||
-            propertyAddress.toLowerCase().includes(p.name?.toLowerCase() || '')
-        );
+        // Create combined address for better matching
+        const matchedProperty = timelineProperties.find(p => {
+          const pFullAddress = `${p.name}, ${p.address}`.toLowerCase();
+          const pAddress = p.address?.toLowerCase() || '';
+          const pName = p.name?.toLowerCase() || '';
+          const propAddr = propertyAddress.toLowerCase();
+
+          return (
+            pAddress.includes(propAddr) ||
+            pName.includes(propAddr) ||
+            pFullAddress.includes(propAddr) ||
+            propAddr.includes(pAddress) ||
+            propAddr.includes(pName) ||
+            propAddr.includes(pFullAddress)
+          );
+        });
 
         // Find possible answers from clarification_questions
         const clarificationQuestion = issue.clarification_question || resolutionText;

@@ -9,6 +9,7 @@ interface AllResolvedPopupProps {
   onClose: () => void;
   onProceed: () => void;
   resolvedCount: number;
+  isSubmitting?: boolean;
 }
 
 export default function AllResolvedPopup({
@@ -16,6 +17,7 @@ export default function AllResolvedPopup({
   onClose,
   onProceed,
   resolvedCount,
+  isSubmitting = false,
 }: AllResolvedPopupProps) {
   return (
     <AnimatePresence>
@@ -107,13 +109,27 @@ export default function AllResolvedPopup({
                   </button>
                   <button
                     onClick={() => {
-                      onProceed();
-                      onClose();
+                      console.log('🟢 Proceed button clicked!');
+                      onProceed(); // Don't close immediately - let the handler control popup visibility
                     }}
-                    className="flex-1 px-4 py-2.5 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg hover:from-green-700 hover:to-emerald-700 transition-all font-medium flex items-center justify-center gap-2 shadow-lg shadow-green-500/30"
+                    disabled={isSubmitting}
+                    className="flex-1 px-4 py-2.5 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg hover:from-green-700 hover:to-emerald-700 transition-all font-medium flex items-center justify-center gap-2 shadow-lg shadow-green-500/30 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    <Send className="w-4 h-4" />
-                    Proceed
+                    {isSubmitting ? (
+                      <>
+                        <motion.div
+                          animate={{ rotate: 360 }}
+                          transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+                          className="w-4 h-4 border-2 border-white border-t-transparent rounded-full"
+                        />
+                        Submitting...
+                      </>
+                    ) : (
+                      <>
+                        <Send className="w-4 h-4" />
+                        Proceed to Analysis
+                      </>
+                    )}
                   </button>
                 </div>
               </div>

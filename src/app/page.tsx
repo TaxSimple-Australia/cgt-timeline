@@ -189,6 +189,10 @@ export default function Home() {
   // Handler for re-submitting after all verification issues are resolved
   const handleResubmitWithResolutions = async () => {
     console.log('📤 Re-submitting with resolved verification alerts');
+    console.log('📊 Current verification alerts:', verificationAlerts);
+    console.log('📊 Properties:', properties.length);
+    console.log('📊 Events:', events.length);
+
     setIsLoading(true);
     setError(null);
 
@@ -384,6 +388,7 @@ export default function Home() {
         onClose={() => setShowAllResolvedPopup(false)}
         onProceed={handleResubmitWithResolutions}
         resolvedCount={verificationAlerts.length}
+        isSubmitting={isLoading}
       />
 
       {/* Property Verification Issue Overlay - Shows when user clicks on alert */}

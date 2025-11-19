@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import Timeline from '@/components/Timeline';
 import PropertyPanel from '@/components/PropertyPanel';
 import ConversationBox from '@/components/ConversationBox';
@@ -45,6 +45,9 @@ export default function Home() {
   const [showAllResolvedPopup, setShowAllResolvedPopup] = useState(false);
   const [selectedAlertForModal, setSelectedAlertForModal] = useState<string | null>(null);
 
+  // Ref to track if we've loaded demo alerts (prevent re-loading on resolution)
+  const demoAlertsLoadedRef = useRef(false);
+
   // Load demo data on initial mount
   useEffect(() => {
     if (properties.length === 0) {
@@ -54,7 +57,7 @@ export default function Home() {
     }
   }, []); // Only run once on mount
 
-  // TEST: Auto-load verification alerts from demo response on mount
+  // TEST: Auto-load verification alerts from demo response on mount (ONCE ONLY)
   useEffect(() => {
     const loadDemoVerificationAlerts = async () => {
       try {
@@ -68,6 +71,7 @@ export default function Home() {
 
         if (alerts.length > 0) {
           setVerificationAlerts(alerts);
+          demoAlertsLoadedRef.current = true; // Mark as loaded
           console.log('🧪 TEST: Set verification alerts in store');
         }
       } catch (err) {
@@ -75,11 +79,11 @@ export default function Home() {
       }
     };
 
-    // Only load after properties are loaded
-    if (properties.length > 0 && verificationAlerts.length === 0) {
+    // Only load ONCE after properties are loaded and we haven't loaded before
+    if (properties.length > 0 && !demoAlertsLoadedRef.current) {
       loadDemoVerificationAlerts();
     }
-  }, [properties.length]); // Re-run when properties change
+  }, [properties.length]); // Only re-run when properties.length changes
 
   // Check API connection on mount
   useEffect(() => {

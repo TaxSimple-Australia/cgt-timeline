@@ -20,13 +20,18 @@ export interface VerificationAlert {
 export interface VerificationIssue {
   property_address?: string;
   issue_type?: string;
+  category?: string; // timeline_gap, conflict, etc.
   severity?: 'critical' | 'warning' | 'info';
   question?: string;
   message?: string;
   suggested_resolution?: string;
+  clarification_question?: string;
   affected_period?: {
+    start?: string; // Can be "start" or "start_date"
+    end?: string;   // Can be "end" or "end_date"
     start_date?: string;
     end_date?: string;
+    days?: number;
   };
 }
 
@@ -39,8 +44,15 @@ export interface VerificationProperty {
 export interface VerificationResponse {
   status?: string;
   verification?: {
+    status?: string;
     properties?: VerificationProperty[];
     issues?: VerificationIssue[];
+    clarification_questions?: any[];
+    summary?: {
+      critical_issues?: number;
+      warnings?: number;
+      total_issues_flagged?: number;
+    };
   };
   properties?: VerificationProperty[];
 }

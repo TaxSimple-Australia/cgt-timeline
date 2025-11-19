@@ -165,6 +165,7 @@ interface TimelineState {
   getZoomLevelIndex: () => number; // Get current zoom level index (0-8)
   setCenterDate: (date: Date) => void;
   panToPosition: (position: number) => void; // Position 0-100 on absolute timeline
+  panToDate: (date: Date) => void; // Pan timeline to center on a specific date
   loadDemoData: () => void; // Load demo data from Excel sheet
   clearAllData: () => void; // Clear all properties and events
   importTimelineData: (data: any) => void; // Import timeline data from JSON
@@ -616,6 +617,58 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
       timelineEnd: end,
       centerDate: newCenterDate,
     });
+  },
+
+  panToDate: (date: Date) => {
+    const state = get();
+    const { start: targetStart, end: targetEnd } = calculateDateRange(date, state.zoomLevel);
+
+    // Current positions
+    const currentStart = state.timelineStart.getTime();
+    const currentEnd = state.timelineEnd.getTime();
+    const currentCenter = state.centerDate.getTime();
+
+    // Target positions
+    const targetStartTime = targetStart.getTime();
+    const targetEndTime = targetEnd.getTime();
+    const targetCenterTime = date.getTime();
+
+    // Animation duration in ms
+    const duration = 1000;
+    const startTime = performance.now();
+
+    // Easing function (easeInOutCubic)
+    const easeInOutCubic = (t: number): number => {
+      return t < 0.5
+        ? 4 * t * t * t
+        : 1 - Math.pow(-2 * t + 2, 3) / 2;
+    };
+
+    // Animation loop
+    const animate = (currentTime: number) => {
+      const elapsed = currentTime - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      const easedProgress = easeInOutCubic(progress);
+
+      // Interpolate between current and target
+      const newStartTime = currentStart + (targetStartTime - currentStart) * easedProgress;
+      const newEndTime = currentEnd + (targetEndTime - currentEnd) * easedProgress;
+      const newCenterTime = currentCenter + (targetCenterTime - currentCenter) * easedProgress;
+
+      set({
+        timelineStart: new Date(newStartTime),
+        timelineEnd: new Date(newEndTime),
+        centerDate: new Date(newCenterTime),
+      });
+
+      // Continue animation if not complete
+      if (progress < 1) {
+        requestAnimationFrame(animate);
+      }
+    };
+
+    // Start animation
+    requestAnimationFrame(animate);
   },
 
   loadDemoData: () => {

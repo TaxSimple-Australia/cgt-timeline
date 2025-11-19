@@ -37,6 +37,7 @@ export default function Home() {
     getCurrentAlert,
     getUnresolvedAlerts,
     resolveVerificationAlert,
+    panToDate,
   } = useTimelineStore();
   const { setValidationIssues, clearValidationIssues, setApiConnected } = useValidationStore();
   const [showAnalysis, setShowAnalysis] = useState(false);
@@ -356,8 +357,38 @@ export default function Home() {
         <PropertyIssueOverlay
           alert={verificationAlerts.find((a) => a.id === selectedAlertForModal)!}
           onResolve={(alertId, userResponse) => {
+            console.log('✅ Resolving alert:', alertId, 'with response:', userResponse);
             resolveVerificationAlert(alertId, userResponse);
-            setSelectedAlertForModal(null); // Close modal after resolving
+
+            // Close modal immediately to show green tick
+            setSelectedAlertForModal(null);
+
+            // Check if there's a next alert after a delay so user can see the green tick
+            setTimeout(() => {
+              const nextAlert = getCurrentAlert();
+              if (nextAlert && nextAlert.id !== alertId) {
+                console.log('📍 Panning to next alert:', nextAlert.id);
+
+                // Calculate the midpoint of the alert period for smooth panning
+                const alertStartDate = new Date(nextAlert.startDate);
+                const alertEndDate = new Date(nextAlert.endDate);
+                const midpoint = new Date(
+                  (alertStartDate.getTime() + alertEndDate.getTime()) / 2
+                );
+
+                // Pan timeline to center on the next alert (1000ms smooth animation)
+                panToDate(midpoint);
+
+                // Open modal after pan animation completes (1000ms + 100ms buffer)
+                setTimeout(() => {
+                  console.log('📂 Opening next alert modal:', nextAlert.id);
+                  setSelectedAlertForModal(nextAlert.id);
+                }, 1100); // Delay for smooth pan animation to complete
+              } else {
+                // No more unresolved alerts
+                console.log('✅ All alerts resolved - popup will appear');
+              }
+            }, 800); // Delay to show green tick and let user see the change
           }}
           alertNumber={
             verificationAlerts.findIndex((a) => a.id === selectedAlertForModal) + 1

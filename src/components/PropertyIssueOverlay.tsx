@@ -44,32 +44,31 @@ export default function PropertyIssueOverlay({
       setShowCustomInput(false);
       setSelectedAnswer(answer);
       setCustomAnswer('');
+
+      // Immediately resolve with the selected answer - no delay
+      onResolve(alert.id, answer);
     }
     setError(null);
   };
 
   const handleSubmit = async () => {
-    // Validate input
-    const finalAnswer = selectedAnswer === 'other' ? customAnswer : selectedAnswer;
+    // Only used for "other" option with custom text
+    const finalAnswer = customAnswer.trim();
 
-    if (!finalAnswer || finalAnswer.trim().length === 0) {
-      setError('Please select or enter an answer');
+    if (!finalAnswer || finalAnswer.length === 0) {
+      setError('Please enter your answer');
       return;
     }
 
-    setIsSubmitting(true);
     setError(null);
 
     try {
-      // Call the resolve function
-      await onResolve(alert.id, finalAnswer.trim());
-
-      // Success - component will unmount/update when alert changes
-      console.log('✅ Alert resolved:', alert.id, finalAnswer);
+      // Call the resolve function with custom answer immediately
+      onResolve(alert.id, finalAnswer);
+      console.log('✅ Alert resolved with custom answer:', alert.id, finalAnswer);
     } catch (err) {
       console.error('❌ Error resolving alert:', err);
       setError('Failed to submit answer. Please try again.');
-      setIsSubmitting(false);
     }
   };
 
@@ -283,30 +282,43 @@ export default function PropertyIssueOverlay({
 
           {/* Footer */}
           <div className="px-6 py-4 bg-gray-50 dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 flex items-center justify-between">
-            <p className="text-sm text-gray-600 dark:text-gray-400">
-              Your answer will help us provide accurate CGT analysis
-            </p>
-            <button
-              onClick={handleSubmit}
-              disabled={isSubmitting || (!selectedAnswer && !customAnswer)}
-              className={`px-6 py-2.5 rounded-lg font-semibold transition-all flex items-center gap-2 ${
-                isSubmitting || (!selectedAnswer && !customAnswer)
-                  ? 'bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed'
-                  : 'bg-gradient-to-r from-purple-600 to-blue-600 text-white hover:from-purple-700 hover:to-blue-700 shadow-lg hover:shadow-xl'
-              }`}
-            >
-              {isSubmitting ? (
-                <>
-                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  Submitting...
-                </>
-              ) : (
-                <>
-                  Submit Answer
-                  <CheckCircle2 className="w-4 h-4" />
-                </>
-              )}
-            </button>
+            {showCustomInput ? (
+              <>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  Your answer will help us provide accurate CGT analysis
+                </p>
+                <button
+                  onClick={handleSubmit}
+                  disabled={isSubmitting || !customAnswer.trim()}
+                  className={`px-6 py-2.5 rounded-lg font-semibold transition-all flex items-center gap-2 ${
+                    isSubmitting || !customAnswer.trim()
+                      ? 'bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed'
+                      : 'bg-gradient-to-r from-purple-600 to-blue-600 text-white hover:from-purple-700 hover:to-blue-700 shadow-lg hover:shadow-xl'
+                  }`}
+                >
+                  {isSubmitting ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      Submitting...
+                    </>
+                  ) : (
+                    <>
+                      Submit Answer
+                      <CheckCircle2 className="w-4 h-4" />
+                    </>
+                  )}
+                </button>
+              </>
+            ) : (
+              <>
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-purple-600 animate-pulse" />
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    Select an option above to continue
+                  </p>
+                </div>
+              </>
+            )}
           </div>
         </motion.div>
       </motion.div>

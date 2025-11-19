@@ -67,14 +67,14 @@ export default function VerificationAlertBar({
 
   // Alert bar positioning - place it above the status bands
   const alertY = branchY + 8; // Position slightly above status bands
-  const alertHeight = 12; // 4px thicker than standard timeline line (8px)
-  const circleRadius = 8; // Circle radius for endpoints (increased for better visibility)
+  const alertHeight = 10; // 10px thick (increased by 5px)
+  const circleRadius = 10; // Circle radius for endpoints (like property branches)
 
   // Colors based on resolved state and severity
   const severityColors = {
-    critical: '#DC2626', // Strong red
-    warning: '#F59E0B', // Amber
-    info: '#3B82F6', // Blue
+    critical: '#DC2626', // Brighter red for critical
+    warning: '#EF4444', // Slightly lighter red for warnings
+    info: '#F87171', // Even lighter red for info
   };
 
   const resolvedColor = '#10B981'; // Green when resolved
@@ -85,7 +85,7 @@ export default function VerificationAlertBar({
   const centerPos = startPos + width / 2;
 
   return (
-    <g className="verification-alert-bar" style={{ isolation: 'isolate' }}>
+    <g className="verification-alert-bar" style={{ isolation: 'isolate', zIndex: showTooltip ? 10000 : 1000 }}>
       {/* Pulsing glow effect - only when not resolved */}
       {!isResolved && (
         <motion.rect
@@ -116,8 +116,17 @@ export default function VerificationAlertBar({
         animate={isResolved ? {} : { opacity: [0.9, 1, 0.9] }}
         transition={isResolved ? {} : { duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
         style={{
-          cursor: 'pointer',
+          cursor: isResolved ? 'default' : 'pointer',
           filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.2))',
+        }}
+        onMouseEnter={() => !isResolved && setShowTooltip(true)}
+        onMouseLeave={() => setShowTooltip(false)}
+        onClick={(e) => {
+          e.stopPropagation();
+          if (!isResolved && onAlertClick) {
+            onAlertClick(alert.id);
+            setShowTooltip(false);
+          }
         }}
       />
 
@@ -220,19 +229,44 @@ export default function VerificationAlertBar({
             }
           }}
         >
-          {/* Icon background circle */}
+          {/* Glow layer for question mark - flashing continuously when not resolved */}
+          {!isResolved && (
+            <motion.circle
+              cx={`${centerPos}%`}
+              cy={alertY - 15}
+              r={14}
+              fill={alertColor}
+              opacity={0.5}
+              initial={{ scale: 1, opacity: 0.3 }}
+              animate={{ scale: [1, 1.5, 1], opacity: [0.3, 0.6, 0.3] }}
+              transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
+              style={{ pointerEvents: 'none', filter: 'blur(5px)' }}
+            />
+          )}
+
+          {/* Icon background circle - flash continuously until resolved */}
           <motion.circle
             cx={`${centerPos}%`}
             cy={alertY - 15}
-            r={10}
+            r={12}
             fill={alertColor}
             opacity={0.95}
-            initial={{ scale: 1 }}
-            whileHover={{ scale: isResolved ? 1 : 1.15 }}
-            animate={isResolved ? { scale: [1, 1.2, 1] } : {}}
-            transition={isResolved ? { duration: 0.5 } : {}}
+            initial={{ scale: 1, opacity: 0.95 }}
+            whileHover={{
+              scale: isResolved ? 1 : 1.3,
+              opacity: isResolved ? 0.95 : 1,
+            }}
+            animate={isResolved ? { scale: [1, 1.2, 1] } : {
+              scale: [1, 1.15, 1],
+              opacity: [0.95, 1, 0.95]
+            }}
+            transition={isResolved ? { duration: 0.5 } : {
+              duration: 1.5,
+              repeat: Infinity,
+              ease: 'easeInOut'
+            }}
             style={{
-              filter: 'drop-shadow(0 3px 6px rgba(0,0,0,0.3))',
+              filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.4))',
             }}
           />
 
@@ -250,27 +284,30 @@ export default function VerificationAlertBar({
               ✓
             </text>
           ) : (
-            // Question mark (?) when not resolved
-            <text
+            // Question mark (?) when not resolved - flash continuously
+            <motion.text
               x={`${centerPos}%`}
               y={alertY - 15}
               textAnchor="middle"
               dominantBaseline="central"
-              className="text-[14px] font-bold fill-white"
+              className="text-[16px] font-bold fill-white"
               style={{ pointerEvents: 'none', userSelect: 'none' }}
+              initial={{ opacity: 1 }}
+              animate={{ opacity: [1, 0.6, 1] }}
+              transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
             >
               ?
-            </text>
+            </motion.text>
           )}
 
-          {/* Tooltip */}
+          {/* Tooltip - positioned to the left so question mark remains clickable */}
           <AnimatePresence>
             {showTooltip && (
               <foreignObject
-                x={`${Math.max(5, Math.min(80, centerPos - 15))}%`}
+                x={`${Math.max(5, Math.min(70, centerPos - 25))}%`}
                 y={alertY - 80}
-                width="200"
-                height="60"
+                width="220"
+                height="70"
                 style={{ overflow: 'visible', pointerEvents: 'none' }}
               >
                 <motion.div

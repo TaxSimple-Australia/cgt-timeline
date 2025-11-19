@@ -9,6 +9,7 @@ import EventCircle from './EventCircle';
 import EventCardView from './EventCardView';
 import PropertyStatusBands from './PropertyStatusBands';
 import TimelineGap from './TimelineGap';
+import VerificationAlertBar from './VerificationAlertBar';
 import { cn, dateToPosition } from '@/lib/utils';
 import type { PositionedGap } from '@/types/ai-feedback';
 
@@ -39,10 +40,24 @@ export default function PropertyBranch({
   onEventClick,
   onBranchClick,
   onHoverChange,
+  onAlertClick,
 }: PropertyBranchProps) {
-  const { eventDisplayMode, positionedGaps, selectIssue, selectProperty, enableDragEvents, updateEvent } = useTimelineStore();
+  const { eventDisplayMode, positionedGaps, selectIssue, selectProperty, enableDragEvents, updateEvent, verificationAlerts, resolveVerificationAlert } = useTimelineStore();
   const { getIssuesForProperty } = useValidationStore();
   const branchY = 100 + branchIndex * 120; // Vertical spacing between branches
+
+  // Get verification alerts for this property
+  const propertyAlerts = verificationAlerts.filter(alert => alert.propertyId === property.id);
+
+  // Debug logging
+  if (verificationAlerts.length > 0) {
+    console.log(`🔍 PropertyBranch [${property.name}]:`, {
+      propertyId: property.id,
+      totalAlerts: verificationAlerts.length,
+      matchedAlerts: propertyAlerts.length,
+      alerts: propertyAlerts,
+    });
+  }
 
   // Handle property circle click to select property
   const handlePropertyClick = (e: React.MouseEvent) => {
@@ -312,6 +327,19 @@ export default function PropertyBranch({
             onUpdateEvent={updateEvent}
           />
         )
+      ))}
+
+      {/* Verification Alert Bars - Render LAST so they appear on top of everything */}
+      {propertyAlerts.map((alert) => (
+        <VerificationAlertBar
+          key={alert.id}
+          alert={alert}
+          branchY={branchY}
+          timelineStart={timelineStart}
+          timelineEnd={timelineEnd}
+          onResolveAlert={resolveVerificationAlert}
+          onAlertClick={onAlertClick}
+        />
       ))}
 
       </g>

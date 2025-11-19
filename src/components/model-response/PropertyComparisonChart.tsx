@@ -36,10 +36,10 @@ export default function PropertyComparisonChart({
 
   // Extract property data
   const chartData = properties.map((property, index) => {
-    const purchaseEvent = property.property_history.find(
+    const purchaseEvent = property.property_history?.find(
       (e) => e.event.toLowerCase() === 'purchased' || e.event.toLowerCase() === 'purchase'
     );
-    const saleEvent = property.property_history.find(
+    const saleEvent = property.property_history?.find(
       (e) => e.event.toLowerCase() === 'sold' || e.event.toLowerCase() === 'sale'
     );
 

@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { addDays, format } from 'date-fns';
-import type { AIResponse, TimelineIssue, AIIssue } from '../types/ai-feedback';
+import type { AIResponse, TimelineIssue, PositionedGap, AIIssue } from '../types/ai-feedback';
+import type { VerificationAlert } from '../types/verification-alert';
 import type { CostBaseCategory } from '../lib/cost-base-definitions';
 
 export type EventType =
@@ -135,9 +136,14 @@ interface TimelineState {
   // AI Feedback State
   aiResponse: AIResponse | null; // Latest AI analysis response
   timelineIssues: TimelineIssue[]; // Processed issues for UI display
+  positionedGaps: PositionedGap[]; // Gaps with timeline positions
   residenceGapIssues: AIIssue[]; // Timeline gap issues from AI response
   selectedIssue: string | null; // Currently viewing issue details
   isAnalyzing: boolean; // Loading state during AI analysis
+
+  // Verification Alerts State (from GilbertBranch)
+  verificationAlerts: VerificationAlert[]; // Alert bars for failed verifications
+  currentAlertIndex: number; // Index of currently resolving alert (-1 means none)
 
   // Actions
   addProperty: (property: Omit<Property, 'id' | 'branch'>) => void;
@@ -174,6 +180,17 @@ interface TimelineState {
   resolveIssue: (issueId: string, response: string) => void; // Mark issue resolved with user response
   clearAIFeedback: () => void; // Clear all AI feedback
   analyzePortfolio: () => Promise<void>; // Trigger AI analysis of current timeline
+
+  // Verification Alert Actions (from GilbertBranch)
+  setVerificationAlerts: (alerts: VerificationAlert[]) => void;
+  clearVerificationAlerts: () => void;
+  resolveVerificationAlert: (alertId: string, userResponse: string) => void;
+  getAllVerificationAlertsResolved: () => boolean;
+  getUnresolvedAlerts: () => VerificationAlert[];
+  getCurrentAlert: () => VerificationAlert | null;
+  moveToNextAlert: () => void;
+  setCurrentAlertIndex: (index: number) => void;
+  panToDate: (date: Date) => void;
 }
 
 const propertyColors = [
@@ -390,9 +407,14 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
     // AI Feedback Initial State
     aiResponse: null,
     timelineIssues: [],
+    positionedGaps: [],
     residenceGapIssues: [],
     selectedIssue: null,
     isAnalyzing: false,
+
+    // Verification Alerts initial state
+    verificationAlerts: [],
+    currentAlertIndex: -1,
 
   addProperty: (property) => {
     const properties = get().properties;
@@ -601,73 +623,211 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
 
   loadDemoData: async () => {
     try {
-      // Load the default timeline data from JSON file
       const response = await fetch('/NewRequestsAndResponses/5_new_3_properties_2_sold_request.json');
       const data = await response.json();
-
-      // Use the existing importTimelineData function to parse and load the data
-      const store = useTimelineStore.getState();
+      const store = get();
       store.importTimelineData(data);
-
-      console.log('✅ Loaded default timeline data from 5_new_3_properties_2_sold_request.json');
+      console.log('✅ Loaded default timeline data');
     } catch (error) {
       console.error('❌ Failed to load default timeline data:', error);
-
-      // Fallback: Load minimal demo data if JSON file fails
+      // Fallback to hardcoded demo data if JSON file fails
       const demoProperties: Property[] = [];
       const demoEvents: TimelineEvent[] = [];
 
-      // Minimal fallback property
-      const prop1 = {
-        id: 'demo-prop-1',
-        name: 'Sample Property',
-        address: '123 Main Street',
-        color: propertyColors[0],
-        purchasePrice: 500000,
-        purchaseDate: new Date(2015, 0, 1),
-        currentStatus: 'ppr' as PropertyStatus,
-        branch: 0,
-      };
-      demoProperties.push(prop1);
+    // Property 1: 45 Collard Road, Humpty Doo
+    const prop1 = {
+      id: 'demo-prop-1',
+      name: 'Humpty Doo, NT 0836',
+      address: '45 Collard Road',
+      color: propertyColors[0],
+      purchasePrice: 106000,
+      purchaseDate: new Date(2003, 0, 1),
+      salePrice: 450000,
+      saleDate: new Date(2023, 6, 14),
+      currentStatus: 'sold' as PropertyStatus,
+      branch: 0,
+    };
+    demoProperties.push(prop1);
 
-      demoEvents.push({
-        id: 'demo-event-1-1',
-        propertyId: prop1.id,
-        type: 'purchase',
-        date: new Date(2015, 0, 1),
-        title: 'Purchase',
-        amount: 500000,
-        position: 0,
-        color: eventColors.purchase,
-        isPPR: true,
-      });
+    // Events for Property 1
+    demoEvents.push({
+      id: 'demo-event-1-1',
+      propertyId: prop1.id,
+      type: 'purchase',
+      date: new Date(2003, 0, 1),
+      title: 'Purchase',
+      amount: 106000,
+      position: 0,
+      color: eventColors.purchase,
+      isPPR: true,
+    });
 
-      demoEvents.push({
-        id: 'demo-event-1-2',
-        propertyId: prop1.id,
-        type: 'move_in',
-        date: new Date(2015, 0, 1),
-        title: 'Move In',
-        position: 0,
-        color: eventColors.move_in,
-        isPPR: true,
-      });
+    demoEvents.push({
+      id: 'demo-event-1-2',
+      propertyId: prop1.id,
+      type: 'move_in',
+      date: new Date(2003, 0, 1),
+      title: 'Move In',
+      position: 0,
+      color: eventColors.move_in,
+      isPPR: true,
+    });
 
-      const today = new Date();
-      const thirtyYearsAgo = new Date(today);
-      thirtyYearsAgo.setFullYear(today.getFullYear() - 30);
-      const centerDate = new Date((thirtyYearsAgo.getTime() + today.getTime()) / 2);
+    demoEvents.push({
+      id: 'demo-event-1-3',
+      propertyId: prop1.id,
+      type: 'rent_start',
+      date: new Date(2020, 0, 1),
+      title: 'Start Rent',
+      position: 0,
+      color: eventColors.rent_start,
+    });
 
-      set({
-        properties: demoProperties,
-        events: demoEvents,
-        timelineStart: thirtyYearsAgo,
-        timelineEnd: today,
-        absoluteStart: new Date(2010, 0, 1),
-        absoluteEnd: today,
-        centerDate: centerDate,
-        zoomLevel: '30-years',
-      });
+    demoEvents.push({
+      id: 'demo-event-1-4',
+      propertyId: prop1.id,
+      type: 'sale',
+      date: new Date(2023, 6, 14),
+      title: 'Sold',
+      amount: 450000,
+      position: 0,
+      color: eventColors.sale,
+      isPPR: true,
+      contractDate: new Date(2023, 6, 14),
+    });
+
+    // Property 2: 50 Flynn Circuit, Bellamack
+    const prop2 = {
+      id: 'demo-prop-2',
+      name: 'Bellamack, NT 0832',
+      address: '50 Flynn Circuit',
+      color: propertyColors[1],
+      purchasePrice: 705000,
+      purchaseDate: new Date(2014, 5, 5),
+      currentStatus: 'rental' as PropertyStatus,
+      branch: 1,
+    };
+    demoProperties.push(prop2);
+
+    demoEvents.push({
+      id: 'demo-event-2-1',
+      propertyId: prop2.id,
+      type: 'purchase',
+      date: new Date(2014, 5, 5),
+      title: 'Purchase',
+      amount: 705000,
+      position: 0,
+      color: eventColors.purchase,
+    });
+
+    demoEvents.push({
+      id: 'demo-event-2-2',
+      propertyId: prop2.id,
+      type: 'rent_start',
+      date: new Date(2014, 5, 20),
+      title: 'Start Rent',
+      position: 0,
+      color: eventColors.rent_start,
+    });
+
+    // Property 3: 5 Wanda Dr, Boyne Island
+    const prop3 = {
+      id: 'demo-prop-3',
+      name: 'Boyne Island, Qld 4680',
+      address: '5 Wanda Dr',
+      color: propertyColors[2],
+      purchasePrice: 530000,
+      purchaseDate: new Date(2021, 8, 30),
+      currentStatus: 'ppr' as PropertyStatus,
+      branch: 2,
+    };
+    demoProperties.push(prop3);
+
+    demoEvents.push({
+      id: 'demo-event-3-1',
+      propertyId: prop3.id,
+      type: 'purchase',
+      date: new Date(2021, 8, 30),
+      title: 'Purchase',
+      amount: 530000,
+      position: 0,
+      color: eventColors.purchase,
+      isPPR: true,
+    });
+
+    demoEvents.push({
+      id: 'demo-event-3-2',
+      propertyId: prop3.id,
+      type: 'move_in',
+      date: new Date(2021, 8, 30),
+      title: 'Move In',
+      position: 0,
+      color: eventColors.move_in,
+      isPPR: true,
+    });
+
+    demoEvents.push({
+      id: 'demo-event-3-3',
+      propertyId: prop3.id,
+      type: 'improvement',
+      date: new Date(2022, 3, 15),
+      title: 'Renovation',
+      amount: 45000,
+      position: 0,
+      color: eventColors.improvement,
+      description: 'Kitchen and bathroom renovation',
+    });
+
+    // Property 4: Boyne Island Rental (Living as tenant)
+    const prop4 = {
+      id: 'demo-prop-4',
+      name: 'Boyne Island Rental, Qld 4680',
+      address: 'Rental Property',
+      color: propertyColors[3],
+      currentStatus: 'living_in_rental' as PropertyStatus,
+      isRental: true,
+      branch: 3,
+    };
+    demoProperties.push(prop4);
+
+    demoEvents.push({
+      id: 'demo-event-4-1',
+      propertyId: prop4.id,
+      type: 'living_in_rental_start',
+      date: new Date(2020, 0, 1),
+      title: 'Living in Rental (Start)',
+      position: 0,
+      color: eventColors.living_in_rental_start,
+      description: 'Started living in rental property',
+    });
+
+    demoEvents.push({
+      id: 'demo-event-4-2',
+      propertyId: prop4.id,
+      type: 'living_in_rental_end',
+      date: new Date(2021, 8, 29), // September 29, 2021
+      title: 'Living in Rental (End)',
+      position: 0,
+      color: eventColors.living_in_rental_end,
+      description: 'Stopped living in rental property',
+    });
+
+    // Set the demo data with 30-year range
+    const today = new Date();
+    const thirtyYearsAgo = new Date(today);
+    thirtyYearsAgo.setFullYear(today.getFullYear() - 30);
+    const centerDate = new Date((thirtyYearsAgo.getTime() + today.getTime()) / 2);
+
+    set({
+      properties: demoProperties,
+      events: demoEvents,
+      timelineStart: thirtyYearsAgo,
+      timelineEnd: today,
+      absoluteStart: new Date(2003, 0, 1),
+      absoluteEnd: today,
+      centerDate: centerDate,
+      zoomLevel: '30-years',
+    });
     }
   },
 
@@ -964,11 +1124,13 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
   // AI Feedback Action Implementations
   setAIResponse: (response: AIResponse) => {
     const state = get();
-    const { getIssuesFromResponse, isSuccessResponse } = require('../types/ai-feedback');
+    const { getIssuesFromResponse, getGapsFromResponse, isSuccessResponse } = require('../types/ai-feedback');
     type AIIssue = import('../types/ai-feedback').AIIssue;
+    type TimelineGap = import('../types/ai-feedback').TimelineGap;
 
-    // Extract issues from response
+    // Extract issues and gaps from response
     const rawIssues = getIssuesFromResponse(response);
+    const gaps = getGapsFromResponse(response);
 
     // Map issues to timeline issues with event/property links
     const timelineIssues: TimelineIssue[] = rawIssues.map((issue: AIIssue, index: number) => {
@@ -1003,8 +1165,70 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
         }
       }
 
+      // For timeline gap issues, add date information
+      if (issue.category === 'timeline_gap') {
+        const relatedGap = gaps.find((gap: TimelineGap) => issue.message.includes(gap.start_date));
+        if (relatedGap) {
+          timelineIssue.startDate = new Date(relatedGap.start_date);
+          timelineIssue.endDate = new Date(relatedGap.end_date);
+          timelineIssue.duration = relatedGap.duration_days;
+          timelineIssue.gapId = `gap-${relatedGap.start_date}-${relatedGap.end_date}`;
+        }
+      }
 
       return timelineIssue;
+    });
+
+    // Calculate positioned gaps for timeline visualization
+    const { timelineStart, timelineEnd } = state;
+    const timelineRange = timelineEnd.getTime() - timelineStart.getTime();
+
+    const positionedGaps: PositionedGap[] = gaps.map((gap: TimelineGap, index: number) => {
+      const gapStart = new Date(gap.start_date);
+      const gapEnd = new Date(gap.end_date);
+
+      // Calculate x position relative to visible timeline
+      const startOffset = gapStart.getTime() - timelineStart.getTime();
+      const endOffset = gapEnd.getTime() - timelineStart.getTime();
+
+      // Convert to percentage (0-100)
+      const xPercent = (startOffset / timelineRange) * 100;
+      const widthPercent = ((endOffset - startOffset) / timelineRange) * 100;
+
+      // Find related issue for this gap
+      const relatedIssue = rawIssues.find((issue: AIIssue) =>
+        issue.category === 'timeline_gap' &&
+        issue.message.includes(gap.start_date)
+      );
+
+      // Map owned_properties addresses to property IDs
+      const propertyIds = gap.owned_properties
+        .map((address: string) => {
+          const property = state.properties.find(
+            p => p.address === address || p.name === address
+          );
+          console.log('Gap mapping:', address, '-> property:', property?.name, 'ID:', property?.id);
+          return property?.id;
+        })
+        .filter((id): id is string => id !== undefined);
+
+      console.log('Created positioned gap:', {
+        start: gap.start_date,
+        end: gap.end_date,
+        addresses: gap.owned_properties,
+        propertyIds,
+        x: xPercent,
+        width: widthPercent,
+      });
+
+      return {
+        ...gap,
+        id: `gap-${gap.start_date}-${gap.end_date}`,
+        x: xPercent,
+        width: widthPercent,
+        relatedIssue: relatedIssue || undefined,
+        propertyIds,
+      };
     });
 
     // Extract residence gap issues (category === 'timeline_gap')
@@ -1022,6 +1246,7 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
     set({
       aiResponse: response,
       timelineIssues,
+      positionedGaps,
       residenceGapIssues,
     });
   },
@@ -1044,6 +1269,7 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
     set({
       aiResponse: null,
       timelineIssues: [],
+      positionedGaps: [],
       residenceGapIssues: [],
       selectedIssue: null,
     });
@@ -1106,6 +1332,89 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
     } finally {
       set({ isAnalyzing: false });
     }
+  },
+
+  // Verification Alert Methods (from GilbertBranch)
+  setVerificationAlerts: (alerts: VerificationAlert[]) => {
+    const firstUnresolvedIndex = alerts.findIndex(alert => !alert.resolved);
+    set({
+      verificationAlerts: alerts,
+      currentAlertIndex: firstUnresolvedIndex >= 0 ? firstUnresolvedIndex : -1,
+    });
+  },
+
+  clearVerificationAlerts: () => {
+    set({ verificationAlerts: [], currentAlertIndex: -1 });
+  },
+
+  resolveVerificationAlert: (alertId: string, userResponse: string) => {
+    const state = get();
+    const updatedAlerts = state.verificationAlerts.map(alert =>
+      alert.id === alertId
+        ? {
+            ...alert,
+            resolved: true,
+            userResponse,
+            resolvedAt: new Date().toISOString(),
+          }
+        : alert
+    );
+    console.log('✅ Resolved verification alert:', alertId, 'Response:', userResponse);
+    set({ verificationAlerts: updatedAlerts });
+
+    // Auto-move to next unresolved alert
+    setTimeout(() => get().moveToNextAlert(), 100);
+  },
+
+  getAllVerificationAlertsResolved: () => {
+    const state = get();
+    return state.verificationAlerts.length > 0 && state.verificationAlerts.every(alert => alert.resolved);
+  },
+
+  getUnresolvedAlerts: () => {
+    const state = get();
+    return state.verificationAlerts.filter(alert => !alert.resolved);
+  },
+
+  getCurrentAlert: () => {
+    const state = get();
+    if (state.currentAlertIndex >= 0 && state.currentAlertIndex < state.verificationAlerts.length) {
+      return state.verificationAlerts[state.currentAlertIndex];
+    }
+    return null;
+  },
+
+  moveToNextAlert: () => {
+    const state = get();
+    const unresolvedAlerts = state.verificationAlerts.filter(alert => !alert.resolved);
+
+    if (unresolvedAlerts.length > 0) {
+      // Find the index of the first unresolved alert
+      const nextIndex = state.verificationAlerts.findIndex(alert => !alert.resolved);
+      set({ currentAlertIndex: nextIndex });
+      console.log(`📍 Moved to alert ${nextIndex + 1}/${state.verificationAlerts.length}`);
+    } else {
+      // No more unresolved alerts
+      set({ currentAlertIndex: -1 });
+      console.log('✅ All alerts resolved!');
+    }
+  },
+
+  setCurrentAlertIndex: (index: number) => {
+    set({ currentAlertIndex: index });
+  },
+
+  panToDate: (date: Date) => {
+    const state = get();
+    const viewDuration = state.timelineEnd.getTime() - state.timelineStart.getTime();
+    const newStart = new Date(date.getTime() - viewDuration / 2);
+    const newEnd = new Date(date.getTime() + viewDuration / 2);
+
+    set({
+      timelineStart: newStart,
+      timelineEnd: newEnd,
+      centerDate: date,
+    });
   },
 };
 });

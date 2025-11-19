@@ -597,7 +597,7 @@ export default function ModelResponseDisplay({
                     </span>
                     <span className="font-semibold text-gray-900 dark:text-gray-100">
                       {properties.reduce(
-                        (acc, prop) => acc + prop.property_history.length,
+                        (acc, prop) => acc + (prop.property_history?.length || 0),
                         0
                       )}
                     </span>

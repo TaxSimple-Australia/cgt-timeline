@@ -24,6 +24,7 @@ interface PropertyBranchProps {
   onEventClick: (event: TimelineEvent) => void;
   onBranchClick: (propertyId: string, position: number, clientX: number, clientY: number) => void;
   onHoverChange: (isHovered: boolean) => void;
+  onAlertClick?: (alertId: string) => void;
 }
 
 export default function PropertyBranch({
@@ -39,7 +40,7 @@ export default function PropertyBranch({
   onBranchClick,
   onHoverChange,
 }: PropertyBranchProps) {
-  const { eventDisplayMode, selectIssue, selectProperty, enableDragEvents, updateEvent } = useTimelineStore();
+  const { eventDisplayMode, positionedGaps, selectIssue, selectProperty, enableDragEvents, updateEvent } = useTimelineStore();
   const { getIssuesForProperty } = useValidationStore();
   const branchY = 100 + branchIndex * 120; // Vertical spacing between branches
 
@@ -63,6 +64,19 @@ export default function PropertyBranch({
 
     onBranchClick(property.id, position, e.clientX, e.clientY);
   };
+
+  // Get gaps that apply to this property
+  const propertyGaps = positionedGaps.filter(gap =>
+    gap.propertyIds.includes(property.id)
+  );
+
+  // Debug logging to help troubleshoot gap display
+  if (positionedGaps.length > 0) {
+    console.log('PropertyBranch:', property.name, 'ID:', property.id);
+    console.log('Total gaps:', positionedGaps.length);
+    console.log('Gaps for this property:', propertyGaps.length);
+    console.log('Property gaps:', propertyGaps);
+  }
 
   // Get validation issues for this property
   const propertyIssues = getIssuesForProperty(property.name) || getIssuesForProperty(property.address);
@@ -169,7 +183,26 @@ export default function PropertyBranch({
           onBandClick={onBranchClick}
         />
 
-      {/* Gaps are now rendered globally in Timeline component */}
+      {/* Timeline Gaps for this Property */}
+      {propertyGaps.map((gap) => (
+        <TimelineGap
+          key={gap.id}
+          gap={gap}
+          timelineHeight={40} // Height of branch line area
+          branchY={branchY}
+          timelineStart={timelineStart}
+          timelineEnd={timelineEnd}
+          onClick={() => {
+            // Find and select the related issue
+            const gapIssue = useTimelineStore.getState().timelineIssues.find(
+              issue => issue.gapId === gap.id
+            );
+            if (gapIssue) {
+              selectIssue(gapIssue.id);
+            }
+          }}
+        />
+      ))}
 
       {/* Warning Glow Effect for Properties with Issues */}
       {hasIssues && (

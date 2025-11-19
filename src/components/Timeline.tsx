@@ -15,9 +15,10 @@ import ResidenceGapOverlay from './ResidenceGapOverlay';
 
 interface TimelineProps {
   className?: string;
+  onAlertClick?: (alertId: string) => void;
 }
 
-export default function Timeline({ className }: TimelineProps) {
+export default function Timeline({ className, onAlertClick }: TimelineProps) {
   const timelineRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [draggedEventId, setDraggedEventId] = useState<string | null>(null);
@@ -390,6 +391,7 @@ export default function Timeline({ className }: TimelineProps) {
                   onEventClick={(event) => handleEventClick(event, property.name)}
                   onBranchClick={handleBranchClick}
                   onHoverChange={(isHovered) => setHoveredPropertyId(isHovered ? property.id : null)}
+                  onAlertClick={onAlertClick}
                 />
               ))}
             </svg>

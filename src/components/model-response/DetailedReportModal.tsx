@@ -540,7 +540,7 @@ export default function DetailedReportModal({
                           </h4>
                           <div className="flex items-center justify-between text-sm">
                             <span className="text-gray-600 dark:text-gray-400">
-                              {property.property_history.length} events
+                              {property.property_history?.length || 0} events
                             </span>
                             <span className="text-gray-500 dark:text-gray-500 text-xs">
                               {property.notes ? '📝 Has notes' : ''}
@@ -624,7 +624,7 @@ export default function DetailedReportModal({
                           {property.address}
                         </h4>
                         <div className="space-y-3">
-                          {property.property_history.map((event, eventIndex) => (
+                          {property.property_history?.map((event, eventIndex) => (
                             <div
                               key={eventIndex}
                               className="flex items-start gap-4 p-3 rounded-lg bg-gray-50 dark:bg-gray-800"

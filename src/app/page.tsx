@@ -204,6 +204,12 @@ export default function Home() {
         resolved_at: alert.resolvedAt,
       }));
 
+      console.log('✅ Verification responses prepared:', {
+        totalAlerts: verificationAlerts.length,
+        resolvedAlerts: verificationAlerts.filter(a => a.resolved).length,
+        verificationsData,
+      });
+
       // Include verifications in the request
       const requestData = {
         ...apiData,
@@ -360,9 +366,10 @@ export default function Home() {
         )}
       </AnimatePresence>
 
-      {/* AI Feedback Modal */}
+      {/* AI Feedback Modal - Only for non-gap issues */}
+      {/* Gap issues are handled by GilbertBranch VerificationAlertBar → PropertyIssueOverlay */}
       <FeedbackModal
-        issue={selectedIssue ? timelineIssues.find(i => i.id === selectedIssue) || null : null}
+        issue={selectedIssue ? timelineIssues.find(i => i.id === selectedIssue && i.category !== 'timeline_gap') || null : null}
         onClose={() => selectIssue(null)}
         onResolve={resolveIssue}
       />

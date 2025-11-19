@@ -11,7 +11,7 @@ import PropertyBranch from './PropertyBranch';
 import QuickAddMenu from './QuickAddMenu';
 import EventDetailsModal from './EventDetailsModal';
 import TimelineSnapshot from './TimelineSnapshot';
-import ResidenceGapOverlay from './ResidenceGapOverlay';
+// import ResidenceGapOverlay from './ResidenceGapOverlay'; // REMOVED: Duplicate of GilbertBranch VerificationAlertBar
 
 interface TimelineProps {
   className?: string;
@@ -49,7 +49,7 @@ export default function Timeline({ className, onAlertClick }: TimelineProps) {
     lockFutureDates,
     selectIssue,
     timelineIssues,
-    residenceGapIssues,
+    // residenceGapIssues, // REMOVED: Not needed - using GilbertBranch VerificationAlertBar instead
   } = useTimelineStore();
 
   // Handle timeline click to add events
@@ -357,25 +357,8 @@ export default function Timeline({ className, onAlertClick }: TimelineProps) {
               className="absolute top-12 left-0 w-full"
               style={{ height: `${minContentHeight - 48}px` }}
             >
-              {/* Residence Gap Overlays - Render behind property branches */}
-              {residenceGapIssues.map((gapIssue, index) => (
-                <ResidenceGapOverlay
-                  key={`gap-${index}-${gapIssue.affected_period?.start}`}
-                  issue={gapIssue}
-                  timelineStart={timelineStart}
-                  timelineEnd={timelineEnd}
-                  timelineHeight={minContentHeight - 48}
-                  onClick={() => {
-                    const relatedIssue = timelineIssues.find(issue =>
-                      issue.category === 'timeline_gap' &&
-                      issue.startDate?.toISOString().split('T')[0] === gapIssue.affected_period?.start
-                    );
-                    if (relatedIssue) {
-                      selectIssue(relatedIssue.id);
-                    }
-                  }}
-                />
-              ))}
+              {/* REMOVED: ResidenceGapOverlay - Duplicate of GilbertBranch VerificationAlertBar */}
+              {/* Gap questions now handled exclusively by VerificationAlertBar → PropertyIssueOverlay */}
 
               {properties.map((property, index) => (
                 <PropertyBranch

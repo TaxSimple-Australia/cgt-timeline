@@ -24,7 +24,7 @@ export default function PropertyGanttChart({ properties }: PropertyGanttChartPro
     let latest = new Date(0);
 
     properties.forEach(property => {
-      property.property_history.forEach(event => {
+      property.property_history?.forEach(event => {
         const eventDate = new Date(event.date);
         if (eventDate < earliest) earliest = eventDate;
         if (eventDate > latest) latest = eventDate;
@@ -144,10 +144,10 @@ export default function PropertyGanttChart({ properties }: PropertyGanttChartPro
           <div className="space-y-6">
             {properties.map((property, propIndex) => {
               // Find purchase and sale events
-              const purchaseEvent = property.property_history.find(e => e.event.toLowerCase() === 'purchase');
-              const saleEvent = property.property_history.find(e => e.event.toLowerCase() === 'sale');
+              const purchaseEvent = property.property_history?.find(e => e.event.toLowerCase() === 'purchase');
+              const saleEvent = property.property_history?.find(e => e.event.toLowerCase() === 'sale');
 
-              const propStartDate = purchaseEvent ? new Date(purchaseEvent.date) : new Date(property.property_history[0].date);
+              const propStartDate = purchaseEvent ? new Date(purchaseEvent.date) : (property.property_history?.[0]?.date ? new Date(property.property_history[0].date) : new Date());
               const propEndDate = saleEvent ? new Date(saleEvent.date) : new Date();
 
               const startPercent = ((propStartDate.getTime() - startDate.getTime()) / (endDate.getTime() - startDate.getTime())) * 100;
@@ -170,7 +170,7 @@ export default function PropertyGanttChart({ properties }: PropertyGanttChartPro
                         {property.address}
                       </h4>
                       <p className="text-xs text-gray-600 dark:text-gray-400">
-                        {property.property_history.length} events
+                        {property.property_history?.length || 0} events
                       </p>
                     </div>
                   </div>
@@ -190,7 +190,7 @@ export default function PropertyGanttChart({ properties }: PropertyGanttChartPro
                     />
 
                     {/* Event markers */}
-                    {property.property_history.map((event, eventIndex) => {
+                    {property.property_history?.map((event, eventIndex) => {
                       const eventDate = new Date(event.date);
                       const eventPercent = ((eventDate.getTime() - startDate.getTime()) / (endDate.getTime() - startDate.getTime())) * 100;
 
@@ -231,7 +231,7 @@ export default function PropertyGanttChart({ properties }: PropertyGanttChartPro
 
                   {/* Event Legend */}
                   <div className="flex flex-wrap gap-2 text-xs ml-9">
-                    {property.property_history.map((event, eventIndex) => (
+                    {property.property_history?.map((event, eventIndex) => (
                       <div
                         key={eventIndex}
                         className="flex items-center gap-1.5 px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded-full"

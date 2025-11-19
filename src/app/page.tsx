@@ -8,11 +8,15 @@ import { ModelResponseDisplay } from '@/components/model-response';
 import LoadingSpinner from '@/components/model-response/LoadingSpinner';
 import ErrorDisplay from '@/components/model-response/ErrorDisplay';
 import FeedbackModal from '@/components/FeedbackModal';
+import AllResolvedPopup from '@/components/AllResolvedPopup';
+import PropertyIssueOverlay from '@/components/PropertyIssueOverlay';
 import { useTimelineStore } from '@/store/timeline';
 import { useValidationStore } from '@/store/validation';
 import { transformTimelineToAPIFormat } from '@/lib/transform-timeline-data';
 import { transformAPIResponse } from '@/lib/transform-api-response';
-import { ChevronDown, ChevronUp, Sparkles } from 'lucide-react';
+import { extractVerificationAlerts } from '@/lib/extract-verification-alerts';
+import '@/lib/test-verification-alerts'; // Load test utilities for browser console
+import { ChevronDown, ChevronUp, Sparkles, AlertTriangle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { CGTModelResponse } from '@/types/model-response';
 
@@ -25,13 +29,22 @@ export default function Home() {
     selectedIssue,
     timelineIssues,
     selectIssue,
-    resolveIssue
+    resolveIssue,
+    verificationAlerts,
+    setVerificationAlerts,
+    clearVerificationAlerts,
+    getAllVerificationAlertsResolved,
+    getCurrentAlert,
+    getUnresolvedAlerts,
+    resolveVerificationAlert,
   } = useTimelineStore();
   const { setValidationIssues, clearValidationIssues, setApiConnected } = useValidationStore();
   const [showAnalysis, setShowAnalysis] = useState(false);
   const [analysisData, setAnalysisData] = useState<CGTModelResponse | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showAllResolvedPopup, setShowAllResolvedPopup] = useState(false);
+  const [selectedAlertForModal, setSelectedAlertForModal] = useState<string | null>(null);
 
   // Load demo data on initial mount
   useEffect(() => {
@@ -46,6 +59,14 @@ export default function Home() {
     const apiUrl = process.env.NEXT_PUBLIC_CGT_MODEL_API_URL;
     setApiConnected(!!apiUrl && apiUrl !== 'YOUR_MODEL_API_URL_HERE');
   }, []);
+
+  // Watch for all verification alerts being resolved
+  useEffect(() => {
+    if (getAllVerificationAlertsResolved()) {
+      console.log('✅ All verification alerts resolved!');
+      setShowAllResolvedPopup(true);
+    }
+  }, [verificationAlerts, getAllVerificationAlertsResolved]);
 
   // Function to trigger CGT analysis with custom query
   const handleAnalyze = async (customQuery?: string) => {
@@ -65,7 +86,7 @@ export default function Home() {
 
     setIsLoading(true);
     setError(null);
-    setShowAnalysis(true);
+    setShowAnalysis(true); // Show analysis panel immediately to display loading progress
 
     try {
       // Transform timeline data to API format
@@ -97,6 +118,11 @@ export default function Home() {
       const transformedData = transformAPIResponse(result.data);
       console.log('🔄 Transformed data:', transformedData);
 
+      // Extract verification alerts for failed properties
+      const alerts = extractVerificationAlerts(result.data, properties);
+      console.log('🚨 Extracted alerts:', alerts);
+      setVerificationAlerts(alerts);
+
       // Set validation issues in store
       if (transformedData.response?.issues) {
         setValidationIssues(transformedData.response.issues, properties);
@@ -104,6 +130,14 @@ export default function Home() {
       setApiConnected(true);
 
       setAnalysisData(transformedData);
+
+      // If verification alerts are detected, close the analysis panel
+      // Alerts will be displayed on timeline for user to resolve
+      if (alerts.length > 0) {
+        console.log('⚠️ Verification alerts detected - closing analysis panel to show alerts on timeline');
+        setShowAnalysis(false);
+      }
+      // If no alerts, analysis panel stays open showing results
     } catch (err) {
       console.error('❌ Error analyzing CGT:', err);
       setError(
@@ -121,6 +155,88 @@ export default function Home() {
     await handleAnalyze(query);
   };
 
+  // Handler for re-submitting after all verification issues are resolved
+  const handleResubmitWithResolutions = async () => {
+    console.log('📤 Re-submitting with resolved verification alerts');
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      // Transform timeline data to API format
+      const apiData = transformTimelineToAPIFormat(properties, events);
+
+      // Add verification responses to API data
+      const verificationsData = verificationAlerts.map((alert) => ({
+        property_address: alert.propertyAddress,
+        issue_period: {
+          start_date: alert.startDate,
+          end_date: alert.endDate,
+        },
+        resolution_question: alert.resolutionText,
+        user_response: alert.userResponse,
+        resolved_at: alert.resolvedAt,
+      }));
+
+      // Include verifications in the request
+      const requestData = {
+        ...apiData,
+        verification_responses: verificationsData,
+      };
+
+      console.log('📤 Sending resolved data to API:', requestData);
+
+      // Call the API
+      const response = await fetch('/api/analyze-cgt', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestData),
+      });
+
+      if (!response.ok) {
+        throw new Error(`API request failed with status ${response.status}`);
+      }
+
+      const result = await response.json();
+      console.log('📥 Received from API after resolution:', result);
+
+      if (!result.success) {
+        throw new Error(result.error || 'API request failed');
+      }
+
+      // Transform API response
+      const transformedData = transformAPIResponse(result.data);
+
+      // Clear old verification alerts since they've been resolved
+      clearVerificationAlerts();
+
+      // Close the "all resolved" popup
+      setShowAllResolvedPopup(false);
+
+      // Set validation issues in store
+      if (transformedData.response?.issues) {
+        setValidationIssues(transformedData.response.issues, properties);
+      }
+
+      setAnalysisData(transformedData);
+
+      // NOW show the analysis - all alerts have been resolved and re-submitted
+      setShowAnalysis(true);
+
+      console.log('✅ Successfully re-submitted with verifications - showing CGT analysis');
+    } catch (err) {
+      console.error('❌ Error re-submitting with verifications:', err);
+      setError(
+        err instanceof Error
+          ? err.message
+          : 'Failed to re-submit verification data. Please try again.'
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   // Retry function
   const handleRetry = () => {
     setError(null);
@@ -133,7 +249,10 @@ export default function Home() {
       <div className="flex-1 flex overflow-hidden">
         {/* Main Timeline Area */}
         <div className="flex-1 h-full">
-          <Timeline className="w-full h-full" />
+          <Timeline
+            className="w-full h-full"
+            onAlertClick={(alertId) => setSelectedAlertForModal(alertId)}
+          />
         </div>
 
         {/* Property Details Panel (slides in when property selected) */}
@@ -189,8 +308,27 @@ export default function Home() {
                   <LoadingSpinner />
                 ) : error ? (
                   <ErrorDisplay message={error} onRetry={handleRetry} />
-                ) : analysisData ? (
+                ) : analysisData && getUnresolvedAlerts().length === 0 ? (
                   <ModelResponseDisplay responseData={analysisData} />
+                ) : getUnresolvedAlerts().length > 0 ? (
+                  <div className="flex items-center justify-center py-20">
+                    <div className="text-center max-w-md">
+                      <div className="w-16 h-16 bg-amber-100 dark:bg-amber-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <AlertTriangle className="w-8 h-8 text-amber-600 dark:text-amber-400" />
+                      </div>
+                      <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
+                        Verification Required
+                      </h3>
+                      <p className="text-gray-600 dark:text-gray-400 mb-4">
+                        Please resolve {getUnresolvedAlerts().length} verification{' '}
+                        {getUnresolvedAlerts().length === 1 ? 'issue' : 'issues'} before viewing
+                        the CGT analysis.
+                      </p>
+                      <p className="text-sm text-gray-500 dark:text-gray-500">
+                        The verification dialog will appear above the timeline.
+                      </p>
+                    </div>
+                  </div>
                 ) : null}
               </div>
             </div>
@@ -204,6 +342,29 @@ export default function Home() {
         onClose={() => selectIssue(null)}
         onResolve={resolveIssue}
       />
+
+      {/* All Verification Alerts Resolved Popup */}
+      <AllResolvedPopup
+        isOpen={showAllResolvedPopup}
+        onClose={() => setShowAllResolvedPopup(false)}
+        onProceed={handleResubmitWithResolutions}
+        resolvedCount={verificationAlerts.length}
+      />
+
+      {/* Property Verification Issue Overlay - Shows when user clicks on alert */}
+      {selectedAlertForModal && (
+        <PropertyIssueOverlay
+          alert={verificationAlerts.find((a) => a.id === selectedAlertForModal)!}
+          onResolve={(alertId, userResponse) => {
+            resolveVerificationAlert(alertId, userResponse);
+            setSelectedAlertForModal(null); // Close modal after resolving
+          }}
+          alertNumber={
+            verificationAlerts.findIndex((a) => a.id === selectedAlertForModal) + 1
+          }
+          totalAlerts={verificationAlerts.length}
+        />
+      )}
     </main>
   );
 }

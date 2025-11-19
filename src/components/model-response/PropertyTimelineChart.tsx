@@ -41,7 +41,7 @@ export default function PropertyTimelineChart({
     const allEvents: any[] = [];
 
     properties.forEach((property, propIndex) => {
-      property.property_history.forEach((event) => {
+      property.property_history?.forEach((event) => {
         allEvents.push({
           date: new Date(event.date),
           property: property.address.split(',')[0],

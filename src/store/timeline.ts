@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { addDays, format } from 'date-fns';
 import type { AIResponse, TimelineIssue, PositionedGap } from '../types/ai-feedback';
 import type { CostBaseCategory } from '../lib/cost-base-definitions';
+import type { VerificationAlert } from '../types/verification-alert';
 
 export type EventType =
   | 'purchase'
@@ -139,6 +140,10 @@ interface TimelineState {
   selectedIssue: string | null; // Currently viewing issue details
   isAnalyzing: boolean; // Loading state during AI analysis
 
+  // Verification Alerts State
+  verificationAlerts: VerificationAlert[]; // Alert bars for failed verifications
+  currentAlertIndex: number; // Index of currently resolving alert (-1 means none)
+
   // Actions
   addProperty: (property: Omit<Property, 'id' | 'branch'>) => void;
   updateProperty: (id: string, property: Partial<Property>) => void;
@@ -174,6 +179,16 @@ interface TimelineState {
   resolveIssue: (issueId: string, response: string) => void; // Mark issue resolved with user response
   clearAIFeedback: () => void; // Clear all AI feedback
   analyzePortfolio: () => Promise<void>; // Trigger AI analysis of current timeline
+
+  // Verification Alert Actions
+  setVerificationAlerts: (alerts: VerificationAlert[]) => void; // Set verification alerts
+  clearVerificationAlerts: () => void; // Clear all verification alerts
+  resolveVerificationAlert: (alertId: string, userResponse: string) => void; // Mark alert as resolved
+  getAllVerificationAlertsResolved: () => boolean; // Check if all alerts are resolved
+  getUnresolvedAlerts: () => VerificationAlert[]; // Get list of unresolved alerts
+  getCurrentAlert: () => VerificationAlert | null; // Get currently active alert
+  moveToNextAlert: () => void; // Move to next unresolved alert
+  setCurrentAlertIndex: (index: number) => void; // Set current alert index
 }
 
 const propertyColors = [
@@ -393,6 +408,10 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
     positionedGaps: [],
     selectedIssue: null,
     isAnalyzing: false,
+
+    // Verification Alerts Initial State
+    verificationAlerts: [],
+    currentAlertIndex: -1,
 
   addProperty: (property) => {
     const properties = get().properties;
@@ -1286,6 +1305,77 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
     } finally {
       set({ isAnalyzing: false });
     }
+  },
+
+  // Verification Alert Action Implementations
+  setVerificationAlerts: (alerts: VerificationAlert[]) => {
+    console.log('🚨 Setting verification alerts:', alerts);
+    const firstUnresolvedIndex = alerts.findIndex(alert => !alert.resolved);
+    set({
+      verificationAlerts: alerts,
+      currentAlertIndex: firstUnresolvedIndex >= 0 ? firstUnresolvedIndex : -1,
+    });
+  },
+
+  clearVerificationAlerts: () => {
+    set({ verificationAlerts: [] });
+  },
+
+  resolveVerificationAlert: (alertId: string, userResponse: string) => {
+    const state = get();
+    const updatedAlerts = state.verificationAlerts.map(alert =>
+      alert.id === alertId
+        ? {
+            ...alert,
+            resolved: true,
+            userResponse,
+            resolvedAt: new Date().toISOString(),
+          }
+        : alert
+    );
+    console.log('✅ Resolved verification alert:', alertId, 'Response:', userResponse);
+    set({ verificationAlerts: updatedAlerts });
+
+    // Auto-move to next unresolved alert
+    setTimeout(() => get().moveToNextAlert(), 100);
+  },
+
+  getAllVerificationAlertsResolved: () => {
+    const state = get();
+    return state.verificationAlerts.length > 0 && state.verificationAlerts.every(alert => alert.resolved);
+  },
+
+  getUnresolvedAlerts: () => {
+    const state = get();
+    return state.verificationAlerts.filter(alert => !alert.resolved);
+  },
+
+  getCurrentAlert: () => {
+    const state = get();
+    if (state.currentAlertIndex >= 0 && state.currentAlertIndex < state.verificationAlerts.length) {
+      return state.verificationAlerts[state.currentAlertIndex];
+    }
+    return null;
+  },
+
+  moveToNextAlert: () => {
+    const state = get();
+    const unresolvedAlerts = state.verificationAlerts.filter(alert => !alert.resolved);
+
+    if (unresolvedAlerts.length > 0) {
+      // Find the index of the first unresolved alert
+      const nextIndex = state.verificationAlerts.findIndex(alert => !alert.resolved);
+      set({ currentAlertIndex: nextIndex });
+      console.log(`📍 Moved to alert ${nextIndex + 1}/${state.verificationAlerts.length}`);
+    } else {
+      // No more unresolved alerts
+      set({ currentAlertIndex: -1 });
+      console.log('✅ All alerts resolved!');
+    }
+  },
+
+  setCurrentAlertIndex: (index: number) => {
+    set({ currentAlertIndex: index });
   },
 };
 });

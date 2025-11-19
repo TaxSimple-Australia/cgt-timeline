@@ -1,0 +1,99 @@
+{
+  "properties": [
+    {
+      "address": "10 Gap Street, Melbourne VIC 3000",
+      "property_history": [
+        {
+          "date": "2015-01-15",
+          "event": "purchase",
+          "price": 450000,
+          "purchase_legal_fees": 2800,
+          "stamp_duty": 18000
+        },
+        {
+          "date": "2015-02-01",
+          "event": "move_in"
+        },
+        {
+          "date": "2017-06-30",
+          "event": "move_out"
+        },
+        {
+          "date": "2019-03-01",
+          "event": "rent_start"
+        },
+        {
+          "date": "2021-08-15",
+          "event": "rent_end"
+        },
+        {
+          "date": "2024-01-10",
+          "event": "sale",
+          "price": 680000,
+          "contract_date": "2024-01-10",
+          "agent_fees": 17000,
+          "legal_fees": 2200
+        }
+      ],
+      "notes": "sold - Has two major gaps: 2017-2019 (unknown) and 2021-2024 (unknown)"
+    },
+    {
+      "address": "22 Unclear Avenue, Sydney NSW 2000",
+      "property_history": [
+        {
+          "date": "2016-05-10",
+          "event": "purchase",
+          "price": 720000,
+          "stamp_duty": 28800
+        },
+        {
+          "date": "2018-11-20",
+          "event": "move_out"
+        },
+        {
+          "date": "2019-01-15",
+          "event": "rent_start"
+        },
+        {
+          "date": "2023-06-30",
+          "event": "sale",
+          "price": 950000,
+          "contract_date": "2023-06-30",
+          "agent_fees": 23750
+        }
+      ],
+      "notes": "sold - Missing move_in date and rent_end date"
+    },
+    {
+      "address": "45 Vacant Drive, Brisbane QLD 4000",
+      "property_history": [
+        {
+          "date": "2017-03-01",
+          "event": "purchase",
+          "price": 380000
+        },
+        {
+          "date": "2017-03-15",
+          "event": "move_in"
+        },
+        {
+          "date": "2019-07-01",
+          "event": "move_out"
+        },
+        {
+          "date": "2022-10-20",
+          "event": "move_in"
+        },
+        {
+          "date": "2024-02-15",
+          "event": "move_out"
+        }
+      ],
+      "notes": "ppr - Current property with major 3-year gap (2019-2022) - was it vacant? Rented? Other use?"
+    }
+  ],
+  "user_query": "I have several properties with gaps in my timeline records. Some periods I can't remember if they were vacant, rented informally, or used for other purposes. Can you analyze my CGT liability and tell me what information is missing?",
+  "additional_info": {
+    "australian_resident": true
+  }
+}

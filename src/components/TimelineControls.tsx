@@ -207,10 +207,10 @@ export default function TimelineControls() {
     e.target.value = '';
   };
 
-  const handleToggleDummyData = () => {
+  const handleToggleDummyData = async () => {
     if (!useDummyData) {
       // Turning ON: Load demo data
-      loadDemoData();
+      await loadDemoData();
       setUseDummyData(true);
     } else {
       // Turning OFF: Clear all data

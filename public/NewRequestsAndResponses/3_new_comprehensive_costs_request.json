@@ -1,0 +1,153 @@
+{
+  "properties": [
+    {
+      "address": "100 Premium Street, Melbourne VIC 3000",
+      "property_history": [
+        {
+          "date": "2018-03-15",
+          "event": "purchase",
+          "price": 850000,
+          "purchase_legal_fees": 4200,
+          "stamp_duty": 45000,
+          "valuation_fees": 850,
+          "purchase_agent_fees": 12750,
+          "building_inspection": 950,
+          "pest_inspection": 400,
+          "title_legal_fees": 1800,
+          "loan_establishment": 1200,
+          "mortgage_insurance": 12000
+        },
+        {
+          "date": "2018-03-15",
+          "event": "move_in"
+        },
+        {
+          "date": "2019-06-10",
+          "event": "improvement",
+          "price": 65000
+        },
+        {
+          "date": "2020-11-20",
+          "event": "improvement",
+          "price": 38000
+        },
+        {
+          "date": "2022-04-15",
+          "event": "improvement",
+          "price": 22000
+        },
+        {
+          "date": "2021-09-30",
+          "event": "move_out"
+        },
+        {
+          "date": "2021-10-15",
+          "event": "rent_start"
+        },
+        {
+          "date": "2024-05-30",
+          "event": "sale",
+          "price": 1350000,
+          "contract_date": "2024-05-30",
+          "agent_fees": 33750,
+          "legal_fees": 3200,
+          "advertising_costs": 5500,
+          "staging_costs": 6800,
+          "auction_fees": 2200,
+          "property_styling": 3500
+        }
+      ],
+      "notes": "sold - Premium property with complete cost documentation, $125k improvements, sold 2024"
+    },
+    {
+      "address": "200 Executive Boulevard, Sydney NSW 2000",
+      "property_history": [
+        {
+          "date": "2015-07-20",
+          "event": "purchase",
+          "price": 1450000,
+          "purchase_legal_fees": 6500,
+          "stamp_duty": 65000,
+          "valuation_fees": 1200,
+          "purchase_agent_fees": 21750,
+          "building_inspection": 1400,
+          "pest_inspection": 550,
+          "title_legal_fees": 2500,
+          "loan_establishment": 2200,
+          "mortgage_insurance": 18500,
+          "survey_fees": 1800
+        },
+        {
+          "date": "2015-08-15",
+          "event": "rent_start"
+        },
+        {
+          "date": "2017-03-15",
+          "event": "improvement",
+          "price": 180000
+        },
+        {
+          "date": "2019-09-10",
+          "event": "improvement",
+          "price": 95000
+        },
+        {
+          "date": "2022-01-20",
+          "event": "improvement",
+          "price": 52000
+        },
+        {
+          "date": "2024-11-15",
+          "event": "sale",
+          "price": 2350000,
+          "contract_date": "2024-11-15",
+          "agent_fees": 58750,
+          "legal_fees": 4800,
+          "advertising_costs": 8500,
+          "staging_costs": 9200,
+          "auction_fees": 3500,
+          "property_styling": 5500,
+          "photography": 1200,
+          "video_marketing": 2800
+        }
+      ],
+      "notes": "sold - Investment property, $327k improvements, full cost documentation, rented throughout ownership"
+    },
+    {
+      "address": "300 Investment Plaza, Brisbane QLD 4000",
+      "property_history": [
+        {
+          "date": "2020-02-10",
+          "event": "purchase",
+          "price": 625000,
+          "purchase_legal_fees": 3500,
+          "stamp_duty": 23750,
+          "valuation_fees": 700,
+          "building_inspection": 850,
+          "pest_inspection": 420,
+          "title_legal_fees": 1500,
+          "loan_establishment": 1400
+        },
+        {
+          "date": "2020-03-01",
+          "event": "rent_start"
+        },
+        {
+          "date": "2021-08-15",
+          "event": "improvement",
+          "price": 45000
+        },
+        {
+          "date": "2023-05-20",
+          "event": "improvement",
+          "price": 28000
+        }
+      ],
+      "notes": "rental - Investment property with complete acquisition costs, $73k improvements, currently rented"
+    }
+  ],
+  "user_query": "I have 3 properties with complete cost documentation. Property 1 was my main residence then rented out before selling. Properties 2 and 3 were investment properties. I've kept detailed records of all acquisition costs, improvements, and selling expenses. Please calculate my CGT liability.",
+  "additional_info": {
+    "australian_resident": true
+  }
+}

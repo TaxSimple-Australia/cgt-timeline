@@ -4,17 +4,15 @@ import { useEffect, useState } from 'react';
 import Timeline from '@/components/Timeline';
 import PropertyPanel from '@/components/PropertyPanel';
 import ConversationBox from '@/components/ConversationBox';
-import { ModelResponseDisplay } from '@/components/model-response';
+import CGTAnalysisDisplay from '@/components/ai-response/CGTAnalysisDisplay';
 import LoadingSpinner from '@/components/model-response/LoadingSpinner';
 import ErrorDisplay from '@/components/model-response/ErrorDisplay';
 import FeedbackModal from '@/components/FeedbackModal';
 import { useTimelineStore } from '@/store/timeline';
 import { useValidationStore } from '@/store/validation';
 import { transformTimelineToAPIFormat } from '@/lib/transform-timeline-data';
-import { transformAPIResponse } from '@/lib/transform-api-response';
 import { ChevronDown, ChevronUp, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import type { CGTModelResponse } from '@/types/model-response';
 
 export default function Home() {
   const {
@@ -29,14 +27,16 @@ export default function Home() {
   } = useTimelineStore();
   const { setValidationIssues, clearValidationIssues, setApiConnected } = useValidationStore();
   const [showAnalysis, setShowAnalysis] = useState(false);
-  const [analysisData, setAnalysisData] = useState<CGTModelResponse | null>(null);
+  const [analysisData, setAnalysisData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   // Load demo data on initial mount
   useEffect(() => {
     if (properties.length === 0) {
-      loadDemoData();
+      loadDemoData().catch(err => {
+        console.error('Failed to load demo data:', err);
+      });
     }
   }, []); // Only run once on mount
 
@@ -93,17 +93,16 @@ export default function Home() {
         throw new Error(result.error || 'API request failed');
       }
 
-      // Transform API response to expected format
-      const transformedData = transformAPIResponse(result.data);
-      console.log('🔄 Transformed data:', transformedData);
+      // Use raw API response data
+      console.log('✅ Using raw API data:', result.data);
 
-      // Set validation issues in store
-      if (transformedData.response?.issues) {
-        setValidationIssues(transformedData.response.issues, properties);
+      // Set validation issues in store if present
+      if (result.data.verification?.issues) {
+        setValidationIssues(result.data.verification.issues, properties);
       }
       setApiConnected(true);
 
-      setAnalysisData(transformedData);
+      setAnalysisData(result.data);
     } catch (err) {
       console.error('❌ Error analyzing CGT:', err);
       setError(
@@ -190,7 +189,7 @@ export default function Home() {
                 ) : error ? (
                   <ErrorDisplay message={error} onRetry={handleRetry} />
                 ) : analysisData ? (
-                  <ModelResponseDisplay responseData={analysisData} />
+                  <CGTAnalysisDisplay response={analysisData} />
                 ) : null}
               </div>
             </div>

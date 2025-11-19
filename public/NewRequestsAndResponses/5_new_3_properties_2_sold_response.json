@@ -1,0 +1,298 @@
+{
+  "status": "success",
+  "timestamp": "2025-11-19T06:34:10.902693",
+  "analysis_id": "a0ad6bcd-74b5-42e4-94d1-8c03a8290152",
+  "summary": {
+    "cgt_liability": 0,
+    "total_capital_gain": null,
+    "total_capital_loss": null,
+    "net_capital_gain_after_loss": null,
+    "carry_forward_loss": null,
+    "main_residence_days": 1897,
+    "total_ownership_days": 5446,
+    "exemption_type": null,
+    "exemption_percentage": 34.832904884318765,
+    "confidence_score": 100
+  },
+  "properties": [
+    {
+      "address": "2/165 Trower Rd, Alawa, NT",
+      "property_id": "1",
+      "status": "sold",
+      "scenario_detected": "partial",
+      "exemption_type": "partial",
+      "exemption_reason": "Property sold after 5446 days ownership. Main residence for 1897 days (34.8%). Partial exemption applies.",
+      "should_calculate_cgt": true,
+      "main_residence_days": 1897,
+      "total_ownership_days": 5446,
+      "exempt_percentage": 34.832904884318765,
+      "six_year_rule_eligible": null,
+      "six_year_reason": "Property 2 was main residence during rental period (six-year rule exclusion)",
+      "applicable_rules": [],
+      "cross_property_conflicts": [],
+      "key_issue": null,
+      "purchase_price": 310000,
+      "sale_price": 255500,
+      "capital_change": -54500,
+      "taxable_amount": -54500,
+      "net_after_cgt_discount": -54500
+    },
+    {
+      "address": "12 Mahoney St, Muirhead, NT",
+      "property_id": "2",
+      "status": "sold",
+      "scenario_detected": "full",
+      "exemption_type": "full",
+      "exemption_reason": "Property was main residence for entire ownership period. Full exemption applies.",
+      "should_calculate_cgt": false,
+      "main_residence_days": 1897,
+      "total_ownership_days": 5446,
+      "exempt_percentage": 34.832904884318765,
+      "six_year_rule_eligible": null,
+      "six_year_reason": "Not applicable as property was main residence throughout ownership.",
+      "applicable_rules": [],
+      "cross_property_conflicts": [],
+      "key_issue": null,
+      "purchase_price": null,
+      "sale_price": null,
+      "capital_change": null,
+      "taxable_amount": null,
+      "net_after_cgt_discount": null
+    }
+  ],
+  "calculations": {
+    "portfolio_total": {
+      "total_cgt_liability": 0,
+      "total_capital_gain": -54500,
+      "total_exempt_amount": 0,
+      "properties_with_cgt": 0,
+      "properties_exempt": 1
+    },
+    "source": "deterministic_engine",
+    "method": "ITAA 1997 s104-10, s110-25, s118-145, s115-25",
+    "per_property": [
+      {
+        "property_id": "1",
+        "property_address": "2/165 Trower Rd, Alawa, NT",
+        "capital_proceeds": 255500,
+        "cost_base": 310000,
+        "raw_capital_gain": -54500,
+        "net_capital_gain": -54500,
+        "cost_base_breakdown": {
+          "acquisition_cost": 310000,
+          "incidental_costs_acquire": 0,
+          "ownership_costs_unclaimed": 0,
+          "capital_improvements": 0,
+          "disposal_costs": 0,
+          "total_cost_base": 310000
+        },
+        "main_residence_exemption": {
+          "days_as_main_residence": 1897,
+          "total_ownership_days": 5446,
+          "exemption_percentage": 34.83,
+          "exempt_amount": 0,
+          "taxable_amount_before_discount": -54500
+        },
+        "cgt_discount": {
+          "eligible": false,
+          "discount_percentage": 0,
+          "gain_before_discount": -54500,
+          "discounted_gain": -54500
+        },
+        "calculation_steps": [
+          {
+            "step": 1,
+            "description": "Calculate capital gain",
+            "formula": "Capital proceeds - Cost base",
+            "calculation": "$255,500.00 - $310,000.00",
+            "result": -54500,
+            "section": "s104-10"
+          }
+        ],
+        "applicable_sections": []
+      }
+    ],
+    "all_steps_combined": [
+      {
+        "property_address": "2/165 Trower Rd, Alawa, NT",
+        "steps": [
+          {
+            "step": 1,
+            "description": "Calculate capital gain",
+            "formula": "Capital proceeds - Cost base",
+            "calculation": "$255,500.00 - $310,000.00",
+            "result": -54500,
+            "section": "s104-10"
+          }
+        ]
+      }
+    ]
+  },
+  "verification": {
+    "status": "passed",
+    "summary": {
+      "critical_issues": 0,
+      "warnings": 0,
+      "resolved_false_positives": 0,
+      "total_issues_flagged": 0,
+      "total_issues_after_llm": 0
+    },
+    "issues": [],
+    "clarification_questions": [],
+    "normalized_data": {},
+    "timeline_analysis": {
+      "status": "success",
+      "analysis_period": {
+        "start": "2010-03-22",
+        "end": "2025-02-14",
+        "total_days": 5444
+      },
+      "gaps": [],
+      "overlaps": [
+        {
+          "date": "2024-07-17",
+          "conflicting_properties": [
+            "12 Mahoney St, Muirhead, NT",
+            "16 Clist Drive, Victoria"
+          ]
+        }
+      ],
+      "statistics": {
+        "total_days": 5444,
+        "gap_days": 0,
+        "overlap_days": 1,
+        "accounted_days": 5444,
+        "accounted_percentage": 100,
+        "total_gaps": 0,
+        "total_overlaps": 1
+      },
+      "has_issues": true
+    },
+    "llm_decision": {},
+    "llm_summary": "Both properties at 2/165 Trower Rd and 12 Mahoney St have been sold with complete data. Property at 16 Clist Drive is still owned. No critical issues detected."
+  },
+  "analysis": {
+    "content": "{\n  \"summary\": \"In this portfolio, Property 1 at 2/165 Trower Rd, Alawa, NT, has a partial CGT exemption due to its use as a main residence for a portion of the ownership period. However, it incurred a capital loss, which means there is no CGT liability. Property 2 at 12 Mahoney St, Muirhead, NT, is fully exempt from CGT as it was the main residence throughout the ownership period. The key cross-property issue was the main residence conflict between Property 1 and Property 2, which affected the application of the six-year rule for Property 1. This conflict was resolved by recognizing Property 2 as the main residence during the relevant period, thus excluding the six-year rule for Property 1.\",\n  \"per_property_analysis\": [\n    {\n      \"property_address\": \"2/165 Trower Rd, Alawa, NT\",\n      \"status\": \"sold\",\n      \"exemption\": \"partial\",\n      \"reasoning\": \"The property was the main residence for 1,897 days out of a total ownership period of 5,446 days, resulting in a 34.83% exemption. The six-year rule could not be applied because Property 2 was the main residence during the rental period of Property 1, as per the scenario analysis. According to RULE 1, the main residence exemption applies to the period the property was used as the main residence.\",\n      \"cross_property_impact\": \"Property 2 being the main residence during the rental period of Property 1 excluded the application of the six-year rule for Property 1.\"\n    },\n    {\n      \"property_address\": \"12 Mahoney St, Muirhead, NT\",\n      \"status\": \"sold\",\n      \"exemption\": \"full\",\n      \"reasoning\": \"The property was the main residence for the entire ownership period of 3,950 days, qualifying it for a full CGT exemption. This is supported by RULE 2, which states that a property used as a main residence throughout the ownership period is fully exempt from CGT.\",\n      \"cross_property_impact\": \"Property 2's status as the main residence affected Property 1 by excluding the six-year rule application for Property 1.\"\n    }\n  ],\n  \"cross_property_intelligence\": \"The main residence conflict between Property 1 and Property 2 was a significant issue. Property 2 was the main residence during the rental period of Property 1, which excluded the application of the six-year rule for Property 1. This resolution was crucial in determining the partial exemption for Property 1. Portfolio-level considerations include ensuring that main residence status is clearly established to avoid conflicts and maximize exemptions.\",\n  \"recommendations\": [\n    \"Ensure clear documentation of main residence status for each property to avoid future conflicts.\",\n    \"Consider the impact of property improvements on the cost base for future CGT calculations, as per RULE 5.\",\n    \"Review potential for utilizing capital losses from Property 1 against future capital gains, as allowed by ATO rules.\",\n    \"Plan for any future property acquisitions with a clear strategy for main residence designation to optimize CGT outcomes.\",\n    \"Stay informed about changes in CGT rules that may affect property investments, particularly regarding main residence exemptions.\"\n  ]\n}",
+    "num_properties": 3,
+    "metadata": {
+      "llm_used": "openai",
+      "confidence": 100,
+      "chunks_retrieved": 10,
+      "citations_count": 3,
+      "analysis_duration_seconds": null
+    },
+    "validation": {
+      "citation_check": {
+        "total_citations": 3,
+        "valid_citations": 3,
+        "invalid_citations": [],
+        "citation_details": [
+          {
+            "rule_number": "1",
+            "source": "property_and_capital_gains_tax.pdf",
+            "page": "N/A",
+            "valid": true,
+            "source_text": "Print whole section Property and capital gains tax How CGT affects real estate, including rental properties, land, improvements and your home. CGT when selling your rental property How CGT applies to your rental property and what expenses you can include in your costs. Your main residence - home Find out if your home is exempt from CGT, and what happens if you rent it out. Transferring property to family or friends Check if you need to use the market value of your property when working out your CGT. Granny flat arrangements and CGT Find out if your granny flat arrangement is exempt from CGT. Subdividing and combining land How to work out CGT when you sell land that you subdivided or amalgamated.",
+            "source_text_preview": "Print whole section Property and capital gains tax How CGT affects real estate, including rental properties, land, improvements and your home. CGT when selling your rental property How CGT applies to your rental property and what expenses you can include in your costs. Your main residence - home Fin...",
+            "used_in_analysis": "[RULE 1]"
+          },
+          {
+            "rule_number": "2",
+            "source": "guide_to_capital_gains_tax_2025.pdf",
+            "page": "N/A",
+            "valid": true,
+            "source_text": "Investments in shares and units Explains your CGT obligations if you sold or disposed of any shares or units in a unit trust in the 2024–25 income year. Forestry managed investment scheme interests Explains your CGT obligations if you sold or otherwise disposed of your forestry interests in 2024–25. CGT and the TOFA rules Explains the key provisions of the TOFA rules found in Division 230 of the ITAA 1997. Real estate and main residence Explains your CGT obligations for real estate. The CGT exemption for a main residence is also explained. Loss, destruction or compulsory acquisition of an asset Explains your CGT obligations if your CGT asset is lost, destroyed or compulsorily acquired. Marriage or relationship breakdown Explains your CGT obligations if your marriage or relationship ended on or after 20 September 1985. Deceased estates",
+            "source_text_preview": "Investments in shares and units Explains your CGT obligations if you sold or disposed of any shares or units in a unit trust in the 2024–25 income year. Forestry managed investment scheme interests Explains your CGT obligations if you sold or otherwise disposed of your forestry interests in 2024–25....",
+            "used_in_analysis": "[RULE 2]"
+          },
+          {
+            "rule_number": "5",
+            "source": "guide_to_capital_gains_tax_2025.pdf",
+            "page": "N/A",
+            "valid": true,
+            "source_text": "1. money or property given for the asset 2. incidental costs of acquiring the CGT asset or that relate to the CGT event 3. costs of owning the asset 4. capital costs to increase or preserve the value of your asset or to install or move it 5. capital costs of preserving or defending your ownership of or rights to your asset. You need to work out the amount for each element, then add them together to work out the cost base of your CGT asset. If there is an amount paid in a foreign currency that is part of the cost base you should convert it to Australian currency at the time of the relevant transaction or event. If you're registered for GST, reduce each element of the cost base of your asset by any related GST net input tax credits. If you're not registered for GST, you don't make any adjustments as the GST is included in the cost base. First element: money or property given for the asset Include in the first element: the money paid (or required to be paid) for the asset the market value of property given (or required to be given) to acquire the asset. Second element: incidental costs of acquiring a CGT asset or relating to a CGT event There are 10 incidental costs you may have incurred in acquiring the asset or for the CGT event that happens to it, including its disposal. They are: 1. remuneration for the services of a surveyor, valuer, auctioneer, accountant, broker, agent, consultant or legal adviser (you can include the cost of advice concerning the operation of the tax law as an incidental cost only if the advice was provided by a recognised tax adviser and you incurred the cost after 30 June 1989)",
+            "source_text_preview": "1. money or property given for the asset 2. incidental costs of acquiring the CGT asset or that relate to the CGT event 3. costs of owning the asset 4. capital costs to increase or preserve the value of your asset or to install or move it 5. capital costs of preserving or defending your ownership of...",
+            "used_in_analysis": "[RULE 5]"
+          }
+        ]
+      },
+      "calculation_check": {
+        "calculations_found": 1,
+        "calculations_verified": 1,
+        "calculation_errors": [],
+        "per_property": [
+          {
+            "property": "2/165 Trower Rd, Alawa, NT",
+            "valid": true,
+            "errors": [],
+            "warnings": [],
+            "day_counts_present": true,
+            "exemption_percentage": {
+              "calculated": 34.832904884318765,
+              "days_as_main_residence": 1897,
+              "total_ownership_days": 5446
+            }
+          },
+          {
+            "property": "12 Mahoney St, Muirhead, NT",
+            "status": "exempt",
+            "reason": "Property was main residence for entire ownership period. Full exemption applies."
+          }
+        ]
+      },
+      "logic_check": {
+        "consistent": true,
+        "checks_passed": [
+          "No cross-property conflicts",
+          "Property 2/165 Trower Rd, Alawa, NT mentioned",
+          "Property 12 Mahoney St, Muirhead, NT mentioned"
+        ],
+        "checks_failed": [],
+        "completeness_score": 100,
+        "consistency_issues": []
+      },
+      "warnings": [],
+      "overall_confidence": 100,
+      "portfolio_summary": {
+        "total_properties": 2,
+        "properties_needing_cgt": 1,
+        "properties_exempt": 1,
+        "cross_property_issues": 0
+      }
+    },
+    "summary": "In this portfolio, Property 1 at 2/165 Trower Rd, Alawa, NT, has a partial CGT exemption due to its use as a main residence for a portion of the ownership period. However, it incurred a capital loss, which means there is no CGT liability. Property 2 at 12 Mahoney St, Muirhead, NT, is fully exempt from CGT as it was the main residence throughout the ownership period. The key cross-property issue was the main residence conflict between Property 1 and Property 2, which affected the application of the six-year rule for Property 1. This conflict was resolved by recognizing Property 2 as the main residence during the relevant period, thus excluding the six-year rule for Property 1.",
+    "per_property_analysis": [
+      {
+        "property_address": "2/165 Trower Rd, Alawa, NT",
+        "status": "sold",
+        "exemption": "partial",
+        "reasoning": "The property was the main residence for 1,897 days out of a total ownership period of 5,446 days, resulting in a 34.83% exemption. The six-year rule could not be applied because Property 2 was the main residence during the rental period of Property 1, as per the scenario analysis. According to RULE 1, the main residence exemption applies to the period the property was used as the main residence.",
+        "cross_property_impact": "Property 2 being the main residence during the rental period of Property 1 excluded the application of the six-year rule for Property 1."
+      },
+      {
+        "property_address": "12 Mahoney St, Muirhead, NT",
+        "status": "sold",
+        "exemption": "full",
+        "reasoning": "The property was the main residence for the entire ownership period of 3,950 days, qualifying it for a full CGT exemption. This is supported by RULE 2, which states that a property used as a main residence throughout the ownership period is fully exempt from CGT.",
+        "cross_property_impact": "Property 2's status as the main residence affected Property 1 by excluding the six-year rule application for Property 1."
+      }
+    ],
+    "cross_property_intelligence": "The main residence conflict between Property 1 and Property 2 was a significant issue. Property 2 was the main residence during the rental period of Property 1, which excluded the application of the six-year rule for Property 1. This resolution was crucial in determining the partial exemption for Property 1. Portfolio-level considerations include ensuring that main residence status is clearly established to avoid conflicts and maximize exemptions.",
+    "recommendations": [
+      "Ensure clear documentation of main residence status for each property to avoid future conflicts.",
+      "Consider the impact of property improvements on the cost base for future CGT calculations, as per RULE 5.",
+      "Review potential for utilizing capital losses from Property 1 against future capital gains, as allowed by ATO rules.",
+      "Plan for any future property acquisitions with a clear strategy for main residence designation to optimize CGT outcomes.",
+      "Stay informed about changes in CGT rules that may affect property investments, particularly regarding main residence exemptions."
+    ]
+  },
+  "links": {
+    "self": "/api/v1/analysis/a0ad6bcd-74b5-42e4-94d1-8c03a8290152",
+    "documents": "/api/v1/analysis/a0ad6bcd-74b5-42e4-94d1-8c03a8290152/documents",
+    "validation": "/api/v1/analysis/a0ad6bcd-74b5-42e4-94d1-8c03a8290152/validation",
+    "verification_details": "/api/v1/analysis/a0ad6bcd-74b5-42e4-94d1-8c03a8290152/verification",
+    "timeline": "/api/v1/analysis/a0ad6bcd-74b5-42e4-94d1-8c03a8290152/timeline",
+    "export_pdf": "/api/v1/analysis/a0ad6bcd-74b5-42e4-94d1-8c03a8290152/export?format=pdf"
+  },
+  "error": null
+}

@@ -1,0 +1,240 @@
+{
+  "status": "verification_failed",
+  "timestamp": "2025-11-19T06:07:05.269768",
+  "analysis_id": "5aec0867-4f07-4960-9723-6cf200acf5ea",
+  "summary": {
+    "total_properties": 3,
+    "properties_passed": 2,
+    "properties_failed": 1,
+    "needs_clarification": 0,
+    "total_cgt_liability": null
+  },
+  "properties": [
+    {
+      "address": "10 Gap Street, Melbourne VIC 3000",
+      "status": "failed",
+      "classification": "SOLD",
+      "verification_status": "failed",
+      "quick_summary": "Timeline gap: 2019-07-01 to 2022-10-19 (1207 days). Owned: '10 Gap Street, Melbourne VIC 3000, 22 Unclear Avenue, Sydney NSW 2000' but no main residence recorded.",
+      "net_capital_gain": null,
+      "detail_url": "/api/v1/property/10-gap-street-melbourne-vic-3000/detail"
+    },
+    {
+      "address": "22 Unclear Avenue, Sydney NSW 2000",
+      "status": "passed",
+      "classification": "SOLD",
+      "verification_status": "passed",
+      "quick_summary": "Ready for analysis",
+      "net_capital_gain": null,
+      "detail_url": "/api/v1/property/22-unclear-avenue-sydney-nsw-2000/detail"
+    },
+    {
+      "address": "45 Vacant Drive, Brisbane QLD 4000",
+      "status": "passed",
+      "classification": "OWNED",
+      "verification_status": "passed",
+      "quick_summary": "Ready for analysis",
+      "net_capital_gain": null,
+      "detail_url": "/api/v1/property/45-vacant-drive-brisbane-qld-4000/detail"
+    }
+  ],
+  "verification": {
+    "status": "failed",
+    "summary": {
+      "critical_issues": 1,
+      "warnings": 0,
+      "resolved_false_positives": 1,
+      "total_issues_flagged": 2,
+      "total_issues_after_llm": 2
+    },
+    "issues": [
+      {
+        "property_address": "10 Gap Street, Melbourne VIC 3000",
+        "severity": "warning",
+        "category": "timeline_gap",
+        "message": "Timeline gap: 2015-01-15 to 2015-01-31 (17 days). Owned: '10 Gap Street, Melbourne VIC 3000' but no main residence recorded.",
+        "suggested_resolution": "Provide specific living arrangements for this period with exact dates",
+        "clarification_question": "Please specify living arrangements from 2015-01-15 to 2015-01-31 (17 days):\n  - Living in owned property: 10 Gap Street, Melbourne VIC 3000\n  - Renting elsewhere\n  - Staying with family/friends\n  - Overseas/traveling\n  - Other (please specify)",
+        "affected_period": {
+          "start": "2015-01-15",
+          "end": "2015-01-31",
+          "days": 17
+        }
+      },
+      {
+        "property_address": "10 Gap Street, Melbourne VIC 3000",
+        "severity": "critical",
+        "category": "timeline_gap",
+        "message": "Timeline gap: 2019-07-01 to 2022-10-19 (1207 days). Owned: '10 Gap Street, Melbourne VIC 3000, 22 Unclear Avenue, Sydney NSW 2000' but no main residence recorded.",
+        "suggested_resolution": "Provide specific living arrangements for this period with exact dates",
+        "clarification_question": "Please specify living arrangements from 2019-07-01 to 2022-10-19 (1207 days):\n  - Living in owned property: 10 Gap Street, Melbourne VIC 3000, 22 Unclear Avenue, Sydney NSW 2000\n  - Renting elsewhere\n  - Staying with family/friends\n  - Overseas/traveling\n  - Other (please specify)",
+        "affected_period": {
+          "start": "2019-07-01",
+          "end": "2022-10-19",
+          "days": 1207
+        }
+      }
+    ],
+    "clarification_questions": [
+      {
+        "question": "Please specify living arrangements from 2015-01-15 to 2015-01-31 (17 days):\n  - Living in owned property: 10 Gap Street, Melbourne VIC 3000\n  - Renting elsewhere\n  - Staying with family/friends\n  - Overseas/traveling\n  - Other (please specify)",
+        "type": "timeline_gap",
+        "properties_involved": [
+          "10 Gap Street, Melbourne VIC 3000"
+        ],
+        "period": {
+          "start": "2015-01-15",
+          "end": "2015-01-31",
+          "days": 17
+        },
+        "possible_answers": [
+          "Lived at 10 Gap Street, Melbourne VIC 3000",
+          "Lived at another property not listed",
+          "Renting elsewhere",
+          "Staying with family/friends",
+          "Traveling/overseas",
+          "Other (please specify)"
+        ]
+      },
+      {
+        "question": "Please specify living arrangements from 2019-07-01 to 2022-10-19 (1207 days):\n  - Living in owned property: 10 Gap Street, Melbourne VIC 3000, 22 Unclear Avenue, Sydney NSW 2000\n  - Renting elsewhere\n  - Staying with family/friends\n  - Overseas/traveling\n  - Other (please specify)",
+        "type": "timeline_gap",
+        "properties_involved": [
+          "10 Gap Street, Melbourne VIC 3000"
+        ],
+        "period": {
+          "start": "2019-07-01",
+          "end": "2022-10-19",
+          "days": 1207
+        },
+        "possible_answers": [
+          "Lived at 10 Gap Street, Melbourne VIC 3000",
+          "Lived at another property not listed",
+          "Renting elsewhere",
+          "Staying with family/friends",
+          "Traveling/overseas",
+          "Other (please specify)"
+        ]
+      }
+    ],
+    "normalized_data": {
+      "10 Gap Street, Melbourne VIC 3000": {
+        "purchase_date": "2015-01-15",
+        "sale_date": "2024-01-10",
+        "events_summary": "Owner Occupied: 1 period(s), Rented: 2 period(s)",
+        "timeline_gaps": [
+          {
+            "start": "2015-01-15",
+            "end": "2015-01-31",
+            "days": 17
+          },
+          {
+            "start": "2019-07-01",
+            "end": "2022-10-19",
+            "days": 1207
+          }
+        ],
+        "daily_timeline": {},
+        "conflict_periods": [
+          {
+            "start": "2017-03-15",
+            "end": "2017-03-15",
+            "days": 1,
+            "conflicting_properties": [
+              "45 Vacant Drive, Brisbane QLD 4000"
+            ],
+            "conflict_days": {
+              "2017-03-15": [
+                "45 Vacant Drive, Brisbane QLD 4000"
+              ]
+            }
+          }
+        ]
+      },
+      "22 Unclear Avenue, Sydney NSW 2000": {
+        "purchase_date": "2016-05-10",
+        "sale_date": "2023-06-30",
+        "events_summary": "Rented: 1 period(s)",
+        "timeline_gaps": [],
+        "daily_timeline": {}
+      },
+      "45 Vacant Drive, Brisbane QLD 4000": {
+        "purchase_date": "2017-03-01",
+        "sale_date": null,
+        "events_summary": "Owner Occupied: 2 period(s)",
+        "timeline_gaps": [],
+        "daily_timeline": {},
+        "conflict_periods": [
+          {
+            "start": "2017-03-15",
+            "end": "2017-03-15",
+            "days": 1,
+            "conflicting_properties": [
+              "10 Gap Street, Melbourne VIC 3000"
+            ],
+            "conflict_days": {
+              "2017-03-15": [
+                "10 Gap Street, Melbourne VIC 3000"
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "llm_decision": {
+      "critical": [
+        {
+          "index": 1,
+          "issue_category": "timeline_gap",
+          "reasoning": "Timeline gap from 2019-07-01 to 2022-10-19 (1207 days) with no documented living arrangements. This is a CRITICAL DATA GAP as we have no information about where the taxpayer lived for over 3 years. Main residence exemption calculations require knowing where the person resided every day.",
+          "question": "Where did you live during the gap from 2019-07-01 to 2022-10-19?"
+        }
+      ],
+      "resolved": [
+        {
+          "index": 0,
+          "issue_category": "timeline_gap",
+          "reasoning": "Timeline gap from 2015-01-15 to 2015-01-31 (17 days) at 10 Gap Street, Melbourne VIC 3000. This is a 1-day gap, which is typically a date boundary and not a real gap. The person moved in on 2015-02-01, indicating they lived there immediately after the purchase.",
+          "original_message": "Timeline gap: 2015-01-15 to 2015-01-31 (17 days). Owned: '10 Gap Street, Melbourne VIC 3000' but no main residence recorded."
+        }
+      ],
+      "clarify": [],
+      "property_classifications": [
+        {
+          "property_id": "10 Gap Street, Melbourne VIC 3000",
+          "address": "10 Gap Street, Melbourne VIC 3000",
+          "classification": "SOLD",
+          "reasoning": "Property has both purchase and sale events recorded. The sale event indicates it was sold, and the purchase price is available.",
+          "needs_cgt_calculation": true,
+          "confidence": "high"
+        },
+        {
+          "property_id": "22 Unclear Avenue, Sydney NSW 2000",
+          "address": "22 Unclear Avenue, Sydney NSW 2000",
+          "classification": "SOLD",
+          "reasoning": "Property has both purchase and sale events recorded. The sale event indicates it was sold, and the purchase price is available.",
+          "needs_cgt_calculation": true,
+          "confidence": "high"
+        },
+        {
+          "property_id": "45 Vacant Drive, Brisbane QLD 4000",
+          "address": "45 Vacant Drive, Brisbane QLD 4000",
+          "classification": "OWNED",
+          "reasoning": "Property has a purchase event but no sale event, indicating it is still owned.",
+          "needs_cgt_calculation": false,
+          "confidence": "high"
+        }
+      ],
+      "summary": "Timeline Analysis: Gap from 2019-07-01 to 2022-10-19 (1207 days) at 10 Gap Street, Melbourne VIC 3000 - NO documented living arrangements. CRITICAL: Person's residence unknown for over 3 years. Main residence exemption cannot be calculated. Timeline gap from 2015-01-15 to 2015-01-31 (17 days) at 10 Gap Street, Melbourne VIC 3000 is resolved as a date boundary. All properties analyzed. Property 10 Gap Street and 22 Unclear Avenue sold with complete data. Property 45 Vacant Drive still owned. VERDICT: BLOCKED due to critical gap.",
+      "verification_passed": false
+    },
+    "llm_summary": "Timeline Analysis: Gap from 2019-07-01 to 2022-10-19 (1207 days) at 10 Gap Street, Melbourne VIC 3000 - NO documented living arrangements. CRITICAL: Person's residence unknown for over 3 years. Main residence exemption cannot be calculated. Timeline gap from 2015-01-15 to 2015-01-31 (17 days) at 10 Gap Street, Melbourne VIC 3000 is resolved as a date boundary. All properties analyzed. Property 10 Gap Street and 22 Unclear Avenue sold with complete data. Property 45 Vacant Drive still owned. VERDICT: BLOCKED due to critical gap."
+  },
+  "analysis": null,
+  "links": {
+    "clarification_endpoint": "/api/v1/analysis/5aec0867-4f07-4960-9723-6cf200acf5ea/clarify",
+    "property_details": "/api/v1/analysis/5aec0867-4f07-4960-9723-6cf200acf5ea/properties",
+    "restart_analysis": "/api/v1/analyze-portfolio"
+  },
+  "error": null
+}

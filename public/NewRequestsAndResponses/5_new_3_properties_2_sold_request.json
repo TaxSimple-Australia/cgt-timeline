@@ -1,0 +1,80 @@
+{
+  "properties": [
+    {
+      "address": "2/165 Trower Rd, Alawa, NT",
+      "property_history": [
+        {
+          "date": "2010-03-22",
+          "event": "purchase",
+          "price": 310000,
+          "is_ppr": true
+        },
+        {
+          "date": "2010-03-22",
+          "event": "move_in",
+          "is_ppr": true
+        },
+        {
+          "date": "2015-06-01",
+          "event": "move_out"
+        },
+        {
+          "date": "2015-06-01",
+          "event": "rent_start"
+        },
+        {
+          "date": "2025-02-14",
+          "event": "sale",
+          "price": 255500,
+          "contract_date": "2025-02-14"
+        }
+      ],
+      "notes": "sold"
+    },
+    {
+      "address": "12 Mahoney St, Muirhead, NT",
+      "property_history": [
+        {
+          "date": "2014-02-03",
+          "event": "purchase",
+          "price": 355000,
+          "is_ppr": true
+        },
+        {
+          "date": "2015-01-01",
+          "event": "improvement",
+          "price": 550000
+        },
+        {
+          "date": "2015-06-01",
+          "event": "move_in",
+          "is_ppr": true
+        },
+        {
+          "date": "2024-12-17",
+          "event": "sale",
+          "price": 955000,
+          "contract_date": "2024-12-17"
+        }
+      ],
+      "notes": "sold"
+    },
+    {
+      "address": "16 Clist Drive, Victoria",
+      "property_history": [
+        {
+          "date": "2024-07-17",
+          "event": "purchase",
+          "price": 980000,
+          "is_ppr": true
+        },
+        {
+          "date": "2024-07-17",
+          "event": "move_in",
+          "is_ppr": true
+        }
+      ],
+      "notes": "ppr"
+    }
+  ]
+}

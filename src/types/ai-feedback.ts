@@ -16,14 +16,24 @@ export interface AIIssue {
   severity: IssueSeverity;
   category: IssueCategory;
   message: string;
-  field: string | null;
-  property_id: string | null; // Address of affected property
-  property_index: number | null; // 0-based array index
-  detected_value: any | null;
-  question: string; // Question to ask user
-  suggestion: string | null;
-  impact: string; // Impact on CGT calculation
-  reasoning: string | null;
+  field?: string | null;
+  property_id?: string | null; // Address of affected property
+  property_address?: string; // Property address (new format)
+  property_index?: number | null; // 0-based array index
+  detected_value?: any | null;
+  question?: string; // Question to ask user
+  clarification_question?: string; // New format
+  suggestion?: string | null;
+  suggested_resolution?: string; // New format
+  impact?: string; // Impact on CGT calculation
+  reasoning?: string | null;
+  // For timeline_gap issues
+  affected_period?: {
+    start: string; // YYYY-MM-DD
+    end: string; // YYYY-MM-DD
+    days: number;
+  };
+  gap_days?: Record<string, string>; // Map of date -> status (e.g., "unknown")
 }
 
 // Timeline gap object

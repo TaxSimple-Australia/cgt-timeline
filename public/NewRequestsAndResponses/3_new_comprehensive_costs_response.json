@@ -1,0 +1,209 @@
+{
+  "status": "verification_failed",
+  "timestamp": "2025-11-19T06:23:35.326054",
+  "analysis_id": "f6869146-586d-4c23-b645-a96c21172b2a",
+  "summary": {
+    "total_properties": 3,
+    "properties_passed": 2,
+    "properties_failed": 1,
+    "needs_clarification": 0,
+    "total_cgt_liability": null
+  },
+  "properties": [
+    {
+      "address": "100 Premium Street, Melbourne VIC 3000",
+      "status": "passed",
+      "classification": "SOLD",
+      "verification_status": "passed",
+      "quick_summary": "Ready for analysis",
+      "net_capital_gain": null,
+      "detail_url": "/api/v1/property/100-premium-street-melbourne-vic-3000/detail"
+    },
+    {
+      "address": "200 Executive Boulevard, Sydney NSW 2000",
+      "status": "failed",
+      "classification": "SOLD",
+      "verification_status": "failed",
+      "quick_summary": "Timeline gap: 2015-07-20 to 2018-03-14 (969 days). Owned: '200 Executive Boulevard, Sydney NSW 2000' but no main residence recorded.",
+      "net_capital_gain": null,
+      "detail_url": "/api/v1/property/200-executive-boulevard-sydney-nsw-2000/detail"
+    },
+    {
+      "address": "300 Investment Plaza, Brisbane QLD 4000",
+      "status": "passed",
+      "classification": "OWNED",
+      "verification_status": "passed",
+      "quick_summary": "Ready for analysis",
+      "net_capital_gain": null,
+      "detail_url": "/api/v1/property/300-investment-plaza-brisbane-qld-4000/detail"
+    }
+  ],
+  "verification": {
+    "status": "failed",
+    "summary": {
+      "critical_issues": 2,
+      "warnings": 0,
+      "resolved_false_positives": 0,
+      "total_issues_flagged": 2,
+      "total_issues_after_llm": 2
+    },
+    "issues": [
+      {
+        "property_address": "200 Executive Boulevard, Sydney NSW 2000",
+        "severity": "critical",
+        "category": "timeline_gap",
+        "message": "Timeline gap: 2015-07-20 to 2018-03-14 (969 days). Owned: '200 Executive Boulevard, Sydney NSW 2000' but no main residence recorded.",
+        "suggested_resolution": "Provide specific living arrangements for this period with exact dates",
+        "clarification_question": "Please specify living arrangements from 2015-07-20 to 2018-03-14 (969 days):\n  - Living in owned property: 200 Executive Boulevard, Sydney NSW 2000\n  - Renting elsewhere\n  - Staying with family/friends\n  - Overseas/traveling\n  - Other (please specify)",
+        "affected_period": {
+          "start": "2015-07-20",
+          "end": "2018-03-14",
+          "days": 969
+        }
+      },
+      {
+        "property_address": "200 Executive Boulevard, Sydney NSW 2000",
+        "severity": "critical",
+        "category": "timeline_gap",
+        "message": "Timeline gap: 2021-09-30 to 2024-11-15 (1143 days). Owned: '200 Executive Boulevard, Sydney NSW 2000, 300 Investment Plaza, Brisbane QLD 4000' but no main residence recorded.",
+        "suggested_resolution": "Provide specific living arrangements for this period with exact dates",
+        "clarification_question": "Please specify living arrangements from 2021-09-30 to 2024-11-15 (1143 days):\n  - Living in owned property: 200 Executive Boulevard, Sydney NSW 2000, 300 Investment Plaza, Brisbane QLD 4000\n  - Renting elsewhere\n  - Staying with family/friends\n  - Overseas/traveling\n  - Other (please specify)",
+        "affected_period": {
+          "start": "2021-09-30",
+          "end": "2024-11-15",
+          "days": 1143
+        }
+      }
+    ],
+    "clarification_questions": [
+      {
+        "question": "Please specify living arrangements from 2015-07-20 to 2018-03-14 (969 days):\n  - Living in owned property: 200 Executive Boulevard, Sydney NSW 2000\n  - Renting elsewhere\n  - Staying with family/friends\n  - Overseas/traveling\n  - Other (please specify)",
+        "type": "timeline_gap",
+        "properties_involved": [
+          "200 Executive Boulevard, Sydney NSW 2000"
+        ],
+        "period": {
+          "start": "2015-07-20",
+          "end": "2018-03-14",
+          "days": 969
+        },
+        "possible_answers": [
+          "Lived at 200 Executive Boulevard, Sydney NSW 2000",
+          "Lived at another property not listed",
+          "Renting elsewhere",
+          "Staying with family/friends",
+          "Traveling/overseas",
+          "Other (please specify)"
+        ]
+      },
+      {
+        "question": "Please specify living arrangements from 2021-09-30 to 2024-11-15 (1143 days):\n  - Living in owned property: 200 Executive Boulevard, Sydney NSW 2000, 300 Investment Plaza, Brisbane QLD 4000\n  - Renting elsewhere\n  - Staying with family/friends\n  - Overseas/traveling\n  - Other (please specify)",
+        "type": "timeline_gap",
+        "properties_involved": [
+          "200 Executive Boulevard, Sydney NSW 2000"
+        ],
+        "period": {
+          "start": "2021-09-30",
+          "end": "2024-11-15",
+          "days": 1143
+        },
+        "possible_answers": [
+          "Lived at 200 Executive Boulevard, Sydney NSW 2000",
+          "Lived at another property not listed",
+          "Renting elsewhere",
+          "Staying with family/friends",
+          "Traveling/overseas",
+          "Other (please specify)"
+        ]
+      }
+    ],
+    "normalized_data": {
+      "100 Premium Street, Melbourne VIC 3000": {
+        "purchase_date": "2018-03-15",
+        "sale_date": "2024-05-30",
+        "events_summary": "Owner Occupied: 1 period(s), Rented: 1 period(s)",
+        "timeline_gaps": [],
+        "daily_timeline": {}
+      },
+      "200 Executive Boulevard, Sydney NSW 2000": {
+        "purchase_date": "2015-07-20",
+        "sale_date": "2024-11-15",
+        "events_summary": "Rented: 1 period(s)",
+        "timeline_gaps": [
+          {
+            "start": "2015-07-20",
+            "end": "2018-03-14",
+            "days": 969
+          },
+          {
+            "start": "2021-09-30",
+            "end": "2024-11-15",
+            "days": 1143
+          }
+        ],
+        "daily_timeline": {}
+      },
+      "300 Investment Plaza, Brisbane QLD 4000": {
+        "purchase_date": "2020-02-10",
+        "sale_date": null,
+        "events_summary": "Rented: 1 period(s)",
+        "timeline_gaps": [],
+        "daily_timeline": {}
+      }
+    },
+    "llm_decision": {
+      "critical": [
+        {
+          "index": 0,
+          "issue_category": "timeline_gap",
+          "reasoning": "Timeline gap from 2015-07-20 to 2018-03-14 (969 days) with no documented living arrangements. This is a CRITICAL DATA GAP - we have no information about where the taxpayer lived for this period. Main residence exemption calculations require knowing where the person resided every day.",
+          "question": "Where did you live between 2015-07-20 and 2018-03-14?"
+        },
+        {
+          "index": 1,
+          "issue_category": "timeline_gap",
+          "reasoning": "Timeline gap from 2021-09-30 to 2024-11-15 (1143 days) with no documented living arrangements. This is a CRITICAL DATA GAP - we have no information about where the taxpayer lived for this period. Main residence exemption calculations require knowing where the person resided every day.",
+          "question": "Where did you live between 2021-09-30 and 2024-11-15?"
+        }
+      ],
+      "resolved": [],
+      "clarify": [],
+      "property_classifications": [
+        {
+          "property_id": "1",
+          "address": "100 Premium Street, Melbourne VIC 3000",
+          "classification": "SOLD",
+          "reasoning": "Property has a purchase event and a sale event, indicating it was owned and sold.",
+          "needs_cgt_calculation": true,
+          "confidence": "high"
+        },
+        {
+          "property_id": "2",
+          "address": "200 Executive Boulevard, Sydney NSW 2000",
+          "classification": "SOLD",
+          "reasoning": "Property has a purchase event and a sale event, indicating it was owned and sold.",
+          "needs_cgt_calculation": true,
+          "confidence": "high"
+        },
+        {
+          "property_id": "3",
+          "address": "300 Investment Plaza, Brisbane QLD 4000",
+          "classification": "OWNED",
+          "reasoning": "Property has a purchase event but no sale event, indicating it is still owned.",
+          "needs_cgt_calculation": false,
+          "confidence": "high"
+        }
+      ],
+      "summary": "Timeline Analysis: Gap from 2015-07-20 to 2018-03-14 (969 days) - NO documented living arrangements. CRITICAL: Person's residence unknown for this period. Main residence exemption cannot be calculated. Gap from 2021-09-30 to 2024-11-15 (1143 days) - NO documented living arrangements. CRITICAL: Person's residence unknown for this period. Main residence exemption cannot be calculated. Property 1 and Property 2 sold with complete data. Property 3 is still owned. VERDICT: BLOCKED.",
+      "verification_passed": false
+    },
+    "llm_summary": "Timeline Analysis: Gap from 2015-07-20 to 2018-03-14 (969 days) - NO documented living arrangements. CRITICAL: Person's residence unknown for this period. Main residence exemption cannot be calculated. Gap from 2021-09-30 to 2024-11-15 (1143 days) - NO documented living arrangements. CRITICAL: Person's residence unknown for this period. Main residence exemption cannot be calculated. Property 1 and Property 2 sold with complete data. Property 3 is still owned. VERDICT: BLOCKED."
+  },
+  "analysis": null,
+  "links": {
+    "clarification_endpoint": "/api/v1/analysis/f6869146-586d-4c23-b645-a96c21172b2a/clarify",
+    "property_details": "/api/v1/analysis/f6869146-586d-4c23-b645-a96c21172b2a/properties",
+    "restart_analysis": "/api/v1/analyze-portfolio"
+  },
+  "error": null
+}

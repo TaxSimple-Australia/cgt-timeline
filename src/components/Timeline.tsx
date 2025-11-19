@@ -11,6 +11,7 @@ import PropertyBranch from './PropertyBranch';
 import QuickAddMenu from './QuickAddMenu';
 import EventDetailsModal from './EventDetailsModal';
 import TimelineSnapshot from './TimelineSnapshot';
+import ResidenceGapOverlay from './ResidenceGapOverlay';
 
 interface TimelineProps {
   className?: string;
@@ -47,6 +48,7 @@ export default function Timeline({ className }: TimelineProps) {
     lockFutureDates,
     selectIssue,
     timelineIssues,
+    residenceGapIssues,
   } = useTimelineStore();
 
   // Handle timeline click to add events
@@ -277,6 +279,7 @@ export default function Timeline({ className }: TimelineProps) {
       <div className="relative h-full pt-20 pb-4 px-8">
         <div
           ref={timelineRef}
+          data-timeline-container
           className="timeline-scroll relative h-full bg-white dark:bg-slate-900 rounded-2xl shadow-lg border border-slate-200 dark:border-slate-700 overflow-y-auto overflow-x-hidden transition-all duration-300"
           onClick={handleTimelineClick}
           onMouseMove={handleMouseMove}
@@ -353,6 +356,26 @@ export default function Timeline({ className }: TimelineProps) {
               className="absolute top-12 left-0 w-full"
               style={{ height: `${minContentHeight - 48}px` }}
             >
+              {/* Residence Gap Overlays - Render behind property branches */}
+              {residenceGapIssues.map((gapIssue, index) => (
+                <ResidenceGapOverlay
+                  key={`gap-${index}-${gapIssue.affected_period?.start}`}
+                  issue={gapIssue}
+                  timelineStart={timelineStart}
+                  timelineEnd={timelineEnd}
+                  timelineHeight={minContentHeight - 48}
+                  onClick={() => {
+                    const relatedIssue = timelineIssues.find(issue =>
+                      issue.category === 'timeline_gap' &&
+                      issue.startDate?.toISOString().split('T')[0] === gapIssue.affected_period?.start
+                    );
+                    if (relatedIssue) {
+                      selectIssue(relatedIssue.id);
+                    }
+                  }}
+                />
+              ))}
+
               {properties.map((property, index) => (
                 <PropertyBranch
                   key={property.id}

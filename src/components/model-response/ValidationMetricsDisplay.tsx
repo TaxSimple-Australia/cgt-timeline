@@ -35,13 +35,11 @@ interface ValidationMetrics {
     calculation_errors: any[];
   };
   logic_check?: {
-    logic_checks: Array<{
-      check: string;
-      status: string;
-      note: string;
-    }>;
-    completeness_score: number;
-    consistency_issues: any[];
+    consistent?: boolean;
+    checks_passed?: string[];
+    checks_failed?: string[];
+    completeness_score?: number;
+    consistency_issues?: any[];
   };
   warnings?: string[];
   overall_confidence?: number;
@@ -432,57 +430,71 @@ export default function ValidationMetricsDisplay({
             </div>
 
             {/* Completeness Score */}
-            <div className="p-4 bg-indigo-50 dark:bg-indigo-950/20 rounded-lg border border-indigo-200 dark:border-indigo-800">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Completeness Score
-                </span>
-                <span className="text-sm font-bold text-indigo-600 dark:text-indigo-400">
-                  {validation.logic_check.completeness_score}%
-                </span>
+            {validation.logic_check.completeness_score !== undefined && (
+              <div className="p-4 bg-indigo-50 dark:bg-indigo-950/20 rounded-lg border border-indigo-200 dark:border-indigo-800">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Completeness Score
+                  </span>
+                  <span className="text-sm font-bold text-indigo-600 dark:text-indigo-400">
+                    {validation.logic_check.completeness_score}%
+                  </span>
+                </div>
+                <div className="h-2 bg-gray-200 dark:bg-gray-800 rounded-full overflow-hidden">
+                  <motion.div
+                    initial={{ width: 0 }}
+                    animate={{ width: `${validation.logic_check.completeness_score}%` }}
+                    transition={{ duration: 1, delay: 0.3 }}
+                    className={`h-full bg-gradient-to-r ${getConfidenceBg(validation.logic_check.completeness_score)}`}
+                  />
+                </div>
               </div>
-              <div className="h-2 bg-gray-200 dark:bg-gray-800 rounded-full overflow-hidden">
-                <motion.div
-                  initial={{ width: 0 }}
-                  animate={{ width: `${validation.logic_check.completeness_score}%` }}
-                  transition={{ duration: 1, delay: 0.3 }}
-                  className={`h-full bg-gradient-to-r ${getConfidenceBg(validation.logic_check.completeness_score)}`}
-                />
-              </div>
-            </div>
+            )}
 
-            {/* Logic Checks */}
-            <div className="space-y-2">
-              {validation.logic_check.logic_checks.map((check, index) => (
-                <div
-                  key={index}
-                  className={`p-3 rounded-lg border ${
-                    check.status === 'pass'
-                      ? 'bg-green-50 dark:bg-green-950/20 border-green-200 dark:border-green-800'
-                      : 'bg-amber-50 dark:bg-amber-950/20 border-amber-200 dark:border-amber-800'
-                  }`}
-                >
-                  <div className="flex items-start gap-2">
-                    {check.status === 'pass' ? (
+            {/* Checks Passed */}
+            {validation.logic_check.checks_passed && validation.logic_check.checks_passed.length > 0 && (
+              <div className="space-y-2">
+                {validation.logic_check.checks_passed.map((check, index) => (
+                  <div
+                    key={`passed-${index}`}
+                    className="p-3 rounded-lg border bg-green-50 dark:bg-green-950/20 border-green-200 dark:border-green-800"
+                  >
+                    <div className="flex items-start gap-2">
                       <CheckCircle2 className="w-4 h-4 text-green-600 dark:text-green-400 mt-0.5 flex-shrink-0" />
-                    ) : (
-                      <AlertTriangle className="w-4 h-4 text-amber-600 dark:text-amber-400 mt-0.5 flex-shrink-0" />
-                    )}
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs font-medium text-gray-900 dark:text-gray-100 capitalize">
-                        {check.check.replace(/_/g, ' ')}
-                      </p>
-                      <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
-                        {check.note}
-                      </p>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs font-medium text-gray-900 dark:text-gray-100">
+                          {check}
+                        </p>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
+
+            {/* Checks Failed */}
+            {validation.logic_check.checks_failed && validation.logic_check.checks_failed.length > 0 && (
+              <div className="space-y-2">
+                {validation.logic_check.checks_failed.map((check, index) => (
+                  <div
+                    key={`failed-${index}`}
+                    className="p-3 rounded-lg border bg-red-50 dark:bg-red-950/20 border-red-200 dark:border-red-800"
+                  >
+                    <div className="flex items-start gap-2">
+                      <XCircle className="w-4 h-4 text-red-600 dark:text-red-400 mt-0.5 flex-shrink-0" />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs font-medium text-gray-900 dark:text-gray-100">
+                          {check}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
 
             {/* Consistency Issues */}
-            {validation.logic_check.consistency_issues.length > 0 && (
+            {validation.logic_check.consistency_issues && validation.logic_check.consistency_issues.length > 0 && (
               <div className="p-3 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800 rounded-lg">
                 <div className="flex items-center gap-2 mb-2">
                   <XCircle className="w-4 h-4 text-red-600 dark:text-red-400" />

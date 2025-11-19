@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { addDays, format } from 'date-fns';
-import type { AIResponse, TimelineIssue } from '../types/ai-feedback';
+import type { AIResponse, TimelineIssue, AIIssue } from '../types/ai-feedback';
 import type { CostBaseCategory } from '../lib/cost-base-definitions';
 
 export type EventType =
@@ -135,6 +135,7 @@ interface TimelineState {
   // AI Feedback State
   aiResponse: AIResponse | null; // Latest AI analysis response
   timelineIssues: TimelineIssue[]; // Processed issues for UI display
+  residenceGapIssues: AIIssue[]; // Timeline gap issues from AI response
   selectedIssue: string | null; // Currently viewing issue details
   isAnalyzing: boolean; // Loading state during AI analysis
 
@@ -159,7 +160,7 @@ interface TimelineState {
   getZoomLevelIndex: () => number; // Get current zoom level index (0-8)
   setCenterDate: (date: Date) => void;
   panToPosition: (position: number) => void; // Position 0-100 on absolute timeline
-  loadDemoData: () => void; // Load demo data from Excel sheet
+  loadDemoData: () => Promise<void>; // Load demo data from JSON file
   clearAllData: () => void; // Clear all properties and events
   importTimelineData: (data: any) => void; // Import timeline data from JSON
   toggleTheme: () => void; // Cycle through themes: light -> dark -> golden -> light
@@ -389,6 +390,7 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
     // AI Feedback Initial State
     aiResponse: null,
     timelineIssues: [],
+    residenceGapIssues: [],
     selectedIssue: null,
     isAnalyzing: false,
 
@@ -597,228 +599,76 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
     });
   },
 
-  loadDemoData: () => {
-    const demoProperties: Property[] = [];
-    const demoEvents: TimelineEvent[] = [];
+  loadDemoData: async () => {
+    try {
+      // Load the default timeline data from JSON file
+      const response = await fetch('/NewRequestsAndResponses/5_new_3_properties_2_sold_request.json');
+      const data = await response.json();
 
-    // Property 1: First main residence (2010-2015)
-    const prop1 = {
-      id: 'demo-prop-1',
-      name: 'Humpty Doo, NT 0836',
-      address: '45 Collard Road',
-      color: propertyColors[0],
-      purchasePrice: 106000,
-      purchaseDate: new Date(2010, 0, 1),
-      salePrice: 250000,
-      saleDate: new Date(2016, 5, 1),
-      currentStatus: 'sold' as PropertyStatus,
-      branch: 0,
-    };
-    demoProperties.push(prop1);
+      // Use the existing importTimelineData function to parse and load the data
+      const store = useTimelineStore.getState();
+      store.importTimelineData(data);
 
-    // Events for Property 1 - Lived here 2010-2015, then moved out
-    demoEvents.push({
-      id: 'demo-event-1-1',
-      propertyId: prop1.id,
-      type: 'purchase',
-      date: new Date(2010, 0, 1),
-      title: 'Purchase',
-      amount: 106000,
-      position: 0,
-      color: eventColors.purchase,
-      isPPR: true,
-    });
+      console.log('✅ Loaded default timeline data from 5_new_3_properties_2_sold_request.json');
+    } catch (error) {
+      console.error('❌ Failed to load default timeline data:', error);
 
-    demoEvents.push({
-      id: 'demo-event-1-2',
-      propertyId: prop1.id,
-      type: 'move_in',
-      date: new Date(2010, 0, 1),
-      title: 'Move In',
-      position: 0,
-      color: eventColors.move_in,
-      isPPR: true,
-    });
+      // Fallback: Load minimal demo data if JSON file fails
+      const demoProperties: Property[] = [];
+      const demoEvents: TimelineEvent[] = [];
 
-    demoEvents.push({
-      id: 'demo-event-1-3',
-      propertyId: prop1.id,
-      type: 'move_out',
-      date: new Date(2015, 11, 31), // Dec 31, 2015
-      title: 'Move Out',
-      position: 0,
-      color: eventColors.move_out,
-      description: 'Moved out - creates GAP until Jul 1, 2016',
-    });
+      // Minimal fallback property
+      const prop1 = {
+        id: 'demo-prop-1',
+        name: 'Sample Property',
+        address: '123 Main Street',
+        color: propertyColors[0],
+        purchasePrice: 500000,
+        purchaseDate: new Date(2015, 0, 1),
+        currentStatus: 'ppr' as PropertyStatus,
+        branch: 0,
+      };
+      demoProperties.push(prop1);
 
-    demoEvents.push({
-      id: 'demo-event-1-4',
-      propertyId: prop1.id,
-      type: 'sale',
-      date: new Date(2016, 5, 1), // Jun 1, 2016
-      title: 'Sold',
-      amount: 250000,
-      position: 0,
-      color: eventColors.sale,
-      contractDate: new Date(2016, 5, 1),
-    });
+      demoEvents.push({
+        id: 'demo-event-1-1',
+        propertyId: prop1.id,
+        type: 'purchase',
+        date: new Date(2015, 0, 1),
+        title: 'Purchase',
+        amount: 500000,
+        position: 0,
+        color: eventColors.purchase,
+        isPPR: true,
+      });
 
-    // Property 2: 50 Flynn Circuit, Bellamack
-    const prop2 = {
-      id: 'demo-prop-2',
-      name: 'Bellamack, NT 0832',
-      address: '50 Flynn Circuit',
-      color: propertyColors[1],
-      purchasePrice: 705000,
-      purchaseDate: new Date(2014, 5, 5),
-      currentStatus: 'rental' as PropertyStatus,
-      branch: 1,
-    };
-    demoProperties.push(prop2);
+      demoEvents.push({
+        id: 'demo-event-1-2',
+        propertyId: prop1.id,
+        type: 'move_in',
+        date: new Date(2015, 0, 1),
+        title: 'Move In',
+        position: 0,
+        color: eventColors.move_in,
+        isPPR: true,
+      });
 
-    demoEvents.push({
-      id: 'demo-event-2-1',
-      propertyId: prop2.id,
-      type: 'purchase',
-      date: new Date(2014, 5, 5),
-      title: 'Purchase',
-      amount: 705000,
-      position: 0,
-      color: eventColors.purchase,
-    });
+      const today = new Date();
+      const thirtyYearsAgo = new Date(today);
+      thirtyYearsAgo.setFullYear(today.getFullYear() - 30);
+      const centerDate = new Date((thirtyYearsAgo.getTime() + today.getTime()) / 2);
 
-    demoEvents.push({
-      id: 'demo-event-2-2',
-      propertyId: prop2.id,
-      type: 'rent_start',
-      date: new Date(2014, 5, 20),
-      title: 'Start Rent',
-      position: 0,
-      color: eventColors.rent_start,
-    });
-
-    // Property 3: Second main residence (2019-2020, then 2021-present)
-    const prop3 = {
-      id: 'demo-prop-3',
-      name: 'Boyne Island, Qld 4680',
-      address: '5 Wanda Dr',
-      color: propertyColors[2],
-      purchasePrice: 530000,
-      purchaseDate: new Date(2019, 2, 1), // Mar 1, 2019
-      currentStatus: 'ppr' as PropertyStatus,
-      branch: 2,
-    };
-    demoProperties.push(prop3);
-
-    demoEvents.push({
-      id: 'demo-event-3-1',
-      propertyId: prop3.id,
-      type: 'purchase',
-      date: new Date(2019, 2, 1), // Mar 1, 2019
-      title: 'Purchase',
-      amount: 530000,
-      position: 0,
-      color: eventColors.purchase,
-      isPPR: true,
-    });
-
-    demoEvents.push({
-      id: 'demo-event-3-2',
-      propertyId: prop3.id,
-      type: 'move_in',
-      date: new Date(2019, 3, 1), // Apr 1, 2019 - GAP 2 ended
-      title: 'Move In',
-      position: 0,
-      color: eventColors.move_in,
-      isPPR: true,
-      description: '3 month GAP before moving in',
-    });
-
-    demoEvents.push({
-      id: 'demo-event-3-3',
-      propertyId: prop3.id,
-      type: 'move_out',
-      date: new Date(2020, 11, 31), // Dec 31, 2020
-      title: 'Move Out',
-      position: 0,
-      color: eventColors.move_out,
-      description: 'Moved out temporarily - creates GAP 3 until Jul 1, 2021',
-    });
-
-    demoEvents.push({
-      id: 'demo-event-3-4',
-      propertyId: prop3.id,
-      type: 'move_in',
-      date: new Date(2021, 6, 1), // Jul 1, 2021 - GAP 3 ended
-      title: 'Move In (Return)',
-      position: 0,
-      color: eventColors.move_in,
-      isPPR: true,
-      description: 'Moved back in after 6 month GAP',
-    });
-
-    demoEvents.push({
-      id: 'demo-event-3-5',
-      propertyId: prop3.id,
-      type: 'improvement',
-      date: new Date(2022, 3, 15),
-      title: 'Renovation',
-      amount: 45000,
-      position: 0,
-      color: eventColors.improvement,
-      description: 'Kitchen and bathroom renovation',
-    });
-
-    // Property 4: First Rental Period (2016-2018) - After GAP 1
-    const prop4 = {
-      id: 'demo-prop-4',
-      name: 'First Rental, Qld 4680',
-      address: 'Rental Property 1',
-      color: propertyColors[3],
-      currentStatus: 'living_in_rental' as PropertyStatus,
-      isRental: true,
-      branch: 3,
-    };
-    demoProperties.push(prop4);
-
-    demoEvents.push({
-      id: 'demo-event-4-1',
-      propertyId: prop4.id,
-      type: 'living_in_rental_start',
-      date: new Date(2016, 6, 1), // Jul 1, 2016 - GAP 1 ended
-      title: 'Living in Rental (Start)',
-      position: 0,
-      color: eventColors.living_in_rental_start,
-      description: 'Started living in rental - 6 month GAP before this',
-    });
-
-    demoEvents.push({
-      id: 'demo-event-4-2',
-      propertyId: prop4.id,
-      type: 'living_in_rental_end',
-      date: new Date(2018, 11, 31), // Dec 31, 2018
-      title: 'Living in Rental (End)',
-      position: 0,
-      color: eventColors.living_in_rental_end,
-      description: 'Ended rental - creates GAP 2 until Apr 1, 2019',
-    });
-
-    // Set the demo data with 30-year range
-    const today = new Date();
-    const thirtyYearsAgo = new Date(today);
-    thirtyYearsAgo.setFullYear(today.getFullYear() - 30);
-    const centerDate = new Date((thirtyYearsAgo.getTime() + today.getTime()) / 2);
-
-    set({
-      properties: demoProperties,
-      events: demoEvents,
-      timelineStart: thirtyYearsAgo,
-      timelineEnd: today,
-      absoluteStart: new Date(2010, 0, 1), // Updated to match new demo data start
-      absoluteEnd: today,
-      centerDate: centerDate,
-      zoomLevel: '30-years',
-    });
+      set({
+        properties: demoProperties,
+        events: demoEvents,
+        timelineStart: thirtyYearsAgo,
+        timelineEnd: today,
+        absoluteStart: new Date(2010, 0, 1),
+        absoluteEnd: today,
+        centerDate: centerDate,
+        zoomLevel: '30-years',
+      });
+    }
   },
 
   clearAllData: () => {
@@ -1127,9 +977,9 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
         severity: issue.severity,
         category: issue.category,
         message: issue.message,
-        question: issue.question,
-        impact: issue.impact,
-        suggestion: issue.suggestion,
+        question: issue.question || issue.clarification_question || '',
+        impact: issue.impact || '',
+        suggestion: issue.suggestion || issue.suggested_resolution || null,
         resolved: false,
       };
 
@@ -1157,9 +1007,22 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
       return timelineIssue;
     });
 
+    // Extract residence gap issues (category === 'timeline_gap')
+    const residenceGapIssues = rawIssues.filter((issue: AIIssue) =>
+      issue.category === 'timeline_gap' && issue.affected_period
+    );
+
+    console.log('📍 Extracted residence gap issues:', residenceGapIssues.length);
+    residenceGapIssues.forEach((gap: AIIssue) => {
+      console.log('  Gap:', gap.affected_period?.start, 'to', gap.affected_period?.end,
+                  '(', gap.affected_period?.days, 'days)',
+                  'Severity:', gap.severity);
+    });
+
     set({
       aiResponse: response,
       timelineIssues,
+      residenceGapIssues,
     });
   },
 
@@ -1181,6 +1044,7 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
     set({
       aiResponse: null,
       timelineIssues: [],
+      residenceGapIssues: [],
       selectedIssue: null,
     });
   },

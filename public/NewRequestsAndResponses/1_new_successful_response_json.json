@@ -1,0 +1,411 @@
+{
+  "status": "success",
+  "timestamp": "2025-11-19T00:46:56.729253",
+  "analysis_id": "06a36817-1b2d-4a18-88ba-9744d167eeab",
+  "summary": {
+    "cgt_liability": 111375,
+    "total_capital_gain": 111375,
+    "total_capital_loss": null,
+    "net_capital_gain_after_loss": 111375,
+    "carry_forward_loss": null,
+    "main_residence_days": 1168,
+    "total_ownership_days": 3113,
+    "exemption_type": null,
+    "exemption_percentage": 37.52007709604882,
+    "confidence_score": 100
+  },
+  "properties": [
+    {
+      "address": "123 Smith Street, Melbourne VIC 3000",
+      "property_id": "1",
+      "status": "sold",
+      "scenario_detected": "full",
+      "exemption_type": "full",
+      "exemption_reason": "Property sold after 3,178 days ownership. Main residence for 3,178 days (100%). Full exemption applies.",
+      "should_calculate_cgt": false,
+      "main_residence_days": 3178,
+      "total_ownership_days": 3113,
+      "exempt_percentage": 102.08801798907805,
+      "six_year_rule_eligible": null,
+      "six_year_reason": "Under RULE 3, the six-year rule applies as no other property was claimed as main residence during rental period.",
+      "applicable_rules": [],
+      "cross_property_conflicts": [],
+      "key_issue": null,
+      "purchase_price": null,
+      "sale_price": null,
+      "capital_change": null,
+      "taxable_amount": null,
+      "net_after_cgt_discount": null
+    },
+    {
+      "address": "456 Johnson Avenue, Sydney NSW 2000",
+      "property_id": "2",
+      "status": "sold",
+      "scenario_detected": "partial",
+      "exemption_type": "partial",
+      "exemption_reason": "Property sold after 3,113 days ownership. Main residence for 1,168 days (37.5%). Partial exemption applies.",
+      "should_calculate_cgt": true,
+      "main_residence_days": 3113,
+      "total_ownership_days": 37,
+      "exempt_percentage": 8413.513513513513,
+      "six_year_rule_eligible": null,
+      "six_year_reason": "Property 1 was main residence during rental period (six-year rule exclusion)",
+      "applicable_rules": [],
+      "cross_property_conflicts": [],
+      "key_issue": null,
+      "purchase_price": 693600,
+      "sale_price": 1050000,
+      "capital_change": 356400,
+      "taxable_amount": 222750,
+      "net_after_cgt_discount": 111375
+    },
+    {
+      "address": "321 Riverside Drive, Perth WA 6000",
+      "property_id": "3",
+      "status": "sold",
+      "scenario_detected": "full",
+      "exemption_type": "full",
+      "exemption_reason": "Property sold after 1,292 days ownership. Main residence for 1,292 days (100%). Full exemption applies.",
+      "should_calculate_cgt": false,
+      "main_residence_days": 1292,
+      "total_ownership_days": 1292,
+      "exempt_percentage": 100,
+      "six_year_rule_eligible": null,
+      "six_year_reason": "Not applicable as property was main residence throughout ownership.",
+      "applicable_rules": [],
+      "cross_property_conflicts": [],
+      "key_issue": null,
+      "purchase_price": null,
+      "sale_price": null,
+      "capital_change": null,
+      "taxable_amount": null,
+      "net_after_cgt_discount": null
+    }
+  ],
+  "calculations": {
+    "portfolio_total": {
+      "total_cgt_liability": 111375,
+      "total_capital_gain": 356400,
+      "total_exempt_amount": 133650,
+      "properties_with_cgt": 1,
+      "properties_exempt": 0
+    },
+    "source": "deterministic_engine",
+    "method": "ITAA 1997 s104-10, s110-25, s118-145, s115-25",
+    "per_property": [
+      {
+        "property_id": "2",
+        "property_address": "456 Johnson Avenue, Sydney NSW 2000",
+        "capital_proceeds": 1050000,
+        "cost_base": 693600,
+        "raw_capital_gain": 356400,
+        "net_capital_gain": 111375,
+        "cost_base_breakdown": {
+          "acquisition_cost": 650000,
+          "incidental_costs_acquire": 40100,
+          "ownership_costs_unclaimed": 0,
+          "capital_improvements": 0,
+          "disposal_costs": 3500,
+          "total_cost_base": 693600
+        },
+        "main_residence_exemption": {
+          "days_as_main_residence": 1168,
+          "total_ownership_days": 3113,
+          "exemption_percentage": 37.52,
+          "exempt_amount": 133650,
+          "taxable_amount_before_discount": 222750
+        },
+        "cgt_discount": {
+          "eligible": true,
+          "discount_percentage": 50,
+          "gain_before_discount": 222750,
+          "discounted_gain": 111375
+        },
+        "calculation_steps": [
+          {
+            "step": 1,
+            "description": "Calculate capital gain",
+            "formula": "Capital proceeds - Cost base",
+            "calculation": "$1,050,000.00 - $693,600.00",
+            "result": 356400,
+            "section": "s104-10"
+          },
+          {
+            "step": 2,
+            "description": "Apply main residence exemption",
+            "formula": "Exempt = 1168 days / 3113 days × Capital gain",
+            "calculation": "37.52% × $356,400.00",
+            "result": 133650,
+            "section": "s118-145"
+          },
+          {
+            "step": 3,
+            "description": "Apply CGT discount (50%)",
+            "formula": "Taxable gain × 50%",
+            "calculation": "$222,750.00 × 50%",
+            "result": 111375,
+            "section": "s115-25"
+          }
+        ],
+        "applicable_sections": [
+          "s118-145 (exemption from Layer 2 Scenario Engine)",
+          "s115-25 (CGT Discount)"
+        ]
+      }
+    ],
+    "all_steps_combined": [
+      {
+        "property_address": "456 Johnson Avenue, Sydney NSW 2000",
+        "steps": [
+          {
+            "step": 1,
+            "description": "Calculate capital gain",
+            "formula": "Capital proceeds - Cost base",
+            "calculation": "$1,050,000.00 - $693,600.00",
+            "result": 356400,
+            "section": "s104-10"
+          },
+          {
+            "step": 2,
+            "description": "Apply main residence exemption",
+            "formula": "Exempt = 1168 days / 3113 days × Capital gain",
+            "calculation": "37.52% × $356,400.00",
+            "result": 133650,
+            "section": "s118-145"
+          },
+          {
+            "step": 3,
+            "description": "Apply CGT discount (50%)",
+            "formula": "Taxable gain × 50%",
+            "calculation": "$222,750.00 × 50%",
+            "result": 111375,
+            "section": "s115-25"
+          }
+        ]
+      }
+    ]
+  },
+  "verification": {
+    "status": "passed",
+    "summary": {
+      "critical_issues": 0,
+      "warnings": 0,
+      "resolved_false_positives": 3,
+      "total_issues_flagged": 0,
+      "total_issues_after_llm": 0
+    },
+    "issues": [],
+    "clarification_questions": [],
+    "normalized_data": {},
+    "timeline_analysis": {
+      "status": "success",
+      "analysis_period": {
+        "start": "2010-03-15",
+        "end": "2024-06-15",
+        "total_days": 5207
+      },
+      "gaps": [
+        {
+          "start_date": "2015-08-20",
+          "end_date": "2015-08-20",
+          "duration_days": 1,
+          "owned_properties": []
+        },
+        {
+          "start_date": "2018-10-31",
+          "end_date": "2018-10-31",
+          "duration_days": 1,
+          "owned_properties": [
+            "123 Smith Street, Melbourne VIC 3000"
+          ]
+        }
+      ],
+      "overlaps": [],
+      "statistics": {
+        "total_days": 5207,
+        "gap_days": 2,
+        "overlap_days": 0,
+        "accounted_days": 5205,
+        "accounted_percentage": 99.96,
+        "total_gaps": 2,
+        "total_overlaps": 0
+      },
+      "has_issues": true
+    },
+    "llm_decision": {},
+    "llm_summary": "Property 1 (123 Smith Street) sold but missing purchase price. Property 2 (456 Johnson Avenue) sold with complete data. Properties 3 (789 Investor Lane) and 5 (555 Luxury Boulevard) are still owned. Property 4 (321 Riverside Drive) sold with complete data. Property 6 (888 Rental Court) is a tenant property. Timeline gaps from 2015-08-20 and 2018-10-31 are resolved as normal moving day transitions. VERDICT: PASS with critical issue on Property 1."
+  },
+  "analysis": {
+    "content": "{\n  \"summary\": \"In this portfolio, Property 1 and Property 3 are fully exempt from CGT due to their status as main residences for the entire ownership period. Property 2, however, incurs a CGT liability due to its partial main residence exemption, as it was not the main residence for the entire ownership period. The key reason for the exemption of Properties 1 and 3 is that they were the main residences throughout their ownership, while Property 2 was rented out during part of its ownership, leading to a partial exemption. The cross-property issue of main residence overlap was resolved by not applying the six-year rule to Property 2, as Property 1 was claimed as the main residence during the overlap period.\",\n  \"per_property_analysis\": [\n    {\n      \"property_address\": \"123 Smith Street, Melbourne VIC 3000\",\n      \"status\": \"sold\",\n      \"exemption\": \"full\",\n      \"reasoning\": \"The property was the main residence for the entire ownership period of 3,178 days, qualifying it for a full main residence exemption according to RULE 1 and RULE 3. The six-year rule was not applied as there was no rental period during which another property was claimed as the main residence.\",\n      \"cross_property_impact\": \"No impact from other properties as it was the main residence throughout ownership.\"\n    },\n    {\n      \"property_address\": \"456 Johnson Avenue, Sydney NSW 2000\",\n      \"status\": \"sold\",\n      \"exemption\": \"partial\",\n      \"reasoning\": \"The property was the main residence for only 1,168 out of 3,113 days, resulting in a partial exemption of 37.52%. According to RULE 3, the six-year rule was not applicable because Property 1 was claimed as the main residence during the rental period of Property 2.\",\n      \"cross_property_impact\": \"The main residence status of Property 1 during the rental period of Property 2 prevented the application of the six-year rule, leading to a partial exemption.\"\n    },\n    {\n      \"property_address\": \"321 Riverside Drive, Perth WA 6000\",\n      \"status\": \"sold\",\n      \"exemption\": \"full\",\n      \"reasoning\": \"The property was the main residence for the entire ownership period of 1,292 days, qualifying it for a full main residence exemption according to RULE 1 and RULE 3. There was no rental period, so the six-year rule was not applicable.\",\n      \"cross_property_impact\": \"No impact from other properties as it was the main residence throughout ownership.\"\n    }\n  ],\n  \"cross_property_intelligence\": \"The main residence overlap between Properties 1 and 2 was resolved by not applying the six-year rule to Property 2, as Property 1 was claimed as the main residence during the overlap. This decision was crucial in determining the partial exemption for Property 2. The portfolio-level consideration was to ensure that only one property was claimed as the main residence at any given time, adhering to RULE 3 and RULE 9.\",\n  \"recommendations\": [\n    \"Consider future property acquisitions with an eye on main residence status to maximize CGT exemptions.\",\n    \"Maintain detailed records of property usage to support main residence claims and potential six-year rule applications.\",\n    \"Evaluate the potential for using the six-year rule in future property sales to optimize tax outcomes.\",\n    \"Consult with a tax advisor before selling properties to ensure compliance with current CGT rules and maximize exemptions.\",\n    \"Review any changes in residency status or property usage that could affect CGT liabilities.\"\n  ]\n}",
+    "num_properties": 6,
+    "metadata": {
+      "llm_used": "openai",
+      "confidence": 100,
+      "chunks_retrieved": 10,
+      "citations_count": 7,
+      "analysis_duration_seconds": null
+    },
+    "validation": {
+      "citation_check": {
+        "total_citations": 7,
+        "valid_citations": 7,
+        "invalid_citations": [],
+        "citation_details": [
+          {
+            "rule_number": "1",
+            "source": "main_residence\\main_residence_toolkit.pdf",
+            "page": "N/A",
+            "valid": true,
+            "source_text": "Main residence exemption eligibility – common scenarios Use this list of common scenarios to find out about eligibility to a main residence exemption and what you need to report in your tax return when you have sold your property. Capital gains tax and the main residence exemption (continued) Common scenarios for eligibility to the main residence exemption and what to report in your tax return when you sell your property Scenario… During property ownership period Eligibility for main residence exemption (MRE) What to include in your tax return You lived in your home the entire time you owned it, but your home is on more than 2 hectares of land You’re eligible to claim a partial MRE for the area your house is on up to 2 hectares of land. The rest of the property is subject to CGT. For more information, see Home on more than 2 hectares. Report MRE. Report CGT gain or loss amount. You lived in the property before renting it out for 6 years or less You may elect to claim a full MRE, but you can’t claim the exemption for another property for the same period. If you make the choice to continue to treat your former home as your main residence, include the MRE in your tax return. For more information, see Treating former home as main residence. Report MRE. You first lived in the property and then rented it out for more than 6 years You’re eligible for a partial MRE. You can choose to treat the property as your main residence for the period you lived in it and the first 6 years you rented it out, but you can’t claim the exemption for another property for the same period. CGT must be applied for the remaining time you rented out the property until its sale. For more information, see Treating former home as main residence. Report MRE. Report CGT gain or loss amount. You rented the property out before you moved into it You’re eligible for a partial MRE. CGT must be applied to the period you rented it before",
+            "source_text_preview": "Main residence exemption eligibility – common scenarios Use this list of common scenarios to find out about eligibility to a main residence exemption and what you need to report in your tax return when you have sold your property. Capital gains tax and the main residence exemption (continued) Common...",
+            "used_in_analysis": "[RULE 1]"
+          },
+          {
+            "rule_number": "3",
+            "source": "main_residence\\main_residence_complete_guide.pdf",
+            "page": "N/A",
+            "valid": true,
+            "source_text": "QC 66029 How it works Your main residence (your home) is generally exempt from capital gains tax (CGT). Usually, a property stops being your main residence when you stop living in it. However, for CGT purposes you can continue treating a property as your main residence: for up to 6 years if you used it to produce income, such as rent (sometimes called the '6-year rule') indefinitely if you didn't use it to produce income. During the time that you treat the property as your main residence after you stop living in it: It continues to be exempt from CGT (the same as if you were still living in it, even if you start renting it out after you leave). You can't treat any other property as your main residence (except for up to 6 months if you are moving house). Eligibility If the property was continuously your main residence, the usual rules for the main residence exemption apply. The property must have: Treating former home as main residence How the CGT main residence exemption and 6-year rule apply when you move out, and how to include it in your tax return. Last updated 23 June 2025",
+            "source_text_preview": "QC 66029 How it works Your main residence (your home) is generally exempt from capital gains tax (CGT). Usually, a property stops being your main residence when you stop living in it. However, for CGT purposes you can continue treating a property as your main residence: for up to 6 years if you used...",
+            "used_in_analysis": "[RULE 3]"
+          },
+          {
+            "rule_number": "3",
+            "source": "main_residence\\main_residence_complete_guide.pdf",
+            "page": "N/A",
+            "valid": true,
+            "source_text": "QC 66029 How it works Your main residence (your home) is generally exempt from capital gains tax (CGT). Usually, a property stops being your main residence when you stop living in it. However, for CGT purposes you can continue treating a property as your main residence: for up to 6 years if you used it to produce income, such as rent (sometimes called the '6-year rule') indefinitely if you didn't use it to produce income. During the time that you treat the property as your main residence after you stop living in it: It continues to be exempt from CGT (the same as if you were still living in it, even if you start renting it out after you leave). You can't treat any other property as your main residence (except for up to 6 months if you are moving house). Eligibility If the property was continuously your main residence, the usual rules for the main residence exemption apply. The property must have: Treating former home as main residence How the CGT main residence exemption and 6-year rule apply when you move out, and how to include it in your tax return. Last updated 23 June 2025",
+            "source_text_preview": "QC 66029 How it works Your main residence (your home) is generally exempt from capital gains tax (CGT). Usually, a property stops being your main residence when you stop living in it. However, for CGT purposes you can continue treating a property as your main residence: for up to 6 years if you used...",
+            "used_in_analysis": "[RULE 3]"
+          },
+          {
+            "rule_number": "1",
+            "source": "main_residence\\main_residence_toolkit.pdf",
+            "page": "N/A",
+            "valid": true,
+            "source_text": "Main residence exemption eligibility – common scenarios Use this list of common scenarios to find out about eligibility to a main residence exemption and what you need to report in your tax return when you have sold your property. Capital gains tax and the main residence exemption (continued) Common scenarios for eligibility to the main residence exemption and what to report in your tax return when you sell your property Scenario… During property ownership period Eligibility for main residence exemption (MRE) What to include in your tax return You lived in your home the entire time you owned it, but your home is on more than 2 hectares of land You’re eligible to claim a partial MRE for the area your house is on up to 2 hectares of land. The rest of the property is subject to CGT. For more information, see Home on more than 2 hectares. Report MRE. Report CGT gain or loss amount. You lived in the property before renting it out for 6 years or less You may elect to claim a full MRE, but you can’t claim the exemption for another property for the same period. If you make the choice to continue to treat your former home as your main residence, include the MRE in your tax return. For more information, see Treating former home as main residence. Report MRE. You first lived in the property and then rented it out for more than 6 years You’re eligible for a partial MRE. You can choose to treat the property as your main residence for the period you lived in it and the first 6 years you rented it out, but you can’t claim the exemption for another property for the same period. CGT must be applied for the remaining time you rented out the property until its sale. For more information, see Treating former home as main residence. Report MRE. Report CGT gain or loss amount. You rented the property out before you moved into it You’re eligible for a partial MRE. CGT must be applied to the period you rented it before",
+            "source_text_preview": "Main residence exemption eligibility – common scenarios Use this list of common scenarios to find out about eligibility to a main residence exemption and what you need to report in your tax return when you have sold your property. Capital gains tax and the main residence exemption (continued) Common...",
+            "used_in_analysis": "[RULE 1]"
+          },
+          {
+            "rule_number": "3",
+            "source": "main_residence\\main_residence_complete_guide.pdf",
+            "page": "N/A",
+            "valid": true,
+            "source_text": "QC 66029 How it works Your main residence (your home) is generally exempt from capital gains tax (CGT). Usually, a property stops being your main residence when you stop living in it. However, for CGT purposes you can continue treating a property as your main residence: for up to 6 years if you used it to produce income, such as rent (sometimes called the '6-year rule') indefinitely if you didn't use it to produce income. During the time that you treat the property as your main residence after you stop living in it: It continues to be exempt from CGT (the same as if you were still living in it, even if you start renting it out after you leave). You can't treat any other property as your main residence (except for up to 6 months if you are moving house). Eligibility If the property was continuously your main residence, the usual rules for the main residence exemption apply. The property must have: Treating former home as main residence How the CGT main residence exemption and 6-year rule apply when you move out, and how to include it in your tax return. Last updated 23 June 2025",
+            "source_text_preview": "QC 66029 How it works Your main residence (your home) is generally exempt from capital gains tax (CGT). Usually, a property stops being your main residence when you stop living in it. However, for CGT purposes you can continue treating a property as your main residence: for up to 6 years if you used...",
+            "used_in_analysis": "[RULE 3]"
+          },
+          {
+            "rule_number": "3",
+            "source": "main_residence\\main_residence_complete_guide.pdf",
+            "page": "N/A",
+            "valid": true,
+            "source_text": "QC 66029 How it works Your main residence (your home) is generally exempt from capital gains tax (CGT). Usually, a property stops being your main residence when you stop living in it. However, for CGT purposes you can continue treating a property as your main residence: for up to 6 years if you used it to produce income, such as rent (sometimes called the '6-year rule') indefinitely if you didn't use it to produce income. During the time that you treat the property as your main residence after you stop living in it: It continues to be exempt from CGT (the same as if you were still living in it, even if you start renting it out after you leave). You can't treat any other property as your main residence (except for up to 6 months if you are moving house). Eligibility If the property was continuously your main residence, the usual rules for the main residence exemption apply. The property must have: Treating former home as main residence How the CGT main residence exemption and 6-year rule apply when you move out, and how to include it in your tax return. Last updated 23 June 2025",
+            "source_text_preview": "QC 66029 How it works Your main residence (your home) is generally exempt from capital gains tax (CGT). Usually, a property stops being your main residence when you stop living in it. However, for CGT purposes you can continue treating a property as your main residence: for up to 6 years if you used...",
+            "used_in_analysis": "[RULE 3]"
+          },
+          {
+            "rule_number": "9",
+            "source": "MLC qualifying-for-main-residence-exemption.pdf",
+            "page": "N/A",
+            "valid": true,
+            "source_text": "8 If the main residence is disposed of and: ▪ if they are not resident at the time of disposal, they will be ineligible for the main residence exemption (as explained above) and cannot apply the 50% exemption, or ▪ if they are resident at the time of disposal but cannot apply the main residence exemption for the whole period they were non-resident, for example it may have been rented for more than six years, then the 50% discount is not be available for the period when the person was non-resident. If the property was owned as at 9 May 2012 and they were resident at that time, then the 50% discount may be available in relation to the ownership period before that time. The rules are complex and appropriate tax advice should be obtained. Subdividing adjacent land If a dwelling purchased after 20 September 1985 is a person’s main residence and they subdivide the land, this may affect the main residence exemption applicable to any blocks of land the dwelling is not situated on. The parcel of vacant land is not exempt from CGT under the main residence exemption if the client disposes of the land separately from the dwelling15. This means that a capital gain may be assessed for that block of land from the date the client first acquired the property. If the subdivided blocks were sold together with the block containing the dwelling, despite the subdivision, the block without the dwelling will also qualify for a full main residence CGT exemption. Issues affecting couples Each member of a couple owns a dwelling before moving in If each member of a couple owned a dwelling that was their main residence before they decided to move in together, they will only be able to treat one of those dwellings as their main residence from the time they start living together. Each spouse lives in a different main residence If each spouse treats different dwellings as their main residence for a certain period, each spouse can claim an exemption on the home that was their main residence16. If a",
+            "source_text_preview": "8 If the main residence is disposed of and: ▪ if they are not resident at the time of disposal, they will be ineligible for the main residence exemption (as explained above) and cannot apply the 50% exemption, or ▪ if they are resident at the time of disposal but cannot apply the main residence exem...",
+            "used_in_analysis": "[RULE 9]"
+          }
+        ]
+      },
+      "calculation_check": {
+        "calculations_found": 1,
+        "calculations_verified": 1,
+        "calculation_errors": [],
+        "per_property": [
+          {
+            "property": "123 Smith Street, Melbourne VIC 3000",
+            "status": "exempt",
+            "reason": "Property sold after 3,178 days ownership. Main residence for 3,178 days (100%). Full exemption applies."
+          },
+          {
+            "property": "456 Johnson Avenue, Sydney NSW 2000",
+            "valid": true,
+            "errors": [],
+            "warnings": [],
+            "day_counts_present": true,
+            "exemption_percentage": {
+              "calculated": 8413.513513513513,
+              "days_as_main_residence": 3113,
+              "total_ownership_days": 37
+            }
+          },
+          {
+            "property": "321 Riverside Drive, Perth WA 6000",
+            "status": "exempt",
+            "reason": "Property sold after 1,292 days ownership. Main residence for 1,292 days (100%). Full exemption applies."
+          }
+        ]
+      },
+      "logic_check": {
+        "consistent": true,
+        "checks_passed": [
+          "No cross-property conflicts",
+          "Property 123 Smith Street, Melbourne VIC 3000 mentioned",
+          "Property 456 Johnson Avenue, Sydney NSW 2000 mentioned",
+          "Property 321 Riverside Drive, Perth WA 6000 mentioned"
+        ],
+        "checks_failed": [],
+        "completeness_score": 100,
+        "consistency_issues": []
+      },
+      "warnings": [],
+      "overall_confidence": 100,
+      "portfolio_summary": {
+        "total_properties": 3,
+        "properties_needing_cgt": 1,
+        "properties_exempt": 2,
+        "cross_property_issues": 0
+      }
+    },
+    "summary": "In this portfolio, Property 1 and Property 3 are fully exempt from CGT due to their status as main residences for the entire ownership period. Property 2, however, incurs a CGT liability due to its partial main residence exemption, as it was not the main residence for the entire ownership period. The key reason for the exemption of Properties 1 and 3 is that they were the main residences throughout their ownership, while Property 2 was rented out during part of its ownership, leading to a partial exemption. The cross-property issue of main residence overlap was resolved by not applying the six-year rule to Property 2, as Property 1 was claimed as the main residence during the overlap period.",
+    "per_property_analysis": [
+      {
+        "property_address": "123 Smith Street, Melbourne VIC 3000",
+        "status": "sold",
+        "exemption": "full",
+        "reasoning": "The property was the main residence for the entire ownership period of 3,178 days, qualifying it for a full main residence exemption according to RULE 1 and RULE 3. The six-year rule was not applied as there was no rental period during which another property was claimed as the main residence.",
+        "cross_property_impact": "No impact from other properties as it was the main residence throughout ownership."
+      },
+      {
+        "property_address": "456 Johnson Avenue, Sydney NSW 2000",
+        "status": "sold",
+        "exemption": "partial",
+        "reasoning": "The property was the main residence for only 1,168 out of 3,113 days, resulting in a partial exemption of 37.52%. According to RULE 3, the six-year rule was not applicable because Property 1 was claimed as the main residence during the rental period of Property 2.",
+        "cross_property_impact": "The main residence status of Property 1 during the rental period of Property 2 prevented the application of the six-year rule, leading to a partial exemption."
+      },
+      {
+        "property_address": "321 Riverside Drive, Perth WA 6000",
+        "status": "sold",
+        "exemption": "full",
+        "reasoning": "The property was the main residence for the entire ownership period of 1,292 days, qualifying it for a full main residence exemption according to RULE 1 and RULE 3. There was no rental period, so the six-year rule was not applicable.",
+        "cross_property_impact": "No impact from other properties as it was the main residence throughout ownership."
+      }
+    ],
+    "cross_property_intelligence": "The main residence overlap between Properties 1 and 2 was resolved by not applying the six-year rule to Property 2, as Property 1 was claimed as the main residence during the overlap. This decision was crucial in determining the partial exemption for Property 2. The portfolio-level consideration was to ensure that only one property was claimed as the main residence at any given time, adhering to RULE 3 and RULE 9.",
+    "recommendations": [
+      "Consider future property acquisitions with an eye on main residence status to maximize CGT exemptions.",
+      "Maintain detailed records of property usage to support main residence claims and potential six-year rule applications.",
+      "Evaluate the potential for using the six-year rule in future property sales to optimize tax outcomes.",
+      "Consult with a tax advisor before selling properties to ensure compliance with current CGT rules and maximize exemptions.",
+      "Review any changes in residency status or property usage that could affect CGT liabilities."
+    ]
+  },
+  "links": {
+    "self": "/api/v1/analysis/06a36817-1b2d-4a18-88ba-9744d167eeab",
+    "documents": "/api/v1/analysis/06a36817-1b2d-4a18-88ba-9744d167eeab/documents",
+    "validation": "/api/v1/analysis/06a36817-1b2d-4a18-88ba-9744d167eeab/validation",
+    "verification_details": "/api/v1/analysis/06a36817-1b2d-4a18-88ba-9744d167eeab/verification",
+    "timeline": "/api/v1/analysis/06a36817-1b2d-4a18-88ba-9744d167eeab/timeline",
+    "export_pdf": "/api/v1/analysis/06a36817-1b2d-4a18-88ba-9744d167eeab/export?format=pdf"
+  },
+  "error": null
+}

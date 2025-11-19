@@ -1,0 +1,209 @@
+{
+  "properties": [
+    {
+      "address": "123 Smith Street, Melbourne VIC 3000",
+      "property_history": [
+        {
+          "date": "2010-03-15",
+          "event": "move_in"
+        },
+        {
+          "date": "2010-03-15",
+          "event": "purchase",
+          "price": 380000,
+          "purchase_legal_fees": 2500,
+          "stamp_duty": 15200,
+          "valuation_fees": 450
+        },
+        {
+          "date": "2015-08-20",
+          "event": "move_out"
+        },
+        {
+          "date": "2015-09-01",
+          "event": "rent_start"
+        },
+        {
+          "date": "2018-11-25",
+          "event": "sale",
+          "price": 520000,
+          "contract_date": "2018-11-25",
+          "agent_fees": 13000,
+          "legal_fees": 1800,
+          "advertising_costs": 2500
+        }
+      ],
+      "notes": "sold - Main residence 2010-2015, rented 2015-2018, SOLD 2018"
+    },
+    {
+      "address": "456 Johnson Avenue, Sydney NSW 2000",
+      "property_history": [
+        {
+          "date": "2015-08-21",
+          "event": "move_in"
+        },
+        {
+          "date": "2015-08-21",
+          "event": "purchase",
+          "price": 650000,
+          "purchase_legal_fees": 3500,
+          "stamp_duty": 26000,
+          "valuation_fees": 600,
+          "purchase_agent_fees": 9750,
+          "building_inspection": 850,
+          "title_legal_fees": 1200
+        },
+        {
+          "date": "2017-05-15",
+          "event": "improvement",
+          "price": 85000
+        },
+        {
+          "date": "2019-03-20",
+          "event": "improvement",
+          "price": 35000
+        },
+        {
+          "date": "2018-10-31",
+          "event": "move_out"
+        },
+        {
+          "date": "2018-11-15",
+          "event": "rent_start"
+        },
+        {
+          "date": "2024-02-28",
+          "event": "sale",
+          "price": 1050000,
+          "contract_date": "2024-02-28",
+          "agent_fees": 26250,
+          "legal_fees": 2400,
+          "advertising_costs": 3500,
+          "staging_costs": 4500
+        }
+      ],
+      "notes": "sold - Main residence 2015-2018, rented 2018-2024, SOLD 2024 (complex cost base with improvements)"
+    },
+    {
+      "address": "789 Investor Lane, Brisbane QLD 4000",
+      "property_history": [
+        {
+          "date": "2019-08-01",
+          "event": "purchase",
+          "price": 485000,
+          "purchase_legal_fees": 2800,
+          "stamp_duty": 18700,
+          "valuation_fees": 500,
+          "building_inspection": 650
+        },
+        {
+          "date": "2019-08-20",
+          "event": "rent_start"
+        },
+        {
+          "date": "2021-11-10",
+          "event": "improvement",
+          "price": 25000
+        }
+      ],
+      "notes": "rental - Investment property 2019-present (never main residence)"
+    },
+    {
+      "address": "321 Riverside Drive, Perth WA 6000",
+      "property_history": [
+        {
+          "date": "2018-11-01",
+          "event": "move_in"
+        },
+        {
+          "date": "2018-11-01",
+          "event": "purchase",
+          "price": 720000,
+          "purchase_legal_fees": 3800,
+          "stamp_duty": 28800,
+          "valuation_fees": 700,
+          "purchase_agent_fees": 10800,
+          "building_inspection": 900,
+          "pest_inspection": 350,
+          "title_legal_fees": 1500
+        },
+        {
+          "date": "2020-09-15",
+          "event": "improvement",
+          "price": 55000
+        },
+        {
+          "date": "2023-01-10",
+          "event": "move_out"
+        },
+        {
+          "date": "2023-05-15",
+          "event": "sale",
+          "price": 905000,
+          "contract_date": "2023-05-15",
+          "agent_fees": 22625,
+          "legal_fees": 2600,
+          "advertising_costs": 4200
+        }
+      ],
+      "notes": "sold - Main residence 2018-2023, SOLD 2023 (4-month overlap with Property 5)"
+    },
+    {
+      "address": "555 Luxury Boulevard, Adelaide SA 5000",
+      "property_history": [
+        {
+          "date": "2023-01-10",
+          "event": "move_in"
+        },
+        {
+          "date": "2023-01-10",
+          "event": "purchase",
+          "price": 1200000,
+          "purchase_legal_fees": 5500,
+          "stamp_duty": 54000,
+          "valuation_fees": 900,
+          "purchase_agent_fees": 18000,
+          "building_inspection": 1200,
+          "pest_inspection": 450,
+          "title_legal_fees": 2000,
+          "loan_establishment": 1500,
+          "mortgage_insurance": 8500
+        },
+        {
+          "date": "2023-09-20",
+          "event": "improvement",
+          "price": 95000
+        },
+        {
+          "date": "2024-06-15",
+          "event": "improvement",
+          "price": 42000
+        }
+      ],
+      "notes": "ppr - Current main residence 2023-present (4-month overlap with Property 4 during transition)"
+    },
+    {
+      "address": "888 Rental Court, Gold Coast QLD 4217",
+      "property_history": [
+        {
+          "date": "2023-08-01",
+          "event": "purchase",
+          "price": 625000,
+          "purchase_legal_fees": 3200,
+          "stamp_duty": 23750,
+          "valuation_fees": 650,
+          "building_inspection": 750
+        },
+        {
+          "date": "2023-08-25",
+          "event": "rent_start"
+        }
+      ],
+      "notes": "rental - Investment property 2023-present"
+    }
+  ],
+  "user_query": "I have 6 properties with complex scenarios including sold properties, investment properties, and a 4-month main residence overlap. What is my total CGT liability across this portfolio? How are the six-year rule and main residence exemptions applied?",
+  "additional_info": {
+    "australian_resident": true
+  }
+}

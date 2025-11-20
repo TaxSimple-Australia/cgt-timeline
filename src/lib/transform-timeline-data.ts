@@ -28,6 +28,100 @@ export function transformTimelineToAPIFormat(
         historyEvent.price = event.amount;
       }
 
+      // Add contract date for sale events
+      if (event.contractDate) {
+        historyEvent.contract_date = event.contractDate.toISOString().split('T')[0];
+      }
+
+      // Extract cost base items from the costBases array
+      if (event.costBases && event.costBases.length > 0) {
+        event.costBases.forEach((costBase) => {
+          // Map cost base items to API fields based on their definitionId
+          switch (costBase.definitionId) {
+            case 'purchase_legal_fees':
+              historyEvent.purchase_legal_fees = costBase.amount;
+              break;
+            case 'valuation_fees':
+              historyEvent.valuation_fees = costBase.amount;
+              break;
+            case 'stamp_duty':
+              historyEvent.stamp_duty = costBase.amount;
+              break;
+            case 'purchase_agent_fees':
+              historyEvent.purchase_agent_fees = costBase.amount;
+              break;
+            case 'building_inspection':
+              historyEvent.building_inspection = costBase.amount;
+              break;
+            case 'pest_inspection':
+              historyEvent.pest_inspection = costBase.amount;
+              break;
+            case 'title_legal_fees':
+              historyEvent.title_legal_fees = costBase.amount;
+              break;
+            case 'loan_establishment':
+              historyEvent.loan_establishment = costBase.amount;
+              break;
+            case 'mortgage_insurance':
+              historyEvent.mortgage_insurance = costBase.amount;
+              break;
+            case 'conveyancing_fees':
+              historyEvent.conveyancing_fees = costBase.amount;
+              break;
+            case 'sale_legal_fees':
+            case 'legal_fees': // Handle both variations
+              historyEvent.legal_fees = costBase.amount;
+              break;
+            case 'sale_agent_fees':
+            case 'agent_fees': // Handle both variations
+              historyEvent.agent_fees = costBase.amount;
+              break;
+            case 'advertising_costs':
+              historyEvent.advertising_costs = costBase.amount;
+              break;
+            case 'staging_costs':
+              historyEvent.staging_costs = costBase.amount;
+              break;
+            case 'auction_costs':
+            case 'auction_fees':
+              historyEvent.auction_costs = costBase.amount;
+              break;
+            case 'survey_fees':
+              historyEvent.survey_fees = costBase.amount;
+              break;
+            case 'search_fees':
+              historyEvent.search_fees = costBase.amount;
+              break;
+            case 'loan_application_fees':
+              historyEvent.loan_application_fees = costBase.amount;
+              break;
+            case 'mortgage_discharge_fees':
+              historyEvent.mortgage_discharge_fees = costBase.amount;
+              break;
+            // Improvement costs
+            case 'renovation_whole_house':
+            case 'renovation_kitchen':
+            case 'renovation_bathroom':
+            case 'extension':
+            case 'new_structure':
+            case 'landscaping_major':
+            case 'swimming_pool':
+            case 'tennis_court':
+            case 'garage':
+            case 'shed':
+              // For improvements, use the price field or improvement_cost
+              if (!historyEvent.price) {
+                historyEvent.price = costBase.amount;
+              }
+              historyEvent.improvement_cost = costBase.amount;
+              break;
+            default:
+              // For custom or unrecognized cost bases, log a warning
+              console.warn(`Unknown cost base definition: ${costBase.definitionId}`, costBase);
+          }
+        });
+      }
+
       return historyEvent;
     });
 

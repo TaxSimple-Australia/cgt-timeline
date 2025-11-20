@@ -58,32 +58,33 @@ export default function Home() {
   }, []); // Only run once on mount
 
   // TEST: Auto-load verification alerts from demo response on mount (ONCE ONLY)
-  useEffect(() => {
-    const loadDemoVerificationAlerts = async () => {
-      try {
-        const response = await fetch('/NewRequestsAndResponses/4_new_response_with_gaps.json');
-        const demoResponse = await response.json();
-        console.log('🧪 TEST: Loading demo response with gaps:', demoResponse);
+  // DISABLED: Complete demo scenario has no gaps, so no need to auto-load alerts
+  // useEffect(() => {
+  //   const loadDemoVerificationAlerts = async () => {
+  //     try {
+  //       const response = await fetch('/NewRequestsAndResponses/4_new_response_with_gaps.json');
+  //       const demoResponse = await response.json();
+  //       console.log('🧪 TEST: Loading demo response with gaps:', demoResponse);
 
-        // Extract verification alerts
-        const alerts = extractVerificationAlerts(demoResponse, properties);
-        console.log('🧪 TEST: Extracted alerts from demo response:', alerts);
+  //       // Extract verification alerts
+  //       const alerts = extractVerificationAlerts(demoResponse, properties);
+  //       console.log('🧪 TEST: Extracted alerts from demo response:', alerts);
 
-        if (alerts.length > 0) {
-          setVerificationAlerts(alerts);
-          demoAlertsLoadedRef.current = true; // Mark as loaded
-          console.log('🧪 TEST: Set verification alerts in store');
-        }
-      } catch (err) {
-        console.error('🧪 TEST: Failed to load demo verification alerts:', err);
-      }
-    };
+  //       if (alerts.length > 0) {
+  //         setVerificationAlerts(alerts);
+  //         demoAlertsLoadedRef.current = true; // Mark as loaded
+  //         console.log('🧪 TEST: Set verification alerts in store');
+  //       }
+  //     } catch (err) {
+  //       console.error('🧪 TEST: Failed to load demo verification alerts:', err);
+  //     }
+  //   };
 
-    // Only load ONCE after properties are loaded and we haven't loaded before
-    if (properties.length > 0 && !demoAlertsLoadedRef.current) {
-      loadDemoVerificationAlerts();
-    }
-  }, [properties.length]); // Only re-run when properties.length changes
+  //   // Only load ONCE after properties are loaded and we haven't loaded before
+  //   if (properties.length > 0 && !demoAlertsLoadedRef.current) {
+  //     loadDemoVerificationAlerts();
+  //   }
+  // }, [properties.length]); // Only re-run when properties.length changes
 
   // Check API connection on mount
   useEffect(() => {
@@ -143,7 +144,15 @@ export default function Home() {
       console.log('📥 Received from API:', result);
 
       if (!result.success) {
-        throw new Error(result.error || 'API request failed');
+        // Format error message for better user experience
+        const errorMessage = result.error || 'API request failed';
+        const displayError = `Analysis Error: ${errorMessage}`;
+
+        if (result.errorDetails) {
+          console.error('📋 Error details:', result.errorDetails);
+        }
+
+        throw new Error(displayError);
       }
 
       // Use raw API response data
@@ -252,7 +261,15 @@ export default function Home() {
         console.log('📥 Received from API after resolution:', result);
 
         if (!result.success) {
-          throw new Error(result.error || 'API request failed');
+          // Format error message for better user experience
+          const errorMessage = result.error || 'API request failed';
+          const displayError = `Analysis Error: ${errorMessage}`;
+
+          if (result.errorDetails) {
+            console.error('📋 Error details:', result.errorDetails);
+          }
+
+          throw new Error(displayError);
         }
       } else {
         console.log('🧪 DEMO MODE: Using successful demo response (no API configured)');

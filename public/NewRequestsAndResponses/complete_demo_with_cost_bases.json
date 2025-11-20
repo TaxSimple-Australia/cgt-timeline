@@ -1,0 +1,176 @@
+{
+  "properties": [
+    {
+      "address": "15 Oakwood Drive, Cremorne NSW 2090",
+      "property_history": [
+        {
+          "date": "2012-06-15",
+          "event": "purchase",
+          "price": 485000,
+          "purchase_legal_fees": 2800,
+          "stamp_duty": 18700,
+          "valuation_fees": 550,
+          "building_inspection": 750,
+          "pest_inspection": 350
+        },
+        {
+          "date": "2012-07-01",
+          "event": "move_in"
+        },
+        {
+          "date": "2014-03-20",
+          "event": "improvement",
+          "price": 35000,
+          "description": "Kitchen renovation"
+        },
+        {
+          "date": "2018-08-10",
+          "event": "move_out"
+        },
+        {
+          "date": "2018-09-01",
+          "event": "rent_start"
+        },
+        {
+          "date": "2023-05-15",
+          "event": "rent_end"
+        },
+        {
+          "date": "2023-06-20",
+          "event": "sale",
+          "price": 825000,
+          "contract_date": "2023-06-20",
+          "agent_fees": 20625,
+          "legal_fees": 2400,
+          "advertising_costs": 3200,
+          "auction_costs": 1500
+        }
+      ],
+      "notes": "sold - PPR 2012-2018 (6 years), Rental 2018-2023 (5 years), sold 2023"
+    },
+    {
+      "address": "42 Harbour View Terrace, Mosman NSW 2088",
+      "property_history": [
+        {
+          "date": "2018-08-05",
+          "event": "purchase",
+          "price": 920000,
+          "purchase_legal_fees": 4200,
+          "stamp_duty": 38050,
+          "valuation_fees": 750,
+          "purchase_agent_fees": 13800,
+          "building_inspection": 950,
+          "pest_inspection": 450,
+          "title_legal_fees": 1800,
+          "loan_establishment": 1200
+        },
+        {
+          "date": "2018-08-20",
+          "event": "move_in"
+        },
+        {
+          "date": "2019-11-15",
+          "event": "improvement",
+          "price": 65000,
+          "description": "Bathroom and ensuite renovation"
+        },
+        {
+          "date": "2021-04-10",
+          "event": "improvement",
+          "price": 28000,
+          "description": "Deck and outdoor entertaining area"
+        },
+        {
+          "date": "2023-01-15",
+          "event": "improvement",
+          "price": 42000,
+          "description": "Solar panels and energy efficiency upgrades"
+        }
+      ],
+      "notes": "ppr - Current main residence since 2018, multiple capital improvements"
+    },
+    {
+      "address": "88 Investment Street, Parramatta NSW 2150",
+      "property_history": [
+        {
+          "date": "2016-03-10",
+          "event": "purchase",
+          "price": 545000,
+          "purchase_legal_fees": 3100,
+          "stamp_duty": 21175,
+          "valuation_fees": 600,
+          "building_inspection": 700,
+          "pest_inspection": 350
+        },
+        {
+          "date": "2016-04-01",
+          "event": "rent_start"
+        },
+        {
+          "date": "2019-07-20",
+          "event": "improvement",
+          "price": 18500,
+          "description": "New carpets and paint throughout"
+        },
+        {
+          "date": "2022-02-15",
+          "event": "improvement",
+          "price": 32000,
+          "description": "Kitchen upgrade and new appliances"
+        }
+      ],
+      "notes": "rental - Pure investment property since 2016, never main residence"
+    },
+    {
+      "address": "23 Coastal Road, Manly NSW 2095",
+      "property_history": [
+        {
+          "date": "2020-09-15",
+          "event": "purchase",
+          "price": 1150000,
+          "purchase_legal_fees": 5200,
+          "stamp_duty": 50350,
+          "valuation_fees": 850,
+          "purchase_agent_fees": 17250,
+          "building_inspection": 1100,
+          "pest_inspection": 500,
+          "title_legal_fees": 2200,
+          "loan_establishment": 1500,
+          "mortgage_insurance": 9500,
+          "conveyancing_fees": 1800
+        },
+        {
+          "date": "2020-10-01",
+          "event": "rent_start"
+        },
+        {
+          "date": "2021-11-10",
+          "event": "improvement",
+          "price": 45000,
+          "description": "Bathroom renovations and new flooring"
+        },
+        {
+          "date": "2024-03-20",
+          "event": "rent_end"
+        },
+        {
+          "date": "2024-04-15",
+          "event": "sale",
+          "price": 1485000,
+          "contract_date": "2024-04-15",
+          "agent_fees": 37125,
+          "legal_fees": 3200,
+          "advertising_costs": 5500,
+          "staging_costs": 6500,
+          "auction_costs": 2000
+        }
+      ],
+      "notes": "sold - Investment property 2020-2024, never main residence, sold 2024"
+    }
+  ],
+  "user_query": "Please analyze my complete property portfolio including all cost base elements for accurate CGT calculations. I have detailed records of all purchase costs, improvements, and selling costs.",
+  "additional_info": {
+    "australian_resident": true,
+    "tax_year": "2023-2024"
+  }
+}

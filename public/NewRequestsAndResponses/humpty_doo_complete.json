@@ -1,0 +1,49 @@
+{
+  "properties": [
+    {
+      "address": "45 Collard Road, Humpty Doo NT 0836",
+      "property_history": [
+        {
+          "date": "2003-01-01",
+          "event": "purchase",
+          "price": 106000,
+          "purchase_legal_fees": 1800,
+          "stamp_duty": 3180,
+          "valuation_fees": 400,
+          "building_inspection": 600
+        },
+        {
+          "date": "2003-01-01",
+          "event": "move_in"
+        },
+        {
+          "date": "2019-12-31",
+          "event": "move_out"
+        },
+        {
+          "date": "2020-01-01",
+          "event": "rent_start"
+        },
+        {
+          "date": "2023-06-30",
+          "event": "rent_end"
+        },
+        {
+          "date": "2023-07-14",
+          "event": "sale",
+          "price": 450000,
+          "contract_date": "2023-07-14",
+          "agent_fees": 11250,
+          "legal_fees": 1800,
+          "advertising_costs": 2500
+        }
+      ],
+      "notes": "sold - Main residence 2003-2019 (17 years), then rental 2020-2023 (3.5 years), sold 2023"
+    }
+  ],
+  "user_query": "Please analyze my Humpty Doo property with complete timeline and cost base information.",
+  "additional_info": {
+    "australian_resident": true,
+    "tax_year": "2023-2024"
+  }
+}

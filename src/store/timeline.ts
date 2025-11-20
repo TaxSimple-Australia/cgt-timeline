@@ -623,19 +623,20 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
 
   loadDemoData: async () => {
     try {
-      // Load the request file that matches the gap response (4_new_response_with_gaps.json)
-      const response = await fetch('/NewRequestsAndResponses/4_new_timeline_request_with_gaps.json');
+      // Load simple complete demo data with no gaps
+      // This includes proper property transitions to avoid verification alerts
+      const response = await fetch('/NewRequestsAndResponses/simple_complete_demo.json');
       const data = await response.json();
       const store = get();
       store.importTimelineData(data);
-      console.log('✅ Loaded timeline data with gaps for testing');
+      console.log('✅ Loaded simple complete demo timeline data');
     } catch (error) {
       console.error('❌ Failed to load default timeline data:', error);
       // Fallback to hardcoded demo data if JSON file fails
       const demoProperties: Property[] = [];
       const demoEvents: TimelineEvent[] = [];
 
-    // Property 1: 45 Collard Road, Humpty Doo
+    // Property 1: 45 Collard Road, Humpty Doo (COMPLETE - NO GAPS)
     const prop1 = {
       id: 'demo-prop-1',
       name: 'Humpty Doo, NT 0836',
@@ -650,7 +651,7 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
     };
     demoProperties.push(prop1);
 
-    // Events for Property 1
+    // Events for Property 1 - Complete timeline with no gaps
     demoEvents.push({
       id: 'demo-event-1-1',
       propertyId: prop1.id,
@@ -674,21 +675,44 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
       isPPR: true,
     });
 
+    // FIXED: Added move_out event to close the gap
     demoEvents.push({
       id: 'demo-event-1-3',
       propertyId: prop1.id,
-      type: 'rent_start',
-      date: new Date(2020, 0, 1),
-      title: 'Start Rent',
+      type: 'move_out',
+      date: new Date(2019, 11, 31), // Dec 31, 2019
+      title: 'Move Out',
       position: 0,
-      color: eventColors.rent_start,
+      color: eventColors.move_out,
+      isPPR: true,
     });
 
     demoEvents.push({
       id: 'demo-event-1-4',
       propertyId: prop1.id,
+      type: 'rent_start',
+      date: new Date(2020, 0, 1), // Jan 1, 2020 - next day after move out
+      title: 'Start Rent',
+      position: 0,
+      color: eventColors.rent_start,
+    });
+
+    // FIXED: Added rent_end event before sale
+    demoEvents.push({
+      id: 'demo-event-1-5',
+      propertyId: prop1.id,
+      type: 'rent_end',
+      date: new Date(2023, 5, 30), // Jun 30, 2023
+      title: 'End Rent',
+      position: 0,
+      color: eventColors.rent_end,
+    });
+
+    demoEvents.push({
+      id: 'demo-event-1-6',
+      propertyId: prop1.id,
       type: 'sale',
-      date: new Date(2023, 6, 14),
+      date: new Date(2023, 6, 14), // Jul 14, 2023
       title: 'Sold',
       amount: 450000,
       position: 0,

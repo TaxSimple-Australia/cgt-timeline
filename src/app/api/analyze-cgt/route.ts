@@ -44,6 +44,19 @@ export async function POST(request: NextRequest) {
     const data = await response.json();
     console.log('✅ API Response Data:', JSON.stringify(data, null, 2));
 
+    // Check if the API returned an error response
+    if (data.status === 'error') {
+      console.error('❌ API returned error status:', data.error);
+      return NextResponse.json(
+        {
+          success: false,
+          error: data.error || 'Analysis failed',
+          errorDetails: data,
+        },
+        { status: 200 } // Still return 200 since the API call itself succeeded
+      );
+    }
+
     return NextResponse.json({
       success: true,
       data,

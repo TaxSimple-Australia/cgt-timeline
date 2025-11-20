@@ -1,0 +1,12 @@
+{
+  "status": "error",
+  "timestamp": "2025-11-20T03:16:34.508903",
+  "analysis_id": null,
+  "summary": null,
+  "properties": null,
+  "calculations": null,
+  "verification": null,
+  "analysis": null,
+  "links": null,
+  "error": "division by zero"
+}

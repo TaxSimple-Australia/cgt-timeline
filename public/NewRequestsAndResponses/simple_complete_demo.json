@@ -1,0 +1,93 @@
+{
+  "properties": [
+    {
+      "address": "25 Sunshine Street, Sydney NSW 2000",
+      "property_history": [
+        {
+          "date": "2015-03-15",
+          "event": "purchase",
+          "price": 650000,
+          "purchase_legal_fees": 3200,
+          "stamp_duty": 26000,
+          "valuation_fees": 600,
+          "building_inspection": 750
+        },
+        {
+          "date": "2015-03-15",
+          "event": "move_in"
+        },
+        {
+          "date": "2020-06-30",
+          "event": "move_out"
+        },
+        {
+          "date": "2020-06-30",
+          "event": "rent_start"
+        },
+        {
+          "date": "2024-08-15",
+          "event": "rent_end"
+        },
+        {
+          "date": "2024-08-15",
+          "event": "sale",
+          "price": 950000,
+          "contract_date": "2024-08-15",
+          "agent_fees": 23750,
+          "legal_fees": 2500,
+          "advertising_costs": 3200
+        }
+      ],
+      "notes": "sold - Main residence 2015-2020, then rental 2020-2024, sold 2024"
+    },
+    {
+      "address": "88 Harbour Boulevard, Melbourne VIC 3000",
+      "property_history": [
+        {
+          "date": "2020-06-30",
+          "event": "purchase",
+          "price": 820000,
+          "purchase_legal_fees": 3800,
+          "stamp_duty": 34300,
+          "valuation_fees": 700,
+          "building_inspection": 850
+        },
+        {
+          "date": "2020-06-30",
+          "event": "move_in"
+        },
+        {
+          "date": "2022-09-20",
+          "event": "improvement",
+          "price": 45000,
+          "description": "Kitchen and bathroom renovation"
+        }
+      ],
+      "notes": "ppr - Current main residence since 2020, purchased same day as moved out of Property 1"
+    },
+    {
+      "address": "42 Investment Avenue, Brisbane QLD 4000",
+      "property_history": [
+        {
+          "date": "2018-11-10",
+          "event": "purchase",
+          "price": 485000,
+          "purchase_legal_fees": 2900,
+          "stamp_duty": 18700,
+          "valuation_fees": 550,
+          "building_inspection": 700
+        },
+        {
+          "date": "2018-11-10",
+          "event": "rent_start"
+        }
+      ],
+      "notes": "rental - Pure investment property since 2018, never main residence"
+    }
+  ],
+  "user_query": "Please analyze my property portfolio with accurate CGT calculations including all cost base elements.",
+  "additional_info": {
+    "australian_resident": true,
+    "tax_year": "2023-2024"
+  }
+}

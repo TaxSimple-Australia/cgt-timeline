@@ -160,41 +160,66 @@ export function extractVerificationAlerts(
       const endDate = issue.affected_period?.end_date || issue.affected_period?.end || '';
 
       if (startDate || endDate) {
-        // Create combined address for better matching
-        const matchedProperty = timelineProperties.find(p => {
-          const pFullAddress = `${p.name}, ${p.address}`.toLowerCase();
-          const pAddress = p.address?.toLowerCase() || '';
-          const pName = p.name?.toLowerCase() || '';
-          const propAddr = propertyAddress.toLowerCase();
+        // Handle "All Properties" case - assign to all properties or first property if only one
+        const isAllProperties = propertyAddress.toLowerCase().includes('all properties');
 
-          return (
-            pAddress.includes(propAddr) ||
-            pName.includes(propAddr) ||
-            pFullAddress.includes(propAddr) ||
-            propAddr.includes(pAddress) ||
-            propAddr.includes(pName) ||
-            propAddr.includes(pFullAddress)
-          );
+        let matchedProperties: Property[] = [];
+
+        if (isAllProperties) {
+          // If only one property, assign to it; otherwise, assign to all properties
+          matchedProperties = timelineProperties.length === 1
+            ? [timelineProperties[0]]
+            : timelineProperties;
+          console.log('📍 "All Properties" issue - assigning to:', matchedProperties.map(p => p.name));
+        } else {
+          // Try to match specific property
+          const matchedProperty = timelineProperties.find(p => {
+            const pFullAddress = `${p.name}, ${p.address}`.toLowerCase();
+            const pAddress = p.address?.toLowerCase() || '';
+            const pName = p.name?.toLowerCase() || '';
+            const propAddr = propertyAddress.toLowerCase();
+
+            return (
+              pAddress.includes(propAddr) ||
+              pName.includes(propAddr) ||
+              pFullAddress.includes(propAddr) ||
+              propAddr.includes(pAddress) ||
+              propAddr.includes(pName) ||
+              propAddr.includes(pFullAddress)
+            );
+          });
+
+          if (matchedProperty) {
+            matchedProperties = [matchedProperty];
+          }
+        }
+
+        // Create an alert for each matched property
+        matchedProperties.forEach((matchedProperty, propIndex) => {
+          // Find possible answers from clarification_questions
+          const clarificationQuestion = issue.clarification_question || resolutionText;
+          const possibleAnswers = findPossibleAnswers(propertyAddress, clarificationQuestion);
+
+          const alert: VerificationAlert = {
+            id: `alert-global-${Date.now()}-${index}-${propIndex}`,
+            propertyAddress: isAllProperties ? matchedProperty.name : propertyAddress,
+            propertyId: matchedProperty.id,
+            startDate: startDate || endDate,
+            endDate: endDate || startDate,
+            resolutionText,
+            clarificationQuestion,
+            possibleAnswers,
+            severity: issue.severity || 'warning',
+          };
+
+          console.log('✅ Created alert from global issue:', alert);
+          alerts.push(alert);
         });
 
-        // Find possible answers from clarification_questions
-        const clarificationQuestion = issue.clarification_question || resolutionText;
-        const possibleAnswers = findPossibleAnswers(propertyAddress, clarificationQuestion);
-
-        const alert: VerificationAlert = {
-          id: `alert-global-${Date.now()}-${index}`,
-          propertyAddress,
-          propertyId: matchedProperty?.id,
-          startDate: startDate || endDate,
-          endDate: endDate || startDate,
-          resolutionText,
-          clarificationQuestion,
-          possibleAnswers,
-          severity: issue.severity || 'warning',
-        };
-
-        console.log('✅ Created alert from global issue:', alert);
-        alerts.push(alert);
+        // If no properties matched and not "All Properties", log a warning
+        if (matchedProperties.length === 0 && !isAllProperties) {
+          console.warn('⚠️ Could not match property address:', propertyAddress);
+        }
       }
     });
 

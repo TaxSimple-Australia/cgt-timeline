@@ -400,7 +400,7 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
       (thirtyYearsAgo.getTime() + today.getTime()) / 2
     ),
     theme: 'dark',
-    eventDisplayMode: 'card',
+    eventDisplayMode: 'circle',
     lockFutureDates: true,
     enableDragEvents: true,
 

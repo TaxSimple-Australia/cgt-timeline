@@ -215,20 +215,20 @@ export default function VerificationAlertBar({
       />
 
       {/* Icon centered above the bar - Question mark or Check mark */}
-      {width > 3 && (
-        <g
-          className="alert-icon"
-          style={{ cursor: isResolved ? 'default' : 'pointer' }}
-          onMouseEnter={() => setShowTooltip(true)}
-          onMouseLeave={() => setShowTooltip(false)}
-          onClick={(e) => {
-            e.stopPropagation();
-            if (!isResolved && onAlertClick) {
-              onAlertClick(alert.id);
-              setShowTooltip(false);
-            }
-          }}
-        >
+      {/* Always show the icon, even for tiny gaps */}
+      <g
+        className="alert-icon"
+        style={{ cursor: isResolved ? 'default' : 'pointer' }}
+        onMouseEnter={() => setShowTooltip(true)}
+        onMouseLeave={() => setShowTooltip(false)}
+        onClick={(e) => {
+          e.stopPropagation();
+          if (!isResolved && onAlertClick) {
+            onAlertClick(alert.id);
+            setShowTooltip(false);
+          }
+        }}
+      >
           {/* Glow layer for question mark - flashing continuously when not resolved */}
           {!isResolved && (
             <motion.circle
@@ -362,7 +362,6 @@ export default function VerificationAlertBar({
             )}
           </AnimatePresence>
         </g>
-      )}
 
       {/* Property address label (show if bar is wide enough) */}
       {width > 8 && (

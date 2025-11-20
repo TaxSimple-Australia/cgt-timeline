@@ -195,6 +195,7 @@ export default function Home() {
 
     setIsLoading(true);
     setError(null);
+    setShowAnalysis(true); // Open analysis panel immediately to show loading state
 
     try {
       // Transform timeline data to API format
@@ -226,24 +227,46 @@ export default function Home() {
 
       console.log('📤 Sending resolved data to API:', requestData);
 
-      // Call the API
-      const response = await fetch('/api/analyze-cgt', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(requestData),
-      });
+      // Check if API is configured
+      const apiUrl = process.env.NEXT_PUBLIC_CGT_MODEL_API_URL;
+      const isApiConfigured = apiUrl && apiUrl !== 'YOUR_MODEL_API_URL_HERE';
 
-      if (!response.ok) {
-        throw new Error(`API request failed with status ${response.status}`);
-      }
+      let result;
 
-      const result = await response.json();
-      console.log('📥 Received from API after resolution:', result);
+      if (isApiConfigured) {
+        console.log('🌐 Calling real API...');
+        // Call the API
+        const response = await fetch('/api/analyze-cgt', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(requestData),
+        });
 
-      if (!result.success) {
-        throw new Error(result.error || 'API request failed');
+        if (!response.ok) {
+          throw new Error(`API request failed with status ${response.status}`);
+        }
+
+        result = await response.json();
+        console.log('📥 Received from API after resolution:', result);
+
+        if (!result.success) {
+          throw new Error(result.error || 'API request failed');
+        }
+      } else {
+        console.log('🧪 DEMO MODE: Using successful demo response (no API configured)');
+        // Load successful demo response for demonstration
+        const demoResponseFile = await fetch('/NewRequestsAndResponses/1_new_successful_response_json.json');
+        const demoData = await demoResponseFile.json();
+        result = {
+          success: true,
+          data: demoData,
+        };
+        console.log('📥 Loaded demo success response:', result);
+
+        // Simulate API delay for realism
+        await new Promise(resolve => setTimeout(resolve, 1500));
       }
 
       // Clear old verification alerts since they've been resolved
@@ -259,9 +282,7 @@ export default function Home() {
 
       setAnalysisData(result.data);
 
-      // NOW show the analysis - all alerts have been resolved and re-submitted
-      setShowAnalysis(true);
-
+      // Analysis panel is already open (set at start of function)
       console.log('✅ Successfully re-submitted with verifications - showing CGT analysis');
     } catch (err) {
       console.error('❌ Error re-submitting with verifications:', err);

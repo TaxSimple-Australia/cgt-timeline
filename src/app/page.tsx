@@ -272,8 +272,8 @@ export default function Home() {
       // Clear old verification alerts since they've been resolved
       clearVerificationAlerts();
 
-      // Close the "all resolved" popup
-      setShowAllResolvedPopup(false);
+      // Popup already closed by button click
+      // setShowAllResolvedPopup(false); // Not needed - already closed
 
       // Set validation issues in store if present
       if (result.data.verification?.issues) {

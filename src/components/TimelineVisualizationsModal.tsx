@@ -118,70 +118,56 @@ export default function TimelineVisualizationsModal({
             className="fixed inset-4 md:inset-8 lg:inset-12 bg-white dark:bg-gray-900 rounded-2xl shadow-2xl z-[101] overflow-hidden flex flex-col"
           >
             {/* Header */}
-            <div className="bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-500 dark:to-purple-500 p-6 flex-shrink-0">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <FileText className="w-7 h-7 text-white" />
-                  <div>
-                    <h2 className="text-2xl font-bold text-white">Timeline Visualizations</h2>
-                    <p className="text-blue-100 text-sm mt-0.5">
-                      PDF-ready formats for accountant verification
-                    </p>
-                  </div>
+            <div className="bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-500 dark:to-purple-500 px-4 py-3 flex-shrink-0">
+              <div className="flex items-center justify-between gap-4">
+                <div className="flex items-center gap-2">
+                  <FileText className="w-5 h-5 text-white" />
+                  <h2 className="text-lg font-bold text-white">Timeline Visualizations</h2>
                 </div>
-                <button
-                  onClick={onClose}
-                  className="p-2 hover:bg-white/20 rounded-lg transition-colors"
-                  title="Close"
-                >
-                  <X className="w-6 h-6 text-white" />
-                </button>
-              </div>
 
-              {/* Controls Row */}
-              <div className="mt-4 flex items-center justify-between gap-4">
-                {/* Visualization Selector */}
-                <div className="relative flex-1 max-w-md">
-                  <select
-                    value={selectedViz}
-                    onChange={(e) => setSelectedViz(e.target.value as VisualizationType)}
-                    className="w-full appearance-none bg-white/20 backdrop-blur-sm border border-white/30 text-white rounded-xl px-4 py-2.5 pr-10 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-white/50 cursor-pointer"
-                  >
+                {/* Controls Row */}
+                <div className="flex items-center gap-3">
+                  {/* Visualization Selector */}
+                  <div className="relative">
+                    <select
+                      value={selectedViz}
+                      onChange={(e) => setSelectedViz(e.target.value as VisualizationType)}
+                      className="appearance-none bg-white/20 backdrop-blur-sm border border-white/30 text-white rounded-lg px-3 py-1.5 pr-8 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-white/50 cursor-pointer"
+                    >
                     {Object.entries(visualizations).map(([key, { label }]) => (
                       <option key={key} value={key} className="text-gray-900">
                         {label}
                       </option>
                     ))}
                   </select>
-                  <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-white/70 pointer-events-none" />
+                    <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-white/70 pointer-events-none" />
+                  </div>
+
+                  {/* Print Button */}
+                  <button
+                    onClick={() => window.print()}
+                    className="px-3 py-1.5 bg-white/20 hover:bg-white/30 backdrop-blur-sm border border-white/30 text-white rounded-lg text-sm font-medium transition-colors flex items-center gap-1.5"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"
+                      />
+                    </svg>
+                    <span className="hidden sm:inline">Print</span>
+                  </button>
+
+                  <button
+                    onClick={onClose}
+                    className="p-1.5 hover:bg-white/20 rounded-lg transition-colors"
+                    title="Close"
+                  >
+                    <X className="w-5 h-5 text-white" />
+                  </button>
                 </div>
-
-                {/* Print Button */}
-                <button
-                  onClick={() => window.print()}
-                  className="px-4 py-2.5 bg-white/20 hover:bg-white/30 backdrop-blur-sm border border-white/30 text-white rounded-xl text-sm font-medium transition-colors flex items-center gap-2"
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"
-                    />
-                  </svg>
-                  Print to PDF
-                </button>
               </div>
-
-              {/* Description */}
-              <motion.p
-                key={selectedViz}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="text-sm text-white/90 mt-3"
-              >
-                {visualizations[selectedViz].description}
-              </motion.p>
             </div>
 
             {/* Content */}
@@ -214,14 +200,13 @@ export default function TimelineVisualizationsModal({
             </div>
 
             {/* Footer */}
-            <div className="bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 px-6 py-3 flex-shrink-0">
+            <div className="bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 px-4 py-2 flex-shrink-0">
               <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
                 <span>
-                  Showing {properties.length} {properties.length === 1 ? 'property' : 'properties'} with{' '}
-                  {events.length} {events.length === 1 ? 'event' : 'events'}
+                  {properties.length} {properties.length === 1 ? 'property' : 'properties'}, {events.length} {events.length === 1 ? 'event' : 'events'}
                 </span>
-                <span>
-                  Use <kbd className="px-1.5 py-0.5 bg-gray-200 dark:bg-gray-700 rounded text-xs">Ctrl/Cmd + P</kbd> to print
+                <span className="hidden sm:inline">
+                  <kbd className="px-1.5 py-0.5 bg-gray-200 dark:bg-gray-700 rounded text-xs">Ctrl/Cmd + P</kbd> to print
                 </span>
               </div>
             </div>

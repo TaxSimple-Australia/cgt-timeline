@@ -230,8 +230,9 @@ export default function DetailedReportModal({
     try {
       console.log('PDF download initiated');
 
-      // Import the PDF generation utility
+      // Import the PDF generation utility and flowchart capture
       const { generatePDFFromMarkdown } = await import('@/lib/markdown-to-pdf');
+      const { captureFlowchartAsImage } = await import('@/components/FlowchartForPDF');
 
       console.log('PDF library imported');
 
@@ -247,8 +248,18 @@ export default function DetailedReportModal({
 
       console.log('Starting PDF generation with content length:', markdownContent.length);
 
+      // Capture flowchart as image
+      console.log('Capturing flowchart image...');
+      let flowchartImage: string | undefined;
+      try {
+        flowchartImage = await captureFlowchartAsImage();
+        console.log('Flowchart captured successfully');
+      } catch (error) {
+        console.warn('Failed to capture flowchart, continuing without it:', error);
+      }
+
       // Generate and download the PDF
-      await generatePDFFromMarkdown(markdownContent, fileName);
+      await generatePDFFromMarkdown(markdownContent, fileName, flowchartImage);
 
       console.log('PDF generation completed successfully');
     } catch (err) {
@@ -275,8 +286,9 @@ export default function DetailedReportModal({
     try {
       console.log('Email sending initiated');
 
-      // Import the PDF generation utility
+      // Import the PDF generation utility and flowchart capture
       const { generatePDFBlob } = await import('@/lib/markdown-to-pdf');
+      const { captureFlowchartAsImage } = await import('@/components/FlowchartForPDF');
 
       console.log('PDF library imported');
 
@@ -292,8 +304,18 @@ export default function DetailedReportModal({
 
       console.log('Starting PDF generation for email with content length:', markdownContent.length);
 
+      // Capture flowchart as image
+      console.log('Capturing flowchart image for email...');
+      let flowchartImage: string | undefined;
+      try {
+        flowchartImage = await captureFlowchartAsImage();
+        console.log('Flowchart captured successfully for email');
+      } catch (error) {
+        console.warn('Failed to capture flowchart for email, continuing without it:', error);
+      }
+
       // Generate PDF as blob
-      const pdfBlob = await generatePDFBlob(markdownContent);
+      const pdfBlob = await generatePDFBlob(markdownContent, flowchartImage);
 
       console.log('PDF blob generated, size:', pdfBlob.size);
 

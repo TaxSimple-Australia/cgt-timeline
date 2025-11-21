@@ -21,6 +21,8 @@ export interface PDFContent {
   };
   layout?: string;
   pageBreak?: string;
+  image?: string;
+  width?: number;
 }
 
 /**
@@ -341,7 +343,7 @@ function parseInlineFormatting(text: string): PDFContent {
 /**
  * Create document definition for PDF
  */
-async function createDocDefinition(markdown: string): Promise<any> {
+async function createDocDefinition(markdown: string, flowchartImage?: string): Promise<any> {
   // Dynamic import for client-side only
   const pdfMakeModule = await import('pdfmake/build/pdfmake');
   const pdfFontsModule = await import('pdfmake/build/vfs_fonts');
@@ -356,6 +358,28 @@ async function createDocDefinition(markdown: string): Promise<any> {
   }
 
   const content = markdownToPdfContent(markdown);
+
+  // Prepend flowchart image if provided
+  if (flowchartImage) {
+    content.unshift(
+      {
+        text: 'Property Timeline Flowchart',
+        style: 'h2',
+        alignment: 'center',
+        margin: [0, 0, 0, 15],
+      },
+      {
+        image: flowchartImage,
+        width: 500,
+        alignment: 'center',
+        margin: [0, 0, 0, 20],
+      },
+      {
+        text: '',
+        pageBreak: 'after',
+      }
+    );
+  }
 
   return {
     pdfMake,
@@ -446,13 +470,15 @@ async function createDocDefinition(markdown: string): Promise<any> {
  */
 export async function generatePDFFromMarkdown(
   markdown: string,
-  filename: string = 'document.pdf'
+  filename: string = 'document.pdf',
+  flowchartImage?: string
 ): Promise<void> {
   try {
     console.log('Starting PDF generation...');
     console.log('Markdown length:', markdown.length);
+    console.log('Flowchart image provided:', !!flowchartImage);
 
-    const { pdfMake, docDefinition } = await createDocDefinition(markdown);
+    const { pdfMake, docDefinition } = await createDocDefinition(markdown, flowchartImage);
 
     console.log('Document definition created');
 
@@ -471,12 +497,13 @@ export async function generatePDFFromMarkdown(
 /**
  * Generate PDF as a Blob (for email attachments)
  */
-export async function generatePDFBlob(markdown: string): Promise<Blob> {
+export async function generatePDFBlob(markdown: string, flowchartImage?: string): Promise<Blob> {
   try {
     console.log('Starting PDF blob generation...');
     console.log('Markdown length:', markdown.length);
+    console.log('Flowchart image provided:', !!flowchartImage);
 
-    const { pdfMake, docDefinition } = await createDocDefinition(markdown);
+    const { pdfMake, docDefinition } = await createDocDefinition(markdown, flowchartImage);
 
     console.log('Document definition created');
 

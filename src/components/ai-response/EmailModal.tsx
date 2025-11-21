@@ -123,7 +123,7 @@ export default function EmailModal({ isOpen, onClose, onSend, isSending }: Email
                     <ul className="mt-2 space-y-1 text-sm text-blue-700 dark:text-blue-400">
                       <li className="flex items-center gap-2">
                         <span className="w-1 h-1 bg-blue-600 dark:bg-blue-400 rounded-full"></span>
-                        Timeline snapshot
+                        Property lifecycle flowchart
                       </li>
                       <li className="flex items-center gap-2">
                         <span className="w-1 h-1 bg-blue-600 dark:bg-blue-400 rounded-full"></span>

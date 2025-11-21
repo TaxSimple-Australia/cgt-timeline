@@ -47,6 +47,7 @@ export async function POST(request: NextRequest) {
             The report includes:
           </p>
           <ul style="color: #666; line-height: 1.8;">
+            <li>Property lifecycle flowchart visualization</li>
             <li>Comprehensive property timeline analysis</li>
             <li>Tax calculations and recommendations</li>
             <li>Key dates and events</li>

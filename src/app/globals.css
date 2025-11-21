@@ -231,3 +231,57 @@ body {
 .blue .timeline-scroll::-webkit-scrollbar-thumb:hover {
   background-color: var(--blue-accent-bright) !important;
 }
+
+/* Print styles for PDF visualizations modal */
+@media print {
+  /* Hide everything except the visualization content */
+  body > *:not(.print-content) {
+    display: none !important;
+  }
+
+  /* Ensure modal content prints properly */
+  .print-content {
+    position: static !important;
+    inset: auto !important;
+    background: white !important;
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  /* Hide backdrop and UI elements */
+  .print-hide {
+    display: none !important;
+  }
+
+  /* Optimize for printing */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Page breaks */
+  .page-break {
+    page-break-after: always;
+  }
+
+  /* Ensure tables don't break badly */
+  table {
+    page-break-inside: auto;
+  }
+
+  tr {
+    page-break-inside: avoid;
+    page-break-after: auto;
+  }
+
+  /* Headers should stay with content */
+  thead {
+    display: table-header-group;
+  }
+}

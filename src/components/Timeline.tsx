@@ -11,6 +11,7 @@ import PropertyBranch from './PropertyBranch';
 import QuickAddMenu from './QuickAddMenu';
 import EventDetailsModal from './EventDetailsModal';
 import TimelineSnapshot from './TimelineSnapshot';
+import TimelineVisualizationsModal from './TimelineVisualizationsModal';
 // import ResidenceGapOverlay from './ResidenceGapOverlay'; // REMOVED: Duplicate of GilbertBranch VerificationAlertBar
 
 interface TimelineProps {
@@ -33,7 +34,8 @@ export default function Timeline({ className, onAlertClick }: TimelineProps) {
   const [isDraggingTimebar, setIsDraggingTimebar] = useState(false);
   const [grabbedDateTimestamp, setGrabbedDateTimestamp] = useState<number>(0);
   const [grabbedViewDuration, setGrabbedViewDuration] = useState<number>(0);
-  
+  const [showVisualizationsModal, setShowVisualizationsModal] = useState(false);
+
   const {
     properties,
     events,
@@ -428,6 +430,44 @@ export default function Timeline({ className, onAlertClick }: TimelineProps) {
 
       {/* Timeline Snapshot Widget */}
       <TimelineSnapshot />
+
+      {/* Timeline Visualizations Button */}
+      <button
+        onClick={() => setShowVisualizationsModal(true)}
+        className="fixed bottom-6 left-6 z-50 group"
+        title="Open Timeline Visualizations (PDF-ready formats)"
+      >
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.3, delay: 0.5 }}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-full px-5 py-3 shadow-lg hover:shadow-xl transition-all flex items-center gap-2 cursor-pointer"
+        >
+          <svg
+            className="w-5 h-5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+            />
+          </svg>
+          <span className="font-medium text-sm">PDF Views</span>
+        </motion.div>
+      </button>
+
+      {/* Timeline Visualizations Modal */}
+      <TimelineVisualizationsModal
+        isOpen={showVisualizationsModal}
+        onClose={() => setShowVisualizationsModal(false)}
+      />
     </div>
   );
 }

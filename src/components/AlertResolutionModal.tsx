@@ -42,12 +42,13 @@ export default function AlertResolutionModal({
           />
 
           {/* Modal */}
-          <div className="fixed inset-0 flex items-center justify-center z-[10001] p-4">
+          <div className="fixed inset-0 flex items-center justify-center z-[10001] p-4" onClick={onClose}>
             <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
               transition={{ duration: 0.2 }}
+              onClick={(e) => e.stopPropagation()}
               className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 max-w-lg w-full overflow-hidden"
             >
               {/* Header */}

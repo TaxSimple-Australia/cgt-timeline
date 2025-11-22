@@ -25,13 +25,6 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
   const [newStatus, setNewStatus] = useState<PropertyStatus | ''>(event.newStatus || '');
   const [isSaving, setIsSaving] = useState(false);
 
-  // Land and building price split for purchases
-  const [usePriceSplit, setUsePriceSplit] = useState(
-    (event.landPrice !== undefined || event.buildingPrice !== undefined) && event.type === 'purchase'
-  );
-  const [landPrice, setLandPrice] = useState(event.landPrice?.toString() || '');
-  const [buildingPrice, setBuildingPrice] = useState(event.buildingPrice?.toString() || '');
-
   // NEW: Dynamic Cost Bases
   const [costBases, setCostBases] = useState<CostBaseItem[]>(() => {
     // Migrate legacy fields to new cost base structure on initial load
@@ -89,37 +82,23 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
         date: new Date(date),
       };
 
-      // Handle price/amount based on split mode
-      if (event.type === 'purchase' && usePriceSplit) {
-        // Using land + building split
-        if (landPrice && !isNaN(parseFloat(landPrice))) {
-          updates.landPrice = parseFloat(landPrice);
-        } else {
-          updates.landPrice = undefined;
-        }
+      // Handle price/amount calculation
+      if (event.type === 'purchase') {
+        // For purchase events, calculate amount from cost bases
+        const totalCostBases = costBases.reduce((sum, cb) => sum + cb.amount, 0);
+        updates.amount = totalCostBases > 0 ? totalCostBases : undefined;
 
-        if (buildingPrice && !isNaN(parseFloat(buildingPrice))) {
-          updates.buildingPrice = parseFloat(buildingPrice);
-        } else {
-          updates.buildingPrice = undefined;
-        }
-
-        // Calculate total amount from land + building
-        const landVal = updates.landPrice || 0;
-        const buildingVal = updates.buildingPrice || 0;
-        if (landVal > 0 || buildingVal > 0) {
-          updates.amount = landVal + buildingVal;
-        } else {
-          updates.amount = undefined;
-        }
+        // Clear legacy land/building prices
+        updates.landPrice = undefined;
+        updates.buildingPrice = undefined;
       } else {
-        // Using single amount
+        // For other events, use the single amount field
         if (amount && !isNaN(parseFloat(amount))) {
           updates.amount = parseFloat(amount);
         } else {
           updates.amount = undefined;
         }
-        // Clear land/building prices when not using split
+        // Clear land/building prices for non-purchase events
         updates.landPrice = undefined;
         updates.buildingPrice = undefined;
       }
@@ -296,24 +275,23 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
             <div className="space-y-4 pt-2">
               <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide">Financial Details</h3>
 
-              {/* Price Split Toggle for Purchase Events */}
+              {/* Total Cost Base Display for Purchase Events */}
               {event.type === 'purchase' && (
-                <div className="flex items-center gap-3 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
-                  <input
-                    type="checkbox"
-                    id="usePriceSplit"
-                    checked={usePriceSplit}
-                    onChange={(e) => setUsePriceSplit(e.target.checked)}
-                    className="w-4 h-4 text-blue-600 border-gray-300 dark:border-gray-600 rounded focus:ring-blue-500"
-                  />
-                  <label htmlFor="usePriceSplit" className="text-sm font-medium text-slate-700 dark:text-slate-300 cursor-pointer flex-1">
-                    Split price into Land + Building
-                  </label>
+                <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Total Purchase Price:</span>
+                    <span className="text-lg font-bold text-slate-900 dark:text-slate-100">
+                      ${costBases.reduce((sum, cb) => sum + cb.amount, 0).toLocaleString('en-AU', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-2">
+                    Calculated from cost bases below
+                  </p>
                 </div>
               )}
 
-              {/* Single Amount Input (when not using split or not a purchase) */}
-              {!(event.type === 'purchase' && usePriceSplit) &&
+              {/* Single Amount Input (for non-purchase events) */}
+              {event.type !== 'purchase' &&
                event.type !== 'move_in' &&
                event.type !== 'move_out' &&
                event.type !== 'living_in_rental_start' &&
@@ -334,61 +312,6 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
                       step="0.01"
                     />
                   </div>
-                </div>
-              )}
-
-              {/* Land and Building Price Inputs (for purchase with split) */}
-              {event.type === 'purchase' && usePriceSplit && (
-                <div className="space-y-3">
-                  {/* Land Price */}
-                  <div>
-                    <label className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                      <DollarSign className="w-4 h-4" />
-                      Land Price
-                    </label>
-                    <div className="relative">
-                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400">$</span>
-                      <input
-                        type="number"
-                        value={landPrice}
-                        onChange={(e) => setLandPrice(e.target.value)}
-                        className="w-full pl-8 pr-4 py-2.5 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        placeholder="0.00"
-                        step="0.01"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Building Price */}
-                  <div>
-                    <label className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                      <Home className="w-4 h-4" />
-                      Building Price
-                    </label>
-                    <div className="relative">
-                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400">$</span>
-                      <input
-                        type="number"
-                        value={buildingPrice}
-                        onChange={(e) => setBuildingPrice(e.target.value)}
-                        className="w-full pl-8 pr-4 py-2.5 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        placeholder="0.00"
-                        step="0.01"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Total Display */}
-                  {(landPrice || buildingPrice) && (
-                    <div className="p-3 bg-slate-100 dark:bg-slate-700 rounded-lg">
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="font-medium text-slate-700 dark:text-slate-300">Total Purchase Price:</span>
-                        <span className="font-bold text-slate-900 dark:text-slate-100">
-                          ${((parseFloat(landPrice) || 0) + (parseFloat(buildingPrice) || 0)).toLocaleString()}
-                        </span>
-                      </div>
-                    </div>
-                  )}
                 </div>
               )}
             </div>

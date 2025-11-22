@@ -439,6 +439,14 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
     set((state) => ({
       properties: state.properties.filter((p) => p.id !== id),
       events: state.events.filter((e) => e.propertyId !== id),
+      // Clear AI analysis and verification alerts when property is deleted
+      aiResponse: null,
+      timelineIssues: [],
+      positionedGaps: [],
+      residenceGapIssues: [],
+      selectedIssue: null,
+      verificationAlerts: [],
+      currentAlertIndex: -1,
     }));
   },
   
@@ -863,6 +871,14 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
       selectedProperty: null,
       selectedEvent: null,
       lastInteractedEventId: null,
+      // Clear AI analysis and verification alerts when all data is cleared
+      aiResponse: null,
+      timelineIssues: [],
+      positionedGaps: [],
+      residenceGapIssues: [],
+      selectedIssue: null,
+      verificationAlerts: [],
+      currentAlertIndex: -1,
     });
   },
 

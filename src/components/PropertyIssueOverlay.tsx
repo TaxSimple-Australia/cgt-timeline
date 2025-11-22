@@ -8,6 +8,7 @@ import { AlertTriangle, CheckCircle2, X } from 'lucide-react';
 interface PropertyIssueOverlayProps {
   alert: VerificationAlert;
   onResolve: (alertId: string, userResponse: string) => void;
+  onClose?: () => void;
   alertNumber?: number;
   totalAlerts?: number;
 }
@@ -15,6 +16,7 @@ interface PropertyIssueOverlayProps {
 export default function PropertyIssueOverlay({
   alert,
   onResolve,
+  onClose,
   alertNumber = 1,
   totalAlerts = 1,
 }: PropertyIssueOverlayProps) {
@@ -91,6 +93,7 @@ export default function PropertyIssueOverlay({
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
+        onClick={onClose}
         className="fixed inset-0 bg-black/20 flex items-center justify-center p-4"
         style={{ zIndex: 20000 }}
       >
@@ -100,6 +103,7 @@ export default function PropertyIssueOverlay({
           animate={{ scale: 1, y: 0 }}
           exit={{ scale: 0.9, y: 20 }}
           transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+          onClick={(e) => e.stopPropagation()}
           className="bg-white dark:bg-gray-900 rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden"
         >
           {/* Header */}
@@ -115,10 +119,21 @@ export default function PropertyIssueOverlay({
                 </p>
               </div>
             </div>
-            <div className="bg-white/20 backdrop-blur-sm px-3 py-1 rounded-full">
-              <span className="text-sm font-semibold text-white">
-                {totalAlerts - alertNumber + 1} remaining
-              </span>
+            <div className="flex items-center gap-3">
+              <div className="bg-white/20 backdrop-blur-sm px-3 py-1 rounded-full">
+                <span className="text-sm font-semibold text-white">
+                  {totalAlerts - alertNumber + 1} remaining
+                </span>
+              </div>
+              {onClose && (
+                <button
+                  onClick={onClose}
+                  className="p-1.5 hover:bg-white/20 rounded-lg transition-colors"
+                  title="Close"
+                >
+                  <X className="w-5 h-5 text-white" />
+                </button>
+              )}
             </div>
           </div>
 

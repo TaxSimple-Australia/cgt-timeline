@@ -433,6 +433,7 @@ export default function Home() {
       {selectedAlertForModal && (
         <PropertyIssueOverlay
           alert={verificationAlerts.find((a) => a.id === selectedAlertForModal)!}
+          onClose={() => setSelectedAlertForModal(null)}
           onResolve={(alertId, userResponse) => {
             console.log('✅ Resolving alert:', alertId, 'with response:', userResponse);
             resolveVerificationAlert(alertId, userResponse);

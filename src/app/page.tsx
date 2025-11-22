@@ -101,6 +101,16 @@ export default function Home() {
     }
   }, [verificationAlerts, getAllVerificationAlertsResolved]);
 
+  // Clear analysis data when timeline is cleared
+  useEffect(() => {
+    if (properties.length === 0 && events.length === 0) {
+      console.log('🗑️ Timeline cleared - clearing analysis data');
+      setAnalysisData(null);
+      setError(null);
+      setShowAnalysis(false);
+    }
+  }, [properties.length, events.length]);
+
   // Function to trigger CGT analysis with custom query
   const handleAnalyze = async (customQuery?: string) => {
     if (properties.length === 0) {

@@ -954,13 +954,19 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
             }
           }
 
+          // Calculate amount from cost bases if they exist
+          let calculatedAmount = event.amount;
+          if (costBases && costBases.length > 0) {
+            calculatedAmount = costBases.reduce((sum: number, cb: any) => sum + (cb.amount || 0), 0);
+          }
+
           return {
             id: event.id || `import-event-${Date.now()}-${index}`,
             propertyId: event.propertyId,
             type: event.type as EventType,
             date: new Date(event.date),
             title: event.title || event.type,
-            amount: event.amount,
+            amount: calculatedAmount,
             description: event.description,
             position: event.position !== undefined ? event.position : 0,
             color: event.color || eventColors[event.type as EventType] || '#3B82F6',
@@ -1059,6 +1065,12 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
                 }
               }
 
+              // Calculate amount from cost bases if they exist, otherwise use price
+              let calculatedAmount = historyItem.price;
+              if (costBases && costBases.length > 0) {
+                calculatedAmount = costBases.reduce((sum: number, cb: any) => sum + (cb.amount || 0), 0);
+              }
+
               // Create event
               const event: TimelineEvent = {
                 id: `import-event-${Date.now()}-${propIndex}-${eventIndex}`,
@@ -1066,7 +1078,7 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
                 type: eventType,
                 date: eventDate,
                 title: historyItem.description || eventType.replace('_', ' '),
-                amount: historyItem.price,
+                amount: calculatedAmount,
                 description: historyItem.description,
                 position: 0,
                 color: eventColors[eventType] || '#3B82F6',

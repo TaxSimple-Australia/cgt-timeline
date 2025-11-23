@@ -103,8 +103,8 @@ export default function PropertyStatusBands({
               }}
             />
 
-            {/* Status label (show if band is wide enough) */}
-            {width > 5 && (
+            {/* Status label (show if band is wide enough, but not for vacant) */}
+            {width > 5 && period.status !== 'vacant' && (
               <text
                 x={`${startPos + width / 2}%`}
                 y={hoveredBandY + hoveredBandHeight / 2}

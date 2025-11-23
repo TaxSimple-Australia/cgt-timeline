@@ -115,12 +115,52 @@ export default function TimelineControls() {
             event: event.type,
           };
 
-          // Add price if amount exists
-          if (event.amount) {
-            historyItem.price = event.amount;
+          // Convert cost bases to API format (individual fields)
+          if (event.costBases && event.costBases.length > 0) {
+            // Map cost base definition IDs to API field names
+            const costBaseToApiFieldMap: Record<string, string> = {
+              'purchase_price': 'price',
+              'land_price': 'land_price',
+              'building_price': 'building_price',
+              'stamp_duty': 'stamp_duty',
+              'purchase_legal_fees': 'purchase_legal_fees',
+              'valuation_fees': 'valuation_fees',
+              'building_inspection': 'building_inspection',
+              'pest_inspection': 'pest_inspection',
+              'purchase_agent_fees': 'purchase_agent_fees',
+              'title_legal_fees': 'title_legal_fees',
+              'loan_establishment': 'loan_establishment',
+              'mortgage_insurance': 'mortgage_insurance',
+              'sale_agent_fees': 'agent_fees',
+              'sale_legal_fees': 'legal_fees',
+              'advertising_costs': 'advertising_costs',
+              'staging_costs': 'staging_costs',
+              'auction_costs': 'auction_costs',
+            };
+
+            // Convert each cost base to individual field
+            event.costBases.forEach(cb => {
+              const apiField = costBaseToApiFieldMap[cb.definitionId];
+              if (apiField) {
+                historyItem[apiField] = cb.amount;
+              }
+            });
+
+            // For improvements, if there's no purchase_price, set the total as price
+            if (event.type === 'improvement' && !historyItem.price) {
+              const totalCost = event.costBases.reduce((sum, cb) => sum + cb.amount, 0);
+              if (totalCost > 0) {
+                historyItem.price = totalCost;
+              }
+            }
+          } else {
+            // Fallback: Add price if amount exists (for events without cost bases)
+            if (event.amount) {
+              historyItem.price = event.amount;
+            }
           }
 
-          // Add land and building price breakdown if exists
+          // Add land and building price breakdown if exists (legacy support)
           if (event.landPrice !== undefined) {
             historyItem.land_price = event.landPrice;
           }
@@ -145,11 +185,6 @@ export default function TimelineControls() {
             historyItem.new_status = event.newStatus;
           }
 
-          // NEW: Export cost bases array
-          if (event.costBases && event.costBases.length > 0) {
-            historyItem.costBases = event.costBases;
-          }
-
           // Market valuation for move_out events (not part of cost bases)
           if (event.marketValuation !== undefined) {
             historyItem.market_valuation = event.marketValuation;
@@ -164,6 +199,11 @@ export default function TimelineControls() {
           notes: property.currentStatus || 'No notes',
         };
       }),
+      user_query: "Please analyze my property portfolio with accurate CGT calculations including all cost base elements.",
+      additional_info: {
+        australian_resident: true,
+        tax_year: new Date().getFullYear() + "-" + (new Date().getFullYear() + 1),
+      }
     };
 
     const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });

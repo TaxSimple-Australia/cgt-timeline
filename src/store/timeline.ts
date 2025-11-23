@@ -957,7 +957,13 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
           // Calculate amount from cost bases if they exist
           let calculatedAmount = event.amount;
           if (costBases && costBases.length > 0) {
-            calculatedAmount = costBases.reduce((sum: number, cb: any) => sum + (cb.amount || 0), 0);
+            // For purchase and improvement events, sum all cost bases
+            // For sale events, use the sale price (not the sum of selling costs)
+            if (event.type === 'sale') {
+              calculatedAmount = event.amount; // Keep the sale price
+            } else {
+              calculatedAmount = costBases.reduce((sum: number, cb: any) => sum + (cb.amount || 0), 0);
+            }
           }
 
           return {
@@ -1068,7 +1074,13 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
               // Calculate amount from cost bases if they exist, otherwise use price
               let calculatedAmount = historyItem.price;
               if (costBases && costBases.length > 0) {
-                calculatedAmount = costBases.reduce((sum: number, cb: any) => sum + (cb.amount || 0), 0);
+                // For purchase and improvement events, sum all cost bases
+                // For sale events, use the sale price (not the sum of selling costs)
+                if (eventType === 'sale') {
+                  calculatedAmount = historyItem.price; // Keep the sale price
+                } else {
+                  calculatedAmount = costBases.reduce((sum: number, cb: any) => sum + (cb.amount || 0), 0);
+                }
               }
 
               // Create event

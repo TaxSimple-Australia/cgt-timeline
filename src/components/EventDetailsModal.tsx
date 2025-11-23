@@ -4,9 +4,10 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { TimelineEvent, PropertyStatus, useTimelineStore, CostBaseItem } from '@/store/timeline';
 import { format } from 'date-fns';
-import { X, Calendar, DollarSign, Home, Tag, FileText, CheckCircle } from 'lucide-react';
+import { X, Calendar, DollarSign, Home, Tag, FileText, CheckCircle, Receipt } from 'lucide-react';
 import CostBaseSelector from './CostBaseSelector';
 import { getCostBaseDefinition } from '@/lib/cost-base-definitions';
+import CostBaseSummaryModal from './CostBaseSummaryModal';
 
 interface EventDetailsModalProps {
   event: TimelineEvent;
@@ -24,6 +25,7 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
   const [isPPR, setIsPPR] = useState(event.isPPR || false);
   const [newStatus, setNewStatus] = useState<PropertyStatus | ''>(event.newStatus || '');
   const [isSaving, setIsSaving] = useState(false);
+  const [showSummary, setShowSummary] = useState(false);
 
   // NEW: Dynamic Cost Bases
   const [costBases, setCostBases] = useState<CostBaseItem[]>(() => {
@@ -206,12 +208,26 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
                   <p className="text-sm text-slate-500 dark:text-slate-400">{propertyName}</p>
                 </div>
               </div>
-              <button
-                onClick={onClose}
-                className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
-              >
-                <X className="w-5 h-5 text-slate-500 dark:text-slate-400" />
-              </button>
+              <div className="flex items-center gap-2">
+                {/* Cost Base Summary Button - Only show for events with cost bases */}
+                {(event.type === 'purchase' || event.type === 'sale' || event.type === 'improvement') &&
+                 costBases && costBases.length > 0 && (
+                  <button
+                    onClick={() => setShowSummary(true)}
+                    className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors group"
+                    title="View Cost Summary"
+                  >
+                    <Receipt className="w-5 h-5 text-slate-500 dark:text-slate-400 group-hover:text-blue-600 dark:group-hover:text-blue-400" />
+                  </button>
+                )}
+                <button
+                  onClick={onClose}
+                  className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
+                  title="Close"
+                >
+                  <X className="w-5 h-5 text-slate-500 dark:text-slate-400" />
+                </button>
+              </div>
             </div>
           </div>
 
@@ -450,6 +466,14 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
           </div>
         </motion.div>
       </div>
+
+      {/* Cost Base Summary Modal */}
+      <CostBaseSummaryModal
+        event={{ ...event, costBases }}
+        propertyAddress={propertyName}
+        isOpen={showSummary}
+        onClose={() => setShowSummary(false)}
+      />
     </AnimatePresence>
   );
 }

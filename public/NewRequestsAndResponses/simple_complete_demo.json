@@ -6,11 +6,53 @@
         {
           "date": "2015-03-15",
           "event": "purchase",
-          "price": 650000,
-          "purchase_legal_fees": 3200,
-          "stamp_duty": 26000,
-          "valuation_fees": 600,
-          "building_inspection": 750
+          "costBases": [
+            {
+              "id": "cb-purchase-price-1",
+              "definitionId": "purchase_price",
+              "name": "Purchase Price",
+              "amount": 650000,
+              "category": "element1",
+              "isCustom": false,
+              "description": "The total amount paid or required to be paid to acquire the property."
+            },
+            {
+              "id": "cb-stamp-duty-1",
+              "definitionId": "stamp_duty",
+              "name": "Stamp Duty",
+              "amount": 26000,
+              "category": "element2",
+              "isCustom": false,
+              "description": "State government transfer duty paid on property acquisition."
+            },
+            {
+              "id": "cb-legal-fees-1",
+              "definitionId": "purchase_legal_fees",
+              "name": "Legal Fees (Purchase)",
+              "amount": 3200,
+              "category": "element2",
+              "isCustom": false,
+              "description": "Legal and conveyancing fees paid for property acquisition."
+            },
+            {
+              "id": "cb-valuation-1",
+              "definitionId": "valuation_fees",
+              "name": "Valuation Fees",
+              "amount": 600,
+              "category": "element2",
+              "isCustom": false,
+              "description": "Professional valuation fees for property assessment."
+            },
+            {
+              "id": "cb-building-inspection-1",
+              "definitionId": "building_inspection",
+              "name": "Building Inspection Fees",
+              "amount": 750,
+              "category": "element2",
+              "isCustom": false,
+              "description": "Professional building inspection fees paid before purchase."
+            }
+          ]
         },
         {
           "date": "2015-03-15",
@@ -33,9 +75,35 @@
           "event": "sale",
           "price": 950000,
           "contract_date": "2024-08-15",
-          "agent_fees": 23750,
-          "legal_fees": 2500,
-          "advertising_costs": 3200
+          "costBases": [
+            {
+              "id": "cb-sale-agent-1",
+              "definitionId": "sale_agent_fees",
+              "name": "Real Estate Agent Commission",
+              "amount": 23750,
+              "category": "element2",
+              "isCustom": false,
+              "description": "Commission paid to real estate agents for selling the property."
+            },
+            {
+              "id": "cb-sale-legal-1",
+              "definitionId": "sale_legal_fees",
+              "name": "Legal Fees (Sale)",
+              "amount": 2500,
+              "category": "element2",
+              "isCustom": false,
+              "description": "Legal and conveyancing fees paid for property sale."
+            },
+            {
+              "id": "cb-advertising-1",
+              "definitionId": "advertising_costs",
+              "name": "Advertising Costs",
+              "amount": 3200,
+              "category": "element2",
+              "isCustom": false,
+              "description": "Costs for marketing and advertising the property for sale."
+            }
+          ]
         }
       ],
       "notes": "sold - Main residence 2015-2020, then rental 2020-2024, sold 2024"
@@ -46,11 +114,53 @@
         {
           "date": "2020-06-30",
           "event": "purchase",
-          "price": 820000,
-          "purchase_legal_fees": 3800,
-          "stamp_duty": 34300,
-          "valuation_fees": 700,
-          "building_inspection": 850
+          "costBases": [
+            {
+              "id": "cb-purchase-price-2",
+              "definitionId": "purchase_price",
+              "name": "Purchase Price",
+              "amount": 820000,
+              "category": "element1",
+              "isCustom": false,
+              "description": "The total amount paid or required to be paid to acquire the property."
+            },
+            {
+              "id": "cb-stamp-duty-2",
+              "definitionId": "stamp_duty",
+              "name": "Stamp Duty",
+              "amount": 34300,
+              "category": "element2",
+              "isCustom": false,
+              "description": "State government transfer duty paid on property acquisition."
+            },
+            {
+              "id": "cb-legal-fees-2",
+              "definitionId": "purchase_legal_fees",
+              "name": "Legal Fees (Purchase)",
+              "amount": 3800,
+              "category": "element2",
+              "isCustom": false,
+              "description": "Legal and conveyancing fees paid for property acquisition."
+            },
+            {
+              "id": "cb-valuation-2",
+              "definitionId": "valuation_fees",
+              "name": "Valuation Fees",
+              "amount": 700,
+              "category": "element2",
+              "isCustom": false,
+              "description": "Professional valuation fees for property assessment."
+            },
+            {
+              "id": "cb-building-inspection-2",
+              "definitionId": "building_inspection",
+              "name": "Building Inspection Fees",
+              "amount": 850,
+              "category": "element2",
+              "isCustom": false,
+              "description": "Professional building inspection fees paid before purchase."
+            }
+          ]
         },
         {
           "date": "2020-06-30",
@@ -59,7 +169,26 @@
         {
           "date": "2022-09-20",
           "event": "improvement",
-          "price": 45000,
+          "costBases": [
+            {
+              "id": "cb-renovation-2",
+              "definitionId": "renovation_kitchen",
+              "name": "Kitchen Renovation",
+              "amount": 25000,
+              "category": "element4",
+              "isCustom": false,
+              "description": "Kitchen renovation works"
+            },
+            {
+              "id": "cb-renovation-bathroom-2",
+              "definitionId": "renovation_bathroom",
+              "name": "Bathroom Renovation",
+              "amount": 20000,
+              "category": "element4",
+              "isCustom": false,
+              "description": "Bathroom renovation works"
+            }
+          ],
           "description": "Kitchen and bathroom renovation"
         }
       ],
@@ -71,11 +200,53 @@
         {
           "date": "2018-11-10",
           "event": "purchase",
-          "price": 485000,
-          "purchase_legal_fees": 2900,
-          "stamp_duty": 18700,
-          "valuation_fees": 550,
-          "building_inspection": 700
+          "costBases": [
+            {
+              "id": "cb-purchase-price-3",
+              "definitionId": "purchase_price",
+              "name": "Purchase Price",
+              "amount": 485000,
+              "category": "element1",
+              "isCustom": false,
+              "description": "The total amount paid or required to be paid to acquire the property."
+            },
+            {
+              "id": "cb-stamp-duty-3",
+              "definitionId": "stamp_duty",
+              "name": "Stamp Duty",
+              "amount": 18700,
+              "category": "element2",
+              "isCustom": false,
+              "description": "State government transfer duty paid on property acquisition."
+            },
+            {
+              "id": "cb-legal-fees-3",
+              "definitionId": "purchase_legal_fees",
+              "name": "Legal Fees (Purchase)",
+              "amount": 2900,
+              "category": "element2",
+              "isCustom": false,
+              "description": "Legal and conveyancing fees paid for property acquisition."
+            },
+            {
+              "id": "cb-valuation-3",
+              "definitionId": "valuation_fees",
+              "name": "Valuation Fees",
+              "amount": 550,
+              "category": "element2",
+              "isCustom": false,
+              "description": "Professional valuation fees for property assessment."
+            },
+            {
+              "id": "cb-building-inspection-3",
+              "definitionId": "building_inspection",
+              "name": "Building Inspection Fees",
+              "amount": 700,
+              "category": "element2",
+              "isCustom": false,
+              "description": "Professional building inspection fees paid before purchase."
+            }
+          ]
         },
         {
           "date": "2018-11-10",

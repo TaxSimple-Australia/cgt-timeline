@@ -220,7 +220,7 @@ const eventColors: Record<EventType, string> = {
 export const statusColors: Record<PropertyStatus, string> = {
   ppr: '#10B981',         // Green - Main Residence
   rental: '#3B82F6',      // Blue - Rental/Investment
-  vacant: '#94A3B8',      // Gray - Vacant
+  vacant: '#3B82F6',      // Blue - Vacant (same as rental, but no label)
   construction: '#F59E0B', // Orange - Under construction
   sold: '#8B5CF6',        // Purple - Sold
   living_in_rental: '#F472B6', // Pink - Living in rental (not owned)
@@ -317,13 +317,15 @@ export const calculateStatusPeriods = (events: TimelineEvent[]): StatusPeriod[] 
 
     switch (event.type) {
       case 'purchase':
-        newStatus = event.isPPR ? 'ppr' : 'rental';
+        // Purchase sets vacant but won't show label
+        newStatus = 'vacant';
         break;
       case 'move_in':
-        newStatus = 'ppr';
+        // Move in sets vacant but won't show label
+        newStatus = 'vacant';
         break;
       case 'move_out':
-        // After moving out, property might be vacant or rented
+        // After moving out, property is vacant but won't show label
         newStatus = 'vacant';
         break;
       case 'rent_start':

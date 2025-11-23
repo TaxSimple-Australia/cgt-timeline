@@ -734,17 +734,26 @@ export const CGTReportPDF: React.FC<CGTReportPDFProps> = ({ response, properties
           </View>
         )}
 
-        {/* Property Analysis - Continuous Flow */}
-        {properties && properties.length > 0 && (
-          <Text style={[styles.sectionHeader, { marginTop: 16 }]}>Property Analysis</Text>
-        )}
+        {/* Footer */}
+        <View style={styles.footer}>
+          <Text style={styles.footerText}>CGT Brain AI Analysis - {analysis_id}</Text>
+          <Text style={styles.footerText}>Executive Summary</Text>
+        </View>
+      </Page>
 
-        {properties && properties.map((property: any, propIndex: number) => {
-          const propCalc = calculations?.per_property?.find((c: any) => c.property_id === property.property_id);
-          const propAnalysis = analysis?.per_property_analysis?.find((a: any) => a.property_address === property.address);
+      {/* Property Analysis Pages - One page per property */}
+      {properties && properties.length > 0 && properties.map((property: any, propIndex: number) => {
+        const propCalc = calculations?.per_property?.find((c: any) => c.property_id === property.property_id);
+        const propAnalysis = analysis?.per_property_analysis?.find((a: any) => a.property_address === property.address);
 
-          return (
-            <View key={propIndex} wrap={false} style={{ marginTop: propIndex > 0 ? 12 : 0 }}>
+        return (
+          <Page key={`property-${propIndex}`} size="A4" style={styles.page}>
+            {/* Header */}
+            <View style={styles.header}>
+              <Text style={styles.title}>Property Analysis</Text>
+              <Text style={styles.subtitle}>{property.address}</Text>
+            </View>
+
             {/* Property Card */}
             <View style={styles.propertyCard}>
               <View style={styles.propertyHeader}>
@@ -908,13 +917,27 @@ export const CGTReportPDF: React.FC<CGTReportPDFProps> = ({ response, properties
                 )}
               </View>
             </View>
+
+            {/* Footer */}
+            <View style={styles.footer}>
+              <Text style={styles.footerText}>Property Analysis - {property.address}</Text>
+              <Text style={styles.footerText}>Property {propIndex + 1} of {properties.length}</Text>
             </View>
-          );
-        })}
+          </Page>
+        );
+      })}
+
+      {/* Recommendations & Validation Page */}
+      <Page size="A4" style={styles.page}>
+        {/* Header */}
+        <View style={styles.header}>
+          <Text style={styles.title}>Recommendations & Validation</Text>
+          <Text style={styles.subtitle}>Analysis ID: {analysis_id}</Text>
+        </View>
 
         {/* Recommendations */}
         {analysis?.recommendations && analysis.recommendations.length > 0 && (
-          <View wrap={false} style={{ marginTop: 16 }}>
+          <View style={{ marginBottom: 20 }}>
             <Text style={styles.sectionHeader}>💡 Recommendations</Text>
             <View style={styles.recommendationsList}>
               {analysis.recommendations.map((rec: string, index: number) => (
@@ -986,7 +1009,7 @@ export const CGTReportPDF: React.FC<CGTReportPDFProps> = ({ response, properties
         {/* Footer */}
         <View style={styles.footer}>
           <Text style={styles.footerText}>CGT Brain AI Analysis - {analysis_id}</Text>
-          <Text style={styles.footerText}>Analysis Summary</Text>
+          <Text style={styles.footerText}>Recommendations & Validation</Text>
         </View>
       </Page>
 

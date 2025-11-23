@@ -1,26 +1,30 @@
 {
   "properties": [
     {
-      "address": "25 Sunshine Street, Sydney NSW 2000",
+      "address": "123 Smith Street, Melbourne VIC 3000",
       "property_history": [
         {
-          "date": "2015-03-15",
+          "date": "2010-03-15",
+          "event": "move_in"
+        },
+        {
+          "date": "2010-03-15",
           "event": "purchase",
           "costBases": [
             {
               "id": "cb-purchase-price-1",
               "definitionId": "purchase_price",
               "name": "Purchase Price",
-              "amount": 650000,
+              "amount": 380000,
               "category": "element1",
               "isCustom": false,
-              "description": "The total amount paid or required to be paid to acquire the property."
+              "description": "The total amount paid to acquire the property."
             },
             {
               "id": "cb-stamp-duty-1",
               "definitionId": "stamp_duty",
               "name": "Stamp Duty",
-              "amount": 26000,
+              "amount": 15200,
               "category": "element2",
               "isCustom": false,
               "description": "State government transfer duty paid on property acquisition."
@@ -29,7 +33,7 @@
               "id": "cb-legal-fees-1",
               "definitionId": "purchase_legal_fees",
               "name": "Legal Fees (Purchase)",
-              "amount": 3200,
+              "amount": 2500,
               "category": "element2",
               "isCustom": false,
               "description": "Legal and conveyancing fees paid for property acquisition."
@@ -38,49 +42,32 @@
               "id": "cb-valuation-1",
               "definitionId": "valuation_fees",
               "name": "Valuation Fees",
-              "amount": 600,
+              "amount": 450,
               "category": "element2",
               "isCustom": false,
               "description": "Professional valuation fees for property assessment."
-            },
-            {
-              "id": "cb-building-inspection-1",
-              "definitionId": "building_inspection",
-              "name": "Building Inspection Fees",
-              "amount": 750,
-              "category": "element2",
-              "isCustom": false,
-              "description": "Professional building inspection fees paid before purchase."
             }
           ]
         },
         {
-          "date": "2015-03-15",
-          "event": "move_in"
-        },
-        {
-          "date": "2020-06-30",
+          "date": "2015-08-20",
           "event": "move_out"
         },
         {
-          "date": "2020-06-30",
+          "date": "2015-09-01",
           "event": "rent_start"
         },
         {
-          "date": "2024-08-15",
-          "event": "rent_end"
-        },
-        {
-          "date": "2024-08-15",
+          "date": "2018-11-25",
           "event": "sale",
-          "price": 950000,
-          "contract_date": "2024-08-15",
+          "price": 520000,
+          "contract_date": "2018-11-25",
           "costBases": [
             {
               "id": "cb-sale-agent-1",
               "definitionId": "sale_agent_fees",
               "name": "Real Estate Agent Commission",
-              "amount": 23750,
+              "amount": 13000,
               "category": "element2",
               "isCustom": false,
               "description": "Commission paid to real estate agents for selling the property."
@@ -89,7 +76,7 @@
               "id": "cb-sale-legal-1",
               "definitionId": "sale_legal_fees",
               "name": "Legal Fees (Sale)",
-              "amount": 2500,
+              "amount": 1800,
               "category": "element2",
               "isCustom": false,
               "description": "Legal and conveyancing fees paid for property sale."
@@ -98,7 +85,7 @@
               "id": "cb-advertising-1",
               "definitionId": "advertising_costs",
               "name": "Advertising Costs",
-              "amount": 3200,
+              "amount": 2500,
               "category": "element2",
               "isCustom": false,
               "description": "Costs for marketing and advertising the property for sale."
@@ -106,29 +93,33 @@
           ]
         }
       ],
-      "notes": "sold - Main residence 2015-2020, then rental 2020-2024, sold 2024"
+      "notes": "sold - Main residence 2010-2015, rented 2015-2018, SOLD 2018"
     },
     {
-      "address": "88 Harbour Boulevard, Melbourne VIC 3000",
+      "address": "456 Johnson Avenue, Sydney NSW 2000",
       "property_history": [
         {
-          "date": "2020-06-30",
+          "date": "2015-08-21",
+          "event": "move_in"
+        },
+        {
+          "date": "2015-08-21",
           "event": "purchase",
           "costBases": [
             {
               "id": "cb-purchase-price-2",
               "definitionId": "purchase_price",
               "name": "Purchase Price",
-              "amount": 820000,
+              "amount": 650000,
               "category": "element1",
               "isCustom": false,
-              "description": "The total amount paid or required to be paid to acquire the property."
+              "description": "The total amount paid to acquire the property."
             },
             {
               "id": "cb-stamp-duty-2",
               "definitionId": "stamp_duty",
               "name": "Stamp Duty",
-              "amount": 34300,
+              "amount": 26000,
               "category": "element2",
               "isCustom": false,
               "description": "State government transfer duty paid on property acquisition."
@@ -137,7 +128,7 @@
               "id": "cb-legal-fees-2",
               "definitionId": "purchase_legal_fees",
               "name": "Legal Fees (Purchase)",
-              "amount": 3800,
+              "amount": 3500,
               "category": "element2",
               "isCustom": false,
               "description": "Legal and conveyancing fees paid for property acquisition."
@@ -146,10 +137,19 @@
               "id": "cb-valuation-2",
               "definitionId": "valuation_fees",
               "name": "Valuation Fees",
-              "amount": 700,
+              "amount": 600,
               "category": "element2",
               "isCustom": false,
               "description": "Professional valuation fees for property assessment."
+            },
+            {
+              "id": "cb-purchase-agent-2",
+              "definitionId": "purchase_agent_fees",
+              "name": "Buyer's Agent Fees",
+              "amount": 9750,
+              "category": "element2",
+              "isCustom": false,
+              "description": "Fees paid to buyer's agent for property acquisition assistance."
             },
             {
               "id": "cb-building-inspection-2",
@@ -159,46 +159,110 @@
               "category": "element2",
               "isCustom": false,
               "description": "Professional building inspection fees paid before purchase."
+            },
+            {
+              "id": "cb-title-legal-2",
+              "definitionId": "title_legal_fees",
+              "name": "Title Search & Legal Fees",
+              "amount": 1200,
+              "category": "element5",
+              "isCustom": false,
+              "description": "Legal fees for title searches and related documentation."
             }
           ]
         },
         {
-          "date": "2020-06-30",
-          "event": "move_in"
-        },
-        {
-          "date": "2022-09-20",
+          "date": "2017-05-15",
           "event": "improvement",
           "costBases": [
             {
-              "id": "cb-renovation-2",
-              "definitionId": "renovation_kitchen",
-              "name": "Kitchen Renovation",
-              "amount": 25000,
+              "id": "cb-improvement-2-1",
+              "definitionId": "renovation_whole_house",
+              "name": "Major Renovation",
+              "amount": 85000,
               "category": "element4",
               "isCustom": false,
-              "description": "Kitchen renovation works"
-            },
-            {
-              "id": "cb-renovation-bathroom-2",
-              "definitionId": "renovation_bathroom",
-              "name": "Bathroom Renovation",
-              "amount": 20000,
-              "category": "element4",
-              "isCustom": false,
-              "description": "Bathroom renovation works"
+              "description": "Substantial renovation adding value to the property."
             }
           ],
-          "description": "Kitchen and bathroom renovation"
+          "description": "Major renovation - kitchen, bathrooms, and flooring"
+        },
+        {
+          "date": "2018-10-31",
+          "event": "move_out"
+        },
+        {
+          "date": "2018-11-15",
+          "event": "rent_start"
+        },
+        {
+          "date": "2019-03-20",
+          "event": "improvement",
+          "costBases": [
+            {
+              "id": "cb-improvement-2-2",
+              "definitionId": "renovation_other",
+              "name": "Property Improvement",
+              "amount": 35000,
+              "category": "element4",
+              "isCustom": false,
+              "description": "Capital improvement to the property."
+            }
+          ],
+          "description": "Outdoor entertaining area and landscaping"
+        },
+        {
+          "date": "2024-02-28",
+          "event": "sale",
+          "price": 1050000,
+          "contract_date": "2024-02-28",
+          "costBases": [
+            {
+              "id": "cb-sale-agent-2",
+              "definitionId": "sale_agent_fees",
+              "name": "Real Estate Agent Commission",
+              "amount": 26250,
+              "category": "element2",
+              "isCustom": false,
+              "description": "Commission paid to real estate agents for selling the property."
+            },
+            {
+              "id": "cb-sale-legal-2",
+              "definitionId": "sale_legal_fees",
+              "name": "Legal Fees (Sale)",
+              "amount": 2400,
+              "category": "element2",
+              "isCustom": false,
+              "description": "Legal and conveyancing fees paid for property sale."
+            },
+            {
+              "id": "cb-advertising-2",
+              "definitionId": "advertising_costs",
+              "name": "Advertising Costs",
+              "amount": 3500,
+              "category": "element2",
+              "isCustom": false,
+              "description": "Costs for marketing and advertising the property for sale."
+            },
+            {
+              "id": "cb-staging-2",
+              "definitionId": "staging_costs",
+              "name": "Property Staging Costs",
+              "amount": 4500,
+              "category": "element2",
+              "isCustom": false,
+              "description": "Professional staging costs to present property for sale."
+            }
+          ]
         }
       ],
-      "notes": "ppr - Current main residence since 2020, purchased same day as moved out of Property 1"
+      "notes": "sold - Main residence 2015-2018, rented 2018-2024, SOLD 2024 (complex cost base with improvements)"
     },
     {
-      "address": "42 Investment Avenue, Brisbane QLD 4000",
+      "address": "789 Investor Lane, Brisbane QLD 4000",
       "property_history": [
         {
-          "date": "2018-11-10",
+          "date": "2019-08-01",
           "event": "purchase",
           "costBases": [
             {
@@ -208,7 +272,7 @@
               "amount": 485000,
               "category": "element1",
               "isCustom": false,
-              "description": "The total amount paid or required to be paid to acquire the property."
+              "description": "The total amount paid to acquire the property."
             },
             {
               "id": "cb-stamp-duty-3",
@@ -223,7 +287,7 @@
               "id": "cb-legal-fees-3",
               "definitionId": "purchase_legal_fees",
               "name": "Legal Fees (Purchase)",
-              "amount": 2900,
+              "amount": 2800,
               "category": "element2",
               "isCustom": false,
               "description": "Legal and conveyancing fees paid for property acquisition."
@@ -232,7 +296,7 @@
               "id": "cb-valuation-3",
               "definitionId": "valuation_fees",
               "name": "Valuation Fees",
-              "amount": 550,
+              "amount": 500,
               "category": "element2",
               "isCustom": false,
               "description": "Professional valuation fees for property assessment."
@@ -241,7 +305,7 @@
               "id": "cb-building-inspection-3",
               "definitionId": "building_inspection",
               "name": "Building Inspection Fees",
-              "amount": 700,
+              "amount": 650,
               "category": "element2",
               "isCustom": false,
               "description": "Professional building inspection fees paid before purchase."
@@ -249,16 +313,374 @@
           ]
         },
         {
-          "date": "2018-11-10",
+          "date": "2019-08-20",
+          "event": "rent_start"
+        },
+        {
+          "date": "2021-11-10",
+          "event": "improvement",
+          "costBases": [
+            {
+              "id": "cb-improvement-3-1",
+              "definitionId": "renovation_other",
+              "name": "Property Improvement",
+              "amount": 25000,
+              "category": "element4",
+              "isCustom": false,
+              "description": "Capital improvement to the property."
+            }
+          ],
+          "description": "New deck and carport addition"
+        }
+      ],
+      "notes": "rental - Investment property 2019-present (never main residence)"
+    },
+    {
+      "address": "321 Riverside Drive, Perth WA 6000",
+      "property_history": [
+        {
+          "date": "2018-11-01",
+          "event": "move_in"
+        },
+        {
+          "date": "2018-11-01",
+          "event": "purchase",
+          "costBases": [
+            {
+              "id": "cb-purchase-price-4",
+              "definitionId": "purchase_price",
+              "name": "Purchase Price",
+              "amount": 720000,
+              "category": "element1",
+              "isCustom": false,
+              "description": "The total amount paid to acquire the property."
+            },
+            {
+              "id": "cb-stamp-duty-4",
+              "definitionId": "stamp_duty",
+              "name": "Stamp Duty",
+              "amount": 28800,
+              "category": "element2",
+              "isCustom": false,
+              "description": "State government transfer duty paid on property acquisition."
+            },
+            {
+              "id": "cb-legal-fees-4",
+              "definitionId": "purchase_legal_fees",
+              "name": "Legal Fees (Purchase)",
+              "amount": 3800,
+              "category": "element2",
+              "isCustom": false,
+              "description": "Legal and conveyancing fees paid for property acquisition."
+            },
+            {
+              "id": "cb-valuation-4",
+              "definitionId": "valuation_fees",
+              "name": "Valuation Fees",
+              "amount": 700,
+              "category": "element2",
+              "isCustom": false,
+              "description": "Professional valuation fees for property assessment."
+            },
+            {
+              "id": "cb-purchase-agent-4",
+              "definitionId": "purchase_agent_fees",
+              "name": "Buyer's Agent Fees",
+              "amount": 10800,
+              "category": "element2",
+              "isCustom": false,
+              "description": "Fees paid to buyer's agent for property acquisition assistance."
+            },
+            {
+              "id": "cb-building-inspection-4",
+              "definitionId": "building_inspection",
+              "name": "Building Inspection Fees",
+              "amount": 900,
+              "category": "element2",
+              "isCustom": false,
+              "description": "Professional building inspection fees paid before purchase."
+            },
+            {
+              "id": "cb-pest-inspection-4",
+              "definitionId": "pest_inspection",
+              "name": "Pest Inspection Fees",
+              "amount": 350,
+              "category": "element2",
+              "isCustom": false,
+              "description": "Fees paid for pest and termite inspections before purchase."
+            },
+            {
+              "id": "cb-title-legal-4",
+              "definitionId": "title_legal_fees",
+              "name": "Title Search & Legal Fees",
+              "amount": 1500,
+              "category": "element5",
+              "isCustom": false,
+              "description": "Legal fees for title searches and related documentation."
+            }
+          ]
+        },
+        {
+          "date": "2020-09-15",
+          "event": "improvement",
+          "costBases": [
+            {
+              "id": "cb-improvement-4-1",
+              "definitionId": "renovation_whole_house",
+              "name": "Major Renovation",
+              "amount": 55000,
+              "category": "element4",
+              "isCustom": false,
+              "description": "Substantial renovation adding value to the property."
+            }
+          ],
+          "description": "Pool installation and backyard renovation"
+        },
+        {
+          "date": "2023-01-10",
+          "event": "move_out"
+        },
+        {
+          "date": "2023-05-15",
+          "event": "sale",
+          "price": 905000,
+          "contract_date": "2023-05-15",
+          "costBases": [
+            {
+              "id": "cb-sale-agent-4",
+              "definitionId": "sale_agent_fees",
+              "name": "Real Estate Agent Commission",
+              "amount": 22625,
+              "category": "element2",
+              "isCustom": false,
+              "description": "Commission paid to real estate agents for selling the property."
+            },
+            {
+              "id": "cb-sale-legal-4",
+              "definitionId": "sale_legal_fees",
+              "name": "Legal Fees (Sale)",
+              "amount": 2600,
+              "category": "element2",
+              "isCustom": false,
+              "description": "Legal and conveyancing fees paid for property sale."
+            },
+            {
+              "id": "cb-advertising-4",
+              "definitionId": "advertising_costs",
+              "name": "Advertising Costs",
+              "amount": 4200,
+              "category": "element2",
+              "isCustom": false,
+              "description": "Costs for marketing and advertising the property for sale."
+            }
+          ]
+        }
+      ],
+      "notes": "sold - Main residence 2018-2023, SOLD 2023 (4-month overlap with Property 5)"
+    },
+    {
+      "address": "555 Luxury Boulevard, Adelaide SA 5000",
+      "property_history": [
+        {
+          "date": "2023-01-10",
+          "event": "move_in"
+        },
+        {
+          "date": "2023-01-10",
+          "event": "purchase",
+          "costBases": [
+            {
+              "id": "cb-purchase-price-5",
+              "definitionId": "purchase_price",
+              "name": "Purchase Price",
+              "amount": 1200000,
+              "category": "element1",
+              "isCustom": false,
+              "description": "The total amount paid to acquire the property."
+            },
+            {
+              "id": "cb-stamp-duty-5",
+              "definitionId": "stamp_duty",
+              "name": "Stamp Duty",
+              "amount": 54000,
+              "category": "element2",
+              "isCustom": false,
+              "description": "State government transfer duty paid on property acquisition."
+            },
+            {
+              "id": "cb-legal-fees-5",
+              "definitionId": "purchase_legal_fees",
+              "name": "Legal Fees (Purchase)",
+              "amount": 5500,
+              "category": "element2",
+              "isCustom": false,
+              "description": "Legal and conveyancing fees paid for property acquisition."
+            },
+            {
+              "id": "cb-valuation-5",
+              "definitionId": "valuation_fees",
+              "name": "Valuation Fees",
+              "amount": 900,
+              "category": "element2",
+              "isCustom": false,
+              "description": "Professional valuation fees for property assessment."
+            },
+            {
+              "id": "cb-purchase-agent-5",
+              "definitionId": "purchase_agent_fees",
+              "name": "Buyer's Agent Fees",
+              "amount": 18000,
+              "category": "element2",
+              "isCustom": false,
+              "description": "Fees paid to buyer's agent for property acquisition assistance."
+            },
+            {
+              "id": "cb-building-inspection-5",
+              "definitionId": "building_inspection",
+              "name": "Building Inspection Fees",
+              "amount": 1200,
+              "category": "element2",
+              "isCustom": false,
+              "description": "Professional building inspection fees paid before purchase."
+            },
+            {
+              "id": "cb-pest-inspection-5",
+              "definitionId": "pest_inspection",
+              "name": "Pest Inspection Fees",
+              "amount": 450,
+              "category": "element2",
+              "isCustom": false,
+              "description": "Fees paid for pest and termite inspections before purchase."
+            },
+            {
+              "id": "cb-title-legal-5",
+              "definitionId": "title_legal_fees",
+              "name": "Title Search & Legal Fees",
+              "amount": 2000,
+              "category": "element5",
+              "isCustom": false,
+              "description": "Legal fees for title searches and related documentation."
+            },
+            {
+              "id": "cb-loan-5",
+              "definitionId": "loan_establishment",
+              "name": "Loan Establishment Fees",
+              "amount": 1500,
+              "category": "element2",
+              "isCustom": false,
+              "description": "Fees paid to establish the mortgage loan."
+            },
+            {
+              "id": "cb-mortgage-insurance-5",
+              "definitionId": "mortgage_insurance",
+              "name": "Lenders Mortgage Insurance",
+              "amount": 8500,
+              "category": "element2",
+              "isCustom": false,
+              "description": "Lenders mortgage insurance premium paid at settlement."
+            }
+          ]
+        },
+        {
+          "date": "2023-09-20",
+          "event": "improvement",
+          "costBases": [
+            {
+              "id": "cb-improvement-5-1",
+              "definitionId": "renovation_whole_house",
+              "name": "Major Renovation",
+              "amount": 95000,
+              "category": "element4",
+              "isCustom": false,
+              "description": "Substantial renovation adding value to the property."
+            }
+          ],
+          "description": "Complete kitchen and bathroom renovation"
+        },
+        {
+          "date": "2024-06-15",
+          "event": "improvement",
+          "costBases": [
+            {
+              "id": "cb-improvement-5-2",
+              "definitionId": "renovation_other",
+              "name": "Property Improvement",
+              "amount": 42000,
+              "category": "element4",
+              "isCustom": false,
+              "description": "Capital improvement to the property."
+            }
+          ],
+          "description": "Solar panels and energy efficiency upgrades"
+        }
+      ],
+      "notes": "ppr - Current main residence 2023-present (4-month overlap with Property 4 during transition)"
+    },
+    {
+      "address": "888 Rental Court, Gold Coast QLD 4217",
+      "property_history": [
+        {
+          "date": "2023-08-01",
+          "event": "purchase",
+          "costBases": [
+            {
+              "id": "cb-purchase-price-6",
+              "definitionId": "purchase_price",
+              "name": "Purchase Price",
+              "amount": 625000,
+              "category": "element1",
+              "isCustom": false,
+              "description": "The total amount paid to acquire the property."
+            },
+            {
+              "id": "cb-stamp-duty-6",
+              "definitionId": "stamp_duty",
+              "name": "Stamp Duty",
+              "amount": 23750,
+              "category": "element2",
+              "isCustom": false,
+              "description": "State government transfer duty paid on property acquisition."
+            },
+            {
+              "id": "cb-legal-fees-6",
+              "definitionId": "purchase_legal_fees",
+              "name": "Legal Fees (Purchase)",
+              "amount": 3200,
+              "category": "element2",
+              "isCustom": false,
+              "description": "Legal and conveyancing fees paid for property acquisition."
+            },
+            {
+              "id": "cb-valuation-6",
+              "definitionId": "valuation_fees",
+              "name": "Valuation Fees",
+              "amount": 650,
+              "category": "element2",
+              "isCustom": false,
+              "description": "Professional valuation fees for property assessment."
+            },
+            {
+              "id": "cb-building-inspection-6",
+              "definitionId": "building_inspection",
+              "name": "Building Inspection Fees",
+              "amount": 750,
+              "category": "element2",
+              "isCustom": false,
+              "description": "Professional building inspection fees paid before purchase."
+            }
+          ]
+        },
+        {
+          "date": "2023-08-25",
           "event": "rent_start"
         }
       ],
-      "notes": "rental - Pure investment property since 2018, never main residence"
+      "notes": "rental - Investment property 2023-present"
     }
   ],
-  "user_query": "Please analyze my property portfolio with accurate CGT calculations including all cost base elements.",
+  "user_query": "I have 6 properties with complex scenarios including sold properties, investment properties, and a 4-month main residence overlap. What is my total CGT liability across this portfolio? How are the six-year rule and main residence exemptions applied?",
   "additional_info": {
     "australian_resident": true,
-    "tax_year": "2023-2024"
+    "tax_year": "2024-2025"
   }
 }

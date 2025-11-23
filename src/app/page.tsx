@@ -329,6 +329,91 @@ export default function Home() {
     handleAnalyze();
   };
 
+  // Handler for retrying analysis with gap question answers
+  const handleRetryWithGapAnswers = async (
+    answers: Array<{
+      question: string;
+      answer: string;
+      period: { start: string; end: string; days: number };
+      properties_involved: string[];
+    }>
+  ) => {
+    console.log('📤 Retrying analysis with gap answers:', answers);
+
+    setIsLoading(true);
+    setError(null);
+    // Keep analysis panel open to show loading state
+
+    try {
+      // Transform timeline data to API format
+      const apiData = transformTimelineToAPIFormat(properties, events);
+
+      // Add gap answers to the request
+      const requestData = {
+        ...apiData,
+        gap_clarifications: answers,
+      };
+
+      console.log('📤 Sending data with gap clarifications to API:', requestData);
+
+      // Call the API
+      const response = await fetch('/api/analyze-cgt', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestData),
+      });
+
+      if (!response.ok) {
+        throw new Error(`API request failed with status ${response.status}`);
+      }
+
+      const result = await response.json();
+      console.log('📥 Received from API after gap clarifications:', result);
+
+      if (!result.success) {
+        const errorMessage = result.error || 'API request failed';
+        const displayError = `Analysis Error: ${errorMessage}`;
+
+        if (result.errorDetails) {
+          console.error('📋 Error details:', result.errorDetails);
+        }
+
+        throw new Error(displayError);
+      }
+
+      // Extract verification alerts for failed properties (in case there are still issues)
+      const alerts = extractVerificationAlerts(result.data, properties);
+      console.log('🚨 Extracted alerts after retry:', alerts);
+      setVerificationAlerts(alerts);
+
+      // Set validation issues in store if present
+      if (result.data.verification?.issues) {
+        setValidationIssues(result.data.verification.issues, properties);
+      }
+
+      setAnalysisData(result.data);
+
+      // If no more verification alerts, analysis panel stays open showing results
+      if (alerts.length === 0) {
+        console.log('✅ Analysis successful after gap clarifications - showing results');
+      } else {
+        console.log('⚠️ Still have verification alerts - closing panel to show alerts');
+        setShowAnalysis(false);
+      }
+    } catch (err) {
+      console.error('❌ Error retrying with gap answers:', err);
+      setError(
+        err instanceof Error
+          ? err.message
+          : 'Failed to retry analysis with gap clarifications. Please try again.'
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <main className="w-screen h-screen overflow-hidden flex flex-col">
       {/* Main Content Area */}
@@ -395,7 +480,10 @@ export default function Home() {
                 ) : error ? (
                   <ErrorDisplay message={error} onRetry={handleRetry} />
                 ) : analysisData && getUnresolvedAlerts().length === 0 ? (
-                  <CGTAnalysisDisplay response={analysisData} />
+                  <CGTAnalysisDisplay
+                    response={analysisData}
+                    onRetryWithAnswers={handleRetryWithGapAnswers}
+                  />
                 ) : getUnresolvedAlerts().length > 0 ? (
                   <div className="flex items-center justify-center py-20">
                     <div className="text-center max-w-md">

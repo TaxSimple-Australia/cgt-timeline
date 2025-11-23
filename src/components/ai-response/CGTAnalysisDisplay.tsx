@@ -11,9 +11,15 @@ import DetailedReportSection from './DetailedReportSection';
 
 interface CGTAnalysisDisplayProps {
   response: any; // AI response (success or verification_failed)
+  onRetryWithAnswers?: (answers: Array<{
+    question: string;
+    answer: string;
+    period: { start: string; end: string; days: number };
+    properties_involved: string[];
+  }>) => void;
 }
 
-export default function CGTAnalysisDisplay({ response }: CGTAnalysisDisplayProps) {
+export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGTAnalysisDisplayProps) {
   if (!response) {
     return (
       <div className="flex items-center justify-center p-12">
@@ -145,6 +151,7 @@ export default function CGTAnalysisDisplay({ response }: CGTAnalysisDisplayProps
           <GapQuestionsPanel
             questions={verification.clarification_questions}
             issues={verification.issues}
+            onSubmit={onRetryWithAnswers}
           />
         )}
 

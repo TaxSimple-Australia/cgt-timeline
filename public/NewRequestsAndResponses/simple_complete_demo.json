@@ -54,7 +54,7 @@
           "event": "move_out"
         },
         {
-          "date": "2015-09-01",
+          "date": "2015-08-20",
           "event": "rent_start"
         },
         {
@@ -192,7 +192,7 @@
           "event": "move_out"
         },
         {
-          "date": "2018-11-15",
+          "date": "2018-10-31",
           "event": "rent_start"
         },
         {
@@ -313,7 +313,7 @@
           ]
         },
         {
-          "date": "2019-08-20",
+          "date": "2019-08-01",
           "event": "rent_start"
         },
         {
@@ -671,7 +671,7 @@
           ]
         },
         {
-          "date": "2023-08-25",
+          "date": "2023-08-01",
           "event": "rent_start"
         }
       ],

@@ -183,35 +183,41 @@ export default function PropertyIssueOverlay({
               {possibleAnswers && possibleAnswers.length > 0 ? (
                 // Show answer options if available
                 <div className="space-y-2">
-                  {possibleAnswers.map((option, index) => (
-                    <button
-                      key={index}
-                      onClick={() => handleAnswerSelect(option)}
-                      disabled={isSubmitting}
-                      className={`w-full text-left px-4 py-3 rounded-lg border-2 transition-all ${
-                        selectedAnswer === option && !showCustomInput
-                          ? 'border-purple-600 bg-purple-50 dark:bg-purple-900/20 text-purple-900 dark:text-purple-100'
-                          : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 hover:border-purple-300 dark:hover:border-purple-700'
-                      } ${isSubmitting ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
-                    >
-                      <div className="flex items-center gap-3">
-                        <div
-                          className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                            selectedAnswer === option && !showCustomInput
-                              ? 'border-purple-600 bg-purple-600'
-                              : 'border-gray-300 dark:border-gray-600'
-                          }`}
-                        >
-                          {selectedAnswer === option && !showCustomInput && (
-                            <div className="w-2 h-2 bg-white rounded-full" />
-                          )}
+                  {/* Filter out "Other" options from API response to avoid duplicates */}
+                  {possibleAnswers
+                    .filter(option => {
+                      const lowerOption = option.toLowerCase();
+                      return !lowerOption.includes('other') && !lowerOption.includes('specify');
+                    })
+                    .map((option, index) => (
+                      <button
+                        key={index}
+                        onClick={() => handleAnswerSelect(option)}
+                        disabled={isSubmitting}
+                        className={`w-full text-left px-4 py-3 rounded-lg border-2 transition-all ${
+                          selectedAnswer === option && !showCustomInput
+                            ? 'border-purple-600 bg-purple-50 dark:bg-purple-900/20 text-purple-900 dark:text-purple-100'
+                            : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 hover:border-purple-300 dark:hover:border-purple-700'
+                        } ${isSubmitting ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                      >
+                        <div className="flex items-center gap-3">
+                          <div
+                            className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                              selectedAnswer === option && !showCustomInput
+                                ? 'border-purple-600 bg-purple-600'
+                                : 'border-gray-300 dark:border-gray-600'
+                            }`}
+                          >
+                            {selectedAnswer === option && !showCustomInput && (
+                              <div className="w-2 h-2 bg-white rounded-full" />
+                            )}
+                          </div>
+                          <span className="flex-1">{option}</span>
                         </div>
-                        <span className="flex-1">{option}</span>
-                      </div>
-                    </button>
-                  ))}
+                      </button>
+                    ))}
 
-                  {/* Other option */}
+                  {/* Other option - always shown as last option */}
                   <button
                     onClick={() => handleAnswerSelect('other')}
                     disabled={isSubmitting}

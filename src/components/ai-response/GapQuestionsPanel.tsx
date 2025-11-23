@@ -20,9 +20,15 @@ interface GapQuestion {
 interface GapQuestionsPanelProps {
   questions: GapQuestion[];
   issues?: any[];
+  onSubmit?: (answers: Array<{
+    question: string;
+    answer: string;
+    period: { start: string; end: string; days: number };
+    properties_involved: string[];
+  }>) => void;
 }
 
-export default function GapQuestionsPanel({ questions, issues }: GapQuestionsPanelProps) {
+export default function GapQuestionsPanel({ questions, issues, onSubmit }: GapQuestionsPanelProps) {
   const [answers, setAnswers] = useState<Record<number, string>>({});
   const [customTexts, setCustomTexts] = useState<Record<number, string>>({});
 
@@ -37,8 +43,26 @@ export default function GapQuestionsPanel({ questions, issues }: GapQuestionsPan
   };
 
   const handleSubmit = () => {
-    // TODO: Implement submission logic
-    console.log('Submitting answers:', answers, customTexts);
+    // Format answers for API submission
+    const formattedAnswers = questions.map((question, index) => {
+      const answer = answers[index];
+      const isOtherOption = answer?.toLowerCase().includes('other') || answer?.toLowerCase().includes('specify');
+      const finalAnswer = isOtherOption && customTexts[index] ? customTexts[index] : answer;
+
+      return {
+        question: question.question,
+        answer: finalAnswer,
+        period: question.period,
+        properties_involved: question.properties_involved,
+      };
+    });
+
+    console.log('Submitting gap answers:', formattedAnswers);
+
+    // Call parent callback if provided
+    if (onSubmit) {
+      onSubmit(formattedAnswers);
+    }
   };
 
   const formatDate = (dateStr: string) => {

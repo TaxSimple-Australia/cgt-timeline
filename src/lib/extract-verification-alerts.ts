@@ -49,6 +49,11 @@ export function extractVerificationAlerts(
         address: p.address,
         fullAddress: `${p.name}, ${p.address}`,
       })),
+      clarificationQuestionsDetails: clarificationQuestions.map((cq: any) => ({
+        question: cq.question,
+        properties_involved: cq.properties_involved,
+        period: cq.period,
+      })),
     });
 
     // Helper function to find possible answers for a question
@@ -63,6 +68,72 @@ export function extractVerificationAlerts(
       });
       return match?.possible_answers;
     };
+
+    // Helper function to match property address to timeline property
+    const matchPropertyByAddress = (propertyAddress: string): Property | undefined => {
+      return timelineProperties.find(p => {
+        const pFullAddress = `${p.name}, ${p.address}`.toLowerCase();
+        const pAddress = p.address?.toLowerCase() || '';
+        const pName = p.name?.toLowerCase() || '';
+        const propAddr = propertyAddress.toLowerCase();
+
+        return (
+          pAddress.includes(propAddr) ||
+          pName.includes(propAddr) ||
+          pFullAddress.includes(propAddr) ||
+          propAddr.includes(pAddress) ||
+          propAddr.includes(pName) ||
+          propAddr.includes(pFullAddress)
+        );
+      });
+    };
+
+    // Process clarification_questions directly (most accurate source)
+    // This ensures each gap is only assigned to the properties listed in properties_involved
+    clarificationQuestions.forEach((cq: any, index: number) => {
+      const question = cq.question || '';
+      const possibleAnswers = cq.possible_answers || [];
+      const period = cq.period || {};
+      const propertiesInvolved = cq.properties_involved || [];
+
+      if (!question || propertiesInvolved.length === 0 || !period.start || !period.end) {
+        return; // Skip incomplete questions
+      }
+
+      // Create an alert for EACH property involved in this gap
+      propertiesInvolved.forEach((propertyAddress: string, propIndex: number) => {
+        const matchedProperty = matchPropertyByAddress(propertyAddress);
+
+        if (matchedProperty) {
+          const alert: VerificationAlert = {
+            id: `alert-cq-${Date.now()}-${index}-${propIndex}`,
+            propertyAddress,
+            propertyId: matchedProperty.id,
+            startDate: period.start,
+            endDate: period.end,
+            resolutionText: question,
+            clarificationQuestion: question,
+            possibleAnswers,
+            severity: 'warning',
+          };
+
+          console.log('✅ Created alert from clarification question:', {
+            ...alert,
+            matchedProperty: { id: matchedProperty.id, name: matchedProperty.name, address: matchedProperty.address },
+          });
+          alerts.push(alert);
+        } else {
+          console.warn('⚠️ Could not match property from clarification question:', propertyAddress);
+        }
+      });
+    });
+
+    // If we already have alerts from clarification_questions, we can skip processing properties and global issues
+    // to avoid duplicates. Only process them if no alerts were created from clarification_questions.
+    if (alerts.length > 0) {
+      console.log(`✅ Created ${alerts.length} alerts from clarification_questions - skipping property/global issues processing to avoid duplicates`);
+      return alerts;
+    }
 
     // Process each property that has failed verification
     verificationProperties.forEach((prop: VerificationProperty) => {
@@ -160,49 +231,32 @@ export function extractVerificationAlerts(
       const endDate = issue.affected_period?.end_date || issue.affected_period?.end || '';
 
       if (startDate || endDate) {
-        // Handle "All Properties" case - assign to all properties or first property if only one
-        const isAllProperties = propertyAddress.toLowerCase().includes('all properties');
+        // Try to match specific property - use strict matching to avoid assigning same gap to multiple properties
+        const matchedProperty = timelineProperties.find(p => {
+          const pFullAddress = `${p.name}, ${p.address}`.toLowerCase();
+          const pAddress = p.address?.toLowerCase() || '';
+          const pName = p.name?.toLowerCase() || '';
+          const propAddr = propertyAddress.toLowerCase();
 
-        let matchedProperties: Property[] = [];
+          // Use strict matching - property address must be contained in or contain the property info
+          return (
+            pAddress.includes(propAddr) ||
+            pName.includes(propAddr) ||
+            pFullAddress.includes(propAddr) ||
+            propAddr.includes(pAddress) ||
+            propAddr.includes(pName) ||
+            propAddr.includes(pFullAddress)
+          );
+        });
 
-        if (isAllProperties) {
-          // If only one property, assign to it; otherwise, assign to all properties
-          matchedProperties = timelineProperties.length === 1
-            ? [timelineProperties[0]]
-            : timelineProperties;
-          console.log('📍 "All Properties" issue - assigning to:', matchedProperties.map(p => p.name));
-        } else {
-          // Try to match specific property
-          const matchedProperty = timelineProperties.find(p => {
-            const pFullAddress = `${p.name}, ${p.address}`.toLowerCase();
-            const pAddress = p.address?.toLowerCase() || '';
-            const pName = p.name?.toLowerCase() || '';
-            const propAddr = propertyAddress.toLowerCase();
-
-            return (
-              pAddress.includes(propAddr) ||
-              pName.includes(propAddr) ||
-              pFullAddress.includes(propAddr) ||
-              propAddr.includes(pAddress) ||
-              propAddr.includes(pName) ||
-              propAddr.includes(pFullAddress)
-            );
-          });
-
-          if (matchedProperty) {
-            matchedProperties = [matchedProperty];
-          }
-        }
-
-        // Create an alert for each matched property
-        matchedProperties.forEach((matchedProperty, propIndex) => {
+        if (matchedProperty) {
           // Find possible answers from clarification_questions
           const clarificationQuestion = issue.clarification_question || resolutionText;
           const possibleAnswers = findPossibleAnswers(propertyAddress, clarificationQuestion);
 
           const alert: VerificationAlert = {
-            id: `alert-global-${Date.now()}-${index}-${propIndex}`,
-            propertyAddress: isAllProperties ? matchedProperty.name : propertyAddress,
+            id: `alert-global-${Date.now()}-${index}`,
+            propertyAddress,
             propertyId: matchedProperty.id,
             startDate: startDate || endDate,
             endDate: endDate || startDate,
@@ -212,13 +266,13 @@ export function extractVerificationAlerts(
             severity: issue.severity || 'warning',
           };
 
-          console.log('✅ Created alert from global issue:', alert);
+          console.log('✅ Created alert from global issue:', {
+            ...alert,
+            matchedProperty: { id: matchedProperty.id, name: matchedProperty.name, address: matchedProperty.address },
+          });
           alerts.push(alert);
-        });
-
-        // If no properties matched and not "All Properties", log a warning
-        if (matchedProperties.length === 0 && !isAllProperties) {
-          console.warn('⚠️ Could not match property address:', propertyAddress);
+        } else {
+          console.warn('⚠️ Could not match property address:', propertyAddress, 'to any timeline property');
         }
       }
     });

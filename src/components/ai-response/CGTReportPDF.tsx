@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { Document, Page, Text, View, StyleSheet, Font, Image } from '@react-pdf/renderer';
+import type { Property, TimelineEvent } from '@/store/timeline';
 
 // Register fonts (optional - for better typography)
 // Font.register({
@@ -21,7 +22,9 @@ const styles = StyleSheet.create({
   // Header
   header: {
     marginBottom: 12,
-    borderBottom: '2 solid #2563eb',
+    borderBottomWidth: 2,
+    borderBottomStyle: 'solid',
+    borderBottomColor: '#2563eb',
     paddingBottom: 10,
   },
   title: {
@@ -41,7 +44,9 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     padding: 8,
     backgroundColor: '#f8fafc',
-    border: '1 solid #cbd5e1',
+    borderWidth: 1,
+    borderStyle: 'solid',
+    borderColor: '#cbd5e1',
     borderRadius: 6,
   },
   timelineImage: {
@@ -59,7 +64,9 @@ const styles = StyleSheet.create({
   // Hero Summary Box
   heroBox: {
     backgroundColor: '#dbeafe',
-    border: '2 solid #3b82f6',
+    borderWidth: 2,
+    borderStyle: 'solid',
+    borderColor: '#3b82f6',
     borderRadius: 6,
     padding: 14,
     marginBottom: 12,
@@ -104,13 +111,17 @@ const styles = StyleSheet.create({
     marginTop: 12,
     marginBottom: 8,
     paddingBottom: 5,
-    borderBottom: '1 solid #e2e8f0',
+    borderBottomWidth: 1,
+    borderBottomStyle: 'solid',
+    borderBottomColor: '#e2e8f0',
   },
 
   // Summary Box
   summaryBox: {
     backgroundColor: '#f0f9ff',
-    border: '1 solid #bfdbfe',
+    borderWidth: 1,
+    borderStyle: 'solid',
+    borderColor: '#bfdbfe',
     borderRadius: 6,
     padding: 10,
     marginBottom: 10,
@@ -123,14 +134,18 @@ const styles = StyleSheet.create({
 
   // Property Cards
   propertyCard: {
-    border: '1 solid #e2e8f0',
+    borderWidth: 1,
+    borderStyle: 'solid',
+    borderColor: '#e2e8f0',
     borderRadius: 6,
     marginBottom: 10,
     overflow: 'hidden',
   },
   propertyHeader: {
     backgroundColor: '#f8fafc',
-    borderBottom: '1 solid #e2e8f0',
+    borderBottomWidth: 1,
+    borderBottomStyle: 'solid',
+    borderBottomColor: '#e2e8f0',
     padding: 10,
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -190,13 +205,17 @@ const styles = StyleSheet.create({
     lineHeight: 1.5,
     color: '#334155',
     paddingLeft: 8,
-    borderLeft: '2 solid #3b82f6',
+    borderLeftWidth: 2,
+    borderLeftStyle: 'solid',
+    borderLeftColor: '#3b82f6',
     marginBottom: 6,
   },
 
   impactBox: {
     backgroundColor: '#fffbeb',
-    border: '1 solid #fde68a',
+    borderWidth: 1,
+    borderStyle: 'solid',
+    borderColor: '#fde68a',
     borderRadius: 4,
     padding: 8,
     marginTop: 6,
@@ -210,7 +229,9 @@ const styles = StyleSheet.create({
   // Calculations
   calculationsBox: {
     backgroundColor: '#f0fdf4',
-    border: '1 solid #bbf7d0',
+    borderWidth: 1,
+    borderStyle: 'solid',
+    borderColor: '#bbf7d0',
     borderRadius: 6,
     padding: 8,
     marginBottom: 8,
@@ -225,7 +246,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     paddingVertical: 3,
-    borderBottom: '0.5 solid #d1fae5',
+    borderBottomWidth: 0.5,
+    borderBottomStyle: 'solid',
+    borderBottomColor: '#d1fae5',
   },
   calcLabel: {
     fontSize: 8,
@@ -239,13 +262,17 @@ const styles = StyleSheet.create({
   calcTotal: {
     marginTop: 4,
     paddingTop: 4,
-    borderTop: '1 solid #16a34a',
+    borderTopWidth: 1,
+    borderTopStyle: 'solid',
+    borderTopColor: '#16a34a',
   },
 
   // Calculation Steps
   stepCard: {
     backgroundColor: '#f8fafc',
-    border: '1 solid #cbd5e1',
+    borderWidth: 1,
+    borderStyle: 'solid',
+    borderColor: '#cbd5e1',
     borderRadius: 4,
     padding: 8,
     marginBottom: 6,
@@ -318,7 +345,9 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 8,
     borderRadius: 6,
-    border: '1 solid #e2e8f0',
+    borderWidth: 1,
+    borderStyle: 'solid',
+    borderColor: '#e2e8f0',
   },
   validationLabel: {
     fontSize: 8,
@@ -341,7 +370,9 @@ const styles = StyleSheet.create({
     bottom: 20,
     left: 30,
     right: 30,
-    borderTop: '1 solid #e2e8f0',
+    borderTopWidth: 1,
+    borderTopStyle: 'solid',
+    borderTopColor: '#e2e8f0',
     paddingTop: 8,
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -359,11 +390,210 @@ const styles = StyleSheet.create({
     fontSize: 8,
     color: '#94a3b8',
   },
+
+  // Flowchart Styles
+  flowchartSection: {
+    marginBottom: 16,
+  },
+  flowchartTitle: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#1e293b',
+    marginBottom: 12,
+    textAlign: 'center',
+  },
+  flowchartPropertyCard: {
+    borderWidth: 2,
+    borderStyle: 'solid',
+    borderColor: '#e2e8f0',
+    borderRadius: 8,
+    marginBottom: 16,
+    padding: 12,
+  },
+  flowchartPropertyHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#3b82f6',
+    padding: 10,
+    borderRadius: 6,
+    marginBottom: 12,
+  },
+  flowchartPropertyName: {
+    fontSize: 12,
+    fontWeight: 'bold',
+    color: '#ffffff',
+  },
+  flowchartPropertyAddress: {
+    fontSize: 8,
+    color: '#dbeafe',
+    marginTop: 2,
+  },
+  phaseContainer: {
+    marginBottom: 10,
+  },
+  phaseRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 8,
+  },
+  phaseLabel: {
+    width: 90,
+    textAlign: 'right',
+    paddingTop: 8,
+  },
+  phaseBadge: {
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 4,
+    fontSize: 7,
+    fontWeight: 'bold',
+  },
+  phaseArrow: {
+    fontSize: 16,
+    color: '#94a3b8',
+    paddingTop: 6,
+  },
+  phaseContent: {
+    flex: 1,
+  },
+  phaseBox: {
+    borderRadius: 8,
+    padding: 10,
+    borderWidth: 2,
+    borderStyle: 'solid',
+  },
+  phaseBoxHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: 8,
+  },
+  phaseBoxTitle: {
+    fontSize: 9,
+    fontWeight: 'bold',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  phaseBoxDate: {
+    fontSize: 7,
+    color: '#64748b',
+    marginTop: 2,
+  },
+  phaseBoxAmount: {
+    textAlign: 'right',
+  },
+  phaseBoxAmountLabel: {
+    fontSize: 7,
+    color: '#64748b',
+  },
+  phaseBoxAmountValue: {
+    fontSize: 14,
+    fontWeight: 'bold',
+  },
+  costBaseList: {
+    paddingTop: 8,
+    borderTopWidth: 1,
+    borderTopStyle: 'solid',
+    marginTop: 6,
+  },
+  costBaseItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingVertical: 2,
+    fontSize: 7,
+  },
+  costBaseItemName: {
+    color: '#64748b',
+  },
+  costBaseItemAmount: {
+    fontWeight: 'bold',
+    color: '#1e293b',
+  },
+  costBaseTotal: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 4,
+    paddingTop: 4,
+    borderTopWidth: 1,
+    borderTopStyle: 'solid',
+    fontSize: 8,
+  },
+  costBaseTotalLabel: {
+    fontWeight: 'bold',
+  },
+  costBaseTotalValue: {
+    fontWeight: 'bold',
+  },
+  improvementItem: {
+    backgroundColor: '#ffffff',
+    borderRadius: 6,
+    padding: 8,
+    borderWidth: 1,
+    borderStyle: 'solid',
+    marginBottom: 4,
+  },
+  improvementHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+  },
+  improvementDate: {
+    fontSize: 7,
+    color: '#64748b',
+    marginBottom: 2,
+  },
+  improvementDesc: {
+    fontSize: 8,
+    color: '#1e293b',
+  },
+  improvementAmount: {
+    fontSize: 9,
+    fontWeight: 'bold',
+  },
+  cgtResultBox: {
+    backgroundColor: '#3b82f6',
+    borderRadius: 8,
+    padding: 12,
+  },
+  cgtResultGrid: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginBottom: 8,
+  },
+  cgtResultItem: {
+    alignItems: 'center',
+  },
+  cgtResultLabel: {
+    fontSize: 7,
+    color: '#dbeafe',
+    marginBottom: 2,
+  },
+  cgtResultValue: {
+    fontSize: 12,
+    fontWeight: 'bold',
+    color: '#ffffff',
+  },
+  cgtResultValueLarge: {
+    fontSize: 16,
+  },
+  cgtResultFooter: {
+    paddingTop: 8,
+    borderTopWidth: 1,
+    borderTopStyle: 'solid',
+    borderTopColor: 'rgba(255,255,255,0.2)',
+    alignItems: 'center',
+  },
+  cgtResultFooterText: {
+    fontSize: 7,
+    color: '#dbeafe',
+  },
 });
 
 interface CGTReportPDFProps {
   response: any;
-  timelineImage?: string | null;
+  properties: Property[];
+  events: TimelineEvent[];
 }
 
 const formatCurrency = (amount: number | null | undefined) => {
@@ -390,7 +620,62 @@ const formatDate = (dateStr: string) => {
   }
 };
 
-export const CGTReportPDF: React.FC<CGTReportPDFProps> = ({ response, timelineImage }) => {
+const formatEventDate = (date: Date | undefined) => {
+  if (!date) return 'N/A';
+  try {
+    return date.toLocaleDateString('en-AU', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+    });
+  } catch {
+    return 'N/A';
+  }
+};
+
+// Helper function to get property flowchart data
+const getPropertyFlowData = (property: Property, events: TimelineEvent[]) => {
+  const propertyEvents = events
+    .filter((e) => e.propertyId === property.id)
+    .sort((a, b) => a.date.getTime() - b.date.getTime());
+
+  const purchaseEvent = propertyEvents.find((e) => e.type === 'purchase');
+  const saleEvent = propertyEvents.find((e) => e.type === 'sale');
+  const moveInEvent = propertyEvents.find((e) => e.type === 'move_in');
+  const moveOutEvent = propertyEvents.find((e) => e.type === 'move_out');
+  const rentStartEvent = propertyEvents.find((e) => e.type === 'rent_start');
+  const improvementEvents = propertyEvents.filter((e) => e.type === 'improvement');
+
+  const purchasePrice = purchaseEvent?.amount || 0;
+  const purchaseCosts = purchaseEvent?.costBases?.reduce((sum, cb) => sum + cb.amount, 0) || 0;
+  const improvementCosts = improvementEvents.reduce(
+    (sum, e) => sum + (e.amount || 0) + (e.costBases?.reduce((s, cb) => s + cb.amount, 0) || 0),
+    0
+  );
+  const sellingCosts = saleEvent?.costBases?.reduce((sum, cb) => sum + cb.amount, 0) || 0;
+  const totalCostBase = purchasePrice + purchaseCosts + improvementCosts + sellingCosts;
+  const ownershipYears = saleEvent && purchaseEvent
+    ? Math.round((saleEvent.date.getTime() - purchaseEvent.date.getTime()) / (1000 * 60 * 60 * 24 * 365))
+    : 0;
+
+  return {
+    purchaseEvent,
+    saleEvent,
+    moveInEvent,
+    moveOutEvent,
+    rentStartEvent,
+    improvementEvents,
+    purchasePrice,
+    purchaseCosts,
+    improvementCosts,
+    sellingCosts,
+    totalCostBase,
+    capitalGain: saleEvent ? (saleEvent.amount || 0) - totalCostBase : 0,
+    ownershipYears,
+  };
+};
+
+export const CGTReportPDF: React.FC<CGTReportPDFProps> = ({ response, properties: timelineProperties = [], events: timelineEvents = [] }) => {
   const { summary, properties, analysis, calculations, validation, timestamp, analysis_id } = response;
 
   return (
@@ -403,14 +688,6 @@ export const CGTReportPDF: React.FC<CGTReportPDFProps> = ({ response, timelineIm
           <Text style={styles.subtitle}>Analysis ID: {analysis_id}</Text>
           <Text style={styles.subtitle}>Generated: {formatDate(timestamp)}</Text>
         </View>
-
-        {/* Timeline Snapshot */}
-        {timelineImage && (
-          <View style={styles.timelineImageContainer}>
-            <Text style={styles.timelineImageLabel}>Property Timeline Overview</Text>
-            <Image src={timelineImage} style={styles.timelineImage} />
-          </View>
-        )}
 
         {/* Hero Summary */}
         <View style={styles.heroBox}>
@@ -457,20 +734,17 @@ export const CGTReportPDF: React.FC<CGTReportPDFProps> = ({ response, timelineIm
           </View>
         )}
 
-        {/* Footer */}
-        <View style={styles.footer}>
-          <Text style={styles.footerText}>CGT Brain AI Analysis</Text>
-          <Text style={styles.footerText}>Page 1</Text>
-        </View>
-      </Page>
+        {/* Property Analysis - Continuous Flow */}
+        {properties && properties.length > 0 && (
+          <Text style={[styles.sectionHeader, { marginTop: 16 }]}>Property Analysis</Text>
+        )}
 
-      {/* Page 2+: Property Analysis */}
-      {properties && properties.map((property: any, propIndex: number) => {
-        const propCalc = calculations?.per_property?.find((c: any) => c.property_id === property.property_id);
-        const propAnalysis = analysis?.per_property_analysis?.find((a: any) => a.property_address === property.address);
+        {properties && properties.map((property: any, propIndex: number) => {
+          const propCalc = calculations?.per_property?.find((c: any) => c.property_id === property.property_id);
+          const propAnalysis = analysis?.per_property_analysis?.find((a: any) => a.property_address === property.address);
 
-        return (
-          <Page key={propIndex} size="A4" style={styles.page}>
+          return (
+            <View key={propIndex} wrap={false} style={{ marginTop: propIndex > 0 ? 12 : 0 }}>
             {/* Property Card */}
             <View style={styles.propertyCard}>
               <View style={styles.propertyHeader}>
@@ -634,21 +908,13 @@ export const CGTReportPDF: React.FC<CGTReportPDFProps> = ({ response, timelineIm
                 )}
               </View>
             </View>
-
-            {/* Footer */}
-            <View style={styles.footer}>
-              <Text style={styles.footerText}>Property {propIndex + 1} of {properties.length}</Text>
-              <Text style={styles.footerText}>Page {propIndex + 2}</Text>
             </View>
-          </Page>
-        );
-      })}
+          );
+        })}
 
-      {/* Final Page: Recommendations & Validation */}
-      <Page size="A4" style={styles.page}>
         {/* Recommendations */}
         {analysis?.recommendations && analysis.recommendations.length > 0 && (
-          <View>
+          <View wrap={false} style={{ marginTop: 16 }}>
             <Text style={styles.sectionHeader}>💡 Recommendations</Text>
             <View style={styles.recommendationsList}>
               {analysis.recommendations.map((rec: string, index: number) => (
@@ -720,9 +986,262 @@ export const CGTReportPDF: React.FC<CGTReportPDFProps> = ({ response, timelineIm
         {/* Footer */}
         <View style={styles.footer}>
           <Text style={styles.footerText}>CGT Brain AI Analysis - {analysis_id}</Text>
-          <Text style={styles.footerText}>Final Page</Text>
+          <Text style={styles.footerText}>Analysis Summary</Text>
         </View>
       </Page>
+
+      {/* Flowchart Pages - One page per property */}
+      {timelineProperties && timelineProperties.length > 0 && timelineProperties.map((property, index) => {
+        if (!property || !property.id) return null;
+
+        const flowData = getPropertyFlowData(property, timelineEvents || []);
+
+        // Only render flowchart if property has purchase event
+        if (!flowData.purchaseEvent) return null;
+
+        return (
+          <Page key={`flowchart-${property.id}`} size="A4" style={styles.page}>
+            {/* Header */}
+            <View style={styles.header}>
+              <Text style={styles.title}>Property Lifecycle Flowchart</Text>
+              <Text style={styles.subtitle}>{property.name}</Text>
+            </View>
+
+            <View style={styles.flowchartSection}>
+              {/* Property Header */}
+              <View style={styles.flowchartPropertyCard}>
+                <View style={styles.flowchartPropertyHeader}>
+                  <View>
+                    <Text style={styles.flowchartPropertyName}>{property.name}</Text>
+                    <Text style={styles.flowchartPropertyAddress}>{property.address}</Text>
+                  </View>
+                </View>
+
+                {/* 1. Acquisition Phase */}
+                <View style={styles.phaseContainer}>
+                  <View style={styles.phaseRow}>
+                    <View style={styles.phaseLabel}>
+                      <View style={[styles.phaseBadge, { backgroundColor: '#d1fae5', color: '#065f46' }]}>
+                        <Text>ACQUISITION</Text>
+                      </View>
+                    </View>
+                    <Text style={styles.phaseArrow}>→</Text>
+                    <View style={styles.phaseContent}>
+                      <View style={[styles.phaseBox, { backgroundColor: '#f0fdf4', borderColor: '#22c55e' }]}>
+                        <View style={styles.phaseBoxHeader}>
+                          <View>
+                            <Text style={[styles.phaseBoxTitle, { color: '#166534' }]}>Purchase</Text>
+                            <Text style={styles.phaseBoxDate}>{formatEventDate(flowData.purchaseEvent.date)}</Text>
+                          </View>
+                          <View style={styles.phaseBoxAmount}>
+                            <Text style={styles.phaseBoxAmountLabel}>Purchase Price</Text>
+                            <Text style={[styles.phaseBoxAmountValue, { color: '#16a34a' }]}>
+                              {formatCurrency(flowData.purchasePrice)}
+                            </Text>
+                          </View>
+                        </View>
+
+                        {flowData.purchaseCosts > 0 && flowData.purchaseEvent.costBases && (
+                          <View style={[styles.costBaseList, { borderColor: '#bbf7d0' }]}>
+                            {flowData.purchaseEvent.costBases.map((cb) => (
+                              <View key={cb.id} style={styles.costBaseItem}>
+                                <Text style={styles.costBaseItemName}>{cb.name}:</Text>
+                                <Text style={styles.costBaseItemAmount}>{formatCurrency(cb.amount)}</Text>
+                              </View>
+                            ))}
+                            <View style={[styles.costBaseTotal, { borderColor: '#22c55e' }]}>
+                              <Text style={[styles.costBaseTotalLabel, { color: '#166534' }]}>
+                                Total Acquisition Cost:
+                              </Text>
+                              <Text style={[styles.costBaseTotalValue, { color: '#16a34a' }]}>
+                                {formatCurrency(flowData.purchasePrice + flowData.purchaseCosts)}
+                              </Text>
+                            </View>
+                          </View>
+                        )}
+                      </View>
+                    </View>
+                  </View>
+                </View>
+
+                {/* 2. Occupancy Phase */}
+                {(flowData.moveInEvent || flowData.rentStartEvent) && (
+                  <View style={styles.phaseContainer}>
+                    <View style={styles.phaseRow}>
+                      <View style={styles.phaseLabel}>
+                        <View style={[styles.phaseBadge, { backgroundColor: '#dbeafe', color: '#1e40af' }]}>
+                          <Text>OCCUPANCY</Text>
+                        </View>
+                      </View>
+                      <Text style={styles.phaseArrow}>→</Text>
+                      <View style={styles.phaseContent}>
+                        {flowData.moveInEvent && (
+                          <View style={[styles.phaseBox, { backgroundColor: '#eff6ff', borderColor: '#3b82f6', marginBottom: 6 }]}>
+                            <View style={styles.phaseBoxHeader}>
+                              <View style={{ flex: 1 }}>
+                                <Text style={[styles.phaseBoxTitle, { color: '#1e40af' }]}>Main Residence (PPR)</Text>
+                                <Text style={styles.phaseBoxDate}>
+                                  {formatEventDate(flowData.moveInEvent.date)} - {flowData.moveOutEvent ? formatEventDate(flowData.moveOutEvent.date) : 'Present'}
+                                </Text>
+                              </View>
+                              <View style={{ backgroundColor: '#3b82f6', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 4 }}>
+                                <Text style={{ fontSize: 7, fontWeight: 'bold', color: '#ffffff' }}>CGT Exempt</Text>
+                              </View>
+                            </View>
+                          </View>
+                        )}
+                        {flowData.rentStartEvent && (
+                          <View style={[styles.phaseBox, { backgroundColor: '#faf5ff', borderColor: '#a855f7' }]}>
+                            <View style={styles.phaseBoxHeader}>
+                              <View style={{ flex: 1 }}>
+                                <Text style={[styles.phaseBoxTitle, { color: '#7c3aed' }]}>Rental Property</Text>
+                                <Text style={styles.phaseBoxDate}>
+                                  {formatEventDate(flowData.rentStartEvent.date)} - Present
+                                </Text>
+                              </View>
+                              <View style={{ backgroundColor: '#a855f7', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 4 }}>
+                                <Text style={{ fontSize: 7, fontWeight: 'bold', color: '#ffffff' }}>CGT Applies</Text>
+                              </View>
+                            </View>
+                          </View>
+                        )}
+                      </View>
+                    </View>
+                  </View>
+                )}
+
+                {/* 3. Improvements Phase */}
+                {flowData.improvementEvents.length > 0 && (
+                  <View style={styles.phaseContainer}>
+                    <View style={styles.phaseRow}>
+                      <View style={styles.phaseLabel}>
+                        <View style={[styles.phaseBadge, { backgroundColor: '#fce7f3', color: '#9f1239' }]}>
+                          <Text>IMPROVEMENTS</Text>
+                        </View>
+                      </View>
+                      <Text style={styles.phaseArrow}>→</Text>
+                      <View style={styles.phaseContent}>
+                        <View style={[styles.phaseBox, { backgroundColor: '#fdf2f8', borderColor: '#ec4899' }]}>
+                          <Text style={[styles.phaseBoxTitle, { color: '#9f1239', marginBottom: 6 }]}>
+                            Capital Improvements ({flowData.improvementEvents.length})
+                          </Text>
+                          {flowData.improvementEvents.map((imp) => (
+                            <View key={imp.id} style={[styles.improvementItem, { borderColor: '#fbcfe8' }]}>
+                              <View style={styles.improvementHeader}>
+                                <View style={{ flex: 1 }}>
+                                  <Text style={styles.improvementDate}>{formatEventDate(imp.date)}</Text>
+                                  <Text style={styles.improvementDesc}>{imp.description || 'Capital improvement'}</Text>
+                                </View>
+                                <Text style={[styles.improvementAmount, { color: '#ec4899' }]}>
+                                  {formatCurrency(imp.amount || 0)}
+                                </Text>
+                              </View>
+                            </View>
+                          ))}
+                          <View style={[styles.costBaseTotal, { borderColor: '#ec4899' }]}>
+                            <Text style={[styles.costBaseTotalLabel, { color: '#9f1239' }]}>
+                              Total Improvements:
+                            </Text>
+                            <Text style={[styles.costBaseTotalValue, { color: '#ec4899' }]}>
+                              {formatCurrency(flowData.improvementCosts)}
+                            </Text>
+                          </View>
+                        </View>
+                      </View>
+                    </View>
+                  </View>
+                )}
+
+                {/* 4. Disposition Phase */}
+                {flowData.saleEvent && (
+                  <View style={styles.phaseContainer}>
+                    <View style={styles.phaseRow}>
+                      <View style={styles.phaseLabel}>
+                        <View style={[styles.phaseBadge, { backgroundColor: '#fee2e2', color: '#991b1b' }]}>
+                          <Text>DISPOSITION</Text>
+                        </View>
+                      </View>
+                      <Text style={styles.phaseArrow}>→</Text>
+                      <View style={styles.phaseContent}>
+                        <View style={[styles.phaseBox, { backgroundColor: '#fef2f2', borderColor: '#ef4444' }]}>
+                          <View style={styles.phaseBoxHeader}>
+                            <View>
+                              <Text style={[styles.phaseBoxTitle, { color: '#991b1b' }]}>Sale</Text>
+                              <Text style={styles.phaseBoxDate}>{formatEventDate(flowData.saleEvent.date)}</Text>
+                            </View>
+                            <View style={styles.phaseBoxAmount}>
+                              <Text style={styles.phaseBoxAmountLabel}>Sale Price</Text>
+                              <Text style={[styles.phaseBoxAmountValue, { color: '#ef4444' }]}>
+                                {formatCurrency(flowData.saleEvent.amount || 0)}
+                              </Text>
+                            </View>
+                          </View>
+
+                          {flowData.sellingCosts > 0 && flowData.saleEvent.costBases && (
+                            <View style={[styles.costBaseList, { borderColor: '#fecaca' }]}>
+                              {flowData.saleEvent.costBases.map((cb) => (
+                                <View key={cb.id} style={styles.costBaseItem}>
+                                  <Text style={styles.costBaseItemName}>{cb.name}:</Text>
+                                  <Text style={styles.costBaseItemAmount}>{formatCurrency(cb.amount)}</Text>
+                                </View>
+                              ))}
+                            </View>
+                          )}
+                        </View>
+                      </View>
+                    </View>
+                  </View>
+                )}
+
+                {/* 5. CGT Result */}
+                {flowData.saleEvent && (
+                  <View style={styles.phaseContainer}>
+                    <View style={styles.phaseRow}>
+                      <View style={styles.phaseLabel}>
+                        <View style={[styles.phaseBadge, { backgroundColor: '#ddd6fe', color: '#5b21b6' }]}>
+                          <Text>CGT RESULT</Text>
+                        </View>
+                      </View>
+                      <Text style={styles.phaseArrow}>▶</Text>
+                      <View style={styles.phaseContent}>
+                        <View style={styles.cgtResultBox}>
+                          <View style={styles.cgtResultGrid}>
+                            <View style={styles.cgtResultItem}>
+                              <Text style={styles.cgtResultLabel}>Total Cost Base</Text>
+                              <Text style={styles.cgtResultValue}>{formatCurrency(flowData.totalCostBase)}</Text>
+                            </View>
+                            <View style={styles.cgtResultItem}>
+                              <Text style={styles.cgtResultLabel}>Sale Proceeds</Text>
+                              <Text style={styles.cgtResultValue}>{formatCurrency(flowData.saleEvent.amount || 0)}</Text>
+                            </View>
+                            <View style={styles.cgtResultItem}>
+                              <Text style={styles.cgtResultLabel}>Capital Gain</Text>
+                              <Text style={[styles.cgtResultValue, styles.cgtResultValueLarge]}>
+                                {formatCurrency(flowData.capitalGain)}
+                              </Text>
+                            </View>
+                          </View>
+                          <View style={styles.cgtResultFooter}>
+                            <Text style={styles.cgtResultFooterText}>
+                              Ownership Period: {flowData.ownershipYears} years
+                            </Text>
+                          </View>
+                        </View>
+                      </View>
+                    </View>
+                  </View>
+                )}
+              </View>
+            </View>
+
+            {/* Footer */}
+            <View style={styles.footer}>
+              <Text style={styles.footerText}>Property Lifecycle Flowchart - {property.name}</Text>
+              <Text style={styles.footerText}>Property {index + 1} of {timelineProperties.length}</Text>
+            </View>
+          </Page>
+        );
+      })}
     </Document>
   );
 };

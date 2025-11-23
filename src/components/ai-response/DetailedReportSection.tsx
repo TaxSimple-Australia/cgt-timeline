@@ -6,7 +6,7 @@ import { ChevronDown, ChevronUp, FileText, Book, Download, Mail, Printer } from 
 import { pdf } from '@react-pdf/renderer';
 import { CGTReportPDF } from './CGTReportPDF';
 import EmailModal from './EmailModal';
-import { captureTimelineSnapshot } from '@/lib/capture-timeline';
+import { useTimelineStore } from '@/store/timeline';
 
 interface DetailedReportSectionProps {
   analysis?: any;
@@ -20,21 +20,29 @@ export default function DetailedReportSection({ analysis, calculations, validati
   const [isExporting, setIsExporting] = useState(false);
   const [isSendingEmail, setIsSendingEmail] = useState(false);
   const [showEmailModal, setShowEmailModal] = useState(false);
-  const [timelineImage, setTimelineImage] = useState<string | null>(null);
+
+  // Get properties and events from timeline store for PDF flowchart
+  const { properties, events } = useTimelineStore();
 
   if (!analysis && !calculations && !validation) return null;
 
   const handleExportPDF = async () => {
     setIsExporting(true);
     try {
-      // Capture timeline snapshot
-      const snapshot = await captureTimelineSnapshot();
-      if (snapshot) {
-        setTimelineImage(snapshot);
-      }
+      console.log('📊 Exporting PDF with:', {
+        properties: properties.length,
+        events: events.length,
+        response: response ? 'present' : 'missing'
+      });
 
-      // Generate PDF using @react-pdf/renderer (with timeline image)
-      const blob = await pdf(<CGTReportPDF response={response} timelineImage={snapshot} />).toBlob();
+      // Generate PDF using @react-pdf/renderer with native flowchart components
+      const blob = await pdf(
+        <CGTReportPDF
+          response={response}
+          properties={properties}
+          events={events}
+        />
+      ).toBlob();
 
       // Create download link
       const url = URL.createObjectURL(blob);
@@ -48,8 +56,12 @@ export default function DetailedReportSection({ analysis, calculations, validati
 
       console.log('✅ PDF exported successfully');
     } catch (error) {
-      console.error('Error exporting PDF:', error);
-      alert('Failed to export PDF. Please try again.');
+      console.error('❌ Error exporting PDF:', error);
+      console.error('Error details:', {
+        message: error instanceof Error ? error.message : 'Unknown error',
+        stack: error instanceof Error ? error.stack : undefined
+      });
+      alert(`Failed to export PDF. Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
       setIsExporting(false);
     }
@@ -63,17 +75,14 @@ export default function DetailedReportSection({ analysis, calculations, validati
   const handleSendEmail = async (email: string) => {
     setIsSendingEmail(true);
     try {
-      // Capture timeline snapshot if not already captured
-      let snapshot = timelineImage;
-      if (!snapshot) {
-        snapshot = await captureTimelineSnapshot();
-        if (snapshot) {
-          setTimelineImage(snapshot);
-        }
-      }
-
-      // Generate PDF with timeline image
-      const blob = await pdf(<CGTReportPDF response={response} timelineImage={snapshot} />).toBlob();
+      // Generate PDF with native flowchart components
+      const blob = await pdf(
+        <CGTReportPDF
+          response={response}
+          properties={properties}
+          events={events}
+        />
+      ).toBlob();
 
       // Create FormData to send email with PDF attachment
       const formData = new FormData();

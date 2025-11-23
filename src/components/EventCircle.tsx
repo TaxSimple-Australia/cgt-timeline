@@ -325,16 +325,32 @@ export default function EventCircle({ event, cx, cy, color, onClick, tier = 0, e
         />
       )}
 
-      {/* Label below circle (positioned based on tier) */}
-      <text
+      {/* Label below circle (positioned based on tier) - Truncated with CSS */}
+      <foreignObject
         x={displayCx}
-        y={labelY}
-        textAnchor="middle"
-        className="text-[14px] font-bold fill-slate-900 dark:fill-slate-100 pointer-events-none"
-        style={{ userSelect: 'none' }}
+        y={labelY - 10}
+        width="100"
+        height="20"
+        style={{
+          overflow: 'visible',
+          pointerEvents: 'none',
+          transform: 'translateX(-50px)'
+        }}
       >
-        {event.title}
-      </text>
+        <div
+          className="text-xs font-semibold text-slate-900 dark:text-slate-100 text-center truncate px-1"
+          style={{
+            userSelect: 'none',
+            maxWidth: '100px',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap'
+          }}
+          title={event.title}
+        >
+          {event.title}
+        </div>
+      </foreignObject>
     </g>
   );
 }

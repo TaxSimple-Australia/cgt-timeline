@@ -158,6 +158,56 @@ export default function PropertyBranch({
 
   const eventsWithTiers = assignLabelTiers();
 
+  // Assign vertical offsets for overlapping circles
+  const assignCircleVerticalOffsets = () => {
+    const POSITION_THRESHOLD = 2; // Events within 2% position are considered overlapping
+    const VERTICAL_OFFSET = 35; // Pixels to offset each overlapping circle
+
+    interface PositionGroup {
+      position: number;
+      events: Array<typeof eventsWithTiers[0] & { verticalOffset: number }>;
+    }
+
+    const positionGroups: PositionGroup[] = [];
+
+    // Group events by position (with threshold)
+    eventsWithTiers.forEach(event => {
+      const existingGroup = positionGroups.find(group =>
+        Math.abs(group.position - event.calculatedPosition) < POSITION_THRESHOLD
+      );
+
+      if (existingGroup) {
+        // Add to existing group
+        existingGroup.events.push({ ...event, verticalOffset: 0 });
+      } else {
+        // Create new group
+        positionGroups.push({
+          position: event.calculatedPosition,
+          events: [{ ...event, verticalOffset: 0 }]
+        });
+      }
+    });
+
+    // Assign vertical offsets within each group
+    positionGroups.forEach(group => {
+      if (group.events.length > 1) {
+        // Calculate total height and start position to center the stack
+        const totalHeight = (group.events.length - 1) * VERTICAL_OFFSET;
+        const startOffset = -totalHeight / 2;
+
+        // Assign offsets to center the stack vertically around branchY
+        group.events.forEach((event, index) => {
+          event.verticalOffset = startOffset + (index * VERTICAL_OFFSET);
+        });
+      }
+    });
+
+    // Flatten back to single array
+    return positionGroups.flatMap(group => group.events);
+  };
+
+  const eventsWithOffsetsAndTiers = assignCircleVerticalOffsets();
+
   // Generate branch path
   const generateBranchPath = () => {
     if (eventsWithTiers.length === 0) return '';
@@ -297,36 +347,51 @@ export default function PropertyBranch({
       </foreignObject>
 
       {/* Event Display - Circles or Cards based on mode */}
-      {eventsWithTiers.map((event) => (
-        eventDisplayMode === 'circle' ? (
-          <EventCircle
-            key={event.id}
-            event={event}
-            cx={`${event.calculatedPosition}%`}
-            cy={branchY}
-            color={event.color}
-            onClick={() => onEventClick(event)}
-            tier={event.tier}
-            enableDrag={enableDragEvents}
-            timelineStart={timelineStart}
-            timelineEnd={timelineEnd}
-            onUpdateEvent={updateEvent}
-          />
-        ) : (
-          <EventCardView
-            key={event.id}
-            event={event}
-            cx={`${event.calculatedPosition}%`}
-            cy={branchY}
-            color={event.color}
-            onClick={() => onEventClick(event)}
-            tier={event.tier}
-            enableDrag={enableDragEvents}
-            timelineStart={timelineStart}
-            timelineEnd={timelineEnd}
-            onUpdateEvent={updateEvent}
-          />
-        )
+      {eventsWithOffsetsAndTiers.map((event) => (
+        <React.Fragment key={event.id}>
+          {/* Connector line for stacked circles */}
+          {event.verticalOffset !== 0 && eventDisplayMode === 'circle' && (
+            <line
+              x1={`${event.calculatedPosition}%`}
+              y1={branchY}
+              x2={`${event.calculatedPosition}%`}
+              y2={branchY + event.verticalOffset}
+              stroke={event.color}
+              strokeWidth="2"
+              strokeDasharray="4,3"
+              opacity={0.4}
+              className="pointer-events-none"
+            />
+          )}
+
+          {eventDisplayMode === 'circle' ? (
+            <EventCircle
+              event={event}
+              cx={`${event.calculatedPosition}%`}
+              cy={branchY + event.verticalOffset}
+              color={event.color}
+              onClick={() => onEventClick(event)}
+              tier={event.tier}
+              enableDrag={enableDragEvents}
+              timelineStart={timelineStart}
+              timelineEnd={timelineEnd}
+              onUpdateEvent={updateEvent}
+            />
+          ) : (
+            <EventCardView
+              event={event}
+              cx={`${event.calculatedPosition}%`}
+              cy={branchY + event.verticalOffset}
+              color={event.color}
+              onClick={() => onEventClick(event)}
+              tier={event.tier}
+              enableDrag={enableDragEvents}
+              timelineStart={timelineStart}
+              timelineEnd={timelineEnd}
+              onUpdateEvent={updateEvent}
+            />
+          )}
+        </React.Fragment>
       ))}
 
       {/* Verification Alert Bars - Render LAST so they appear on top of everything */}

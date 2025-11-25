@@ -71,7 +71,7 @@ export default function CostBaseSummaryModal({
   const isImprovement = event.type === 'improvement';
 
   const title = isPurchase ? 'Purchase Cost Base Summary'
-    : isSale ? 'Sale Costs Summary'
+    : isSale ? 'Sale Proceeds Summary'
     : 'Improvement Costs Summary';
 
   return (

@@ -43,6 +43,7 @@ export default function Timeline({ className, onAlertClick }: TimelineProps) {
     selectedEvent,
     timelineStart,
     timelineEnd,
+    absoluteEnd,
     zoom,
     addEvent,
     moveEvent,
@@ -135,9 +136,9 @@ export default function Timeline({ className, onAlertClick }: TimelineProps) {
 
     // Apply future date lock if enabled
     if (lockFutureDates) {
-      const now = new Date().getTime();
-      if (newEndTime > now) {
-        newEndTime = now;
+      const maxAllowed = absoluteEnd.getTime();
+      if (newEndTime > maxAllowed) {
+        newEndTime = maxAllowed;
         newStartTime = newEndTime - grabbedViewDuration;
       }
     }
@@ -242,9 +243,9 @@ export default function Timeline({ className, onAlertClick }: TimelineProps) {
 
       // Apply future date lock if enabled
       if (lockFutureDates) {
-        const now = new Date().getTime();
-        if (newEndTime > now) {
-          newEndTime = now;
+        const maxAllowed = absoluteEnd.getTime();
+        if (newEndTime > maxAllowed) {
+          newEndTime = maxAllowed;
           newStartTime = newEndTime - grabbedViewDuration;
         }
       }

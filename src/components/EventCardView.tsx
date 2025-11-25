@@ -26,6 +26,7 @@ interface EventCardViewProps {
   timelineStart?: Date; // Timeline start for date conversion
   timelineEnd?: Date; // Timeline end for date conversion
   onUpdateEvent?: (id: string, updates: Partial<TimelineEvent>) => void; // Update event callback
+  isSyntheticStatusMarker?: boolean; // Whether this is a synthetic status marker
 }
 
 export default function EventCardView({
@@ -38,7 +39,8 @@ export default function EventCardView({
   enableDrag = false,
   timelineStart,
   timelineEnd,
-  onUpdateEvent
+  onUpdateEvent,
+  isSyntheticStatusMarker = false
 }: EventCardViewProps) {
   const [isHovered, setIsHovered] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
@@ -397,7 +399,10 @@ export default function EventCardView({
           {/* Main Card */}
           <div
             className="relative bg-white dark:bg-slate-800 rounded-xl shadow-lg border-2 overflow-hidden h-full flex flex-col"
-            style={{ borderColor: color }}
+            style={{
+              borderColor: color,
+              borderStyle: isSyntheticStatusMarker ? 'dashed' : 'solid'
+            }}
           >
             {/* Header with colored bar and icon */}
             <div

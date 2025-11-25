@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { TimelineEvent, PropertyStatus, useTimelineStore, CostBaseItem } from '@/store/timeline';
 import { format } from 'date-fns';
-import { X, Calendar, DollarSign, Home, Tag, FileText, CheckCircle, Receipt } from 'lucide-react';
+import { X, Calendar, DollarSign, Home, Tag, FileText, CheckCircle, Receipt, Info } from 'lucide-react';
 import CostBaseSelector from './CostBaseSelector';
 import { getCostBaseDefinition } from '@/lib/cost-base-definitions';
 import CostBaseSummaryModal from './CostBaseSummaryModal';
@@ -26,6 +26,7 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
   const [newStatus, setNewStatus] = useState<PropertyStatus | ''>(event.newStatus || '');
   const [isSaving, setIsSaving] = useState(false);
   const [showSummary, setShowSummary] = useState(false);
+  const [showDateTooltip, setShowDateTooltip] = useState(false);
 
   // NEW: Dynamic Cost Bases
   const [costBases, setCostBases] = useState<CostBaseItem[]>(() => {
@@ -275,7 +276,39 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
               <div>
                 <label className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                   <Calendar className="w-4 h-4" />
-                  Date *
+                  {event.type === 'purchase' ? 'Settlement Date *' :
+                   event.type === 'sale' ? 'Contract Date *' : 'Date *'}
+                  {(event.type === 'purchase' || event.type === 'sale') && (
+                    <div
+                      className="relative"
+                      onMouseEnter={() => setShowDateTooltip(true)}
+                      onMouseLeave={() => setShowDateTooltip(false)}
+                    >
+                      <Info className="w-4 h-4 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 cursor-help" />
+
+                      {showDateTooltip && (
+                        <motion.div
+                          initial={{ opacity: 0, y: -5 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -5 }}
+                          transition={{ duration: 0.15 }}
+                          className="absolute left-1/2 -translate-x-1/2 top-full mt-2 bg-slate-900 dark:bg-slate-800 text-white px-4 py-3 rounded-lg shadow-2xl text-sm min-w-[280px] max-w-[320px] z-50 pointer-events-none border-2 border-blue-500/30"
+                        >
+                          <div className="font-semibold mb-1.5 text-blue-300">
+                            {event.type === 'purchase' ? 'Settlement Date' : 'Contract Date'}
+                          </div>
+                          <p className="text-slate-200 leading-relaxed">
+                            {event.type === 'purchase'
+                              ? 'The date when ownership legally transferred to you'
+                              : 'The date when the sale contract was signed (not settlement date)'}
+                          </p>
+
+                          {/* Arrow pointing up */}
+                          <div className="absolute bottom-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-8 border-l-transparent border-r-8 border-r-transparent border-b-8 border-b-slate-900 dark:border-b-slate-800" />
+                        </motion.div>
+                      )}
+                    </div>
+                  )}
                 </label>
                 <input
                   type="date"

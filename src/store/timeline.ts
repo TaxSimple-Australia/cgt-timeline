@@ -379,12 +379,15 @@ export const calculateStatusPeriods = (events: TimelineEvent[]): StatusPeriod[] 
 
 const defaultAbsoluteStart = new Date(1900, 0, 1);
 const defaultAbsoluteEnd = new Date();
+defaultAbsoluteEnd.setFullYear(defaultAbsoluteEnd.getFullYear() + 3);
 
 export const useTimelineStore = create<TimelineState>((set, get) => {
   // Calculate initial 30-year range
   const today = new Date();
   const thirtyYearsAgo = new Date(today);
   thirtyYearsAgo.setFullYear(today.getFullYear() - 30);
+  const threeYearsFromNow = new Date();
+  threeYearsFromNow.setFullYear(threeYearsFromNow.getFullYear() + 3);
 
   return {
     properties: [],
@@ -393,13 +396,13 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
     selectedEvent: null,
     lastInteractedEventId: null,
     timelineStart: thirtyYearsAgo,
-    timelineEnd: today,
+    timelineEnd: threeYearsFromNow,
     absoluteStart: defaultAbsoluteStart,
     absoluteEnd: defaultAbsoluteEnd,
     zoom: 1,
-    zoomLevel: calculateZoomLevel(thirtyYearsAgo, today),
+    zoomLevel: calculateZoomLevel(thirtyYearsAgo, threeYearsFromNow),
     centerDate: new Date(
-      (thirtyYearsAgo.getTime() + today.getTime()) / 2
+      (thirtyYearsAgo.getTime() + threeYearsFromNow.getTime()) / 2
     ),
     theme: 'dark',
     eventDisplayMode: 'circle',
@@ -1134,7 +1137,8 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
       // Calculate timeline boundaries
       const allDates = importedEvents.map(e => e.date.getTime());
       const minDate = allDates.length > 0 ? new Date(Math.min(...allDates)) : new Date(2000, 0, 1);
-      const maxDate = new Date(); // Always use today as max
+      const maxDate = new Date();
+      maxDate.setFullYear(maxDate.getFullYear() + 3); // Default to 3 years from now
 
       // Set the imported data
       set({

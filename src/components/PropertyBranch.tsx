@@ -3,7 +3,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { AlertTriangle } from 'lucide-react';
-import { Property, TimelineEvent, useTimelineStore } from '@/store/timeline';
+import { Property, TimelineEvent, useTimelineStore, statusColors, calculateStatusPeriods } from '@/store/timeline';
 import { useValidationStore } from '@/store/validation';
 import EventCircle from './EventCircle';
 import EventCardView from './EventCardView';
@@ -161,11 +161,11 @@ export default function PropertyBranch({
   // Assign vertical offsets for overlapping circles
   const assignCircleVerticalOffsets = () => {
     const POSITION_THRESHOLD = 2; // Events within 2% position are considered overlapping
-    const VERTICAL_OFFSET = 35; // Pixels to offset each overlapping circle
+    const VERTICAL_OFFSET = 50; // Pixels to offset each overlapping circle
 
     interface PositionGroup {
       position: number;
-      events: Array<typeof eventsWithTiers[0] & { verticalOffset: number }>;
+      events: Array<typeof eventsWithTiers[0] & { verticalOffset: number; zIndex: number }>;
     }
 
     const positionGroups: PositionGroup[] = [];
@@ -178,12 +178,12 @@ export default function PropertyBranch({
 
       if (existingGroup) {
         // Add to existing group
-        existingGroup.events.push({ ...event, verticalOffset: 0 });
+        existingGroup.events.push({ ...event, verticalOffset: 0, zIndex: 0 });
       } else {
         // Create new group
         positionGroups.push({
           position: event.calculatedPosition,
-          events: [{ ...event, verticalOffset: 0 }]
+          events: [{ ...event, verticalOffset: 0, zIndex: 0 }]
         });
       }
     });
@@ -191,13 +191,16 @@ export default function PropertyBranch({
     // Assign vertical offsets within each group
     positionGroups.forEach(group => {
       if (group.events.length > 1) {
-        // Calculate total height and start position to center the stack
+        // Calculate total height and start position
         const totalHeight = (group.events.length - 1) * VERTICAL_OFFSET;
-        const startOffset = -totalHeight / 2;
+        // Shift stack upward so upper events move higher to avoid overlap
+        const startOffset = -(totalHeight * 0.65);
 
-        // Assign offsets to center the stack vertically around branchY
+        // Assign offsets with upper events positioned higher
+        // Also assign z-index: upper events (lower index) get higher z-index for proper layering
         group.events.forEach((event, index) => {
           event.verticalOffset = startOffset + (index * VERTICAL_OFFSET);
+          event.zIndex = group.events.length - index; // Top event gets highest z-index
         });
       }
     });
@@ -207,6 +210,43 @@ export default function PropertyBranch({
   };
 
   const eventsWithOffsetsAndTiers = assignCircleVerticalOffsets();
+
+  // Add synthetic status marker for unsold properties at today's date
+  const addStatusMarkerIfNeeded = () => {
+    const isSold = property.currentStatus === 'sold' || property.saleDate;
+    if (isSold) return eventsWithOffsetsAndTiers;
+
+    const today = new Date();
+    const todayPosition = dateToPosition(today, timelineStart, timelineEnd);
+
+    // Only add if today is visible in timeline
+    if (todayPosition < 0 || todayPosition > 100) return eventsWithOffsetsAndTiers;
+
+    const statusPeriods = calculateStatusPeriods(events);
+    const currentStatusPeriod = statusPeriods.find(p => p.endDate === null);
+    const currentStatus = currentStatusPeriod?.status || 'vacant';
+    const statusColor = statusColors[currentStatus] || '#94a3b8';
+
+    const statusMarker: any = {
+      id: `status-marker-${property.id}`,
+      propertyId: property.id,
+      type: 'status_change' as any,
+      title: 'Not Sold',
+      description: currentStatus.replace('_', ' ').toUpperCase(),
+      date: today,
+      color: statusColor,
+      position: todayPosition,
+      calculatedPosition: todayPosition,
+      isSyntheticStatusMarker: true,
+      verticalOffset: 0,
+      tier: 0,
+      zIndex: 999,
+    };
+
+    return [...eventsWithOffsetsAndTiers, statusMarker];
+  };
+
+  const eventsToRender = addStatusMarkerIfNeeded();
 
   // Generate branch path
   const generateBranchPath = () => {
@@ -347,7 +387,7 @@ export default function PropertyBranch({
       </foreignObject>
 
       {/* Event Display - Circles or Cards based on mode */}
-      {eventsWithOffsetsAndTiers.map((event) => (
+      {eventsToRender.map((event) => (
         <React.Fragment key={event.id}>
           {/* Connector line for stacked circles */}
           {event.verticalOffset !== 0 && eventDisplayMode === 'circle' && (
@@ -372,10 +412,12 @@ export default function PropertyBranch({
               color={event.color}
               onClick={() => onEventClick(event)}
               tier={event.tier}
-              enableDrag={enableDragEvents}
+              zIndex={event.zIndex || 0}
+              enableDrag={enableDragEvents && !(event as any).isSyntheticStatusMarker}
               timelineStart={timelineStart}
               timelineEnd={timelineEnd}
               onUpdateEvent={updateEvent}
+              isSyntheticStatusMarker={(event as any).isSyntheticStatusMarker}
             />
           ) : (
             <EventCardView
@@ -385,10 +427,11 @@ export default function PropertyBranch({
               color={event.color}
               onClick={() => onEventClick(event)}
               tier={event.tier}
-              enableDrag={enableDragEvents}
+              enableDrag={enableDragEvents && !(event as any).isSyntheticStatusMarker}
               timelineStart={timelineStart}
               timelineEnd={timelineEnd}
               onUpdateEvent={updateEvent}
+              isSyntheticStatusMarker={(event as any).isSyntheticStatusMarker}
             />
           )}
         </React.Fragment>

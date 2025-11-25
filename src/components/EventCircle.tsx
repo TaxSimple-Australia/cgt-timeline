@@ -13,13 +13,15 @@ interface EventCircleProps {
   color: string;
   onClick: () => void;
   tier?: number; // Vertical tier for label positioning (0 = default, 1-3 = higher tiers)
+  zIndex?: number; // Z-index for layering overlapping circles
   enableDrag?: boolean; // Enable drag functionality
   timelineStart?: Date; // Timeline start for date conversion
   timelineEnd?: Date; // Timeline end for date conversion
   onUpdateEvent?: (id: string, updates: Partial<TimelineEvent>) => void; // Update event callback
+  isSyntheticStatusMarker?: boolean; // Whether this is a synthetic status marker
 }
 
-export default function EventCircle({ event, cx, cy, color, onClick, tier = 0, enableDrag = false, timelineStart, timelineEnd, onUpdateEvent }: EventCircleProps) {
+export default function EventCircle({ event, cx, cy, color, onClick, tier = 0, zIndex = 0, enableDrag = false, timelineStart, timelineEnd, onUpdateEvent, isSyntheticStatusMarker = false }: EventCircleProps) {
   const [isHovered, setIsHovered] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [dragPosition, setDragPosition] = useState<number | null>(null);
@@ -132,7 +134,10 @@ export default function EventCircle({ event, cx, cy, color, onClick, tier = 0, e
     <g
       ref={svgRef}
       className={enableDrag ? "event-circle-group cursor-grab" : "event-circle-group cursor-pointer"}
-      style={{ cursor: isDragging ? 'grabbing' : undefined }}
+      style={{
+        cursor: isDragging ? 'grabbing' : undefined,
+        zIndex: zIndex
+      }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       onMouseDown={handleMouseDown}
@@ -182,6 +187,7 @@ export default function EventCircle({ event, cx, cy, color, onClick, tier = 0, e
         fill={color}
         stroke="white"
         strokeWidth="3"
+        strokeDasharray={isSyntheticStatusMarker ? "4,4" : undefined}
         initial={{ scale: 0 }}
         animate={{ scale: isHovered ? 1.15 : 1 }}
         transition={{ type: 'spring', stiffness: 300, damping: 20 }}

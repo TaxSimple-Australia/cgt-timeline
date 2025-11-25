@@ -30,6 +30,18 @@ export default function PropertyIssueOverlay({
   const questionText = alert.clarificationQuestion || alert.resolutionText;
   const possibleAnswers = alert.possibleAnswers;
 
+  // Helper function to extract just the question part (before the options list)
+  const extractQuestion = (fullText: string): string => {
+    // Look for colon followed by newline/spaces and dash (indicating start of options list)
+    const match = fullText.match(/^(.*?):\s*[\n\r]\s*-/);
+    if (match) {
+      return match[1] + ':';
+    }
+    return fullText;
+  };
+
+  const cleanedQuestion = extractQuestion(questionText);
+
   // Reset state when alert changes
   useEffect(() => {
     setSelectedAnswer('');
@@ -170,7 +182,7 @@ export default function PropertyIssueOverlay({
                 Clarification Required:
               </label>
               <p className="text-base text-gray-900 dark:text-gray-100 leading-relaxed">
-                {questionText}
+                {cleanedQuestion}
               </p>
             </div>
 

@@ -406,7 +406,7 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
     ),
     theme: 'dark',
     eventDisplayMode: 'circle',
-    lockFutureDates: true,
+    lockFutureDates: false,
     enableDragEvents: true,
 
     // AI Feedback Initial State

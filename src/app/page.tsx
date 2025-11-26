@@ -253,9 +253,9 @@ export default function Home() {
       let result;
 
       if (isApiConfigured) {
-        console.log('🌐 Calling real API...');
-        // Call the API
-        const response = await fetch('/api/analyze-cgt', {
+        console.log('🌐 Calling resolution API with verified responses...');
+        // Call the resolution API endpoint (different from initial analysis)
+        const response = await fetch('/api/analyze-with-resolution', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -354,10 +354,10 @@ export default function Home() {
         gap_clarifications: answers,
       };
 
-      console.log('📤 Sending data with gap clarifications to API:', requestData);
+      console.log('📤 Sending data with gap clarifications to resolution API:', requestData);
 
-      // Call the API
-      const response = await fetch('/api/analyze-cgt', {
+      // Call the resolution API endpoint (different from initial analysis)
+      const response = await fetch('/api/analyze-with-resolution', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

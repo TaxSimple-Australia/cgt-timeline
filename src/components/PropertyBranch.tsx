@@ -213,7 +213,9 @@ export default function PropertyBranch({
 
   // Add synthetic status marker for unsold properties at today's date
   const addStatusMarkerIfNeeded = () => {
-    const isSold = property.currentStatus === 'sold' || property.saleDate;
+    // Check all possible indicators that property is sold
+    const hasSaleEvent = events.some(e => e.type === 'sale');
+    const isSold = property.currentStatus === 'sold' || property.saleDate || hasSaleEvent;
     if (isSold) return eventsWithOffsetsAndTiers;
 
     const today = new Date();
@@ -248,30 +250,40 @@ export default function PropertyBranch({
 
   const eventsToRender = addStatusMarkerIfNeeded();
 
-  // Generate branch path
-  const generateBranchPath = () => {
-    if (eventsWithTiers.length === 0) return '';
+  // Check if property has any events
+  const hasEvents = events.length > 0;
 
-    let path = `M 0,${branchY}`;
+  // Check if property is sold
+  const isSold = property.currentStatus === 'sold' || property.saleDate || events.some(e => e.type === 'sale');
 
-    eventsWithTiers.forEach((event, index) => {
-      const x = `${event.calculatedPosition}%`;
+  // Calculate first and last event positions for the line
+  const getLinePositions = () => {
+    if (eventsWithTiers.length === 0) {
+      // No events - no line
+      return { start: 0, end: 0 };
+    }
 
-      if (index === 0) {
-        // Smooth curve to first event
-        path += ` Q ${event.calculatedPosition / 2}%,${branchY} ${x},${branchY}`;
-      } else {
-        // Connect to next event
-        path += ` L ${x},${branchY}`;
-      }
-    });
+    const positions = eventsWithTiers.map(e => e.calculatedPosition);
+    const firstEventPos = Math.min(...positions);
+    const lastEventPos = Math.max(...positions);
 
-    // Extend to end
-    path += ` L 100%,${branchY}`;
+    // For unsold properties, extend to today's position (the "Not Sold" marker)
+    if (!isSold) {
+      const today = new Date();
+      const todayPosition = dateToPosition(today, timelineStart, timelineEnd);
+      const clampedTodayPos = Math.max(0, Math.min(todayPosition, 100));
+      return {
+        start: firstEventPos,
+        end: Math.max(lastEventPos, clampedTodayPos)
+      };
+    }
 
-    return path;
+    // For sold properties, line ends at the last event (sale)
+    return { start: firstEventPos, end: lastEventPos };
   };
-  
+
+  const linePositions = getLinePositions();
+
   return (
     <>
       <g className="property-branch">
@@ -310,12 +322,14 @@ export default function PropertyBranch({
       ))}
 
       {/* Warning Glow Effect for Properties with Issues */}
-      {hasIssues && (
+      {hasIssues && hasEvents && linePositions.start !== linePositions.end && (
         <>
           {/* Animated red glow */}
-          <motion.path
-            d={generateBranchPath()}
-            fill="none"
+          <motion.line
+            x1={`${linePositions.start}%`}
+            y1={branchY}
+            x2={`${linePositions.end}%`}
+            y2={branchY}
             stroke="#EF4444"
             strokeWidth={12}
             strokeLinecap="round"
@@ -327,9 +341,11 @@ export default function PropertyBranch({
           />
           {/* Solid red underline for critical issues */}
           {criticalIssues.length > 0 && (
-            <motion.path
-              d={generateBranchPath()}
-              fill="none"
+            <motion.line
+              x1={`${linePositions.start}%`}
+              y1={branchY}
+              x2={`${linePositions.end}%`}
+              y2={branchY}
               stroke="#DC2626"
               strokeWidth={2}
               strokeLinecap="round"
@@ -343,23 +359,44 @@ export default function PropertyBranch({
         </>
       )}
 
-      {/* Branch Line - Visual only, non-interactive */}
-      <motion.path
-        d={generateBranchPath()}
-        fill="none"
-        stroke={hasIssues ? '#EF4444' : property.color}
-        strokeWidth={isHovered ? 6 : (isSelected ? 4 : 3)}
-        strokeLinecap="round"
-        opacity={isHovered ? 1 : (isSelected ? 1 : 0.7)}
-        initial={{ pathLength: 0 }}
-        animate={{ pathLength: 1 }}
-        transition={{ duration: 1, ease: "easeInOut" }}
-        className="drop-shadow-sm"
-        style={{
-          transition: 'stroke-width 0.2s ease, opacity 0.2s ease',
-          pointerEvents: 'none'
-        }}
-      />
+      {/* Invisible hover target for the branch line */}
+      {hasEvents && linePositions.start !== linePositions.end && (
+        <line
+          x1={`${linePositions.start}%`}
+          y1={branchY}
+          x2={`${linePositions.end}%`}
+          y2={branchY}
+          stroke="transparent"
+          strokeWidth={20}
+          strokeLinecap="round"
+          style={{ cursor: 'pointer' }}
+          onClick={handleBranchLineClick}
+          onMouseEnter={() => onHoverChange(true)}
+          onMouseLeave={() => onHoverChange(false)}
+        />
+      )}
+
+      {/* Branch Line - always visible */}
+      {hasEvents && linePositions.start !== linePositions.end && (
+        <motion.line
+          x1={`${linePositions.start}%`}
+          y1={branchY}
+          x2={`${linePositions.end}%`}
+          y2={branchY}
+          stroke={hasIssues ? '#EF4444' : property.color}
+          strokeWidth={isHovered ? 6 : (isSelected ? 4 : 3)}
+          strokeLinecap="round"
+          opacity={isHovered ? 1 : (isSelected ? 1 : 0.7)}
+          initial={{ pathLength: 0 }}
+          animate={{ pathLength: 1 }}
+          transition={{ duration: 1, ease: "easeInOut" }}
+          className="drop-shadow-sm"
+          style={{
+            transition: 'stroke-width 0.2s ease, opacity 0.2s ease',
+            pointerEvents: 'none'
+          }}
+        />
+      )}
 
       {/* Branch Label */}
       <foreignObject x="10" y={branchY - 30} width="300" height="60">

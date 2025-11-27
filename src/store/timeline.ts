@@ -483,9 +483,25 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
   },
   
   deleteEvent: (id) => {
-    set((state) => ({
-      events: state.events.filter((e) => e.id !== id),
-    }));
+    const state = get();
+    const eventToDelete = state.events.find((e) => e.id === id);
+
+    // If deleting a sale event, also clear the property's sale-related fields
+    if (eventToDelete?.type === 'sale') {
+      const propertyId = eventToDelete.propertyId;
+      set((state) => ({
+        events: state.events.filter((e) => e.id !== id),
+        properties: state.properties.map((p) =>
+          p.id === propertyId
+            ? { ...p, currentStatus: 'vacant' as const, saleDate: undefined }
+            : p
+        ),
+      }));
+    } else {
+      set((state) => ({
+        events: state.events.filter((e) => e.id !== id),
+      }));
+    }
   },
   
   moveEvent: (id, newPosition) => {

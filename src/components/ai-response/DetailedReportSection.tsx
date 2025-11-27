@@ -7,6 +7,7 @@ import { pdf } from '@react-pdf/renderer';
 import { CGTReportPDF } from './CGTReportPDF';
 import EmailModal from './EmailModal';
 import { useTimelineStore } from '@/store/timeline';
+import { serializeTimeline } from '@/lib/timeline-serialization';
 
 interface DetailedReportSectionProps {
   analysis?: any;
@@ -26,6 +27,31 @@ export default function DetailedReportSection({ analysis, calculations, validati
 
   if (!analysis && !calculations && !validation) return null;
 
+  // Helper function to generate share URL for PDF
+  const generateShareUrl = async (): Promise<string | undefined> => {
+    if (properties.length === 0) return undefined;
+
+    try {
+      const serialized = serializeTimeline(properties, events);
+      const response = await fetch('/api/timeline/save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(serialized),
+      });
+
+      const result = await response.json();
+      if (!response.ok) {
+        console.warn('Failed to generate share URL:', result.error);
+        return undefined;
+      }
+
+      return `${window.location.origin}?share=${result.shareId}`;
+    } catch (error) {
+      console.warn('Error generating share URL:', error);
+      return undefined;
+    }
+  };
+
   const handleExportPDF = async () => {
     setIsExporting(true);
     try {
@@ -35,12 +61,17 @@ export default function DetailedReportSection({ analysis, calculations, validati
         response: response ? 'present' : 'missing'
       });
 
+      // Generate share URL for the timeline
+      const shareUrl = await generateShareUrl();
+      console.log('📎 Share URL for PDF:', shareUrl || 'not generated');
+
       // Generate PDF using @react-pdf/renderer with native flowchart components
       const blob = await pdf(
         <CGTReportPDF
           response={response}
           properties={properties}
           events={events}
+          shareUrl={shareUrl}
         />
       ).toBlob();
 
@@ -75,12 +106,16 @@ export default function DetailedReportSection({ analysis, calculations, validati
   const handleSendEmail = async (email: string) => {
     setIsSendingEmail(true);
     try {
+      // Generate share URL for the timeline
+      const shareUrl = await generateShareUrl();
+
       // Generate PDF with native flowchart components
       const blob = await pdf(
         <CGTReportPDF
           response={response}
           properties={properties}
           events={events}
+          shareUrl={shareUrl}
         />
       ).toBlob();
 

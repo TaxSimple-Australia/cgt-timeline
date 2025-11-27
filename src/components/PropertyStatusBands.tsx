@@ -29,6 +29,24 @@ export default function PropertyStatusBands({
 }: PropertyStatusBandsProps) {
   const statusPeriods = calculateStatusPeriods(events);
 
+  // Find the last position - for sold properties it's the sale, for unsold it's today
+  const getLastPosition = () => {
+    if (events.length === 0) return 0;
+
+    // If there's a sale event, that's the absolute end
+    const saleEvent = events.find(e => e.type === 'sale');
+    if (saleEvent) {
+      return dateToPosition(saleEvent.date, timelineStart, timelineEnd);
+    }
+
+    // For unsold properties, extend to today's position (for "Not Sold" marker)
+    const today = new Date();
+    const todayPosition = dateToPosition(today, timelineStart, timelineEnd);
+    return Math.max(0, Math.min(todayPosition, 100));
+  };
+
+  const lastPos = getLastPosition();
+
   // Status labels for display
   const statusLabels: Record<PropertyStatus, string> = {
     ppr: 'Main Residence',
@@ -43,9 +61,11 @@ export default function PropertyStatusBands({
     <g className="status-bands">
       {statusPeriods.map((period, index) => {
         const startPos = dateToPosition(period.startDate, timelineStart, timelineEnd);
-        const endPos = period.endDate
+        // If no end date, cap at last position (sale or today) instead of extending to 100%
+        const rawEndPos = period.endDate
           ? dateToPosition(period.endDate, timelineStart, timelineEnd)
-          : 100; // If no end date, extend to end of timeline
+          : lastPos;
+        const endPos = Math.min(rawEndPos, lastPos); // Never extend beyond last position
 
         const width = endPos - startPos;
 
@@ -53,7 +73,7 @@ export default function PropertyStatusBands({
         if (endPos < 0 || startPos > 100 || width < 0.1) return null;
 
         const color = statusColors[period.status];
-        const bandY = branchY + 15; // Position below the branch line
+        const bandY = branchY - 4; // Position at same level as branch line
         const bandHeight = 8;
 
         const hoveredBandY = isHovered ? bandY - 2 : bandY;
@@ -76,7 +96,7 @@ export default function PropertyStatusBands({
               />
             )}
 
-            {/* Interactive Status band */}
+            {/* Interactive Status band - always visible */}
             <rect
               x={`${Math.max(0, startPos)}%`}
               y={hoveredBandY}

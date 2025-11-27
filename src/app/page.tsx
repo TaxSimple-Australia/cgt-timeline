@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, Suspense } from 'react';
+import { useSearchParams, useRouter } from 'next/navigation';
 import Timeline from '@/components/Timeline';
 import PropertyPanel from '@/components/PropertyPanel';
 import ConversationBox from '@/components/ConversationBox';
@@ -14,14 +15,32 @@ import { useTimelineStore } from '@/store/timeline';
 import { useValidationStore } from '@/store/validation';
 import { transformTimelineToAPIFormat } from '@/lib/transform-timeline-data';
 import { extractVerificationAlerts } from '@/lib/extract-verification-alerts';
+import { deserializeTimeline } from '@/lib/timeline-serialization';
 import '@/lib/test-verification-alerts'; // Load test utilities for browser console
 import { ChevronDown, ChevronUp, Sparkles, AlertTriangle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-export default function Home() {
+// Loading screen component for Suspense fallback
+function ShareLoadingScreen() {
+  return (
+    <div className="fixed inset-0 z-[100] bg-black/50 flex items-center justify-center">
+      <div className="bg-white dark:bg-gray-900 rounded-lg p-8 max-w-sm text-center shadow-xl">
+        <div className="animate-spin h-10 w-10 border-4 border-blue-600 border-t-transparent rounded-full mx-auto mb-4" />
+        <p className="text-lg font-medium text-gray-900 dark:text-gray-100">Loading shared timeline...</p>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">Please wait while we load your data</p>
+      </div>
+    </div>
+  );
+}
+
+// Main page content component
+function HomeContent() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
   const {
     selectedProperty,
     loadDemoData,
+    importTimelineData,
     properties,
     events,
     selectedIssue,
@@ -44,13 +63,71 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
   const [showAllResolvedPopup, setShowAllResolvedPopup] = useState(false);
   const [selectedAlertForModal, setSelectedAlertForModal] = useState<string | null>(null);
+  const [isLoadingShare, setIsLoadingShare] = useState(false);
+  const [shareError, setShareError] = useState<string | null>(null);
 
   // Ref to track if we've loaded demo alerts (prevent re-loading on resolution)
   const demoAlertsLoadedRef = useRef(false);
+  // Ref to track if we've already processed the share parameter
+  const shareProcessedRef = useRef(false);
 
-  // Load demo data on initial mount
+  // Load shared timeline from URL parameter
   useEffect(() => {
-    if (properties.length === 0) {
+    const shareId = searchParams.get('share');
+
+    // Only process if there's a share param and we haven't processed it yet
+    if (shareId && !shareProcessedRef.current) {
+      shareProcessedRef.current = true;
+      loadSharedTimeline(shareId);
+    }
+  }, [searchParams]);
+
+  // Function to load shared timeline data
+  async function loadSharedTimeline(shareId: string) {
+    setIsLoadingShare(true);
+    setShareError(null);
+    console.log(`🔗 Loading shared timeline: ${shareId}`);
+
+    try {
+      const response = await fetch(`/api/timeline/${shareId}`);
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to load timeline');
+      }
+
+      if (result.success && result.data) {
+        console.log('✅ Shared timeline loaded successfully:', result.data);
+
+        // Deserialize and import the timeline data
+        const deserialized = deserializeTimeline({
+          version: 1,
+          properties: result.data.properties,
+          events: result.data.events,
+        });
+
+        importTimelineData({
+          properties: deserialized.properties,
+          events: deserialized.events,
+        });
+
+        // Clear URL parameter without page reload
+        router.replace('/', { scroll: false });
+      }
+    } catch (error) {
+      console.error('❌ Error loading shared timeline:', error);
+      setShareError(error instanceof Error ? error.message : 'Failed to load shared timeline');
+      // Clear URL parameter even on error
+      router.replace('/', { scroll: false });
+    } finally {
+      setIsLoadingShare(false);
+    }
+  }
+
+  // Load demo data on initial mount (only if not loading from share link)
+  useEffect(() => {
+    const shareId = searchParams.get('share');
+    if (properties.length === 0 && !shareId) {
       loadDemoData().catch(err => {
         console.error('Failed to load demo data:', err);
       });
@@ -416,6 +493,17 @@ export default function Home() {
 
   return (
     <main className="w-screen h-screen overflow-hidden flex flex-col">
+      {/* Share Loading Overlay */}
+      {isLoadingShare && <ShareLoadingScreen />}
+
+      {/* Share Error Toast */}
+      {shareError && (
+        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-[100] bg-red-600 text-white px-6 py-3 rounded-lg shadow-lg">
+          <p className="font-medium">Failed to load shared timeline</p>
+          <p className="text-sm text-red-100">{shareError}</p>
+        </div>
+      )}
+
       {/* Main Content Area */}
       <div className="flex-1 flex overflow-hidden">
         {/* Main Timeline Area */}
@@ -573,5 +661,14 @@ export default function Home() {
         />
       )}
     </main>
+  );
+}
+
+// Main export with Suspense wrapper for useSearchParams
+export default function Home() {
+  return (
+    <Suspense fallback={<ShareLoadingScreen />}>
+      <HomeContent />
+    </Suspense>
   );
 }

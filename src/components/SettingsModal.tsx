@@ -1,9 +1,11 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Calendar, Eye } from 'lucide-react';
+import { X, Calendar, Eye, Link2, Copy, Check } from 'lucide-react';
 import { useTimelineStore } from '@/store/timeline';
+import { serializeTimeline } from '@/lib/timeline-serialization';
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -11,9 +13,58 @@ interface SettingsModalProps {
 }
 
 export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
-  const { lockFutureDates, toggleLockFutureDates, eventDisplayMode, toggleEventDisplayMode, enableDragEvents, toggleDragEvents } = useTimelineStore();
+  const { lockFutureDates, toggleLockFutureDates, eventDisplayMode, toggleEventDisplayMode, enableDragEvents, toggleDragEvents, properties, events } = useTimelineStore();
+  const [isGeneratingLink, setIsGeneratingLink] = useState(false);
+  const [shareSuccess, setShareSuccess] = useState(false);
+  const [shareError, setShareError] = useState<string | null>(null);
+  const [mounted, setMounted] = useState(false);
 
-  return (
+  // Handle client-side mounting for portal
+  useEffect(() => {
+    setMounted(true);
+    return () => setMounted(false);
+  }, []);
+
+  const canShare = properties.length > 0;
+
+  async function handleCopyShareLink() {
+    if (!canShare) return;
+
+    setIsGeneratingLink(true);
+    setShareError(null);
+
+    try {
+      const serialized = serializeTimeline(properties, events);
+
+      const response = await fetch('/api/timeline/save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(serialized),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to generate link');
+      }
+
+      const shareUrl = `${window.location.origin}?share=${result.shareId}`;
+      await navigator.clipboard.writeText(shareUrl);
+
+      setShareSuccess(true);
+      setTimeout(() => setShareSuccess(false), 3000);
+    } catch (error) {
+      console.error('Error generating share link:', error);
+      setShareError(error instanceof Error ? error.message : 'Failed to generate link');
+    } finally {
+      setIsGeneratingLink(false);
+    }
+  }
+
+  // Don't render on server or before mount
+  if (!mounted) return null;
+
+  const modalContent = (
     <AnimatePresence>
       {isOpen && (
         <>
@@ -23,11 +74,11 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50"
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[99999]"
           />
 
           {/* Modal */}
-          <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+          <div className="fixed inset-0 z-[100000] flex items-center justify-center p-4">
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -147,6 +198,61 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                     </button>
                   </div>
                 </div>
+
+                {/* Share Timeline Section */}
+                <div>
+                  <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3 flex items-center gap-2">
+                    <Link2 className="w-4 h-4" />
+                    Share Timeline
+                  </h3>
+
+                  <div className="p-3 rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700">
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mb-3">
+                      Generate a shareable link to this timeline. Anyone with the link can view the exact timeline data.
+                    </p>
+
+                    {shareError && (
+                      <div className="mb-3 p-2 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
+                        <p className="text-xs text-red-600 dark:text-red-400">{shareError}</p>
+                      </div>
+                    )}
+
+                    <button
+                      onClick={handleCopyShareLink}
+                      disabled={!canShare || isGeneratingLink}
+                      className={`w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-medium text-sm transition-colors ${
+                        !canShare
+                          ? 'bg-slate-200 dark:bg-slate-700 text-slate-400 dark:text-slate-500 cursor-not-allowed'
+                          : shareSuccess
+                          ? 'bg-green-600 text-white'
+                          : 'bg-blue-600 hover:bg-blue-700 text-white'
+                      }`}
+                    >
+                      {isGeneratingLink ? (
+                        <>
+                          <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                          Generating...
+                        </>
+                      ) : shareSuccess ? (
+                        <>
+                          <Check className="w-4 h-4" />
+                          Link Copied!
+                        </>
+                      ) : (
+                        <>
+                          <Copy className="w-4 h-4" />
+                          Copy Share Link
+                        </>
+                      )}
+                    </button>
+
+                    {!canShare && (
+                      <p className="text-xs text-slate-400 dark:text-slate-500 mt-2 text-center">
+                        Add at least one property to enable sharing
+                      </p>
+                    )}
+                  </div>
+                </div>
               </div>
 
               {/* Footer */}
@@ -165,4 +271,7 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
       )}
     </AnimatePresence>
   );
+
+  // Use portal to render modal at document body level, bypassing parent stacking contexts
+  return createPortal(modalContent, document.body);
 }

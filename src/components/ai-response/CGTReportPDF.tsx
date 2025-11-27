@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Document, Page, Text, View, StyleSheet, Font, Image } from '@react-pdf/renderer';
+import { Document, Page, Text, View, StyleSheet, Font, Image, Link } from '@react-pdf/renderer';
 import type { Property, TimelineEvent } from '@/store/timeline';
 
 // Register fonts (optional - for better typography)
@@ -594,6 +594,7 @@ interface CGTReportPDFProps {
   response: any;
   properties: Property[];
   events: TimelineEvent[];
+  shareUrl?: string;
 }
 
 const formatCurrency = (amount: number | null | undefined) => {
@@ -675,7 +676,7 @@ const getPropertyFlowData = (property: Property, events: TimelineEvent[]) => {
   };
 };
 
-export const CGTReportPDF: React.FC<CGTReportPDFProps> = ({ response, properties: timelineProperties = [], events: timelineEvents = [] }) => {
+export const CGTReportPDF: React.FC<CGTReportPDFProps> = ({ response, properties: timelineProperties = [], events: timelineEvents = [], shareUrl }) => {
   const { summary, properties, analysis, calculations, validation, timestamp, analysis_id } = response;
 
   return (
@@ -688,6 +689,29 @@ export const CGTReportPDF: React.FC<CGTReportPDFProps> = ({ response, properties
           <Text style={styles.subtitle}>Analysis ID: {analysis_id}</Text>
           <Text style={styles.subtitle}>Generated: {formatDate(timestamp)}</Text>
         </View>
+
+        {/* Share Link Banner */}
+        {shareUrl && (
+          <View style={{
+            backgroundColor: '#eff6ff',
+            borderWidth: 1,
+            borderStyle: 'solid',
+            borderColor: '#bfdbfe',
+            borderRadius: 6,
+            padding: 10,
+            marginBottom: 12,
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}>
+            <Text style={{ fontSize: 9, color: '#1e40af', marginRight: 4 }}>
+              View Interactive Timeline:
+            </Text>
+            <Link src={shareUrl} style={{ fontSize: 9, color: '#2563eb', textDecoration: 'underline' }}>
+              {shareUrl}
+            </Link>
+          </View>
+        )}
 
         {/* Hero Summary */}
         <View style={styles.heroBox}>

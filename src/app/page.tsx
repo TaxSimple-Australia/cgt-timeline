@@ -253,9 +253,9 @@ export default function Home() {
       let result;
 
       if (isApiConfigured) {
-        console.log('🌐 Calling real API...');
-        // Call the API
-        const response = await fetch('/api/analyze-cgt', {
+        console.log('🌐 Calling real API with verification resolutions...');
+        // Call the analyze-with-resolution API endpoint
+        const response = await fetch('/api/analyze-with-resolution', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

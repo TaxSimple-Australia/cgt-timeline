@@ -2,8 +2,10 @@
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronDown, ChevronUp, FileText, Book, Download, Mail, Printer } from 'lucide-react';
+import { ChevronDown, ChevronUp, FileText, Book, Download, Mail, Printer, Code, Copy, Check } from 'lucide-react';
 import { pdf } from '@react-pdf/renderer';
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { CGTReportPDF } from './CGTReportPDF';
 import EmailModal from './EmailModal';
 import { useTimelineStore } from '@/store/timeline';
@@ -20,6 +22,8 @@ export default function DetailedReportSection({ analysis, calculations, validati
   const [isExporting, setIsExporting] = useState(false);
   const [isSendingEmail, setIsSendingEmail] = useState(false);
   const [showEmailModal, setShowEmailModal] = useState(false);
+  const [showJsonModal, setShowJsonModal] = useState(false);
+  const [jsonCopied, setJsonCopied] = useState(false);
 
   // Get properties and events from timeline store for PDF flowchart
   const { properties, events } = useTimelineStore();
@@ -117,6 +121,7 @@ export default function DetailedReportSection({ analysis, calculations, validati
   const handlePrint = () => {
     window.print();
   };
+const handleCopyJson = async () => {    if (!response) return;    try {      const jsonString = JSON.stringify(response, null, 2);      await navigator.clipboard.writeText(jsonString);      setJsonCopied(true);      setTimeout(() => setJsonCopied(false), 2000);    } catch (error) {      console.error('Error copying JSON:', error);      alert('Failed to copy JSON to clipboard');    }  };
 
   return (
     <div className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
@@ -166,6 +171,15 @@ export default function DetailedReportSection({ analysis, calculations, validati
           >
             <Printer className="w-4 h-4" />
             <span className="hidden sm:inline">Print</span>
+          </button>
+
+          <button
+            onClick={() => setShowJsonModal(true)}
+            className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-purple-600 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-950/20 rounded-lg transition-colors"
+            title="View Full JSON Response"
+          >
+            <Code className="w-4 h-4" />
+            <span className="hidden sm:inline">JSON</span>
           </button>
         </div>
       </div>
@@ -383,6 +397,20 @@ export default function DetailedReportSection({ analysis, calculations, validati
           </motion.div>
         )}
       </AnimatePresence>
+{/* JSON Modal */}      {showJsonModal && (        <div className="fixed inset-0 z-[100]">          {/* Backdrop */}          <div             className="fixed inset-0 bg-black/70 backdrop-blur-sm"            onClick={() => setShowJsonModal(false)}          />                    {/* Modal Content */}          <div className="fixed inset-4 md:inset-10 bg-gray-900 rounded-xl shadow-2xl z-[101] flex flex-col">            {/* Header */}            <div className="flex items-center justify-between p-4 border-b border-gray-700">              <div className="flex items-center gap-3">                <Code className="w-5 h-5 text-purple-400" />                <h3 className="text-lg font-semibold text-white">Full JSON Response</h3>              </div>              <div className="flex items-center gap-2">                <button                  onClick={handleCopyJson}                  className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 rounded-lg transition-colors"                >                  {jsonCopied ? (                    <>                      <Check className="w-4 h-4" />                      <span>Copied!</span>                    </>                  ) : (                    <>                      <Copy className="w-4 h-4" />                      <span>Copy</span>                    </>                  )}                </button>                <button                  onClick={() => setShowJsonModal(false)}                  className="p-2 text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg transition-colors"                  title="Close"                >                  ✕                </button>              </div>            </div>                        {/* JSON Content */}            <div className="flex-1 overflow-auto p-4">              <SyntaxHighlighter
+                language="json"
+                style={vscDarkPlus}
+                customStyle={{
+                  margin: 0,
+                  padding: '1rem',
+                  background: 'transparent',
+                  fontSize: '0.875rem',
+                }}
+                showLineNumbers={true}
+                wrapLines={true}
+              >
+                {JSON.stringify(response, null, 2)}
+              </SyntaxHighlighter>            </div>          </div>        </div>      )}
 
       {/* Email Modal */}
       <EmailModal

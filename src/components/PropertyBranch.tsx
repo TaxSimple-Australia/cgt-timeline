@@ -250,11 +250,11 @@ export default function PropertyBranch({
 
   // Generate branch path
   const generateBranchPath = () => {
-    if (eventsWithTiers.length === 0) return '';
+    if (eventsToRender.length === 0) return '';
 
     let path = `M 0,${branchY}`;
 
-    eventsWithTiers.forEach((event, index) => {
+    eventsToRender.forEach((event, index) => {
       const x = `${event.calculatedPosition}%`;
 
       if (index === 0) {
@@ -266,8 +266,8 @@ export default function PropertyBranch({
       }
     });
 
-    // Extend to end
-    path += ` L 100%,${branchY}`;
+    // End at last event (sale or "Not Sold" marker) instead of extending to 100%
+    // The path already ends at the last event after the forEach loop
 
     return path;
   };

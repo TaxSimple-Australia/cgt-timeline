@@ -28,6 +28,7 @@ export default function PropertyStatusBands({
   onBandClick,
 }: PropertyStatusBandsProps) {
   const statusPeriods = calculateStatusPeriods(events);
+  const today = new Date();
 
   // Status labels for display
   const statusLabels: Record<PropertyStatus, string> = {
@@ -45,8 +46,9 @@ export default function PropertyStatusBands({
         const startPos = dateToPosition(period.startDate, timelineStart, timelineEnd);
         const endPos = period.endDate
           ? dateToPosition(period.endDate, timelineStart, timelineEnd)
-          : 100; // If no end date, extend to end of timeline
-
+          : period.status === 'sold'
+          ? startPos // For sold properties, dont extend the status band
+          : Math.min(100, dateToPosition(today, timelineStart, timelineEnd)); // End at today for unsold properties
         const width = endPos - startPos;
 
         // Only render if the period is visible in current timeline view

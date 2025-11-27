@@ -425,10 +425,22 @@ function HomeContent() {
       // Transform timeline data to API format
       const apiData = transformTimelineToAPIFormat(properties, events);
 
-      // Add gap answers to the request
+      // Transform gap answers to verification_responses format expected by API
+      const verificationsData = answers.map((answer) => ({
+        property_address: answer.properties_involved.join(', ') || 'All Properties',
+        issue_period: {
+          start_date: answer.period.start,
+          end_date: answer.period.end,
+        },
+        resolution_question: answer.question,
+        user_response: answer.answer,
+        resolved_at: new Date().toISOString(),
+      }));
+
+      // Add gap answers as verification_responses to the request
       const requestData = {
         ...apiData,
-        gap_clarifications: answers,
+        verification_responses: verificationsData,
       };
 
       console.log('📤 Sending data with gap clarifications to resolution API:', requestData);

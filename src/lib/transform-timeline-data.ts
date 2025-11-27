@@ -13,12 +13,20 @@ export function transformTimelineToAPIFormat(
     // Get all events for this property
     const propertyEvents = events
       .filter((e) => e.propertyId === property.id)
-      .sort((a, b) => a.date.getTime() - b.date.getTime());
+      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+
+    // Debug logging to verify event order
+    console.log(`📅 Events for ${property.name} (sorted):`, propertyEvents.map(e => ({
+      type: e.type,
+      date: new Date(e.date).toISOString().split('T')[0]
+    })));
 
     // Transform events to API format
     const property_history: PropertyHistoryEvent[] = propertyEvents.map((event) => {
+      // Ensure date is a Date object before formatting
+      const eventDate = event.date instanceof Date ? event.date : new Date(event.date);
       const historyEvent: PropertyHistoryEvent = {
-        date: event.date.toISOString().split('T')[0], // Format as YYYY-MM-DD
+        date: eventDate.toISOString().split('T')[0], // Format as YYYY-MM-DD
         event: event.type,
         description: event.description,
       };
@@ -30,7 +38,8 @@ export function transformTimelineToAPIFormat(
 
       // Add contract date for sale events
       if (event.contractDate) {
-        historyEvent.contract_date = event.contractDate.toISOString().split('T')[0];
+        const contractDate = event.contractDate instanceof Date ? event.contractDate : new Date(event.contractDate);
+        historyEvent.contract_date = contractDate.toISOString().split('T')[0];
       }
 
       // Extract cost base items from the costBases array

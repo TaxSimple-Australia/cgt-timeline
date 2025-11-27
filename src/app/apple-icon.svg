@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180" fill="none">
+  <!-- Background circle with gradient -->
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1e40af"/>
+      <stop offset="100%" style="stop-color:#3b82f6"/>
+    </linearGradient>
+    <linearGradient id="brainGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#f0f9ff"/>
+      <stop offset="100%" style="stop-color:#bfdbfe"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="180" height="180" rx="36" fill="url(#bgGrad)"/>
+
+  <!-- Brain shape - stylized -->
+  <g transform="translate(22, 28) scale(5.6)">
+    <!-- Left hemisphere -->
+    <path d="M12 2C9 2 7 4 7 6.5C5.5 6.5 4 8 4 10C4 12 5 13.5 6.5 14C6 15 6 16.5 7 18C8 19.5 10 20 12 20"
+          stroke="url(#brainGrad)" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+
+    <!-- Right hemisphere -->
+    <path d="M12 2C15 2 17 4 17 6.5C18.5 6.5 20 8 20 10C20 12 19 13.5 17.5 14C18 15 18 16.5 17 18C16 19.5 14 20 12 20"
+          stroke="url(#brainGrad)" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+
+    <!-- Center line -->
+    <line x1="12" y1="2" x2="12" y2="20" stroke="url(#brainGrad)" stroke-width="1.5"/>
+
+    <!-- Brain folds - left -->
+    <path d="M6 10C8 10 9 8.5 9 8.5" stroke="url(#brainGrad)" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+    <path d="M7 14C9 13 10 11 10 11" stroke="url(#brainGrad)" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+
+    <!-- Brain folds - right -->
+    <path d="M18 10C16 10 15 8.5 15 8.5" stroke="url(#brainGrad)" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+    <path d="M17 14C15 13 14 11 14 11" stroke="url(#brainGrad)" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+
+    <!-- Neural connection dots -->
+    <circle cx="8" cy="8" r="1" fill="#93c5fd"/>
+    <circle cx="16" cy="8" r="1" fill="#93c5fd"/>
+    <circle cx="12" cy="11" r="1.2" fill="#dbeafe"/>
+    <circle cx="9" cy="15" r="0.8" fill="#93c5fd"/>
+    <circle cx="15" cy="15" r="0.8" fill="#93c5fd"/>
+  </g>
+</svg>

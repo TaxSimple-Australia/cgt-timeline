@@ -28,6 +28,7 @@ export default function PropertyStatusBands({
   onBandClick,
 }: PropertyStatusBandsProps) {
   const statusPeriods = calculateStatusPeriods(events);
+  const today = new Date();
 
   // Find the last position - for sold properties it's the sale, for unsold it's today
   const getLastPosition = () => {

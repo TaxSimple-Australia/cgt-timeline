@@ -14,8 +14,6 @@ export async function POST(request: NextRequest) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        // Add any authentication headers here if needed
-        // 'Authorization': `Bearer ${process.env.CGT_MODEL_API_KEY}`,
       },
       body: JSON.stringify(body),
     });

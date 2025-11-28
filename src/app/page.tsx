@@ -11,7 +11,9 @@ import ErrorDisplay from '@/components/model-response/ErrorDisplay';
 import FeedbackModal from '@/components/FeedbackModal';
 import AllResolvedPopup from '@/components/AllResolvedPopup';
 import PropertyIssueOverlay from '@/components/PropertyIssueOverlay';
+import SuggestedQuestionsPanel from '@/components/SuggestedQuestionsPanel';
 import { useTimelineStore } from '@/store/timeline';
+import type { SuggestedQuestion } from '@/types/suggested-questions';
 import { useValidationStore } from '@/store/validation';
 import { transformTimelineToAPIFormat } from '@/lib/transform-timeline-data';
 import { extractVerificationAlerts } from '@/lib/extract-verification-alerts';
@@ -55,6 +57,7 @@ function HomeContent() {
     getUnresolvedAlerts,
     resolveVerificationAlert,
     panToDate,
+    enableAISuggestedQuestions,
   } = useTimelineStore();
   const { setValidationIssues, clearValidationIssues, setApiConnected } = useValidationStore();
   const [showAnalysis, setShowAnalysis] = useState(false);
@@ -65,6 +68,13 @@ function HomeContent() {
   const [selectedAlertForModal, setSelectedAlertForModal] = useState<string | null>(null);
   const [isLoadingShare, setIsLoadingShare] = useState(false);
   const [shareError, setShareError] = useState<string | null>(null);
+
+  // AI Suggested Questions state
+  const [showSuggestedQuestions, setShowSuggestedQuestions] = useState(false);
+  const [suggestedQuestions, setSuggestedQuestions] = useState<SuggestedQuestion[]>([]);
+  const [suggestedQuestionsContext, setSuggestedQuestionsContext] = useState('');
+  const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
+  const [suggestionsError, setSuggestionsError] = useState<string | null>(null);
 
   // Ref to track if we've loaded demo alerts (prevent re-loading on resolution)
   const demoAlertsLoadedRef = useRef(false);
@@ -280,6 +290,59 @@ function HomeContent() {
   // Handler for conversation queries
   const handleQuerySubmit = async (query: string) => {
     await handleAnalyze(query);
+  };
+
+  // Handler for fetching AI suggested questions
+  const handleFetchSuggestedQuestions = async () => {
+    if (properties.length === 0) {
+      setSuggestionsError('No properties to analyze. Please add properties to your timeline first.');
+      setShowSuggestedQuestions(true);
+      return;
+    }
+
+    setShowSuggestedQuestions(true);
+    setIsLoadingSuggestions(true);
+    setSuggestionsError(null);
+    setSuggestedQuestions([]);
+    setSuggestedQuestionsContext('');
+
+    try {
+      // Transform timeline data to API format
+      const apiData = transformTimelineToAPIFormat(properties, events);
+
+      console.log('📤 Fetching suggested questions:', apiData);
+
+      const response = await fetch('/api/suggest-questions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(apiData),
+      });
+
+      const result = await response.json();
+      console.log('📥 Suggested questions response:', result);
+
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to fetch suggested questions');
+      }
+
+      setSuggestedQuestions(result.data.suggested_questions || []);
+      setSuggestedQuestionsContext(result.data.context_summary || '');
+    } catch (err) {
+      console.error('❌ Error fetching suggested questions:', err);
+      setSuggestionsError(
+        err instanceof Error ? err.message : 'Failed to generate question suggestions'
+      );
+    } finally {
+      setIsLoadingSuggestions(false);
+    }
+  };
+
+  // Handler for when user selects a suggested question
+  const handleSelectSuggestedQuestion = async (question: string) => {
+    setShowSuggestedQuestions(false);
+    await handleAnalyze(question);
   };
 
   // Handler for re-submitting after all verification issues are resolved
@@ -537,8 +600,21 @@ function HomeContent() {
           isLoading={isLoading}
           showViewAnalysisButton={!!analysisData}
           onViewAnalysis={() => setShowAnalysis(true)}
+          useAISuggestions={enableAISuggestedQuestions}
+          onQuestionButtonClick={handleFetchSuggestedQuestions}
         />
       )}
+
+      {/* AI Suggested Questions Panel */}
+      <SuggestedQuestionsPanel
+        isOpen={showSuggestedQuestions}
+        onClose={() => setShowSuggestedQuestions(false)}
+        onSelectQuestion={handleSelectSuggestedQuestion}
+        suggestedQuestions={suggestedQuestions}
+        contextSummary={suggestedQuestionsContext}
+        isLoading={isLoadingSuggestions}
+        error={suggestionsError}
+      />
 
       {/* CGT Analysis Panel (Full Screen Overlay) */}
       <AnimatePresence>

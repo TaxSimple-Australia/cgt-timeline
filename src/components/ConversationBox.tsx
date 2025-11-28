@@ -16,13 +16,17 @@ interface ConversationBoxProps {
   isLoading?: boolean;
   showViewAnalysisButton?: boolean;
   onViewAnalysis?: () => void;
+  onQuestionButtonClick?: () => void; // Called when question button is clicked (for AI suggestions)
+  useAISuggestions?: boolean; // Whether to intercept clicks for AI suggestions
 }
 
 export default function ConversationBox({
   onSendQuery,
   isLoading = false,
   showViewAnalysisButton = false,
-  onViewAnalysis
+  onViewAnalysis,
+  onQuestionButtonClick,
+  useAISuggestions = false,
 }: ConversationBoxProps) {
   const [query, setQuery] = useState('');
   const [messages, setMessages] = useState<Message[]>([]);
@@ -66,6 +70,11 @@ export default function ConversationBox({
   };
 
   const handleOpen = () => {
+    // If AI suggestions are enabled, call the callback instead of opening the input
+    if (useAISuggestions && onQuestionButtonClick) {
+      onQuestionButtonClick();
+      return;
+    }
     setIsOpen(true);
     // Auto-focus input when opening
     setTimeout(() => inputRef.current?.focus(), 100);

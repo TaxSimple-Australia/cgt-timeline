@@ -132,6 +132,7 @@ interface TimelineState {
   eventDisplayMode: EventDisplayMode; // Toggle between circle and card display
   lockFutureDates: boolean; // Prevent panning beyond today's date
   enableDragEvents: boolean; // Allow dragging events along timeline to change dates
+  enableAISuggestedQuestions: boolean; // Enable AI-generated question suggestions
 
   // AI Feedback State
   aiResponse: AIResponse | null; // Latest AI analysis response
@@ -173,6 +174,7 @@ interface TimelineState {
   toggleEventDisplayMode: () => void; // Toggle between circle and card display
   toggleLockFutureDates: () => void; // Toggle lock future dates setting
   toggleDragEvents: () => void; // Toggle event dragging functionality
+  toggleAISuggestedQuestions: () => void; // Toggle AI-generated question suggestions
 
   // AI Feedback Actions
   setAIResponse: (response: AIResponse) => void; // Store AI analysis response
@@ -408,6 +410,7 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
     eventDisplayMode: 'circle',
     lockFutureDates: false,
     enableDragEvents: true,
+    enableAISuggestedQuestions: false, // Default disabled
 
     // AI Feedback Initial State
     aiResponse: null,
@@ -1206,6 +1209,11 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
   toggleDragEvents: () => {
     const state = get();
     set({ enableDragEvents: !state.enableDragEvents });
+  },
+
+  toggleAISuggestedQuestions: () => {
+    const state = get();
+    set({ enableAISuggestedQuestions: !state.enableAISuggestedQuestions });
   },
 
   // AI Feedback Action Implementations

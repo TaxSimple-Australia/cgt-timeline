@@ -260,7 +260,7 @@ export default function PropertyAnalysisCard({ property, calculations }: Propert
                   <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-3">
                     Main Residence Exemption
                   </h4>
-                  <div className="space-y-2 text-sm">
+                  <div className="space-y-2 text-sm mb-4">
                     <div className="flex justify-between">
                       <span className="text-gray-600 dark:text-gray-400">Days as Main Residence</span>
                       <span className="font-medium text-gray-900 dark:text-gray-100">
@@ -284,6 +284,71 @@ export default function PropertyAnalysisCard({ property, calculations }: Propert
                       <span className="font-medium text-green-600 dark:text-green-400">
                         {formatCurrency(calculations.main_residence_exemption.exempt_amount)}
                       </span>
+                    </div>
+                  </div>
+
+                  {/* Main Residence Exemption Calculation Steps */}
+                  <div className="space-y-2 mt-4">
+                    <h5 className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2">Calculation Steps:</h5>
+
+                    {/* Step 1: Calculate Exemption Percentage */}
+                    <div className="p-3 bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800 rounded">
+                      <div className="flex items-start gap-2 mb-2">
+                        <span className="flex-shrink-0 w-6 h-6 flex items-center justify-center bg-green-600 dark:bg-green-500 text-white rounded-full text-xs font-bold">
+                          1
+                        </span>
+                        <span className="text-xs font-semibold text-gray-900 dark:text-gray-100">
+                          Calculate Exemption Percentage
+                        </span>
+                      </div>
+                      <div className="ml-8 text-xs">
+                        <div className="text-gray-600 dark:text-gray-400 mb-1">
+                          Formula: (Days as Main Residence ÷ Total Days) × 100
+                        </div>
+                        <div className="font-mono text-xs bg-white dark:bg-gray-900 p-2 rounded border border-green-300 dark:border-green-700 text-green-900 dark:text-green-100">
+                          ({calculations.main_residence_exemption.days_as_main_residence} ÷ {calculations.main_residence_exemption.total_ownership_days}) × 100 = {calculations.main_residence_exemption.exemption_percentage}%
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Step 2: Calculate Exempt Amount */}
+                    <div className="p-3 bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800 rounded">
+                      <div className="flex items-start gap-2 mb-2">
+                        <span className="flex-shrink-0 w-6 h-6 flex items-center justify-center bg-green-600 dark:bg-green-500 text-white rounded-full text-xs font-bold">
+                          2
+                        </span>
+                        <span className="text-xs font-semibold text-gray-900 dark:text-gray-100">
+                          Calculate Exempt Amount
+                        </span>
+                      </div>
+                      <div className="ml-8 text-xs">
+                        <div className="text-gray-600 dark:text-gray-400 mb-1">
+                          Formula: Capital Gain × Exemption %
+                        </div>
+                        <div className="font-mono text-xs bg-white dark:bg-gray-900 p-2 rounded border border-green-300 dark:border-green-700 text-green-900 dark:text-green-100">
+                          {formatCurrency(calculations.raw_capital_gain || 0)} × {calculations.main_residence_exemption.exemption_percentage}% = {formatCurrency(calculations.main_residence_exemption.exempt_amount)}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Step 3: Calculate Taxable Amount */}
+                    <div className="p-3 bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800 rounded">
+                      <div className="flex items-start gap-2 mb-2">
+                        <span className="flex-shrink-0 w-6 h-6 flex items-center justify-center bg-green-600 dark:bg-green-500 text-white rounded-full text-xs font-bold">
+                          3
+                        </span>
+                        <span className="text-xs font-semibold text-gray-900 dark:text-gray-100">
+                          Calculate Taxable Amount (Before Discount)
+                        </span>
+                      </div>
+                      <div className="ml-8 text-xs">
+                        <div className="text-gray-600 dark:text-gray-400 mb-1">
+                          Formula: Capital Gain − Exempt Amount
+                        </div>
+                        <div className="font-mono text-xs bg-white dark:bg-gray-900 p-2 rounded border border-green-300 dark:border-green-700 text-green-900 dark:text-green-100">
+                          {formatCurrency(calculations.raw_capital_gain || 0)} − {formatCurrency(calculations.main_residence_exemption.exempt_amount)} = {formatCurrency(calculations.main_residence_exemption.taxable_amount_before_discount)}
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -316,6 +381,108 @@ export default function PropertyAnalysisCard({ property, calculations }: Propert
                         </div>
                       </div>
                     ))}
+                  </div>
+                </div>
+              )}
+
+              {/* CGT Discount Calculation */}
+              {calculations.cgt_discount && (
+                <div>
+                  <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-3">
+                    CGT Discount Calculation
+                  </h4>
+
+                  {/* Eligibility Status */}
+                  <div className="p-3 bg-purple-50 dark:bg-purple-950/20 border border-purple-200 dark:border-purple-800 rounded mb-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                        CGT Discount Eligible
+                      </span>
+                      <span className={`px-3 py-1 text-sm font-semibold rounded ${
+                        calculations.cgt_discount.eligible
+                          ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300'
+                          : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300'
+                      }`}>
+                        {calculations.cgt_discount.eligible ? 'YES' : 'NO'}
+                      </span>
+                    </div>
+                  </div>
+
+                  {calculations.cgt_discount.eligible && (
+                    <>
+                      {/* Discount Details */}
+                      <div className="space-y-2 text-sm mb-3">
+                        <div className="flex justify-between">
+                          <span className="text-gray-600 dark:text-gray-400">Discount Percentage</span>
+                          <span className="font-medium text-gray-900 dark:text-gray-100">
+                            {calculations.cgt_discount.discount_percentage}%
+                          </span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-600 dark:text-gray-400">Before Discount</span>
+                          <span className="font-medium text-gray-900 dark:text-gray-100">
+                            {formatCurrency(calculations.cgt_discount.gain_before_discount)}
+                          </span>
+                        </div>
+                        <div className="flex justify-between pt-2 border-t border-gray-300 dark:border-gray-600">
+                          <span className="font-semibold text-gray-900 dark:text-gray-100">After Discount</span>
+                          <span className="font-bold text-purple-600 dark:text-purple-400">
+                            {formatCurrency(calculations.cgt_discount.discounted_gain)}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Discount Calculation Step */}
+                      <div className="p-3 bg-purple-50 dark:bg-purple-950/20 border border-purple-200 dark:border-purple-800 rounded mb-3">
+                        <div className="flex items-start gap-2 mb-2">
+                          <span className="flex-shrink-0 w-6 h-6 flex items-center justify-center bg-purple-600 dark:bg-purple-500 text-white rounded-full text-xs font-bold">
+                            1
+                          </span>
+                          <span className="text-xs font-semibold text-gray-900 dark:text-gray-100">
+                            Apply 50% CGT Discount
+                          </span>
+                        </div>
+                        <div className="ml-8 text-xs">
+                          <div className="text-gray-600 dark:text-gray-400 mb-1">
+                            Formula: Taxable Amount × {calculations.cgt_discount.discount_percentage}%
+                          </div>
+                          <div className="font-mono text-xs bg-white dark:bg-gray-900 p-2 rounded border border-purple-300 dark:border-purple-700 text-purple-900 dark:text-purple-100">
+                            {formatCurrency(calculations.cgt_discount.gain_before_discount)} × {calculations.cgt_discount.discount_percentage}% = {formatCurrency(calculations.cgt_discount.discounted_gain)}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Savings Display */}
+                      <div className="p-3 bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800 rounded">
+                        <div className="text-center">
+                          <div className="text-xs text-gray-600 dark:text-gray-400 mb-1">You Save</div>
+                          <div className="text-lg font-bold text-green-600 dark:text-green-400">
+                            {formatCurrency(calculations.cgt_discount.gain_before_discount - calculations.cgt_discount.discounted_gain)}
+                          </div>
+                        </div>
+                      </div>
+                    </>
+                  )}
+                </div>
+              )}
+
+              {/* Final Net Capital Gain */}
+              {calculations.net_capital_gain !== undefined && (
+                <div className="mt-4">
+                  <div className="p-4 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-950/20 dark:to-purple-950/20 border-2 border-blue-300 dark:border-blue-700 rounded-lg">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <div className="text-sm font-semibold text-blue-900 dark:text-blue-100 mb-1">
+                          Final Net Capital Gain
+                        </div>
+                        <div className="text-xs text-gray-600 dark:text-gray-400">
+                          (After exemptions and discount)
+                        </div>
+                      </div>
+                      <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                        {formatCurrency(calculations.net_capital_gain)}
+                      </div>
+                    </div>
                   </div>
                 </div>
               )}

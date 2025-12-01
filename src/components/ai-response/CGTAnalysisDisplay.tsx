@@ -53,7 +53,10 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
                 key={property.property_id || index}
                 property={property}
                 calculations={response.calculations?.per_property?.find(
-                  (calc: any) => calc.property_id === property.property_id
+                  (calc: any) =>
+                    calc.property_id === property.property_id ||
+                    calc.property_id === property.address ||
+                    calc.property_address === property.address
                 )}
               />
             ))

@@ -890,7 +890,7 @@ export const CGTReportPDF: React.FC<CGTReportPDFProps> = ({ response, properties
                   </View>
                 )}
 
-                {/* Main Residence Exemption */}
+                {/* Main Residence Exemption - Summary */}
                 {propCalc?.main_residence_exemption && (
                   <View style={{ marginTop: 12 }}>
                     <Text style={styles.subsectionTitle}>Main Residence Exemption</Text>
@@ -917,6 +917,123 @@ export const CGTReportPDF: React.FC<CGTReportPDFProps> = ({ response, properties
                         <Text style={styles.calcLabel}>Exempt Amount</Text>
                         <Text style={[styles.calcValue, { color: '#16a34a' }]}>
                           {formatCurrency(propCalc.main_residence_exemption.exempt_amount)}
+                        </Text>
+                      </View>
+                    </View>
+                  </View>
+                )}
+
+                {/* Main Residence Exemption - Detailed Calculation */}
+                {propCalc?.main_residence_exemption && (
+                  <View style={{ marginTop: 12 }}>
+                    <Text style={styles.subsectionTitle}>Main Residence Exemption Calculation</Text>
+                    <View style={styles.stepCard}>
+                      <View style={styles.stepHeader}>
+                        <Text style={styles.stepNumber}>1</Text>
+                        <Text style={styles.stepDescription}>Calculate Exemption Percentage</Text>
+                      </View>
+                      <Text style={styles.stepFormula}>
+                        ({propCalc.main_residence_exemption.days_as_main_residence} days ÷ {propCalc.main_residence_exemption.total_ownership_days} days) × 100 = {propCalc.main_residence_exemption.exemption_percentage}%
+                      </Text>
+                    </View>
+                    <View style={styles.stepCard}>
+                      <View style={styles.stepHeader}>
+                        <Text style={styles.stepNumber}>2</Text>
+                        <Text style={styles.stepDescription}>Calculate Exempt Amount</Text>
+                      </View>
+                      <Text style={styles.stepFormula}>
+                        {formatCurrency(propCalc.raw_capital_gain)} × {propCalc.main_residence_exemption.exemption_percentage}% = {formatCurrency(propCalc.main_residence_exemption.exempt_amount)}
+                      </Text>
+                    </View>
+                    <View style={styles.stepCard}>
+                      <View style={styles.stepHeader}>
+                        <Text style={styles.stepNumber}>3</Text>
+                        <Text style={styles.stepDescription}>Calculate Taxable Amount (Before Discount)</Text>
+                      </View>
+                      <Text style={styles.stepFormula}>
+                        {formatCurrency(propCalc.raw_capital_gain)} − {formatCurrency(propCalc.main_residence_exemption.exempt_amount)} = {formatCurrency(propCalc.main_residence_exemption.taxable_amount_before_discount)}
+                      </Text>
+                    </View>
+                  </View>
+                )}
+
+                {/* CGT Discount Calculation */}
+                {propCalc?.cgt_discount && (
+                  <View style={{ marginTop: 12 }}>
+                    <Text style={styles.subsectionTitle}>CGT Discount Calculation</Text>
+                    <View style={[styles.calculationsBox, { backgroundColor: '#faf5ff', borderColor: '#e9d5ff' }]}>
+                      <View style={styles.calcRow}>
+                        <Text style={styles.calcLabel}>CGT Discount Eligible</Text>
+                        <Text style={[styles.calcValue, {
+                          color: propCalc.cgt_discount.eligible ? '#16a34a' : '#dc2626',
+                          fontWeight: 'bold'
+                        }]}>
+                          {propCalc.cgt_discount.eligible ? 'YES' : 'NO'}
+                        </Text>
+                      </View>
+                      {propCalc.cgt_discount.eligible && (
+                        <>
+                          <View style={styles.calcRow}>
+                            <Text style={styles.calcLabel}>Discount Percentage</Text>
+                            <Text style={styles.calcValue}>{propCalc.cgt_discount.discount_percentage}%</Text>
+                          </View>
+                          <View style={styles.calcRow}>
+                            <Text style={styles.calcLabel}>Before Discount</Text>
+                            <Text style={styles.calcValue}>
+                              {formatCurrency(propCalc.cgt_discount.gain_before_discount)}
+                            </Text>
+                          </View>
+                          <View style={[styles.calcRow, styles.calcTotal]}>
+                            <Text style={[styles.calcLabel, { fontWeight: 'bold' }]}>After Discount</Text>
+                            <Text style={[styles.calcValue, { fontWeight: 'bold', color: '#7c3aed' }]}>
+                              {formatCurrency(propCalc.cgt_discount.discounted_gain)}
+                            </Text>
+                          </View>
+                        </>
+                      )}
+                    </View>
+                    {propCalc.cgt_discount.eligible && (
+                      <View style={[styles.stepCard, { marginTop: 8 }]}>
+                        <View style={styles.stepHeader}>
+                          <Text style={styles.stepNumber}>1</Text>
+                          <Text style={styles.stepDescription}>Apply 50% CGT Discount</Text>
+                        </View>
+                        <Text style={styles.stepFormula}>
+                          {formatCurrency(propCalc.cgt_discount.gain_before_discount)} × {propCalc.cgt_discount.discount_percentage}% = {formatCurrency(propCalc.cgt_discount.discounted_gain)}
+                        </Text>
+                      </View>
+                    )}
+                    {propCalc.cgt_discount.eligible && (
+                      <View style={[styles.calculationsBox, { marginTop: 8, backgroundColor: '#f0fdf4', borderColor: '#bbf7d0' }]}>
+                        <Text style={[styles.calcTitle, { fontSize: 8, marginBottom: 4 }]}>You Save</Text>
+                        <Text style={{ fontSize: 12, fontWeight: 'bold', color: '#16a34a', textAlign: 'center' }}>
+                          {formatCurrency(propCalc.cgt_discount.gain_before_discount - propCalc.cgt_discount.discounted_gain)}
+                        </Text>
+                      </View>
+                    )}
+                  </View>
+                )}
+
+                {/* Final Net Capital Gain */}
+                {propCalc?.net_capital_gain !== undefined && (
+                  <View style={{ marginTop: 12 }}>
+                    <View style={[styles.calculationsBox, {
+                      backgroundColor: '#dbeafe',
+                      borderColor: '#3b82f6',
+                      borderWidth: 2,
+                      padding: 10
+                    }]}>
+                      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <View>
+                          <Text style={[styles.calcTitle, { color: '#1e40af', marginBottom: 2 }]}>
+                            Final Net Capital Gain
+                          </Text>
+                          <Text style={{ fontSize: 7, color: '#64748b' }}>
+                            (After exemptions and discount)
+                          </Text>
+                        </View>
+                        <Text style={{ fontSize: 18, fontWeight: 'bold', color: '#1e40af' }}>
+                          {formatCurrency(propCalc.net_capital_gain)}
                         </Text>
                       </View>
                     </View>

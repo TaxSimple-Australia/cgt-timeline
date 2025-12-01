@@ -8,6 +8,7 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { CGTReportPDF } from './CGTReportPDF';
 import EmailModal from './EmailModal';
+import CalculationBreakdownSection from './CalculationBreakdownSection';
 import { useTimelineStore } from '@/store/timeline';
 import { serializeTimeline } from '@/lib/timeline-serialization';
 
@@ -332,6 +333,11 @@ const handleCopyJson = async () => {    if (!response) return;    try {      con
                     </p>
                   </div>
                 </div>
+              )}
+
+              {/* Detailed Calculations */}
+              {calculations?.per_property && calculations.per_property.length > 0 && (
+                <CalculationBreakdownSection perPropertyCalculations={calculations.per_property} />
               )}
 
               {/* Validation Information */}

@@ -2,6 +2,13 @@ import React from 'react';
 import { format, differenceInMonths } from 'date-fns';
 import { Property, TimelineEvent } from '@/store/timeline';
 import { formatCurrency } from '@/lib/utils';
+import {
+  calculatePurchaseIncidentalCosts,
+  calculateImprovementCosts,
+  calculateSellingCosts,
+  getPurchasePrice,
+  getSalePrice,
+} from '@/lib/cost-base-calculations';
 
 interface TimelineBarViewProps {
   properties: Property[];
@@ -95,17 +102,15 @@ export default function TimelineBarView({ properties, events }: TimelineBarViewP
           const endPos = getPositionPercent(endDate);
           const width = endPos - startPos;
 
-          // Calculate cost base summary
-          const purchaseCostBases =
-            purchaseEvent.costBases?.reduce((sum, cb) => sum + cb.amount, 0) || 0;
+          // Calculate cost base summary using shared utilities to avoid double-counting
           const improvementEvents = allEvents.filter((e) => e.type === 'improvement');
-          const improvementCosts = improvementEvents.reduce(
-            (sum, e) => sum + (e.amount || 0) + (e.costBases?.reduce((s, cb) => s + cb.amount, 0) || 0),
-            0
-          );
-          const saleCostBases = saleEvent?.costBases?.reduce((sum, cb) => sum + cb.amount, 0) || 0;
+          const purchasePrice = getPurchasePrice(purchaseEvent);
+          const purchaseCostBasesTotal = calculatePurchaseIncidentalCosts(purchaseEvent);
+          const improvementCosts = calculateImprovementCosts(improvementEvents);
+          const saleCostBasesTotal = calculateSellingCosts(saleEvent);
+          const salePrice = getSalePrice(saleEvent);
           const totalCostBase =
-            (purchaseEvent.amount || 0) + purchaseCostBases + improvementCosts + saleCostBases;
+            purchasePrice + purchaseCostBasesTotal + improvementCosts + saleCostBasesTotal;
 
           return (
             <div
@@ -139,18 +144,18 @@ export default function TimelineBarView({ properties, events }: TimelineBarViewP
                   <div className="bg-white/50 dark:bg-gray-800/50 rounded-lg p-2">
                     <div className="text-xs text-gray-500 dark:text-gray-400">Purchase</div>
                     <div className="text-sm font-bold text-gray-900 dark:text-gray-100">
-                      {formatCurrency(purchaseEvent.amount || 0)}
+                      {formatCurrency(purchasePrice)}
                     </div>
                     <div className="text-xs text-gray-500 dark:text-gray-400">
                       {format(purchaseEvent.date, 'MMM yyyy')}
                     </div>
                   </div>
 
-                  {purchaseCostBases > 0 && (
+                  {purchaseCostBasesTotal > 0 && (
                     <div className="bg-white/50 dark:bg-gray-800/50 rounded-lg p-2">
                       <div className="text-xs text-gray-500 dark:text-gray-400">Purchase Costs</div>
                       <div className="text-sm font-bold text-blue-600 dark:text-blue-400">
-                        {formatCurrency(purchaseCostBases)}
+                        {formatCurrency(purchaseCostBasesTotal)}
                       </div>
                       <div className="text-xs text-gray-500 dark:text-gray-400">
                         {purchaseEvent.costBases?.length || 0} items
@@ -174,7 +179,7 @@ export default function TimelineBarView({ properties, events }: TimelineBarViewP
                     <div className="bg-white/50 dark:bg-gray-800/50 rounded-lg p-2">
                       <div className="text-xs text-gray-500 dark:text-gray-400">Sale</div>
                       <div className="text-sm font-bold text-green-600 dark:text-green-400">
-                        {formatCurrency(saleEvent.amount || 0)}
+                        {formatCurrency(salePrice)}
                       </div>
                       <div className="text-xs text-gray-500 dark:text-gray-400">
                         {format(saleEvent.date, 'MMM yyyy')}
@@ -276,7 +281,7 @@ export default function TimelineBarView({ properties, events }: TimelineBarViewP
                       <div>
                         <div className="text-xs text-gray-500 dark:text-gray-400">Sale Price</div>
                         <div className="text-base font-bold text-green-600 dark:text-green-400">
-                          {formatCurrency(saleEvent.amount || 0)}
+                          {formatCurrency(salePrice)}
                         </div>
                       </div>
                       <div>
@@ -284,7 +289,7 @@ export default function TimelineBarView({ properties, events }: TimelineBarViewP
                           Capital Gain
                         </div>
                         <div className="text-base font-bold text-blue-600 dark:text-blue-400">
-                          {formatCurrency((saleEvent.amount || 0) - totalCostBase)}
+                          {formatCurrency(salePrice - totalCostBase)}
                         </div>
                       </div>
                       <div>

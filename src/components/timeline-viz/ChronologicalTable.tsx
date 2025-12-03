@@ -3,6 +3,15 @@ import { format } from 'date-fns';
 import { Property, TimelineEvent } from '@/store/timeline';
 import { formatCurrency } from '@/lib/utils';
 import { COST_BASE_DEFINITIONS } from '@/lib/cost-base-definitions';
+import {
+  calculatePurchaseIncidentalCosts,
+  calculateImprovementCosts,
+  calculateSellingCosts,
+  calculateEventCostBasesTotal,
+  getPurchasePrice,
+  getSalePrice,
+  getImprovementAmount,
+} from '@/lib/cost-base-calculations';
 
 interface ChronologicalTableProps {
   properties: Property[];
@@ -36,9 +45,9 @@ export default function ChronologicalTable({ properties, events }: Chronological
     return labels[type] || type;
   };
 
+  // For display purposes, show total cost bases for an event (includes all items)
   const getCostBasesTotal = (event: TimelineEvent): number => {
-    if (!event.costBases || event.costBases.length === 0) return 0;
-    return event.costBases.reduce((sum, cb) => sum + cb.amount, 0);
+    return calculateEventCostBasesTotal(event);
   };
 
   return (
@@ -59,15 +68,14 @@ export default function ChronologicalTable({ properties, events }: Chronological
         const saleEvent = propertyEvents.find((e) => e.type === 'sale');
         const improvementEvents = propertyEvents.filter((e) => e.type === 'improvement');
 
-        // Calculate cost base summary
-        const purchaseCostBase = purchaseEvent ? getCostBasesTotal(purchaseEvent) : 0;
-        const improvementCostBase = improvementEvents.reduce(
-          (sum, e) => sum + getCostBasesTotal(e),
-          0
-        );
-        const saleCostBase = saleEvent ? getCostBasesTotal(saleEvent) : 0;
-        const totalCostBase =
-          (purchaseEvent?.amount || 0) + purchaseCostBase + improvementCostBase + saleCostBase;
+        // Calculate cost base summary using shared utilities to avoid double-counting
+        // Use getPurchasePrice/getSalePrice which check both event.amount AND costBases
+        const purchasePrice = getPurchasePrice(purchaseEvent);
+        const salePrice = getSalePrice(saleEvent);
+        const purchaseCostBase = calculatePurchaseIncidentalCosts(purchaseEvent);
+        const improvementCostBase = calculateImprovementCosts(improvementEvents);
+        const saleCostBase = calculateSellingCosts(saleEvent);
+        const totalCostBase = purchasePrice + purchaseCostBase + improvementCostBase + saleCostBase;
 
         return (
           <div key={property.id} className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
@@ -95,7 +103,7 @@ export default function ChronologicalTable({ properties, events }: Chronological
                     <div className="bg-white/50 dark:bg-gray-800/50 rounded-lg p-3">
                       <div className="text-xs text-gray-500 dark:text-gray-400">Purchase Price</div>
                       <div className="text-sm font-bold text-gray-900 dark:text-gray-100">
-                        {formatCurrency(purchaseEvent.amount || 0)}
+                        {formatCurrency(purchasePrice)}
                       </div>
                     </div>
                   )}
@@ -119,7 +127,7 @@ export default function ChronologicalTable({ properties, events }: Chronological
                     <div className="bg-white/50 dark:bg-gray-800/50 rounded-lg p-3">
                       <div className="text-xs text-gray-500 dark:text-gray-400">Sale Price</div>
                       <div className="text-sm font-bold text-green-600 dark:text-green-400">
-                        {formatCurrency(saleEvent.amount || 0)}
+                        {formatCurrency(salePrice)}
                       </div>
                     </div>
                   )}
@@ -167,7 +175,15 @@ export default function ChronologicalTable({ properties, events }: Chronological
                         {event.description || event.title || '-'}
                       </td>
                       <td className="px-4 py-3 text-sm font-medium text-right text-gray-900 dark:text-gray-100 whitespace-nowrap">
-                        {event.amount ? formatCurrency(event.amount) : '-'}
+                        {(() => {
+                          // Use appropriate getter based on event type
+                          let amount = 0;
+                          if (event.type === 'purchase') amount = getPurchasePrice(event);
+                          else if (event.type === 'sale') amount = getSalePrice(event);
+                          else if (event.type === 'improvement') amount = getImprovementAmount(event);
+                          else amount = event.amount || 0;
+                          return amount > 0 ? formatCurrency(amount) : '-';
+                        })()}
                       </td>
                       <td className="px-4 py-3 text-sm">
                         {event.costBases && event.costBases.length > 0 ? (
@@ -217,7 +233,7 @@ export default function ChronologicalTable({ properties, events }: Chronological
                           Capital Gain
                         </div>
                         <div className="text-lg font-bold text-green-600 dark:text-green-400">
-                          {formatCurrency((saleEvent.amount || 0) - totalCostBase)}
+                          {formatCurrency(salePrice - totalCostBase)}
                         </div>
                       </div>
                       <div>

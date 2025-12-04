@@ -1058,7 +1058,26 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
                 const legacyMappings: Array<{
                   value: any;
                   definitionId: string;
-                }> = [
+                }> = [];
+
+                // Add purchase price to costBases for purchase events
+                if (eventType === 'purchase' && historyItem.price) {
+                  legacyMappings.push({ value: historyItem.price, definitionId: 'purchase_price' });
+                }
+                // Add land/building prices if specified separately
+                if (eventType === 'purchase' && historyItem.land_price) {
+                  legacyMappings.push({ value: historyItem.land_price, definitionId: 'land_price' });
+                }
+                if (eventType === 'purchase' && historyItem.building_price) {
+                  legacyMappings.push({ value: historyItem.building_price, definitionId: 'building_price' });
+                }
+                // Add sale price to costBases for sale events
+                if (eventType === 'sale' && historyItem.price) {
+                  legacyMappings.push({ value: historyItem.price, definitionId: 'sale_price' });
+                }
+
+                // Add all other cost base items
+                legacyMappings.push(
                   { value: historyItem.purchase_legal_fees, definitionId: 'purchase_legal_fees' },
                   { value: historyItem.valuation_fees, definitionId: 'valuation_fees' },
                   { value: historyItem.stamp_duty, definitionId: 'stamp_duty' },
@@ -1067,9 +1086,9 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
                   { value: historyItem.insurance, definitionId: 'insurance' },
                   { value: historyItem.improvement_cost, definitionId: 'renovation_whole_house' },
                   { value: historyItem.title_legal_fees, definitionId: 'title_legal_fees' },
-                  { value: historyItem.sale_legal_fees, definitionId: 'sale_legal_fees' },
-                  { value: historyItem.sale_agent_fees, definitionId: 'sale_agent_fees' },
-                ];
+                  { value: historyItem.sale_legal_fees || historyItem.legal_fees, definitionId: 'sale_legal_fees' },
+                  { value: historyItem.sale_agent_fees || historyItem.agent_fees, definitionId: 'sale_agent_fees' },
+                );
 
                 const migrated: any[] = [];
                 legacyMappings.forEach(({ value, definitionId }) => {
@@ -1095,16 +1114,20 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
                 }
               }
 
-              // Calculate amount from cost bases if they exist, otherwise use price
+              // Use the price from the JSON as the main transaction amount
+              // Do NOT sum cost bases - the price field is the actual transaction price
               let calculatedAmount = historyItem.price;
-              if (costBases && costBases.length > 0) {
-                // For purchase and improvement events, sum all cost bases
-                // For sale events, use the sale price (not the sum of selling costs)
-                if (eventType === 'sale') {
-                  calculatedAmount = historyItem.price; // Keep the sale price
-                } else {
-                  calculatedAmount = costBases.reduce((sum: number, cb: any) => sum + (cb.amount || 0), 0);
+
+              // For purchase events, try land_price + building_price if no price specified
+              if (eventType === 'purchase' && !calculatedAmount) {
+                if (historyItem.land_price || historyItem.building_price) {
+                  calculatedAmount = (historyItem.land_price || 0) + (historyItem.building_price || 0);
                 }
+              }
+
+              // For improvement events with no price, sum improvement cost bases
+              if (eventType === 'improvement' && !calculatedAmount && costBases && costBases.length > 0) {
+                calculatedAmount = costBases.reduce((sum: number, cb: any) => sum + (cb.amount || 0), 0);
               }
 
               // Create event
@@ -1124,10 +1147,10 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
                 isPPR: historyItem.is_ppr,
                 landPrice: historyItem.land_price,
                 buildingPrice: historyItem.building_price,
-                // NEW: Cost bases array
+                // Cost bases array
                 costBases,
-                // DEPRECATED: Legacy fields are migrated to costBases
-                marketValuation: historyItem.market_valuation,
+                // Market valuation for move_out events (supports both field names for backwards compatibility)
+                marketValuation: historyItem.market_value || historyItem.market_valuation || historyItem.market_value_at_first_income,
               };
 
               propertyEvents.push(event);

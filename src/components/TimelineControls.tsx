@@ -187,7 +187,7 @@ export default function TimelineControls() {
 
           // Market valuation for move_out events (not part of cost bases)
           if (event.marketValuation !== undefined) {
-            historyItem.market_valuation = event.marketValuation;
+            historyItem.market_value = event.marketValuation;
           }
 
           return historyItem;

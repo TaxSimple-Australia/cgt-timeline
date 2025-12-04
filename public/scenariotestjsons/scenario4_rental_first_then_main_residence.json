@@ -1,0 +1,57 @@
+{
+  "properties": [
+    {
+      "address": "256 Collins Street, Melbourne VIC 3000",
+      "property_history": [
+        {
+          "date": "2016-02-01",
+          "event": "purchase",
+          "price": 530000,
+          "stamp_duty": 21200,
+          "purchase_legal_fees": 3200
+        },
+        {
+          "date": "2016-02-01",
+          "event": "rent_start"
+        },
+        {
+          "date": "2019-04-10",
+          "event": "rent_end"
+        },
+        {
+          "date": "2019-04-10",
+          "event": "move_in"
+        },
+        {
+          "date": "2024-10-01",
+          "event": "sale",
+          "price": 795000,
+          "contract_date": "2024-10-01",
+          "agent_fees": 19875,
+          "legal_fees": 2400
+        }
+      ],
+      "notes": "sold - Investment property converted to main residence. Partial exemption for main residence period only."
+    }
+  ],
+  "user_query": "I bought an investment property, rented it for 3 years, then moved in for 5 years before selling. What CGT do I owe?",
+  "additional_info": {
+    "australian_resident": true
+  },
+  "scenario_info": {
+    "name": "Rental First, Then Main Residence (First Use to Produce Income)",
+    "description": "Emma purchases an investment property and rents it immediately. After 3 years, she moves in. Six-year rule does NOT apply - only main residence period is exempt.",
+    "expected_result": {
+      "exemption_type": "partial",
+      "exemption_percentage": 63.20,
+      "capital_gain": 218325,
+      "taxable_proportion": 36.80,
+      "taxable_gain_before_discount": 80344,
+      "taxable_gain_after_discount": 40172,
+      "rental_period_days": 1165,
+      "main_residence_period_days": 2001,
+      "six_year_rule_applies": false
+    },
+    "applicable_rules": ["ITAA97 s118.185", "ITAA97 s115.25"]
+  }
+}

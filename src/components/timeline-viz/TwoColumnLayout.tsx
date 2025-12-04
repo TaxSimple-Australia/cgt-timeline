@@ -2,6 +2,15 @@ import React from 'react';
 import { format } from 'date-fns';
 import { Property, TimelineEvent } from '@/store/timeline';
 import { formatCurrency } from '@/lib/utils';
+import {
+  calculatePurchaseIncidentalCosts,
+  calculateImprovementCosts,
+  calculateSellingCosts,
+  calculateCapitalGain,
+  getPurchasePrice,
+  getSalePrice,
+  getImprovementAmount,
+} from '@/lib/cost-base-calculations';
 
 interface TwoColumnLayoutProps {
   properties: Property[];
@@ -22,28 +31,25 @@ export default function TwoColumnLayout({ properties, events }: TwoColumnLayoutP
     const rentEndEvent = propertyEvents.find((e) => e.type === 'rent_end');
     const improvementEvents = propertyEvents.filter((e) => e.type === 'improvement');
 
-    // Calculate cost bases
-    const purchasePrice = purchaseEvent?.amount || 0;
+    // Use shared utility functions to properly extract prices from amount OR costBases
+    const purchasePrice = getPurchasePrice(purchaseEvent);
     const purchaseCostBases = purchaseEvent?.costBases || [];
-    const purchaseCostTotal = purchaseCostBases.reduce((sum, cb) => sum + cb.amount, 0);
+    const purchaseCostTotal = calculatePurchaseIncidentalCosts(purchaseEvent);
 
     const improvementCosts = improvementEvents.map((e) => ({
       date: e.date,
       description: e.description || 'Capital improvement',
-      amount: e.amount || 0,
+      amount: getImprovementAmount(e),
       costBases: e.costBases || [],
     }));
-    const improvementTotal = improvementCosts.reduce(
-      (sum, imp) => sum + imp.amount + imp.costBases.reduce((s, cb) => s + cb.amount, 0),
-      0
-    );
+    const improvementTotal = calculateImprovementCosts(improvementEvents);
 
     const saleCostBases = saleEvent?.costBases || [];
-    const saleCostTotal = saleCostBases.reduce((sum, cb) => sum + cb.amount, 0);
+    const saleCostTotal = calculateSellingCosts(saleEvent);
 
     const totalCostBase = purchasePrice + purchaseCostTotal + improvementTotal + saleCostTotal;
-    const salePrice = saleEvent?.amount || 0;
-    const capitalGain = salePrice > 0 ? salePrice - totalCostBase : 0;
+    const salePrice = getSalePrice(saleEvent);
+    const capitalGain = calculateCapitalGain(purchaseEvent, improvementEvents, saleEvent);
 
     return {
       purchaseEvent,

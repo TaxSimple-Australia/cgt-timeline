@@ -1,0 +1,57 @@
+{
+  "properties": [
+    {
+      "address": "15 Ocean View Drive, Byron Bay NSW 2481",
+      "property_history": [
+        {
+          "date": "2012-03-01",
+          "event": "purchase",
+          "price": 450000,
+          "purchase_legal_fees": 2800,
+          "stamp_duty": 18000
+        },
+        {
+          "date": "2012-03-01",
+          "event": "move_in"
+        },
+        {
+          "date": "2014-02-28",
+          "event": "move_out",
+          "market_value": 480000
+        },
+        {
+          "date": "2014-02-28",
+          "event": "rent_start",
+          "market_value": 480000
+        },
+        {
+          "date": "2024-06-01",
+          "event": "sale",
+          "price": 1250000,
+          "contract_date": "2024-06-01",
+          "agent_fees": 31250,
+          "legal_fees": 2800
+        }
+      ],
+      "notes": "sold - lived in 2 years, rented 10+ years, exceeds six-year rule"
+    }
+  ],
+  "user_query": "I lived in this property for 2 years, then moved overseas and rented it out for over 10 years before selling. Please calculate my CGT liability.",
+  "additional_info": {
+    "australian_resident": true,
+    "tax_year": "2023-2024"
+  },
+  "use_claude": true,
+  "verification_responses": [
+    {
+      "property_address": "15 Ocean View Drive, Byron Bay NSW 2481",
+      "issue_period": {
+        "start_date": "2014-02-28",
+        "end_date": "2024-06-01"
+      },
+      "resolution_question": "Please specify living arrangements from 2014-02-28 to 2024-06-01 (3747 days):\n  - Living in owned property: 15 Ocean View Drive, Byron Bay NSW 2481\n  - Renting elsewhere\n  - Staying with family/friends\n  - Overseas/traveling\n  - Other (please specify)",
+      "user_response": "Staying with family/friends",
+      "resolved_at": "2025-12-03T15:35:00.000Z"
+    }
+  ]
+}

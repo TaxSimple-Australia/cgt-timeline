@@ -40,6 +40,12 @@ export interface PropertyHistoryEvent {
   sale_legal_fees?: number;
   sale_agent_fees?: number;
   auction_fees?: number;
+
+  // Market value for move_out events (used for CGT apportionment when property changes from PPR to rental)
+  market_value?: number;
+  // Legacy field names for backwards compatibility
+  market_valuation?: number;
+  market_value_at_first_income?: number;
 }
 
 export interface Property {

@@ -1,0 +1,75 @@
+{
+  "properties": [
+    {
+      "address": "78 Rose Street, Brisbane QLD 4000",
+      "property_history": [
+        {
+          "date": "2012-05-01",
+          "event": "purchase",
+          "price": 420000,
+          "stamp_duty": 14700,
+          "purchase_legal_fees": 2200
+        },
+        {
+          "date": "2012-05-01",
+          "event": "move_in"
+        },
+        {
+          "date": "2024-02-01",
+          "event": "move_out",
+          "market_value": 436900
+        },
+        {
+          "date": "2024-07-15",
+          "event": "sale",
+          "price": 780000,
+          "contract_date": "2024-07-15",
+          "agent_fees": 19500,
+          "legal_fees": 2000
+        }
+      ],
+      "notes": "sold - Original main residence sold within 6-month overlap period. Full exemption under s118.140."
+    },
+    {
+      "address": "33 Mountain View Road, Brisbane QLD 4000",
+      "property_history": [
+        {
+          "date": "2024-02-01",
+          "event": "purchase",
+          "price": 920000,
+          "stamp_duty": 36800,
+          "purchase_legal_fees": 4200
+        },
+        {
+          "date": "2024-02-01",
+          "event": "move_in"
+        }
+      ],
+      "notes": "ppr - Current main residence. Overlap with Property 1 sale within 6-month window."
+    }
+  ],
+  "user_query": "I bought a new home and moved in before selling my old home. The overlap was about 5.5 months. What CGT do I owe?",
+  "additional_info": {
+    "australian_resident": true
+  },
+  "scenario_info": {
+    "name": "Moving Between Main Residences (6-Month Overlap Rule)",
+    "description": "David owns his main residence and purchases a new home. He moves in while still owning the old one (5.5 month overlap). Both properties treated as main residence under s118.140.",
+    "expected_result": {
+      "property_1": {
+        "exemption_type": "full",
+        "exemption_percentage": 100,
+        "capital_gain": 321600,
+        "taxable_gain": 0,
+        "cgt_payable": 0
+      },
+      "property_2": {
+        "status": "current_main_residence",
+        "not_sold": true
+      },
+      "overlap_period_days": 165,
+      "overlap_within_6_months": true
+    },
+    "applicable_rules": ["ITAA97 s118.140"]
+  }
+}

@@ -1,0 +1,61 @@
+{
+  "properties": [
+    {
+      "address": "88 Harbour Street, Sydney NSW 2000",
+      "property_history": [
+        {
+          "date": "2015-07-01",
+          "event": "purchase",
+          "price": 850000,
+          "stamp_duty": 34000,
+          "purchase_legal_fees": 3800
+        },
+        {
+          "date": "2015-07-01",
+          "event": "move_in"
+        },
+        {
+          "date": "2017-03-15",
+          "event": "improvement",
+          "price": 32000
+        },
+        {
+          "date": "2019-06-30",
+          "event": "move_out",
+          "market_value": 919800
+        },
+        {
+          "date": "2019-06-30",
+          "event": "rent_start"
+        },
+        {
+          "date": "2024-08-15",
+          "event": "sale",
+          "price": 1580000,
+          "contract_date": "2024-08-15",
+          "agent_fees": 39500,
+          "legal_fees": 3200
+        }
+      ],
+      "notes": "sold - Six-year absence rule applies. Rented for 5 years while working interstate. Full exemption."
+    }
+  ],
+  "user_query": "I moved interstate for work and rented my home for 5 years before selling. What is my CGT liability?",
+  "additional_info": {
+    "australian_resident": true
+  },
+  "scenario_info": {
+    "name": "Six-Year Absence Rule (Within 6 Years)",
+    "description": "Michael purchases a home, lives in it for 4 years, then moves interstate for work and rents out the property for 5 years. Six-year rule applies - full exemption.",
+    "expected_result": {
+      "exemption_type": "full",
+      "exemption_percentage": 100,
+      "capital_gain": 617500,
+      "taxable_gain": 0,
+      "cgt_payable": 0,
+      "rental_period_years": 5.13,
+      "six_year_rule_applies": true
+    },
+    "applicable_rules": ["ITAA97 s118.145"]
+  }
+}

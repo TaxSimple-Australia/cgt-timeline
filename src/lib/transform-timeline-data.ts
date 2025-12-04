@@ -42,6 +42,11 @@ export function transformTimelineToAPIFormat(
         historyEvent.contract_date = contractDate.toISOString().split('T')[0];
       }
 
+      // Add market value for move_out events (used for CGT apportionment)
+      if (event.marketValuation !== undefined) {
+        historyEvent.market_value = event.marketValuation;
+      }
+
       // Extract cost base items from the costBases array
       if (event.costBases && event.costBases.length > 0) {
         event.costBases.forEach((costBase) => {

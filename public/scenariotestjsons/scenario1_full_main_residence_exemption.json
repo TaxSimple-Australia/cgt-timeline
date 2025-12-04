@@ -1,0 +1,55 @@
+{
+  "properties": [
+    {
+      "address": "42 Jacaranda Avenue, Paddington QLD 4064",
+      "property_history": [
+        {
+          "date": "2015-03-15",
+          "event": "purchase",
+          "price": 620000,
+          "stamp_duty": 24800,
+          "purchase_legal_fees": 2500
+        },
+        {
+          "date": "2015-03-15",
+          "event": "move_in"
+        },
+        {
+          "date": "2018-06-01",
+          "event": "improvement",
+          "price": 45000
+        },
+        {
+          "date": "2021-09-15",
+          "event": "improvement",
+          "price": 28000
+        },
+        {
+          "date": "2024-11-20",
+          "event": "sale",
+          "price": 1150000,
+          "contract_date": "2024-11-20",
+          "agent_fees": 28750,
+          "legal_fees": 2200
+        }
+      ],
+      "notes": "sold - Full main residence exemption applies. Lived in property entire ownership period."
+    }
+  ],
+  "user_query": "I lived in my home for the entire time I owned it. What is my CGT liability on sale?",
+  "additional_info": {
+    "australian_resident": true
+  },
+  "scenario_info": {
+    "name": "Full Main Residence Exemption",
+    "description": "Sarah purchases her first home and lives in it continuously from purchase until sale. Full main residence exemption applies.",
+    "expected_result": {
+      "exemption_type": "full",
+      "exemption_percentage": 100,
+      "capital_gain": 398750,
+      "taxable_gain": 0,
+      "cgt_payable": 0
+    },
+    "applicable_rules": ["ITAA97 s118.110"]
+  }
+}

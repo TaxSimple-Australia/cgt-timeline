@@ -7,9 +7,10 @@ import { ChevronDown, ChevronUp, Home, DollarSign, TrendingUp, Calendar, Award }
 interface PropertyAnalysisCardProps {
   property: any;
   calculations?: any;
+  analysis?: any; // Full analysis object from API response
 }
 
-export default function PropertyAnalysisCard({ property, calculations }: PropertyAnalysisCardProps) {
+export default function PropertyAnalysisCard({ property, calculations, analysis }: PropertyAnalysisCardProps) {
   const [isExpanded, setIsExpanded] = useState(false);
 
   const formatCurrency = (amount: number | null | undefined) => {
@@ -183,23 +184,25 @@ export default function PropertyAnalysisCard({ property, calculations }: Propert
           </div>
         )}
 
-        {/* Expand/Collapse Button */}
-        <button
-          onClick={() => setIsExpanded(!isExpanded)}
-          className="mt-4 w-full flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/20 rounded-lg transition-colors"
-        >
-          {isExpanded ? (
-            <>
-              <span>Hide Calculation Details</span>
-              <ChevronUp className="w-4 h-4" />
-            </>
-          ) : (
-            <>
-              <span>View Calculation Details</span>
-              <ChevronDown className="w-4 h-4" />
-            </>
-          )}
-        </button>
+        {/* Expand/Collapse Button - Only show if calculations exist */}
+        {calculations && (
+          <button
+            onClick={() => setIsExpanded(!isExpanded)}
+            className="mt-4 w-full flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/20 rounded-lg transition-colors"
+          >
+            {isExpanded ? (
+              <>
+                <span>Hide Calculation Details</span>
+                <ChevronUp className="w-4 h-4" />
+              </>
+            ) : (
+              <>
+                <span>View Calculation Details</span>
+                <ChevronDown className="w-4 h-4" />
+              </>
+            )}
+          </button>
+        )}
       </div>
 
       {/* Expandable Details */}

@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { DollarSign, TrendingUp, TrendingDown, Home, Award } from 'lucide-react';
+import { DollarSign, TrendingUp, TrendingDown, Home } from 'lucide-react';
 
 interface CGTSummaryCardProps {
   summary: {
@@ -21,7 +21,6 @@ export default function CGTSummaryCard({ summary }: CGTSummaryCardProps) {
     total_capital_gain,
     total_capital_loss,
     net_capital_gain_after_loss,
-    confidence_score = 0,
     exemption_percentage = 0
   } = summary;
 
@@ -40,19 +39,6 @@ export default function CGTSummaryCard({ summary }: CGTSummaryCardProps) {
     }).format(absAmount);
   };
 
-  const getConfidenceColor = (score: number) => {
-    if (score >= 90) return 'text-green-600 dark:text-green-400';
-    if (score >= 70) return 'text-blue-600 dark:text-blue-400';
-    if (score >= 50) return 'text-amber-600 dark:text-amber-400';
-    return 'text-red-600 dark:text-red-400';
-  };
-
-  const getConfidenceBg = (score: number) => {
-    if (score >= 90) return 'from-green-500 to-emerald-600';
-    if (score >= 70) return 'from-blue-500 to-indigo-600';
-    if (score >= 50) return 'from-amber-500 to-orange-600';
-    return 'from-red-500 to-rose-600';
-  };
 
   return (
     <motion.div
@@ -85,7 +71,7 @@ export default function CGTSummaryCard({ summary }: CGTSummaryCardProps) {
       </div>
 
       {/* Key Metrics Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Capital Gain/Loss */}
         <div className="bg-white dark:bg-gray-900 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
           <div className="flex items-center gap-2 mb-2">
@@ -126,27 +112,6 @@ export default function CGTSummaryCard({ summary }: CGTSummaryCardProps) {
             </p>
           </div>
         )}
-
-        {/* Confidence Score */}
-        <div className="bg-white dark:bg-gray-900 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
-          <div className="flex items-center gap-2 mb-2">
-            <Award className="w-5 h-5 text-amber-600 dark:text-amber-400" />
-            <span className="text-xs font-medium text-gray-600 dark:text-gray-400 uppercase">
-              Confidence
-            </span>
-          </div>
-          <div className={`text-2xl font-bold ${getConfidenceColor(confidence_score)}`}>
-            {confidence_score}%
-          </div>
-          <div className="mt-2 h-1.5 bg-gray-200 dark:bg-gray-800 rounded-full overflow-hidden">
-            <motion.div
-              initial={{ width: 0 }}
-              animate={{ width: `${confidence_score}%` }}
-              transition={{ delay: 0.3, duration: 0.8, ease: 'easeOut' }}
-              className={`h-full bg-gradient-to-r ${getConfidenceBg(confidence_score)}`}
-            />
-          </div>
-        </div>
       </div>
     </motion.div>
   );

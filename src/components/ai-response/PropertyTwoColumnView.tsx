@@ -252,7 +252,7 @@ export default function PropertyTwoColumnView({
         </div>
 
         {/* Two Column Content */}
-        <div className="grid md:grid-cols-[60%_40%] divide-y md:divide-y-0 md:divide-x divide-gray-200 dark:divide-gray-700">
+        <div className="grid md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-gray-200 dark:divide-gray-700">
           {/* LEFT COLUMN: Timeline Bar Visualization */}
           <div className="p-6 bg-white dark:bg-gray-900">
             {/* Timeline Scale */}

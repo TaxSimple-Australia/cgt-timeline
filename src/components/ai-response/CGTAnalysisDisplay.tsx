@@ -138,13 +138,13 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
                     onClick={() => setActiveTab(`property-${index}`)}
                     className={`w-full p-4 rounded-lg border-2 transition-all ${
                       isActive
-                        ? 'border-t-4 border-orange-500 dark:border-orange-600 bg-orange-50 dark:bg-orange-950/30 shadow-lg'
+                        ? 'border-t-4 border-green-500 dark:border-green-600 bg-green-50 dark:bg-green-950/30 shadow-lg'
                         : 'border-t-2 border-indigo-500 dark:border-indigo-600 bg-white dark:bg-gray-800 hover:border-opacity-70 shadow-sm hover:shadow-md'
                     }`}
                   >
                     <div className="text-left space-y-2.5">
                       {/* Address */}
-                      <h4 className={`font-bold text-sm ${isActive ? 'text-orange-900 dark:text-orange-100' : 'text-gray-900 dark:text-gray-100'}`}>
+                      <h4 className={`font-bold text-sm ${isActive ? 'text-green-900 dark:text-green-100' : 'text-gray-900 dark:text-gray-100'}`}>
                         {property.address}
                       </h4>
 
@@ -152,13 +152,13 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
                       <div className="flex gap-3 text-xs">
                         <div className="flex-1">
                           <div className="text-gray-500 dark:text-gray-400">Status</div>
-                          <div className={`font-semibold ${isActive ? 'text-orange-900 dark:text-orange-100' : 'text-gray-900 dark:text-gray-100'}`}>
+                          <div className={`font-semibold ${isActive ? 'text-green-900 dark:text-green-100' : 'text-gray-900 dark:text-gray-100'}`}>
                             {property.status || 'N/A'}
                           </div>
                         </div>
                         <div className="flex-1">
                           <div className="text-gray-500 dark:text-gray-400">Exemption</div>
-                          <div className={`font-semibold ${isActive ? 'text-orange-900 dark:text-orange-100' : 'text-gray-900 dark:text-gray-100'}`}>
+                          <div className={`font-semibold ${isActive ? 'text-green-900 dark:text-green-100' : 'text-gray-900 dark:text-gray-100'}`}>
                             {property.exempt_percentage || 0}%
                           </div>
                         </div>
@@ -168,7 +168,7 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
                       <div className="pt-2 border-t border-gray-200 dark:border-gray-700">
                         <div className="text-gray-500 dark:text-gray-400 text-xs mb-1">Net Capital Gain</div>
                         <div className="flex items-center justify-between">
-                          <div className={`text-lg font-bold ${isExempt ? 'text-green-600 dark:text-green-400' : (isActive ? 'text-orange-600 dark:text-orange-400' : 'text-gray-900 dark:text-gray-100')}`}>
+                          <div className={`text-lg font-bold ${isExempt ? 'text-green-600 dark:text-green-400' : (isActive ? 'text-green-600 dark:text-green-400' : 'text-gray-900 dark:text-gray-100')}`}>
                             {isExempt ? '$0' : formatCurrency(netGain)}
                           </div>
                           {isExempt && (

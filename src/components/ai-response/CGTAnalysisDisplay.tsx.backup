@@ -1,0 +1,293 @@
+'use client';
+
+import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { CheckCircle, XCircle, AlertTriangle, ChevronDown, ChevronUp, Home } from 'lucide-react';
+import CGTSummaryCard from './CGTSummaryCard';
+import PropertyAnalysisCard from './PropertyAnalysisCard';
+import RecommendationsSection from './RecommendationsSection';
+import GapQuestionsPanel from './GapQuestionsPanel';
+import DetailedReportSection from './DetailedReportSection';
+import StepByStepReport from './StepByStepReport';
+
+interface CGTAnalysisDisplayProps {
+  response: any; // AI response (success or verification_failed)
+  onRetryWithAnswers?: (answers: Array<{
+    question: string;
+    answer: string;
+    period: { start: string; end: string; days: number };
+    properties_involved: string[];
+  }>) => void;
+}
+
+export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGTAnalysisDisplayProps) {
+  const [expandedProperties, setExpandedProperties] = useState<Set<string>>(new Set());
+
+  if (!response) {
+    return (
+      <div className="flex items-center justify-center p-12">
+        <p className="text-gray-500 dark:text-gray-400">No analysis data available</p>
+      </div>
+    );
+  }
+
+  const isSuccess = response.status === 'success';
+  const isVerificationFailed = response.status === 'verification_failed';
+
+  const toggleProperty = (propertyId: string) => {
+    setExpandedProperties(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(propertyId)) {
+        newSet.delete(propertyId);
+      } else {
+        newSet.add(propertyId);
+      }
+      return newSet;
+    });
+  };
+
+  const getExemptionBadgeColor = (exemptionType: string) => {
+    switch (exemptionType) {
+      case 'full':
+        return 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 border-green-300 dark:border-green-700';
+      case 'partial':
+        return 'bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-300 border-amber-300 dark:border-amber-700';
+      case 'none':
+        return 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300 border-red-300 dark:border-red-700';
+      default:
+        return 'bg-gray-100 dark:bg-gray-900/30 text-gray-800 dark:text-gray-300 border-gray-300 dark:border-gray-700';
+    }
+  };
+
+  const getStatusBadgeColor = (status: string) => {
+    switch (status?.toLowerCase()) {
+      case 'sold':
+        return 'bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300 border-purple-300 dark:border-purple-700';
+      case 'owned':
+        return 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 border-blue-300 dark:border-blue-700';
+      default:
+        return 'bg-gray-100 dark:bg-gray-900/30 text-gray-800 dark:text-gray-300 border-gray-300 dark:border-gray-700';
+    }
+  };
+
+  // Success Response Display
+  if (isSuccess) {
+    const { summary, properties, analysis, verification } = response;
+
+    return (
+      <div className="space-y-6">
+        {/* Hero Summary */}
+        <CGTSummaryCard summary={summary} />
+
+        {/* Property Calculations (Collapsible) */}
+        <div className="space-y-3">
+          {properties && properties.length > 0 ? (
+            properties.map((property: any, index: number) => {
+              const calculations = response.calculations?.per_property?.find(
+                (calc: any) =>
+                  calc.property_id === property.property_id ||
+                  calc.property_id === property.address ||
+                  calc.property_address === property.address
+              );
+
+              const propertyKey = property.property_id || property.address || `property-${index}`;
+              const isExpanded = expandedProperties.has(propertyKey);
+
+              return (
+                <motion.div
+                  key={propertyKey}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.05 }}
+                  className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden bg-white dark:bg-gray-900"
+                >
+                  {/* Collapsible Header */}
+                  <button
+                    onClick={() => toggleProperty(propertyKey)}
+                    className="w-full p-4 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                  >
+                    <div className="flex items-center gap-3 flex-1 text-left">
+                      <Home className="w-5 h-5 text-gray-600 dark:text-gray-400 flex-shrink-0" />
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-semibold text-gray-900 dark:text-gray-100 truncate">
+                          {property.address}
+                        </h3>
+                        <div className="flex flex-wrap gap-2 mt-1">
+                          {property.status && (
+                            <span className={`px-2 py-0.5 text-xs font-medium rounded border ${getStatusBadgeColor(property.status)}`}>
+                              {property.status.toUpperCase()}
+                            </span>
+                          )}
+                          {property.exemption_type && (
+                            <span className={`px-2 py-0.5 text-xs font-medium rounded border ${getExemptionBadgeColor(property.exemption_type)}`}>
+                              {property.exemption_type === 'full' && 'Full Exemption'}
+                              {property.exemption_type === 'partial' && `Partial Exemption (${property.exempt_percentage?.toFixed(1)}%)`}
+                              {property.exemption_type === 'none' && 'No Exemption'}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="ml-3 flex-shrink-0">
+                      {isExpanded ? (
+                        <ChevronUp className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                      ) : (
+                        <ChevronDown className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                      )}
+                    </div>
+                  </button>
+
+                  {/* Collapsible Content */}
+                  <AnimatePresence>
+                    {isExpanded && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: 'auto', opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.3 }}
+                        className="border-t border-gray-200 dark:border-gray-700"
+                      >
+                        <div className="p-4 bg-gray-50 dark:bg-gray-800">
+                          <StepByStepReport
+                            property={property}
+                            analysis={analysis}
+                            calculations={calculations}
+                          />
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </motion.div>
+              );
+            })
+          ) : (
+            <p className="text-gray-500 dark:text-gray-400 text-center py-8">No property data available</p>
+          )}
+        </div>
+
+        {/* Visual Divider */}
+        <div className="flex items-center gap-4 py-4">
+          <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-300 dark:via-gray-600 to-transparent"></div>
+          <span className="text-sm font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wide">
+            Detailed Analysis Report
+          </span>
+          <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-300 dark:via-gray-600 to-transparent"></div>
+        </div>
+
+        {/* Detailed Report (Collapsible) */}
+        <DetailedReportSection
+          properties={properties}
+          analysis={analysis}
+          calculations={response.calculations}
+          validation={response.validation}
+          verification={verification}
+          response={response}
+        />
+      </div>
+    );
+  }
+
+  // Verification Failed Response Display
+  if (isVerificationFailed) {
+    const { summary, verification, properties } = response;
+
+    return (
+      <div className="space-y-6">
+        {/* Alert Banner */}
+        <div className="bg-red-50 dark:bg-red-950/20 border-2 border-red-200 dark:border-red-800 rounded-lg p-6">
+          <div className="flex items-start gap-4">
+            <div className="flex-shrink-0">
+              <XCircle className="w-8 h-8 text-red-600 dark:text-red-400" />
+            </div>
+            <div className="flex-1">
+              <h2 className="text-lg font-semibold text-red-900 dark:text-red-200 mb-2">
+                Analysis Blocked - Information Required
+              </h2>
+              <p className="text-sm text-red-800 dark:text-red-300 mb-3">
+                We need clarification about timeline gaps to calculate your CGT accurately.
+              </p>
+
+              {/* Portfolio Summary */}
+              <div className="bg-white dark:bg-gray-900 rounded-lg p-4 space-y-2">
+                <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2">
+                  📊 Portfolio Summary
+                </h3>
+                <div className="grid grid-cols-3 gap-4 text-sm">
+                  <div>
+                    <div className="text-gray-500 dark:text-gray-400">Total Properties</div>
+                    <div className="font-semibold text-gray-900 dark:text-gray-100">
+                      {summary?.total_properties || 0}
+                    </div>
+                  </div>
+                  <div>
+                    <div className="text-gray-500 dark:text-gray-400">Passed</div>
+                    <div className="font-semibold text-green-600 dark:text-green-400">
+                      {summary?.properties_passed || 0}
+                    </div>
+                  </div>
+                  <div>
+                    <div className="text-gray-500 dark:text-gray-400">Need Clarification</div>
+                    <div className="font-semibold text-red-600 dark:text-red-400">
+                      {summary?.properties_failed || 0}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Gap Questions */}
+        {verification?.clarification_questions && verification.clarification_questions.length > 0 && (
+          <GapQuestionsPanel
+            questions={verification.clarification_questions}
+            issues={verification.issues}
+            onSubmit={onRetryWithAnswers}
+          />
+        )}
+
+        {/* Property Status List */}
+        {properties && properties.length > 0 && (
+          <div className="space-y-3">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+              Property Status
+            </h3>
+            {properties.map((property: any, index: number) => (
+              <div
+                key={index}
+                className={`p-4 rounded-lg border ${
+                  property.verification_status === 'passed'
+                    ? 'bg-green-50 dark:bg-green-950/20 border-green-200 dark:border-green-800'
+                    : 'bg-red-50 dark:bg-red-950/20 border-red-200 dark:border-red-800'
+                }`}
+              >
+                <div className="flex items-start gap-3">
+                  {property.verification_status === 'passed' ? (
+                    <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400 mt-0.5 flex-shrink-0" />
+                  ) : (
+                    <XCircle className="w-5 h-5 text-red-600 dark:text-red-400 mt-0.5 flex-shrink-0" />
+                  )}
+                  <div className="flex-1">
+                    <h4 className="font-semibold text-gray-900 dark:text-gray-100">
+                      {property.address}
+                    </h4>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                      {property.quick_summary}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // Unknown status
+  return (
+    <div className="p-6 bg-gray-50 dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700">
+      <p className="text-gray-600 dark:text-gray-400">Unknown response format</p>
+    </div>
+  );
+}

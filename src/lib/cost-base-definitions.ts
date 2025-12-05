@@ -125,6 +125,15 @@ export const COST_BASE_DEFINITIONS: CostBaseDefinition[] = [
     applicableEvents: ['purchase'],
   },
 
+  // ===== SALE PROCEEDS (Capital Proceeds - not a cost base) =====
+  {
+    id: 'sale_price',
+    name: 'Sale Price',
+    category: 'element1', // Used for display purposes
+    description: 'The total sale price or capital proceeds received from selling the property.',
+    applicableEvents: ['sale'],
+  },
+
   // ===== ELEMENT 2: INCIDENTAL COSTS (DISPOSAL) =====
   {
     id: 'sale_legal_fees',

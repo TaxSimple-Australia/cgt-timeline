@@ -31,7 +31,7 @@ interface DetailedReportSectionProps {
 }
 
 export default function DetailedReportSection({ properties, analysis, calculations, validation, verification, response, timelineProperties, timelineEvents }: DetailedReportSectionProps) {
-  const [isExpanded, setIsExpanded] = useState(true);
+  const [isExpanded, setIsExpanded] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
   const [isSendingEmail, setIsSendingEmail] = useState(false);
   const [showEmailModal, setShowEmailModal] = useState(false);
@@ -312,7 +312,7 @@ export default function DetailedReportSection({ properties, analysis, calculatio
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.3 }}
-            className="border-t border-gray-200 dark:border-gray-700 print:hidden"
+            className="border-t border-gray-200 dark:border-gray-700 print:border-t-2 print:border-black"
           >
             <div className="p-6 space-y-8 bg-white dark:bg-gray-900 print:bg-white print:p-4">
               {/* === SECTION A: EXECUTIVE OVERVIEW === */}
@@ -612,6 +612,71 @@ export default function DetailedReportSection({ properties, analysis, calculatio
                   })}
                 </div>
               )}
+
+              {/* Property Scenario Detection & Verification Status */}
+              {properties && properties.length > 0 && properties.some((p: any) => p.scenario_detected || p.verification_status || p.quick_summary) && (
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
+                    Property Scenario & Verification Status
+                  </h3>
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-sm border-collapse">
+                      <thead>
+                        <tr className="bg-gray-100 dark:bg-gray-800">
+                          <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600">
+                            Property
+                          </th>
+                          <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600">
+                            Scenario Detected
+                          </th>
+                          <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600">
+                            Verification Status
+                          </th>
+                          <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600">
+                            Summary
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {properties.map((property: any, index: number) => (
+                          <tr key={index} className="hover:bg-gray-50 dark:hover:bg-gray-800/50">
+                            <td className="px-4 py-3 font-medium text-gray-900 dark:text-gray-100 border border-gray-300 dark:border-gray-600">
+                              {property.address}
+                            </td>
+                            <td className="px-4 py-3 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600">
+                              {property.scenario_detected ? (
+                                <span className="inline-flex items-center px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 text-xs font-medium rounded">
+                                  {property.scenario_detected}
+                                </span>
+                              ) : (
+                                <span className="text-gray-400 dark:text-gray-500 text-xs">Not specified</span>
+                              )}
+                            </td>
+                            <td className="px-4 py-3 border border-gray-300 dark:border-gray-600">
+                              {property.verification_status ? (
+                                <span className={`inline-flex items-center px-2 py-1 text-xs font-semibold rounded ${
+                                  property.verification_status === 'passed'
+                                    ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300'
+                                    : 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300'
+                                }`}>
+                                  {property.verification_status === 'passed' ? '✓ Passed' : '✗ Failed'}
+                                </span>
+                              ) : (
+                                <span className="text-gray-400 dark:text-gray-500 text-xs">Not verified</span>
+                              )}
+                            </td>
+                            <td className="px-4 py-3 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 text-xs">
+                              {property.quick_summary || (
+                                <span className="text-gray-400 dark:text-gray-500">No summary available</span>
+                              )}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
               </div>
               {/* End Section B */}
 
@@ -729,6 +794,128 @@ export default function DetailedReportSection({ properties, analysis, calculatio
                   properties={properties}
                   verification={verification}
                 />
+              )}
+
+              {/* Detailed Gap Analysis */}
+              {verification?.timeline_analysis?.gaps && verification.timeline_analysis.gaps.length > 0 && (
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
+                    Detailed Gap Analysis
+                  </h3>
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-sm border-collapse">
+                      <thead>
+                        <tr className="bg-amber-100 dark:bg-amber-900/30">
+                          <th className="px-4 py-3 text-left text-xs font-semibold text-amber-900 dark:text-amber-100 border border-amber-300 dark:border-amber-700">
+                            Property
+                          </th>
+                          <th className="px-4 py-3 text-left text-xs font-semibold text-amber-900 dark:text-amber-100 border border-amber-300 dark:border-amber-700">
+                            Gap Start
+                          </th>
+                          <th className="px-4 py-3 text-left text-xs font-semibold text-amber-900 dark:text-amber-100 border border-amber-300 dark:border-amber-700">
+                            Gap End
+                          </th>
+                          <th className="px-4 py-3 text-left text-xs font-semibold text-amber-900 dark:text-amber-100 border border-amber-300 dark:border-amber-700">
+                            Duration (Days)
+                          </th>
+                          <th className="px-4 py-3 text-left text-xs font-semibold text-amber-900 dark:text-amber-100 border border-amber-300 dark:border-amber-700">
+                            Description
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {verification.timeline_analysis.gaps.map((gap: any, index: number) => (
+                          <tr key={index} className="hover:bg-amber-50 dark:hover:bg-amber-950/10">
+                            <td className="px-4 py-3 font-medium text-gray-900 dark:text-gray-100 border border-amber-300 dark:border-amber-700">
+                              {gap.property_address || gap.property_id || 'Unknown Property'}
+                            </td>
+                            <td className="px-4 py-3 text-gray-700 dark:text-gray-300 border border-amber-300 dark:border-amber-700">
+                              {gap.start ? new Date(gap.start).toLocaleDateString() : 'N/A'}
+                            </td>
+                            <td className="px-4 py-3 text-gray-700 dark:text-gray-300 border border-amber-300 dark:border-amber-700">
+                              {gap.end ? new Date(gap.end).toLocaleDateString() : 'N/A'}
+                            </td>
+                            <td className="px-4 py-3 text-amber-700 dark:text-amber-300 font-semibold border border-amber-300 dark:border-amber-700">
+                              {gap.days || gap.duration || 'N/A'}
+                            </td>
+                            <td className="px-4 py-3 text-gray-700 dark:text-gray-300 border border-amber-300 dark:border-amber-700 text-xs">
+                              {gap.description || gap.message || 'Timeline gap detected - no occupancy status recorded for this period'}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                  <div className="mt-3 p-3 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-lg">
+                    <p className="text-xs text-amber-800 dark:text-amber-300">
+                      <strong>Action Required:</strong> Review these gaps and add missing events to your timeline. Gaps may affect the accuracy of your CGT calculations.
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {/* Detailed Overlap Analysis */}
+              {verification?.timeline_analysis?.overlaps && verification.timeline_analysis.overlaps.length > 0 && (
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
+                    Detailed Overlap Analysis
+                  </h3>
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-sm border-collapse">
+                      <thead>
+                        <tr className="bg-purple-100 dark:bg-purple-900/30">
+                          <th className="px-4 py-3 text-left text-xs font-semibold text-purple-900 dark:text-purple-100 border border-purple-300 dark:border-purple-700">
+                            Properties Involved
+                          </th>
+                          <th className="px-4 py-3 text-left text-xs font-semibold text-purple-900 dark:text-purple-100 border border-purple-300 dark:border-purple-700">
+                            Overlap Start
+                          </th>
+                          <th className="px-4 py-3 text-left text-xs font-semibold text-purple-900 dark:text-purple-100 border border-purple-300 dark:border-purple-700">
+                            Overlap End
+                          </th>
+                          <th className="px-4 py-3 text-left text-xs font-semibold text-purple-900 dark:text-purple-100 border border-purple-300 dark:border-purple-700">
+                            Duration (Days)
+                          </th>
+                          <th className="px-4 py-3 text-left text-xs font-semibold text-purple-900 dark:text-purple-100 border border-purple-300 dark:border-purple-700">
+                            Description
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {verification.timeline_analysis.overlaps.map((overlap: any, index: number) => (
+                          <tr key={index} className="hover:bg-purple-50 dark:hover:bg-purple-950/10">
+                            <td className="px-4 py-3 font-medium text-gray-900 dark:text-gray-100 border border-purple-300 dark:border-purple-700">
+                              {overlap.properties ?
+                                (Array.isArray(overlap.properties) ? overlap.properties.join(', ') : overlap.properties) :
+                                (overlap.property_1 && overlap.property_2 ?
+                                  `${overlap.property_1} & ${overlap.property_2}` :
+                                  'Multiple Properties'
+                                )
+                              }
+                            </td>
+                            <td className="px-4 py-3 text-gray-700 dark:text-gray-300 border border-purple-300 dark:border-purple-700">
+                              {overlap.start ? new Date(overlap.start).toLocaleDateString() : 'N/A'}
+                            </td>
+                            <td className="px-4 py-3 text-gray-700 dark:text-gray-300 border border-purple-300 dark:border-purple-700">
+                              {overlap.end ? new Date(overlap.end).toLocaleDateString() : 'N/A'}
+                            </td>
+                            <td className="px-4 py-3 text-purple-700 dark:text-purple-300 font-semibold border border-purple-300 dark:border-purple-700">
+                              {overlap.days || overlap.duration || 'N/A'}
+                            </td>
+                            <td className="px-4 py-3 text-gray-700 dark:text-gray-300 border border-purple-300 dark:border-purple-700 text-xs">
+                              {overlap.description || overlap.message || 'Multiple properties claiming main residence status during this period'}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                  <div className="mt-3 p-3 bg-purple-50 dark:bg-purple-950/20 border border-purple-200 dark:border-purple-800 rounded-lg">
+                    <p className="text-xs text-purple-800 dark:text-purple-300">
+                      <strong>Action Required:</strong> Only one property can be designated as your main residence at any given time (with limited exceptions). Resolve these overlaps to ensure accurate main residence exemption calculations.
+                    </p>
+                  </div>
+                </div>
               )}
 
               {/* 4. Timeline Quality Assessment */}
@@ -996,6 +1183,123 @@ export default function DetailedReportSection({ properties, analysis, calculatio
                       </ul>
                     </div>
                   )}
+                </div>
+              )}
+
+              {/* Analysis Metadata */}
+              {analysis?.metadata && (
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
+                    Analysis Metadata
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {analysis.metadata.llm_used && (
+                      <div className="p-4 bg-indigo-50 dark:bg-indigo-950/20 border border-indigo-200 dark:border-indigo-800 rounded-lg">
+                        <div className="text-xs text-indigo-600 dark:text-indigo-400 font-medium mb-1">
+                          AI Model Used
+                        </div>
+                        <div className="text-lg font-bold text-indigo-700 dark:text-indigo-300">
+                          {analysis.metadata.llm_used}
+                        </div>
+                        <div className="text-xs text-indigo-600 dark:text-indigo-500 mt-1">
+                          Language model
+                        </div>
+                      </div>
+                    )}
+                    {analysis.metadata.chunks_retrieved !== undefined && (
+                      <div className="p-4 bg-teal-50 dark:bg-teal-950/20 border border-teal-200 dark:border-teal-800 rounded-lg">
+                        <div className="text-xs text-teal-600 dark:text-teal-400 font-medium mb-1">
+                          Knowledge Base Chunks
+                        </div>
+                        <div className="text-2xl font-bold text-teal-700 dark:text-teal-300">
+                          {analysis.metadata.chunks_retrieved}
+                        </div>
+                        <div className="text-xs text-teal-600 dark:text-teal-500 mt-1">
+                          Retrieved
+                        </div>
+                      </div>
+                    )}
+                    {analysis.metadata.confidence !== undefined && (
+                      <div className="p-4 bg-cyan-50 dark:bg-cyan-950/20 border border-cyan-200 dark:border-cyan-800 rounded-lg">
+                        <div className="text-xs text-cyan-600 dark:text-cyan-400 font-medium mb-1">
+                          Analysis Confidence
+                        </div>
+                        <div className="text-2xl font-bold text-cyan-700 dark:text-cyan-300">
+                          {analysis.metadata.confidence}%
+                        </div>
+                        <div className="text-xs text-cyan-600 dark:text-cyan-500 mt-1">
+                          Model confidence
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  {analysis.metadata.warnings && analysis.metadata.warnings.length > 0 && (
+                    <div className="mt-4 p-4 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-lg">
+                      <h4 className="text-sm font-semibold text-amber-900 dark:text-amber-100 mb-2 flex items-center gap-2">
+                        <AlertTriangle className="w-4 h-4" />
+                        Analysis Warnings
+                      </h4>
+                      <ul className="space-y-1">
+                        {analysis.metadata.warnings.map((warning: string, index: number) => (
+                          <li key={index} className="text-sm text-amber-800 dark:text-amber-200 flex items-start gap-2">
+                            <span className="text-amber-500 mt-0.5">•</span>
+                            <span>{warning}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Validation Warnings */}
+              {validation?.warnings && validation.warnings.length > 0 && (
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-2">
+                    <AlertTriangle className="w-5 h-5 text-red-600 dark:text-red-400" />
+                    Validation Warnings
+                  </h3>
+                  <div className="space-y-2">
+                    {validation.warnings.map((warning: string, index: number) => (
+                      <div
+                        key={index}
+                        className="p-4 bg-red-50 dark:bg-red-950/20 border-l-4 border-red-500 dark:border-red-600"
+                      >
+                        <div className="flex items-start gap-3">
+                          <span className="flex-shrink-0 w-6 h-6 flex items-center justify-center bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded-full text-xs font-bold">
+                            !
+                          </span>
+                          <p className="text-sm text-red-800 dark:text-red-200 leading-relaxed">
+                            {warning}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="mt-3 p-3 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800 rounded-lg">
+                    <p className="text-xs text-red-800 dark:text-red-300">
+                      <strong>Important:</strong> These warnings indicate potential issues with the validation process. Review each warning carefully and consult with a tax professional if needed.
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {/* Verification Summary */}
+              {verification?.llm_summary && (
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
+                    Verification Summary
+                  </h3>
+                  <div className="p-5 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/10 border border-blue-200 dark:border-blue-800 rounded-lg">
+                    <p className="text-sm text-gray-800 dark:text-gray-200 leading-relaxed whitespace-pre-wrap">
+                      {verification.llm_summary}
+                    </p>
+                  </div>
+                  <div className="mt-3 p-3 bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+                    <p className="text-xs text-blue-800 dark:text-blue-300">
+                      This summary was generated by AI analysis of your timeline data and verification results.
+                    </p>
+                  </div>
                 </div>
               )}
 

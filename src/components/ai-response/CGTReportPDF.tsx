@@ -1952,6 +1952,109 @@ export const CGTReportPDF: React.FC<CGTReportPDFProps> = ({ response, properties
           </View>
         )}
 
+        {/* Six-Year Rule Analysis */}
+        {properties && properties.some((p: any) => p.six_year_rule_applied || p.six_year_reason) && (
+          <View style={{ marginTop: 20 }}>
+            <Text style={styles.sectionHeader}>Six-Year Rule Analysis</Text>
+            {properties.filter((p: any) => p.six_year_rule_applied || p.six_year_reason).map((property: any, index: number) => (
+              <View key={index} style={{ marginBottom: 10, padding: 10, backgroundColor: property.six_year_rule_applied ? '#f0fdfa' : '#f8fafc', borderRadius: 6, borderWidth: 1, borderColor: property.six_year_rule_applied ? '#5eead4' : '#e2e8f0' }}>
+                <Text style={{ fontSize: 10, fontWeight: 'bold', color: '#1e293b', marginBottom: 4 }}>{property.address}</Text>
+                <Text style={{ fontSize: 8, fontWeight: 'bold', color: property.six_year_rule_applied ? '#0f766e' : '#64748b', marginBottom: 4 }}>
+                  {property.six_year_rule_applied ? 'APPLIED ✓' : 'NOT APPLIED'}
+                </Text>
+                {property.six_year_reason && (
+                  <Text style={{ fontSize: 8, color: '#475569', lineHeight: 1.5 }}>{property.six_year_reason}</Text>
+                )}
+              </View>
+            ))}
+          </View>
+        )}
+
+        {/* Timeline Quality Assessment */}
+        {response?.verification?.timeline_analysis?.statistics && (
+          <View style={{ marginTop: 20 }}>
+            <Text style={styles.sectionHeader}>Timeline Quality Assessment</Text>
+            <View style={styles.validationGrid}>
+              <View style={[styles.validationCard, {
+                backgroundColor: response.verification.timeline_analysis.statistics.accounted_percentage >= 99 ? '#f0fdf4' : response.verification.timeline_analysis.statistics.accounted_percentage >= 95 ? '#fffbeb' : '#fef2f2',
+                borderColor: response.verification.timeline_analysis.statistics.accounted_percentage >= 99 ? '#bbf7d0' : response.verification.timeline_analysis.statistics.accounted_percentage >= 95 ? '#fde68a' : '#fecaca'
+              }]}>
+                <Text style={styles.validationLabel}>Coverage</Text>
+                <Text style={[styles.validationValue, { color: response.verification.timeline_analysis.statistics.accounted_percentage >= 99 ? '#16a34a' : response.verification.timeline_analysis.statistics.accounted_percentage >= 95 ? '#d97706' : '#dc2626' }]}>
+                  {response.verification.timeline_analysis.statistics.accounted_percentage.toFixed(1)}%
+                </Text>
+                <Text style={styles.validationSubtext}>Timeline quality</Text>
+              </View>
+              <View style={[styles.validationCard, { backgroundColor: '#fffbeb', borderColor: '#fde68a' }]}>
+                <Text style={styles.validationLabel}>Gap Days</Text>
+                <Text style={[styles.validationValue, { color: '#d97706' }]}>
+                  {response.verification.timeline_analysis.statistics.gap_days || 0}
+                </Text>
+                <Text style={styles.validationSubtext}>Missing periods</Text>
+              </View>
+            </View>
+          </View>
+        )}
+
+        {/* Analysis Metadata */}
+        {analysis?.metadata && (
+          <View style={{ marginTop: 20 }}>
+            <Text style={styles.sectionHeader}>Analysis Metadata</Text>
+            <View style={styles.validationGrid}>
+              {analysis.metadata.llm_used && (
+                <View style={[styles.validationCard, { backgroundColor: '#eef2ff', borderColor: '#c7d2fe' }]}>
+                  <Text style={styles.validationLabel}>AI Model</Text>
+                  <Text style={{ fontSize: 9, fontWeight: 'bold', color: '#4338ca' }}>
+                    {analysis.metadata.llm_used}
+                  </Text>
+                  <Text style={styles.validationSubtext}>Language model</Text>
+                </View>
+              )}
+              {analysis.metadata.chunks_retrieved !== undefined && (
+                <View style={[styles.validationCard, { backgroundColor: '#f0fdfa', borderColor: '#99f6e4' }]}>
+                  <Text style={styles.validationLabel}>KB Chunks</Text>
+                  <Text style={[styles.validationValue, { color: '#0f766e' }]}>
+                    {analysis.metadata.chunks_retrieved}
+                  </Text>
+                  <Text style={styles.validationSubtext}>Retrieved</Text>
+                </View>
+              )}
+            </View>
+          </View>
+        )}
+
+        {/* Portfolio Intelligence */}
+        {analysis?.cross_property_intelligence && (
+          <View style={{ marginTop: 20 }}>
+            <Text style={styles.sectionHeader}>Portfolio Intelligence</Text>
+            <View style={styles.summaryBox}>
+              <Text style={styles.summaryText}>{analysis.cross_property_intelligence}</Text>
+            </View>
+          </View>
+        )}
+
+        {/* Verification Summary */}
+        {response?.verification?.llm_summary && (
+          <View style={{ marginTop: 20 }}>
+            <Text style={styles.sectionHeader}>Verification Summary</Text>
+            <View style={{ padding: 10, backgroundColor: '#eff6ff', borderRadius: 6, borderWidth: 1, borderColor: '#bfdbfe' }}>
+              <Text style={{ fontSize: 9, color: '#1e293b', lineHeight: 1.5 }}>{response.verification.llm_summary}</Text>
+            </View>
+          </View>
+        )}
+
+        {/* Validation Warnings */}
+        {validation?.warnings && validation.warnings.length > 0 && (
+          <View style={{ marginTop: 20 }}>
+            <Text style={styles.sectionHeader}>⚠️ Validation Warnings</Text>
+            {validation.warnings.map((warning: string, index: number) => (
+              <View key={index} style={{ marginBottom: 6, padding: 8, backgroundColor: '#fef2f2', borderLeftWidth: 3, borderLeftColor: '#ef4444', borderRadius: 4 }}>
+                <Text style={{ fontSize: 8, color: '#991b1b', lineHeight: 1.5 }}>{warning}</Text>
+              </View>
+            ))}
+          </View>
+        )}
+
         {/* Disclaimer */}
         <View style={{ marginTop: 30, padding: 15, backgroundColor: '#fef3c7', borderRadius: 6 }}>
           <Text style={{ fontSize: 8, color: '#78350f', lineHeight: 1.5 }}>

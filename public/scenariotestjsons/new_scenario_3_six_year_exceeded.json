@@ -1,0 +1,48 @@
+{
+  "properties": [
+    {
+      "address": "42 Harbour View Road, McMahons Point NSW 2060",
+      "property_history": [
+        {
+          "date": "2012-01-01",
+          "event": "purchase",
+          "price": 890000,
+          "stamp_duty": 35600,
+          "purchase_legal_fees": 4200
+        },
+        {
+          "date": "2012-01-01",
+          "event": "move_in"
+        },
+        {
+          "date": "2014-06-15",
+          "event": "improvement",
+          "price": 55000
+        },
+        {
+          "date": "2016-01-01",
+          "event": "move_out",
+          "market_value": 1050000
+        },
+        {
+          "date": "2016-01-01",
+          "event": "rent_start"
+        },
+        {
+          "date": "2024-09-01",
+          "event": "sale",
+          "price": 2150000,
+          "contract_date": "2024-09-01",
+          "agent_fees": 53750,
+          "legal_fees": 4500
+        }
+      ],
+      "notes": "sold - Six-year rule exceeded. Rented for 8.67 years while in Singapore. Partial exemption applies. First use to produce income rule triggered."
+    }
+  ],
+  "user_query": "I rented my Sydney home for over 8 years while working in Singapore. How much CGT do I owe now that I've sold?",
+  "additional_info": {
+    "australian_resident": true,
+    "market_value_at_first_rental": 1050000
+  }
+}

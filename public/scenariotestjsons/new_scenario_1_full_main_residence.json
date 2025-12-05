@@ -1,0 +1,43 @@
+{
+  "properties": [
+    {
+      "address": "18 Riverside Terrace, Newstead QLD 4006",
+      "property_history": [
+        {
+          "date": "2014-06-01",
+          "event": "purchase",
+          "price": 545000,
+          "stamp_duty": 21800,
+          "purchase_legal_fees": 2300
+        },
+        {
+          "date": "2014-06-01",
+          "event": "move_in"
+        },
+        {
+          "date": "2017-03-15",
+          "event": "improvement",
+          "price": 38000
+        },
+        {
+          "date": "2020-08-01",
+          "event": "improvement",
+          "price": 22000
+        },
+        {
+          "date": "2024-09-15",
+          "event": "sale",
+          "price": 1020000,
+          "contract_date": "2024-09-15",
+          "agent_fees": 25500,
+          "legal_fees": 2100
+        }
+      ],
+      "notes": "sold - Full main residence exemption applies. Lived in property entire ownership period."
+    }
+  ],
+  "user_query": "I lived in my home for the entire time I owned it. What is my CGT liability on sale?",
+  "additional_info": {
+    "australian_resident": true
+  }
+}

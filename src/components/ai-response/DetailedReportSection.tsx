@@ -10,6 +10,9 @@ import { CGTReportPDF } from './CGTReportPDF';
 import EmailModal from './EmailModal';
 import CalculationBreakdownSection from './CalculationBreakdownSection';
 import PropertyAnalysisCard from './PropertyAnalysisCard';
+import CostBaseItemizedTable from './CostBaseItemizedTable';
+import TimelinePeriodBreakdownTable from './TimelinePeriodBreakdownTable';
+import GapOverlapDetailsTable from './GapOverlapDetailsTable';
 import TimelineBarView from '../timeline-viz/TimelineBarView';
 import TwoColumnLayout from '../timeline-viz/TwoColumnLayout';
 import RecommendationsSection from './RecommendationsSection';
@@ -41,6 +44,19 @@ export default function DetailedReportSection({ properties, analysis, calculatio
   const _events = timelineEvents || storeData.events;
 
   if (!analysis && !calculations && !validation) return null;
+
+  // Helper function for rainbow property card borders
+  const getPropertyCardBorderColor = (index: number) => {
+    const colors = [
+      'border-l-blue-500 dark:border-l-blue-600',
+      'border-l-purple-500 dark:border-l-purple-600',
+      'border-l-pink-500 dark:border-l-pink-600',
+      'border-l-orange-500 dark:border-l-orange-600',
+      'border-l-teal-500 dark:border-l-teal-600',
+      'border-l-indigo-500 dark:border-l-indigo-600'
+    ];
+    return colors[index % colors.length];
+  };
 
   // Helper function to generate share URL for PDF
   const generateShareUrl = async (): Promise<string | undefined> => {
@@ -199,6 +215,25 @@ export default function DetailedReportSection({ properties, analysis, calculatio
     }
   };
 
+  const handleDownloadJSON = () => {
+    if (!response) return;
+    try {
+      const jsonString = JSON.stringify(response, null, 2);
+      const blob = new Blob([jsonString], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `cgt-analysis-${response.analysis_id || 'report'}-${new Date().toISOString().split('T')[0]}.json`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Error downloading JSON:', error);
+      alert('Failed to download JSON file');
+    }
+  };
+
   return (
     <div className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden print:border-none print:shadow-none">
       {/* Header with Actions */}
@@ -255,6 +290,15 @@ export default function DetailedReportSection({ properties, analysis, calculatio
             title="View Full JSON Response"
           >
             <Code className="w-4 h-4" />
+            <span className="hidden sm:inline">View JSON</span>
+          </button>
+
+          <button
+            onClick={handleDownloadJSON}
+            className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950/20 rounded-lg transition-colors"
+            title="Download JSON File"
+          >
+            <Download className="w-4 h-4" />
             <span className="hidden sm:inline">JSON</span>
           </button>
         </div>
@@ -272,7 +316,7 @@ export default function DetailedReportSection({ properties, analysis, calculatio
           >
             <div className="p-6 space-y-8 bg-white dark:bg-gray-900 print:bg-white print:p-4">
               {/* === SECTION A: EXECUTIVE OVERVIEW === */}
-              <div className="space-y-8 print:break-inside-avoid">
+              <div className="space-y-8 print:break-inside-avoid border-l-4 border-blue-500 dark:border-blue-600 pl-6 print:border-l-0 print:pl-0">
                 <div className="border-t-4 border-blue-500 dark:border-blue-600 pt-6 print:border-t-2 print:border-black print:pt-4">
                   <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-6 flex items-center gap-2 print:text-black print:mb-4">
                     <span className="text-2xl print:hidden">📊</span>
@@ -308,15 +352,31 @@ export default function DetailedReportSection({ properties, analysis, calculatio
                   </div>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     {calculations?.portfolio_total?.total_cgt_liability !== undefined && (
-                      <div className="p-4 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950/20 dark:to-blue-950/10 border border-blue-200 dark:border-blue-800 rounded-lg">
-                        <div className="text-xs text-blue-600 dark:text-blue-400 font-medium mb-1">
+                      <div className={`p-4 bg-gradient-to-br border rounded-lg ${
+                        calculations.portfolio_total.total_cgt_liability === 0
+                          ? 'from-green-50 to-green-100 dark:from-green-950/20 dark:to-green-950/10 border-green-200 dark:border-green-800'
+                          : 'from-red-50 to-orange-100 dark:from-red-950/20 dark:to-orange-950/10 border-red-200 dark:border-red-800'
+                      }`}>
+                        <div className={`text-xs font-medium mb-1 ${
+                          calculations.portfolio_total.total_cgt_liability === 0
+                            ? 'text-green-600 dark:text-green-400'
+                            : 'text-red-600 dark:text-red-400'
+                        }`}>
                           Total CGT Liability
                         </div>
-                        <div className="text-2xl font-bold text-blue-700 dark:text-blue-300">
+                        <div className={`text-2xl font-bold ${
+                          calculations.portfolio_total.total_cgt_liability === 0
+                            ? 'text-green-700 dark:text-green-300'
+                            : 'text-red-700 dark:text-red-300'
+                        }`}>
                           {new Intl.NumberFormat('en-AU', { style: 'currency', currency: 'AUD', minimumFractionDigits: 0 }).format(calculations.portfolio_total.total_cgt_liability)}
                         </div>
-                        <div className="text-xs text-blue-600 dark:text-blue-500 mt-1">
-                          Tax return total
+                        <div className={`text-xs mt-1 ${
+                          calculations.portfolio_total.total_cgt_liability === 0
+                            ? 'text-green-600 dark:text-green-500'
+                            : 'text-red-600 dark:text-red-500'
+                        }`}>
+                          {calculations.portfolio_total.total_cgt_liability === 0 ? 'Fully exempt' : 'Tax return total'}
                         </div>
                       </div>
                     )}
@@ -407,7 +467,7 @@ export default function DetailedReportSection({ properties, analysis, calculatio
               {/* End Section A */}
 
               {/* === SECTION B: TAX RETURN ESSENTIALS === */}
-              <div className="space-y-8 print:break-inside-avoid">
+              <div className="space-y-8 print:break-inside-avoid border-l-4 border-emerald-500 dark:border-emerald-600 pl-6 print:border-l-0 print:pl-0">
                 <div className="border-t-4 border-emerald-500 dark:border-emerald-600 pt-6 print:border-t-2 print:border-black print:pt-4">
                   <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-6 flex items-center gap-2 print:text-black print:mb-4">
                     <span className="text-2xl print:hidden">📄</span>
@@ -459,7 +519,7 @@ export default function DetailedReportSection({ properties, analysis, calculatio
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: index * 0.1 }}
-                        className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden"
+                        className={`border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden border-l-4 ${getPropertyCardBorderColor(index)} print:border-l-0`}
                       >
                         {/* Property Header */}
                         <div className="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-750 p-4 border-b border-gray-200 dark:border-gray-700">
@@ -523,11 +583,40 @@ export default function DetailedReportSection({ properties, analysis, calculatio
               {calculations?.per_property && calculations.per_property.length > 0 && (
                 <CalculationBreakdownSection perPropertyCalculations={calculations.per_property} />
               )}
+
+              {/* Cost Base Itemized Tables */}
+              {properties && properties.length > 0 && calculations?.per_property && (
+                <div className="space-y-6">
+                  {properties.map((property: any, index: number) => {
+                    const propCalculations = calculations.per_property.find(
+                      (calc: any) =>
+                        calc.property_id === property.property_id ||
+                        calc.property_id === property.address ||
+                        calc.property_address === property.address
+                    );
+
+                    if (!propCalculations) return null;
+
+                    return (
+                      <div key={index} className="space-y-4">
+                        <h4 className="text-md font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
+                          <span className="text-gray-500 dark:text-gray-400">📍</span>
+                          {property.address}
+                        </h4>
+                        <CostBaseItemizedTable
+                          property={property}
+                          calculations={propCalculations}
+                        />
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
               </div>
               {/* End Section B */}
 
               {/* === SECTION C: SPECIAL RULES & EXEMPTIONS === */}
-              <div className="space-y-8 print:break-inside-avoid">
+              <div className="space-y-8 print:break-inside-avoid border-l-4 border-amber-500 dark:border-amber-600 pl-6 print:border-l-0 print:pl-0">
                 <div className="border-t-4 border-amber-500 dark:border-amber-600 pt-6 print:border-t-2 print:border-black print:pt-4">
                   <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-6 flex items-center gap-2 print:text-black print:mb-4">
                     <span className="text-2xl print:hidden">🏛️</span>
@@ -599,6 +688,47 @@ export default function DetailedReportSection({ properties, analysis, calculatio
                     </p>
                   </div>
                 </div>
+              )}
+
+              {/* Timeline Period Breakdown Tables */}
+              {properties && properties.length > 0 && (
+                <div className="space-y-6">
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                    Property Period Breakdowns
+                  </h3>
+                  {properties.map((property: any, index: number) => {
+                    const propCalculations = calculations?.per_property?.find(
+                      (calc: any) =>
+                        calc.property_id === property.property_id ||
+                        calc.property_id === property.address ||
+                        calc.property_address === property.address
+                    );
+
+                    // Only show if property has period breakdown
+                    if (!property.period_breakdown) return null;
+
+                    return (
+                      <div key={index} className="space-y-4">
+                        <h4 className="text-md font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
+                          <span className="text-gray-500 dark:text-gray-400">📍</span>
+                          {property.address}
+                        </h4>
+                        <TimelinePeriodBreakdownTable
+                          property={property}
+                          calculations={propCalculations}
+                        />
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+
+              {/* Gap/Overlap Details Table */}
+              {properties && verification && (
+                <GapOverlapDetailsTable
+                  properties={properties}
+                  verification={verification}
+                />
               )}
 
               {/* 4. Timeline Quality Assessment */}
@@ -720,7 +850,7 @@ export default function DetailedReportSection({ properties, analysis, calculatio
               {/* End Section C */}
 
               {/* === SECTION D: AUDIT TRAIL & DOCUMENTATION === */}
-              <div className="space-y-8 print:break-inside-avoid">
+              <div className="space-y-8 print:break-inside-avoid border-l-4 border-purple-500 dark:border-purple-600 pl-6 print:border-l-0 print:pl-0">
                 <div className="border-t-4 border-purple-500 dark:border-purple-600 pt-6 print:border-t-2 print:border-black print:pt-4">
                   <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-6 flex items-center gap-2 print:text-black print:mb-4">
                     <span className="text-2xl print:hidden">📑</span>
@@ -888,7 +1018,7 @@ export default function DetailedReportSection({ properties, analysis, calculatio
 
               {/* === SECTION E: SUPPLEMENTARY VISUALS === */}
               {(_timelineProperties && _timelineProperties.length > 0 && _events && _events.length > 0) && (
-                <div className="space-y-8 print:hidden">
+                <div className="space-y-8 print:hidden border-l-4 border-gray-400 dark:border-gray-600 pl-6 print:border-l-0 print:pl-0">
                   <div className="border-t-4 border-gray-400 dark:border-gray-600 pt-6 print:border-t-2 print:border-black print:pt-4">
                     <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-6 flex items-center gap-2 print:text-black print:mb-4">
                       <span className="text-2xl print:hidden">📈</span>

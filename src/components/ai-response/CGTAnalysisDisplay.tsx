@@ -6,9 +6,7 @@ import { CheckCircle, XCircle, ChevronDown, ChevronUp } from 'lucide-react';
 import GapQuestionsPanel from './GapQuestionsPanel';
 import DetailedReportSection from './DetailedReportSection';
 import TwoColumnLayout from '../timeline-viz/TwoColumnLayout';
-import StructuredCalculationDisplay from './StructuredCalculationDisplay';
-import ResultHighlight from './ResultHighlight';
-import ApplicableRulesSection from './ApplicableRulesSection';
+import PropertyTwoColumnView from './PropertyTwoColumnView';
 import { useTimelineStore } from '@/store/timeline';
 
 interface CGTAnalysisDisplayProps {
@@ -55,12 +53,59 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
       }).format(Math.abs(amount));
     };
 
+    // Get colorful styling for property tabs (rainbow progression)
+    const getPropertyTabColor = (index: number) => {
+      const colors = [
+        {
+          border: 'border-blue-500 dark:border-blue-600',
+          bg: 'bg-blue-50 dark:bg-blue-950/30',
+          text: 'text-blue-900 dark:text-blue-100',
+          gainText: 'text-blue-600 dark:text-blue-400'
+        },
+        {
+          border: 'border-purple-500 dark:border-purple-600',
+          bg: 'bg-purple-50 dark:bg-purple-950/30',
+          text: 'text-purple-900 dark:text-purple-100',
+          gainText: 'text-purple-600 dark:text-purple-400'
+        },
+        {
+          border: 'border-pink-500 dark:border-pink-600',
+          bg: 'bg-pink-50 dark:bg-pink-950/30',
+          text: 'text-pink-900 dark:text-pink-100',
+          gainText: 'text-pink-600 dark:text-pink-400'
+        },
+        {
+          border: 'border-orange-500 dark:border-orange-600',
+          bg: 'bg-orange-50 dark:bg-orange-950/30',
+          text: 'text-orange-900 dark:text-orange-100',
+          gainText: 'text-orange-600 dark:text-orange-400'
+        },
+        {
+          border: 'border-teal-500 dark:border-teal-600',
+          bg: 'bg-teal-50 dark:bg-teal-950/30',
+          text: 'text-teal-900 dark:text-teal-100',
+          gainText: 'text-teal-600 dark:text-teal-400'
+        },
+        {
+          border: 'border-indigo-500 dark:border-indigo-600',
+          bg: 'bg-indigo-50 dark:bg-indigo-950/30',
+          text: 'text-indigo-900 dark:text-indigo-100',
+          gainText: 'text-indigo-600 dark:text-indigo-400'
+        }
+      ];
+      return colors[index % colors.length];
+    };
+
     // Parse analysis summary from JSON
     let analysisSummaryText = '';
+    let perPropertyAnalysis: any[] = [];
+    let recommendations: string[] = [];
     try {
       if (analysis && analysis.content) {
         const analysisData = JSON.parse(analysis.content);
         analysisSummaryText = analysisData.summary || '';
+        perPropertyAnalysis = analysisData.per_property_analysis || [];
+        recommendations = analysisData.recommendations || [];
       }
     } catch (e) {
       console.error('Failed to parse analysis content:', e);
@@ -68,107 +113,13 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
 
     return (
       <div className="space-y-8">
-        {/* Analysis Summary Text */}
-        {analysisSummaryText && (
-          <div className="bg-gray-800/30 dark:bg-gray-800/30 border border-gray-700/50 dark:border-gray-700 rounded-xl p-5 shadow-md">
-            <div className="flex items-center gap-2.5 mb-4">
-              <div className="p-2 bg-gradient-to-br from-blue-500 to-purple-500 rounded-lg shadow-sm">
-                <span className="text-xl">📊</span>
-              </div>
-              <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">
-                Portfolio Analysis Summary
-              </h2>
-            </div>
-
-            {/* Portfolio Summary Metrics */}
-            {apiProperties && apiProperties.length > 0 && (
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-5">
-                <div className="bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
-                  <div className="text-sm text-gray-600 dark:text-gray-400 mb-1">Total Net Capital Gain</div>
-                  <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-                    {formatCurrency(summary?.net_taxable_gain || response.calculations?.portfolio_total?.total_cgt_liability || 0)}
-                  </div>
-                </div>
-                <div className="bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
-                  <div className="text-sm text-gray-600 dark:text-gray-400 mb-1">Properties with CGT</div>
-                  <div className="text-2xl font-bold text-green-600 dark:text-green-400">
-                    {response.calculations?.portfolio_total?.properties_with_cgt || 0}
-                  </div>
-                </div>
-                <div className="bg-purple-50 dark:bg-purple-950/20 border border-purple-200 dark:border-purple-800 rounded-lg p-4">
-                  <div className="text-sm text-gray-600 dark:text-gray-400 mb-1">Fully Exempt Properties</div>
-                  <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">
-                    {response.calculations?.portfolio_total?.properties_exempt || 0}
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Parse and display structured summary */}
-            {(() => {
-              // Get property addresses from apiProperties
-              const propertyAddresses = apiProperties?.map((p: any) => p.address) || [];
-              const propertyCount = propertyAddresses.length;
-
-              // Helper to shorten address (e.g., "123 Smith Street, Melbourne VIC" -> "123 Smith Street")
-              const shortenAddress = (address: string) => {
-                const parts = address.split(',');
-                return parts[0] || address;
-              };
-
-              // Color scheme for properties (cycles through colors)
-              const propertyColors = [
-                { bg: 'bg-blue-100 dark:bg-blue-900/30', text: 'text-blue-700 dark:text-blue-300' },
-                { bg: 'bg-emerald-100 dark:bg-emerald-900/30', text: 'text-emerald-700 dark:text-emerald-300' },
-                { bg: 'bg-purple-100 dark:bg-purple-900/30', text: 'text-purple-700 dark:text-purple-300' },
-                { bg: 'bg-amber-100 dark:bg-amber-900/30', text: 'text-amber-700 dark:text-amber-300' },
-                { bg: 'bg-rose-100 dark:bg-rose-900/30', text: 'text-rose-700 dark:text-rose-300' },
-                { bg: 'bg-cyan-100 dark:bg-cyan-900/30', text: 'text-cyan-700 dark:text-cyan-300' },
-              ];
-
-              return (
-                <div className="space-y-4">
-                  {/* Key Insights Card */}
-                  <div className="bg-white dark:bg-gray-800/50 rounded-lg p-4 border border-blue-100 dark:border-gray-700">
-                    <div className="flex items-center gap-2 mb-3">
-                      <div className="w-6 h-6 rounded-full bg-blue-500 text-white flex items-center justify-center text-xs font-bold">
-                        {propertyCount}
-                      </div>
-                      <h3 className="text-sm font-bold text-gray-900 dark:text-gray-100">
-                        {propertyCount === 1 ? 'Property Analyzed' : 'Properties Analyzed'}
-                      </h3>
-                    </div>
-
-                    {/* Property Badges */}
-                    <div className="flex flex-wrap gap-2 mb-3">
-                      {propertyAddresses.map((address: string, index: number) => {
-                        const colors = propertyColors[index % propertyColors.length];
-                        return (
-                          <span key={index} className={`inline-flex items-center gap-1.5 px-2.5 py-1 ${colors.bg} ${colors.text} text-xs font-semibold rounded-full`}>
-                            🏠 {shortenAddress(address)}
-                          </span>
-                        );
-                      })}
-                    </div>
-
-                    {/* Summary Text - Enhanced */}
-                    <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
-                      {analysisSummaryText}
-                    </p>
-                  </div>
-                </div>
-              );
-            })()}
-          </div>
-        )}
-
         {/* Horizontal Property Card Tabs */}
         {apiProperties && apiProperties.length > 0 && (
           <div className="space-y-3">
             <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide">
               Select Property for Analysis:
             </h3>
-            <div className="flex overflow-x-auto gap-4 pb-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
               {apiProperties.map((property: any, index: number) => {
                 const calculations = response.calculations?.per_property?.find(
                   (calc: any) =>
@@ -185,15 +136,15 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
                   <button
                     key={property.property_id || property.address || index}
                     onClick={() => setActiveTab(`property-${index}`)}
-                    className={`flex-shrink-0 w-72 p-4 rounded-lg border-2 transition-all ${
+                    className={`w-full p-4 rounded-lg border-2 transition-all ${
                       isActive
-                        ? 'border-blue-600 dark:border-blue-400 bg-blue-50 dark:bg-blue-950/30 shadow-lg'
-                        : 'border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 hover:border-blue-400 dark:hover:border-blue-500 shadow-sm hover:shadow-md'
+                        ? 'border-t-4 border-orange-500 dark:border-orange-600 bg-orange-50 dark:bg-orange-950/30 shadow-lg'
+                        : 'border-t-2 border-indigo-500 dark:border-indigo-600 bg-white dark:bg-gray-800 hover:border-opacity-70 shadow-sm hover:shadow-md'
                     }`}
                   >
                     <div className="text-left space-y-2.5">
                       {/* Address */}
-                      <h4 className={`font-bold text-sm ${isActive ? 'text-blue-900 dark:text-blue-100' : 'text-gray-900 dark:text-gray-100'}`}>
+                      <h4 className={`font-bold text-sm ${isActive ? 'text-orange-900 dark:text-orange-100' : 'text-gray-900 dark:text-gray-100'}`}>
                         {property.address}
                       </h4>
 
@@ -201,13 +152,13 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
                       <div className="flex gap-3 text-xs">
                         <div className="flex-1">
                           <div className="text-gray-500 dark:text-gray-400">Status</div>
-                          <div className={`font-semibold ${isActive ? 'text-blue-900 dark:text-blue-100' : 'text-gray-900 dark:text-gray-100'}`}>
+                          <div className={`font-semibold ${isActive ? 'text-orange-900 dark:text-orange-100' : 'text-gray-900 dark:text-gray-100'}`}>
                             {property.status || 'N/A'}
                           </div>
                         </div>
                         <div className="flex-1">
                           <div className="text-gray-500 dark:text-gray-400">Exemption</div>
-                          <div className={`font-semibold ${isActive ? 'text-blue-900 dark:text-blue-100' : 'text-gray-900 dark:text-gray-100'}`}>
+                          <div className={`font-semibold ${isActive ? 'text-orange-900 dark:text-orange-100' : 'text-gray-900 dark:text-gray-100'}`}>
                             {property.exempt_percentage || 0}%
                           </div>
                         </div>
@@ -217,7 +168,7 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
                       <div className="pt-2 border-t border-gray-200 dark:border-gray-700">
                         <div className="text-gray-500 dark:text-gray-400 text-xs mb-1">Net Capital Gain</div>
                         <div className="flex items-center justify-between">
-                          <div className={`text-lg font-bold ${isExempt ? 'text-green-600 dark:text-green-400' : 'text-blue-600 dark:text-blue-400'}`}>
+                          <div className={`text-lg font-bold ${isExempt ? 'text-green-600 dark:text-green-400' : (isActive ? 'text-orange-600 dark:text-orange-400' : 'text-gray-900 dark:text-gray-100')}`}>
                             {isExempt ? '$0' : formatCurrency(netGain)}
                           </div>
                           {isExempt && (
@@ -247,6 +198,11 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
                 calc.property_address === property.address
             );
 
+            // Find property-specific analysis
+            const propertyAnalysis = perPropertyAnalysis.find(
+              (pa: any) => pa.property_address === property.address
+            );
+
             return activeTab === `property-${index}` && (
               <motion.div
                 key={`property-${index}`}
@@ -254,24 +210,14 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
                 transition={{ duration: 0.2 }}
-                className="space-y-6"
               >
-                {/* Result Highlight */}
-                <ResultHighlight
+                {/* Two Column View: Timeline + Calculation Details */}
+                <PropertyTwoColumnView
                   property={property}
                   calculations={calculations}
-                />
-
-                {/* Structured Calculation Display */}
-                <StructuredCalculationDisplay
-                  property={property}
-                  calculations={calculations}
-                />
-
-                {/* Applicable Rules */}
-                <ApplicableRulesSection
-                  property={property}
-                  calculations={calculations}
+                  propertyAnalysis={propertyAnalysis}
+                  recommendations={recommendations}
+                  validation={response.validation}
                 />
               </motion.div>
             );

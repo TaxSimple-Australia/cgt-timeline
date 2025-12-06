@@ -23,6 +23,12 @@ export default function PropertyAnalysisCard({ property, calculations, analysis 
     }).format(Math.abs(amount));
   };
 
+  // Remove bracketed text from step descriptions
+  const cleanStepDescription = (description: string) => {
+    // Remove anything in brackets (and the brackets themselves)
+    return description.replace(/\s*\([^)]*\)/g, '').trim();
+  };
+
   const getExemptionBadgeColor = (exemptionType: string) => {
     switch (exemptionType) {
       case 'full':
@@ -372,7 +378,7 @@ export default function PropertyAnalysisCard({ property, calculations, analysis 
                           </span>
                           <div className="flex-1">
                             <div className="font-medium text-gray-900 dark:text-gray-100 text-sm">
-                              {step.description}
+                              {cleanStepDescription(step.description)}
                             </div>
                             <div className="text-xs text-gray-500 dark:text-gray-500 mt-1">
                               {step.calculation}

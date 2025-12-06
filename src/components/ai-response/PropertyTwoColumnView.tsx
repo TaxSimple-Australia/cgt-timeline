@@ -11,6 +11,7 @@ interface PropertyTwoColumnViewProps {
   propertyAnalysis?: any;
   recommendations?: string[];
   validation?: any;
+  analysis?: any;
 }
 
 export default function PropertyTwoColumnView({
@@ -18,8 +19,10 @@ export default function PropertyTwoColumnView({
   calculations,
   propertyAnalysis,
   recommendations = [],
-  validation
+  validation,
+  analysis
 }: PropertyTwoColumnViewProps) {
+
   // Extract cost base breakdown (moved earlier for purchasePrice dependency)
   const costBaseBreakdown = calculations?.cost_base_breakdown || {};
   const acquisitionCosts = costBaseBreakdown.acquisition_costs || {};
@@ -678,88 +681,42 @@ export default function PropertyTwoColumnView({
         </div>
       )}
 
-      {/* DEBUG: Show what validation data exists */}
-      {validation && (
-        <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-700 p-4 m-4">
-          <h4 className="font-bold mb-2">DEBUG - Validation Data:</h4>
-          <pre className="text-xs overflow-auto max-h-96">
-            {JSON.stringify(validation, null, 2)}
-          </pre>
-        </div>
-      )}
-
-      {/* Knowledge Base Rules - Full Width Below */}
-      {validation?.knowledge_base_rules && validation.knowledge_base_rules.length > 0 && (
+      {/* Rules Applied - Full Width Below */}
+      {analysis?.validation?.knowledge_base_rules && analysis.validation.knowledge_base_rules.length > 0 && (
         <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 border-t-0 p-6">
           <div className="flex items-center gap-3 mb-4">
             <Lightbulb className="w-5 h-5 text-green-600 dark:text-green-400" />
             <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">
-              Knowledge Base Rules Applied
+              Rules Applied
             </h3>
           </div>
-          <div className="space-y-4">
-            {validation.knowledge_base_rules.map((rule: any, index: number) => (
-              <div key={`rule-${index}`} className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-5 border border-gray-200 dark:border-gray-700">
-                {/* Rule Header */}
-                <div className="flex items-start gap-3 mb-3">
-                  <div className="flex-1">
-                    <div className="font-bold text-base text-gray-900 dark:text-gray-100">
+          <div className="space-y-3">
+            {analysis.validation.knowledge_base_rules.map((rule: any, index: number) => (
+              <div key={`rule-${index}`} className="bg-white dark:bg-gray-900 rounded-lg p-4 border border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 transition-colors">
+                <div className="flex items-start gap-3">
+                  {/* Rule ID Badge */}
+                  {rule.rule_id && (
+                    <div className="flex-shrink-0">
+                      <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600">
+                        {rule.rule_id}
+                      </span>
+                    </div>
+                  )}
+
+                  <div className="flex-1 min-w-0">
+                    {/* Rule Title */}
+                    <div className="font-semibold text-base text-gray-900 dark:text-gray-100 mb-1.5">
                       {rule.rule_title}
                     </div>
-                    {rule.rule_id && (
-                      <div className="text-xs text-gray-500 dark:text-gray-400 mt-1 font-mono">
-                        ID: {rule.rule_id}
-                      </div>
+
+                    {/* Summary */}
+                    {rule.summary && (
+                      <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+                        {rule.summary}
+                      </p>
                     )}
                   </div>
-                  {rule.relevance && (
-                    <div className="text-xs bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 px-2 py-1 rounded">
-                      {rule.relevance}
-                    </div>
-                  )}
                 </div>
-
-                {/* Summary */}
-                {rule.summary && (
-                  <p className="text-sm text-gray-700 dark:text-gray-300 mb-3">
-                    {rule.summary}
-                  </p>
-                )}
-
-                {/* Key Quote */}
-                {rule.key_quote && (
-                  <div className="mt-3 p-3 bg-white dark:bg-gray-900/50 rounded border-l-4 border-green-500">
-                    <p className="text-sm text-gray-700 dark:text-gray-300 italic">
-                      "{rule.key_quote}"
-                    </p>
-                  </div>
-                )}
-
-                {/* Source Information */}
-                <div className="mt-3 flex flex-wrap gap-4 text-xs text-gray-500 dark:text-gray-400">
-                  {rule.source_document && (
-                    <div>
-                      <span className="font-semibold">Source:</span> {rule.source_document}
-                    </div>
-                  )}
-                  {rule.page && (
-                    <div>
-                      <span className="font-semibold">Page:</span> {rule.page}
-                    </div>
-                  )}
-                  {rule.source_path && (
-                    <div className="font-mono text-xs">
-                      {rule.source_path}
-                    </div>
-                  )}
-                </div>
-
-                {/* Used In Analysis */}
-                {rule.used_in_analysis && (
-                  <div className="mt-3 text-sm text-gray-600 dark:text-gray-400">
-                    <span className="font-semibold">Applied:</span> {rule.used_in_analysis}
-                  </div>
-                )}
               </div>
             ))}
           </div>

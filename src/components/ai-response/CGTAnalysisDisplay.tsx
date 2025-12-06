@@ -21,7 +21,6 @@ interface CGTAnalysisDisplayProps {
 
 export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGTAnalysisDisplayProps) {
   const [expandedDetailedReport, setExpandedDetailedReport] = useState(false);
-  const [activeTab, setActiveTab] = useState('property-0');
 
   // Get timeline data from store for visualizations
   const properties = useTimelineStore(state => state.properties);
@@ -38,63 +37,9 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
   const isSuccess = response.status === 'success';
   const isVerificationFailed = response.status === 'verification_failed';
 
-  // Success Response Display - TABBED STRUCTURE
+  // Success Response Display
   if (isSuccess) {
     const { summary, properties: apiProperties, analysis, verification } = response;
-
-    // Helper function for formatting currency
-    const formatCurrency = (amount: number | null | undefined) => {
-      if (amount === null || amount === undefined) return '$0';
-      return new Intl.NumberFormat('en-AU', {
-        style: 'currency',
-        currency: 'AUD',
-        minimumFractionDigits: 0,
-        maximumFractionDigits: 0,
-      }).format(Math.abs(amount));
-    };
-
-    // Get colorful styling for property tabs (rainbow progression)
-    const getPropertyTabColor = (index: number) => {
-      const colors = [
-        {
-          border: 'border-blue-500 dark:border-blue-600',
-          bg: 'bg-blue-50 dark:bg-blue-950/30',
-          text: 'text-blue-900 dark:text-blue-100',
-          gainText: 'text-blue-600 dark:text-blue-400'
-        },
-        {
-          border: 'border-purple-500 dark:border-purple-600',
-          bg: 'bg-purple-50 dark:bg-purple-950/30',
-          text: 'text-purple-900 dark:text-purple-100',
-          gainText: 'text-purple-600 dark:text-purple-400'
-        },
-        {
-          border: 'border-pink-500 dark:border-pink-600',
-          bg: 'bg-pink-50 dark:bg-pink-950/30',
-          text: 'text-pink-900 dark:text-pink-100',
-          gainText: 'text-pink-600 dark:text-pink-400'
-        },
-        {
-          border: 'border-orange-500 dark:border-orange-600',
-          bg: 'bg-orange-50 dark:bg-orange-950/30',
-          text: 'text-orange-900 dark:text-orange-100',
-          gainText: 'text-orange-600 dark:text-orange-400'
-        },
-        {
-          border: 'border-teal-500 dark:border-teal-600',
-          bg: 'bg-teal-50 dark:bg-teal-950/30',
-          text: 'text-teal-900 dark:text-teal-100',
-          gainText: 'text-teal-600 dark:text-teal-400'
-        },
-        {
-          border: 'border-indigo-500 dark:border-indigo-600',
-          bg: 'bg-indigo-50 dark:bg-indigo-950/30',
-          text: 'text-indigo-900 dark:text-indigo-100',
-          gainText: 'text-indigo-600 dark:text-indigo-400'
-        }
-      ];
-      return colors[index % colors.length];
-    };
 
     // Parse analysis summary from JSON
     let analysisSummaryText = '';
@@ -113,122 +58,39 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
 
     return (
       <div className="space-y-8">
-        {/* Horizontal Property Card Tabs */}
-        {apiProperties && apiProperties.length > 0 && (
-          <div className="space-y-3">
-            <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide">
-              Select Property for Analysis:
-            </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-              {apiProperties.map((property: any, index: number) => {
-                const calculations = response.calculations?.per_property?.find(
-                  (calc: any) =>
-                    calc.property_id === property.property_id ||
-                    calc.property_id === property.address ||
-                    calc.property_address === property.address
-                );
+        {/* Property Analysis Content - Show all properties */}
+        {apiProperties && apiProperties.map((property: any, index: number) => {
+          const calculations = response.calculations?.per_property?.find(
+            (calc: any) =>
+              calc.property_id === property.property_id ||
+              calc.property_id === property.address ||
+              calc.property_address === property.address
+          );
 
-                const netGain = calculations?.net_capital_gain || 0;
-                // Only show as exempt if explicitly 100% exempt or full exemption type
-                const isExempt = property.exempt_percentage === 100 || property.exemption_type === 'full';
-                const isActive = activeTab === `property-${index}`;
+          // Find property-specific analysis
+          const propertyAnalysis = perPropertyAnalysis.find(
+            (pa: any) => pa.property_address === property.address
+          );
 
-                return (
-                  <button
-                    key={property.property_id || property.address || index}
-                    onClick={() => setActiveTab(`property-${index}`)}
-                    className={`w-full p-4 rounded-lg border-2 transition-all ${
-                      isActive
-                        ? 'border-t-4 border-green-500 dark:border-green-600 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950 dark:to-emerald-950 shadow-lg'
-                        : 'border-t-2 border-blue-500 dark:border-blue-600 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950 dark:to-indigo-950 hover:border-opacity-70 shadow-sm hover:shadow-md'
-                    }`}
-                  >
-                    <div className="text-left space-y-2.5">
-                      {/* Address */}
-                      <h4 className={`font-bold text-sm ${isActive ? 'text-green-700 dark:text-green-300' : 'text-blue-700 dark:text-blue-300'}`}>
-                        {property.address}
-                      </h4>
-
-                      {/* Status & Exemption */}
-                      <div className="flex gap-3 text-xs">
-                        <div className="flex-1">
-                          <div className="text-gray-500 dark:text-gray-400">Status</div>
-                          <div className={`font-semibold ${isActive ? 'text-green-700 dark:text-green-300' : 'text-blue-700 dark:text-blue-300'}`}>
-                            {property.status || 'N/A'}
-                          </div>
-                        </div>
-                        <div className="flex-1">
-                          <div className="text-gray-500 dark:text-gray-400">Exemption</div>
-                          <div className={`font-semibold ${isActive ? 'text-green-700 dark:text-green-300' : 'text-blue-700 dark:text-blue-300'}`}>
-                            {property.exempt_percentage || 0}%
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Net Capital Gain */}
-                      <div className="pt-2 border-t border-gray-200 dark:border-gray-700">
-                        <div className="text-gray-500 dark:text-gray-400 text-xs mb-1">Net Capital Gain</div>
-                        <div className="flex items-center justify-between">
-                          <div className={`text-lg font-bold ${
-                            netGain === 0 ? 'text-green-600 dark:text-green-400' :
-                            netGain > 0 ? 'text-red-600 dark:text-red-400' :
-                            'text-green-600 dark:text-green-400'
-                          }`}>
-                            {formatCurrency(netGain)}
-                          </div>
-                          {isExempt && (
-                            <span className="text-xs font-semibold text-green-600 dark:text-green-400 bg-green-100 dark:bg-green-950/30 px-1.5 py-0.5 rounded">
-                              EXEMPT
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        )}
-
-        {/* Property Analysis Content */}
-        <AnimatePresence mode="wait">
-
-          {/* Individual Property Tab Content */}
-          {apiProperties && apiProperties.map((property: any, index: number) => {
-            const calculations = response.calculations?.per_property?.find(
-              (calc: any) =>
-                calc.property_id === property.property_id ||
-                calc.property_id === property.address ||
-                calc.property_address === property.address
-            );
-
-            // Find property-specific analysis
-            const propertyAnalysis = perPropertyAnalysis.find(
-              (pa: any) => pa.property_address === property.address
-            );
-
-            return activeTab === `property-${index}` && (
-              <motion.div
-                key={`property-${index}`}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                transition={{ duration: 0.2 }}
-              >
-                {/* Two Column View: Timeline + Calculation Details */}
-                <PropertyTwoColumnView
-                  property={property}
-                  calculations={calculations}
-                  propertyAnalysis={propertyAnalysis}
-                  recommendations={recommendations}
-                  validation={response.validation}
-                  analysis={analysis}
-                />
-              </motion.div>
-            );
-          })}
-        </AnimatePresence>
+          return (
+            <motion.div
+              key={`property-${index}`}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.2, delay: index * 0.1 }}
+            >
+              {/* Two Column View: Timeline + Calculation Details */}
+              <PropertyTwoColumnView
+                property={property}
+                calculations={calculations}
+                propertyAnalysis={propertyAnalysis}
+                recommendations={recommendations}
+                validation={response.validation}
+                analysis={analysis}
+              />
+            </motion.div>
+          );
+        })}
 
         {/* Visual Divider */}
         <div className="flex items-center gap-4 py-4">

@@ -11,6 +11,7 @@ interface PropertyTwoColumnViewProps {
   propertyAnalysis?: any;
   recommendations?: string[];
   validation?: any;
+  analysis?: any;
 }
 
 export default function PropertyTwoColumnView({
@@ -18,10 +19,21 @@ export default function PropertyTwoColumnView({
   calculations,
   propertyAnalysis,
   recommendations = [],
-  validation
+  validation,
+  analysis
 }: PropertyTwoColumnViewProps) {
+
+  // Extract cost base breakdown (moved earlier for purchasePrice dependency)
+  const costBaseBreakdown = calculations?.cost_base_breakdown || {};
+  const acquisitionCosts = costBaseBreakdown.acquisition_costs || {};
+  const disposalCosts = costBaseBreakdown.disposal_costs || {};
+  const s118192Applied = costBaseBreakdown.s118_192_applied || false;
+
   // Extract key metrics
-  const purchasePrice = property?.purchase_price || 0;
+  // Use cost_base_breakdown for purchase price (s118-192 logic)
+  const purchasePrice = s118192Applied
+    ? (costBaseBreakdown.deemed_acquisition_cost || 0)
+    : (costBaseBreakdown.original_cost || property?.purchase_price || 0);
   const salePrice = property?.sale_price || 0;
   const costBase = calculations?.cost_base || 0;
   const capitalGain = calculations?.net_capital_gain || 0;
@@ -56,24 +68,37 @@ export default function PropertyTwoColumnView({
     return colors[index % colors.length];
   };
 
-  // Get colorful left border for calculation steps (matching step badge colors)
-  const getStepBorderColor = (stepNumber: number) => {
+  // Get line color for vertical timeline connectors
+  const getStepLineColor = (stepNumber: number) => {
     const colors = [
-      'border-l-blue-500 dark:border-l-blue-600',
-      'border-l-purple-500 dark:border-l-purple-600',
-      'border-l-pink-500 dark:border-l-pink-600',
-      'border-l-orange-500 dark:border-l-orange-600',
-      'border-l-teal-500 dark:border-l-teal-600',
-      'border-l-indigo-500 dark:border-l-indigo-600'
+      'bg-blue-500 dark:bg-blue-600',
+      'bg-purple-500 dark:bg-purple-600',
+      'bg-pink-500 dark:bg-pink-600',
+      'bg-orange-500 dark:bg-orange-600',
+      'bg-teal-500 dark:bg-teal-600',
+      'bg-indigo-500 dark:bg-indigo-600'
     ];
     return colors[(stepNumber - 1) % colors.length];
   };
 
-  // Extract cost base breakdown
-  const costBaseBreakdown = calculations?.cost_base_breakdown || {};
-  const acquisitionCosts = costBaseBreakdown.acquisition_costs || {};
-  const disposalCosts = costBaseBreakdown.disposal_costs || {};
-  const s118192Applied = costBaseBreakdown.s118_192_applied || false;
+  // Get text color for step labels
+  const getStepTextColor = (stepNumber: number) => {
+    const colors = [
+      'text-blue-600 dark:text-blue-400',
+      'text-purple-600 dark:text-purple-400',
+      'text-pink-600 dark:text-pink-400',
+      'text-orange-600 dark:text-orange-400',
+      'text-teal-600 dark:text-teal-400',
+      'text-indigo-600 dark:text-indigo-400'
+    ];
+    return colors[(stepNumber - 1) % colors.length];
+  };
+
+  // Remove bracketed text from step descriptions
+  const cleanStepDescription = (description: string) => {
+    // Remove anything in brackets (and the brackets themselves)
+    return description.replace(/\s*\([^)]*\)/g, '').trim();
+  };
 
   // Extract applicable rules - use citation_details for actual text
   const applicableSections = calculations?.applicable_sections || [];
@@ -147,6 +172,23 @@ export default function PropertyTwoColumnView({
   // Calculate total days for timeline proportions
   const totalDays = property?.total_ownership_days || 1;
 
+  // Determine purchase date from earliest period start
+  const getPurchaseDate = () => {
+    const allStartDates = [
+      ...mainResidencePeriods.map((p: any) => p.start),
+      ...rentalPeriods.map((p: any) => p.start)
+    ].filter(Boolean);
+
+    if (allStartDates.length === 0) return '';
+
+    // Find earliest date
+    const dates = allStartDates.map((d: string) => new Date(d));
+    const earliestDate = new Date(Math.min(...dates.map(d => d.getTime())));
+    return earliestDate.toISOString().split('T')[0];
+  };
+
+  const purchaseDate = getPurchaseDate();
+
   // Format date for display
   const formatDate = (dateStr: string) => {
     if (!dateStr) return '';
@@ -181,28 +223,28 @@ export default function PropertyTwoColumnView({
   const acquisitionCostsTotal = Object.values(acquisitionCosts).reduce((sum: number, val: any) => sum + (typeof val === 'number' ? val : 0), 0);
   const disposalCostsTotal = Object.values(disposalCosts).reduce((sum: number, val: any) => sum + (typeof val === 'number' ? val : 0), 0);
 
-  // Get capital improvements from cost_base_details
-  const capitalImprovements = property?.cost_base_details?.capital_improvements || [];
-  const improvementsTotal = capitalImprovements.reduce((sum: number, imp: any) => sum + (imp.amount || 0), 0);
+  // Get capital improvements from calculations.cost_base_breakdown (API response)
+  const capitalImprovements = costBaseBreakdown?.capital_improvements || [];
+  const improvementsTotal = costBaseBreakdown?.capital_improvements_total || 0;
 
   return (
     <div className="space-y-0">
       {/* Property Summary Box - Gradient Header */}
       <div className="border border-gray-200 dark:border-gray-700 rounded-t-lg overflow-hidden">
-        <div className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-950 dark:to-purple-950 p-4">
+        <div className="bg-gradient-to-r from-blue-500 to-pink-500 dark:from-blue-600 dark:to-pink-600 p-4">
           <div className="flex items-start justify-between gap-4">
             <div className="flex-1">
-              <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">
+              <h3 className="text-lg font-bold text-white">
                 {property?.address || 'Property'}
               </h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
+              <p className="text-sm text-white/80">
                 {property?.scenario_detected ? `Scenario: ${property.scenario_detected}` : ''}
               </p>
             </div>
             <div className="text-right">
-              <div className="text-xs text-gray-500 dark:text-gray-400">Status</div>
+              <div className="text-xs text-white/70">Status</div>
               <div className={`text-sm font-bold ${
-                isSold ? 'text-gray-500 dark:text-gray-400' : 'text-green-600 dark:text-green-400'
+                isSold ? 'text-white/90' : 'text-white'
               }`}>
                 {isSold ? 'SOLD' : 'CURRENT'}
               </div>
@@ -220,8 +262,7 @@ export default function PropertyTwoColumnView({
                 {formatCurrency(purchasePrice)}
               </div>
               <div className="text-xs text-gray-500 dark:text-gray-400">
-                {mainResidencePeriods[0]?.start ? formatDate(mainResidencePeriods[0].start) :
-                 rentalPeriods[0]?.start ? formatDate(rentalPeriods[0].start) : ''}
+                {purchaseDate ? formatDate(purchaseDate) : ''}
               </div>
             </div>
 
@@ -252,9 +293,9 @@ export default function PropertyTwoColumnView({
         </div>
 
         {/* Two Column Content */}
-        <div className="grid md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-gray-200 dark:divide-gray-700">
-          {/* LEFT COLUMN: Timeline Bar Visualization */}
-          <div className="p-6 bg-white dark:bg-gray-900">
+        <div className="flex flex-col md:flex-row-reverse divide-y md:divide-y-0 md:divide-x divide-gray-200 dark:divide-gray-700">
+          {/* LEFT COLUMN (visually right): Timeline Bar Visualization */}
+          <div className="p-6 bg-slate-900 dark:bg-slate-950 md:w-1/2">
             {/* Timeline Scale */}
             {timelineRange.start && (
               <div className="mb-6">
@@ -333,7 +374,7 @@ export default function PropertyTwoColumnView({
             </div>
 
             {/* Legend */}
-            <div className="flex items-center gap-6 text-xs">
+            <div className="flex items-center gap-6 text-xs mb-6">
               <div className="flex items-center gap-2">
                 <div className="w-4 h-4 bg-gray-200 dark:bg-gray-700 rounded"></div>
                 <span className="text-gray-600 dark:text-gray-400">Owned</span>
@@ -348,46 +389,69 @@ export default function PropertyTwoColumnView({
               </div>
             </div>
 
+            {/* Occupancy Summary */}
+            {(mainResidencePeriods.length > 0 || rentalPeriods.length > 0) && (
+              <div className="mb-6">
+                <h4 className="text-sm font-semibold text-white uppercase tracking-wider mb-4">
+                  Occupancy Summary
+                </h4>
+                <div className="space-y-2">
+                  {mainResidencePeriods.map((period: any, idx: number) => (
+                    <div key={`mr-summary-${idx}`} className="flex items-center gap-2">
+                      <div className="w-3 h-3 bg-blue-500 dark:bg-blue-600 rounded-full"></div>
+                      <span className="text-sm text-white">
+                        Main Residence: {formatDate(period.start)} - {formatDate(period.end)}
+                      </span>
+                    </div>
+                  ))}
+                  {rentalPeriods.map((period: any, idx: number) => (
+                    <div key={`rental-summary-${idx}`} className="flex items-center gap-2">
+                      <div className="w-3 h-3 bg-purple-500 dark:bg-purple-600 rounded-full"></div>
+                      <span className="text-sm text-white">
+                        Rental: {formatDate(period.start)} - {period.end ? formatDate(period.end) : 'Present'}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* Cost Base Breakdown - Moved from right column */}
-            <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
-              <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-3">
+            <div className="mt-6 bg-slate-800 dark:bg-slate-900 rounded-lg p-6">
+              <h4 className="text-sm font-semibold text-white uppercase tracking-wider mb-6">
                 Cost Base Breakdown
               </h4>
 
               <div className="space-y-3">
-                {/* s118-192 Notice */}
-                {s118192Applied && (
-                  <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-300 dark:border-amber-700 rounded-lg p-2 text-xs">
-                    <div className="font-semibold text-amber-900 dark:text-amber-200">s118-192 Deemed Acquisition Applied</div>
-                    <div className="text-amber-800 dark:text-amber-300">
-                      Property deemed acquired at market value on first rental date.
-                    </div>
-                  </div>
-                )}
-
                 {/* ELEMENT 1: PURCHASE */}
-                <div className="bg-white dark:bg-gray-900 rounded-lg p-3">
-                  <div className="text-xs text-gray-500 dark:text-gray-400 font-medium mb-2">
+                <div className="mb-6 bg-slate-950/60 dark:bg-black/40 rounded-lg p-4">
+                  <div className="text-xs text-purple-300 font-medium mb-3">
                     ELEMENT 1: PURCHASE
                   </div>
                   <div className="flex justify-between items-center mb-2">
-                    <span className="text-sm text-gray-700 dark:text-gray-300">Purchase Price</span>
-                    <span className="text-sm font-bold text-gray-900 dark:text-gray-100">
+                    <span className="text-base text-white font-medium">
+                      Purchase Price
+                    </span>
+                    <span className="text-base font-bold text-white">
                       {formatCurrency(purchasePrice)}
                     </span>
                   </div>
+
+                  {/* Acquisition Costs */}
                   {Object.entries(acquisitionCosts).map(([key, value]: [string, any]) => (
-                    <div key={key} className="flex justify-between items-center text-xs">
-                      <span className="text-gray-600 dark:text-gray-400 capitalize">{key.replace(/_/g, ' ')}</span>
-                      <span className="font-medium text-gray-900 dark:text-gray-100">
+                    <div key={key} className="flex justify-between items-center text-sm mb-1">
+                      <span className="text-slate-300 capitalize">{key.replace(/_/g, ' ')}</span>
+                      <span className="font-medium text-white">
                         {formatCurrency(value)}
                       </span>
                     </div>
                   ))}
+
+                  {/* Subtotal */}
                   {Object.keys(acquisitionCosts).length > 0 && (
-                    <div className="flex justify-between items-center mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
-                      <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Subtotal</span>
-                      <span className="text-sm font-bold text-blue-600 dark:text-blue-400">
+                    <div className="flex justify-between items-center mt-3 pt-2 border-t border-slate-600">
+                      <span className="text-base font-semibold text-white">Subtotal</span>
+                      <span className="text-base font-bold text-blue-400">
                         {formatCurrency(purchasePrice + acquisitionCostsTotal)}
                       </span>
                     </div>
@@ -396,44 +460,44 @@ export default function PropertyTwoColumnView({
 
                 {/* ELEMENT 2: CAPITAL IMPROVEMENTS */}
                 {improvementsTotal > 0 && (
-                  <div className="bg-white dark:bg-gray-900 rounded-lg p-3">
-                    <div className="text-xs text-gray-500 dark:text-gray-400 font-medium mb-2">
+                  <div className="mb-6 bg-slate-950/60 dark:bg-black/40 rounded-lg p-4">
+                    <div className="text-xs text-purple-300 font-medium mb-3">
                       ELEMENT 2: CAPITAL IMPROVEMENTS
                     </div>
                     {capitalImprovements.map((imp: any, idx: number) => (
-                      <div key={idx} className="flex justify-between items-center text-xs mb-1">
-                        <span className="text-gray-600 dark:text-gray-400">{imp.description || 'Improvement'}</span>
-                        <span className="font-medium text-gray-900 dark:text-gray-100">
+                      <div key={idx} className="flex justify-between items-center text-sm mb-1">
+                        <span className="text-slate-300">{imp.description || 'Improvement'}</span>
+                        <span className="font-medium text-white">
                           {formatCurrency(imp.amount)}
                         </span>
                       </div>
                     ))}
-                    <div className="flex justify-between items-center mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
-                      <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Subtotal</span>
-                      <span className="text-sm font-bold text-purple-600 dark:text-purple-400">
+                    <div className="flex justify-between items-center mt-3 pt-2">
+                      <span className="text-base font-semibold text-white">Subtotal</span>
+                      <span className="text-base font-bold text-purple-400">
                         {formatCurrency(improvementsTotal)}
                       </span>
                     </div>
                   </div>
                 )}
 
-                {/* ELEMENT 5: SELLING COSTS */}
+                {/* ELEMENT 3: SELLING COSTS */}
                 {Object.keys(disposalCosts).length > 0 && (
-                  <div className="bg-white dark:bg-gray-900 rounded-lg p-3">
-                    <div className="text-xs text-gray-500 dark:text-gray-400 font-medium mb-2">
-                      ELEMENT 5: SELLING COSTS
+                  <div className="mb-6 bg-slate-950/60 dark:bg-black/40 rounded-lg p-4">
+                    <div className="text-xs text-purple-300 font-medium mb-3">
+                      ELEMENT 3: SELLING COSTS
                     </div>
                     {Object.entries(disposalCosts).map(([key, value]: [string, any]) => (
-                      <div key={key} className="flex justify-between items-center text-xs">
-                        <span className="text-gray-600 dark:text-gray-400 capitalize">{key.replace(/_/g, ' ')}</span>
-                        <span className="font-medium text-gray-900 dark:text-gray-100">
+                      <div key={key} className="flex justify-between items-center text-sm mb-1">
+                        <span className="text-slate-300 capitalize">{key.replace(/_/g, ' ')}</span>
+                        <span className="font-medium text-white">
                           {formatCurrency(value)}
                         </span>
                       </div>
                     ))}
-                    <div className="flex justify-between items-center mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
-                      <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Subtotal</span>
-                      <span className="text-sm font-bold text-red-600 dark:text-red-400">
+                    <div className="flex justify-between items-center mt-3 pt-2">
+                      <span className="text-base font-semibold text-white">Subtotal</span>
+                      <span className="text-base font-bold text-red-400">
                         {formatCurrency(disposalCostsTotal)}
                       </span>
                     </div>
@@ -442,24 +506,24 @@ export default function PropertyTwoColumnView({
               </div>
 
               {/* Total Cost Base & CGT */}
-              <div className="mt-6 pt-6 border-t-2 border-gray-300 dark:border-gray-600 space-y-3">
+              <div className="mt-6 pt-6 border-t-2 border-slate-600 space-y-3">
                 <div className="flex justify-between items-center">
-                  <span className="text-sm font-bold text-gray-700 dark:text-gray-300">Total Cost Base</span>
-                  <span className="text-lg font-bold text-gray-900 dark:text-gray-100">
+                  <span className="text-base font-bold text-white">Total Cost Base</span>
+                  <span className="text-lg font-bold text-white">
                     {formatCurrency(costBase)}
                   </span>
                 </div>
                 {isSold && (
                   <>
                     <div className="flex justify-between items-center">
-                      <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Sale Price</span>
-                      <span className="text-base font-bold text-green-600 dark:text-green-400">
+                      <span className="text-base font-semibold text-white">Sale Price</span>
+                      <span className="text-lg font-bold text-green-400">
                         {formatCurrency(salePrice)}
                       </span>
                     </div>
-                    <div className="flex justify-between items-center pt-2 border-t border-gray-200 dark:border-gray-700">
-                      <span className="text-base font-bold text-gray-900 dark:text-gray-100">Capital Gain</span>
-                      <span className="text-xl font-bold text-blue-600 dark:text-blue-400">
+                    <div className="flex justify-between items-center">
+                      <span className="text-base font-bold text-white">Capital Gain</span>
+                      <span className="text-xl font-bold text-blue-400">
                         {formatCurrency(capitalGain)}
                       </span>
                     </div>
@@ -470,49 +534,78 @@ export default function PropertyTwoColumnView({
 
           </div>
 
-          {/* RIGHT COLUMN: Calculations + Rules */}
-          <div className="p-6 bg-gray-50 dark:bg-gray-800/50 space-y-6">
+          {/* RIGHT COLUMN (visually left): Calculations + Rules */}
+          <div className="p-6 bg-slate-800 dark:bg-slate-900 space-y-6 md:w-1/2">
             {/* Calculation Steps */}
             {calculationSteps.length > 0 && (
               <div>
-                <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-4">
+                <h4 className="text-sm font-semibold text-white uppercase tracking-wider mb-4">
                   Calculation Steps
                 </h4>
-                <div className="space-y-4">
-                  {calculationSteps.map((step: any, index: number) => (
-                    <div key={index} className={`bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4 border border-gray-200 dark:border-gray-700 border-l-4 ${getStepBorderColor(step.step)}`}>
-                      <div className="flex gap-3 items-start">
-                        <div className={`flex-shrink-0 w-8 h-8 flex items-center justify-center ${getStepColor(step.step)} text-white rounded-full text-sm font-bold shadow-md`}>
-                          {step.step}
-                        </div>
-                        <div className="flex-1 space-y-2">
-                          {/* Description */}
-                          <div className="font-semibold text-gray-900 dark:text-gray-100 text-sm">
-                            {step.description}
+                <div className="relative">
+                  {calculationSteps.map((step: any, index: number) => {
+                    const isLast = index === calculationSteps.length - 1;
+
+                    return (
+                      <div key={index} className="relative flex gap-4 pb-6 last:pb-0">
+                        {/* LEFT: Timeline Column (Fixed Width) */}
+                        <div className="relative flex flex-col items-center w-12 flex-shrink-0">
+                          {/* Circle Indicator */}
+                          <div className={`
+                            w-6 h-6 rounded-full flex items-center justify-center
+                            ${getStepColor(step.step)}
+                            text-white text-xs font-bold shadow-lg z-10
+                          `}>
+                            {step.step}
                           </div>
 
-                          {/* Calculation Formula */}
-                          {step.calculation && (
-                            <div className="bg-gray-100 dark:bg-gray-900/50 border border-gray-300 dark:border-gray-600 rounded p-2">
-                              <div className="font-mono text-xs text-gray-800 dark:text-gray-200">
-                                {step.calculation}
-                              </div>
-                            </div>
-                          )}
-
-                          {/* Result */}
-                          {step.result !== null && step.result !== undefined && (
-                            <div className="flex items-center gap-2 pt-1">
-                              <span className="text-xs text-gray-500 dark:text-gray-400">=</span>
-                              <span className="text-base font-bold text-blue-600 dark:text-blue-400">
-                                {formatCurrency(step.result)}
-                              </span>
-                            </div>
+                          {/* Connecting Line (don't show for last step) */}
+                          {!isLast && (
+                            <div className={`
+                              absolute top-6 left-1/2 -translate-x-1/2
+                              w-0.5 h-full ${getStepLineColor(step.step)}
+                            `} />
                           )}
                         </div>
+
+                        {/* RIGHT: Content Column */}
+                        <div className="flex-1">
+                          {/* Step Label Header */}
+                          <div className="mb-2">
+                            <div className={`
+                              text-xs font-bold uppercase tracking-wider
+                              ${getStepTextColor(step.step)}
+                            `}>
+                              STEP {step.step}
+                            </div>
+                            <div className="text-sm font-semibold text-gray-900 dark:text-gray-100 mt-1">
+                              {cleanStepDescription(step.description)}
+                            </div>
+                          </div>
+
+                          {/* Content Area - No Boxes */}
+                          <div>
+                            {/* Calculation Formula */}
+                            {step.calculation && (
+                              <div className="font-mono text-xs text-gray-800 dark:text-gray-200 mb-2">
+                                {step.calculation}
+                              </div>
+                            )}
+
+                            {/* Result */}
+                            {step.result !== null && step.result !== undefined && (
+                              <div className="flex items-center gap-2">
+                                <span className="text-xs text-gray-500 dark:text-gray-400">=</span>
+                                <span className="text-sm font-bold text-blue-600 dark:text-blue-400">
+                                  {formatCurrency(step.result)}
+                                </span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             )}
@@ -580,6 +673,48 @@ export default function PropertyTwoColumnView({
                     <div className="text-sm text-gray-500 dark:text-gray-400 mt-1 font-mono">
                       ITAA 1997 {rule.section}
                     </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Rules Applied - Full Width Below */}
+      {analysis?.validation?.knowledge_base_rules && analysis.validation.knowledge_base_rules.length > 0 && (
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 border-t-0 p-6">
+          <div className="flex items-center gap-3 mb-4">
+            <Lightbulb className="w-5 h-5 text-green-600 dark:text-green-400" />
+            <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">
+              Rules Applied
+            </h3>
+          </div>
+          <div className="space-y-3">
+            {analysis.validation.knowledge_base_rules.map((rule: any, index: number) => (
+              <div key={`rule-${index}`} className="bg-white dark:bg-gray-900 rounded-lg p-4 border border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 transition-colors">
+                <div className="flex items-start gap-3">
+                  {/* Rule ID Badge */}
+                  {rule.rule_id && (
+                    <div className="flex-shrink-0">
+                      <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600">
+                        {rule.rule_id}
+                      </span>
+                    </div>
+                  )}
+
+                  <div className="flex-1 min-w-0">
+                    {/* Rule Title */}
+                    <div className="font-semibold text-base text-gray-900 dark:text-gray-100 mb-1.5">
+                      {rule.rule_title}
+                    </div>
+
+                    {/* Summary */}
+                    {rule.summary && (
+                      <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+                        {rule.summary}
+                      </p>
+                    )}
                   </div>
                 </div>
               </div>

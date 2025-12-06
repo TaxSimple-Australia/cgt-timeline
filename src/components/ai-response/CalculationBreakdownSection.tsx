@@ -26,6 +26,12 @@ export default function CalculationBreakdownSection({ perPropertyCalculations }:
     }).format(num);
   };
 
+  // Remove bracketed text from step descriptions
+  const cleanStepDescription = (description: string) => {
+    // Remove anything in brackets (and the brackets themselves)
+    return description.replace(/\s*\([^)]*\)/g, '').trim();
+  };
+
   if (!perPropertyCalculations || perPropertyCalculations.length === 0) {
     return null;
   }
@@ -66,7 +72,7 @@ export default function CalculationBreakdownSection({ perPropertyCalculations }:
                       </span>
                       <div className="flex-1">
                         <div className="font-semibold text-gray-900 dark:text-gray-100 mb-1">
-                          {step.description}
+                          {cleanStepDescription(step.description)}
                         </div>
                         <div className="text-sm text-gray-700 dark:text-gray-300 mb-2">
                           <span className="font-medium">Formula:</span> {step.formula}

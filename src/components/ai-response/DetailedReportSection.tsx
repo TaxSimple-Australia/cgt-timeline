@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronDown, ChevronUp, FileText, Book, Download, Mail, Printer, Code, Copy, Check, AlertTriangle, Scale, FileCheck, Home, PieChart, BarChart3 } from 'lucide-react';
+import { ChevronDown, ChevronUp, FileText, Book, Download, Mail, Printer, Code, Copy, Check, AlertTriangle, Scale, FileCheck, Home, PieChart, BarChart3, Lightbulb } from 'lucide-react';
 import { pdf } from '@react-pdf/renderer';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
@@ -1096,6 +1096,49 @@ export default function DetailedReportSection({ properties, analysis, calculatio
                   <div className="mt-3 p-3 bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-800 rounded-lg">
                     <p className="text-xs text-emerald-800 dark:text-emerald-300">
                       <strong>Audit Trail:</strong> These citations reference official ATO documents used in the analysis. Keep this information for your records in case of an ATO audit.
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {/* Rules Applied */}
+              {validation?.knowledge_base_rules && validation.knowledge_base_rules.length > 0 && (
+                <div>
+                  <div className="flex items-center gap-2 mb-4">
+                    <Lightbulb className="w-5 h-5 text-green-600 dark:text-green-400" />
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                      Rules Applied
+                    </h3>
+                  </div>
+                  <div className="space-y-3">
+                    {validation.knowledge_base_rules.map((rule: any, index: number) => (
+                      <div
+                        key={`rule-${index}`}
+                        className="bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800 rounded-lg p-4"
+                      >
+                        <div className="flex items-start gap-3">
+                          <div className="flex-shrink-0">
+                            <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-300 border border-green-300 dark:border-green-700">
+                              {rule.rule_id || `RULE ${index + 1}`}
+                            </span>
+                          </div>
+                          <div className="flex-1">
+                            <h4 className="font-bold text-base text-gray-900 dark:text-gray-100 mb-2">
+                              {rule.rule_title}
+                            </h4>
+                            {rule.summary && (
+                              <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
+                                {rule.summary}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="mt-3 p-3 bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800 rounded-lg">
+                    <p className="text-xs text-green-800 dark:text-green-300">
+                      <strong>Knowledge Base:</strong> These rules from ATO guidance were applied in calculating your CGT obligations. They reflect current tax law interpretations.
                     </p>
                   </div>
                 </div>

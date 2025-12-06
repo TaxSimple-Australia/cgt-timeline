@@ -29,6 +29,12 @@ export default function StepByStepReport({ property, calculations, analysis }: S
   const exemptionReason = property?.exemption_reason || null;
   const sixYearReason = property?.six_year_reason || null;
 
+  // Remove bracketed text from step descriptions
+  const cleanStepDescription = (description: string) => {
+    // Remove anything in brackets (and the brackets themselves)
+    return description.replace(/\s*\([^)]*\)/g, '').trim();
+  };
+
   // Accordion state for Basis of Outcome section
   const [expandedBasisCard, setExpandedBasisCard] = useState<number | null>(0);
 
@@ -263,7 +269,7 @@ export default function StepByStepReport({ property, calculations, analysis }: S
                   {/* Step Content */}
                   <div className="flex-1 space-y-2">
                     <h4 className="text-base font-semibold text-gray-900 dark:text-gray-100">
-                      Step {step.step} — {step.description}
+                      Step {step.step} — {cleanStepDescription(step.description)}
                     </h4>
 
                     {/* Calculation */}

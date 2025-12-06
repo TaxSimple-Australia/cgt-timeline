@@ -129,7 +129,8 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
                 );
 
                 const netGain = calculations?.net_capital_gain || 0;
-                const isExempt = property.exempt_percentage === 100 || netGain === 0;
+                // Only show as exempt if explicitly 100% exempt or full exemption type
+                const isExempt = property.exempt_percentage === 100 || property.exemption_type === 'full';
                 const isActive = activeTab === `property-${index}`;
 
                 return (
@@ -168,8 +169,12 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
                       <div className="pt-2 border-t border-gray-200 dark:border-gray-700">
                         <div className="text-gray-500 dark:text-gray-400 text-xs mb-1">Net Capital Gain</div>
                         <div className="flex items-center justify-between">
-                          <div className={`text-lg font-bold ${isExempt ? 'text-green-600 dark:text-green-400' : (isActive ? 'text-green-600 dark:text-green-400' : 'text-blue-700 dark:text-blue-300')}`}>
-                            {isExempt ? '$0' : formatCurrency(netGain)}
+                          <div className={`text-lg font-bold ${
+                            netGain === 0 ? 'text-green-600 dark:text-green-400' :
+                            netGain > 0 ? 'text-red-600 dark:text-red-400' :
+                            'text-green-600 dark:text-green-400'
+                          }`}>
+                            {formatCurrency(netGain)}
                           </div>
                           {isExempt && (
                             <span className="text-xs font-semibold text-green-600 dark:text-green-400 bg-green-100 dark:bg-green-950/30 px-1.5 py-0.5 rounded">

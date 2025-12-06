@@ -36,7 +36,12 @@ export default function PropertyTwoColumnView({
     : (costBaseBreakdown.original_cost || property?.purchase_price || 0);
   const salePrice = property?.sale_price || 0;
   const costBase = calculations?.cost_base || 0;
-  const capitalGain = calculations?.net_capital_gain || 0;
+
+  // Raw capital gain = Sale Price - Cost Base (before any exemptions or discounts)
+  const rawCapitalGain = calculations?.raw_capital_gain ?? (salePrice - costBase);
+  // Net capital gain = Final taxable amount after exemptions and CGT discount
+  const netCapitalGain = calculations?.net_capital_gain || 0;
+
   const isSold = property?.status === 'sold';
 
   // Extract calculation steps
@@ -256,9 +261,7 @@ export default function PropertyTwoColumnView({
             {/* Purchase */}
             <div className="bg-white/50 dark:bg-gray-800/50 rounded-lg p-3">
               <div className="text-xs text-gray-500 dark:text-gray-400">Purchase</div>
-              <div className={`text-base font-bold ${
-                capitalGain > 0 ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400'
-              }`}>
+              <div className="text-base font-bold text-gray-900 dark:text-gray-100">
                 {formatCurrency(purchasePrice)}
               </div>
               <div className="text-xs text-gray-500 dark:text-gray-400">
@@ -269,24 +272,22 @@ export default function PropertyTwoColumnView({
             {/* Cost Base */}
             <div className="bg-white/50 dark:bg-gray-800/50 rounded-lg p-3">
               <div className="text-xs text-gray-500 dark:text-gray-400">Cost Base</div>
-              <div className={`text-base font-bold ${
-                capitalGain > 0 ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400'
-              }`}>
+              <div className="text-base font-bold text-gray-900 dark:text-gray-100">
                 {formatCurrency(costBase)}
               </div>
               <div className="text-xs text-gray-500 dark:text-gray-400">Total</div>
             </div>
 
-            {/* Capital Gain */}
+            {/* Net Capital Gain (Taxable) */}
             <div className="bg-white/50 dark:bg-gray-800/50 rounded-lg p-3">
-              <div className="text-xs text-gray-500 dark:text-gray-400">Capital Gain</div>
+              <div className="text-xs text-gray-500 dark:text-gray-400">Net Capital Gain</div>
               <div className={`text-base font-bold ${
-                capitalGain > 0 ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400'
+                netCapitalGain > 0 ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400'
               }`}>
-                {formatCurrency(capitalGain)}
+                {formatCurrency(netCapitalGain)}
               </div>
               <div className="text-xs text-gray-500 dark:text-gray-400">
-                {capitalGain === 0 ? 'Exempt' : 'Taxable'}
+                {netCapitalGain === 0 ? 'Exempt' : 'Taxable'}
               </div>
             </div>
           </div>
@@ -521,12 +522,22 @@ export default function PropertyTwoColumnView({
                         {formatCurrency(salePrice)}
                       </span>
                     </div>
-                    <div className="flex justify-between items-center">
+                    {/* Raw Capital Gain = Sale Price - Cost Base */}
+                    <div className="flex justify-between items-center pt-2 border-t border-slate-500">
                       <span className="text-base font-bold text-white">Capital Gain</span>
-                      <span className="text-xl font-bold text-blue-400">
-                        {formatCurrency(capitalGain)}
+                      <span className={`text-lg font-bold ${rawCapitalGain >= 0 ? 'text-amber-400' : 'text-red-400'}`}>
+                        {formatCurrency(rawCapitalGain)}
                       </span>
                     </div>
+                    {/* Net Capital Gain - after exemptions and discounts */}
+                    {rawCapitalGain !== netCapitalGain && (
+                      <div className="flex justify-between items-center bg-slate-700/50 rounded-lg p-2 -mx-2">
+                        <span className="text-sm text-slate-300">After exemptions & discount</span>
+                        <span className={`text-xl font-bold ${netCapitalGain > 0 ? 'text-red-400' : 'text-green-400'}`}>
+                          {formatCurrency(netCapitalGain)}
+                        </span>
+                      </div>
+                    )}
                   </>
                 )}
               </div>

@@ -473,9 +473,31 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
   
   updateEvent: (id, updates) => {
     set((state) => {
-      const updatedEvents = state.events.map((e) =>
-        e.id === id ? { ...e, ...updates } : e
-      );
+      const updatedEvents = state.events.map((e) => {
+        if (e.id !== id) return e;
+
+        // Start with basic updates
+        let finalUpdates = { ...updates };
+
+        // If updating the date of a sale event, also update contractDate
+        // This keeps contractDate in sync when dragging sale events
+        if (updates.date && e.type === 'sale') {
+          finalUpdates.contractDate = updates.date;
+          console.log('📅 updateEvent: Syncing contractDate for sale event:', {
+            eventId: e.id,
+            newDate: updates.date,
+            newContractDate: updates.date,
+          });
+        }
+
+        // If updating the date and settlementDate was same as old date, sync it too
+        if (updates.date && e.settlementDate && e.date &&
+            e.settlementDate.getTime() === e.date.getTime()) {
+          finalUpdates.settlementDate = updates.date;
+        }
+
+        return { ...e, ...finalUpdates };
+      });
       const updatedEvent = updatedEvents.find(e => e.id === id);
       return {
         events: updatedEvents,
@@ -511,15 +533,45 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
     const state = get();
     const event = state.events.find((e) => e.id === id);
     if (!event) return;
-    
+
     const timelineRange = state.timelineEnd.getTime() - state.timelineStart.getTime();
     const newTime = state.timelineStart.getTime() + (newPosition / 100) * timelineRange;
     const newDate = new Date(newTime);
-    
+
+    // Debug logging
+    console.log('🔄 moveEvent called:', {
+      id,
+      eventType: event.type,
+      oldDate: event.date,
+      newDate,
+      hasContractDate: !!event.contractDate,
+      oldContractDate: event.contractDate,
+    });
+
     set((state) => ({
-      events: state.events.map((e) =>
-        e.id === id ? { ...e, position: newPosition, date: newDate } : e
-      ),
+      events: state.events.map((e) => {
+        if (e.id !== id) return e;
+
+        // Update the event with new position and date
+        const updatedEvent: typeof e = { ...e, position: newPosition, date: newDate };
+
+        // For sale events, also update contractDate to match the new date
+        // This keeps contractDate in sync with the event date when dragged
+        if (e.type === 'sale') {
+          updatedEvent.contractDate = newDate;
+          console.log('📅 Updated contractDate for sale event:', {
+            eventId: e.id,
+            newContractDate: newDate,
+          });
+        }
+
+        // Also update settlementDate if it exists and matches the original date
+        if (e.settlementDate && e.settlementDate.getTime() === e.date.getTime()) {
+          updatedEvent.settlementDate = newDate;
+        }
+
+        return updatedEvent;
+      }),
     }));
   },
   

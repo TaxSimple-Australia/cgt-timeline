@@ -37,7 +37,18 @@ export function transformTimelineToAPIFormat(
       }
 
       // Add contract date for sale events
-      if (event.contractDate) {
+      // For sale events, always include contract_date (use event date if not set)
+      if (event.type === 'sale') {
+        const contractDateValue = event.contractDate || event.date;
+        const contractDate = contractDateValue instanceof Date ? contractDateValue : new Date(contractDateValue);
+        historyEvent.contract_date = contractDate.toISOString().split('T')[0];
+        console.log('📋 Transform: Sale event contract_date:', {
+          eventDate: event.date,
+          contractDate: event.contractDate,
+          outputContractDate: historyEvent.contract_date,
+        });
+      } else if (event.contractDate) {
+        // For other event types, only include if explicitly set
         const contractDate = event.contractDate instanceof Date ? event.contractDate : new Date(event.contractDate);
         historyEvent.contract_date = contractDate.toISOString().split('T')[0];
       }

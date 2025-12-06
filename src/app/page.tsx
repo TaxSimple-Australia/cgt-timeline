@@ -219,10 +219,20 @@ function HomeContent() {
     setShowAnalysis(true); // Show analysis panel immediately to display loading progress
 
     try {
+      // Debug: Log sale events before transformation
+      const saleEvents = events.filter(e => e.type === 'sale');
+      console.log('🔍 Sale events before transform:', saleEvents.map(e => ({
+        id: e.id,
+        date: e.date,
+        contractDate: e.contractDate,
+        dateStr: e.date instanceof Date ? e.date.toISOString() : e.date,
+        contractDateStr: e.contractDate instanceof Date ? e.contractDate.toISOString() : e.contractDate,
+      })));
+
       // Transform timeline data to API format
       const apiData = transformTimelineToAPIFormat(properties, events, customQuery);
 
-      console.log('📤 Sending data to API:', apiData);
+      console.log('📤 Sending data to API:', JSON.stringify(apiData, null, 2));
 
       // Call the API
       const response = await fetch('/api/analyze-cgt', {

@@ -1,4 +1,5 @@
 {
+  "title": "Six-Year Absence Rule (Exceeded)",
   "properties": [
     {
       "address": "15 Ocean View Drive, Byron Bay NSW 2481",
@@ -42,6 +43,17 @@
     "tax_year": "2023-2024"
   },
   "use_claude": true,
+  "scenario_info": {
+    "name": "Six-Year Absence Rule (Exceeded)",
+    "description": "Property owner lived in for 2 years, then rented out for over 10 years (exceeding the 6-year rule). Partial exemption applies based on time as main residence.",
+    "expected_result": {
+      "exemption_type": "partial",
+      "exemption_percentage": 20,
+      "six_year_rule_applies": false,
+      "rental_period_years": 10.25
+    },
+    "applicable_rules": ["ITAA97 s118.145", "ITAA97 s115.25"]
+  },
   "verification_responses": [
     {
       "property_address": "15 Ocean View Drive, Byron Bay NSW 2481",

@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { format } from 'date-fns';
 import { useTimelineStore } from '@/store/timeline';
 import SettingsModal from './SettingsModal';
+import ScenarioSelectorModal from './ScenarioSelectorModal';
 import {
   ZoomIn,
   ZoomOut,
@@ -11,20 +12,23 @@ import {
   Download,
   Upload,
   Settings,
-  Database,
   Trash2,
   Moon,
   Sun,
   Circle,
   LayoutGrid,
-  Check
+  FolderOpen,
+  Menu,
+  X,
+  ChevronDown
 } from 'lucide-react';
 
 export default function TimelineControls() {
   const [showSettings, setShowSettings] = useState(false);
+  const [showScenarioSelector, setShowScenarioSelector] = useState(false);
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
   const [panSliderValue, setPanSliderValue] = useState(0);
   const [isPanning, setIsPanning] = useState(false);
-  const [useDummyData, setUseDummyData] = useState(false);
 
   const {
     zoomLevel,
@@ -35,7 +39,6 @@ export default function TimelineControls() {
     setTimelineRange,
     properties,
     events,
-    loadDemoData,
     clearAllData,
     importTimelineData,
     setZoomByIndex,
@@ -49,16 +52,16 @@ export default function TimelineControls() {
     toggleEventDisplayMode
   } = useTimelineStore();
 
-  // Get zoom level label for display
-  const zoomLevelLabels: Record<string, string> = {
-    'decade': '10+ Years',
-    'multi-year': '5-10 Years',
-    'years': '2-5 Years',
-    'year': '1-2 Years',
-    'months': '6-12 Months',
-    'month': '3-6 Months',
-    'weeks': '1-3 Months',
-    'days': '< 1 Month',
+  // Shorter zoom level labels for smaller screens
+  const zoomLevelLabels: Record<string, { full: string; short: string }> = {
+    'decade': { full: '10+ Years', short: '10+Y' },
+    'multi-year': { full: '5-10 Years', short: '5-10Y' },
+    'years': { full: '2-5 Years', short: '2-5Y' },
+    'year': { full: '1-2 Years', short: '1-2Y' },
+    'months': { full: '6-12 Months', short: '6-12M' },
+    'month': { full: '3-6 Months', short: '3-6M' },
+    'weeks': { full: '1-3 Months', short: '1-3M' },
+    'days': { full: '< 1 Month', short: '<1M' },
   };
 
   const canZoomIn = zoomLevel !== 'days';
@@ -66,7 +69,6 @@ export default function TimelineControls() {
 
   // Smooth panning slider - uses absolute timeline positions
   const getPanSliderValue = () => {
-    // Calculate center of current view as percentage of absolute timeline
     const centerTime = (timelineStart.getTime() + timelineEnd.getTime()) / 2;
     const absoluteRange = absoluteEnd.getTime() - absoluteStart.getTime();
     const offset = centerTime - absoluteStart.getTime();
@@ -74,7 +76,6 @@ export default function TimelineControls() {
     return Math.max(0, Math.min(100, percentage));
   };
 
-  // Update local state when not actively panning
   React.useEffect(() => {
     if (!isPanning) {
       setPanSliderValue(getPanSliderValue());
@@ -84,40 +85,28 @@ export default function TimelineControls() {
   const handlePanSliderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const percentage = parseFloat(e.target.value);
     setPanSliderValue(percentage);
-
-    // Use requestAnimationFrame for smooth updates
     requestAnimationFrame(() => {
       panToPosition(percentage);
     });
   };
 
-  const handlePanStart = () => {
-    setIsPanning(true);
-  };
-
-  const handlePanEnd = () => {
-    setIsPanning(false);
-  };
+  const handlePanStart = () => setIsPanning(true);
+  const handlePanEnd = () => setIsPanning(false);
 
   const handleExport = () => {
-    // Transform data to custom format
     const exportData = {
       properties: properties.map(property => {
-        // Get all events for this property, sorted by date
         const propertyEvents = events
           .filter(e => e.propertyId === property.id)
           .sort((a, b) => a.date.getTime() - b.date.getTime());
 
-        // Map events to the custom format
         const property_history = propertyEvents.map(event => {
           const historyItem: any = {
             date: format(event.date, 'yyyy-MM-dd'),
             event: event.type,
           };
 
-          // Convert cost bases to API format (individual fields)
           if (event.costBases && event.costBases.length > 0) {
-            // Map cost base definition IDs to API field names
             const costBaseToApiFieldMap: Record<string, string> = {
               'purchase_price': 'price',
               'land_price': 'land_price',
@@ -138,7 +127,6 @@ export default function TimelineControls() {
               'auction_costs': 'auction_costs',
             };
 
-            // Convert each cost base to individual field
             event.costBases.forEach(cb => {
               const apiField = costBaseToApiFieldMap[cb.definitionId];
               if (apiField) {
@@ -146,7 +134,6 @@ export default function TimelineControls() {
               }
             });
 
-            // For improvements, if there's no purchase_price, set the total as price
             if (event.type === 'improvement' && !historyItem.price) {
               const totalCost = event.costBases.reduce((sum, cb) => sum + cb.amount, 0);
               if (totalCost > 0) {
@@ -154,41 +141,19 @@ export default function TimelineControls() {
               }
             }
           } else {
-            // Fallback: Add price if amount exists (for events without cost bases)
             if (event.amount) {
               historyItem.price = event.amount;
             }
           }
 
-          // Add land and building price breakdown if exists (legacy support)
-          if (event.landPrice !== undefined) {
-            historyItem.land_price = event.landPrice;
-          }
-          if (event.buildingPrice !== undefined) {
-            historyItem.building_price = event.buildingPrice;
-          }
-
-          // Add other relevant fields
-          if (event.description) {
-            historyItem.description = event.description;
-          }
-          if (event.isPPR) {
-            historyItem.is_ppr = event.isPPR;
-          }
-          if (event.contractDate) {
-            historyItem.contract_date = format(event.contractDate, 'yyyy-MM-dd');
-          }
-          if (event.settlementDate) {
-            historyItem.settlement_date = format(event.settlementDate, 'yyyy-MM-dd');
-          }
-          if (event.newStatus) {
-            historyItem.new_status = event.newStatus;
-          }
-
-          // Market valuation for move_out events (not part of cost bases)
-          if (event.marketValuation !== undefined) {
-            historyItem.market_value = event.marketValuation;
-          }
+          if (event.landPrice !== undefined) historyItem.land_price = event.landPrice;
+          if (event.buildingPrice !== undefined) historyItem.building_price = event.buildingPrice;
+          if (event.description) historyItem.description = event.description;
+          if (event.isPPR) historyItem.is_ppr = event.isPPR;
+          if (event.contractDate) historyItem.contract_date = format(event.contractDate, 'yyyy-MM-dd');
+          if (event.settlementDate) historyItem.settlement_date = format(event.settlementDate, 'yyyy-MM-dd');
+          if (event.newStatus) historyItem.new_status = event.newStatus;
+          if (event.marketValuation !== undefined) historyItem.market_value = event.marketValuation;
 
           return historyItem;
         });
@@ -226,14 +191,7 @@ export default function TimelineControls() {
       try {
         const data = JSON.parse(event.target?.result as string);
         console.log('📥 Importing timeline data:', data);
-
-        // Import the data using the store method
         importTimelineData(data);
-
-        // Update dummy data state if data was loaded
-        setUseDummyData(false);
-
-        // Show success notification
         console.log('✅ Timeline data imported successfully!');
         alert(`Successfully imported ${data.properties?.length || 0} properties and ${data.events?.length || 0} events!`);
       } catch (error) {
@@ -242,222 +200,339 @@ export default function TimelineControls() {
       }
     };
     reader.readAsText(file);
-
-    // Reset the file input so the same file can be imported again
     e.target.value = '';
   };
 
-  const handleToggleDummyData = async () => {
-    if (!useDummyData) {
-      // Turning ON: Load demo data
-      await loadDemoData();
-      setUseDummyData(true);
-    } else {
-      // Turning OFF: Clear all data
-      clearAllData();
-      setUseDummyData(false);
-    }
+  // Slider styles (reusable)
+  const sliderClasses = `h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer
+    [&::-webkit-slider-thumb]:appearance-none
+    [&::-webkit-slider-thumb]:w-3
+    [&::-webkit-slider-thumb]:h-3
+    [&::-webkit-slider-thumb]:rounded-full
+    [&::-webkit-slider-thumb]:bg-blue-600
+    [&::-webkit-slider-thumb]:cursor-pointer
+    [&::-webkit-slider-thumb]:hover:bg-blue-700
+    [&::-webkit-slider-thumb]:transition-all
+    [&::-webkit-slider-thumb]:shadow-md
+    [&::-moz-range-thumb]:w-3
+    [&::-moz-range-thumb]:h-3
+    [&::-moz-range-thumb]:rounded-full
+    [&::-moz-range-thumb]:bg-blue-600
+    [&::-moz-range-thumb]:border-0
+    [&::-moz-range-thumb]:cursor-pointer
+    [&::-moz-range-thumb]:hover:bg-blue-700
+    [&::-moz-range-thumb]:shadow-md`;
+
+  // Icon button component for consistency
+  const IconButton = ({
+    onClick,
+    title,
+    children,
+    className = "",
+    variant = "default"
+  }: {
+    onClick: () => void;
+    title: string;
+    children: React.ReactNode;
+    className?: string;
+    variant?: "default" | "danger" | "gradient";
+  }) => {
+    const baseClasses = "p-1.5 sm:p-2 rounded-lg transition-all flex-shrink-0";
+    const variantClasses = {
+      default: "hover:bg-slate-100 dark:hover:bg-slate-700",
+      danger: "hover:bg-red-50 dark:hover:bg-red-900/20",
+      gradient: "hover:scale-105 bg-gradient-to-r from-purple-500/10 via-blue-500/10 to-teal-500/10 hover:from-purple-500/20 hover:via-blue-500/20 hover:to-teal-500/20 dark:from-purple-500/20 dark:via-blue-500/20 dark:to-teal-500/20 dark:hover:from-purple-500/30 dark:hover:via-blue-500/30 dark:hover:to-teal-500/30 border border-purple-200/50 dark:border-purple-500/30"
+    };
+
+    return (
+      <button
+        onClick={onClick}
+        className={`${baseClasses} ${variantClasses[variant]} ${className}`}
+        title={title}
+      >
+        {children}
+      </button>
+    );
   };
 
   return (
-    <div className="absolute top-0 left-0 right-0 h-16 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 px-8 flex items-center justify-between z-30">
-      {/* Left Controls */}
-      <div className="flex items-center gap-4">
-        <h1 className="text-xl font-bold text-slate-800 dark:text-slate-100">CGT Brain AI Timeline</h1>
-        <div className="flex items-center gap-2 border-l border-slate-200 dark:border-slate-700 pl-4">
-          <span className="text-sm text-slate-500 dark:text-slate-400">
-            {properties.length} {properties.length === 1 ? 'Property' : 'Properties'}
-          </span>
-          <span className="text-slate-300 dark:text-slate-600">•</span>
-          <span className="text-sm text-slate-500 dark:text-slate-400">
-            {events.length} {events.length === 1 ? 'Event' : 'Events'}
-          </span>
+    <>
+      <div className="absolute top-0 left-0 right-0 h-12 sm:h-14 lg:h-16 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 px-2 sm:px-4 lg:px-6 xl:px-8 flex items-center justify-between z-30">
+        {/* Left Section - Logo & Stats */}
+        <div className="flex items-center gap-2 sm:gap-3 lg:gap-4 min-w-0 flex-shrink-0">
+          {/* Title - Responsive */}
+          <h1 className="text-sm sm:text-base lg:text-lg xl:text-xl font-bold text-slate-800 dark:text-slate-100 whitespace-nowrap">
+            <span className="hidden sm:inline">CGT Brain AI</span>
+            <span className="sm:hidden">CGT</span>
+          </h1>
+
+          {/* Stats - Hide on very small screens */}
+          <div className="hidden md:flex items-center gap-1.5 lg:gap-2 border-l border-slate-200 dark:border-slate-700 pl-2 lg:pl-4">
+            <span className="text-xs lg:text-sm text-slate-500 dark:text-slate-400 whitespace-nowrap">
+              {properties.length} <span className="hidden lg:inline">{properties.length === 1 ? 'Property' : 'Properties'}</span><span className="lg:hidden">P</span>
+            </span>
+            <span className="text-slate-300 dark:text-slate-600">•</span>
+            <span className="text-xs lg:text-sm text-slate-500 dark:text-slate-400 whitespace-nowrap">
+              {events.length} <span className="hidden lg:inline">{events.length === 1 ? 'Event' : 'Events'}</span><span className="lg:hidden">E</span>
+            </span>
+          </div>
+        </div>
+
+        {/* Center Section - Timeline Navigation (Hidden on small screens) */}
+        <div className="hidden lg:flex items-center gap-2 xl:gap-3 flex-shrink min-w-0">
+          {/* Date Range */}
+          <div className="flex items-center gap-1.5 px-2 xl:px-3 py-1 bg-slate-50 dark:bg-slate-800 rounded-lg">
+            <Calendar className="w-3.5 h-3.5 xl:w-4 xl:h-4 text-slate-500 dark:text-slate-400 flex-shrink-0" />
+            <span className="text-xs xl:text-sm text-slate-700 dark:text-slate-300 whitespace-nowrap">
+              {format(timelineStart, 'MMM yy')} - {format(timelineEnd, 'MMM yy')}
+            </span>
+          </div>
+
+          {/* Pan Slider */}
+          <div className="flex items-center gap-1.5 px-2 py-1.5 bg-slate-50 dark:bg-slate-800 rounded-lg">
+            <span className="text-xs text-slate-600 dark:text-slate-300 font-medium">Pan</span>
+            <input
+              type="range"
+              min={0}
+              max={100}
+              step={0.1}
+              value={panSliderValue}
+              onChange={handlePanSliderChange}
+              onMouseDown={handlePanStart}
+              onMouseUp={handlePanEnd}
+              onTouchStart={handlePanStart}
+              onTouchEnd={handlePanEnd}
+              className={`w-16 xl:w-24 ${sliderClasses}`}
+              title="Pan timeline"
+            />
+          </div>
+
+          {/* Zoom Slider */}
+          <div className="flex items-center gap-1.5 px-2 py-1.5 bg-slate-50 dark:bg-slate-800 rounded-lg">
+            <span className="text-xs text-slate-600 dark:text-slate-300 font-medium">Zoom</span>
+            <input
+              type="range"
+              min="0"
+              max="8"
+              value={getZoomLevelIndex()}
+              onChange={(e) => setZoomByIndex(parseInt(e.target.value))}
+              className={`w-16 xl:w-24 ${sliderClasses}`}
+              title="Zoom level"
+            />
+          </div>
+        </div>
+
+        {/* Right Section - Controls */}
+        <div className="flex items-center gap-0.5 sm:gap-1 lg:gap-1.5">
+          {/* Zoom Controls - Compact on smaller screens */}
+          <div className="flex items-center gap-0.5 sm:gap-1 border-r border-slate-200 dark:border-slate-700 pr-1 sm:pr-2">
+            <IconButton onClick={zoomOut} title="Zoom Out" className={!canZoomOut ? 'opacity-50 cursor-not-allowed' : ''}>
+              <ZoomOut className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-600 dark:text-slate-300" />
+            </IconButton>
+
+            {/* Zoom Label - Responsive width */}
+            <div className="px-1.5 sm:px-2 lg:px-3 py-0.5 sm:py-1 bg-slate-100 dark:bg-slate-800 rounded-lg text-center min-w-[3rem] sm:min-w-[4rem] lg:min-w-[5.5rem]">
+              <div className="text-[10px] sm:text-xs font-semibold text-slate-700 dark:text-slate-300 whitespace-nowrap">
+                <span className="hidden lg:inline">{zoomLevelLabels[zoomLevel]?.full}</span>
+                <span className="lg:hidden">{zoomLevelLabels[zoomLevel]?.short}</span>
+              </div>
+            </div>
+
+            <IconButton onClick={zoomIn} title="Zoom In" className={!canZoomIn ? 'opacity-50 cursor-not-allowed' : ''}>
+              <ZoomIn className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-600 dark:text-slate-300" />
+            </IconButton>
+          </div>
+
+          {/* Desktop Action Buttons */}
+          <div className="hidden sm:flex items-center gap-0.5 sm:gap-1">
+            <IconButton onClick={handleExport} title="Export Timeline">
+              <Download className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-600 dark:text-slate-300" />
+            </IconButton>
+
+            <label className="p-1.5 sm:p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors cursor-pointer flex-shrink-0">
+              <Upload className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-600 dark:text-slate-300" />
+              <input type="file" accept=".json" onChange={handleImport} className="hidden" />
+            </label>
+
+            <IconButton onClick={() => setShowScenarioSelector(true)} title="Load Scenario" variant="gradient">
+              <FolderOpen className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-purple-600 dark:text-purple-400" />
+            </IconButton>
+
+            <IconButton onClick={clearAllData} title="Clear All Data" variant="danger">
+              <Trash2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-red-600" />
+            </IconButton>
+
+            <IconButton onClick={toggleEventDisplayMode} title={eventDisplayMode === 'circle' ? "Card View" : "Circle View"}>
+              {eventDisplayMode === 'circle' ? (
+                <LayoutGrid className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-600 dark:text-slate-300" />
+              ) : (
+                <Circle className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-600 dark:text-slate-300" />
+              )}
+            </IconButton>
+
+            <IconButton onClick={toggleTheme} title={theme === 'dark' ? "Light Mode" : "Dark Mode"}>
+              {theme === 'dark' ? (
+                <Sun className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-600 dark:text-slate-300" />
+              ) : (
+                <Moon className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-600 dark:text-slate-300" />
+              )}
+            </IconButton>
+
+            <IconButton onClick={() => setShowSettings(true)} title="Settings">
+              <Settings className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-600 dark:text-slate-300" />
+            </IconButton>
+          </div>
+
+          {/* Mobile Menu Button */}
+          <div className="sm:hidden">
+            <IconButton onClick={() => setShowMobileMenu(!showMobileMenu)} title="Menu">
+              {showMobileMenu ? (
+                <X className="w-4 h-4 text-slate-600 dark:text-slate-300" />
+              ) : (
+                <Menu className="w-4 h-4 text-slate-600 dark:text-slate-300" />
+              )}
+            </IconButton>
+          </div>
         </div>
       </div>
 
-      {/* Center Controls - Timeline Navigation */}
-      <div className="flex items-center gap-3">
-        <div className="flex items-center gap-2 px-3 py-1 bg-slate-50 dark:bg-slate-800 rounded-lg">
-          <Calendar className="w-4 h-4 text-slate-500 dark:text-slate-400" />
-          <span className="text-sm text-slate-700 dark:text-slate-300">
-            {format(timelineStart, 'MMM yyyy')} - {format(timelineEnd, 'MMM yyyy')}
-          </span>
-        </div>
+      {/* Mobile Menu Dropdown */}
+      {showMobileMenu && (
+        <div className="sm:hidden absolute top-12 left-0 right-0 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 z-40 shadow-lg">
+          {/* Pan & Zoom Controls */}
+          <div className="p-3 border-b border-slate-100 dark:border-slate-800">
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-xs font-medium text-slate-600 dark:text-slate-400">Timeline Range</span>
+              <span className="text-xs text-slate-500 dark:text-slate-400">
+                {format(timelineStart, 'MMM yyyy')} - {format(timelineEnd, 'MMM yyyy')}
+              </span>
+            </div>
 
-        <div className="flex items-center gap-2 px-3 py-2 bg-slate-50 dark:bg-slate-800 rounded-lg">
-          <span className="text-xs text-slate-600 dark:text-slate-300 font-medium whitespace-nowrap">Pan</span>
-          <input
-            type="range"
-            min={0}
-            max={100}
-            step={0.1}
-            value={panSliderValue}
-            onChange={handlePanSliderChange}
-            onMouseDown={handlePanStart}
-            onMouseUp={handlePanEnd}
-            onTouchStart={handlePanStart}
-            onTouchEnd={handlePanEnd}
-            className="w-32 h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer
-              [&::-webkit-slider-thumb]:appearance-none
-              [&::-webkit-slider-thumb]:w-3
-              [&::-webkit-slider-thumb]:h-3
-              [&::-webkit-slider-thumb]:rounded-full
-              [&::-webkit-slider-thumb]:bg-blue-600
-              [&::-webkit-slider-thumb]:cursor-pointer
-              [&::-webkit-slider-thumb]:hover:bg-blue-700
-              [&::-webkit-slider-thumb]:transition-all
-              [&::-webkit-slider-thumb]:shadow-md
-              [&::-moz-range-thumb]:w-3
-              [&::-moz-range-thumb]:h-3
-              [&::-moz-range-thumb]:rounded-full
-              [&::-moz-range-thumb]:bg-blue-600
-              [&::-moz-range-thumb]:border-0
-              [&::-moz-range-thumb]:cursor-pointer
-              [&::-moz-range-thumb]:hover:bg-blue-700
-              [&::-moz-range-thumb]:shadow-md"
-            title="Smooth timeline navigation"
-          />
-        </div>
-      </div>
-
-      {/* Right Controls */}
-      <div className="flex items-center gap-2">
-        {/* Zoom Slider */}
-        <div className="flex items-center gap-2 border-r border-slate-200 dark:border-slate-700 pr-2">
-          <input
-            type="range"
-            min="0"
-            max="8"
-            value={getZoomLevelIndex()}
-            onChange={(e) => setZoomByIndex(parseInt(e.target.value))}
-            className="w-32 h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer
-              [&::-webkit-slider-thumb]:appearance-none
-              [&::-webkit-slider-thumb]:w-4
-              [&::-webkit-slider-thumb]:h-4
-              [&::-webkit-slider-thumb]:rounded-full
-              [&::-webkit-slider-thumb]:bg-slate-600
-              [&::-webkit-slider-thumb]:cursor-pointer
-              [&::-webkit-slider-thumb]:hover:bg-slate-700
-              [&::-webkit-slider-thumb]:transition-all
-              [&::-webkit-slider-thumb]:shadow-md
-              [&::-moz-range-thumb]:w-4
-              [&::-moz-range-thumb]:h-4
-              [&::-moz-range-thumb]:rounded-full
-              [&::-moz-range-thumb]:bg-slate-600
-              [&::-moz-range-thumb]:border-0
-              [&::-moz-range-thumb]:cursor-pointer
-              [&::-moz-range-thumb]:hover:bg-slate-700
-              [&::-moz-range-thumb]:shadow-md"
-            title="Zoom Level Slider"
-          />
-        </div>
-
-        {/* Zoom Controls */}
-        <div className="flex items-center gap-1 border-r border-slate-200 dark:border-slate-700 pr-2">
-          <button
-            onClick={zoomOut}
-            className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            disabled={!canZoomOut}
-            title="Zoom Out"
-          >
-            <ZoomOut className="w-4 h-4 text-slate-600 dark:text-slate-300" />
-          </button>
-          <div className="px-3 py-1 bg-slate-100 dark:bg-slate-800 rounded-lg min-w-[120px] text-center">
-            <div className="text-xs font-semibold text-slate-700 dark:text-slate-300">
-              {zoomLevelLabels[zoomLevel]}
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-slate-600 dark:text-slate-400 w-10">Pan</span>
+                <input
+                  type="range"
+                  min={0}
+                  max={100}
+                  step={0.1}
+                  value={panSliderValue}
+                  onChange={handlePanSliderChange}
+                  onTouchStart={handlePanStart}
+                  onTouchEnd={handlePanEnd}
+                  className={`flex-1 ${sliderClasses}`}
+                />
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-slate-600 dark:text-slate-400 w-10">Zoom</span>
+                <input
+                  type="range"
+                  min="0"
+                  max="8"
+                  value={getZoomLevelIndex()}
+                  onChange={(e) => setZoomByIndex(parseInt(e.target.value))}
+                  className={`flex-1 ${sliderClasses}`}
+                />
+              </div>
             </div>
           </div>
-          <button
-            onClick={zoomIn}
-            className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            disabled={!canZoomIn}
-            title="Zoom In"
-          >
-            <ZoomIn className="w-4 h-4 text-slate-600 dark:text-slate-300" />
-          </button>
+
+          {/* Action Buttons Grid */}
+          <div className="grid grid-cols-4 gap-1 p-2">
+            <button
+              onClick={() => { handleExport(); setShowMobileMenu(false); }}
+              className="flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
+            >
+              <Download className="w-5 h-5 text-slate-600 dark:text-slate-400" />
+              <span className="text-[10px] text-slate-600 dark:text-slate-400">Export</span>
+            </button>
+
+            <label className="flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer">
+              <Upload className="w-5 h-5 text-slate-600 dark:text-slate-400" />
+              <span className="text-[10px] text-slate-600 dark:text-slate-400">Import</span>
+              <input type="file" accept=".json" onChange={(e) => { handleImport(e); setShowMobileMenu(false); }} className="hidden" />
+            </label>
+
+            <button
+              onClick={() => { setShowScenarioSelector(true); setShowMobileMenu(false); }}
+              className="flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
+            >
+              <FolderOpen className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+              <span className="text-[10px] text-slate-600 dark:text-slate-400">Scenarios</span>
+            </button>
+
+            <button
+              onClick={() => { clearAllData(); setShowMobileMenu(false); }}
+              className="flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20"
+            >
+              <Trash2 className="w-5 h-5 text-red-600" />
+              <span className="text-[10px] text-red-600">Clear</span>
+            </button>
+
+            <button
+              onClick={() => { toggleEventDisplayMode(); setShowMobileMenu(false); }}
+              className="flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
+            >
+              {eventDisplayMode === 'circle' ? (
+                <LayoutGrid className="w-5 h-5 text-slate-600 dark:text-slate-400" />
+              ) : (
+                <Circle className="w-5 h-5 text-slate-600 dark:text-slate-400" />
+              )}
+              <span className="text-[10px] text-slate-600 dark:text-slate-400">
+                {eventDisplayMode === 'circle' ? 'Cards' : 'Circles'}
+              </span>
+            </button>
+
+            <button
+              onClick={() => { toggleTheme(); setShowMobileMenu(false); }}
+              className="flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
+            >
+              {theme === 'dark' ? (
+                <Sun className="w-5 h-5 text-slate-600 dark:text-slate-400" />
+              ) : (
+                <Moon className="w-5 h-5 text-slate-600 dark:text-slate-400" />
+              )}
+              <span className="text-[10px] text-slate-600 dark:text-slate-400">
+                {theme === 'dark' ? 'Light' : 'Dark'}
+              </span>
+            </button>
+
+            <button
+              onClick={() => { setShowSettings(true); setShowMobileMenu(false); }}
+              className="flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
+            >
+              <Settings className="w-5 h-5 text-slate-600 dark:text-slate-400" />
+              <span className="text-[10px] text-slate-600 dark:text-slate-400">Settings</span>
+            </button>
+
+            <div className="flex flex-col items-center gap-1 p-2">
+              <div className="text-xs font-medium text-slate-500 dark:text-slate-400">
+                {properties.length}P / {events.length}E
+              </div>
+              <span className="text-[10px] text-slate-400 dark:text-slate-500">Data</span>
+            </div>
+          </div>
         </div>
+      )}
 
-        {/* Action Buttons */}
-        <button
-          onClick={handleExport}
-          className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
-          title="Export Timeline"
-        >
-          <Download className="w-4 h-4 text-slate-600 dark:text-slate-300" />
-        </button>
+      {/* Click outside to close mobile menu */}
+      {showMobileMenu && (
+        <div
+          className="sm:hidden fixed inset-0 z-30"
+          onClick={() => setShowMobileMenu(false)}
+        />
+      )}
 
-        <label className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors cursor-pointer">
-          <Upload className="w-4 h-4 text-slate-600 dark:text-slate-300" />
-          <input
-            type="file"
-            accept=".json"
-            onChange={handleImport}
-            className="hidden"
-          />
-        </label>
-
-        <button
-          onClick={handleToggleDummyData}
-          className={`p-2 rounded-lg transition-colors ${
-            useDummyData
-              ? 'bg-blue-100 dark:bg-blue-900 hover:bg-blue-200 dark:hover:bg-blue-800'
-              : 'hover:bg-slate-100 dark:hover:bg-slate-700'
-          }`}
-          title={useDummyData ? 'Turn off dummy data' : 'Load dummy data'}
-        >
-          <Database className={`w-4 h-4 ${
-            useDummyData
-              ? 'text-blue-600 dark:text-blue-400'
-              : 'text-slate-600 dark:text-slate-300'
-          }`} />
-        </button>
-
-        <button
-          onClick={clearAllData}
-          className="p-2 hover:bg-red-50 hover:bg-opacity-50 rounded-lg transition-colors"
-          title="Clear All Data"
-        >
-          <Trash2 className="w-4 h-4 text-red-600" />
-        </button>
-
-        <button
-          onClick={toggleEventDisplayMode}
-          className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
-          title={eventDisplayMode === 'circle' ? "Switch to Card View" : "Switch to Circle View"}
-        >
-          {eventDisplayMode === 'circle' ? (
-            <LayoutGrid className="w-4 h-4 text-slate-600 dark:text-slate-300" />
-          ) : (
-            <Circle className="w-4 h-4 text-slate-600 dark:text-slate-300" />
-          )}
-        </button>
-
-        <button
-          onClick={toggleTheme}
-          className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
-          title={theme === 'dark' ? "Switch to Light Mode" : "Switch to Dark Mode"}
-        >
-          {theme === 'dark' ? (
-            <Sun className="w-4 h-4 text-slate-600 dark:text-slate-300" />
-          ) : (
-            <Moon className="w-4 h-4 text-slate-600 dark:text-slate-300" />
-          )}
-        </button>
-
-        <button
-          onClick={() => setShowSettings(!showSettings)}
-          className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
-          title="Settings"
-        >
-          <Settings className="w-4 h-4 text-slate-600 dark:text-slate-300" />
-        </button>
-      </div>
-
-      {/* Settings Modal */}
+      {/* Modals */}
       <SettingsModal
         isOpen={showSettings}
         onClose={() => setShowSettings(false)}
       />
-    </div>
+
+      <ScenarioSelectorModal
+        isOpen={showScenarioSelector}
+        onClose={() => setShowScenarioSelector(false)}
+      />
+    </>
   );
 }

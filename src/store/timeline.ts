@@ -410,7 +410,7 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
     eventDisplayMode: 'circle',
     lockFutureDates: false,
     enableDragEvents: true,
-    enableAISuggestedQuestions: false, // Default disabled
+    enableAISuggestedQuestions: true, // Default enabled
 
     // AI Feedback Initial State
     aiResponse: null,

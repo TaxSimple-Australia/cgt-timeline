@@ -148,9 +148,10 @@ export default function SuggestedQuestionsPanel({
                         </div>
                       )}
 
-                      {/* Suggested Questions */}
+                      {/* Suggested Questions - Show only the first (highest priority) question */}
                       {suggestedQuestions
                         .sort((a, b) => a.priority - b.priority)
+                        .slice(0, 1) // Only show the first question
                         .map((sq, index) => {
                           const categoryInfo = getCategoryInfo(sq.category);
                           return (

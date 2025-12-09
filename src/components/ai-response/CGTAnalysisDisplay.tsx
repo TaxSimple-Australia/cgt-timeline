@@ -2,12 +2,13 @@
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { CheckCircle, XCircle, ChevronDown, ChevronUp } from 'lucide-react';
+import { CheckCircle, XCircle, ChevronDown, ChevronUp, TrendingUp, DollarSign, Shield, Home } from 'lucide-react';
 import GapQuestionsPanel from './GapQuestionsPanel';
 import DetailedReportSection from './DetailedReportSection';
 import TwoColumnLayout from '../timeline-viz/TwoColumnLayout';
-import PropertyTwoColumnView from './PropertyTwoColumnView';
+import SimplifiedPropertyView from './SimplifiedPropertyView';
 import { useTimelineStore } from '@/store/timeline';
+import { transformPropertyToReport } from '@/lib/transform-api-to-report';
 
 interface CGTAnalysisDisplayProps {
   response: any; // AI response (success or verification_failed)
@@ -111,80 +112,168 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
       console.error('Failed to parse analysis content:', e);
     }
 
+    // Calculate portfolio summary metrics
+    const portfolioMetrics = {
+      totalProperties: apiProperties?.length || 0,
+      totalCapitalGain: 0,
+      totalCGTPayable: 0,
+      exemptProperties: 0
+    };
+
+    if (apiProperties && response.calculations?.per_property) {
+      apiProperties.forEach((property: any) => {
+        const calculations = response.calculations.per_property.find(
+          (calc: any) =>
+            calc.property_id === property.property_id ||
+            calc.property_id === property.address ||
+            calc.property_address === property.address
+        );
+
+        if (calculations) {
+          portfolioMetrics.totalCapitalGain += calculations.raw_capital_gain || 0;
+          portfolioMetrics.totalCGTPayable += calculations.net_capital_gain || 0;
+        }
+
+        if (property.exempt_percentage === 100 || property.exemption_type === 'full') {
+          portfolioMetrics.exemptProperties += 1;
+        }
+      });
+    }
+
     return (
       <div className="space-y-8">
-        {/* Horizontal Property Card Tabs */}
+        {/* Portfolio Summary Section - Vibrant Gradient Hero Card */}
         {apiProperties && apiProperties.length > 0 && (
-          <div className="space-y-3">
-            <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide">
-              Select Property for Analysis:
-            </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-              {apiProperties.map((property: any, index: number) => {
-                const calculations = response.calculations?.per_property?.find(
-                  (calc: any) =>
-                    calc.property_id === property.property_id ||
-                    calc.property_id === property.address ||
-                    calc.property_address === property.address
-                );
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="relative bg-gradient-to-br from-blue-600 via-pink-500 to-pink-600 dark:from-blue-700 dark:via-pink-600 dark:to-pink-700 rounded-2xl p-8 shadow-2xl overflow-hidden"
+          >
+            {/* Glassmorphism pattern overlay */}
+            <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent pointer-events-none" />
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-pink-400/20 via-transparent to-transparent pointer-events-none" />
 
-                const netGain = calculations?.net_capital_gain || 0;
-                // Only show as exempt if explicitly 100% exempt or full exemption type
-                const isExempt = property.exempt_percentage === 100 || property.exemption_type === 'full';
+            {/* Content */}
+            <div className="relative z-10">
+              <h2 className="text-3xl font-bold text-white mb-8 flex items-center gap-3">
+                <div className="p-2 bg-white/20 rounded-xl backdrop-blur-sm">
+                  <TrendingUp className="w-7 h-7 text-white" />
+                </div>
+                Portfolio Summary
+              </h2>
+
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                {/* Total Properties Card */}
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.1, duration: 0.3 }}
+                  className="bg-white/20 backdrop-blur-lg rounded-xl p-5 border border-white/30 hover:bg-white/30 transition-all hover:scale-105 shadow-lg"
+                >
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="p-2 bg-white/20 rounded-lg">
+                      <Home className="w-5 h-5 text-white" />
+                    </div>
+                    <div className="text-sm text-white/90 font-medium">Total Properties</div>
+                  </div>
+                  <div className="text-3xl font-bold text-white">
+                    {portfolioMetrics.totalProperties}
+                  </div>
+                </motion.div>
+
+                {/* Capital Gains Card */}
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.2, duration: 0.3 }}
+                  className="bg-white/20 backdrop-blur-lg rounded-xl p-5 border border-white/30 hover:bg-white/30 transition-all hover:scale-105 shadow-lg"
+                >
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="p-2 bg-gradient-to-br from-orange-400 to-red-500 rounded-lg">
+                      <TrendingUp className="w-5 h-5 text-white" />
+                    </div>
+                    <div className="text-sm text-white/90 font-medium">Capital Gains</div>
+                  </div>
+                  <div className="text-3xl font-bold text-white">
+                    {formatCurrency(portfolioMetrics.totalCapitalGain)}
+                  </div>
+                </motion.div>
+
+                {/* CGT Payable Card */}
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.3, duration: 0.3 }}
+                  className="bg-white/20 backdrop-blur-lg rounded-xl p-5 border border-white/30 hover:bg-white/30 transition-all hover:scale-105 shadow-lg"
+                >
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className={`p-2 rounded-lg ${
+                      portfolioMetrics.totalCGTPayable === 0
+                        ? 'bg-gradient-to-br from-green-400 to-emerald-500'
+                        : 'bg-gradient-to-br from-red-400 to-pink-500'
+                    }`}>
+                      <DollarSign className="w-5 h-5 text-white" />
+                    </div>
+                    <div className="text-sm text-white/90 font-medium">CGT Payable</div>
+                  </div>
+                  <div className="text-3xl font-bold text-white">
+                    {formatCurrency(portfolioMetrics.totalCGTPayable)}
+                  </div>
+                </motion.div>
+
+                {/* Exempt Properties Card */}
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.4, duration: 0.3 }}
+                  className="bg-white/20 backdrop-blur-lg rounded-xl p-5 border border-white/30 hover:bg-white/30 transition-all hover:scale-105 shadow-lg"
+                >
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="p-2 bg-gradient-to-br from-green-400 to-emerald-500 rounded-lg">
+                      <Shield className="w-5 h-5 text-white" />
+                    </div>
+                    <div className="text-sm text-white/90 font-medium">Exempt Properties</div>
+                  </div>
+                  <div className="text-3xl font-bold text-white">
+                    {portfolioMetrics.exemptProperties}
+                  </div>
+                </motion.div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+
+        {/* Property Tabs - Sleek Pill Navigation */}
+        {apiProperties && apiProperties.length > 0 && (
+          <div className="space-y-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-gradient-to-br from-blue-500/20 to-pink-500/20 rounded-lg">
+                <Home className="w-5 h-5 text-blue-600 dark:text-pink-400" />
+              </div>
+              <h3 className="text-lg font-semibold bg-gradient-to-r from-blue-600 to-pink-600 bg-clip-text text-transparent">
+                Select Property
+              </h3>
+            </div>
+            <div className="flex flex-wrap gap-3">
+              {apiProperties.map((property: any, index: number) => {
                 const isActive = activeTab === `property-${index}`;
 
                 return (
-                  <button
+                  <motion.button
                     key={property.property_id || property.address || index}
                     onClick={() => setActiveTab(`property-${index}`)}
-                    className={`w-full p-4 rounded-lg border-2 transition-all ${
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className={`px-6 py-3 rounded-full font-medium transition-all duration-300 flex items-center gap-2 ${
                       isActive
-                        ? 'border-t-4 border-green-500 dark:border-green-600 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950 dark:to-emerald-950 shadow-lg'
-                        : 'border-t-2 border-blue-500 dark:border-blue-600 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950 dark:to-indigo-950 hover:border-opacity-70 shadow-sm hover:shadow-md'
+                        ? 'bg-gradient-to-r from-blue-500 to-pink-500 text-white shadow-lg shadow-pink-500/50'
+                        : 'bg-white/10 dark:bg-gray-800/50 backdrop-blur border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-white/20 dark:hover:bg-gray-700/50 hover:border-pink-400 dark:hover:border-pink-500'
                     }`}
                   >
-                    <div className="text-left space-y-2.5">
-                      {/* Address */}
-                      <h4 className={`font-bold text-sm ${isActive ? 'text-green-700 dark:text-green-300' : 'text-blue-700 dark:text-blue-300'}`}>
-                        {property.address}
-                      </h4>
-
-                      {/* Status & Exemption */}
-                      <div className="flex gap-3 text-xs">
-                        <div className="flex-1">
-                          <div className="text-gray-500 dark:text-gray-400">Status</div>
-                          <div className={`font-semibold ${isActive ? 'text-green-700 dark:text-green-300' : 'text-blue-700 dark:text-blue-300'}`}>
-                            {property.status || 'N/A'}
-                          </div>
-                        </div>
-                        <div className="flex-1">
-                          <div className="text-gray-500 dark:text-gray-400">Exemption</div>
-                          <div className={`font-semibold ${isActive ? 'text-green-700 dark:text-green-300' : 'text-blue-700 dark:text-blue-300'}`}>
-                            {property.exempt_percentage || 0}%
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Net Capital Gain */}
-                      <div className="pt-2 border-t border-gray-200 dark:border-gray-700">
-                        <div className="text-gray-500 dark:text-gray-400 text-xs mb-1">Net Capital Gain</div>
-                        <div className="flex items-center justify-between">
-                          <div className={`text-lg font-bold ${
-                            netGain === 0 ? 'text-green-600 dark:text-green-400' :
-                            netGain > 0 ? 'text-red-600 dark:text-red-400' :
-                            'text-green-600 dark:text-green-400'
-                          }`}>
-                            {formatCurrency(netGain)}
-                          </div>
-                          {isExempt && (
-                            <span className="text-xs font-semibold text-green-600 dark:text-green-400 bg-green-100 dark:bg-green-950/30 px-1.5 py-0.5 rounded">
-                              EXEMPT
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  </button>
+                    <Home className="w-4 h-4" />
+                    <span className="line-clamp-1">{property.address}</span>
+                  </motion.button>
                 );
               })}
             </div>
@@ -208,25 +297,38 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
               (pa: any) => pa.property_address === property.address
             );
 
-            return activeTab === `property-${index}` && (
-              <motion.div
-                key={`property-${index}`}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                transition={{ duration: 0.2 }}
-              >
-                {/* Two Column View: Timeline + Calculation Details */}
-                <PropertyTwoColumnView
-                  property={property}
-                  calculations={calculations}
-                  propertyAnalysis={propertyAnalysis}
-                  recommendations={recommendations}
-                  validation={response.validation}
-                  analysis={analysis}
-                />
-              </motion.div>
-            );
+            return activeTab === `property-${index}` && (() => {
+              // Transform API data to report display format
+              const transformResult = transformPropertyToReport(
+                property,
+                calculations,
+                response.analysis.validation
+              );
+
+              // Log any warnings or missing fields
+              if (transformResult.warnings.length > 0) {
+                console.warn('⚠️ Report transformation warnings:', transformResult.warnings);
+              }
+              if (transformResult.missingFields.length > 0) {
+                console.warn('❌ Missing fields in API response:', transformResult.missingFields);
+              }
+
+              return (
+                <motion.div
+                  key={`property-${index}`}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.2 }}
+                  className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm"
+                >
+                  {/* Simplified Property View: 3 Sections */}
+                  <SimplifiedPropertyView
+                    reportData={transformResult.reportData}
+                  />
+                </motion.div>
+              );
+            })();
           })}
         </AnimatePresence>
 
@@ -261,7 +363,7 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
                 properties={apiProperties}
                 analysis={analysis}
                 calculations={response.calculations}
-                validation={response.validation}
+                validation={response.analysis.validation}
                 verification={verification}
                 response={response}
                 timelineProperties={properties}

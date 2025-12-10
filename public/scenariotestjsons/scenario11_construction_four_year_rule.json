@@ -1,0 +1,64 @@
+{
+  "title": "Building New Home - 4-Year Construction Rule",
+  "scenario_info": {
+    "name": "4-Year Construction Rule Application",
+    "description": "Robert buys vacant land and builds his dream home. Construction takes 2.6 years. The 4-year construction rule allows the land to be treated as main residence from purchase.",
+    "expected_result": {
+      "exemption_type": "full",
+      "exemption_percentage": 100,
+      "capital_gain": 0,
+      "taxable_gain": 0
+    },
+    "applicable_rules": [
+      "ITAA97 s118.150: 4-year construction rule applies",
+      "Construction period (2.6 years) is within 4-year limit",
+      "Land treated as main residence from acquisition date",
+      "Moved in as soon as practicable after completion",
+      "Full main residence exemption applies"
+    ]
+  },
+  "properties": [
+    {
+      "address": "45 Hilltop Avenue, Chapel Hill QLD 4069",
+      "property_history": [
+        {
+          "date": "2020-06-01",
+          "event": "purchase",
+          "price": 450000,
+          "stamp_duty": 18000,
+          "purchase_legal_fees": 2500,
+          "description": "Purchased vacant land"
+        },
+        {
+          "date": "2020-09-01",
+          "event": "improvement",
+          "price": 380000,
+          "description": "Construction begins - new home build"
+        },
+        {
+          "date": "2022-12-15",
+          "event": "status_change",
+          "description": "Construction completed"
+        },
+        {
+          "date": "2023-01-05",
+          "event": "move_in",
+          "description": "Moved in as main residence"
+        },
+        {
+          "date": "2024-11-20",
+          "event": "sale",
+          "price": 1150000,
+          "contract_date": "2024-11-20",
+          "agent_fees": 28750,
+          "legal_fees": 3000
+        }
+      ],
+      "notes": "4-year construction rule applies. Construction took 2.6 years (within 4-year limit). Full MRE available."
+    }
+  ],
+  "user_query": "I bought vacant land in 2020, built a home which was completed in late 2022, moved in January 2023, and sold in 2024. Do I qualify for the main residence exemption?",
+  "additional_info": {
+    "australian_resident": true
+  }
+}

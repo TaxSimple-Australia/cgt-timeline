@@ -1,0 +1,71 @@
+{
+  "title": "Investment First, Then PPR, Then Rental",
+  "scenario_info": {
+    "name": "Complex Pattern: Rental-PPR-Rental",
+    "description": "Michael buys an investment property, later moves in as main residence, then moves out and rents again. The six-year rule does NOT apply because property was rented before becoming main residence.",
+    "expected_result": {
+      "exemption_type": "partial",
+      "exemption_percentage": 28.93,
+      "taxable_proportion": 71.07,
+      "notes": "Six-year rule unavailable. Only actual residence period exempt."
+    },
+    "applicable_rules": [
+      "Six-year rule (s118.145) does NOT apply - property was investment BEFORE main residence",
+      "ITAA97 s118.185: Partial main residence exemption for actual residence period only",
+      "Original cost base used (not market value reset)",
+      "ITAA97 s115.25: 50% CGT discount applies"
+    ]
+  },
+  "properties": [
+    {
+      "address": "Unit 12/88 Boundary Street, West End QLD 4101",
+      "property_history": [
+        {
+          "date": "2014-02-01",
+          "event": "purchase",
+          "price": 385000,
+          "stamp_duty": 15400,
+          "purchase_legal_fees": 2200
+        },
+        {
+          "date": "2014-02-01",
+          "event": "rent_start",
+          "description": "Immediately rented as investment property"
+        },
+        {
+          "date": "2017-07-14",
+          "event": "rent_end",
+          "description": "Tenant vacates"
+        },
+        {
+          "date": "2017-07-15",
+          "event": "move_in",
+          "description": "Michael moves in as main residence"
+        },
+        {
+          "date": "2020-09-01",
+          "event": "move_out",
+          "description": "Relocates for work"
+        },
+        {
+          "date": "2020-09-15",
+          "event": "rent_start",
+          "description": "Starts renting again"
+        },
+        {
+          "date": "2024-11-30",
+          "event": "sale",
+          "price": 580000,
+          "contract_date": "2024-11-30",
+          "agent_fees": 14500,
+          "legal_fees": 2000
+        }
+      ],
+      "notes": "Property was rented BEFORE becoming main residence. Six-year rule cannot apply. Only the 1,144 days of actual residence (15 Jul 2017 to 1 Sep 2020) are exempt."
+    }
+  ],
+  "user_query": "I bought a unit as an investment, rented it for 3.5 years, then moved in for 3 years, then moved out and rented again for 4 years before selling. What is my CGT liability?",
+  "additional_info": {
+    "australian_resident": true
+  }
+}

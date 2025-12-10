@@ -1,0 +1,50 @@
+{
+  "title": "Inherited Property with Rental",
+  "scenario_info": {
+    "name": "Inherited Property Then Rented",
+    "description": "Emma inherits her mother's home (which was mum's main residence) and then rents it out before selling more than 2 years after the date of death.",
+    "expected_result": {
+      "exemption_type": "none",
+      "capital_gain": 143450,
+      "taxable_gain": 71725,
+      "notes": "Since sold more than 2 years after death and Emma never lived there, no MRE applies for Emma's period."
+    },
+    "applicable_rules": [
+      "ITAA97 s118.195: 2-year disposal rule NOT met (sold 4+ years after death)",
+      "Cost base = Market value at date of death ($780,000)",
+      "Emma never established property as her main residence",
+      "ITAA97 s115.25: 50% CGT discount applies (inherited acquisition date)"
+    ]
+  },
+  "properties": [
+    {
+      "address": "67 Jacaranda Drive, Indooroopilly QLD 4068",
+      "property_history": [
+        {
+          "date": "2020-08-15",
+          "event": "inheritance",
+          "market_value": 780000,
+          "description": "Inherited from mother. Property was mother's main residence. Mother purchased in 1985."
+        },
+        {
+          "date": "2020-11-01",
+          "event": "rent_start",
+          "description": "Emma starts renting the property"
+        },
+        {
+          "date": "2024-10-31",
+          "event": "sale",
+          "price": 950000,
+          "contract_date": "2024-10-31",
+          "agent_fees": 23750,
+          "legal_fees": 2800
+        }
+      ],
+      "notes": "Inherited property. Mother's MRE would have applied if sold within 2 years. Since sold after 4 years and rented entire time, no MRE for Emma."
+    }
+  ],
+  "user_query": "I inherited my mother's home in 2020. She lived there her whole life. I rented it out and sold it in 2024. What is my CGT liability?",
+  "additional_info": {
+    "australian_resident": true
+  }
+}

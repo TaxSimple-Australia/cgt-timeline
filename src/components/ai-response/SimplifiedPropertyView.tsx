@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Calendar, TrendingUp, Home, DollarSign, Calculator, BookOpen, Wrench, ChevronDown, ChevronRight, Sparkles, Scale } from 'lucide-react';
+import { Calendar, TrendingUp, Home, DollarSign, Calculator, BookOpen, Wrench, ChevronDown, ChevronRight, Sparkles, Scale, ArrowDown } from 'lucide-react';
 import { formatCurrency } from '@/lib/utils';
 import { type ReportDisplayData } from '@/types/report-display';
 
@@ -211,10 +211,10 @@ export default function SimplifiedPropertyView({
       {/* Decorative gradient divider */}
       <div className="h-px bg-gradient-to-r from-transparent via-purple-300/50 to-transparent"></div>
 
-      {/* SECTION 2: CGT CALCULATION - Compact Colorful Timeline */}
+      {/* SECTION 2: CGT CALCULATION - Centered Card Layout */}
       <section>
-        {/* Section Header */}
-        <div className="flex items-center gap-2 mb-3">
+        {/* Section Header - Centered */}
+        <div className="flex items-center justify-center gap-2 mb-4">
           <div className="p-2 rounded-lg bg-blue-100 dark:bg-blue-900/30 shadow-sm backdrop-blur-sm">
             <Calculator className="w-5 h-5 text-blue-600 dark:text-blue-400" />
           </div>
@@ -223,88 +223,101 @@ export default function SimplifiedPropertyView({
           </h2>
         </div>
 
-        <div className="relative">
-          {/* Connecting Line - Animated Gradient */}
-          {calculationSteps.length > 1 && (
-            <motion.div
-              initial={{ opacity: 0, scaleY: 0 }}
-              animate={{ opacity: 1, scaleY: 1 }}
-              transition={{ duration: 0.6, ease: "easeOut" }}
-              className="absolute left-3 top-3 bottom-3 w-0.5 bg-gradient-to-b from-blue-400 via-purple-400 to-green-400 origin-top"
-              style={{
-                boxShadow: '0 0 10px rgba(59, 130, 246, 0.3)'
-              }}
-            />
-          )}
-
+        {/* Centered Container */}
+        <div className="max-w-3xl mx-auto">
           {/* Calculation Steps */}
           <div className="space-y-2">
             {calculationSteps.map((step: any, index: number) => {
               const cleanDescription = step.description?.replace(/\s*\([^)]*\)/g, '').trim() || '';
               const isLastStep = index === calculationSteps.length - 1;
 
-              // Color themes for steps
+              // Color themes for steps - distinct colors for each step
               const colors = [
-                { bg: 'bg-blue-50 dark:bg-blue-950/20', border: 'border-l-blue-400', circle: 'bg-gradient-to-br from-blue-500 to-cyan-500', formula: 'bg-blue-100/50 dark:bg-blue-900/30 border-blue-200 dark:border-blue-800', badge: 'bg-blue-500 text-white' },
-                { bg: 'bg-purple-50 dark:bg-purple-950/20', border: 'border-l-purple-400', circle: 'bg-gradient-to-br from-purple-500 to-pink-500', formula: 'bg-purple-100/50 dark:bg-purple-900/30 border-purple-200 dark:border-purple-800', badge: 'bg-purple-500 text-white' },
-                { bg: 'bg-cyan-50 dark:bg-cyan-950/20', border: 'border-l-cyan-400', circle: 'bg-gradient-to-br from-cyan-500 to-blue-500', formula: 'bg-cyan-100/50 dark:bg-cyan-900/30 border-cyan-200 dark:border-cyan-800', badge: 'bg-cyan-500 text-white' },
-                { bg: 'bg-indigo-50 dark:bg-indigo-950/20', border: 'border-l-indigo-400', circle: 'bg-gradient-to-br from-indigo-500 to-purple-500', formula: 'bg-indigo-100/50 dark:bg-indigo-900/30 border-indigo-200 dark:border-indigo-800', badge: 'bg-indigo-500 text-white' },
-                { bg: 'bg-teal-50 dark:bg-teal-950/20', border: 'border-l-teal-400', circle: 'bg-gradient-to-br from-teal-500 to-cyan-500', formula: 'bg-teal-100/50 dark:bg-teal-900/30 border-teal-200 dark:border-teal-800', badge: 'bg-teal-500 text-white' },
+                { bg: 'bg-transparent', border: 'border-blue-500', circle: 'bg-gradient-to-br from-blue-500 to-cyan-500', arrow: 'text-blue-400' },
+                { bg: 'bg-transparent', border: 'border-purple-500', circle: 'bg-gradient-to-br from-purple-500 to-pink-500', arrow: 'text-purple-400' },
+                { bg: 'bg-transparent', border: 'border-cyan-500', circle: 'bg-gradient-to-br from-cyan-500 to-blue-400', arrow: 'text-cyan-400' },
+                { bg: 'bg-transparent', border: 'border-indigo-500', circle: 'bg-gradient-to-br from-indigo-500 to-purple-500', arrow: 'text-indigo-400' },
+                { bg: 'bg-transparent', border: 'border-pink-500', circle: 'bg-gradient-to-br from-pink-500 to-rose-500', arrow: 'text-pink-400' },
+                { bg: 'bg-transparent', border: 'border-teal-500', circle: 'bg-gradient-to-br from-teal-500 to-cyan-500', arrow: 'text-teal-400' },
               ];
 
               const stepColor = isLastStep
-                ? { bg: 'bg-green-50 dark:bg-green-950/20', border: 'border-l-green-500', circle: 'bg-gradient-to-br from-green-500 to-emerald-500', formula: 'bg-green-100/50 dark:bg-green-900/30 border-green-200 dark:border-green-800', badge: 'bg-green-600 text-white' }
+                ? { bg: 'bg-transparent', border: 'border-green-500', circle: 'bg-gradient-to-br from-green-500 to-emerald-500', arrow: 'text-green-400' }
                 : colors[index % colors.length];
 
               return (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: index * 0.1, duration: 0.4, ease: "easeOut" }}
-                  className="relative pl-10"
-                >
-                  {/* Step Circle - Smaller with Gradient */}
+                <div key={index}>
                   <motion.div
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    transition={{ delay: index * 0.1 + 0.2, type: "spring", stiffness: 200 }}
-                    className={`absolute left-0 top-1.5 w-6 h-6 rounded-full ${stepColor.circle} flex items-center justify-center shadow-lg z-10`}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.1, duration: 0.4, ease: "easeOut" }}
+                    className={`${stepColor.bg} rounded-xl border-2 ${stepColor.border} p-4 hover:shadow-xl transition-all duration-300 ${isLastStep ? 'ring-2 ring-green-400/50 shadow-2xl' : 'shadow-md'}`}
                   >
-                    <span className="text-xs font-bold text-white">{step.step}</span>
+                    {/* Horizontal Layout: Badge Left | Content Right */}
+                    <div className="flex gap-3">
+                      {/* Step Number Badge - Left Side */}
+                      <motion.div
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        transition={{ delay: index * 0.1 + 0.2, type: "spring", stiffness: 200 }}
+                        className={`w-8 h-8 rounded-full ${stepColor.circle} flex items-center justify-center shadow-lg flex-shrink-0`}
+                      >
+                        <span className="text-base font-bold text-white">{step.step}</span>
+                      </motion.div>
+
+                      {/* Content - Right Side */}
+                      <div className="flex-1">
+                        {/* Step Title */}
+                        <div className="mb-2">
+                          <div className="text-sm font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
+                            {cleanDescription}
+                            {isLastStep && <Sparkles className="w-3.5 h-3.5 text-green-500" />}
+                          </div>
+                        </div>
+
+                        {/* Formula and Result - No inner box */}
+                        {step.calculation && (
+                          <div>
+                            <code className="text-sm font-mono text-gray-700 dark:text-gray-300 block font-medium">
+                              {step.calculation}
+                            </code>
+                            {step.result !== null && step.result !== undefined && (
+                              <div className="mt-1.5">
+                                <div className="text-lg font-black text-gray-900 dark:text-white">
+                                  {typeof step.result === 'number' ? formatCurrency(step.result) : step.result}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    </div>
                   </motion.div>
 
-                  {/* Step Card - Colorful with Left Border and Glow for Last Step */}
-                  <div className={`${stepColor.bg} rounded-lg border border-gray-200 dark:border-gray-700 ${stepColor.border} border-l-4 p-3 hover:shadow-lg transition-all duration-300 ${isLastStep ? 'ring-2 ring-green-400/50 shadow-xl' : ''}`}>
-                    {/* Step Title */}
-                    <div className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-1.5 flex items-center gap-2">
-                      {cleanDescription}
-                      {isLastStep && <Sparkles className="w-3 h-3 text-green-500" />}
+                  {/* Arrow Separator (except after last step) */}
+                  {!isLastStep && (
+                    <div className="flex justify-center py-2">
+                      <motion.div
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: index * 0.1 + 0.3, duration: 0.3 }}
+                        className="relative"
+                      >
+                        <div className="flex flex-col items-center">
+                          <div className={`w-0.5 h-2 ${stepColor.border} rounded-full`}></div>
+                          <ArrowDown className={`w-3.5 h-3.5 ${stepColor.arrow} -mt-1`} />
+                        </div>
+                      </motion.div>
                     </div>
-
-                    {/* Formula Box with Inline Result */}
-                    {step.calculation && (
-                      <div className={`${stepColor.formula} rounded px-2 py-1.5 border`}>
-                        <code className="text-xs font-mono text-gray-700 dark:text-gray-300">
-                          {step.calculation}
-                          {step.result !== null && step.result !== undefined && (
-                            <span className="font-bold text-gray-900 dark:text-white">
-                              {' = '}
-                              {typeof step.result === 'number' ? formatCurrency(step.result) : step.result}
-                            </span>
-                          )}
-                        </code>
-                      </div>
-                    )}
-                  </div>
-                </motion.div>
+                  )}
+                </div>
               );
             })}
           </div>
 
           {/* If no calculation steps, show a basic calculation from summary metrics */}
           {calculationSteps.length === 0 && reportData && (
-            <div className="space-y-4 text-sm">
+            <div className="space-y-4 text-sm bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md">
               {reportData.salePrice !== undefined && (
                 <div className="flex justify-between py-2 border-b border-gray-200 dark:border-gray-700">
                   <span className="text-gray-700 dark:text-gray-300">Sale Price:</span>

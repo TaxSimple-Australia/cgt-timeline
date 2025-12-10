@@ -146,14 +146,9 @@ export default function SimplifiedPropertyView({
                           hover:bg-gradient-to-r hover:from-blue-50/50 hover:to-transparent dark:hover:from-blue-950/30 dark:hover:to-transparent
                           transition-all duration-300 ease-out
                           ${index % 2 === 0 ? 'bg-white dark:bg-gray-900' : 'bg-gray-50/80 dark:bg-gray-800/50'}
-                          hover:shadow-lg cursor-pointer relative group
+                          hover:shadow-lg cursor-pointer group
                         `}
                       >
-                        {/* Subtle glow on hover */}
-                        <td className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-                          <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-transparent"></div>
-                        </td>
-
                         {/* Date Column with separator */}
                         <td className="px-6 py-4 text-sm font-bold text-gray-900 dark:text-gray-100 whitespace-nowrap relative">
                           {formatDate(event.date)}

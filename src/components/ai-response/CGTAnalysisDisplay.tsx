@@ -148,7 +148,7 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="relative bg-gradient-to-br from-blue-600 via-pink-500 to-pink-600 dark:from-blue-700 dark:via-pink-600 dark:to-pink-700 rounded-2xl p-8 shadow-2xl overflow-hidden"
+            className="relative bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 dark:from-blue-600 dark:via-purple-600 dark:to-pink-600 rounded-2xl p-6 shadow-2xl overflow-hidden"
           >
             {/* Glassmorphism pattern overlay */}
             <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent pointer-events-none" />
@@ -156,28 +156,28 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
 
             {/* Content */}
             <div className="relative z-10">
-              <h2 className="text-3xl font-bold text-white mb-8 flex items-center gap-3">
+              <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
                 <div className="p-2 bg-white/20 rounded-xl backdrop-blur-sm">
-                  <TrendingUp className="w-7 h-7 text-white" />
+                  <TrendingUp className="w-6 h-6 text-white" />
                 </div>
                 Portfolio Summary
               </h2>
 
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 {/* Total Properties Card */}
                 <motion.div
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ delay: 0.1, duration: 0.3 }}
-                  className="bg-white/20 backdrop-blur-lg rounded-xl p-5 border border-white/30 hover:bg-white/30 transition-all hover:scale-105 shadow-lg"
+                  className="bg-white/20 backdrop-blur-lg rounded-xl p-4 border border-white/30 hover:bg-white/30 transition-all hover:scale-105 shadow-lg"
                 >
-                  <div className="flex items-center gap-2 mb-3">
-                    <div className="p-2 bg-white/20 rounded-lg">
-                      <Home className="w-5 h-5 text-white" />
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="p-1.5 bg-white/20 rounded-lg">
+                      <Home className="w-4 h-4 text-white" />
                     </div>
-                    <div className="text-sm text-white/90 font-medium">Total Properties</div>
+                    <div className="text-xs text-white/90 font-medium">Total Properties</div>
                   </div>
-                  <div className="text-3xl font-bold text-white">
+                  <div className="text-2xl font-bold text-white">
                     {portfolioMetrics.totalProperties}
                   </div>
                 </motion.div>
@@ -187,15 +187,15 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ delay: 0.2, duration: 0.3 }}
-                  className="bg-white/20 backdrop-blur-lg rounded-xl p-5 border border-white/30 hover:bg-white/30 transition-all hover:scale-105 shadow-lg"
+                  className="bg-white/20 backdrop-blur-lg rounded-xl p-4 border border-white/30 hover:bg-white/30 transition-all hover:scale-105 shadow-lg"
                 >
-                  <div className="flex items-center gap-2 mb-3">
-                    <div className="p-2 bg-gradient-to-br from-orange-400 to-red-500 rounded-lg">
-                      <TrendingUp className="w-5 h-5 text-white" />
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="p-1.5 bg-gradient-to-br from-orange-400 to-red-500 rounded-lg">
+                      <TrendingUp className="w-4 h-4 text-white" />
                     </div>
-                    <div className="text-sm text-white/90 font-medium">Capital Gains</div>
+                    <div className="text-xs text-white/90 font-medium">Capital Gains</div>
                   </div>
-                  <div className="text-3xl font-bold text-white">
+                  <div className="text-2xl font-bold text-white">
                     {formatCurrency(portfolioMetrics.totalCapitalGain)}
                   </div>
                 </motion.div>
@@ -205,19 +205,19 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ delay: 0.3, duration: 0.3 }}
-                  className="bg-white/20 backdrop-blur-lg rounded-xl p-5 border border-white/30 hover:bg-white/30 transition-all hover:scale-105 shadow-lg"
+                  className="bg-white/20 backdrop-blur-lg rounded-xl p-4 border border-white/30 hover:bg-white/30 transition-all hover:scale-105 shadow-lg"
                 >
-                  <div className="flex items-center gap-2 mb-3">
-                    <div className={`p-2 rounded-lg ${
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className={`p-1.5 rounded-lg ${
                       portfolioMetrics.totalCGTPayable === 0
                         ? 'bg-gradient-to-br from-green-400 to-emerald-500'
                         : 'bg-gradient-to-br from-red-400 to-pink-500'
                     }`}>
-                      <DollarSign className="w-5 h-5 text-white" />
+                      <DollarSign className="w-4 h-4 text-white" />
                     </div>
-                    <div className="text-sm text-white/90 font-medium">CGT Payable</div>
+                    <div className="text-xs text-white/90 font-medium">CGT Payable</div>
                   </div>
-                  <div className="text-3xl font-bold text-white">
+                  <div className="text-2xl font-bold text-white">
                     {formatCurrency(portfolioMetrics.totalCGTPayable)}
                   </div>
                 </motion.div>
@@ -227,15 +227,15 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ delay: 0.4, duration: 0.3 }}
-                  className="bg-white/20 backdrop-blur-lg rounded-xl p-5 border border-white/30 hover:bg-white/30 transition-all hover:scale-105 shadow-lg"
+                  className="bg-white/20 backdrop-blur-lg rounded-xl p-4 border border-white/30 hover:bg-white/30 transition-all hover:scale-105 shadow-lg"
                 >
-                  <div className="flex items-center gap-2 mb-3">
-                    <div className="p-2 bg-gradient-to-br from-green-400 to-emerald-500 rounded-lg">
-                      <Shield className="w-5 h-5 text-white" />
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="p-1.5 bg-gradient-to-br from-green-400 to-emerald-500 rounded-lg">
+                      <Shield className="w-4 h-4 text-white" />
                     </div>
-                    <div className="text-sm text-white/90 font-medium">Exempt Properties</div>
+                    <div className="text-xs text-white/90 font-medium">Exempt Properties</div>
                   </div>
-                  <div className="text-3xl font-bold text-white">
+                  <div className="text-2xl font-bold text-white">
                     {portfolioMetrics.exemptProperties}
                   </div>
                 </motion.div>
@@ -251,7 +251,7 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
               <div className="p-2 bg-gradient-to-br from-blue-500/20 to-pink-500/20 rounded-lg">
                 <Home className="w-5 h-5 text-blue-600 dark:text-pink-400" />
               </div>
-              <h3 className="text-lg font-semibold bg-gradient-to-r from-blue-600 to-pink-600 bg-clip-text text-transparent">
+              <h3 className="text-lg font-semibold text-blue-600 dark:text-blue-400">
                 Select Property
               </h3>
             </div>

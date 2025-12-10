@@ -1,10 +1,10 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Calendar, TrendingUp, Home, DollarSign, Calculator, BookOpen, Wrench } from 'lucide-react';
+import { Calendar, TrendingUp, Home, DollarSign, Calculator, BookOpen, Wrench, ChevronDown, ChevronRight, Sparkles, Scale } from 'lucide-react';
 import { formatCurrency } from '@/lib/utils';
-import type { ReportDisplayData } from '@/types/report-display';
+import { type ReportDisplayData } from '@/types/report-display';
 
 interface SimplifiedPropertyViewProps {
   reportData: ReportDisplayData;
@@ -13,6 +13,7 @@ interface SimplifiedPropertyViewProps {
 export default function SimplifiedPropertyView({
   reportData
 }: SimplifiedPropertyViewProps) {
+  const [expandedCalc, setExpandedCalc] = useState(false);
 
   // Extract transformed data
   const { timelineEvents, calculationSteps, applicableRules } = reportData;
@@ -52,145 +53,246 @@ export default function SimplifiedPropertyView({
   };
 
   return (
-    <div className="space-y-8 px-6 py-8">
-      {/* SECTION 1: TIMELINE OF EVENTS - Vertical Timeline Design */}
+    <div className="space-y-8 px-6 py-8 relative">
+      {/* Decorative gradient divider before first section */}
+      <div className="h-px bg-gradient-to-r from-transparent via-blue-300/50 to-transparent mb-4"></div>
+
+      {/* SECTION 1: TIMELINE OF EVENTS - Modern Table Design */}
       <section>
         {/* Section Header with Icon */}
         <div className="flex items-center gap-3 mb-6">
-          <div className="p-3 rounded-xl bg-gradient-to-br from-blue-500/20 to-pink-500/20">
-            <Calendar className="w-6 h-6 text-blue-600 dark:text-pink-400" />
+          <div className="p-3 rounded-xl bg-blue-100 dark:bg-blue-900/30 shadow-md backdrop-blur-sm transition-all hover:shadow-lg hover:scale-105">
+            <Calendar className="w-6 h-6 text-blue-600 dark:text-blue-400" />
           </div>
-          <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-pink-600 bg-clip-text text-transparent">
+          <h2 className="text-2xl font-bold text-blue-600 dark:text-blue-400 tracking-tight">
             Timeline of Events
           </h2>
         </div>
 
-        {/* Vertical Timeline */}
-        <div className="relative pl-8">
-          {/* Gradient timeline line */}
-          <div className="absolute left-2 top-0 bottom-0 w-1 bg-gradient-to-b from-blue-500 via-pink-500 to-purple-500 rounded-full" />
+        {/* Modern Table */}
+        {timelineEvents.length > 0 ? (
+          <div className="overflow-hidden rounded-xl border border-gray-200 dark:border-gray-700 shadow-lg hover:shadow-xl transition-shadow duration-300">
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                {/* Table Header with Enhanced Glow */}
+                <thead className="bg-gradient-to-r from-blue-500/15 via-pink-500/15 to-purple-500/15 border-b-2 border-pink-500/30 relative">
+                  <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-pink-500/10 to-purple-500/10 blur-xl pointer-events-none"></div>
+                  <tr className="relative z-10">
+                    <th className="px-6 py-4 text-left text-sm font-bold text-gray-800 dark:text-gray-200 whitespace-nowrap tracking-wide">
+                      Date
+                    </th>
+                    <th className="px-6 py-4 text-left text-sm font-bold text-gray-800 dark:text-gray-200 whitespace-nowrap tracking-wide">
+                      Event
+                    </th>
+                    <th className="px-6 py-4 text-left text-sm font-bold text-gray-800 dark:text-gray-200 tracking-wide">
+                      Details
+                    </th>
+                    <th className="px-6 py-4 text-left text-sm font-bold text-gray-800 dark:text-gray-200 whitespace-nowrap tracking-wide">
+                      Impact
+                    </th>
+                  </tr>
+                </thead>
 
-          {/* Event cards */}
-          {timelineEvents.length > 0 ? timelineEvents.map((event, index) => {
-            const eventStyle = getEventStyle(event.event);
-            const EventIcon = eventStyle.icon;
+                {/* Table Body */}
+                <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
+                  {timelineEvents.map((event, index) => {
+                    const eventStyle = getEventStyle(event.event);
+                    const EventIcon = eventStyle.icon;
 
-            return (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: index * 0.1, duration: 0.3 }}
-                className="relative mb-6 group"
-              >
-                {/* Event dot on timeline */}
-                <div className={`absolute left-[-1.75rem] top-4 w-6 h-6 rounded-full bg-gradient-to-br ${eventStyle.color} border-4 border-white dark:border-gray-900 shadow-lg z-10`} />
+                    // Get border color based on event type
+                    const getBorderColor = () => {
+                      const type = event.event.toLowerCase();
+                      if (type.includes('purchase')) return 'border-l-blue-500';
+                      if (type.includes('move in')) return 'border-l-green-500';
+                      if (type.includes('move out')) return 'border-l-amber-500';
+                      if (type.includes('improvement')) return 'border-l-purple-500';
+                      if (type.includes('sale')) return 'border-l-red-500';
+                      if (type.includes('rent')) return 'border-l-blue-400';
+                      return 'border-l-gray-400';
+                    };
 
-                {/* Event card */}
-                <div className="bg-white dark:bg-gray-800 rounded-xl p-5 shadow-md hover:shadow-xl transition-all border-l-4 border-pink-500 group-hover:scale-[1.02] duration-300">
-                  <div className="flex items-start gap-4">
-                    {/* Icon */}
-                    <div className={`p-3 rounded-lg bg-gradient-to-br ${eventStyle.bgColor} flex-shrink-0`}>
-                      <EventIcon className="w-6 h-6 text-cyan-600 dark:text-cyan-400" />
-                    </div>
+                    // Determine impact/status badge based on event type
+                    const getImpactBadge = () => {
+                      const type = event.event.toLowerCase();
+                      if (type.includes('move in')) {
+                        return { text: '✓ PPR Active', color: 'bg-green-500/10 dark:bg-green-500/20 text-green-700 dark:text-green-300 border-green-500/50 shadow-sm' };
+                      } else if (type.includes('move out')) {
+                        return { text: '⚠️ PPR Ends', color: 'bg-amber-500/10 dark:bg-amber-500/20 text-amber-700 dark:text-amber-300 border-amber-500/50 shadow-sm' };
+                      } else if (type.includes('rent start')) {
+                        return { text: 'Rental', color: 'bg-blue-500/10 dark:bg-blue-500/20 text-blue-700 dark:text-blue-300 border-blue-500/50 shadow-sm' };
+                      } else if (type.includes('rent end')) {
+                        return { text: 'Vacant', color: 'bg-gray-500/10 dark:bg-gray-500/20 text-gray-700 dark:text-gray-300 border-gray-500/50 shadow-sm' };
+                      } else if (type.includes('purchase')) {
+                        return { text: 'Owned', color: 'bg-blue-500/10 dark:bg-blue-500/20 text-blue-700 dark:text-blue-300 border-blue-500/50 shadow-sm' };
+                      } else if (type.includes('improvement')) {
+                        return { text: 'Cost Base +', color: 'bg-purple-500/10 dark:bg-purple-500/20 text-purple-700 dark:text-purple-300 border-purple-500/50 shadow-sm' };
+                      } else if (type.includes('sale')) {
+                        return { text: 'Disposed', color: 'bg-red-500/10 dark:bg-red-500/20 text-red-700 dark:text-red-300 border-red-500/50 shadow-sm' };
+                      }
+                      return { text: 'Status Change', color: 'bg-gray-500/10 dark:bg-gray-500/20 text-gray-700 dark:text-gray-300 border-gray-500/50 shadow-sm' };
+                    };
 
-                    {/* Content */}
-                    <div className="flex-1">
-                      <div className="flex justify-between items-start flex-wrap gap-2 mb-2">
-                        <h4 className="font-bold text-lg text-gray-900 dark:text-gray-100">
-                          {event.event}
-                        </h4>
-                        <span className="text-sm font-medium text-pink-600 dark:text-pink-400 bg-pink-50 dark:bg-pink-950/30 px-3 py-1 rounded-full">
+                    const impactBadge = getImpactBadge();
+                    const borderColor = getBorderColor();
+
+                    return (
+                      <motion.tr
+                        key={index}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: index * 0.03, duration: 0.3, ease: "easeOut" }}
+                        className={`
+                          border-l-4 ${borderColor}
+                          hover:bg-gradient-to-r hover:from-blue-50/50 hover:to-transparent dark:hover:from-blue-950/30 dark:hover:to-transparent
+                          transition-all duration-300 ease-out
+                          ${index % 2 === 0 ? 'bg-white dark:bg-gray-900' : 'bg-gray-50/80 dark:bg-gray-800/50'}
+                          hover:shadow-lg cursor-pointer relative group
+                        `}
+                      >
+                        {/* Subtle glow on hover */}
+                        <td className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                          <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-transparent"></div>
+                        </td>
+
+                        {/* Date Column with separator */}
+                        <td className="px-6 py-4 text-sm font-bold text-gray-900 dark:text-gray-100 whitespace-nowrap relative">
                           {formatDate(event.date)}
-                        </span>
-                      </div>
-                      <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
-                        {event.details}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
-            );
-          }) : (
-            <div className="text-center py-8 text-gray-500 dark:text-gray-400 italic">
-              No timeline events available
+                          <div className="absolute right-0 top-2 bottom-2 w-px bg-gray-200 dark:bg-gray-700"></div>
+                        </td>
+
+                        {/* Event Type Column */}
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="flex items-center gap-2">
+                            <div className={`p-2 rounded-lg bg-gradient-to-br ${eventStyle.bgColor} flex-shrink-0 ring-2 ring-offset-1 ring-${borderColor.replace('border-l-', '')}/30 shadow-sm`}>
+                              <EventIcon className="w-5 h-5 text-cyan-600 dark:text-cyan-400" />
+                            </div>
+                            <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                              {event.event}
+                            </span>
+                          </div>
+                        </td>
+
+                        {/* Details Column */}
+                        <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
+                          {event.details}
+                        </td>
+
+                        {/* Impact Column */}
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className={`inline-flex items-center px-3 py-1.5 text-xs font-bold rounded-full border-2 ${impactBadge.color} transition-all duration-200 hover:scale-110 hover:shadow-lg`}>
+                            {impactBadge.text}
+                          </span>
+                        </td>
+                      </motion.tr>
+                    );
+                  })}
+                </tbody>
+              </table>
             </div>
-          )}
-        </div>
+          </div>
+        ) : (
+          <div className="text-center py-12 px-6 bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-gray-200 dark:border-gray-700">
+            <Calendar className="w-12 h-12 text-gray-400 mx-auto mb-3" />
+            <p className="text-sm text-gray-500 dark:text-gray-400 italic">
+              No timeline events available
+            </p>
+          </div>
+        )}
       </section>
 
-      {/* SECTION 2: CGT CALCULATION - Connected Step Flow */}
+      {/* Decorative gradient divider */}
+      <div className="h-px bg-gradient-to-r from-transparent via-purple-300/50 to-transparent"></div>
+
+      {/* SECTION 2: CGT CALCULATION - Compact Colorful Timeline */}
       <section>
-        {/* Section Header with Icon */}
-        <div className="flex items-center gap-3 mb-6">
-          <div className="p-3 rounded-xl bg-gradient-to-br from-cyan-500/20 to-blue-500/20">
-            <Calculator className="w-6 h-6 text-cyan-600 dark:text-cyan-400" />
+        {/* Section Header */}
+        <div className="flex items-center gap-2 mb-3">
+          <div className="p-2 rounded-lg bg-blue-100 dark:bg-blue-900/30 shadow-sm backdrop-blur-sm">
+            <Calculator className="w-5 h-5 text-blue-600 dark:text-blue-400" />
           </div>
-          <h2 className="text-2xl font-bold bg-gradient-to-r from-cyan-600 to-blue-600 bg-clip-text text-transparent">
+          <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100 tracking-tight">
             CGT Calculation
           </h2>
         </div>
 
-        <div className="space-y-6 relative">
-          {/* Progress connector line */}
+        <div className="relative">
+          {/* Connecting Line - Animated Gradient */}
           {calculationSteps.length > 1 && (
-            <div className="absolute left-6 top-12 bottom-12 w-0.5 bg-gradient-to-b from-cyan-500/50 to-blue-500/50" />
+            <motion.div
+              initial={{ opacity: 0, scaleY: 0 }}
+              animate={{ opacity: 1, scaleY: 1 }}
+              transition={{ duration: 0.6, ease: "easeOut" }}
+              className="absolute left-3 top-3 bottom-3 w-0.5 bg-gradient-to-b from-blue-400 via-purple-400 to-green-400 origin-top"
+              style={{
+                boxShadow: '0 0 10px rgba(59, 130, 246, 0.3)'
+              }}
+            />
           )}
 
-          {calculationSteps.map((step: any, index: number) => {
-            // Clean step description (remove bracketed text)
-            const cleanDescription = step.description?.replace(/\s*\([^)]*\)/g, '').trim() || '';
+          {/* Calculation Steps */}
+          <div className="space-y-2">
+            {calculationSteps.map((step: any, index: number) => {
+              const cleanDescription = step.description?.replace(/\s*\([^)]*\)/g, '').trim() || '';
+              const isLastStep = index === calculationSteps.length - 1;
 
-            return (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.15, type: "spring", stiffness: 100 }}
-                className="relative"
-              >
-                {/* Large gradient step number */}
-                <div className="absolute left-0 top-0 w-12 h-12 rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center shadow-lg shadow-cyan-500/30 border-4 border-white dark:border-gray-900 z-10">
-                  <span className="text-lg font-bold text-white">{step.step}</span>
-                </div>
+              // Color themes for steps
+              const colors = [
+                { bg: 'bg-blue-50 dark:bg-blue-950/20', border: 'border-l-blue-400', circle: 'bg-gradient-to-br from-blue-500 to-cyan-500', formula: 'bg-blue-100/50 dark:bg-blue-900/30 border-blue-200 dark:border-blue-800', badge: 'bg-blue-500 text-white' },
+                { bg: 'bg-purple-50 dark:bg-purple-950/20', border: 'border-l-purple-400', circle: 'bg-gradient-to-br from-purple-500 to-pink-500', formula: 'bg-purple-100/50 dark:bg-purple-900/30 border-purple-200 dark:border-purple-800', badge: 'bg-purple-500 text-white' },
+                { bg: 'bg-cyan-50 dark:bg-cyan-950/20', border: 'border-l-cyan-400', circle: 'bg-gradient-to-br from-cyan-500 to-blue-500', formula: 'bg-cyan-100/50 dark:bg-cyan-900/30 border-cyan-200 dark:border-cyan-800', badge: 'bg-cyan-500 text-white' },
+                { bg: 'bg-indigo-50 dark:bg-indigo-950/20', border: 'border-l-indigo-400', circle: 'bg-gradient-to-br from-indigo-500 to-purple-500', formula: 'bg-indigo-100/50 dark:bg-indigo-900/30 border-indigo-200 dark:border-indigo-800', badge: 'bg-indigo-500 text-white' },
+                { bg: 'bg-teal-50 dark:bg-teal-950/20', border: 'border-l-teal-400', circle: 'bg-gradient-to-br from-teal-500 to-cyan-500', formula: 'bg-teal-100/50 dark:bg-teal-900/30 border-teal-200 dark:border-teal-800', badge: 'bg-teal-500 text-white' },
+              ];
 
-                {/* Step card with gradient border */}
-                <div className="ml-16 bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md hover:shadow-lg transition-shadow border-l-4 border-cyan-500">
-                  <div className="flex items-start gap-3 mb-4">
-                    <Calculator className="w-5 h-5 text-cyan-600 dark:text-cyan-400 mt-1 flex-shrink-0" />
-                    <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">
+              const stepColor = isLastStep
+                ? { bg: 'bg-green-50 dark:bg-green-950/20', border: 'border-l-green-500', circle: 'bg-gradient-to-br from-green-500 to-emerald-500', formula: 'bg-green-100/50 dark:bg-green-900/30 border-green-200 dark:border-green-800', badge: 'bg-green-600 text-white' }
+                : colors[index % colors.length];
+
+              return (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: index * 0.1, duration: 0.4, ease: "easeOut" }}
+                  className="relative pl-10"
+                >
+                  {/* Step Circle - Smaller with Gradient */}
+                  <motion.div
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ delay: index * 0.1 + 0.2, type: "spring", stiffness: 200 }}
+                    className={`absolute left-0 top-1.5 w-6 h-6 rounded-full ${stepColor.circle} flex items-center justify-center shadow-lg z-10`}
+                  >
+                    <span className="text-xs font-bold text-white">{step.step}</span>
+                  </motion.div>
+
+                  {/* Step Card - Colorful with Left Border and Glow for Last Step */}
+                  <div className={`${stepColor.bg} rounded-lg border border-gray-200 dark:border-gray-700 ${stepColor.border} border-l-4 p-3 hover:shadow-lg transition-all duration-300 ${isLastStep ? 'ring-2 ring-green-400/50 shadow-xl' : ''}`}>
+                    {/* Step Title */}
+                    <div className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-1.5 flex items-center gap-2">
                       {cleanDescription}
-                    </h3>
+                      {isLastStep && <Sparkles className="w-3 h-3 text-green-500" />}
+                    </div>
+
+                    {/* Formula Box with Inline Result */}
+                    {step.calculation && (
+                      <div className={`${stepColor.formula} rounded px-2 py-1.5 border`}>
+                        <code className="text-xs font-mono text-gray-700 dark:text-gray-300">
+                          {step.calculation}
+                          {step.result !== null && step.result !== undefined && (
+                            <span className="font-bold text-gray-900 dark:text-white">
+                              {' = '}
+                              {typeof step.result === 'number' ? formatCurrency(step.result) : step.result}
+                            </span>
+                          )}
+                        </code>
+                      </div>
+                    )}
                   </div>
-
-                  {/* Glassmorphism formula box */}
-                  {step.calculation && (
-                    <div className="bg-gradient-to-br from-cyan-500/10 to-blue-500/10 backdrop-blur rounded-lg p-4 border border-cyan-500/20 mb-4">
-                      <code className="font-mono text-sm text-gray-800 dark:text-gray-200">
-                        {step.calculation}
-                      </code>
-                    </div>
-                  )}
-
-                  {/* Result badge with gradient */}
-                  {step.result !== null && step.result !== undefined && (
-                    <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-full font-bold shadow-lg mb-3">
-                      <TrendingUp className="w-4 h-4" />
-                      <span>Result: {typeof step.result === 'number' ? formatCurrency(step.result) : step.result}</span>
-                    </div>
-                  )}
-
-                  {/* Additional details */}
-                  {step.details && (
-                    <div className="text-sm text-gray-600 dark:text-gray-400 pl-4 border-l-2 border-cyan-300 dark:border-cyan-700 bg-cyan-50/50 dark:bg-cyan-950/20 p-3 rounded">
-                      {step.details}
-                    </div>
-                  )}
-                </div>
-              </motion.div>
-            );
-          })}
+                </motion.div>
+              );
+            })}
+          </div>
 
           {/* If no calculation steps, show a basic calculation from summary metrics */}
           {calculationSteps.length === 0 && reportData && (
@@ -232,60 +334,72 @@ export default function SimplifiedPropertyView({
         </div>
       </section>
 
-      {/* SECTION 3: APPLICABLE RULES - Icon-Enhanced Card Grid */}
+      {/* Decorative gradient divider */}
+      <div className="h-px bg-gradient-to-r from-transparent via-emerald-300/50 to-transparent"></div>
+
+      {/* SECTION 3: APPLICABLE RULES - Dark Green Cards */}
       <section>
-        {/* Section Header with Icon */}
-        <div className="flex items-center gap-3 mb-6">
-          <div className="p-3 rounded-xl bg-gradient-to-br from-purple-500/20 to-pink-500/20">
-            <BookOpen className="w-6 h-6 text-purple-600 dark:text-purple-400" />
+        {/* Section Header */}
+        <div className="flex items-center gap-2 mb-3">
+          <div className="p-2 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 shadow-sm backdrop-blur-sm">
+            <BookOpen className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
           </div>
-          <h2 className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+          <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100 tracking-tight">
             Applicable Rules
           </h2>
         </div>
 
         {/* Rules Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {applicableRules.length > 0 ? applicableRules.map((rule, index) => (
             <motion.div
               key={`rule-${index}`}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1, duration: 0.3 }}
-              className="group bg-white dark:bg-gray-800 rounded-xl p-5 shadow-md hover:shadow-xl transition-all border-l-4 border-purple-500 hover:scale-[1.02] duration-300"
+              transition={{ delay: index * 0.1, duration: 0.4, ease: "easeOut" }}
+              className="relative bg-gradient-to-br from-emerald-800/95 to-teal-900/95 dark:from-emerald-900 dark:to-teal-950 rounded-lg border-2 border-emerald-500/50 dark:border-emerald-600/40 p-4 hover:shadow-2xl hover:border-emerald-400 dark:hover:border-emerald-500 transition-all duration-300 hover:scale-[1.02] group overflow-hidden"
             >
-              <div className="flex items-start gap-3">
-                {/* Icon */}
-                <div className="p-2 rounded-lg bg-gradient-to-br from-purple-500/20 to-pink-500/20 flex-shrink-0">
-                  <BookOpen className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+              {/* Subtle background pattern */}
+              <div className="absolute inset-0 opacity-5" style={{
+                backgroundImage: 'repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255,255,255,0.1) 10px, rgba(255,255,255,0.1) 20px)'
+              }}></div>
+
+              {/* Shine effect on hover */}
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out"></div>
+
+              {/* Content */}
+              <div className="relative z-10">
+                {/* Legal Scale Icon */}
+                <div className="flex items-start gap-3 mb-2">
+                  <div className="p-1.5 rounded-lg bg-emerald-600/30 backdrop-blur-sm flex-shrink-0">
+                    <Scale className="w-4 h-4 text-emerald-200" />
+                  </div>
+                  <div className="flex-1">
+                    {/* Rule ID badge */}
+                    {rule.section && (
+                      <span className="inline-block px-2 py-0.5 text-xs font-bold rounded bg-emerald-600/40 dark:bg-emerald-700/50 text-emerald-100 dark:text-emerald-200 border border-emerald-500/30 mb-2">
+                        {rule.section}
+                      </span>
+                    )}
+                  </div>
                 </div>
 
-                {/* Content */}
-                <div className="flex-1">
-                  {/* Rule ID badge */}
-                  {rule.section && (
-                    <span className="inline-block px-3 py-1 text-xs font-semibold bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-full mb-2">
-                      {rule.section}
-                    </span>
-                  )}
+                {/* Rule title */}
+                <h4 className="font-bold text-sm text-white dark:text-gray-100 mb-2">
+                  {rule.name}
+                </h4>
 
-                  {/* Rule title */}
-                  <h4 className="font-bold text-base text-gray-900 dark:text-gray-100 mb-2">
-                    {rule.name}
-                  </h4>
-
-                  {/* Rule description */}
-                  <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
-                    {rule.description}
-                  </p>
-                </div>
+                {/* Rule description */}
+                <p className="text-xs text-gray-200 dark:text-gray-300 leading-relaxed">
+                  {rule.description}
+                </p>
               </div>
             </motion.div>
           )) : (
-            <div className="col-span-2 text-center py-8">
-              <div className="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-gray-800 rounded-lg">
-                <BookOpen className="w-5 h-5 text-gray-400" />
-                <p className="text-sm text-gray-500 dark:text-gray-400 italic">
+            <div className="col-span-2 text-center py-6">
+              <div className="inline-flex items-center gap-2 px-3 py-2 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                <BookOpen className="w-4 h-4 text-gray-400" />
+                <p className="text-xs text-gray-500 dark:text-gray-400 italic">
                   No specific tax law sections identified in this analysis.
                 </p>
               </div>

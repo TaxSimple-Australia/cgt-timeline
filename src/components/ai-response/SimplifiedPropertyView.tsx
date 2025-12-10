@@ -111,6 +111,18 @@ export default function SimplifiedPropertyView({
                       return 'border-l-gray-400';
                     };
 
+                    // Get icon color based on event type
+                    const getIconColor = () => {
+                      const type = event.event.toLowerCase();
+                      if (type.includes('purchase')) return 'text-blue-500 dark:text-blue-400';
+                      if (type.includes('move in')) return 'text-green-500 dark:text-green-400';
+                      if (type.includes('move out')) return 'text-amber-500 dark:text-amber-400';
+                      if (type.includes('improvement')) return 'text-purple-500 dark:text-purple-400';
+                      if (type.includes('sale')) return 'text-red-500 dark:text-red-400';
+                      if (type.includes('rent')) return 'text-blue-400 dark:text-blue-300';
+                      return 'text-gray-500 dark:text-gray-400';
+                    };
+
                     // Determine impact/status badge based on event type
                     const getImpactBadge = () => {
                       const type = event.event.toLowerCase();
@@ -134,6 +146,7 @@ export default function SimplifiedPropertyView({
 
                     const impactBadge = getImpactBadge();
                     const borderColor = getBorderColor();
+                    const iconColor = getIconColor();
 
                     return (
                       <motion.tr
@@ -159,7 +172,7 @@ export default function SimplifiedPropertyView({
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center gap-2">
                             <div className={`p-2 rounded-lg bg-gradient-to-br ${eventStyle.bgColor} flex-shrink-0 ring-2 ring-offset-1 ring-${borderColor.replace('border-l-', '')}/30 shadow-sm`}>
-                              <EventIcon className="w-5 h-5 text-cyan-600 dark:text-cyan-400" />
+                              <EventIcon className={`w-5 h-5 ${iconColor}`} />
                             </div>
                             <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">
                               {event.event}

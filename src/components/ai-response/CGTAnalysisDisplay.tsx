@@ -2,12 +2,13 @@
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { CheckCircle, XCircle, ChevronDown, ChevronUp } from 'lucide-react';
+import { CheckCircle, XCircle, ChevronDown, ChevronUp, Cpu, Zap, Clock } from 'lucide-react';
 import GapQuestionsPanel from './GapQuestionsPanel';
 import DetailedReportSection from './DetailedReportSection';
 import TwoColumnLayout from '../timeline-viz/TwoColumnLayout';
 import PropertyTwoColumnView from './PropertyTwoColumnView';
 import { useTimelineStore } from '@/store/timeline';
+import MarkdownDisplay from '../model-response/MarkdownDisplay';
 
 interface CGTAnalysisDisplayProps {
   response: any; // AI response (success or verification_failed)
@@ -31,6 +32,67 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
     return (
       <div className="flex items-center justify-center p-12">
         <p className="text-gray-500 dark:text-gray-400">No analysis data available</p>
+      </div>
+    );
+  }
+
+  // Check for new API response format (markdown analysis string)
+  const isMarkdownResponse = typeof response.analysis === 'string' && !response.status;
+
+  // New Markdown Response Display
+  if (isMarkdownResponse) {
+    const formatCurrency = (amount: number | null | undefined) => {
+      if (amount === null || amount === undefined) return '$0.00';
+      return new Intl.NumberFormat('en-AU', {
+        style: 'currency',
+        currency: 'AUD',
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 4,
+      }).format(amount);
+    };
+
+    return (
+      <div className="space-y-6">
+        {/* Main Analysis Content */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+          className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden"
+        >
+          <div className="p-6 lg:p-8">
+            <MarkdownDisplay
+              content={response.analysis}
+              className="prose prose-gray dark:prose-invert max-w-none"
+            />
+          </div>
+        </motion.div>
+
+        {/* Properties Summary (if present) */}
+        {response.properties && response.properties.length > 0 && (
+          <div className="bg-gray-50 dark:bg-gray-800/50 rounded-xl p-6 border border-gray-200 dark:border-gray-700">
+            <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-4">
+              Properties Analyzed ({response.properties.length})
+            </h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              {response.properties.map((prop: any, index: number) => (
+                <div
+                  key={index}
+                  className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700"
+                >
+                  <h4 className="font-medium text-gray-900 dark:text-white text-sm truncate">
+                    {prop.address || `Property ${index + 1}`}
+                  </h4>
+                  {prop.property_history && (
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                      {prop.property_history.length} events
+                    </p>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     );
   }

@@ -4,10 +4,26 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { TimelineEvent, PropertyStatus, useTimelineStore, CostBaseItem } from '@/store/timeline';
 import { format } from 'date-fns';
-import { X, Calendar, DollarSign, Home, Tag, FileText, CheckCircle, Receipt, Info } from 'lucide-react';
+import { X, Calendar, DollarSign, Home, Tag, FileText, CheckCircle, Receipt, Info, Star, Palette } from 'lucide-react';
 import CostBaseSelector from './CostBaseSelector';
 import { getCostBaseDefinition } from '@/lib/cost-base-definitions';
 import CostBaseSummaryModal from './CostBaseSummaryModal';
+
+// Color palette for custom events
+const customEventColors = [
+  '#EF4444', // Red
+  '#F97316', // Orange
+  '#F59E0B', // Amber
+  '#84CC16', // Lime
+  '#10B981', // Emerald
+  '#06B6D4', // Cyan
+  '#3B82F6', // Blue
+  '#6366F1', // Indigo
+  '#8B5CF6', // Violet
+  '#EC4899', // Pink
+  '#6B7280', // Gray
+  '#1F2937', // Dark
+];
 
 interface EventDetailsModalProps {
   event: TimelineEvent;
@@ -22,11 +38,14 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
   const [date, setDate] = useState(format(event.date, 'yyyy-MM-dd'));
   const [amount, setAmount] = useState(event.amount?.toString() || '');
   const [description, setDescription] = useState(event.description || '');
-  const [isPPR, setIsPPR] = useState(event.isPPR || false);
   const [newStatus, setNewStatus] = useState<PropertyStatus | ''>(event.newStatus || '');
   const [isSaving, setIsSaving] = useState(false);
   const [showSummary, setShowSummary] = useState(false);
   const [showDateTooltip, setShowDateTooltip] = useState(false);
+
+  // Custom event specific state
+  const [customColor, setCustomColor] = useState(event.color || '#6B7280');
+  const [affectsStatus, setAffectsStatus] = useState(event.affectsStatus || false);
 
   // NEW: Dynamic Cost Bases
   const [costBases, setCostBases] = useState<CostBaseItem[]>(() => {
@@ -113,12 +132,19 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
         updates.description = undefined;
       }
 
-      // Include Main Residence status
-      updates.isPPR = isPPR ? true : undefined;
+      // Include new status if applicable (for status_change and custom events)
+      if (event.type === 'status_change' || (event.type === 'custom' && affectsStatus)) {
+        if (newStatus) {
+          updates.newStatus = newStatus as PropertyStatus;
+        } else {
+          updates.newStatus = undefined;
+        }
+      }
 
-      // Include new status if applicable
-      if (newStatus) {
-        updates.newStatus = newStatus as PropertyStatus;
+      // Custom event specific fields
+      if (event.type === 'custom') {
+        updates.color = customColor;
+        updates.affectsStatus = affectsStatus || undefined;
       }
 
       // NEW: Dynamic Cost Bases
@@ -239,18 +265,38 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
               <Tag className="w-4 h-4 text-slate-500 dark:text-slate-400" />
               <span className="text-sm text-slate-600 dark:text-slate-400">Event Type:</span>
               <span
-                className="px-3 py-1 rounded-full text-xs font-semibold text-white"
-                style={{ backgroundColor: event.color }}
+                className="px-3 py-1 rounded-full text-xs font-semibold text-white flex items-center gap-1"
+                style={{ backgroundColor: event.type === 'custom' ? customColor : event.color }}
               >
-                {event.type.replace('_', ' ').toUpperCase()}
+                {event.type === 'custom' && <Star className="w-3 h-3" />}
+                {event.type === 'custom' ? 'CUSTOM' : event.type === 'refinance' ? 'INHERIT' : event.type.replace('_', ' ').toUpperCase()}
               </span>
-              {isPPR && (
-                <span className="px-2 py-1 rounded-full text-xs font-semibold bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 flex items-center gap-1">
-                  <CheckCircle className="w-3 h-3" />
-                  Main Residence
-                </span>
-              )}
             </div>
+
+            {/* Custom Event Color Picker */}
+            {event.type === 'custom' && (
+              <div className="space-y-3 pb-4 border-b border-slate-100 dark:border-slate-700">
+                <div className="flex items-center gap-2">
+                  <Palette className="w-4 h-4 text-slate-500 dark:text-slate-400" />
+                  <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Event Color</span>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {customEventColors.map((color) => (
+                    <button
+                      key={color}
+                      onClick={() => setCustomColor(color)}
+                      className={`w-8 h-8 rounded-full border-2 transition-all ${
+                        customColor === color
+                          ? 'border-slate-900 dark:border-white scale-110 ring-2 ring-offset-2 ring-blue-500'
+                          : 'border-transparent hover:scale-105'
+                      }`}
+                      style={{ backgroundColor: color }}
+                      title={color}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* Basic Information Section */}
             <div className="space-y-4">
@@ -366,7 +412,7 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
             </div>
 
             {/* Cost Base Section (for CGT calculation) - NEW COMPONENT */}
-            {(event.type === 'purchase' || event.type === 'sale' || event.type === 'improvement' || event.type === 'rent_start' || event.type === 'rent_end' || event.type === 'status_change' || event.type === 'refinance') && (
+            {(event.type === 'purchase' || event.type === 'sale' || event.type === 'improvement' || event.type === 'rent_start' || event.type === 'rent_end' || event.type === 'status_change' || event.type === 'refinance' || event.type === 'custom') && (
               <div className="space-y-4 pt-2 border-t border-slate-200 dark:border-slate-700">
                 <CostBaseSelector
                   eventType={event.type}
@@ -427,7 +473,7 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
               </div>
             </div>
 
-            {/* Status Change Dropdown (if applicable) */}
+            {/* Status Change Dropdown (for status_change events) */}
             {event.type === 'status_change' && (
               <div>
                 <label className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
@@ -446,6 +492,49 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
                   <option value="construction">Under Construction</option>
                   <option value="sold">Sold</option>
                 </select>
+              </div>
+            )}
+
+            {/* Custom Event Status Change Option */}
+            {event.type === 'custom' && (
+              <div className="space-y-3 pt-2 border-t border-slate-200 dark:border-slate-700">
+                <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide">Status Change</h3>
+
+                <div className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    id="affectsStatus"
+                    checked={affectsStatus}
+                    onChange={(e) => {
+                      setAffectsStatus(e.target.checked);
+                      if (!e.target.checked) setNewStatus('');
+                    }}
+                    className="w-4 h-4 text-blue-600 border-gray-300 dark:border-gray-600 rounded focus:ring-blue-500"
+                  />
+                  <label htmlFor="affectsStatus" className="text-sm text-slate-600 dark:text-slate-400 cursor-pointer">
+                    This event changes property status
+                  </label>
+                </div>
+
+                {affectsStatus && (
+                  <div>
+                    <label className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                      <Home className="w-4 h-4" />
+                      New Status
+                    </label>
+                    <select
+                      value={newStatus}
+                      onChange={(e) => setNewStatus(e.target.value as PropertyStatus)}
+                      className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                      <option value="">Select new status...</option>
+                      <option value="ppr">Main Residence (PPR)</option>
+                      <option value="rental">Rental/Investment</option>
+                      <option value="vacant">Vacant</option>
+                      <option value="construction">Under Construction</option>
+                    </select>
+                  </div>
+                )}
               </div>
             )}
           </div>

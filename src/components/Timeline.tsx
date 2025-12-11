@@ -413,6 +413,7 @@ export default function Timeline({ className, onAlertClick }: TimelineProps) {
             timelinePosition={clickPosition}
             onClose={() => setShowQuickAdd(false)}
             preselectedPropertyId={preselectedPropertyId}
+            timelineContainerRef={timelineRef}
           />
         )}
       </AnimatePresence>

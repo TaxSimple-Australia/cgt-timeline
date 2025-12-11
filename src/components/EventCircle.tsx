@@ -4,7 +4,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { TimelineEvent, useTimelineStore } from '@/store/timeline';
 import { positionToDate } from '@/lib/utils';
-import { Home, DollarSign, TrendingUp } from 'lucide-react';
+import { Home, DollarSign, TrendingUp, Star } from 'lucide-react';
 
 interface EventCircleProps {
   event: TimelineEvent;
@@ -49,6 +49,8 @@ export default function EventCircle({ event, cx, cy, color, onClick, tier = 0, z
       case 'move_in':
       case 'move_out':
         return <Home className="w-3 h-3" />;
+      case 'custom':
+        return <Star className="w-3 h-3" />;
       default:
         return <DollarSign className="w-3 h-3" />;
     }

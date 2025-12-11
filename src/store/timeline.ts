@@ -15,7 +15,8 @@ export type EventType =
   | 'refinance'
   | 'status_change'
   | 'living_in_rental_start'  // Person starts living in a rental they don't own
-  | 'living_in_rental_end';    // Person stops living in a rental they don't own
+  | 'living_in_rental_end'    // Person stops living in a rental they don't own
+  | 'custom';                 // User-defined custom event for any situation
 
 export type PropertyStatus =
   | 'ppr'              // Main Residence (owner lives in it)
@@ -51,11 +52,14 @@ export interface TimelineEvent {
   // CGT-specific fields
   contractDate?: Date;      // For sales - contract date vs settlement
   settlementDate?: Date;    // Actual settlement date
-  newStatus?: PropertyStatus; // For status_change events
+  newStatus?: PropertyStatus; // For status_change events and custom events that affect status
   isPPR?: boolean;          // Is this event related to Main Residence?
   // Price breakdown for purchases (land + building)
   landPrice?: number;       // Price of land component
   buildingPrice?: number;   // Price of building component
+
+  // Custom event fields
+  affectsStatus?: boolean;  // For custom events: does this event change property status?
 
   // NEW: Dynamic Cost Base Items
   costBases?: CostBaseItem[];  // Array of cost base items for this event
@@ -216,6 +220,7 @@ const eventColors: Record<EventType, string> = {
   status_change: '#A855F7',
   living_in_rental_start: '#F472B6',  // Pink - Start living in rental
   living_in_rental_end: '#FB923C',    // Orange - End living in rental
+  custom: '#6B7280',                   // Gray - Custom event (user can change)
 };
 
 // Status colors for visualization

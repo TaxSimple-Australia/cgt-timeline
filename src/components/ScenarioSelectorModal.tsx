@@ -33,32 +33,35 @@ interface ScenarioSelectorModalProps {
   onClose: () => void;
 }
 
-// Define the scenarios to load
-const SCENARIO_FILES = [
-  // Original scenarios (1-5)
-  'scenario1_full_main_residence_exemption.json',
-  'scenario2_six_year_rule_within.json',
-  'scenario3_six_year_rule_exceeded.json',
-  'scenario4_rental_first_then_main_residence.json',
-  'scenario5_moving_between_residences.json',
-  // Complex scenarios (6-15)
-  'scenario6_multiple_absence_periods.json',
-  'scenario7_two_properties_strategic_mre.json',
-  'scenario8_inherited_property_rental.json',
-  'scenario9_investment_then_ppr_then_rental.json',
-  'scenario10_six_month_overlap_exceeded.json',
-  'scenario11_construction_four_year_rule.json',
-  'scenario12_airbnb_room_rental.json',
-  'scenario13_couple_separate_properties.json',
-  'scenario14_foreign_resident_period.json',
-  'scenario15_three_property_portfolio.json',
-  // Additional scenarios
-  'new_scenario_1_full_main_residence.json',
-  'new_scenario_2_six_year_within.json',
-  'new_scenario_3_six_year_exceeded.json',
-  'new_scenario_4_rental_first.json',
-  'new_scenario_5_moving_between_residences.json',
+// Define the scenarios with clear, professional titles
+const SCENARIO_CONFIG: { filename: string; displayTitle: string; category: string }[] = [
+  // Basic CGT Scenarios (1-5)
+  { filename: 'scenario1_full_main_residence_exemption.json', displayTitle: 'Full Main Residence Exemption', category: 'Basic' },
+  { filename: 'scenario2_six_year_rule_within.json', displayTitle: '6-Year Absence Rule (Within Limit)', category: 'Basic' },
+  { filename: 'scenario3_six_year_rule_exceeded.json', displayTitle: '6-Year Absence Rule (Exceeded)', category: 'Basic' },
+  { filename: 'scenario4_rental_first_then_main_residence.json', displayTitle: 'Rental First, Then Main Residence', category: 'Basic' },
+  { filename: 'scenario5_moving_between_residences.json', displayTitle: 'Moving Between Residences', category: 'Basic' },
+  // Basic CGT Scenarios Variant B (6-10)
+  { filename: 'new_scenario_1_full_main_residence.json', displayTitle: 'Full Main Residence (Variant B)', category: 'Basic' },
+  { filename: 'new_scenario_2_six_year_within.json', displayTitle: '6-Year Rule Within (Variant B)', category: 'Basic' },
+  { filename: 'new_scenario_3_six_year_exceeded.json', displayTitle: '6-Year Rule Exceeded (Variant B)', category: 'Basic' },
+  { filename: 'new_scenario_4_rental_first.json', displayTitle: 'Rental First (Variant B)', category: 'Basic' },
+  { filename: 'new_scenario_5_moving_between_residences.json', displayTitle: 'Moving Between Residences (Variant B)', category: 'Basic' },
+  // Complex CGT Scenarios (11-20)
+  { filename: 'scenario6_multiple_absence_periods.json', displayTitle: 'Multiple Absence Periods', category: 'Complex' },
+  { filename: 'scenario7_two_properties_strategic_mre.json', displayTitle: 'Two Properties - Strategic MRE Choice', category: 'Complex' },
+  { filename: 'scenario8_inherited_property_rental.json', displayTitle: 'Inherited Property with Rental', category: 'Complex' },
+  { filename: 'scenario9_investment_then_ppr_then_rental.json', displayTitle: 'Investment → Main Residence → Rental', category: 'Complex' },
+  { filename: 'scenario10_six_month_overlap_exceeded.json', displayTitle: '6-Month Overlap Rule Exceeded', category: 'Complex' },
+  { filename: 'scenario11_construction_four_year_rule.json', displayTitle: 'Construction & 4-Year Building Rule', category: 'Complex' },
+  { filename: 'scenario12_airbnb_room_rental.json', displayTitle: 'Partial Use - Airbnb Room Rental', category: 'Complex' },
+  { filename: 'scenario13_couple_separate_properties.json', displayTitle: 'Couple with Separate Properties', category: 'Complex' },
+  { filename: 'scenario14_foreign_resident_period.json', displayTitle: 'Foreign Resident Period Impact', category: 'Complex' },
+  { filename: 'scenario15_three_property_portfolio.json', displayTitle: 'Three Property Portfolio', category: 'Complex' },
 ];
+
+// Extract just filenames for backwards compatibility
+const SCENARIO_FILES = SCENARIO_CONFIG.map(s => s.filename);
 
 export default function ScenarioSelectorModal({ isOpen, onClose }: ScenarioSelectorModalProps) {
   const [scenarios, setScenarios] = useState<Scenario[]>([]);
@@ -85,24 +88,24 @@ export default function ScenarioSelectorModal({ isOpen, onClose }: ScenarioSelec
     setLoading(true);
     const loadedScenarios: Scenario[] = [];
 
-    for (const filename of SCENARIO_FILES) {
+    for (const config of SCENARIO_CONFIG) {
       try {
-        const response = await fetch(`/scenariotestjsons/${filename}`);
+        const response = await fetch(`/scenariotestjsons/${config.filename}`);
         if (response.ok) {
           const data = await response.json();
           const scenarioInfo = data.scenario_info;
 
           loadedScenarios.push({
-            id: filename,
-            filename,
-            title: data.title || scenarioInfo?.name || formatFilenameAsTitle(filename),
+            id: config.filename,
+            filename: config.filename,
+            title: config.displayTitle, // Use the professional display title from config
             description: scenarioInfo?.description || data.user_query || 'No description available',
             scenario_info: scenarioInfo,
             properties: data.properties,
           });
         }
       } catch (error) {
-        console.error(`Failed to load scenario ${filename}:`, error);
+        console.error(`Failed to load scenario ${config.filename}:`, error);
       }
     }
 
@@ -351,61 +354,73 @@ export default function ScenarioSelectorModal({ isOpen, onClose }: ScenarioSelec
                   ) : (
                     /* Scenario List View */
                     <div className="space-y-3">
-                      {scenarios.map((scenario, index) => (
-                        <motion.div
-                          key={scenario.id}
-                          initial={{ opacity: 0, x: -20 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: index * 0.05 }}
-                          className={`w-full text-left p-4 rounded-xl border-2 transition-all ${
-                            loadingScenario === scenario.id
-                              ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
-                              : 'border-slate-200 dark:border-slate-700 hover:border-blue-300 dark:hover:border-blue-600 hover:bg-slate-50 dark:hover:bg-slate-700/50'
-                          } ${loadingScenario && loadingScenario !== scenario.id ? 'opacity-50' : ''}`}
-                        >
-                          <div className="flex items-start justify-between gap-3">
-                            <div
-                              className="flex-1 min-w-0 cursor-pointer"
-                              onClick={() => !loadingScenario && handleSelectScenario(scenario)}
-                            >
-                              <div className="flex items-center gap-2 mb-1">
-                                <span className="text-xs font-medium text-slate-400 dark:text-slate-500">
-                                  Scenario {index + 1}
+                      {scenarios.map((scenario, index) => {
+                        const scenarioNumber = index + 1;
+
+                        return (
+                          <motion.div
+                            key={scenario.id}
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: index * 0.03 }}
+                            className={`w-full text-left p-4 rounded-xl border-2 transition-all ${
+                              loadingScenario === scenario.id
+                                ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
+                                : 'border-slate-200 dark:border-slate-700 hover:border-blue-300 dark:hover:border-blue-600 hover:bg-slate-50 dark:hover:bg-slate-700/50'
+                            } ${loadingScenario && loadingScenario !== scenario.id ? 'opacity-50' : ''}`}
+                          >
+                            <div className="flex items-start gap-4">
+                              {/* Number counter */}
+                              <div
+                                className="flex-shrink-0 w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center cursor-pointer"
+                                onClick={() => !loadingScenario && handleSelectScenario(scenario)}
+                              >
+                                <span className="text-white font-bold text-sm">
+                                  {scenarioNumber}
                                 </span>
                               </div>
-                              <h3 className="font-semibold text-slate-900 dark:text-slate-100 mb-1">
-                                {scenario.title}
-                              </h3>
-                              <p className="text-sm text-slate-500 dark:text-slate-400 line-clamp-2">
-                                {scenario.description}
-                              </p>
-                            </div>
-                            <div className="flex-shrink-0 flex items-center gap-2">
-                              {loadingScenario === scenario.id ? (
-                                <Loader2 className="w-5 h-5 text-blue-500 animate-spin" />
-                              ) : (
-                                <button
-                                  onClick={(e) => handleViewInfo(e, scenario)}
-                                  className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-700 hover:bg-blue-100 dark:hover:bg-blue-900/50 flex items-center justify-center transition-colors"
-                                  title="View more info"
-                                >
-                                  <Info className="w-4 h-4 text-slate-500 dark:text-slate-400 hover:text-blue-500" />
-                                </button>
-                              )}
-                            </div>
-                          </div>
 
-                          {/* Properties count indicator */}
-                          <div
-                            className="mt-3 pt-3 border-t border-slate-100 dark:border-slate-700 cursor-pointer"
-                            onClick={() => !loadingScenario && handleSelectScenario(scenario)}
-                          >
-                            <span className="text-xs text-slate-400 dark:text-slate-500">
-                              {scenario.properties?.length || 0} {scenario.properties?.length === 1 ? 'property' : 'properties'}
-                            </span>
-                          </div>
-                        </motion.div>
-                      ))}
+                              <div className="flex-1 min-w-0">
+                                <div
+                                  className="cursor-pointer"
+                                  onClick={() => !loadingScenario && handleSelectScenario(scenario)}
+                                >
+                                  <h3 className="font-semibold text-slate-900 dark:text-slate-100 mb-1">
+                                    {scenario.title}
+                                  </h3>
+                                  <p className="text-sm text-slate-500 dark:text-slate-400 line-clamp-2">
+                                    {scenario.description}
+                                  </p>
+                                </div>
+
+                                {/* Properties count indicator */}
+                                <div
+                                  className="mt-2 cursor-pointer"
+                                  onClick={() => !loadingScenario && handleSelectScenario(scenario)}
+                                >
+                                  <span className="text-xs text-slate-400 dark:text-slate-500">
+                                    {scenario.properties?.length || 0} {scenario.properties?.length === 1 ? 'property' : 'properties'}
+                                  </span>
+                                </div>
+                              </div>
+
+                              <div className="flex-shrink-0 flex items-center gap-2">
+                                {loadingScenario === scenario.id ? (
+                                  <Loader2 className="w-5 h-5 text-blue-500 animate-spin" />
+                                ) : (
+                                  <button
+                                    onClick={(e) => handleViewInfo(e, scenario)}
+                                    className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-700 hover:bg-blue-100 dark:hover:bg-blue-900/50 flex items-center justify-center transition-colors"
+                                    title="View more info"
+                                  >
+                                    <Info className="w-4 h-4 text-slate-500 dark:text-slate-400 hover:text-blue-500" />
+                                  </button>
+                                )}
+                              </div>
+                            </div>
+                          </motion.div>
+                        );
+                      })}
                     </div>
                   )}
                 </div>

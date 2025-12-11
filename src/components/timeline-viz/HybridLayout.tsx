@@ -201,7 +201,7 @@ export default function HybridLayout({ properties, events }: HybridLayoutProps) 
                               {format(event.date, 'dd/MM/yy')}
                             </td>
                             <td className="px-3 py-2 text-xs text-gray-900 dark:text-gray-100">
-                              {event.type.replace('_', ' ')}
+                              {event.type === 'refinance' ? 'Inherit' : event.type.replace('_', ' ')}
                             </td>
                             <td className="px-3 py-2 text-xs font-medium text-right text-gray-900 dark:text-gray-100 whitespace-nowrap">
                               {event.amount ? formatCurrency(event.amount) : '-'}

@@ -683,7 +683,7 @@ export default function TimelineSnapshot() {
                       {clickedEvent.event.title}
                     </div>
                     <div className="text-xs opacity-75 mb-2 capitalize">
-                      {clickedEvent.event.type.replace('_', ' ')}
+                      {clickedEvent.event.type === 'refinance' ? 'Inherit' : clickedEvent.event.type.replace('_', ' ')}
                     </div>
 
                     {/* Date Information */}

@@ -14,7 +14,9 @@ import {
   Hammer,
   Calendar,
   X,
-  Edit2
+  Edit2,
+  Star,
+  Gift
 } from 'lucide-react';
 
 interface EventCardProps {
@@ -32,7 +34,8 @@ const eventIcons: Record<string, React.ReactNode> = {
   rent_end: <DollarSign className="w-4 h-4" />,
   sale: <TrendingUp className="w-4 h-4" />,
   improvement: <Hammer className="w-4 h-4" />,
-  refinance: <DollarSign className="w-4 h-4" />,
+  refinance: <Gift className="w-4 h-4" />,
+  custom: <Star className="w-4 h-4" />,
 };
 
 export default function EventCard({ 
@@ -154,7 +157,7 @@ export default function EventCard({
           className="absolute left-full ml-2 top-0 bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 px-4 py-3 rounded-lg shadow-2xl z-[100] min-w-[240px] max-w-[320px] pointer-events-none"
         >
           <div className="text-sm font-bold mb-1">{event.title}</div>
-          <div className="text-xs opacity-75 mb-2 capitalize">{event.type.replace('_', ' ')}</div>
+          <div className="text-xs opacity-75 mb-2 capitalize">{event.type === 'refinance' ? 'Inherit' : event.type.replace('_', ' ')}</div>
 
           {/* Date Information */}
           <div className="space-y-1 mb-2 border-b border-white/20 dark:border-slate-900/20 pb-2">

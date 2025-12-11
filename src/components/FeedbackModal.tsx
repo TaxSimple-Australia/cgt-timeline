@@ -128,7 +128,7 @@ export default function FeedbackModal({ issue, onClose, onResolve }: FeedbackMod
               )}
               {event && (
                 <div className="text-blue-600 dark:text-blue-500 text-sm">
-                  {event.type.replace(/_/g, ' ').toUpperCase()} - {format(event.date, 'MMM d, yyyy')}
+                  {event.type === 'refinance' ? 'INHERIT' : event.type.replace(/_/g, ' ').toUpperCase()} - {format(event.date, 'MMM d, yyyy')}
                 </div>
               )}
             </div>

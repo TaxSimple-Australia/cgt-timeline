@@ -86,12 +86,19 @@ export default function PropertyBranch({
   );
 
   // Debug logging to help troubleshoot gap display
-  if (positionedGaps.length > 0) {
-    console.log('PropertyBranch:', property.name, 'ID:', property.id);
-    console.log('Total gaps:', positionedGaps.length);
-    console.log('Gaps for this property:', propertyGaps.length);
-    console.log('Property gaps:', propertyGaps);
-  }
+  console.log('🏠 PropertyBranch rendering:', {
+    propertyName: property.name,
+    propertyId: property.id,
+    totalGapsInStore: positionedGaps.length,
+    gapsForThisProperty: propertyGaps.length,
+    propertyGaps: propertyGaps.map(g => ({
+      id: g.id,
+      start_date: g.start_date,
+      end_date: g.end_date,
+      duration_days: g.duration_days,
+      propertyIds: g.propertyIds,
+    })),
+  });
 
   // Get validation issues for this property
   const propertyIssues = getIssuesForProperty(property.name) || getIssuesForProperty(property.address);

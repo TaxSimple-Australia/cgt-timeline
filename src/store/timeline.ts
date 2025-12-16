@@ -1512,18 +1512,93 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
   // Verification Alert Methods (from GilbertBranch)
   setVerificationAlerts: (alerts: VerificationAlert[]) => {
     const firstUnresolvedIndex = alerts.findIndex(alert => !alert.resolved);
+
+    // Convert verification alerts to positioned gaps for red triangle visualization
+    const state = get();
+    const { properties, timelineStart, timelineEnd } = state;
+
+    const positionedGaps: PositionedGap[] = alerts.map((alert, index) => {
+      const gapStart = new Date(alert.startDate);
+      const gapEnd = new Date(alert.endDate);
+      const timelineRange = timelineEnd.getTime() - timelineStart.getTime();
+      const startOffset = gapStart.getTime() - timelineStart.getTime();
+      const x = (startOffset / timelineRange) * 100; // Percentage position
+
+      // Calculate duration in days
+      const durationMs = gapEnd.getTime() - gapStart.getTime();
+      const duration_days = Math.round(durationMs / (1000 * 60 * 60 * 24));
+
+      // Find matching property IDs
+      const matchingProperty = properties.find(p =>
+        alert.propertyId === p.id ||
+        alert.propertyAddress.toLowerCase().includes(p.name.toLowerCase()) ||
+        alert.propertyAddress.toLowerCase().includes(p.address.toLowerCase())
+      );
+
+      return {
+        id: alert.id,
+        start_date: alert.startDate,
+        end_date: alert.endDate,
+        duration_days,
+        category: 'timeline_gap',
+        description: alert.resolutionText || alert.clarificationQuestion || 'Residence gap',
+        propertyIds: matchingProperty ? [matchingProperty.id] : [],
+        x, // Position on timeline
+        resolved: alert.resolved || false,
+      };
+    });
+
+    console.log('🔴 Setting verification alerts and creating positioned gaps:', {
+      alertsCount: alerts.length,
+      positionedGapsCount: positionedGaps.length,
+      alerts: alerts.map(a => ({
+        id: a.id,
+        propertyAddress: a.propertyAddress,
+        startDate: a.startDate,
+        endDate: a.endDate,
+      })),
+      positionedGaps: positionedGaps.map(g => ({
+        id: g.id,
+        propertyIds: g.propertyIds,
+        start_date: g.start_date,
+        end_date: g.end_date,
+        duration_days: g.duration_days,
+        x: g.x,
+      })),
+    });
+
     set({
       verificationAlerts: alerts,
       currentAlertIndex: firstUnresolvedIndex >= 0 ? firstUnresolvedIndex : -1,
+      positionedGaps, // Update positioned gaps for red triangle visualization
     });
   },
 
   clearVerificationAlerts: () => {
-    set({ verificationAlerts: [], currentAlertIndex: -1 });
+    set({
+      verificationAlerts: [],
+      currentAlertIndex: -1,
+      positionedGaps: [], // Clear red triangle gaps too
+    });
   },
 
   resolveVerificationAlert: (alertId: string, userResponse: string) => {
     const state = get();
+    const resolvedAlert = state.verificationAlerts.find(a => a.id === alertId);
+
+    console.log('💾 Store: Resolving TIMELINE verification alert:', {
+      alertId,
+      questionId: resolvedAlert?.questionId,
+      propertyAddress: resolvedAlert?.propertyAddress,
+      period: {
+        start: resolvedAlert?.startDate,
+        end: resolvedAlert?.endDate,
+      },
+      question: resolvedAlert?.clarificationQuestion,
+      userResponse,
+      timestamp: new Date().toISOString(),
+    });
+
     const updatedAlerts = state.verificationAlerts.map(alert =>
       alert.id === alertId
         ? {
@@ -1534,8 +1609,18 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
           }
         : alert
     );
-    console.log('✅ Resolved verification alert:', alertId, 'Response:', userResponse);
-    set({ verificationAlerts: updatedAlerts });
+
+    // Also update positioned gaps to mark this gap as resolved
+    const updatedGaps = state.positionedGaps.map(gap =>
+      gap.id === alertId
+        ? { ...gap, resolved: true }
+        : gap
+    );
+
+    set({
+      verificationAlerts: updatedAlerts,
+      positionedGaps: updatedGaps,
+    });
 
     // Auto-move to next unresolved alert
     setTimeout(() => get().moveToNextAlert(), 100);

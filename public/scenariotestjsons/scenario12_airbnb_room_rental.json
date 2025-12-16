@@ -1,0 +1,63 @@
+{
+  "title": "Partial Use - Airbnb Room Rental",
+  "scenario_info": {
+    "name": "Home with Airbnb Room Rental",
+    "description": "Sophie lives in her home but rents out a spare room on Airbnb for 5 years. The interest deductibility test applies, requiring floor area apportionment.",
+    "expected_result": {
+      "exemption_type": "partial",
+      "exemption_percentage": 86.57,
+      "taxable_proportion": 13.43,
+      "notes": "Floor area and time apportionment required"
+    },
+    "applicable_rules": [
+      "ITAA97 s118.190: Interest deductibility test applies",
+      "Exclusive rented area: 18/180 sqm = 10%",
+      "Shared areas: (45/180) x 50% = 12.5%",
+      "Total income-producing: 22.5%",
+      "Time factor: 1,826/3,059 days = 59.7%",
+      "Taxable: 22.5% x 59.7% = 13.43%"
+    ]
+  },
+  "properties": [
+    {
+      "address": "33 Wharf Street, Kangaroo Point QLD 4169",
+      "property_history": [
+        {
+          "date": "2016-04-01",
+          "event": "purchase",
+          "price": 520000,
+          "stamp_duty": 20800,
+          "purchase_legal_fees": 2600
+        },
+        {
+          "date": "2016-04-01",
+          "event": "move_in",
+          "description": "Established as main residence"
+        },
+        {
+          "date": "2019-01-01",
+          "event": "rent_start",
+          "description": "Started renting spare room on Airbnb. Room: 18sqm exclusive, 45sqm shared areas. Total home: 180sqm."
+        },
+        {
+          "date": "2023-12-31",
+          "event": "rent_end",
+          "description": "Stopped Airbnb rental"
+        },
+        {
+          "date": "2024-08-15",
+          "event": "sale",
+          "price": 850000,
+          "contract_date": "2024-08-15",
+          "agent_fees": 21250,
+          "legal_fees": 2400
+        }
+      ],
+      "notes": "Partial rental (Airbnb room) while living in property. Floor area apportionment: 22.5% income-producing. Rental period: 5 years of 8.4 year ownership."
+    }
+  ],
+  "user_query": "I lived in my home for 8 years but rented out a spare room on Airbnb for 5 of those years. The room was 18sqm and guests shared 45sqm of common areas. Total home is 180sqm. What is my CGT liability?",
+  "additional_info": {
+    "australian_resident": true
+  }
+}

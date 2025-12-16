@@ -51,6 +51,18 @@ export default function PropertyIssueOverlay({
   }, [alert.id]);
 
   const handleAnswerSelect = (answer: string) => {
+    console.log('📝 User selected answer from TIMELINE alert:', {
+      alertId: alert.id,
+      questionId: alert.questionId,
+      propertyAddress: alert.propertyAddress,
+      period: {
+        start: alert.startDate,
+        end: alert.endDate,
+      },
+      question: alert.clarificationQuestion,
+      userAnswer: answer,
+    });
+
     if (answer === 'other') {
       setShowCustomInput(true);
       setSelectedAnswer('other');

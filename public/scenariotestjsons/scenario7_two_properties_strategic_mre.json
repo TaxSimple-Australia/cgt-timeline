@@ -1,0 +1,87 @@
+{
+  "title": "Two Properties - Strategic MRE Choice",
+  "scenario_info": {
+    "name": "Two Properties with Strategic MRE Decision",
+    "description": "David owns two properties and must strategically choose which one to claim the main residence exemption on. He lived in a beach house first, then moved to a city apartment. The beach house was rented for exactly 6 years.",
+    "expected_result": {
+      "exemption_type": "partial",
+      "exemption_percentage": 100,
+      "notes": "If beach house MRE claimed, it gets full exemption (6-year rule). City apartment would be partially taxable."
+    },
+    "applicable_rules": [
+      "ITAA97 s118.145: Six-year absence rule applies to beach house (rental = 6 years exactly)",
+      "Can only claim ONE property as main residence at any time",
+      "Strategic choice: Claim MRE on property with larger gain",
+      "ITAA97 s115.25: 50% CGT discount applies to taxable portions"
+    ]
+  },
+  "properties": [
+    {
+      "address": "28 Ocean Parade, Broadbeach QLD 4218",
+      "property_history": [
+        {
+          "date": "2015-03-15",
+          "event": "purchase",
+          "price": 650000,
+          "stamp_duty": 26000,
+          "purchase_legal_fees": 3000
+        },
+        {
+          "date": "2015-03-15",
+          "event": "move_in",
+          "description": "Established as main residence"
+        },
+        {
+          "date": "2018-06-30",
+          "event": "move_out",
+          "description": "Moving to Brisbane city apartment"
+        },
+        {
+          "date": "2018-07-01",
+          "event": "rent_start",
+          "market_value": 780000,
+          "description": "Started renting to tenants"
+        },
+        {
+          "date": "2024-06-30",
+          "event": "sale",
+          "price": 1100000,
+          "contract_date": "2024-06-30",
+          "agent_fees": 27500,
+          "legal_fees": 2500
+        }
+      ],
+      "notes": "Beach house - rented for exactly 6 years. If MRE claimed here, six-year rule provides full exemption."
+    },
+    {
+      "address": "1502/45 Adelaide Street, Brisbane QLD 4000",
+      "property_history": [
+        {
+          "date": "2018-07-01",
+          "event": "purchase",
+          "price": 480000,
+          "stamp_duty": 19200,
+          "purchase_legal_fees": 2800
+        },
+        {
+          "date": "2018-07-01",
+          "event": "move_in",
+          "description": "Established as main residence"
+        },
+        {
+          "date": "2024-12-15",
+          "event": "sale",
+          "price": 620000,
+          "contract_date": "2024-12-15",
+          "agent_fees": 15500,
+          "legal_fees": 2200
+        }
+      ],
+      "notes": "City apartment - if beach house gets MRE, this property is fully taxable as investment"
+    }
+  ],
+  "user_query": "I owned a beach house and a city apartment. I lived in the beach house first, then moved to the apartment and rented the beach house for 6 years. Which property should I claim the main residence exemption on?",
+  "additional_info": {
+    "australian_resident": true
+  }
+}

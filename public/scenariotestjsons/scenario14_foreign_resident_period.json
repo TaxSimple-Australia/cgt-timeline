@@ -1,0 +1,73 @@
+{
+  "title": "Foreign Resident Period",
+  "scenario_info": {
+    "name": "Australian Who Moves Overseas Then Returns",
+    "description": "Lisa is an Australian resident who moves to Singapore for work for 4 years, becoming a foreign resident for tax purposes. She rents her Australian home, then returns before selling.",
+    "expected_result": {
+      "exemption_type": "full",
+      "exemption_percentage": 100,
+      "capital_gain": 0,
+      "notes": "Six-year rule applies. Since Lisa returned before selling, she is Australian resident at sale and can claim MRE."
+    },
+    "applicable_rules": [
+      "ITAA97 s118.145: Six-year absence rule applies (rental = 4 years < 6 years)",
+      "Lisa was foreign resident for 4 years but RETURNED before sale",
+      "Since Australian resident at time of sale, MRE available",
+      "CGT discount would be reduced for foreign resident period if gain was taxable",
+      "Full MRE means no CGT payable regardless"
+    ]
+  },
+  "properties": [
+    {
+      "address": "7 Parkview Crescent, Taringa QLD 4068",
+      "property_history": [
+        {
+          "date": "2013-08-01",
+          "event": "purchase",
+          "price": 495000,
+          "stamp_duty": 19800,
+          "purchase_legal_fees": 2400
+        },
+        {
+          "date": "2013-08-01",
+          "event": "move_in",
+          "description": "Established as main residence"
+        },
+        {
+          "date": "2018-07-01",
+          "event": "move_out",
+          "description": "Moving to Singapore for work - becomes foreign resident for tax"
+        },
+        {
+          "date": "2018-07-01",
+          "event": "rent_start",
+          "market_value": 620000,
+          "description": "Started renting to tenants"
+        },
+        {
+          "date": "2022-06-30",
+          "event": "rent_end",
+          "description": "Tenant vacates"
+        },
+        {
+          "date": "2022-07-01",
+          "event": "move_in",
+          "description": "Returns to Australia - re-establishes as main residence"
+        },
+        {
+          "date": "2024-11-15",
+          "event": "sale",
+          "price": 810000,
+          "contract_date": "2024-11-15",
+          "agent_fees": 20250,
+          "legal_fees": 2300
+        }
+      ],
+      "notes": "Owner was foreign resident from July 2018 to June 2022 (4 years). Returned to Australia before selling, so MRE available. Six-year rule applies (4 years rental < 6 years)."
+    }
+  ],
+  "user_query": "I moved to Singapore for work in 2018 and rented out my Australian home for 4 years. I returned to Australia in 2022 and sold in 2024. What is my CGT position?",
+  "additional_info": {
+    "australian_resident": true
+  }
+}

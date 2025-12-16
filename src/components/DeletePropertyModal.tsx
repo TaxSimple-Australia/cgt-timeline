@@ -32,7 +32,7 @@ export default function DeletePropertyModal({
     rent_end: 'Rent End',
     sale: 'Sale',
     improvement: 'Improvement',
-    refinance: 'Refinance',
+    refinance: 'Inherit',
     status_change: 'Status Change',
   };
 

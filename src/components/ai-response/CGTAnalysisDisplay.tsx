@@ -2,13 +2,20 @@
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { CheckCircle, XCircle, ChevronDown, ChevronUp, TrendingUp, DollarSign, Shield, Home } from 'lucide-react';
+import { CheckCircle, XCircle, ChevronDown, ChevronUp, Cpu, Zap, Clock, FileJson, Download } from 'lucide-react';
 import GapQuestionsPanel from './GapQuestionsPanel';
 import DetailedReportSection from './DetailedReportSection';
 import TwoColumnLayout from '../timeline-viz/TwoColumnLayout';
-import SimplifiedPropertyView from './SimplifiedPropertyView';
+import PropertyTwoColumnView from './PropertyTwoColumnView';
 import { useTimelineStore } from '@/store/timeline';
-import { transformPropertyToReport } from '@/lib/transform-api-to-report';
+import MarkdownDisplay from '../model-response/MarkdownDisplay';
+import PortfolioSummarySection from './PortfolioSummarySection';
+import CitationsSection from './CitationsSection';
+import PropertyTimelineEvents from './PropertyTimelineEvents';
+import WhatIfScenariosSection from './WhatIfScenariosSection';
+import ApplicableRulesDisplay from './ApplicableRulesDisplay';
+import OwnershipPeriodsChart from './OwnershipPeriodsChart';
+import { AnalysisData, Citations } from '@/types/model-response';
 
 interface CGTAnalysisDisplayProps {
   response: any; // AI response (success or verification_failed)
@@ -23,6 +30,7 @@ interface CGTAnalysisDisplayProps {
 export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGTAnalysisDisplayProps) {
   const [expandedDetailedReport, setExpandedDetailedReport] = useState(false);
   const [activeTab, setActiveTab] = useState('property-0');
+  const [showRawJSON, setShowRawJSON] = useState(false);
 
   // Get timeline data from store for visualizations
   const properties = useTimelineStore(state => state.properties);
@@ -32,6 +40,480 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
     return (
       <div className="flex items-center justify-center p-12">
         <p className="text-gray-500 dark:text-gray-400">No analysis data available</p>
+      </div>
+    );
+  }
+
+  // If showing raw JSON, display it and return early
+  if (showRawJSON) {
+    return (
+      <div className="space-y-4">
+        {/* Toggle Button */}
+        <div className="flex justify-end">
+          <button
+            onClick={() => setShowRawJSON(false)}
+            className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors shadow-md"
+          >
+            <FileJson className="w-4 h-4" />
+            Show Formatted View
+          </button>
+        </div>
+
+        {/* Raw JSON Display */}
+        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-300 dark:border-gray-600 p-6 overflow-auto max-h-[800px]">
+          <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">
+            Raw JSON Response
+          </h3>
+          <pre className="text-xs font-mono text-gray-800 dark:text-gray-200 whitespace-pre-wrap break-words">
+            {JSON.stringify(response, null, 2)}
+          </pre>
+        </div>
+      </div>
+    );
+  }
+
+  // Check for new JSON API response format (from /api/v1/analyze-portfolio-json)
+  // Support both wrapped format { success, data: { properties }, citations } and direct format { properties }
+  const isWrappedFormat = response.success !== undefined && response.data && response.data.properties && response.data.properties.length > 0;
+  const isDirectFormat = !isWrappedFormat && response.properties && response.properties.length > 0 && response.properties[0]?.property_address;
+  const isNewJSONFormat = isWrappedFormat || isDirectFormat;
+
+  // New JSON Format Response Display
+  if (isNewJSONFormat) {
+    const analysisData = (isWrappedFormat ? response.data : response) as AnalysisData;
+    const citations = (isWrappedFormat ? response.citations : (response as any).citations) as Citations;
+
+    // Helper function for formatting numbers
+    const formatNumber = (value: string | number | null | undefined): string => {
+      if (value === null || value === undefined) return '-';
+      const num = typeof value === 'string' ? parseFloat(value) : value;
+      return num.toLocaleString('en-AU');
+    };
+
+    return (
+      <div className="space-y-6">
+        {/* JSON Toggle Button */}
+        <div className="flex justify-end">
+          <button
+            onClick={() => setShowRawJSON(true)}
+            className="flex items-center gap-2 px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors shadow-md text-sm"
+          >
+            <FileJson className="w-4 h-4" />
+            Show Raw JSON
+          </button>
+        </div>
+
+        {/* Top-Level Summary */}
+        {analysisData.description && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="relative overflow-hidden bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 dark:from-indigo-950/30 dark:via-purple-950/30 dark:to-pink-950/30 rounded-xl p-8 border-l-4 border-indigo-500 shadow-lg"
+          >
+            <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-indigo-500/10 to-purple-500/10 rounded-bl-full"></div>
+            <div className="relative">
+              <div className="flex items-start gap-4">
+                <div className="flex-shrink-0 w-12 h-12 rounded-lg bg-gradient-to-br from-indigo-600 to-purple-600 text-white flex items-center justify-center shadow-md">
+                  <CheckCircle className="w-6 h-6" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-3">Portfolio Summary</h3>
+                  <p className="text-gray-700 dark:text-gray-300 leading-relaxed text-base">
+                    {analysisData.description}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+
+        {/* Per-Property Analysis */}
+        {analysisData.properties && analysisData.properties.length > 0 && (
+          <div className="space-y-8">
+            {/* Section Header */}
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5 }}
+              className="flex items-center gap-3"
+            >
+              <div className="h-1 w-12 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full"></div>
+              <h2 className="text-3xl font-black text-gray-900 dark:text-white">
+                Property Analysis
+              </h2>
+            </motion.div>
+
+            {analysisData.properties.map((property, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1, duration: 0.6 }}
+                className="bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition-shadow duration-300 border border-gray-200 dark:border-gray-700"
+              >
+                {/* Property Header with Gradient Accent */}
+                <div className="relative bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-900 dark:to-gray-800 border-b-4 border-indigo-500">
+                  {/* Decorative corner accent */}
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-500/10 to-purple-500/10 rounded-bl-full"></div>
+
+                  <div className="relative z-10 p-6">
+                    <div className="flex items-start justify-between gap-4 mb-4">
+                      <div className="flex-1">
+                        <h3 className="text-2xl font-black text-gray-900 dark:text-white mb-2 flex items-center gap-3">
+                          <span className="inline-flex items-center justify-center w-10 h-10 bg-indigo-600 text-white rounded-lg">
+                            {index + 1}
+                          </span>
+                          {property.property_address}
+                        </h3>
+                        <div className="flex flex-wrap gap-2 mt-2">
+                          {property.purchase_date && (
+                            <span className="inline-flex items-center px-3 py-1 bg-white dark:bg-gray-700 rounded-full text-xs font-semibold text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-600">
+                              Purchased: {property.purchase_date}
+                            </span>
+                          )}
+                          {property.sale_date && (
+                            <span className="inline-flex items-center px-3 py-1 bg-white dark:bg-gray-700 rounded-full text-xs font-semibold text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-600">
+                              Sold: {property.sale_date}
+                            </span>
+                          )}
+                          {property.total_ownership_years && (
+                            <span className="inline-flex items-center px-3 py-1 bg-white dark:bg-gray-700 rounded-full text-xs font-semibold text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-600">
+                              {property.total_ownership_years} years owned
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Result Badge - Prominent */}
+                      <div className={`flex-shrink-0 px-6 py-3 rounded-xl font-bold text-sm shadow-lg flex items-center gap-2 ${
+                        property.cgt_payable
+                          ? 'bg-gradient-to-br from-red-500 to-pink-600 text-white'
+                          : 'bg-gradient-to-br from-emerald-500 to-teal-600 text-white'
+                      }`}>
+                        {property.cgt_payable ? <XCircle className="w-5 h-5" /> : <CheckCircle className="w-5 h-5" />}
+                        <span>{property.result}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Property Content */}
+                <div className="p-6 space-y-6">
+
+                {/* High Level Description */}
+                {property.high_level_description && (
+                  <div className="bg-gradient-to-br from-gray-50 to-slate-50 dark:from-gray-900 dark:to-slate-900 rounded-xl p-5 border border-gray-200 dark:border-gray-700">
+                    <h4 className="font-bold text-lg text-gray-900 dark:text-gray-100 mb-3 flex items-center gap-2">
+                      <span className="text-xl">📝</span>
+                      High Level Description
+                    </h4>
+                    <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
+                      {property.high_level_description}
+                    </p>
+                  </div>
+                )}
+
+                {/* Key Facts Section - Bullet Points */}
+                <div className="space-y-2">
+                  <h4 className="font-bold text-lg text-gray-900 dark:text-gray-100 mb-3 flex items-center gap-2">
+                    <span className="text-xl">📋</span>
+                    Key Facts
+                  </h4>
+                  <ul className="space-y-2">
+                    <li className="flex items-start gap-2">
+                      <div className="w-2 h-2 rounded-full bg-blue-500 mt-1.5 flex-shrink-0"></div>
+                      <span className="text-gray-700 dark:text-gray-300"><strong>Property:</strong> {property.key_facts?.property || property.property_address}</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <div className="w-2 h-2 rounded-full bg-green-500 mt-1.5 flex-shrink-0"></div>
+                      <span className="text-gray-700 dark:text-gray-300"><strong>Purchase Date:</strong> {property.key_facts?.purchase_date || property.purchase_date}</span>
+                    </li>
+                    {(property.key_facts?.move_in_date || property.move_in_date) && (
+                      <li className="flex items-start gap-2">
+                        <div className="w-2 h-2 rounded-full bg-amber-500 mt-1.5 flex-shrink-0"></div>
+                        <span className="text-gray-700 dark:text-gray-300"><strong>Move In Date:</strong> {property.key_facts?.move_in_date || property.move_in_date}</span>
+                      </li>
+                    )}
+                    {(property.key_facts?.move_out_date || property.move_out_date) && (
+                      <li className="flex items-start gap-2">
+                        <div className="w-2 h-2 rounded-full bg-rose-500 mt-1.5 flex-shrink-0"></div>
+                        <span className="text-gray-700 dark:text-gray-300"><strong>Move Out Date:</strong> {property.key_facts?.move_out_date || property.move_out_date}</span>
+                      </li>
+                    )}
+                    {(property.key_facts?.rent_start_date || property.rent_start_date) && (
+                      <li className="flex items-start gap-2">
+                        <div className="w-2 h-2 rounded-full bg-cyan-500 mt-1.5 flex-shrink-0"></div>
+                        <span className="text-gray-700 dark:text-gray-300"><strong>Rent Start Date:</strong> {property.key_facts?.rent_start_date || property.rent_start_date}</span>
+                      </li>
+                    )}
+                    <li className="flex items-start gap-2">
+                      <div className="w-2 h-2 rounded-full bg-violet-500 mt-1.5 flex-shrink-0"></div>
+                      <span className="text-gray-700 dark:text-gray-300"><strong>Sale Date:</strong> {property.key_facts?.sale_date || property.sale_date}</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <div className="w-2 h-2 rounded-full bg-purple-500 mt-1.5 flex-shrink-0"></div>
+                      <span className="text-gray-700 dark:text-gray-300"><strong>Purchase Price:</strong> ${formatNumber(property.key_facts?.purchase_price || property.purchase_price)}</span>
+                    </li>
+                    {(property.key_facts?.market_value_at_first_rental || property.market_value_at_first_rental) && (
+                      <li className="flex items-start gap-2">
+                        <div className="w-2 h-2 rounded-full bg-sky-500 mt-1.5 flex-shrink-0"></div>
+                        <span className="text-gray-700 dark:text-gray-300"><strong>Market Value at First Rental:</strong> ${formatNumber(property.key_facts?.market_value_at_first_rental || property.market_value_at_first_rental)}</span>
+                      </li>
+                    )}
+                    <li className="flex items-start gap-2">
+                      <div className="w-2 h-2 rounded-full bg-fuchsia-500 mt-1.5 flex-shrink-0"></div>
+                      <span className="text-gray-700 dark:text-gray-300"><strong>Sale Price:</strong> ${formatNumber(property.key_facts?.sale_price || property.sale_price)}</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <div className="w-2 h-2 rounded-full bg-lime-500 mt-1.5 flex-shrink-0"></div>
+                      <span className="text-gray-700 dark:text-gray-300"><strong>Total Ownership Days:</strong> {property.key_facts?.total_ownership_days || property.total_ownership_days} days</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <div className="w-2 h-2 rounded-full bg-emerald-500 mt-1.5 flex-shrink-0"></div>
+                      <span className="text-gray-700 dark:text-gray-300"><strong>Main Residence Days:</strong> {property.key_facts?.main_residence_days || property.main_residence_days} days</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <div className="w-2 h-2 rounded-full bg-orange-500 mt-1.5 flex-shrink-0"></div>
+                      <span className="text-gray-700 dark:text-gray-300"><strong>Non-Main Residence Days:</strong> {property.key_facts?.non_main_residence_days || ((property.key_facts?.total_ownership_days || property.total_ownership_days) - (property.key_facts?.main_residence_days || property.main_residence_days))} days</span>
+                    </li>
+                  </ul>
+                </div>
+
+                {/* Section 3: Timeline of Events */}
+                <PropertyTimelineEvents timeline={property.timeline_of_events || (property as any).timeline} />
+
+                {/* CGT Calculation - New structured format (step1-7) or legacy array format */}
+                {(property.cgt_calculation || (property.calculation_steps && property.calculation_steps.length > 0)) && (
+                  <div className="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700 shadow-sm">
+                    <h4 className="font-bold text-lg text-gray-900 dark:text-gray-100 mb-5 flex items-center gap-2">
+                      <span className="text-xl">🧮</span>
+                      CGT Calculation
+                    </h4>
+
+                    {/* New format: cgt_calculation with step1-7 */}
+                    {property.cgt_calculation && (
+                      <div className="space-y-5">
+                        {['step1', 'step2', 'step3', 'step4', 'step5', 'step6', 'step7'].map((stepKey, index) => {
+                          const step = property.cgt_calculation[stepKey as keyof typeof property.cgt_calculation];
+                          if (!step || typeof step === 'string') return null;
+
+                          return (
+                            <motion.div
+                              key={stepKey}
+                              initial={{ opacity: 0, x: -20 }}
+                              animate={{ opacity: 1, x: 0 }}
+                              transition={{ delay: index * 0.1 }}
+                              className="relative bg-gradient-to-br from-slate-50 to-gray-50 dark:from-slate-900 dark:to-gray-900 rounded-xl p-5 border-l-4 border-purple-500 shadow-sm"
+                            >
+                              {/* Step Number Badge */}
+                              <div className="flex items-start gap-4">
+                                <div className="flex-shrink-0 w-10 h-10 bg-purple-600 text-white rounded-lg flex items-center justify-center font-bold shadow-lg">
+                                  {index + 1}
+                                </div>
+                                <div className="flex-1">
+                                  {/* Step Title */}
+                                  <h5 className="font-bold text-gray-900 dark:text-gray-100 mb-3">
+                                    {step.title}
+                                  </h5>
+
+                                  {/* Step Content */}
+                                  <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
+                                    <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-wrap">
+                                      {step.content}
+                                    </p>
+                                  </div>
+                                </div>
+                              </div>
+                            </motion.div>
+                          );
+                        })}
+
+                        {/* Final Result */}
+                        {property.cgt_calculation.result && (
+                          <motion.div
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ delay: 0.7 }}
+                            className="bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-950/30 dark:to-teal-950/30 rounded-xl p-6 border-2 border-emerald-500 shadow-lg"
+                          >
+                            <div className="flex items-center gap-3 mb-2">
+                              <CheckCircle className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
+                              <span className="text-lg font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wide">
+                                Result
+                              </span>
+                            </div>
+                            <p className="text-base font-bold text-gray-900 dark:text-gray-100">
+                              {property.cgt_calculation.result}
+                            </p>
+                          </motion.div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Legacy format: calculation_steps array */}
+                    {!property.cgt_calculation && property.calculation_steps && property.calculation_steps.length > 0 && (
+                      <div className="space-y-5">
+                        {property.calculation_steps.map((step, stepIndex) => (
+                          <motion.div
+                            key={stepIndex}
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: stepIndex * 0.1 }}
+                            className="relative bg-gradient-to-br from-slate-50 to-gray-50 dark:from-slate-900 dark:to-gray-900 rounded-xl p-5 border-l-4 border-purple-500 shadow-sm hover:shadow-md transition-shadow"
+                          >
+                            {/* Step Number Badge */}
+                            <div className="absolute -left-6 top-5 w-10 h-10 bg-purple-600 text-white rounded-lg flex items-center justify-center font-bold shadow-lg">
+                              {step.step_number}
+                            </div>
+
+                            {/* Step Title */}
+                            <h5 className="font-bold text-gray-900 dark:text-gray-100 mb-3 pl-6">
+                              {step.title}
+                            </h5>
+
+                            {/* Step Description */}
+                            {step.description && (
+                              <div className="bg-white dark:bg-gray-800 rounded-lg p-4 mb-3 border border-gray-200 dark:border-gray-700">
+                                <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
+                                  {step.description}
+                                </p>
+                              </div>
+                            )}
+
+                            {/* Calculation Formula */}
+                            {step.calculation && (
+                              <div className="bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-950/30 dark:to-purple-950/30 rounded-lg p-4 mb-3 border border-indigo-200 dark:border-indigo-800">
+                                <div className="flex items-center gap-2 mb-2">
+                                  <Cpu className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+                                  <span className="text-xs font-semibold text-indigo-600 dark:text-indigo-400 uppercase tracking-wide">
+                                    Calculation
+                                  </span>
+                                </div>
+                                <pre className="text-sm font-mono text-gray-800 dark:text-gray-200 whitespace-pre-wrap">
+                                  {step.calculation}
+                                </pre>
+                              </div>
+                            )}
+
+                            {/* Result */}
+                            <div className="bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-950/30 dark:to-teal-950/30 rounded-lg p-4 border-2 border-emerald-200 dark:border-emerald-800">
+                              <div className="flex items-center gap-2 mb-1">
+                                <Zap className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                                <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 uppercase tracking-wide">
+                                  Result
+                                </span>
+                              </div>
+                              <p className="text-sm font-bold text-gray-900 dark:text-gray-100">
+                                {step.result}
+                              </p>
+                            </div>
+
+                            {/* Validation Checks */}
+                            {step.checks && step.checks.length > 0 && (
+                              <div className="mt-4 space-y-2">
+                                {step.checks.map((check, checkIndex) => (
+                                  <div
+                                    key={checkIndex}
+                                    className="flex items-start gap-3 bg-green-50 dark:bg-green-950/20 rounded-lg p-3 border border-green-200 dark:border-green-800"
+                                  >
+                                    <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400 mt-0.5 flex-shrink-0" />
+                                    <span className="text-sm text-green-800 dark:text-green-200 font-medium">
+                                      {check}
+                                    </span>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </motion.div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Section 4: Applicable Rules */}
+                <ApplicableRulesDisplay
+                  rules={property.applicable_rules?.filter(rule => rule.applies) || []}
+                />
+
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // Check for old markdown analysis string format
+  const isMarkdownResponse = typeof response.analysis === 'string' && !response.status;
+
+  // Old Markdown Response Display
+  if (isMarkdownResponse) {
+    const formatCurrency = (amount: number | null | undefined) => {
+      if (amount === null || amount === undefined) return '$0.00';
+      return new Intl.NumberFormat('en-AU', {
+        style: 'currency',
+        currency: 'AUD',
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 4,
+      }).format(amount);
+    };
+
+    return (
+      <div className="space-y-6">
+        {/* JSON Toggle Button */}
+        <div className="flex justify-end">
+          <button
+            onClick={() => setShowRawJSON(true)}
+            className="flex items-center gap-2 px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors shadow-md text-sm"
+          >
+            <FileJson className="w-4 h-4" />
+            Show Raw JSON
+          </button>
+        </div>
+
+        {/* Main Analysis Content */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+          className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden"
+        >
+          <div className="p-6 lg:p-8">
+            <MarkdownDisplay
+              content={response.analysis}
+              className="prose prose-gray dark:prose-invert max-w-none"
+            />
+          </div>
+        </motion.div>
+
+        {/* Properties Summary (if present) */}
+        {response.properties && response.properties.length > 0 && (
+          <div className="bg-gray-50 dark:bg-gray-800/50 rounded-xl p-6 border border-gray-200 dark:border-gray-700">
+            <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-4">
+              Properties Analyzed ({response.properties.length})
+            </h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              {response.properties.map((prop: any, index: number) => (
+                <div
+                  key={index}
+                  className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700"
+                >
+                  <h4 className="font-medium text-gray-900 dark:text-white text-sm truncate">
+                    {prop.address || `Property ${index + 1}`}
+                  </h4>
+                  {prop.property_history && (
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                      {prop.property_history.length} events
+                    </p>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     );
   }
@@ -112,168 +594,91 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
       console.error('Failed to parse analysis content:', e);
     }
 
-    // Calculate portfolio summary metrics
-    const portfolioMetrics = {
-      totalProperties: apiProperties?.length || 0,
-      totalCapitalGain: 0,
-      totalCGTPayable: 0,
-      exemptProperties: 0
-    };
-
-    if (apiProperties && response.calculations?.per_property) {
-      apiProperties.forEach((property: any) => {
-        const calculations = response.calculations.per_property.find(
-          (calc: any) =>
-            calc.property_id === property.property_id ||
-            calc.property_id === property.address ||
-            calc.property_address === property.address
-        );
-
-        if (calculations) {
-          portfolioMetrics.totalCapitalGain += calculations.raw_capital_gain || 0;
-          portfolioMetrics.totalCGTPayable += calculations.net_capital_gain || 0;
-        }
-
-        if (property.exempt_percentage === 100 || property.exemption_type === 'full') {
-          portfolioMetrics.exemptProperties += 1;
-        }
-      });
-    }
-
     return (
       <div className="space-y-8">
-        {/* Portfolio Summary Section - Vibrant Gradient Hero Card */}
-        {apiProperties && apiProperties.length > 0 && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="relative bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 dark:from-blue-600 dark:via-purple-600 dark:to-pink-600 rounded-2xl p-6 shadow-2xl overflow-hidden"
+        {/* JSON Toggle Button */}
+        <div className="flex justify-end">
+          <button
+            onClick={() => setShowRawJSON(true)}
+            className="flex items-center gap-2 px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors shadow-md text-sm"
           >
-            {/* Glassmorphism pattern overlay */}
-            <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent pointer-events-none" />
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-pink-400/20 via-transparent to-transparent pointer-events-none" />
+            <FileJson className="w-4 h-4" />
+            Show Raw JSON
+          </button>
+        </div>
 
-            {/* Content */}
-            <div className="relative z-10">
-              <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
-                <div className="p-2 bg-white/20 rounded-xl backdrop-blur-sm">
-                  <TrendingUp className="w-6 h-6 text-white" />
-                </div>
-                Portfolio Summary
-              </h2>
-
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                {/* Total Properties Card */}
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.1, duration: 0.3 }}
-                  className="bg-white/20 backdrop-blur-lg rounded-xl p-4 border border-white/30 hover:bg-white/30 transition-all hover:scale-105 shadow-lg"
-                >
-                  <div className="flex items-center gap-2 mb-2">
-                    <div className="p-1.5 bg-white/20 rounded-lg">
-                      <Home className="w-4 h-4 text-white" />
-                    </div>
-                    <div className="text-xs text-white/90 font-medium">Total Properties</div>
-                  </div>
-                  <div className="text-2xl font-bold text-white">
-                    {portfolioMetrics.totalProperties}
-                  </div>
-                </motion.div>
-
-                {/* Capital Gains Card */}
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.2, duration: 0.3 }}
-                  className="bg-white/20 backdrop-blur-lg rounded-xl p-4 border border-white/30 hover:bg-white/30 transition-all hover:scale-105 shadow-lg"
-                >
-                  <div className="flex items-center gap-2 mb-2">
-                    <div className="p-1.5 bg-gradient-to-br from-orange-400 to-red-500 rounded-lg">
-                      <TrendingUp className="w-4 h-4 text-white" />
-                    </div>
-                    <div className="text-xs text-white/90 font-medium">Capital Gains</div>
-                  </div>
-                  <div className="text-2xl font-bold text-white">
-                    {formatCurrency(portfolioMetrics.totalCapitalGain)}
-                  </div>
-                </motion.div>
-
-                {/* CGT Payable Card */}
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.3, duration: 0.3 }}
-                  className="bg-white/20 backdrop-blur-lg rounded-xl p-4 border border-white/30 hover:bg-white/30 transition-all hover:scale-105 shadow-lg"
-                >
-                  <div className="flex items-center gap-2 mb-2">
-                    <div className={`p-1.5 rounded-lg ${
-                      portfolioMetrics.totalCGTPayable === 0
-                        ? 'bg-gradient-to-br from-green-400 to-emerald-500'
-                        : 'bg-gradient-to-br from-red-400 to-pink-500'
-                    }`}>
-                      <DollarSign className="w-4 h-4 text-white" />
-                    </div>
-                    <div className="text-xs text-white/90 font-medium">CGT Payable</div>
-                  </div>
-                  <div className="text-2xl font-bold text-white">
-                    {formatCurrency(portfolioMetrics.totalCGTPayable)}
-                  </div>
-                </motion.div>
-
-                {/* Exempt Properties Card */}
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.4, duration: 0.3 }}
-                  className="bg-white/20 backdrop-blur-lg rounded-xl p-4 border border-white/30 hover:bg-white/30 transition-all hover:scale-105 shadow-lg"
-                >
-                  <div className="flex items-center gap-2 mb-2">
-                    <div className="p-1.5 bg-gradient-to-br from-green-400 to-emerald-500 rounded-lg">
-                      <Shield className="w-4 h-4 text-white" />
-                    </div>
-                    <div className="text-xs text-white/90 font-medium">Exempt Properties</div>
-                  </div>
-                  <div className="text-2xl font-bold text-white">
-                    {portfolioMetrics.exemptProperties}
-                  </div>
-                </motion.div>
-              </div>
-            </div>
-          </motion.div>
-        )}
-
-        {/* Property Tabs - Sleek Pill Navigation */}
+        {/* Horizontal Property Card Tabs */}
         {apiProperties && apiProperties.length > 0 && (
-          <div className="space-y-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-gradient-to-br from-blue-500/20 to-pink-500/20 rounded-lg">
-                <Home className="w-5 h-5 text-blue-600 dark:text-pink-400" />
-              </div>
-              <h3 className="text-lg font-semibold text-blue-600 dark:text-blue-400">
-                Select Property
-              </h3>
-            </div>
-            <div className="flex flex-wrap gap-3">
+          <div className="space-y-3">
+            <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide">
+              Select Property for Analysis:
+            </h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
               {apiProperties.map((property: any, index: number) => {
+                const calculations = response.calculations?.per_property?.find(
+                  (calc: any) =>
+                    calc.property_id === property.property_id ||
+                    calc.property_id === property.address ||
+                    calc.property_address === property.address
+                );
+
+                const netGain = calculations?.net_capital_gain || 0;
+                // Only show as exempt if explicitly 100% exempt or full exemption type
+                const isExempt = property.exempt_percentage === 100 || property.exemption_type === 'full';
                 const isActive = activeTab === `property-${index}`;
 
                 return (
-                  <motion.button
+                  <button
                     key={property.property_id || property.address || index}
                     onClick={() => setActiveTab(`property-${index}`)}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    className={`px-6 py-3 rounded-full font-medium transition-all duration-300 flex items-center gap-2 ${
+                    className={`w-full p-4 rounded-lg border-2 transition-all ${
                       isActive
-                        ? 'bg-gradient-to-r from-blue-500 to-pink-500 text-white shadow-lg shadow-pink-500/50'
-                        : 'bg-white/10 dark:bg-gray-800/50 backdrop-blur border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-white/20 dark:hover:bg-gray-700/50 hover:border-pink-400 dark:hover:border-pink-500'
+                        ? 'border-t-4 border-green-500 dark:border-green-600 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950 dark:to-emerald-950 shadow-lg'
+                        : 'border-t-2 border-blue-500 dark:border-blue-600 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950 dark:to-indigo-950 hover:border-opacity-70 shadow-sm hover:shadow-md'
                     }`}
                   >
-                    <Home className="w-4 h-4" />
-                    <span className="line-clamp-1">{property.address}</span>
-                  </motion.button>
+                    <div className="text-left space-y-2.5">
+                      {/* Address */}
+                      <h4 className={`font-bold text-sm ${isActive ? 'text-green-700 dark:text-green-300' : 'text-blue-700 dark:text-blue-300'}`}>
+                        {property.address}
+                      </h4>
+
+                      {/* Status & Exemption */}
+                      <div className="flex gap-3 text-xs">
+                        <div className="flex-1">
+                          <div className="text-gray-500 dark:text-gray-400">Status</div>
+                          <div className={`font-semibold ${isActive ? 'text-green-700 dark:text-green-300' : 'text-blue-700 dark:text-blue-300'}`}>
+                            {property.status || 'N/A'}
+                          </div>
+                        </div>
+                        <div className="flex-1">
+                          <div className="text-gray-500 dark:text-gray-400">Exemption</div>
+                          <div className={`font-semibold ${isActive ? 'text-green-700 dark:text-green-300' : 'text-blue-700 dark:text-blue-300'}`}>
+                            {property.exempt_percentage || 0}%
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Net Capital Gain */}
+                      <div className="pt-2 border-t border-gray-200 dark:border-gray-700">
+                        <div className="text-gray-500 dark:text-gray-400 text-xs mb-1">Net Capital Gain</div>
+                        <div className="flex items-center justify-between">
+                          <div className={`text-lg font-bold ${
+                            netGain === 0 ? 'text-green-600 dark:text-green-400' :
+                            netGain > 0 ? 'text-red-600 dark:text-red-400' :
+                            'text-green-600 dark:text-green-400'
+                          }`}>
+                            {formatCurrency(netGain)}
+                          </div>
+                          {isExempt && (
+                            <span className="text-xs font-semibold text-green-600 dark:text-green-400 bg-green-100 dark:bg-green-950/30 px-1.5 py-0.5 rounded">
+                              EXEMPT
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </button>
                 );
               })}
             </div>
@@ -297,38 +702,25 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
               (pa: any) => pa.property_address === property.address
             );
 
-            return activeTab === `property-${index}` && (() => {
-              // Transform API data to report display format
-              const transformResult = transformPropertyToReport(
-                property,
-                calculations,
-                response.analysis.validation
-              );
-
-              // Log any warnings or missing fields
-              if (transformResult.warnings.length > 0) {
-                console.warn('⚠️ Report transformation warnings:', transformResult.warnings);
-              }
-              if (transformResult.missingFields.length > 0) {
-                console.warn('❌ Missing fields in API response:', transformResult.missingFields);
-              }
-
-              return (
-                <motion.div
-                  key={`property-${index}`}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  transition={{ duration: 0.2 }}
-                  className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm"
-                >
-                  {/* Simplified Property View: 3 Sections */}
-                  <SimplifiedPropertyView
-                    reportData={transformResult.reportData}
-                  />
-                </motion.div>
-              );
-            })();
+            return activeTab === `property-${index}` && (
+              <motion.div
+                key={`property-${index}`}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.2 }}
+              >
+                {/* Two Column View: Timeline + Calculation Details */}
+                <PropertyTwoColumnView
+                  property={property}
+                  calculations={calculations}
+                  propertyAnalysis={propertyAnalysis}
+                  recommendations={recommendations}
+                  validation={response.validation}
+                  analysis={analysis}
+                />
+              </motion.div>
+            );
           })}
         </AnimatePresence>
 
@@ -363,7 +755,7 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
                 properties={apiProperties}
                 analysis={analysis}
                 calculations={response.calculations}
-                validation={response.analysis.validation}
+                validation={response.validation}
                 verification={verification}
                 response={response}
                 timelineProperties={properties}
@@ -382,6 +774,17 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
 
     return (
       <div className="space-y-6">
+        {/* JSON Toggle Button */}
+        <div className="flex justify-end">
+          <button
+            onClick={() => setShowRawJSON(true)}
+            className="flex items-center gap-2 px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors shadow-md text-sm"
+          >
+            <FileJson className="w-4 h-4" />
+            Show Raw JSON
+          </button>
+        </div>
+
         {/* Alert Banner */}
         <div className="bg-red-50 dark:bg-red-950/20 border-2 border-red-200 dark:border-red-800 rounded-lg p-6">
           <div className="flex items-start gap-4">
@@ -473,10 +876,20 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
     );
   }
 
-  // Unknown status
+  // Unknown status - Display full JSON response
   return (
     <div className="p-6 bg-gray-50 dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700">
-      <p className="text-gray-600 dark:text-gray-400">Unknown response format</p>
+      <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-3">
+        Unknown Response Format
+      </h3>
+      <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+        The response format was not recognized. Here is the full JSON response:
+      </p>
+      <div className="bg-white dark:bg-gray-800 rounded-md border border-gray-300 dark:border-gray-600 p-4 overflow-auto max-h-96">
+        <pre className="text-xs font-mono text-gray-800 dark:text-gray-200 whitespace-pre-wrap break-words">
+          {JSON.stringify(response, null, 2)}
+        </pre>
+      </div>
     </div>
   );
 }

@@ -37,7 +37,7 @@ export default function ChronologicalTable({ properties, events }: Chronological
       rent_end: 'Rent End',
       sale: 'Sale',
       improvement: 'Capital Improvement',
-      refinance: 'Refinance',
+      refinance: 'Inherit',
       status_change: 'Status Change',
       living_in_rental_start: 'Living in Rental (Start)',
       living_in_rental_end: 'Living in Rental (End)',

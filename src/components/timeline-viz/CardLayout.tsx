@@ -186,7 +186,7 @@ export default function CardLayout({ properties, events }: CardLayoutProps) {
                                 eventColors[event.type] || 'bg-gray-100 text-gray-800'
                               }`}
                             >
-                              {event.type.replace('_', ' ').toUpperCase()}
+                              {event.type === 'refinance' ? 'INHERIT' : event.type.replace('_', ' ').toUpperCase()}
                             </span>
                             <span className="text-xs text-gray-500 dark:text-gray-400">
                               {format(event.date, 'dd MMM yyyy')}

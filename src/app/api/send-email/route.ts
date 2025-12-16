@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { Resend } from 'resend';
 
-// Initialize Resend with API key from environment variable
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Initialize Resend with API key from environment variable (use placeholder for build)
+const resend = new Resend(process.env.RESEND_API_KEY || 'placeholder_key');
 
 export async function POST(request: NextRequest) {
   try {

@@ -15,7 +15,8 @@ export type EventType =
   | 'refinance'
   | 'status_change'
   | 'living_in_rental_start'  // Person starts living in a rental they don't own
-  | 'living_in_rental_end';    // Person stops living in a rental they don't own
+  | 'living_in_rental_end'    // Person stops living in a rental they don't own
+  | 'custom';                 // User-defined custom event for any situation
 
 export type PropertyStatus =
   | 'ppr'              // Main Residence (owner lives in it)
@@ -51,11 +52,14 @@ export interface TimelineEvent {
   // CGT-specific fields
   contractDate?: Date;      // For sales - contract date vs settlement
   settlementDate?: Date;    // Actual settlement date
-  newStatus?: PropertyStatus; // For status_change events
+  newStatus?: PropertyStatus; // For status_change events and custom events that affect status
   isPPR?: boolean;          // Is this event related to Main Residence?
   // Price breakdown for purchases (land + building)
   landPrice?: number;       // Price of land component
   buildingPrice?: number;   // Price of building component
+
+  // Custom event fields
+  affectsStatus?: boolean;  // For custom events: does this event change property status?
 
   // NEW: Dynamic Cost Base Items
   costBases?: CostBaseItem[];  // Array of cost base items for this event
@@ -216,6 +220,7 @@ const eventColors: Record<EventType, string> = {
   status_change: '#A855F7',
   living_in_rental_start: '#F472B6',  // Pink - Start living in rental
   living_in_rental_end: '#FB923C',    // Orange - End living in rental
+  custom: '#6B7280',                   // Gray - Custom event (user can change)
 };
 
 // Status colors for visualization
@@ -1507,18 +1512,93 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
   // Verification Alert Methods (from GilbertBranch)
   setVerificationAlerts: (alerts: VerificationAlert[]) => {
     const firstUnresolvedIndex = alerts.findIndex(alert => !alert.resolved);
+
+    // Convert verification alerts to positioned gaps for red triangle visualization
+    const state = get();
+    const { properties, timelineStart, timelineEnd } = state;
+
+    const positionedGaps: PositionedGap[] = alerts.map((alert, index) => {
+      const gapStart = new Date(alert.startDate);
+      const gapEnd = new Date(alert.endDate);
+      const timelineRange = timelineEnd.getTime() - timelineStart.getTime();
+      const startOffset = gapStart.getTime() - timelineStart.getTime();
+      const x = (startOffset / timelineRange) * 100; // Percentage position
+
+      // Calculate duration in days
+      const durationMs = gapEnd.getTime() - gapStart.getTime();
+      const duration_days = Math.round(durationMs / (1000 * 60 * 60 * 24));
+
+      // Find matching property IDs
+      const matchingProperty = properties.find(p =>
+        alert.propertyId === p.id ||
+        alert.propertyAddress.toLowerCase().includes(p.name.toLowerCase()) ||
+        alert.propertyAddress.toLowerCase().includes(p.address.toLowerCase())
+      );
+
+      return {
+        id: alert.id,
+        start_date: alert.startDate,
+        end_date: alert.endDate,
+        duration_days,
+        category: 'timeline_gap',
+        description: alert.resolutionText || alert.clarificationQuestion || 'Residence gap',
+        propertyIds: matchingProperty ? [matchingProperty.id] : [],
+        x, // Position on timeline
+        resolved: alert.resolved || false,
+      };
+    });
+
+    console.log('🔴 Setting verification alerts and creating positioned gaps:', {
+      alertsCount: alerts.length,
+      positionedGapsCount: positionedGaps.length,
+      alerts: alerts.map(a => ({
+        id: a.id,
+        propertyAddress: a.propertyAddress,
+        startDate: a.startDate,
+        endDate: a.endDate,
+      })),
+      positionedGaps: positionedGaps.map(g => ({
+        id: g.id,
+        propertyIds: g.propertyIds,
+        start_date: g.start_date,
+        end_date: g.end_date,
+        duration_days: g.duration_days,
+        x: g.x,
+      })),
+    });
+
     set({
       verificationAlerts: alerts,
       currentAlertIndex: firstUnresolvedIndex >= 0 ? firstUnresolvedIndex : -1,
+      positionedGaps, // Update positioned gaps for red triangle visualization
     });
   },
 
   clearVerificationAlerts: () => {
-    set({ verificationAlerts: [], currentAlertIndex: -1 });
+    set({
+      verificationAlerts: [],
+      currentAlertIndex: -1,
+      positionedGaps: [], // Clear red triangle gaps too
+    });
   },
 
   resolveVerificationAlert: (alertId: string, userResponse: string) => {
     const state = get();
+    const resolvedAlert = state.verificationAlerts.find(a => a.id === alertId);
+
+    console.log('💾 Store: Resolving TIMELINE verification alert:', {
+      alertId,
+      questionId: resolvedAlert?.questionId,
+      propertyAddress: resolvedAlert?.propertyAddress,
+      period: {
+        start: resolvedAlert?.startDate,
+        end: resolvedAlert?.endDate,
+      },
+      question: resolvedAlert?.clarificationQuestion,
+      userResponse,
+      timestamp: new Date().toISOString(),
+    });
+
     const updatedAlerts = state.verificationAlerts.map(alert =>
       alert.id === alertId
         ? {
@@ -1529,8 +1609,18 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
           }
         : alert
     );
-    console.log('✅ Resolved verification alert:', alertId, 'Response:', userResponse);
-    set({ verificationAlerts: updatedAlerts });
+
+    // Also update positioned gaps to mark this gap as resolved
+    const updatedGaps = state.positionedGaps.map(gap =>
+      gap.id === alertId
+        ? { ...gap, resolved: true }
+        : gap
+    );
+
+    set({
+      verificationAlerts: updatedAlerts,
+      positionedGaps: updatedGaps,
+    });
 
     // Auto-move to next unresolved alert
     setTimeout(() => get().moveToNextAlert(), 100);

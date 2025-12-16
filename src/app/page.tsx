@@ -265,25 +265,41 @@ function HomeContent() {
       // Use raw API response data
       console.log('✅ Using raw API data:', result.data);
 
-      // Extract verification alerts for failed properties
-      const alerts = extractVerificationAlerts(result.data, properties);
-      console.log('🚨 Extracted alerts:', alerts);
-      setVerificationAlerts(alerts);
+      // Extract data from nested structure (new API format: result.data.data)
+      // Also support old format for backwards compatibility
+      const analysisData = result.data.data || result.data;
+      console.log('📊 Extracted analysis data:', analysisData);
 
-      // Set validation issues in store if present
-      if (result.data.verification?.issues) {
-        setValidationIssues(result.data.verification.issues, properties);
-      }
-      setApiConnected(true);
+      // Check if API needs clarification - handle multiple response formats
+      const needsClarification =
+        analysisData?.needs_clarification === true ||
+        analysisData?.summary?.requires_clarification === true ||
+        analysisData?.status === "verification_failed";
 
-      setAnalysisData(result.data);
+      if (needsClarification) {
+        // Extract verification alerts for failed properties
+        const alerts = extractVerificationAlerts(analysisData, properties);
+        console.log('🚨 Extracted alerts (needs clarification):', alerts);
+        setVerificationAlerts(alerts);
 
-      // If verification alerts are detected, close the analysis panel
-      // Alerts will be displayed on timeline for user to resolve
-      if (alerts.length > 0) {
+        // Set validation issues in store if present
+        if (analysisData.verification?.issues) {
+          setValidationIssues(analysisData.verification.issues, properties);
+        }
+
+        // Close the analysis panel - alerts will be displayed on timeline ONLY
         console.log('⚠️ Verification alerts detected - closing analysis panel to show alerts on timeline');
         setShowAnalysis(false);
+        // DON'T set analysisData when we have clarifications - we want ONLY timeline alerts, not panel questions
+        setAnalysisData(null);
+      } else {
+        // Analysis is complete - no clarifications needed
+        console.log('✅ Analysis complete - no clarifications needed');
+        setVerificationAlerts([]); // Clear any previous alerts
+        setAnalysisData(analysisData); // Set the actual analysis results
       }
+
+      setApiConnected(true);
       // If no alerts, analysis panel stays open showing results
     } catch (err) {
       console.error('❌ Error analyzing CGT:', err);
@@ -371,21 +387,31 @@ function HomeContent() {
       const apiData = transformTimelineToAPIFormat(properties, events);
 
       // Add verification responses to API data
-      const verificationsData = verificationAlerts.map((alert) => ({
-        property_address: alert.propertyAddress,
-        issue_period: {
-          start_date: alert.startDate,
-          end_date: alert.endDate,
-        },
-        resolution_question: alert.resolutionText,
-        user_response: alert.userResponse,
-        resolved_at: alert.resolvedAt,
-      }));
+      const verificationsData = verificationAlerts.map((alert) => {
+        const verification: any = {
+          property_address: alert.propertyAddress,
+          issue_period: {
+            start_date: alert.startDate,
+            end_date: alert.endDate,
+          },
+          resolution_question: alert.resolutionText,
+          user_response: alert.userResponse,
+          resolved_at: alert.resolvedAt,
+        };
 
-      console.log('✅ Verification responses prepared:', {
+        // Include question_id if available
+        if (alert.questionId) {
+          verification.question_id = alert.questionId;
+        }
+
+        return verification;
+      });
+
+      console.log('✅ TIMELINE alerts converted to verification_responses:', {
         totalAlerts: verificationAlerts.length,
         resolvedAlerts: verificationAlerts.filter(a => a.resolved).length,
-        verificationsData,
+        alertsWithQuestionId: verificationAlerts.filter(a => a.questionId).length,
+        verificationsData: JSON.stringify(verificationsData, null, 2),
       });
 
       // Include verifications in the request
@@ -403,9 +429,9 @@ function HomeContent() {
       let result;
 
       if (isApiConfigured) {
-        console.log('🌐 Calling resolution API with verified responses...');
-        // Call the resolution API endpoint (different from initial analysis)
-        const response = await fetch('/api/analyze-with-resolution', {
+        console.log('🌐 Calling CGT API with verified responses...');
+        // Call the same API endpoint with verification responses
+        const response = await fetch('/api/analyze-cgt', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -486,6 +512,7 @@ function HomeContent() {
       answer: string;
       period: { start: string; end: string; days: number };
       properties_involved: string[];
+      question_id?: string; // Include question_id for API matching
     }>
   ) => {
     console.log('📤 Retrying analysis with gap answers:', answers);
@@ -499,27 +526,39 @@ function HomeContent() {
       const apiData = transformTimelineToAPIFormat(properties, events);
 
       // Transform gap answers to verification_responses format expected by API
-      const verificationsData = answers.map((answer) => ({
-        property_address: answer.properties_involved.join(', ') || 'All Properties',
-        issue_period: {
-          start_date: answer.period.start,
-          end_date: answer.period.end,
-        },
-        resolution_question: answer.question,
-        user_response: answer.answer,
-        resolved_at: new Date().toISOString(),
-      }));
+      const verificationsData = answers.map((answer) => {
+        const verification: any = {
+          property_address: answer.properties_involved[0] || 'Unknown',
+          issue_period: {
+            start_date: answer.period.start,
+            end_date: answer.period.end,
+          },
+          resolution_question: answer.question,
+          user_response: answer.answer,
+          resolved_at: new Date().toISOString(),
+        };
 
-      // Add gap answers as verification_responses to the request
+        // Include question_id if provided (API uses this for matching)
+        if (answer.question_id) {
+          verification.question_id = answer.question_id;
+        }
+
+        return verification;
+      });
+
+      // Add gap answers to the request
       const requestData = {
         ...apiData,
         verification_responses: verificationsData,
       };
 
-      console.log('📤 Sending data with gap clarifications to resolution API:', requestData);
+      console.log('📤 Sending data with gap clarifications to API:');
+      console.log('📋 Original Answers from GapQuestionsPanel:', JSON.stringify(answers, null, 2));
+      console.log('📋 Transformed Verification Responses:', JSON.stringify(verificationsData, null, 2));
+      console.log('📋 Full Request Payload:', JSON.stringify(requestData, null, 2));
 
-      // Call the resolution API endpoint (different from initial analysis)
-      const response = await fetch('/api/analyze-with-resolution', {
+      // Call the same API endpoint with clarification answers included
+      const response = await fetch('/api/analyze-cgt', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -545,24 +584,33 @@ function HomeContent() {
         throw new Error(displayError);
       }
 
-      // Extract verification alerts for failed properties (in case there are still issues)
-      const alerts = extractVerificationAlerts(result.data, properties);
-      console.log('🚨 Extracted alerts after retry:', alerts);
-      setVerificationAlerts(alerts);
+      // Check if API still needs clarification - handle multiple response formats
+      const stillNeedsClarification =
+        result.data?.needs_clarification === true ||
+        result.data?.summary?.requires_clarification === true ||
+        result.data?.status === "verification_failed";
 
-      // Set validation issues in store if present
-      if (result.data.verification?.issues) {
-        setValidationIssues(result.data.verification.issues, properties);
-      }
+      if (stillNeedsClarification) {
+        // Extract verification alerts for remaining issues
+        const alerts = extractVerificationAlerts(result.data, properties);
+        console.log('🚨 Extracted alerts after retry (still needs clarification):', alerts);
+        setVerificationAlerts(alerts);
 
-      setAnalysisData(result.data);
+        // Set validation issues in store if present
+        if (result.data.verification?.issues) {
+          setValidationIssues(result.data.verification.issues, properties);
+        }
 
-      // If no more verification alerts, analysis panel stays open showing results
-      if (alerts.length === 0) {
-        console.log('✅ Analysis successful after gap clarifications - showing results');
-      } else {
-        console.log('⚠️ Still have verification alerts - closing panel to show alerts');
+        // DON'T set analysisData - we want ONLY timeline alerts, not panel questions
+        setAnalysisData(null);
+        console.log('⚠️ Still have verification alerts - closing panel to show alerts on timeline ONLY');
         setShowAnalysis(false);
+      } else {
+        // Analysis is complete - no more clarifications needed
+        console.log('✅ Analysis successful after gap clarifications - no more clarifications needed');
+        setVerificationAlerts([]); // Clear any previous alerts
+        setAnalysisData(result.data); // Now we can show the actual results
+        // Keep panel open to show final results
       }
     } catch (err) {
       console.error('❌ Error retrying with gap answers:', err);

@@ -1,0 +1,75 @@
+{
+  "title": "Six-Month Overlap Exceeded",
+  "scenario_info": {
+    "name": "Moving Between Homes - Overlap Exceeded",
+    "description": "Jennifer buys a new home before selling her old one, but takes 8.5 months to sell the old home, exceeding the 6-month overlap allowance by 74 days.",
+    "expected_result": {
+      "exemption_type": "partial",
+      "exemption_percentage": 98.4,
+      "taxable_proportion": 1.6,
+      "notes": "74 days of overlap period taxable on one property"
+    },
+    "applicable_rules": [
+      "ITAA97 s118.140: 6-month overlap rule",
+      "Overlap of 257 days exceeds 183-day limit by 74 days",
+      "Must choose which property loses exemption for excess period",
+      "Old home taxable for 74 days (smallest proportion)",
+      "ITAA97 s115.25: 50% CGT discount applies"
+    ]
+  },
+  "properties": [
+    {
+      "address": "22 Latrobe Terrace, Paddington QLD 4064",
+      "property_history": [
+        {
+          "date": "2012-03-01",
+          "event": "purchase",
+          "price": 720000,
+          "stamp_duty": 28800,
+          "purchase_legal_fees": 3500
+        },
+        {
+          "date": "2012-03-01",
+          "event": "move_in",
+          "description": "Established as main residence"
+        },
+        {
+          "date": "2024-02-01",
+          "event": "move_out",
+          "description": "Moving to new home in Ascot"
+        },
+        {
+          "date": "2024-10-15",
+          "event": "sale",
+          "price": 1450000,
+          "contract_date": "2024-10-15",
+          "agent_fees": 36250,
+          "legal_fees": 3200
+        }
+      ],
+      "notes": "Old home - overlap period of 257 days (8.5 months) exceeds 6-month limit. 74 days are taxable."
+    },
+    {
+      "address": "15 Lancaster Road, Ascot QLD 4007",
+      "property_history": [
+        {
+          "date": "2024-02-01",
+          "event": "purchase",
+          "price": 1200000,
+          "stamp_duty": 48000,
+          "purchase_legal_fees": 4200
+        },
+        {
+          "date": "2024-02-01",
+          "event": "move_in",
+          "description": "Established as main residence"
+        }
+      ],
+      "notes": "New home - keeping as main residence. Not being sold."
+    }
+  ],
+  "user_query": "I bought a new home in February 2024 and moved in immediately, but didn't sell my old home until October 2024. The overlap was about 8.5 months. What is my CGT position on the old home?",
+  "additional_info": {
+    "australian_resident": true
+  }
+}

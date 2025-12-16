@@ -93,7 +93,7 @@ export default function EventCardView({
       case 'rent_start': return 'Rent Start';
       case 'rent_end': return 'Rent End';
       case 'improvement': return 'Improvement';
-      case 'refinance': return 'Refinance';
+      case 'refinance': return 'Inherit';
       case 'status_change': return 'Status Change';
       default: return event.type;
     }

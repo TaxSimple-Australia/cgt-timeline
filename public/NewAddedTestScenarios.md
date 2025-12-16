@@ -174,13 +174,13 @@ Amanda purchases a home, lives in it for 3 years, then accepts a job transfer to
 
 ### Timeline of Events
 
-| Date | Event | Details |
-|------|-------|---------|
-| 01 Mar 2016 | Purchase | $720,000 + $28,800 stamp duty + $3,500 legal fees |
-| 01 Mar 2016 | Move In | Established as main residence |
-| 01 Oct 2017 | Improvement | Pool installation: $48,000 |
-| 01 Mar 2019 | Move Out | Relocated to Melbourne for work |
-| 01 Mar 2019 | Rent Start | Tenant moves in (same day as move out) |
+| Date | Event | Details                                              |
+|------|-------|------------------------------------------------------|
+| 01 Mar 2016 | Purchase | $720,000 + $28,800 stamp duty + $3,500 legal fees    |
+| 01 Mar 2016 | Move In | Established as main residence                        |
+| 01 Oct 2017 | Improvement | Pool installation: $48,000                           |
+| 01 Mar 2019 | Move Out | Relocated to Melbourne for work                      |
+| 01 Mar 2019 | Rent Start | Tenant moves in (same day as move out)               |
 | 01 Nov 2024 | Sale | $1,350,000 (agent fees: $33,750, legal fees: $3,000) |
 
 ### CGT Calculation

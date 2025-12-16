@@ -5,13 +5,20 @@ import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import html2canvas from 'html2canvas';
 import {
-  Camera, X, Download, ZoomIn, ZoomOut
+  Camera, X, Download, ZoomIn, ZoomOut, LayoutGrid
 } from 'lucide-react';
 import { useTimelineStore, Property, TimelineEvent, EventType } from '@/store/timeline';
 import { format } from 'date-fns';
+import ProjectRoadmapView from './timeline-viz/snapshot/ProjectRoadmapView';
+import GanttChartView from './timeline-viz/snapshot/GanttChartView';
+import HorizontalTimelineBarView from './timeline-viz/snapshot/HorizontalTimelineBarView';
+import PhaseTimelineView from './timeline-viz/snapshot/PhaseTimelineView';
+
+type SnapshotView = 'timeline' | 'roadmap' | 'gantt' | 'horizontal' | 'phase';
 
 export default function TimelineSnapshot() {
   const [isOpen, setIsOpen] = useState(false);
+  const [selectedView, setSelectedView] = useState<SnapshotView>('timeline');
   const [clickedEvent, setClickedEvent] = useState<{ event: TimelineEvent; property: Property; clientX: number; clientY: number } | null>(null);
   const [hoveredProperty, setHoveredProperty] = useState<Property | null>(null);
   const [hoveredPropertyElement, setHoveredPropertyElement] = useState<{ property: Property; rect: DOMRect } | null>(null);
@@ -295,28 +302,45 @@ export default function TimelineSnapshot() {
                     </div>
                   </div>
                   <div className="flex items-center gap-2" data-html2canvas-ignore="true">
-                    {/* Zoom Controls - Hidden from export */}
-                    <div className="flex items-center gap-1 border-r border-slate-300 dark:border-slate-600 pr-2">
-                      <button
-                        onClick={() => setZoomLevel(Math.max(50, zoomLevel - 25))}
-                        disabled={zoomLevel <= 50}
-                        className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-                        title="Zoom Out"
+                    {/* View Selector - Hidden from export */}
+                    <div className="flex items-center gap-2 border-r border-slate-300 dark:border-slate-600 pr-2">
+                      <LayoutGrid className="w-4 h-4 text-slate-600 dark:text-slate-400" />
+                      <select
+                        value={selectedView}
+                        onChange={(e) => setSelectedView(e.target.value as SnapshotView)}
+                        className="text-sm bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded px-2 py-1 text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
                       >
-                        <ZoomOut className="w-4 h-4 text-slate-600 dark:text-slate-400" />
-                      </button>
-                      <span className="text-xs font-medium text-slate-600 dark:text-slate-400 min-w-[40px] text-center">
-                        {zoomLevel}%
-                      </span>
-                      <button
-                        onClick={() => setZoomLevel(Math.min(100, zoomLevel + 25))}
-                        disabled={zoomLevel >= 100}
-                        className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-                        title="Zoom In"
-                      >
-                        <ZoomIn className="w-4 h-4 text-slate-600 dark:text-slate-400" />
-                      </button>
+                        <option value="timeline">Timeline</option>
+                        <option value="gantt">Gantt Chart</option>
+                        <option value="roadmap">Project Roadmap</option>
+                        <option value="horizontal">Horizontal Timeline</option>
+                        <option value="phase">Phase Timeline</option>
+                      </select>
                     </div>
+                    {/* Zoom Controls - Hidden from export (only for timeline view) */}
+                    {selectedView === 'timeline' && (
+                      <div className="flex items-center gap-1 border-r border-slate-300 dark:border-slate-600 pr-2">
+                        <button
+                          onClick={() => setZoomLevel(Math.max(50, zoomLevel - 25))}
+                          disabled={zoomLevel <= 50}
+                          className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                          title="Zoom Out"
+                        >
+                          <ZoomOut className="w-4 h-4 text-slate-600 dark:text-slate-400" />
+                        </button>
+                        <span className="text-xs font-medium text-slate-600 dark:text-slate-400 min-w-[40px] text-center">
+                          {zoomLevel}%
+                        </span>
+                        <button
+                          onClick={() => setZoomLevel(Math.min(100, zoomLevel + 25))}
+                          disabled={zoomLevel >= 100}
+                          className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                          title="Zoom In"
+                        >
+                          <ZoomIn className="w-4 h-4 text-slate-600 dark:text-slate-400" />
+                        </button>
+                      </div>
+                    )}
                     {/* Download Button - Hidden from export */}
                     <button
                       onClick={handleDownload}
@@ -362,51 +386,54 @@ export default function TimelineSnapshot() {
                       }
                     }}
                   >
-                  {/* Background Grid */}
-                  <div className="absolute inset-0 opacity-5">
-                    <div
-                      className="h-full w-full"
-                      style={{
-                        backgroundImage:
-                          'linear-gradient(90deg, currentColor 1px, transparent 1px), linear-gradient(currentColor 1px, transparent 1px)',
-                        backgroundSize: '50px 50px',
-                      }}
-                    />
-                  </div>
-
-                  {/* Date Markers at Top - 30px gap */}
-                  <div className="relative h-12 mb-8">
-                    {(() => {
-                      const startYear = absoluteStart.getFullYear();
-                      const endYear = absoluteEnd.getFullYear();
-                      const yearCount = endYear - startYear + 1;
-                      const markerInterval = yearCount > 20 ? 5 : yearCount > 10 ? 2 : 1;
-                      const years = [];
-
-                      for (let year = startYear; year <= endYear; year += markerInterval) {
-                        const yearDate = new Date(year, 0, 1);
-                        const position = getDatePosition(yearDate);
-                        years.push({ year, position });
-                      }
-
-                      return years.map(({ year, position }) => (
+                  {/* Timeline View */}
+                  {selectedView === 'timeline' && (
+                    <>
+                      {/* Background Grid */}
+                      <div className="absolute inset-0 opacity-5">
                         <div
-                          key={year}
-                          className="absolute top-0"
-                          style={{ left: `${position}%` }}
-                        >
-                          <div className="absolute -translate-x-1/2 text-sm font-bold text-slate-800 dark:text-slate-200 bg-white/95 dark:bg-slate-800/95 px-3 py-1 rounded shadow-md">
-                            {year}
-                          </div>
-                          <div className="absolute top-10 w-px bg-slate-300 dark:bg-slate-600 -translate-x-1/2 opacity-30" style={{ height: `${availableHeight}px` }} />
-                        </div>
-                      ));
-                    })()}
-                  </div>
+                          className="h-full w-full"
+                          style={{
+                            backgroundImage:
+                              'linear-gradient(90deg, currentColor 1px, transparent 1px), linear-gradient(currentColor 1px, transparent 1px)',
+                            backgroundSize: '50px 50px',
+                          }}
+                        />
+                      </div>
+
+                      {/* Date Markers at Top - 30px gap */}
+                      <div className="relative h-12 mb-8">
+                        {(() => {
+                          const startYear = absoluteStart.getFullYear();
+                          const endYear = absoluteEnd.getFullYear();
+                          const yearCount = endYear - startYear + 1;
+                          const markerInterval = yearCount > 20 ? 5 : yearCount > 10 ? 2 : 1;
+                          const years = [];
+
+                          for (let year = startYear; year <= endYear; year += markerInterval) {
+                            const yearDate = new Date(year, 0, 1);
+                            const position = getDatePosition(yearDate);
+                            years.push({ year, position });
+                          }
+
+                          return years.map(({ year, position }) => (
+                            <div
+                              key={year}
+                              className="absolute top-0"
+                              style={{ left: `${position}%` }}
+                            >
+                              <div className="absolute -translate-x-1/2 text-sm font-bold text-slate-800 dark:text-slate-200 bg-white/95 dark:bg-slate-800/95 px-3 py-1 rounded shadow-md">
+                                {year}
+                              </div>
+                              <div className="absolute top-10 w-px bg-slate-300 dark:bg-slate-600 -translate-x-1/2 opacity-30" style={{ height: `${availableHeight}px` }} />
+                            </div>
+                          ));
+                        })()}
+                      </div>
 
 
-                  {/* Property Branches */}
-                  <div className="relative px-12" style={{ height: `${availableHeight}px` }}>
+                      {/* Property Branches */}
+                      <div className="relative px-12" style={{ height: `${availableHeight}px` }}>
                     {properties.map((property, propertyIndex) => {
                       const propertyEvents = events.filter((e) => e.propertyId === property.id).sort((a, b) => a.date.getTime() - b.date.getTime());
                       const eventTiers = calculateEventTiers(propertyEvents);
@@ -623,17 +650,59 @@ export default function TimelineSnapshot() {
                         </div>
                       );
                     })}
-                  </div>
-
-                  {/* Empty State */}
-                  {properties.length === 0 && (
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="text-center text-slate-400 dark:text-slate-600">
-                        <Camera className="w-16 h-16 mx-auto mb-4 opacity-30" />
-                        <p className="text-lg font-semibold">No timeline data yet</p>
-                        <p className="text-sm mt-2">Add properties and events to see your timeline</p>
                       </div>
-                    </div>
+
+                      {/* Empty State */}
+                      {properties.length === 0 && (
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <div className="text-center text-slate-400 dark:text-slate-600">
+                            <Camera className="w-16 h-16 mx-auto mb-4 opacity-30" />
+                            <p className="text-lg font-semibold">No timeline data yet</p>
+                            <p className="text-sm mt-2">Add properties and events to see your timeline</p>
+                          </div>
+                        </div>
+                      )}
+                    </>
+                  )}
+
+                  {/* Gantt Chart View */}
+                  {selectedView === 'gantt' && (
+                    <GanttChartView
+                      properties={properties}
+                      events={events}
+                      absoluteStart={absoluteStart}
+                      absoluteEnd={absoluteEnd}
+                    />
+                  )}
+
+                  {/* Project Roadmap View */}
+                  {selectedView === 'roadmap' && (
+                    <ProjectRoadmapView
+                      properties={properties}
+                      events={events}
+                      absoluteStart={absoluteStart}
+                      absoluteEnd={absoluteEnd}
+                    />
+                  )}
+
+                  {/* Horizontal Timeline Bar View */}
+                  {selectedView === 'horizontal' && (
+                    <HorizontalTimelineBarView
+                      properties={properties}
+                      events={events}
+                      absoluteStart={absoluteStart}
+                      absoluteEnd={absoluteEnd}
+                    />
+                  )}
+
+                  {/* Phase Timeline View */}
+                  {selectedView === 'phase' && (
+                    <PhaseTimelineView
+                      properties={properties}
+                      events={events}
+                      absoluteStart={absoluteStart}
+                      absoluteEnd={absoluteEnd}
+                    />
                   )}
                 </div>
               </div>
@@ -683,7 +752,7 @@ export default function TimelineSnapshot() {
                       {clickedEvent.event.title}
                     </div>
                     <div className="text-xs opacity-75 mb-2 capitalize">
-                      {clickedEvent.event.type.replace('_', ' ')}
+                      {clickedEvent.event.type === 'refinance' ? 'Inherit' : clickedEvent.event.type.replace('_', ' ')}
                     </div>
 
                     {/* Date Information */}

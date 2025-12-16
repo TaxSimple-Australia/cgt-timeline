@@ -28,8 +28,16 @@ export function transformTimelineToAPIFormat(
       const historyEvent: PropertyHistoryEvent = {
         date: eventDate.toISOString().split('T')[0], // Format as YYYY-MM-DD
         event: event.type,
-        description: event.description,
+        // For custom events, use the title as description if no description is set
+        description: event.type === 'custom'
+          ? (event.description || `Custom event: ${event.title}`)
+          : event.description,
       };
+
+      // For custom events that affect status, include the new status info
+      if (event.type === 'custom' && event.affectsStatus && event.newStatus) {
+        historyEvent.description = `${historyEvent.description || event.title}. Property status changed to: ${event.newStatus}`;
+      }
 
       // Add price if available
       if (event.amount) {

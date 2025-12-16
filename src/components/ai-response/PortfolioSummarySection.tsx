@@ -37,10 +37,10 @@ export default function PortfolioSummarySection({ data }: PortfolioSummarySectio
 
       {/* Portfolio Description */}
       {data.description && (
-        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+        <div className="bg-green-900/30 dark:bg-green-900/50 border-2 border-green-500 rounded-lg p-4">
           <div className="flex items-start gap-3">
-            <FileText className="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
-            <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
+            <FileText className="w-5 h-5 text-green-400 mt-0.5 flex-shrink-0" />
+            <p className="text-sm text-white leading-relaxed">
               {data.description}
             </p>
           </div>

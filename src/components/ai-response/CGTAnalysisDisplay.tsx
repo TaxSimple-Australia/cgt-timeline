@@ -160,29 +160,12 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
                   <div className="relative z-10 p-6">
                     <div className="flex items-start justify-between gap-4 mb-4">
                       <div className="flex-1">
-                        <h3 className="text-2xl font-black text-gray-900 dark:text-white mb-2 flex items-center gap-3">
+                        <h3 className="text-2xl font-black text-gray-900 dark:text-white flex items-center gap-3">
                           <span className="inline-flex items-center justify-center w-10 h-10 bg-indigo-600 text-white rounded-lg">
                             {index + 1}
                           </span>
                           {property.property_address}
                         </h3>
-                        <div className="flex flex-wrap gap-2 mt-2">
-                          {property.purchase_date && (
-                            <span className="inline-flex items-center px-3 py-1 bg-white dark:bg-gray-700 rounded-full text-xs font-semibold text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-600">
-                              Purchased: {property.purchase_date}
-                            </span>
-                          )}
-                          {property.sale_date && (
-                            <span className="inline-flex items-center px-3 py-1 bg-white dark:bg-gray-700 rounded-full text-xs font-semibold text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-600">
-                              Sold: {property.sale_date}
-                            </span>
-                          )}
-                          {property.total_ownership_years && (
-                            <span className="inline-flex items-center px-3 py-1 bg-white dark:bg-gray-700 rounded-full text-xs font-semibold text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-600">
-                              {property.total_ownership_years} years owned
-                            </span>
-                          )}
-                        </div>
                       </div>
 
                       {/* Result Badge - Prominent */}
@@ -214,218 +197,252 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
                   </div>
                 )}
 
-                {/* Key Facts Section - Bullet Points */}
-                <div className="space-y-2">
-                  <h4 className="font-bold text-lg text-gray-900 dark:text-gray-100 mb-3 flex items-center gap-2">
-                    <span className="text-xl">📋</span>
+                {/* Key Facts Section - Compact Grid with Colored Badges */}
+                <div className="space-y-3">
+                  <h4 className="font-bold text-lg text-gray-900 dark:text-gray-100">
                     Key Facts
                   </h4>
-                  <ul className="space-y-2">
-                    <li className="flex items-start gap-2">
-                      <div className="w-2 h-2 rounded-full bg-blue-500 mt-1.5 flex-shrink-0"></div>
-                      <span className="text-gray-700 dark:text-gray-300"><strong>Property:</strong> {property.key_facts?.property || property.property_address}</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <div className="w-2 h-2 rounded-full bg-green-500 mt-1.5 flex-shrink-0"></div>
-                      <span className="text-gray-700 dark:text-gray-300"><strong>Purchase Date:</strong> {property.key_facts?.purchase_date || property.purchase_date}</span>
-                    </li>
+
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+                    {/* Purchase Card */}
+                    <div className="bg-white dark:bg-gray-800 rounded-lg p-3 border border-gray-100 dark:border-gray-700">
+                      <span className="inline-block px-2 py-0.5 text-xs font-semibold rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300 mb-2">
+                        PURCHASED
+                      </span>
+                      <div className="font-semibold text-gray-900 dark:text-white">
+                        {property.key_facts?.purchase_date || property.purchase_date}
+                      </div>
+                      <div className="text-sm text-gray-600 dark:text-gray-400">
+                        ${formatNumber(property.key_facts?.purchase_price || property.purchase_price)}
+                      </div>
+                    </div>
+
+                    {/* Sale Card */}
+                    <div className="bg-white dark:bg-gray-800 rounded-lg p-3 border border-gray-100 dark:border-gray-700">
+                      <span className="inline-block px-2 py-0.5 text-xs font-semibold rounded-full bg-red-100 text-red-700 dark:bg-red-900/50 dark:text-red-300 mb-2">
+                        SOLD
+                      </span>
+                      <div className="font-semibold text-gray-900 dark:text-white">
+                        {property.key_facts?.sale_date || property.sale_date}
+                      </div>
+                      <div className="text-sm text-gray-600 dark:text-gray-400">
+                        ${formatNumber(property.key_facts?.sale_price || property.sale_price)}
+                      </div>
+                    </div>
+
+                    {/* Ownership Card */}
+                    <div className="bg-white dark:bg-gray-800 rounded-lg p-3 border border-gray-100 dark:border-gray-700">
+                      <span className="inline-block px-2 py-0.5 text-xs font-semibold rounded-full bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300 mb-2">
+                        OWNERSHIP
+                      </span>
+                      <div className="font-semibold text-gray-900 dark:text-white">
+                        {property.key_facts?.total_ownership_days || property.total_ownership_days} days
+                      </div>
+                      <div className="text-sm text-gray-600 dark:text-gray-400">
+                        {property.total_ownership_years || (Math.round((property.key_facts?.total_ownership_days || property.total_ownership_days || 0) / 365 * 10) / 10)} years
+                      </div>
+                    </div>
+
+                    {/* Main Residence Card */}
+                    <div className="bg-white dark:bg-gray-800 rounded-lg p-3 border border-gray-100 dark:border-gray-700">
+                      <span className="inline-block px-2 py-0.5 text-xs font-semibold rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-300 mb-2">
+                        MAIN RESIDENCE
+                      </span>
+                      <div className="font-semibold text-gray-900 dark:text-white">
+                        {property.key_facts?.main_residence_days || property.main_residence_days} days
+                      </div>
+                    </div>
+
+                    {/* Non-Main Residence Card */}
+                    <div className="bg-white dark:bg-gray-800 rounded-lg p-3 border border-gray-100 dark:border-gray-700">
+                      <span className="inline-block px-2 py-0.5 text-xs font-semibold rounded-full bg-orange-100 text-orange-700 dark:bg-orange-900/50 dark:text-orange-300 mb-2">
+                        NON-MAIN RES
+                      </span>
+                      <div className="font-semibold text-gray-900 dark:text-white">
+                        {property.key_facts?.non_main_residence_days || ((property.key_facts?.total_ownership_days || property.total_ownership_days || 0) - (property.key_facts?.main_residence_days || property.main_residence_days || 0))} days
+                      </div>
+                    </div>
+
+                    {/* Conditional: Move In */}
                     {(property.key_facts?.move_in_date || property.move_in_date) && (
-                      <li className="flex items-start gap-2">
-                        <div className="w-2 h-2 rounded-full bg-amber-500 mt-1.5 flex-shrink-0"></div>
-                        <span className="text-gray-700 dark:text-gray-300"><strong>Move In Date:</strong> {property.key_facts?.move_in_date || property.move_in_date}</span>
-                      </li>
+                      <div className="bg-white dark:bg-gray-800 rounded-lg p-3 border border-gray-100 dark:border-gray-700">
+                        <span className="inline-block px-2 py-0.5 text-xs font-semibold rounded-full bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-300 mb-2">
+                          MOVE IN
+                        </span>
+                        <div className="font-semibold text-gray-900 dark:text-white">
+                          {property.key_facts?.move_in_date || property.move_in_date}
+                        </div>
+                      </div>
                     )}
+
+                    {/* Conditional: Move Out */}
                     {(property.key_facts?.move_out_date || property.move_out_date) && (
-                      <li className="flex items-start gap-2">
-                        <div className="w-2 h-2 rounded-full bg-rose-500 mt-1.5 flex-shrink-0"></div>
-                        <span className="text-gray-700 dark:text-gray-300"><strong>Move Out Date:</strong> {property.key_facts?.move_out_date || property.move_out_date}</span>
-                      </li>
+                      <div className="bg-white dark:bg-gray-800 rounded-lg p-3 border border-gray-100 dark:border-gray-700">
+                        <span className="inline-block px-2 py-0.5 text-xs font-semibold rounded-full bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-300 mb-2">
+                          MOVE OUT
+                        </span>
+                        <div className="font-semibold text-gray-900 dark:text-white">
+                          {property.key_facts?.move_out_date || property.move_out_date}
+                        </div>
+                      </div>
                     )}
+
+                    {/* Conditional: Rent Start */}
                     {(property.key_facts?.rent_start_date || property.rent_start_date) && (
-                      <li className="flex items-start gap-2">
-                        <div className="w-2 h-2 rounded-full bg-cyan-500 mt-1.5 flex-shrink-0"></div>
-                        <span className="text-gray-700 dark:text-gray-300"><strong>Rent Start Date:</strong> {property.key_facts?.rent_start_date || property.rent_start_date}</span>
-                      </li>
+                      <div className="bg-white dark:bg-gray-800 rounded-lg p-3 border border-gray-100 dark:border-gray-700">
+                        <span className="inline-block px-2 py-0.5 text-xs font-semibold rounded-full bg-purple-100 text-purple-700 dark:bg-purple-900/50 dark:text-purple-300 mb-2">
+                          RENT START
+                        </span>
+                        <div className="font-semibold text-gray-900 dark:text-white">
+                          {property.key_facts?.rent_start_date || property.rent_start_date}
+                        </div>
+                      </div>
                     )}
-                    <li className="flex items-start gap-2">
-                      <div className="w-2 h-2 rounded-full bg-violet-500 mt-1.5 flex-shrink-0"></div>
-                      <span className="text-gray-700 dark:text-gray-300"><strong>Sale Date:</strong> {property.key_facts?.sale_date || property.sale_date}</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <div className="w-2 h-2 rounded-full bg-purple-500 mt-1.5 flex-shrink-0"></div>
-                      <span className="text-gray-700 dark:text-gray-300"><strong>Purchase Price:</strong> ${formatNumber(property.key_facts?.purchase_price || property.purchase_price)}</span>
-                    </li>
+
+                    {/* Conditional: Market Value at First Rental */}
                     {(property.key_facts?.market_value_at_first_rental || property.market_value_at_first_rental) && (
-                      <li className="flex items-start gap-2">
-                        <div className="w-2 h-2 rounded-full bg-sky-500 mt-1.5 flex-shrink-0"></div>
-                        <span className="text-gray-700 dark:text-gray-300"><strong>Market Value at First Rental:</strong> ${formatNumber(property.key_facts?.market_value_at_first_rental || property.market_value_at_first_rental)}</span>
-                      </li>
+                      <div className="bg-white dark:bg-gray-800 rounded-lg p-3 border border-gray-100 dark:border-gray-700">
+                        <span className="inline-block px-2 py-0.5 text-xs font-semibold rounded-full bg-cyan-100 text-cyan-700 dark:bg-cyan-900/50 dark:text-cyan-300 mb-2">
+                          MARKET VALUE
+                        </span>
+                        <div className="font-semibold text-gray-900 dark:text-white">
+                          ${formatNumber(property.key_facts?.market_value_at_first_rental || property.market_value_at_first_rental)}
+                        </div>
+                        <div className="text-xs text-gray-500 dark:text-gray-400">
+                          at first rental
+                        </div>
+                      </div>
                     )}
-                    <li className="flex items-start gap-2">
-                      <div className="w-2 h-2 rounded-full bg-fuchsia-500 mt-1.5 flex-shrink-0"></div>
-                      <span className="text-gray-700 dark:text-gray-300"><strong>Sale Price:</strong> ${formatNumber(property.key_facts?.sale_price || property.sale_price)}</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <div className="w-2 h-2 rounded-full bg-lime-500 mt-1.5 flex-shrink-0"></div>
-                      <span className="text-gray-700 dark:text-gray-300"><strong>Total Ownership Days:</strong> {property.key_facts?.total_ownership_days || property.total_ownership_days} days</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <div className="w-2 h-2 rounded-full bg-emerald-500 mt-1.5 flex-shrink-0"></div>
-                      <span className="text-gray-700 dark:text-gray-300"><strong>Main Residence Days:</strong> {property.key_facts?.main_residence_days || property.main_residence_days} days</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <div className="w-2 h-2 rounded-full bg-orange-500 mt-1.5 flex-shrink-0"></div>
-                      <span className="text-gray-700 dark:text-gray-300"><strong>Non-Main Residence Days:</strong> {property.key_facts?.non_main_residence_days || ((property.key_facts?.total_ownership_days || property.total_ownership_days) - (property.key_facts?.main_residence_days || property.main_residence_days))} days</span>
-                    </li>
-                  </ul>
+                  </div>
                 </div>
 
                 {/* Section 3: Timeline of Events */}
                 <PropertyTimelineEvents timeline={property.timeline_of_events || (property as any).timeline} />
 
-                {/* CGT Calculation - New structured format (step1-7) or legacy array format */}
+                {/* CGT Calculation - Minimal clean layout */}
                 {(property.cgt_calculation || (property.calculation_steps && property.calculation_steps.length > 0)) && (
-                  <div className="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700 shadow-sm">
-                    <h4 className="font-bold text-lg text-gray-900 dark:text-gray-100 mb-5 flex items-center gap-2">
-                      <span className="text-xl">🧮</span>
+                  <div className="space-y-3">
+                    <h4 className="font-bold text-lg text-gray-900 dark:text-gray-100">
                       CGT Calculation
                     </h4>
 
                     {/* New format: cgt_calculation with step1-7 */}
                     {property.cgt_calculation && (
-                      <div className="space-y-5">
+                      <div className="divide-y divide-gray-100 dark:divide-gray-800">
                         {['step1', 'step2', 'step3', 'step4', 'step5', 'step6', 'step7'].map((stepKey, index) => {
                           const step = property.cgt_calculation[stepKey as keyof typeof property.cgt_calculation];
                           if (!step || typeof step === 'string') return null;
 
                           return (
-                            <motion.div
-                              key={stepKey}
-                              initial={{ opacity: 0, x: -20 }}
-                              animate={{ opacity: 1, x: 0 }}
-                              transition={{ delay: index * 0.1 }}
-                              className="relative bg-gradient-to-br from-slate-50 to-gray-50 dark:from-slate-900 dark:to-gray-900 rounded-xl p-5 border-l-4 border-purple-500 shadow-sm"
-                            >
-                              {/* Step Number Badge */}
-                              <div className="flex items-start gap-4">
-                                <div className="flex-shrink-0 w-10 h-10 bg-purple-600 text-white rounded-lg flex items-center justify-center font-bold shadow-lg">
-                                  {index + 1}
-                                </div>
-                                <div className="flex-1">
-                                  {/* Step Title */}
-                                  <h5 className="font-bold text-gray-900 dark:text-gray-100 mb-3">
-                                    {step.title}
-                                  </h5>
+                            <div key={stepKey} className="py-5 first:pt-0">
+                              <div className="flex items-start gap-6">
+                                {/* Step Label - Fixed Width */}
+                                <span className="font-bold text-purple-600 dark:text-purple-400 w-16 flex-shrink-0">
+                                  Step {index + 1}
+                                </span>
 
-                                  {/* Step Content */}
-                                  <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
-                                    <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-wrap">
-                                      {step.content}
-                                    </p>
+                                {/* Content */}
+                                <div className="flex-1 space-y-3">
+                                  {/* Title with underline */}
+                                  <div className="border-b border-gray-200 dark:border-gray-700 pb-2">
+                                    <h5 className="font-bold text-gray-900 dark:text-white">
+                                      {step.title}
+                                    </h5>
                                   </div>
+
+                                  {/* Content */}
+                                  <p className="text-gray-600 dark:text-gray-400 whitespace-pre-wrap">
+                                    {step.content}
+                                  </p>
                                 </div>
                               </div>
-                            </motion.div>
+                            </div>
                           );
                         })}
 
                         {/* Final Result */}
                         {property.cgt_calculation.result && (
-                          <motion.div
-                            initial={{ opacity: 0, scale: 0.95 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            transition={{ delay: 0.7 }}
-                            className="bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-950/30 dark:to-teal-950/30 rounded-xl p-6 border-2 border-emerald-500 shadow-lg"
-                          >
-                            <div className="flex items-center gap-3 mb-2">
-                              <CheckCircle className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
-                              <span className="text-lg font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wide">
+                          <div className="py-5">
+                            <div className="flex items-start gap-6">
+                              <span className="font-bold text-emerald-600 dark:text-emerald-400 w-16 flex-shrink-0">
                                 Result
                               </span>
+                              <p className="text-emerald-600 dark:text-emerald-400">
+                                {property.cgt_calculation.result}
+                              </p>
                             </div>
-                            <p className="text-base font-bold text-gray-900 dark:text-gray-100">
-                              {property.cgt_calculation.result}
-                            </p>
-                          </motion.div>
+                          </div>
                         )}
                       </div>
                     )}
 
                     {/* Legacy format: calculation_steps array */}
                     {!property.cgt_calculation && property.calculation_steps && property.calculation_steps.length > 0 && (
-                      <div className="space-y-5">
+                      <div className="divide-y divide-gray-100 dark:divide-gray-800">
                         {property.calculation_steps.map((step, stepIndex) => (
-                          <motion.div
-                            key={stepIndex}
-                            initial={{ opacity: 0, x: -20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ delay: stepIndex * 0.1 }}
-                            className="relative bg-gradient-to-br from-slate-50 to-gray-50 dark:from-slate-900 dark:to-gray-900 rounded-xl p-5 border-l-4 border-purple-500 shadow-sm hover:shadow-md transition-shadow"
-                          >
-                            {/* Step Number Badge */}
-                            <div className="absolute -left-6 top-5 w-10 h-10 bg-purple-600 text-white rounded-lg flex items-center justify-center font-bold shadow-lg">
-                              {step.step_number}
-                            </div>
+                          <div key={stepIndex} className="py-5 first:pt-0">
+                            <div className="flex items-start gap-6">
+                              {/* Step Label - Fixed Width */}
+                              <span className="font-bold text-purple-600 dark:text-purple-400 w-16 flex-shrink-0">
+                                Step {step.step_number}
+                              </span>
 
-                            {/* Step Title */}
-                            <h5 className="font-bold text-gray-900 dark:text-gray-100 mb-3 pl-6">
-                              {step.title}
-                            </h5>
-
-                            {/* Step Description */}
-                            {step.description && (
-                              <div className="bg-white dark:bg-gray-800 rounded-lg p-4 mb-3 border border-gray-200 dark:border-gray-700">
-                                <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
-                                  {step.description}
-                                </p>
-                              </div>
-                            )}
-
-                            {/* Calculation Formula */}
-                            {step.calculation && (
-                              <div className="bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-950/30 dark:to-purple-950/30 rounded-lg p-4 mb-3 border border-indigo-200 dark:border-indigo-800">
-                                <div className="flex items-center gap-2 mb-2">
-                                  <Cpu className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
-                                  <span className="text-xs font-semibold text-indigo-600 dark:text-indigo-400 uppercase tracking-wide">
-                                    Calculation
-                                  </span>
+                              {/* Content */}
+                              <div className="flex-1 space-y-3">
+                                {/* Title with underline */}
+                                <div className="border-b border-gray-200 dark:border-gray-700 pb-2">
+                                  <h5 className="font-bold text-gray-900 dark:text-white">
+                                    {step.title}
+                                  </h5>
                                 </div>
-                                <pre className="text-sm font-mono text-gray-800 dark:text-gray-200 whitespace-pre-wrap">
-                                  {step.calculation}
-                                </pre>
-                              </div>
-                            )}
 
-                            {/* Result */}
-                            <div className="bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-950/30 dark:to-teal-950/30 rounded-lg p-4 border-2 border-emerald-200 dark:border-emerald-800">
-                              <div className="flex items-center gap-2 mb-1">
-                                <Zap className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-                                <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 uppercase tracking-wide">
-                                  Result
-                                </span>
-                              </div>
-                              <p className="text-sm font-bold text-gray-900 dark:text-gray-100">
-                                {step.result}
-                              </p>
-                            </div>
+                                {/* Description */}
+                                {step.description && (
+                                  <p className="text-gray-600 dark:text-gray-400">
+                                    {step.description}
+                                  </p>
+                                )}
 
-                            {/* Validation Checks */}
-                            {step.checks && step.checks.length > 0 && (
-                              <div className="mt-4 space-y-2">
-                                {step.checks.map((check, checkIndex) => (
-                                  <div
-                                    key={checkIndex}
-                                    className="flex items-start gap-3 bg-green-50 dark:bg-green-950/20 rounded-lg p-3 border border-green-200 dark:border-green-800"
-                                  >
-                                    <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400 mt-0.5 flex-shrink-0" />
-                                    <span className="text-sm text-green-800 dark:text-green-200 font-medium">
-                                      {check}
-                                    </span>
+                                {/* Calculation */}
+                                {step.calculation && (
+                                  <p className="text-gray-700 dark:text-gray-300">
+                                    {step.calculation}
+                                  </p>
+                                )}
+
+                                {/* Result */}
+                                <p className="text-emerald-600 dark:text-emerald-400">
+                                  {step.result}
+                                </p>
+
+                                {/* Validation Checks */}
+                                {step.checks && step.checks.length > 0 && (
+                                  <div className="pt-3 border-t border-gray-100 dark:border-gray-800">
+                                    <div className="flex flex-wrap gap-2">
+                                      {step.checks.map((check, checkIndex) => {
+                                        const colors = [
+                                          'bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-300',
+                                          'bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300',
+                                          'bg-purple-100 text-purple-700 dark:bg-purple-900/50 dark:text-purple-300',
+                                          'bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-300',
+                                          'bg-cyan-100 text-cyan-700 dark:bg-cyan-900/50 dark:text-cyan-300',
+                                          'bg-pink-100 text-pink-700 dark:bg-pink-900/50 dark:text-pink-300',
+                                        ];
+                                        return (
+                                          <span
+                                            key={checkIndex}
+                                            className={`px-2.5 py-1 text-xs font-medium rounded-full ${colors[checkIndex % colors.length]}`}
+                                          >
+                                            {check}
+                                          </span>
+                                        );
+                                      })}
+                                    </div>
                                   </div>
-                                ))}
+                                )}
                               </div>
-                            )}
-                          </motion.div>
+                            </div>
+                          </div>
                         ))}
                       </div>
                     )}

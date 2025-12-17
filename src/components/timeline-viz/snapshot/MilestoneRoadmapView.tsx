@@ -25,6 +25,7 @@ const getEventAbbreviation = (eventType: EventType): string => {
     status_change: 'SC',
     living_in_rental_start: 'LS',
     living_in_rental_end: 'LE',
+    custom: 'CU',
   };
   return abbreviations[eventType] || 'EV';
 };
@@ -42,6 +43,7 @@ const getEventTypeLabel = (eventType: EventType): string => {
     status_change: 'Status Change',
     living_in_rental_start: 'Living In Rental Start',
     living_in_rental_end: 'Living In Rental End',
+    custom: 'Custom Event',
   };
   return labels[eventType] || eventType;
 };

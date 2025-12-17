@@ -35,6 +35,7 @@ export const calculatePortfolioStats = (
     status_change: 0,
     living_in_rental_start: 0,
     living_in_rental_end: 0,
+    custom: 0,
   };
 
   events.forEach((event) => {
@@ -166,6 +167,7 @@ export const getEventIcon = (type: EventType): string => {
     status_change: '📋',
     living_in_rental_start: '🏡',
     living_in_rental_end: '🏘️',
+    custom: '⭐',
   };
 
   return icons[type] || '•';
@@ -187,6 +189,7 @@ export const getShortEventName = (type: EventType): string => {
     status_change: 'Status',
     living_in_rental_start: 'Live In',
     living_in_rental_end: 'Move Out',
+    custom: 'Custom',
   };
 
   return names[type] || type;
@@ -208,6 +211,7 @@ export const getFullEventName = (type: EventType): string => {
     status_change: 'Status Change',
     living_in_rental_start: 'Living in Rental Started',
     living_in_rental_end: 'Living in Rental Ended',
+    custom: 'Custom Event',
   };
 
   return names[type] || type;

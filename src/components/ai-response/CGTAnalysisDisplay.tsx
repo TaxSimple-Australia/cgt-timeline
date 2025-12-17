@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { CheckCircle, XCircle, ChevronDown, ChevronUp, Cpu, Zap, Clock, FileJson, Download, Home } from 'lucide-react';
+import { CheckCircle, XCircle, ChevronDown, ChevronUp, Cpu, Zap, Clock, FileJson, Download, Home, LayoutGrid, FileText, Settings2 } from 'lucide-react';
 import GapQuestionsPanel from './GapQuestionsPanel';
 import DetailedReportSection from './DetailedReportSection';
 import TwoColumnLayout from '../timeline-viz/TwoColumnLayout';
@@ -32,9 +32,11 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
   const [activeTab, setActiveTab] = useState('property-0');
   const [showRawJSON, setShowRawJSON] = useState(false);
 
-  // Get timeline data from store for visualizations
+  // Get timeline data and display mode from store
   const properties = useTimelineStore(state => state.properties);
   const events = useTimelineStore(state => state.events);
+  const analysisDisplayMode = useTimelineStore(state => state.analysisDisplayMode);
+  const setAnalysisDisplayMode = useTimelineStore(state => state.setAnalysisDisplayMode);
 
   // Helper function to get step number color
   const getStepColor = (stepNumber: number) => {
@@ -93,22 +95,289 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
   const isDirectFormat = !isWrappedFormat && response.properties && response.properties.length > 0 && response.properties[0]?.property_address;
   const isNewJSONFormat = isWrappedFormat || isDirectFormat;
 
-  // New JSON Format Response Display
-  if (isNewJSONFormat) {
-    const analysisData = (isWrappedFormat ? response.data : response) as AnalysisData;
-    const citations = (isWrappedFormat ? response.citations : (response as any).citations) as Citations;
+  // Check for markdown analysis string format
+  const hasMarkdownAnalysis = typeof response.analysis === 'string' && response.analysis.length > 0;
 
-    // Helper function for formatting numbers
-    const formatNumber = (value: string | number | null | undefined): string => {
-      if (value === null || value === undefined) return '-';
-      const num = typeof value === 'string' ? parseFloat(value) : value;
-      return num.toLocaleString('en-AU');
+  // Determine which display mode to use based on setting and response type
+  const getEffectiveDisplayMode = () => {
+    if (analysisDisplayMode !== 'auto') {
+      return analysisDisplayMode;
+    }
+    // Auto mode: prefer JSON sections if available, otherwise markdown
+    if (isNewJSONFormat) {
+      return 'json-sections';
+    }
+    if (hasMarkdownAnalysis) {
+      return 'markdown';
+    }
+    // Fall back to whatever is available
+    return isNewJSONFormat ? 'json-sections' : 'markdown';
+  };
+
+  const effectiveDisplayMode = getEffectiveDisplayMode();
+
+  // Display mode toggle component
+  const DisplayModeToggle = () => {
+    // Only show toggle if we have both formats available or if user has forced a mode
+    const canShowBothModes = (isNewJSONFormat || hasMarkdownAnalysis);
+    if (!canShowBothModes && analysisDisplayMode === 'auto') return null;
+
+    return (
+      <div className="flex items-center gap-2 bg-gray-100 dark:bg-gray-800 rounded-lg p-1">
+        <button
+          onClick={() => setAnalysisDisplayMode('auto')}
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
+            analysisDisplayMode === 'auto'
+              ? 'bg-white dark:bg-gray-700 text-blue-600 dark:text-blue-400 shadow-sm'
+              : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
+          }`}
+          title="Auto-detect display mode based on response type"
+        >
+          <Settings2 className="w-4 h-4" />
+          Auto
+        </button>
+        <button
+          onClick={() => setAnalysisDisplayMode('json-sections')}
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
+            analysisDisplayMode === 'json-sections'
+              ? 'bg-white dark:bg-gray-700 text-emerald-600 dark:text-emerald-400 shadow-sm'
+              : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
+          }`}
+          title="Display as beautiful structured JSON sections"
+        >
+          <LayoutGrid className="w-4 h-4" />
+          Sections
+        </button>
+        <button
+          onClick={() => setAnalysisDisplayMode('markdown')}
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
+            analysisDisplayMode === 'markdown'
+              ? 'bg-white dark:bg-gray-700 text-purple-600 dark:text-purple-400 shadow-sm'
+              : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
+          }`}
+          title="Display as markdown text"
+        >
+          <FileText className="w-4 h-4" />
+          Markdown
+        </button>
+      </div>
+    );
+  };
+
+  // Helper function for formatting numbers (used in multiple places)
+  const formatNumber = (value: string | number | null | undefined): string => {
+    if (value === null || value === undefined) return '-';
+    const num = typeof value === 'string' ? parseFloat(value) : value;
+    return num.toLocaleString('en-AU');
+  };
+
+  // Prepare analysis data for JSON sections view (if available)
+  const analysisData = isNewJSONFormat
+    ? ((isWrappedFormat ? response.data : response) as AnalysisData)
+    : null;
+  const citations = isNewJSONFormat
+    ? ((isWrappedFormat ? response.citations : (response as any).citations) as Citations)
+    : null;
+
+  // ============================================================================
+  // PRIORITY CHECK: VERIFICATION FAILED / GAP QUESTIONS (applies to ALL modes)
+  // ============================================================================
+  // This MUST be checked BEFORE display mode logic to ensure gaps are handled
+  // regardless of whether user selected JSON or Markdown mode in settings.
+  // Gap handling works the same way for both endpoint responses.
+  const isVerificationFailed = response.status === 'verification_failed' ||
+    (response.data?.status === 'verification_failed');
+  const verificationData = response.data || response;
+
+  if (isVerificationFailed) {
+    const { summary, verification, properties: apiProperties } = verificationData;
+
+    return (
+      <div className="space-y-6">
+        {/* Toolbar: Display Mode Toggle + Raw JSON Button */}
+        <div className="flex items-center justify-between gap-4">
+          <DisplayModeToggle />
+          <button
+            onClick={() => setShowRawJSON(true)}
+            className="flex items-center gap-2 px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors shadow-md text-sm"
+          >
+            <FileJson className="w-4 h-4" />
+            Show Raw JSON
+          </button>
+        </div>
+
+        {/* Alert Banner */}
+        <div className="bg-red-50 dark:bg-red-950/20 border-2 border-red-200 dark:border-red-800 rounded-lg p-6">
+          <div className="flex items-start gap-4">
+            <div className="flex-shrink-0">
+              <XCircle className="w-8 h-8 text-red-600 dark:text-red-400" />
+            </div>
+            <div className="flex-1">
+              <h2 className="text-lg font-semibold text-red-900 dark:text-red-200 mb-2">
+                Analysis Blocked - Information Required
+              </h2>
+              <p className="text-sm text-red-800 dark:text-red-300 mb-3">
+                We need clarification about timeline gaps to calculate your CGT accurately.
+              </p>
+
+              {/* Portfolio Summary */}
+              <div className="bg-white dark:bg-gray-900 rounded-lg p-4 space-y-2">
+                <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2">
+                  Portfolio Summary
+                </h3>
+                <div className="grid grid-cols-3 gap-4 text-sm">
+                  <div>
+                    <div className="text-gray-500 dark:text-gray-400">Total Properties</div>
+                    <div className="font-semibold text-gray-900 dark:text-gray-100">
+                      {summary?.total_properties || 0}
+                    </div>
+                  </div>
+                  <div>
+                    <div className="text-gray-500 dark:text-gray-400">Passed</div>
+                    <div className="font-semibold text-green-600 dark:text-green-400">
+                      {summary?.properties_passed || 0}
+                    </div>
+                  </div>
+                  <div>
+                    <div className="text-gray-500 dark:text-gray-400">Need Clarification</div>
+                    <div className="font-semibold text-red-600 dark:text-red-400">
+                      {summary?.properties_failed || (summary?.requires_clarification ? 1 : 0)}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Gap Questions */}
+        {verification?.clarification_questions && verification.clarification_questions.length > 0 && (
+          <GapQuestionsPanel
+            questions={verification.clarification_questions}
+            issues={verification.issues}
+            onSubmit={onRetryWithAnswers}
+          />
+        )}
+
+        {/* Property Status List */}
+        {apiProperties && apiProperties.length > 0 && (
+          <div className="space-y-3">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+              Property Status
+            </h3>
+            {apiProperties.map((property: any, index: number) => (
+              <div
+                key={index}
+                className={`p-4 rounded-lg border ${
+                  property.verification_status === 'passed'
+                    ? 'bg-green-50 dark:bg-green-950/20 border-green-200 dark:border-green-800'
+                    : 'bg-red-50 dark:bg-red-950/20 border-red-200 dark:border-red-800'
+                }`}
+              >
+                <div className="flex items-start gap-3">
+                  {property.verification_status === 'passed' ? (
+                    <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400 mt-0.5 flex-shrink-0" />
+                  ) : (
+                    <XCircle className="w-5 h-5 text-red-600 dark:text-red-400 mt-0.5 flex-shrink-0" />
+                  )}
+                  <div className="flex-1">
+                    <h4 className="font-semibold text-gray-900 dark:text-gray-100">
+                      {property.address}
+                    </h4>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                      {property.quick_summary}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // ============================================================================
+  // FORCE MARKDOWN MODE: If user selected markdown mode, show markdown view
+  // ============================================================================
+  if (effectiveDisplayMode === 'markdown' && hasMarkdownAnalysis) {
+    const formatCurrency = (amount: number | null | undefined) => {
+      if (amount === null || amount === undefined) return '$0.00';
+      return new Intl.NumberFormat('en-AU', {
+        style: 'currency',
+        currency: 'AUD',
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 4,
+      }).format(amount);
     };
 
     return (
       <div className="space-y-6">
-        {/* JSON Toggle Button */}
-        <div className="flex justify-end">
+        {/* Toolbar: Display Mode Toggle + Raw JSON Button */}
+        <div className="flex items-center justify-between gap-4">
+          <DisplayModeToggle />
+          <button
+            onClick={() => setShowRawJSON(true)}
+            className="flex items-center gap-2 px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors shadow-md text-sm"
+          >
+            <FileJson className="w-4 h-4" />
+            Show Raw JSON
+          </button>
+        </div>
+
+        {/* Main Analysis Content - Markdown */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+          className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden"
+        >
+          <div className="p-6 lg:p-8">
+            <MarkdownDisplay
+              content={response.analysis}
+              className="prose prose-gray dark:prose-invert max-w-none"
+            />
+          </div>
+        </motion.div>
+
+        {/* Properties Summary (if present) */}
+        {response.properties && response.properties.length > 0 && (
+          <div className="bg-gray-50 dark:bg-gray-800/50 rounded-xl p-6 border border-gray-200 dark:border-gray-700">
+            <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-4">
+              Properties Analyzed ({response.properties.length})
+            </h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              {response.properties.map((prop: any, index: number) => (
+                <div
+                  key={index}
+                  className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700"
+                >
+                  <h4 className="font-medium text-gray-900 dark:text-white text-sm truncate">
+                    {prop.address || prop.property_address || `Property ${index + 1}`}
+                  </h4>
+                  {prop.property_history && (
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                      {prop.property_history.length} events
+                    </p>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // ============================================================================
+  // JSON SECTIONS MODE: Beautiful structured view from GilbertBranch
+  // ============================================================================
+  if (effectiveDisplayMode === 'json-sections' && analysisData) {
+    return (
+      <div className="space-y-6">
+        {/* Toolbar: Display Mode Toggle + Raw JSON Button */}
+        <div className="flex items-center justify-between gap-4">
+          <DisplayModeToggle />
           <button
             onClick={() => setShowRawJSON(true)}
             className="flex items-center gap-2 px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors shadow-md text-sm"
@@ -471,80 +740,11 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
     );
   }
 
-  // Check for old markdown analysis string format
-  const isMarkdownResponse = typeof response.analysis === 'string' && !response.status;
-
-  // Old Markdown Response Display
-  if (isMarkdownResponse) {
-    const formatCurrency = (amount: number | null | undefined) => {
-      if (amount === null || amount === undefined) return '$0.00';
-      return new Intl.NumberFormat('en-AU', {
-        style: 'currency',
-        currency: 'AUD',
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 4,
-      }).format(amount);
-    };
-
-    return (
-      <div className="space-y-6">
-        {/* JSON Toggle Button */}
-        <div className="flex justify-end">
-          <button
-            onClick={() => setShowRawJSON(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors shadow-md text-sm"
-          >
-            <FileJson className="w-4 h-4" />
-            Show Raw JSON
-          </button>
-        </div>
-
-        {/* Main Analysis Content */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
-          className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden"
-        >
-          <div className="p-6 lg:p-8">
-            <MarkdownDisplay
-              content={response.analysis}
-              className="prose prose-gray dark:prose-invert max-w-none"
-            />
-          </div>
-        </motion.div>
-
-        {/* Properties Summary (if present) */}
-        {response.properties && response.properties.length > 0 && (
-          <div className="bg-gray-50 dark:bg-gray-800/50 rounded-xl p-6 border border-gray-200 dark:border-gray-700">
-            <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-4">
-              Properties Analyzed ({response.properties.length})
-            </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-              {response.properties.map((prop: any, index: number) => (
-                <div
-                  key={index}
-                  className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700"
-                >
-                  <h4 className="font-medium text-gray-900 dark:text-white text-sm truncate">
-                    {prop.address || `Property ${index + 1}`}
-                  </h4>
-                  {prop.property_history && (
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                      {prop.property_history.length} events
-                    </p>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-      </div>
-    );
-  }
-
+  // ============================================================================
+  // LEGACY RESPONSE FORMATS: status-based responses (success)
+  // Note: verification_failed is now handled earlier (before display mode logic)
+  // ============================================================================
   const isSuccess = response.status === 'success';
-  const isVerificationFailed = response.status === 'verification_failed';
 
   // Success Response Display - TABBED STRUCTURE
   if (isSuccess) {
@@ -621,8 +821,9 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
 
     return (
       <div className="space-y-8">
-        {/* JSON Toggle Button */}
-        <div className="flex justify-end">
+        {/* Toolbar: Display Mode Toggle + Raw JSON Button */}
+        <div className="flex items-center justify-between gap-4">
+          <DisplayModeToggle />
           <button
             onClick={() => setShowRawJSON(true)}
             className="flex items-center gap-2 px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors shadow-md text-sm"
@@ -794,127 +995,33 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
     );
   }
 
-  // Verification Failed Response Display (unchanged)
-  if (isVerificationFailed) {
-    const { summary, verification, properties: apiProperties } = response;
-
-    return (
-      <div className="space-y-6">
-        {/* JSON Toggle Button */}
-        <div className="flex justify-end">
-          <button
-            onClick={() => setShowRawJSON(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors shadow-md text-sm"
-          >
-            <FileJson className="w-4 h-4" />
-            Show Raw JSON
-          </button>
-        </div>
-
-        {/* Alert Banner */}
-        <div className="bg-red-50 dark:bg-red-950/20 border-2 border-red-200 dark:border-red-800 rounded-lg p-6">
-          <div className="flex items-start gap-4">
-            <div className="flex-shrink-0">
-              <XCircle className="w-8 h-8 text-red-600 dark:text-red-400" />
-            </div>
-            <div className="flex-1">
-              <h2 className="text-lg font-semibold text-red-900 dark:text-red-200 mb-2">
-                Analysis Blocked - Information Required
-              </h2>
-              <p className="text-sm text-red-800 dark:text-red-300 mb-3">
-                We need clarification about timeline gaps to calculate your CGT accurately.
-              </p>
-
-              {/* Portfolio Summary */}
-              <div className="bg-white dark:bg-gray-900 rounded-lg p-4 space-y-2">
-                <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2">
-                  Portfolio Summary
-                </h3>
-                <div className="grid grid-cols-3 gap-4 text-sm">
-                  <div>
-                    <div className="text-gray-500 dark:text-gray-400">Total Properties</div>
-                    <div className="font-semibold text-gray-900 dark:text-gray-100">
-                      {summary?.total_properties || 0}
-                    </div>
-                  </div>
-                  <div>
-                    <div className="text-gray-500 dark:text-gray-400">Passed</div>
-                    <div className="font-semibold text-green-600 dark:text-green-400">
-                      {summary?.properties_passed || 0}
-                    </div>
-                  </div>
-                  <div>
-                    <div className="text-gray-500 dark:text-gray-400">Need Clarification</div>
-                    <div className="font-semibold text-red-600 dark:text-red-400">
-                      {summary?.properties_failed || 0}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Gap Questions */}
-        {verification?.clarification_questions && verification.clarification_questions.length > 0 && (
-          <GapQuestionsPanel
-            questions={verification.clarification_questions}
-            issues={verification.issues}
-            onSubmit={onRetryWithAnswers}
-          />
-        )}
-
-        {/* Property Status List */}
-        {apiProperties && apiProperties.length > 0 && (
-          <div className="space-y-3">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-              Property Status
-            </h3>
-            {apiProperties.map((property: any, index: number) => (
-              <div
-                key={index}
-                className={`p-4 rounded-lg border ${
-                  property.verification_status === 'passed'
-                    ? 'bg-green-50 dark:bg-green-950/20 border-green-200 dark:border-green-800'
-                    : 'bg-red-50 dark:bg-red-950/20 border-red-200 dark:border-red-800'
-                }`}
-              >
-                <div className="flex items-start gap-3">
-                  {property.verification_status === 'passed' ? (
-                    <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400 mt-0.5 flex-shrink-0" />
-                  ) : (
-                    <XCircle className="w-5 h-5 text-red-600 dark:text-red-400 mt-0.5 flex-shrink-0" />
-                  )}
-                  <div className="flex-1">
-                    <h4 className="font-semibold text-gray-900 dark:text-gray-100">
-                      {property.address}
-                    </h4>
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                      {property.quick_summary}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-    );
-  }
-
-  // Unknown status - Display full JSON response
+  // Unknown status - Display full JSON response with toggle
   return (
-    <div className="p-6 bg-gray-50 dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700">
-      <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-3">
-        Unknown Response Format
-      </h3>
-      <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-        The response format was not recognized. Here is the full JSON response:
-      </p>
-      <div className="bg-white dark:bg-gray-800 rounded-md border border-gray-300 dark:border-gray-600 p-4 overflow-auto max-h-96">
-        <pre className="text-xs font-mono text-gray-800 dark:text-gray-200 whitespace-pre-wrap break-words">
-          {JSON.stringify(response, null, 2)}
-        </pre>
+    <div className="space-y-6">
+      {/* Toolbar: Display Mode Toggle + Raw JSON Button */}
+      <div className="flex items-center justify-between gap-4">
+        <DisplayModeToggle />
+        <button
+          onClick={() => setShowRawJSON(true)}
+          className="flex items-center gap-2 px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors shadow-md text-sm"
+        >
+          <FileJson className="w-4 h-4" />
+          Show Raw JSON
+        </button>
+      </div>
+
+      <div className="p-6 bg-gray-50 dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700">
+        <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-3">
+          Unknown Response Format
+        </h3>
+        <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+          The response format was not recognized. Here is the full JSON response:
+        </p>
+        <div className="bg-white dark:bg-gray-800 rounded-md border border-gray-300 dark:border-gray-600 p-4 overflow-auto max-h-96">
+          <pre className="text-xs font-mono text-gray-800 dark:text-gray-200 whitespace-pre-wrap break-words">
+            {JSON.stringify(response, null, 2)}
+          </pre>
+        </div>
       </div>
     </div>
   );

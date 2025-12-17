@@ -33,7 +33,7 @@ export default function GanttChartView({
 }: GanttChartViewProps) {
   // Get icon for event type
   const getEventIcon = (eventType: EventType) => {
-    const iconMap = {
+    const iconMap: Record<EventType, typeof Home> = {
       purchase: DollarSign,
       sale: DollarSign,
       move_in: LogIn,
@@ -45,6 +45,7 @@ export default function GanttChartView({
       status_change: FileEdit,
       living_in_rental_start: Users,
       living_in_rental_end: UserPlus,
+      custom: Home,
     };
     return iconMap[eventType] || Home;
   };

@@ -58,6 +58,7 @@ function HomeContent() {
     resolveVerificationAlert,
     panToDate,
     enableAISuggestedQuestions,
+    apiResponseMode,
   } = useTimelineStore();
   const { setValidationIssues, clearValidationIssues, setApiConnected } = useValidationStore();
   const [showAnalysis, setShowAnalysis] = useState(false);
@@ -233,14 +234,15 @@ function HomeContent() {
       const apiData = transformTimelineToAPIFormat(properties, events, customQuery);
 
       console.log('📤 Sending data to API:', JSON.stringify(apiData, null, 2));
+      console.log(`🔗 Using API Response Mode: ${apiResponseMode}`);
 
-      // Call the API
+      // Call the API with the response mode setting
       const response = await fetch('/api/analyze-cgt', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(apiData),
+        body: JSON.stringify({ ...apiData, responseMode: apiResponseMode }),
       });
 
       if (!response.ok) {
@@ -430,13 +432,14 @@ function HomeContent() {
 
       if (isApiConfigured) {
         console.log('🌐 Calling CGT API with verified responses...');
+        console.log(`🔗 Using API Response Mode: ${apiResponseMode}`);
         // Call the same API endpoint with verification responses
         const response = await fetch('/api/analyze-cgt', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify(requestData),
+          body: JSON.stringify({ ...requestData, responseMode: apiResponseMode }),
         });
 
         if (!response.ok) {
@@ -556,6 +559,7 @@ function HomeContent() {
       console.log('📋 Original Answers from GapQuestionsPanel:', JSON.stringify(answers, null, 2));
       console.log('📋 Transformed Verification Responses:', JSON.stringify(verificationsData, null, 2));
       console.log('📋 Full Request Payload:', JSON.stringify(requestData, null, 2));
+      console.log(`🔗 Using API Response Mode: ${apiResponseMode}`);
 
       // Call the same API endpoint with clarification answers included
       const response = await fetch('/api/analyze-cgt', {
@@ -563,7 +567,7 @@ function HomeContent() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(requestData),
+        body: JSON.stringify({ ...requestData, responseMode: apiResponseMode }),
       });
 
       if (!response.ok) {

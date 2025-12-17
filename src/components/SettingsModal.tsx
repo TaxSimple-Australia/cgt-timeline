@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Calendar, Eye, Link2, Copy, Check, Sparkles, Settings, Share2 } from 'lucide-react';
+import { X, Calendar, Eye, Copy, Check, Sparkles, Settings, Share2 } from 'lucide-react';
 import { useTimelineStore } from '@/store/timeline';
 import { serializeTimeline } from '@/lib/timeline-serialization';
 
@@ -45,6 +45,7 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
     eventDisplayMode, toggleEventDisplayMode,
     enableDragEvents, toggleDragEvents,
     enableAISuggestedQuestions, toggleAISuggestedQuestions,
+    apiResponseMode, setAPIResponseMode,
     properties, events
   } = useTimelineStore();
   const [isGeneratingLink, setIsGeneratingLink] = useState(false);
@@ -221,6 +222,40 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                             </div>
                             <Toggle enabled={enableAISuggestedQuestions} onChange={toggleAISuggestedQuestions} id="ai-questions" />
                           </div>
+                        </div>
+                      </div>
+
+                      {/* Analysis View Section */}
+                      <div>
+                        <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3 flex items-center gap-2">
+                          <Eye className="w-4 h-4" />
+                          Analysis View
+                        </h3>
+
+                        <div className="flex gap-2">
+                          {/* View 1 - Markdown (Default) */}
+                          <button
+                            onClick={() => setAPIResponseMode('markdown')}
+                            className={`flex-1 flex items-center justify-center px-4 py-2.5 rounded-lg font-medium text-sm transition-all ${
+                              apiResponseMode === 'markdown'
+                                ? 'bg-blue-600 text-white shadow-md'
+                                : 'bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-300 dark:hover:bg-slate-600'
+                            }`}
+                          >
+                            View 1
+                          </button>
+
+                          {/* View 2 - JSON */}
+                          <button
+                            onClick={() => setAPIResponseMode('json')}
+                            className={`flex-1 flex items-center justify-center px-4 py-2.5 rounded-lg font-medium text-sm transition-all ${
+                              apiResponseMode === 'json'
+                                ? 'bg-blue-600 text-white shadow-md'
+                                : 'bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-300 dark:hover:bg-slate-600'
+                            }`}
+                          >
+                            View 2
+                          </button>
                         </div>
                       </div>
 

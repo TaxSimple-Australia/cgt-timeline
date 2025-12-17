@@ -44,6 +44,17 @@ export interface VerificationProperty {
 
 export interface VerificationResponse {
   status?: string;
+  needs_clarification?: boolean;
+  clarification_questions?: any[];
+  summary?: {
+    total_properties?: number;
+    properties_passed?: number;
+    properties_failed?: number;
+    critical_issues?: number;
+    warnings?: number;
+    total_issues_flagged?: number;
+    requires_clarification?: boolean;
+  };
   verification?: {
     status?: string;
     properties?: VerificationProperty[];

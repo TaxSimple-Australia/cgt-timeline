@@ -119,6 +119,14 @@ export type EventDisplayMode = 'circle' | 'card';
 
 export type Theme = 'light' | 'dark';
 
+// Analysis display mode: 'auto' follows response type, 'json-sections' forces beautiful JSON view, 'markdown' forces markdown view
+export type AnalysisDisplayMode = 'auto' | 'json-sections' | 'markdown';
+
+// API Response Mode: determines which endpoint to call
+// 'markdown' → /api/v1/analyze-portfolio (returns markdown string)
+// 'json' → /api/v1/analyze-portfolio-json (returns structured JSON)
+export type APIResponseMode = 'markdown' | 'json';
+
 interface TimelineState {
   properties: Property[];
   events: TimelineEvent[];
@@ -137,6 +145,8 @@ interface TimelineState {
   lockFutureDates: boolean; // Prevent panning beyond today's date
   enableDragEvents: boolean; // Allow dragging events along timeline to change dates
   enableAISuggestedQuestions: boolean; // Enable AI-generated question suggestions
+  analysisDisplayMode: AnalysisDisplayMode; // Toggle between JSON sections view and markdown view
+  apiResponseMode: APIResponseMode; // Determines which API endpoint to call (markdown or json)
 
   // AI Feedback State
   aiResponse: AIResponse | null; // Latest AI analysis response
@@ -179,6 +189,9 @@ interface TimelineState {
   toggleLockFutureDates: () => void; // Toggle lock future dates setting
   toggleDragEvents: () => void; // Toggle event dragging functionality
   toggleAISuggestedQuestions: () => void; // Toggle AI-generated question suggestions
+  setAnalysisDisplayMode: (mode: AnalysisDisplayMode) => void; // Set analysis display mode
+  cycleAnalysisDisplayMode: () => void; // Cycle through display modes: auto -> json-sections -> markdown
+  setAPIResponseMode: (mode: APIResponseMode) => void; // Set which API endpoint to use
 
   // AI Feedback Actions
   setAIResponse: (response: AIResponse) => void; // Store AI analysis response
@@ -416,6 +429,8 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
     lockFutureDates: false,
     enableDragEvents: true,
     enableAISuggestedQuestions: true, // Default enabled
+    analysisDisplayMode: 'auto', // Default: auto-detect based on response type
+    apiResponseMode: 'markdown', // Default: View 1 (markdown endpoint)
 
     // AI Feedback Initial State
     aiResponse: null,
@@ -1296,6 +1311,23 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
     set({ enableAISuggestedQuestions: !state.enableAISuggestedQuestions });
   },
 
+  setAnalysisDisplayMode: (mode: AnalysisDisplayMode) => {
+    set({ analysisDisplayMode: mode });
+  },
+
+  cycleAnalysisDisplayMode: () => {
+    const state = get();
+    const modes: AnalysisDisplayMode[] = ['auto', 'json-sections', 'markdown'];
+    const currentIndex = modes.indexOf(state.analysisDisplayMode);
+    const nextIndex = (currentIndex + 1) % modes.length;
+    set({ analysisDisplayMode: modes[nextIndex] });
+  },
+
+  setAPIResponseMode: (mode: APIResponseMode) => {
+    set({ apiResponseMode: mode });
+    console.log(`🔄 API Response Mode changed to: ${mode}`);
+  },
+
   // AI Feedback Action Implementations
   setAIResponse: (response: AIResponse) => {
     const state = get();
@@ -1535,16 +1567,19 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
         alert.propertyAddress.toLowerCase().includes(p.address.toLowerCase())
       );
 
+      // Calculate width as percentage of timeline
+      const endOffset = gapEnd.getTime() - timelineStart.getTime();
+      const width = ((endOffset - startOffset) / timelineRange) * 100;
+
       return {
         id: alert.id,
         start_date: alert.startDate,
         end_date: alert.endDate,
         duration_days,
-        category: 'timeline_gap',
-        description: alert.resolutionText || alert.clarificationQuestion || 'Residence gap',
+        owned_properties: [alert.propertyAddress], // Property address involved in the gap
         propertyIds: matchingProperty ? [matchingProperty.id] : [],
-        x, // Position on timeline
-        resolved: alert.resolved || false,
+        x, // Position on timeline (percentage)
+        width, // Width of gap (percentage)
       };
     });
 

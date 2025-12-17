@@ -1,0 +1,111 @@
+{
+  "title": "Kelly's Home - Rental and Vacant Periods During Absence",
+  "scenario_info": {
+    "name": "Home with Mixed Income-Producing and Vacant Periods",
+    "description": "Same scenario as Example 1 except Kelly moved interstate on 1 April 2018 for 8 years. Initially, Kelly was on a one-year contract that kept getting extended. During the 8-year absence, the property was rented for some periods and vacant for others. Since the total income-producing period exceeds 6 years, partial exemption applies.",
+    "key_points": [
+      "Kelly lived in the property from March 2015 to April 2018 (3 years 1 month)",
+      "Property was absent for 8 years (April 2018 to April 2026)",
+      "During absence: rented for 6.5 years, vacant for 1.5 years",
+      "Only the income-producing periods count toward the 6-year limit",
+      "Since rental period (6.5 years) exceeds 6 years, partial exemption applies",
+      "Vacant periods (non-income-producing) have unlimited absence period"
+    ],
+    "expected_result": {
+      "exemption_type": "partial",
+      "exemption_percentage": 95.5,
+      "taxable_proportion": 4.5,
+      "rental_period_years": 6.5,
+      "vacant_period_years": 1.5,
+      "six_year_rule_applies": true,
+      "six_year_exceeded_by_months": 6
+    },
+    "applicable_rules": [
+      "ITAA97 s118.145: Six-year absence rule (income-producing property)",
+      "ITAA97 s118.145(2): Unlimited absence if not income-producing (vacant periods)",
+      "Only income-producing periods count toward the 6-year limit",
+      "Vacant periods between rental periods don't break the absence",
+      "When 6-year limit exceeded, partial exemption calculated using time apportionment",
+      "ITAA97 s115.25: 50% CGT discount applies to taxable portion (owned > 12 months)"
+    ]
+  },
+  "properties": [
+    {
+      "address": "45 Kelly Avenue, Melbourne VIC 3000",
+      "property_history": [
+        {
+          "date": "2015-03-01",
+          "event": "purchase",
+          "price": 680000,
+          "stamp_duty": 27200,
+          "purchase_legal_fees": 2800,
+          "description": "Kelly purchases her first home"
+        },
+        {
+          "date": "2015-03-01",
+          "event": "move_in",
+          "description": "Moved in immediately - established as main residence"
+        },
+        {
+          "date": "2018-04-01",
+          "event": "move_out",
+          "market_value": 750000,
+          "description": "Moved interstate for work on one-year contract"
+        },
+        {
+          "date": "2018-04-01",
+          "event": "rent_start",
+          "price_per_week": 520,
+          "description": "First rental period begins"
+        },
+        {
+          "date": "2021-03-31",
+          "event": "rent_end",
+          "description": "First tenant leaves after 3 years"
+        },
+        {
+          "date": "2021-10-01",
+          "event": "rent_start",
+          "price_per_week": 580,
+          "description": "Second rental period begins after 6 months vacant"
+        },
+        {
+          "date": "2024-03-31",
+          "event": "rent_end",
+          "description": "Second tenant leaves after 2.5 years"
+        },
+        {
+          "date": "2025-04-01",
+          "event": "rent_start",
+          "price_per_week": 650,
+          "description": "Third rental period begins after 1 year vacant"
+        },
+        {
+          "date": "2026-03-31",
+          "event": "rent_end",
+          "description": "Third tenant leaves after 1 year"
+        },
+        {
+          "date": "2026-04-01",
+          "event": "move_in",
+          "description": "Kelly finally returns after 8 years interstate"
+        },
+        {
+          "date": "2026-12-15",
+          "event": "sale",
+          "price": 1350000,
+          "contract_date": "2026-12-15",
+          "agent_fees": 33750,
+          "legal_fees": 2800,
+          "description": "Kelly sells after returning"
+        }
+      ],
+      "notes": "Complex scenario with mixed rental and vacant periods during 8-year absence. Total rental: ~6.5 years (exceeds 6-year limit by 6 months). Vacant periods: ~1.5 years. Partial exemption applies - only the portion exceeding 6 years of rental is taxable."
+    }
+  ],
+  "user_query": "I moved interstate for 8 years. During that time my home was rented for about 6.5 years total and vacant for about 1.5 years between tenants. I moved back and then sold the property. What is my CGT position?",
+  "additional_info": {
+    "australian_resident": true,
+    "other_property_owned": false
+  }
+}

@@ -1,0 +1,85 @@
+{
+  "title": "Kelly's Home - Six-Year Absence Rule (Full Exemption)",
+  "scenario_info": {
+    "name": "Home Rented During Absence - Within 6 Years",
+    "description": "Kelly bought her main residence on 1 March 2015 and moved in immediately, living there until 1 December 2019 before moving interstate for work. She rented out her home while working interstate for nearly 5 years. She moved back into her main residence on 1 November 2024. This was her only property and she chose to treat it as her main residence during her absence.",
+    "key_points": [
+      "Kelly lived in the property from March 2015 to December 2019 (4.75 years)",
+      "Property rented out during absence: December 2019 to November 2024 (nearly 5 years)",
+      "Rental period is within the 6-year absence limit",
+      "Only property owned - chose to treat as main residence during absence",
+      "Full main residence exemption applies"
+    ],
+    "expected_result": {
+      "exemption_type": "full",
+      "exemption_percentage": 100,
+      "taxable_gain": 0,
+      "cgt_payable": 0,
+      "rental_period_years": 4.92,
+      "six_year_rule_applies": true
+    },
+    "applicable_rules": [
+      "ITAA97 s118.145: Six-year absence rule (income-producing property)",
+      "Property must have been established as main residence first",
+      "Absence period for income-producing use can extend up to 6 years",
+      "If she moves interstate again after re-establishing main residence, another 6-year period is available"
+    ]
+  },
+  "properties": [
+    {
+      "address": "45 Kelly Avenue, Melbourne VIC 3000",
+      "property_history": [
+        {
+          "date": "2015-03-01",
+          "event": "purchase",
+          "price": 680000,
+          "stamp_duty": 27200,
+          "purchase_legal_fees": 2800,
+          "description": "Kelly purchases her first home"
+        },
+        {
+          "date": "2015-03-01",
+          "event": "move_in",
+          "description": "Moved in immediately - established as main residence"
+        },
+        {
+          "date": "2019-12-01",
+          "event": "move_out",
+          "market_value": 820000,
+          "description": "Moved interstate for work"
+        },
+        {
+          "date": "2019-12-01",
+          "event": "rent_start",
+          "price_per_week": 550,
+          "description": "Property rented out during interstate work assignment"
+        },
+        {
+          "date": "2024-10-31",
+          "event": "rent_end",
+          "description": "Tenant vacates before Kelly's return"
+        },
+        {
+          "date": "2024-11-01",
+          "event": "move_in",
+          "description": "Kelly returns and moves back into her main residence"
+        },
+        {
+          "date": "2025-06-15",
+          "event": "sale",
+          "price": 1150000,
+          "contract_date": "2025-06-15",
+          "agent_fees": 28750,
+          "legal_fees": 2500,
+          "description": "Kelly decides to sell after returning"
+        }
+      ],
+      "notes": "Kelly's only property. Six-year absence rule applies as rental period (4 years 11 months) is within 6-year limit. Full main residence exemption applies to entire gain."
+    }
+  ],
+  "user_query": "I moved interstate for work and rented out my only home for nearly 5 years before moving back. I then sold the property 7 months after returning. What is my CGT liability?",
+  "additional_info": {
+    "australian_resident": true,
+    "other_property_owned": false
+  }
+}

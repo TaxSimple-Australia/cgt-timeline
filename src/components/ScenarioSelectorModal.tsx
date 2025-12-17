@@ -77,9 +77,11 @@ export default function ScenarioSelectorModal({ isOpen, onClose }: ScenarioSelec
     return () => setMounted(false);
   }, []);
 
-  // Load scenario metadata when modal opens
+  // Load scenario metadata and reset view when modal opens
   useEffect(() => {
     if (isOpen) {
+      // Always reset to list view when opening the modal
+      setViewingScenario(null);
       loadScenarios();
     }
   }, [isOpen]);

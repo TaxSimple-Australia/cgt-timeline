@@ -108,3 +108,191 @@ export interface CGTModelResponse {
   use_claude?: boolean;
   response: ModelResponse;
 }
+
+// ============================================================================
+// NEW API RESPONSE TYPES (from /api/v1/analyze-portfolio-json)
+// ============================================================================
+
+export interface TimelineEvent {
+  date: string;
+  event: string;
+  details: string;
+}
+
+export interface CostBaseItem {
+  description: string;
+  amount: string | number;
+}
+
+export interface KeyFacts {
+  property: string;
+  purchase_date: string;
+  move_in_date: string;
+  move_out_date: string;
+  rent_start_date: string | null;
+  sale_date: string;
+  purchase_price: string | number;
+  market_value_at_first_rental: string | number | null;
+  sale_price: string | number;
+  total_ownership_days: number;
+  main_residence_days: number;
+  non_main_residence_days: number;
+}
+
+export interface CGTCalculationStep {
+  title: string;
+  content: string;
+}
+
+export interface CGTCalculation {
+  step1: CGTCalculationStep;
+  step2: CGTCalculationStep;
+  step3: CGTCalculationStep;
+  step4: CGTCalculationStep;
+  step5: CGTCalculationStep;
+  step6: CGTCalculationStep;
+  step7: CGTCalculationStep;
+  result: string;
+}
+
+export interface OwnershipPeriod {
+  period_type: string; // e.g., "Total Ownership", "Main Residence", "Rental", "Vacant"
+  days: number;
+  years: string;
+  percentage: string;
+}
+
+export interface CalculationStep {
+  step_number: number;
+  title: string;
+  description: string;
+  calculation: string | null;
+  result: string;
+  checks?: string[] | null;
+}
+
+export interface WhatIfCalculationStep {
+  step_number: number;
+  title: string;
+  details: string;
+  result: string | null;
+}
+
+export interface WhatIfScenario {
+  title: string;
+  description: string;
+  example_date: string | null;
+  example_details: string | null;
+  calculation_steps: WhatIfCalculationStep[];
+  result: string;
+  net_capital_gain: string | number;
+}
+
+export interface CalculationSummary {
+  sale_price: string | number;
+  total_cost_base: string | number;
+  gross_capital_gain: string | number;
+  main_residence_exemption_percentage: string | number;
+  main_residence_exemption_amount: string | number;
+  taxable_capital_gain: string | number;
+  cgt_discount_applicable: boolean;
+  cgt_discount_percentage: string | number;
+  cgt_discount_amount: string | number;
+  net_capital_gain: string | number;
+}
+
+export interface ApplicableRule {
+  section: string;
+  name: string;
+  description: string;
+  applies: boolean;
+}
+
+export interface PropertyAnalysis {
+  property_address: string;
+  high_level_description: string;
+  key_facts: KeyFacts;
+  purchase_date: string;
+  purchase_price: string | number;
+  sale_date: string;
+  sale_price: string | number;
+  total_ownership_days: number;
+  total_ownership_years: string;
+  total_ownership_months: string | null;
+  main_residence_days: number;
+  main_residence_percentage: string;
+  rental_period_days: number | null;
+  rental_period_years: string | null;
+  market_value_at_first_rental: string | number | null;
+  move_in_date: string;
+  move_out_date: string;
+  rent_start_date: string | null;
+  rent_end_date: string | null;
+  timeline_of_events: TimelineEvent[];
+  cost_base_items: CostBaseItem[];
+  total_cost_base: string | number;
+  ownership_periods: OwnershipPeriod[];
+  calculation_steps: CalculationStep[];
+  cgt_calculation: CGTCalculation;
+  calculation_summary: CalculationSummary;
+  result: string;
+  cgt_payable: boolean;
+  applicable_rules: ApplicableRule[];
+  what_if_scenarios: WhatIfScenario[];
+  important_notes: string[];
+  warnings: string[];
+}
+
+export interface RuleApplied {
+  rule_id: string;
+  title: string;
+  legislation: string;
+  summary: string;
+  confidence: number;
+  ato_url: string | null;
+}
+
+export interface CitationSource {
+  title: string;
+  legislation: string;
+  url: string | null;
+  description: string;
+}
+
+export interface Citations {
+  rules_applied: RuleApplied[];
+  legislation_references: string[];
+  categories: string[];
+  sources: CitationSource[];
+}
+
+export interface AnalysisData {
+  analysis_date: string;
+  total_properties: number;
+  description: string;
+  properties: PropertyAnalysis[];
+  total_net_capital_gain: string | number;
+  total_exempt_gains: string | number;
+  properties_with_cgt: number;
+  properties_fully_exempt: number;
+  general_notes: string[];
+}
+
+export interface NewAPIResponseData {
+  success: boolean;
+  needs_clarification: boolean;
+  clarification_questions: string[] | null;
+  data: AnalysisData;
+  error: string | null;
+  citations: Citations;
+  input_tokens?: number;
+  output_tokens?: number;
+  cached?: boolean;
+  model?: string;
+  estimated_cost_usd?: string;
+}
+
+export interface NewAPIResponse {
+  success: boolean;
+  data: NewAPIResponseData;
+}

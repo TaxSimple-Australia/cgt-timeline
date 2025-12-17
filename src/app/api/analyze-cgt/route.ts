@@ -44,6 +44,43 @@ export async function POST(request: NextRequest) {
     const data = await response.json();
     console.log('✅ API Response Data:', JSON.stringify(data, null, 2));
 
+    // Check for clarification needed response
+    if (data.success === false && data.needs_clarification === true) {
+      console.log('⚠️ Clarification needed:', data.clarification_questions?.length || 0, 'questions');
+
+      // Transform clarification questions to GapQuestionsPanel format
+      const transformedQuestions = (data.clarification_questions || []).map((q: any) => ({
+        question: q.question,
+        type: 'clarification',
+        properties_involved: [q.property_address],
+        period: {
+          start: q.period.start_date,
+          end: q.period.end_date,
+          days: q.period.days
+        },
+        possible_answers: q.options || [],
+        severity: q.severity || 'info',
+        // Generate consistent question_id from property and period if not provided by API
+        question_id: q.question_id || `${q.property_address}-${q.period.start_date}-${q.period.end_date}`
+      }));
+
+      // Transform to verification_failed format for compatibility with CGTAnalysisDisplay
+      return NextResponse.json({
+        success: true,
+        data: {
+          status: 'verification_failed',
+          verification: {
+            clarification_questions: transformedQuestions,
+            issues: [] // Optional: add any general issues
+          },
+          summary: {
+            total_properties: data.clarification_questions?.length || 0,
+            requires_clarification: true
+          }
+        }
+      });
+    }
+
     // Check if the API returned an error response
     if (data.status === 'error') {
       console.error('❌ API returned error status:', data.error);

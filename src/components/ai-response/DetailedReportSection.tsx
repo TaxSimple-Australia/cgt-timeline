@@ -6,7 +6,7 @@ import { ChevronDown, ChevronUp, FileText, Book, Download, Mail, Printer, Code, 
 import { pdf } from '@react-pdf/renderer';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
-import { CGTReportPDF } from './CGTReportPDF';
+import { SimplifiedCGTReportPDF } from './SimplifiedCGTReportPDF';
 import EmailModal from './EmailModal';
 import CalculationBreakdownSection from './CalculationBreakdownSection';
 import PropertyAnalysisCard from './PropertyAnalysisCard';
@@ -96,13 +96,10 @@ export default function DetailedReportSection({ properties, analysis, calculatio
       const shareUrl = await generateShareUrl();
       console.log('📎 Share URL for PDF:', shareUrl || 'not generated');
 
-      // Generate PDF using @react-pdf/renderer with native flowchart components
+      // Generate PDF using @react-pdf/renderer with simplified format
       const blob = await pdf(
-        <CGTReportPDF
+        <SimplifiedCGTReportPDF
           response={response}
-          properties={_timelineProperties}
-          events={_events}
-          shareUrl={shareUrl}
         />
       ).toBlob();
 
@@ -140,13 +137,10 @@ export default function DetailedReportSection({ properties, analysis, calculatio
       // Generate share URL for the timeline
       const shareUrl = await generateShareUrl();
 
-      // Generate PDF with native flowchart components
+      // Generate PDF with simplified format
       const blob = await pdf(
-        <CGTReportPDF
+        <SimplifiedCGTReportPDF
           response={response}
-          properties={_timelineProperties}
-          events={_events}
-          shareUrl={shareUrl}
         />
       ).toBlob();
 

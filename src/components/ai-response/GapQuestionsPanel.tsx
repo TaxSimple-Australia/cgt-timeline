@@ -15,6 +15,8 @@ interface GapQuestion {
     days: number;
   };
   possible_answers: string[];
+  question_id?: string; // ID from API for matching answers
+  severity?: string;
 }
 
 interface GapQuestionsPanelProps {
@@ -25,6 +27,7 @@ interface GapQuestionsPanelProps {
     answer: string;
     period: { start: string; end: string; days: number };
     properties_involved: string[];
+    question_id?: string; // Include question_id for API matching
   }>) => void;
 }
 
@@ -54,6 +57,7 @@ export default function GapQuestionsPanel({ questions, issues, onSubmit }: GapQu
         answer: finalAnswer,
         period: question.period,
         properties_involved: question.properties_involved,
+        question_id: question.question_id, // Preserve the original question_id from API
       };
     });
 

@@ -27,17 +27,18 @@ export function extractVerificationAlerts(
     // Handle different API response structures
     const response = apiResponse as VerificationResponse;
 
-    // Try to get properties from verification.properties or top-level properties
+    // Try to get properties from top-level first (where API puts them), then nested for compatibility
     const verificationProperties =
-      response?.verification?.properties ||
       response?.properties ||
+      response?.verification?.properties ||
       [];
 
     // Try to get issues from verification.issues as fallback
     const globalIssues = response?.verification?.issues || [];
 
     // Extract clarification_questions to map possible answers
-    const clarificationQuestions = response?.verification?.clarification_questions || [];
+    // Check top-level first (where API actually puts them), then nested for compatibility
+    const clarificationQuestions = response?.clarification_questions || response?.verification?.clarification_questions || [];
 
     console.log('📊 Extracting verification alerts:', {
       propertiesFound: verificationProperties.length,
@@ -115,10 +116,18 @@ export function extractVerificationAlerts(
             clarificationQuestion: question,
             possibleAnswers,
             severity: 'warning',
+            questionId: cq.question_id, // Preserve question_id from API
           };
 
-          console.log('✅ Created alert from clarification question:', {
-            ...alert,
+          console.log('✅ Created TIMELINE alert from clarification question:', {
+            alertId: alert.id,
+            questionId: alert.questionId,
+            propertyAddress: alert.propertyAddress,
+            propertyId: alert.propertyId,
+            startDate: alert.startDate,
+            endDate: alert.endDate,
+            question: alert.clarificationQuestion,
+            possibleAnswers: alert.possibleAnswers,
             matchedProperty: { id: matchedProperty.id, name: matchedProperty.name, address: matchedProperty.address },
           });
           alerts.push(alert);
@@ -293,6 +302,14 @@ export function hasVerificationFailures(apiResponse: any): boolean {
   try {
     const response = apiResponse as VerificationResponse;
 
+    // Check for multiple response formats
+    if (response?.status === 'verification_failed' ||
+        response?.summary?.requires_clarification === true ||
+        response?.needs_clarification === true) {
+      return true;
+    }
+
+    // Also check for failed properties in the traditional way
     const properties =
       response?.verification?.properties ||
       response?.properties ||

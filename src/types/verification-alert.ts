@@ -15,6 +15,7 @@ export interface VerificationAlert {
   resolved?: boolean; // Whether user has resolved this alert
   userResponse?: string; // User's answer/resolution input
   resolvedAt?: string; // ISO timestamp when resolved
+  questionId?: string; // Question ID from API for matching responses
 }
 
 export interface VerificationIssue {

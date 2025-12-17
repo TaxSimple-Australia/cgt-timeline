@@ -2,13 +2,20 @@
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { CheckCircle, XCircle, ChevronDown, ChevronUp, Cpu, Zap, Clock } from 'lucide-react';
+import { CheckCircle, XCircle, ChevronDown, ChevronUp, Cpu, Zap, Clock, FileJson, Download, Home } from 'lucide-react';
 import GapQuestionsPanel from './GapQuestionsPanel';
 import DetailedReportSection from './DetailedReportSection';
 import TwoColumnLayout from '../timeline-viz/TwoColumnLayout';
 import PropertyTwoColumnView from './PropertyTwoColumnView';
 import { useTimelineStore } from '@/store/timeline';
 import MarkdownDisplay from '../model-response/MarkdownDisplay';
+import PortfolioSummarySection from './PortfolioSummarySection';
+import CitationsSection from './CitationsSection';
+import PropertyTimelineEvents from './PropertyTimelineEvents';
+import WhatIfScenariosSection from './WhatIfScenariosSection';
+import ApplicableRulesDisplay from './ApplicableRulesDisplay';
+import OwnershipPeriodsChart from './OwnershipPeriodsChart';
+import { AnalysisData, Citations } from '@/types/model-response';
 
 interface CGTAnalysisDisplayProps {
   response: any; // AI response (success or verification_failed)
@@ -23,10 +30,26 @@ interface CGTAnalysisDisplayProps {
 export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGTAnalysisDisplayProps) {
   const [expandedDetailedReport, setExpandedDetailedReport] = useState(false);
   const [activeTab, setActiveTab] = useState('property-0');
+  const [showRawJSON, setShowRawJSON] = useState(false);
 
   // Get timeline data from store for visualizations
   const properties = useTimelineStore(state => state.properties);
   const events = useTimelineStore(state => state.events);
+
+  // Helper function to get step number color
+  const getStepColor = (stepNumber: number) => {
+    const colors = [
+      'text-blue-600 dark:text-blue-400',      // Step 1
+      'text-green-600 dark:text-green-400',    // Step 2
+      'text-purple-600 dark:text-purple-400',  // Step 3
+      'text-orange-600 dark:text-orange-400',  // Step 4
+      'text-pink-600 dark:text-pink-400',      // Step 5
+      'text-cyan-600 dark:text-cyan-400',      // Step 6
+      'text-indigo-600 dark:text-indigo-400',  // Step 7
+      'text-teal-600 dark:text-teal-400',      // Step 8
+    ];
+    return colors[(stepNumber - 1) % colors.length] || 'text-purple-600 dark:text-purple-400';
+  };
 
   if (!response) {
     return (
@@ -36,10 +59,422 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
     );
   }
 
-  // Check for new API response format (markdown analysis string)
+  // If showing raw JSON, display it and return early
+  if (showRawJSON) {
+    return (
+      <div className="space-y-4">
+        {/* Toggle Button */}
+        <div className="flex justify-end">
+          <button
+            onClick={() => setShowRawJSON(false)}
+            className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors shadow-md"
+          >
+            <FileJson className="w-4 h-4" />
+            Show Formatted View
+          </button>
+        </div>
+
+        {/* Raw JSON Display */}
+        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-300 dark:border-gray-600 p-6 overflow-auto max-h-[800px]">
+          <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">
+            Raw JSON Response
+          </h3>
+          <pre className="text-xs font-mono text-gray-800 dark:text-gray-200 whitespace-pre-wrap break-words">
+            {JSON.stringify(response, null, 2)}
+          </pre>
+        </div>
+      </div>
+    );
+  }
+
+  // Check for new JSON API response format (from /api/v1/analyze-portfolio-json)
+  // Support both wrapped format { success, data: { properties }, citations } and direct format { properties }
+  const isWrappedFormat = response.success !== undefined && response.data && response.data.properties && response.data.properties.length > 0;
+  const isDirectFormat = !isWrappedFormat && response.properties && response.properties.length > 0 && response.properties[0]?.property_address;
+  const isNewJSONFormat = isWrappedFormat || isDirectFormat;
+
+  // New JSON Format Response Display
+  if (isNewJSONFormat) {
+    const analysisData = (isWrappedFormat ? response.data : response) as AnalysisData;
+    const citations = (isWrappedFormat ? response.citations : (response as any).citations) as Citations;
+
+    // Helper function for formatting numbers
+    const formatNumber = (value: string | number | null | undefined): string => {
+      if (value === null || value === undefined) return '-';
+      const num = typeof value === 'string' ? parseFloat(value) : value;
+      return num.toLocaleString('en-AU');
+    };
+
+    return (
+      <div className="space-y-6">
+        {/* JSON Toggle Button */}
+        <div className="flex justify-end">
+          <button
+            onClick={() => setShowRawJSON(true)}
+            className="flex items-center gap-2 px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors shadow-md text-sm"
+          >
+            <FileJson className="w-4 h-4" />
+            Show Raw JSON
+          </button>
+        </div>
+
+        {/* Top-Level Summary */}
+        {analysisData.description && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="bg-green-950 border-2 border-green-500 rounded-xl p-6 shadow-lg"
+          >
+            <h3 className="text-xl font-bold text-green-400 mb-3">Portfolio Summary</h3>
+            <p className="text-gray-300 leading-relaxed text-base">
+              {analysisData.description}
+            </p>
+          </motion.div>
+        )}
+
+        {/* Per-Property Analysis */}
+        {analysisData.properties && analysisData.properties.length > 0 && (
+          <div className="space-y-8">
+            {/* Section Header */}
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5 }}
+              className="flex items-center gap-3"
+            >
+              <div className="h-1 w-12 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full"></div>
+              <h2 className="text-3xl font-black text-gray-900 dark:text-white">
+                Property Analysis
+              </h2>
+            </motion.div>
+
+            {analysisData.properties.map((property, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1, duration: 0.6 }}
+                className="bg-slate-50 dark:bg-slate-900 rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition-shadow duration-300 border border-slate-200 dark:border-slate-700"
+              >
+                {/* Property Header with Gradient Accent */}
+                <div className="relative bg-green-950 border-b-4 border-green-500 dark:border-green-500/30">
+                  {/* Decorative corner accent */}
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-green-500/10 to-emerald-500/10 rounded-bl-full"></div>
+
+                  <div className="relative z-10 p-6">
+                    <div className="flex items-center justify-between gap-4 mb-4">
+                      <div className="flex-1">
+                        <h3 className="text-2xl font-black text-white flex items-center gap-3">
+                          <span className="inline-flex items-center justify-center w-10 h-10 bg-green-600 text-white rounded-lg">
+                            {index + 1}
+                          </span>
+                          <Home className="w-6 h-6 text-white" />
+                          {property.property_address}
+                        </h3>
+                      </div>
+
+                      {/* Result Badge - Prominent */}
+                      <div className={`flex-shrink-0 px-6 py-3 rounded-xl font-bold text-sm shadow-lg flex items-center gap-2 ${
+                        property.cgt_payable
+                          ? 'bg-gradient-to-br from-red-500 to-pink-600 text-white'
+                          : 'bg-gradient-to-br from-emerald-500 to-teal-600 text-white'
+                      }`}>
+                        {property.cgt_payable ? <XCircle className="w-5 h-5" /> : <CheckCircle className="w-5 h-5" />}
+                        <span>{property.result}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Property Content */}
+                <div className="p-6 space-y-6">
+
+                {/* High Level Description */}
+                {property.high_level_description && (
+                  <div className="bg-gradient-to-br from-gray-50 to-slate-50 dark:from-gray-900 dark:to-slate-900 rounded-xl p-5 border border-gray-200 dark:border-gray-700">
+                    <h4 className="font-bold text-lg text-gray-900 dark:text-gray-100 mb-3 flex items-center gap-2">
+                      <span className="text-xl">📝</span>
+                      High Level Description
+                    </h4>
+                    <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
+                      {property.high_level_description}
+                    </p>
+                  </div>
+                )}
+
+                {/* Key Facts Section - Compact Grid with Colored Badges */}
+                <div className="space-y-3">
+                  <h4 className="font-bold text-lg text-gray-900 dark:text-gray-100">
+                    Key Facts
+                  </h4>
+
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+                    {/* Purchase Card */}
+                    <div className="bg-white dark:bg-gray-800 rounded-lg p-3 border border-gray-100 dark:border-gray-700">
+                      <span className="inline-block px-2 py-0.5 text-xs font-semibold rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300 mb-2">
+                        PURCHASED
+                      </span>
+                      <div className="font-semibold text-gray-900 dark:text-white">
+                        {property.key_facts?.purchase_date || property.purchase_date}
+                      </div>
+                      <div className="text-sm text-gray-600 dark:text-gray-400">
+                        ${formatNumber(property.key_facts?.purchase_price || property.purchase_price)}
+                      </div>
+                    </div>
+
+                    {/* Sale Card */}
+                    <div className="bg-white dark:bg-gray-800 rounded-lg p-3 border border-gray-100 dark:border-gray-700">
+                      <span className="inline-block px-2 py-0.5 text-xs font-semibold rounded-full bg-red-100 text-red-700 dark:bg-red-900/50 dark:text-red-300 mb-2">
+                        SOLD
+                      </span>
+                      <div className="font-semibold text-gray-900 dark:text-white">
+                        {property.key_facts?.sale_date || property.sale_date}
+                      </div>
+                      <div className="text-sm text-gray-600 dark:text-gray-400">
+                        ${formatNumber(property.key_facts?.sale_price || property.sale_price)}
+                      </div>
+                    </div>
+
+                    {/* Ownership Card */}
+                    <div className="bg-white dark:bg-gray-800 rounded-lg p-3 border border-gray-100 dark:border-gray-700">
+                      <span className="inline-block px-2 py-0.5 text-xs font-semibold rounded-full bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300 mb-2">
+                        OWNERSHIP
+                      </span>
+                      <div className="font-semibold text-gray-900 dark:text-white">
+                        {property.key_facts?.total_ownership_days || property.total_ownership_days} days
+                      </div>
+                      <div className="text-sm text-gray-600 dark:text-gray-400">
+                        {property.total_ownership_years || (Math.round((property.key_facts?.total_ownership_days || property.total_ownership_days || 0) / 365 * 10) / 10)} years
+                      </div>
+                    </div>
+
+                    {/* Main Residence Card */}
+                    <div className="bg-white dark:bg-gray-800 rounded-lg p-3 border border-gray-100 dark:border-gray-700">
+                      <span className="inline-block px-2 py-0.5 text-xs font-semibold rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-300 mb-2">
+                        MAIN RESIDENCE
+                      </span>
+                      <div className="font-semibold text-gray-900 dark:text-white">
+                        {property.key_facts?.main_residence_days || property.main_residence_days} days
+                      </div>
+                    </div>
+
+                    {/* Non-Main Residence Card */}
+                    <div className="bg-white dark:bg-gray-800 rounded-lg p-3 border border-gray-100 dark:border-gray-700">
+                      <span className="inline-block px-2 py-0.5 text-xs font-semibold rounded-full bg-orange-100 text-orange-700 dark:bg-orange-900/50 dark:text-orange-300 mb-2">
+                        NON-MAIN RES
+                      </span>
+                      <div className="font-semibold text-gray-900 dark:text-white">
+                        {property.key_facts?.non_main_residence_days || ((property.key_facts?.total_ownership_days || property.total_ownership_days || 0) - (property.key_facts?.main_residence_days || property.main_residence_days || 0))} days
+                      </div>
+                    </div>
+
+                    {/* Conditional: Move In */}
+                    {(property.key_facts?.move_in_date || property.move_in_date) && (
+                      <div className="bg-white dark:bg-gray-800 rounded-lg p-3 border border-gray-100 dark:border-gray-700">
+                        <span className="inline-block px-2 py-0.5 text-xs font-semibold rounded-full bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-300 mb-2">
+                          MOVE IN
+                        </span>
+                        <div className="font-semibold text-gray-900 dark:text-white">
+                          {property.key_facts?.move_in_date || property.move_in_date}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Conditional: Move Out */}
+                    {(property.key_facts?.move_out_date || property.move_out_date) && (
+                      <div className="bg-white dark:bg-gray-800 rounded-lg p-3 border border-gray-100 dark:border-gray-700">
+                        <span className="inline-block px-2 py-0.5 text-xs font-semibold rounded-full bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-300 mb-2">
+                          MOVE OUT
+                        </span>
+                        <div className="font-semibold text-gray-900 dark:text-white">
+                          {property.key_facts?.move_out_date || property.move_out_date}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Conditional: Rent Start */}
+                    {(property.key_facts?.rent_start_date || property.rent_start_date) && (
+                      <div className="bg-white dark:bg-gray-800 rounded-lg p-3 border border-gray-100 dark:border-gray-700">
+                        <span className="inline-block px-2 py-0.5 text-xs font-semibold rounded-full bg-purple-100 text-purple-700 dark:bg-purple-900/50 dark:text-purple-300 mb-2">
+                          RENT START
+                        </span>
+                        <div className="font-semibold text-gray-900 dark:text-white">
+                          {property.key_facts?.rent_start_date || property.rent_start_date}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Conditional: Market Value at First Rental */}
+                    {(property.key_facts?.market_value_at_first_rental || property.market_value_at_first_rental) && (
+                      <div className="bg-white dark:bg-gray-800 rounded-lg p-3 border border-gray-100 dark:border-gray-700">
+                        <span className="inline-block px-2 py-0.5 text-xs font-semibold rounded-full bg-cyan-100 text-cyan-700 dark:bg-cyan-900/50 dark:text-cyan-300 mb-2">
+                          MARKET VALUE
+                        </span>
+                        <div className="font-semibold text-gray-900 dark:text-white">
+                          ${formatNumber(property.key_facts?.market_value_at_first_rental || property.market_value_at_first_rental)}
+                        </div>
+                        <div className="text-xs text-gray-500 dark:text-gray-400">
+                          at first rental
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Section 3: Timeline of Events */}
+                <PropertyTimelineEvents timeline={property.timeline_of_events || (property as any).timeline} />
+
+                {/* CGT Calculation - Minimal clean layout */}
+                {(property.cgt_calculation || (property.calculation_steps && property.calculation_steps.length > 0)) && (
+                  <div className="space-y-3">
+                    <h4 className="font-bold text-lg text-gray-900 dark:text-gray-100">
+                      CGT Calculation
+                    </h4>
+
+                    {/* New format: cgt_calculation with step1-7 */}
+                    {property.cgt_calculation && (
+                      <div className="divide-y divide-gray-100 dark:divide-gray-800">
+                        {['step1', 'step2', 'step3', 'step4', 'step5', 'step6', 'step7'].map((stepKey, index) => {
+                          const step = property.cgt_calculation[stepKey as keyof typeof property.cgt_calculation];
+                          if (!step || typeof step === 'string') return null;
+
+                          return (
+                            <div key={stepKey} className="py-5 first:pt-0">
+                              <div className="flex items-start gap-6">
+                                {/* Step Label - Fixed Width */}
+                                <span className="font-bold text-purple-600 dark:text-purple-400 w-16 flex-shrink-0">
+                                  Step {index + 1}
+                                </span>
+
+                                {/* Content */}
+                                <div className="flex-1 space-y-3">
+                                  {/* Title with underline */}
+                                  <div className="border-b border-gray-200 dark:border-gray-700 pb-2">
+                                    <h5 className="font-bold text-gray-900 dark:text-white">
+                                      {step.title}
+                                    </h5>
+                                  </div>
+
+                                  {/* Content */}
+                                  <p className="text-sm text-gray-600 dark:text-gray-400 whitespace-pre-wrap">
+                                    {step.content}
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
+
+                        {/* Final Result */}
+                        {property.cgt_calculation.result && (
+                          <div className="py-5">
+                            <div className="flex items-start gap-6">
+                              <span className="font-bold text-emerald-600 dark:text-emerald-400 w-16 flex-shrink-0">
+                                Result
+                              </span>
+                              <p className="text-emerald-600 dark:text-emerald-400">
+                                {property.cgt_calculation.result}
+                              </p>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Legacy format: calculation_steps array */}
+                    {!property.cgt_calculation && property.calculation_steps && property.calculation_steps.length > 0 && (
+                      <div className="divide-y divide-gray-100 dark:divide-gray-800">
+                        {property.calculation_steps.map((step, stepIndex) => (
+                          <div key={stepIndex} className="py-5 first:pt-0">
+                            <div className="flex items-start gap-6">
+                              {/* Step Label - Fixed Width */}
+                              <span className={`font-bold w-16 flex-shrink-0 ${getStepColor(step.step_number)}`}>
+                                Step {step.step_number}
+                              </span>
+
+                              {/* Content */}
+                              <div className="flex-1 space-y-3">
+                                {/* Title with underline */}
+                                <div className="border-b border-gray-200 dark:border-gray-700 pb-2">
+                                  <h5 className="font-bold text-gray-900 dark:text-white">
+                                    {step.title}
+                                  </h5>
+                                </div>
+
+                                {/* Description */}
+                                {step.description && (
+                                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                                    {step.description}
+                                  </p>
+                                )}
+
+                                {/* Calculation */}
+                                {step.calculation && (
+                                  <p className="text-sm text-gray-700 dark:text-gray-300">
+                                    {step.calculation}
+                                  </p>
+                                )}
+
+                                {/* Result - Green Pill */}
+                                <div className="inline-flex">
+                                  <span className="px-4 py-2 border-2 border-emerald-500 dark:border-emerald-500 text-white bg-transparent rounded-full text-sm font-semibold">
+                                    {step.result}
+                                  </span>
+                                </div>
+
+                                {/* Validation Checks */}
+                                {step.checks && step.checks.length > 0 && (
+                                  <div className="pt-3 border-t border-gray-100 dark:border-gray-800">
+                                    <div className="flex flex-wrap gap-2">
+                                      {step.checks.map((check, checkIndex) => {
+                                        const colors = [
+                                          'bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-300',
+                                          'bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300',
+                                          'bg-purple-100 text-purple-700 dark:bg-purple-900/50 dark:text-purple-300',
+                                          'bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-300',
+                                          'bg-cyan-100 text-cyan-700 dark:bg-cyan-900/50 dark:text-cyan-300',
+                                          'bg-pink-100 text-pink-700 dark:bg-pink-900/50 dark:text-pink-300',
+                                        ];
+                                        return (
+                                          <span
+                                            key={checkIndex}
+                                            className={`px-2.5 py-1 text-xs font-medium rounded-full ${colors[checkIndex % colors.length]}`}
+                                          >
+                                            {check}
+                                          </span>
+                                        );
+                                      })}
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Section 4: Applicable Rules */}
+                <ApplicableRulesDisplay
+                  rules={property.applicable_rules?.filter(rule => rule.applies) || []}
+                />
+
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // Check for old markdown analysis string format
   const isMarkdownResponse = typeof response.analysis === 'string' && !response.status;
 
-  // New Markdown Response Display
+  // Old Markdown Response Display
   if (isMarkdownResponse) {
     const formatCurrency = (amount: number | null | undefined) => {
       if (amount === null || amount === undefined) return '$0.00';
@@ -53,6 +488,17 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
 
     return (
       <div className="space-y-6">
+        {/* JSON Toggle Button */}
+        <div className="flex justify-end">
+          <button
+            onClick={() => setShowRawJSON(true)}
+            className="flex items-center gap-2 px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors shadow-md text-sm"
+          >
+            <FileJson className="w-4 h-4" />
+            Show Raw JSON
+          </button>
+        </div>
+
         {/* Main Analysis Content */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -175,6 +621,17 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
 
     return (
       <div className="space-y-8">
+        {/* JSON Toggle Button */}
+        <div className="flex justify-end">
+          <button
+            onClick={() => setShowRawJSON(true)}
+            className="flex items-center gap-2 px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors shadow-md text-sm"
+          >
+            <FileJson className="w-4 h-4" />
+            Show Raw JSON
+          </button>
+        </div>
+
         {/* Horizontal Property Card Tabs */}
         {apiProperties && apiProperties.length > 0 && (
           <div className="space-y-3">
@@ -207,7 +664,8 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
                   >
                     <div className="text-left space-y-2.5">
                       {/* Address */}
-                      <h4 className={`font-bold text-sm ${isActive ? 'text-green-700 dark:text-green-300' : 'text-blue-700 dark:text-blue-300'}`}>
+                      <h4 className={`font-bold text-sm flex items-center gap-1.5 ${isActive ? 'text-green-700 dark:text-green-300' : 'text-blue-700 dark:text-blue-300'}`}>
+                        <Home className={`w-4 h-4 ${isActive ? 'text-green-600 dark:text-green-400' : 'text-blue-600 dark:text-blue-400'}`} />
                         {property.address}
                       </h4>
 
@@ -342,6 +800,17 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
 
     return (
       <div className="space-y-6">
+        {/* JSON Toggle Button */}
+        <div className="flex justify-end">
+          <button
+            onClick={() => setShowRawJSON(true)}
+            className="flex items-center gap-2 px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors shadow-md text-sm"
+          >
+            <FileJson className="w-4 h-4" />
+            Show Raw JSON
+          </button>
+        </div>
+
         {/* Alert Banner */}
         <div className="bg-red-50 dark:bg-red-950/20 border-2 border-red-200 dark:border-red-800 rounded-lg p-6">
           <div className="flex items-start gap-4">
@@ -433,10 +902,20 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
     );
   }
 
-  // Unknown status
+  // Unknown status - Display full JSON response
   return (
     <div className="p-6 bg-gray-50 dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700">
-      <p className="text-gray-600 dark:text-gray-400">Unknown response format</p>
+      <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-3">
+        Unknown Response Format
+      </h3>
+      <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+        The response format was not recognized. Here is the full JSON response:
+      </p>
+      <div className="bg-white dark:bg-gray-800 rounded-md border border-gray-300 dark:border-gray-600 p-4 overflow-auto max-h-96">
+        <pre className="text-xs font-mono text-gray-800 dark:text-gray-200 whitespace-pre-wrap break-words">
+          {JSON.stringify(response, null, 2)}
+        </pre>
+      </div>
     </div>
   );
 }

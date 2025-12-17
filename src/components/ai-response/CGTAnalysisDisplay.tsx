@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { CheckCircle, XCircle, ChevronDown, ChevronUp, Cpu, Zap, Clock, FileJson, Download } from 'lucide-react';
+import { CheckCircle, XCircle, ChevronDown, ChevronUp, Cpu, Zap, Clock, FileJson, Download, Home } from 'lucide-react';
 import GapQuestionsPanel from './GapQuestionsPanel';
 import DetailedReportSection from './DetailedReportSection';
 import TwoColumnLayout from '../timeline-viz/TwoColumnLayout';
@@ -35,6 +35,21 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
   // Get timeline data from store for visualizations
   const properties = useTimelineStore(state => state.properties);
   const events = useTimelineStore(state => state.events);
+
+  // Helper function to get step number color
+  const getStepColor = (stepNumber: number) => {
+    const colors = [
+      'text-blue-600 dark:text-blue-400',      // Step 1
+      'text-green-600 dark:text-green-400',    // Step 2
+      'text-purple-600 dark:text-purple-400',  // Step 3
+      'text-orange-600 dark:text-orange-400',  // Step 4
+      'text-pink-600 dark:text-pink-400',      // Step 5
+      'text-cyan-600 dark:text-cyan-400',      // Step 6
+      'text-indigo-600 dark:text-indigo-400',  // Step 7
+      'text-teal-600 dark:text-teal-400',      // Step 8
+    ];
+    return colors[(stepNumber - 1) % colors.length] || 'text-purple-600 dark:text-purple-400';
+  };
 
   if (!response) {
     return (
@@ -109,22 +124,12 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="relative overflow-hidden bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 dark:from-indigo-950/30 dark:via-purple-950/30 dark:to-pink-950/30 rounded-xl p-8 border-l-4 border-indigo-500 shadow-lg"
+            className="bg-green-950 border-2 border-green-500 rounded-xl p-6 shadow-lg"
           >
-            <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-indigo-500/10 to-purple-500/10 rounded-bl-full"></div>
-            <div className="relative">
-              <div className="flex items-start gap-4">
-                <div className="flex-shrink-0 w-12 h-12 rounded-lg bg-gradient-to-br from-indigo-600 to-purple-600 text-white flex items-center justify-center shadow-md">
-                  <CheckCircle className="w-6 h-6" />
-                </div>
-                <div className="flex-1">
-                  <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-3">Portfolio Summary</h3>
-                  <p className="text-gray-700 dark:text-gray-300 leading-relaxed text-base">
-                    {analysisData.description}
-                  </p>
-                </div>
-              </div>
-            </div>
+            <h3 className="text-xl font-bold text-green-400 mb-3">Portfolio Summary</h3>
+            <p className="text-gray-300 leading-relaxed text-base">
+              {analysisData.description}
+            </p>
           </motion.div>
         )}
 
@@ -138,7 +143,7 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
               transition={{ duration: 0.5 }}
               className="flex items-center gap-3"
             >
-              <div className="h-1 w-12 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full"></div>
+              <div className="h-1 w-12 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full"></div>
               <h2 className="text-3xl font-black text-gray-900 dark:text-white">
                 Property Analysis
               </h2>
@@ -150,20 +155,21 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1, duration: 0.6 }}
-                className="bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition-shadow duration-300 border border-gray-200 dark:border-gray-700"
+                className="bg-slate-50 dark:bg-slate-900 rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition-shadow duration-300 border border-slate-200 dark:border-slate-700"
               >
                 {/* Property Header with Gradient Accent */}
-                <div className="relative bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-900 dark:to-gray-800 border-b-4 border-indigo-500">
+                <div className="relative bg-green-950 border-b-4 border-green-500 dark:border-green-500/30">
                   {/* Decorative corner accent */}
-                  <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-500/10 to-purple-500/10 rounded-bl-full"></div>
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-green-500/10 to-emerald-500/10 rounded-bl-full"></div>
 
                   <div className="relative z-10 p-6">
-                    <div className="flex items-start justify-between gap-4 mb-4">
+                    <div className="flex items-center justify-between gap-4 mb-4">
                       <div className="flex-1">
-                        <h3 className="text-2xl font-black text-gray-900 dark:text-white flex items-center gap-3">
-                          <span className="inline-flex items-center justify-center w-10 h-10 bg-indigo-600 text-white rounded-lg">
+                        <h3 className="text-2xl font-black text-white flex items-center gap-3">
+                          <span className="inline-flex items-center justify-center w-10 h-10 bg-green-600 text-white rounded-lg">
                             {index + 1}
                           </span>
+                          <Home className="w-6 h-6 text-white" />
                           {property.property_address}
                         </h3>
                       </div>
@@ -351,7 +357,7 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
                                   </div>
 
                                   {/* Content */}
-                                  <p className="text-gray-600 dark:text-gray-400 whitespace-pre-wrap">
+                                  <p className="text-sm text-gray-600 dark:text-gray-400 whitespace-pre-wrap">
                                     {step.content}
                                   </p>
                                 </div>
@@ -383,7 +389,7 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
                           <div key={stepIndex} className="py-5 first:pt-0">
                             <div className="flex items-start gap-6">
                               {/* Step Label - Fixed Width */}
-                              <span className="font-bold text-purple-600 dark:text-purple-400 w-16 flex-shrink-0">
+                              <span className={`font-bold w-16 flex-shrink-0 ${getStepColor(step.step_number)}`}>
                                 Step {step.step_number}
                               </span>
 
@@ -398,22 +404,24 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
 
                                 {/* Description */}
                                 {step.description && (
-                                  <p className="text-gray-600 dark:text-gray-400">
+                                  <p className="text-sm text-gray-600 dark:text-gray-400">
                                     {step.description}
                                   </p>
                                 )}
 
                                 {/* Calculation */}
                                 {step.calculation && (
-                                  <p className="text-gray-700 dark:text-gray-300">
+                                  <p className="text-sm text-gray-700 dark:text-gray-300">
                                     {step.calculation}
                                   </p>
                                 )}
 
-                                {/* Result */}
-                                <p className="text-emerald-600 dark:text-emerald-400">
-                                  {step.result}
-                                </p>
+                                {/* Result - Green Pill */}
+                                <div className="inline-flex">
+                                  <span className="px-4 py-2 border-2 border-emerald-500 dark:border-emerald-500 text-white bg-transparent rounded-full text-sm font-semibold">
+                                    {step.result}
+                                  </span>
+                                </div>
 
                                 {/* Validation Checks */}
                                 {step.checks && step.checks.length > 0 && (
@@ -656,7 +664,8 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
                   >
                     <div className="text-left space-y-2.5">
                       {/* Address */}
-                      <h4 className={`font-bold text-sm ${isActive ? 'text-green-700 dark:text-green-300' : 'text-blue-700 dark:text-blue-300'}`}>
+                      <h4 className={`font-bold text-sm flex items-center gap-1.5 ${isActive ? 'text-green-700 dark:text-green-300' : 'text-blue-700 dark:text-blue-300'}`}>
+                        <Home className={`w-4 h-4 ${isActive ? 'text-green-600 dark:text-green-400' : 'text-blue-600 dark:text-blue-400'}`} />
                         {property.address}
                       </h4>
 

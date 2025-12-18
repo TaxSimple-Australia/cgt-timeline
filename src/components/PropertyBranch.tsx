@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { AlertTriangle } from 'lucide-react';
 import { Property, TimelineEvent, useTimelineStore, statusColors, calculateStatusPeriods } from '@/store/timeline';
@@ -218,6 +218,12 @@ export default function PropertyBranch({
 
   const eventsWithOffsetsAndTiers = assignCircleVerticalOffsets();
 
+  // Helper function to get today's position (unclamped - can be outside 0-100%)
+  const getTodayPosition = (start: Date, end: Date) => {
+    const today = new Date();
+    return dateToPosition(today, start, end);
+  };
+
   // Add synthetic status marker for unsold properties at today's date
   const addStatusMarkerIfNeeded = () => {
     // Check all possible indicators that property is sold
@@ -225,16 +231,21 @@ export default function PropertyBranch({
     const isSold = property.currentStatus === 'sold' || property.saleDate || hasSaleEvent;
     if (isSold) return eventsWithOffsetsAndTiers;
 
-    const today = new Date();
-    const todayPosition = dateToPosition(today, timelineStart, timelineEnd);
+    // Calculate today's position relative to current timeline bounds (unclamped)
+    const todayPosition = getTodayPosition(timelineStart, timelineEnd);
 
     // Only add if today is visible in timeline
     if (todayPosition < 0 || todayPosition > 100) return eventsWithOffsetsAndTiers;
+
+    const today = new Date();
 
     const statusPeriods = calculateStatusPeriods(events);
     const currentStatusPeriod = statusPeriods.find(p => p.endDate === null);
     const currentStatus = currentStatusPeriod?.status || 'vacant';
     const statusColor = statusColors[currentStatus] || '#94a3b8';
+
+    // Clamp position for rendering (marker must be within 0-100%)
+    const clampedPosition = Math.max(0, Math.min(todayPosition, 100));
 
     const statusMarker: any = {
       id: `status-marker-${property.id}`,
@@ -244,8 +255,8 @@ export default function PropertyBranch({
       description: currentStatus.replace('_', ' ').toUpperCase(),
       date: today,
       color: statusColor,
-      position: todayPosition,
-      calculatedPosition: todayPosition,
+      position: clampedPosition,
+      calculatedPosition: clampedPosition,
       isSyntheticStatusMarker: true,
       verticalOffset: 0,
       tier: 0,
@@ -266,8 +277,15 @@ export default function PropertyBranch({
   // Calculate first and last event positions for the line
   const getLinePositions = () => {
     if (eventsWithTiers.length === 0) {
-      // No events - no line
-      return { start: 0, end: 0 };
+      // Empty property - show line from start to today (if visible)
+      const todayPos = getTodayPosition(timelineStart, timelineEnd);
+      // Clamp to visible range for rendering
+      const clampedTodayPos = Math.max(0, Math.min(todayPos, 100));
+      return {
+        start: 0,
+        end: clampedTodayPos,
+        isEmpty: true
+      };
     }
 
     const positions = eventsWithTiers.map(e => e.calculatedPosition);
@@ -276,17 +294,29 @@ export default function PropertyBranch({
 
     // For unsold properties, extend to today's position (the "Not Sold" marker)
     if (!isSold) {
-      const today = new Date();
-      const todayPosition = dateToPosition(today, timelineStart, timelineEnd);
-      const clampedTodayPos = Math.max(0, Math.min(todayPosition, 100));
+      const todayPos = getTodayPosition(timelineStart, timelineEnd);
+
+      // Only extend to today if it's within or after the visible range
+      // If today is before the visible range (todayPos < 0), end at last event
+      if (todayPos < 0) {
+        return {
+          start: firstEventPos,
+          end: lastEventPos,
+          isEmpty: false
+        };
+      }
+
+      // If today is visible or after visible range, extend to today (clamped to 100% max)
+      const clampedTodayPos = Math.min(todayPos, 100);
       return {
         start: firstEventPos,
-        end: Math.max(lastEventPos, clampedTodayPos)
+        end: Math.max(lastEventPos, clampedTodayPos),
+        isEmpty: false
       };
     }
 
     // For sold properties, line ends at the last event (sale)
-    return { start: firstEventPos, end: lastEventPos };
+    return { start: firstEventPos, end: lastEventPos, isEmpty: false };
   };
 
   const linePositions = getLinePositions();
@@ -367,7 +397,7 @@ export default function PropertyBranch({
       )}
 
       {/* Invisible hover target for the branch line */}
-      {hasEvents && linePositions.start !== linePositions.end && (
+      {(hasEvents || linePositions.isEmpty) && linePositions.start !== linePositions.end && (
         <line
           x1={`${linePositions.start}%`}
           y1={branchY}
@@ -384,25 +414,64 @@ export default function PropertyBranch({
       )}
 
       {/* Branch Line - always visible */}
-      {hasEvents && linePositions.start !== linePositions.end && (
-        <motion.line
-          x1={`${linePositions.start}%`}
-          y1={branchY}
-          x2={`${linePositions.end}%`}
-          y2={branchY}
-          stroke={hasIssues ? '#EF4444' : property.color}
-          strokeWidth={isHovered ? 6 : (isSelected ? 4 : 3)}
-          strokeLinecap="round"
-          opacity={isHovered ? 1 : (isSelected ? 1 : 0.7)}
-          initial={{ pathLength: 0 }}
-          animate={{ pathLength: 1 }}
-          transition={{ duration: 1, ease: "easeInOut" }}
-          className="drop-shadow-sm"
-          style={{
-            transition: 'stroke-width 0.2s ease, opacity 0.2s ease',
-            pointerEvents: 'none'
-          }}
-        />
+      {(hasEvents || linePositions.isEmpty) && linePositions.start !== linePositions.end && (
+        <>
+          {/* White glow effect on hover */}
+          {isHovered && (
+            <>
+              <motion.line
+                x1={`${linePositions.start}%`}
+                y1={branchY}
+                x2={`${linePositions.end}%`}
+                y2={branchY}
+                stroke="white"
+                strokeWidth={16}
+                strokeLinecap="round"
+                opacity={0.6}
+                filter="blur(8px)"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 0.6 }}
+                transition={{ duration: 0.2 }}
+                style={{ pointerEvents: 'none' }}
+              />
+              <motion.line
+                x1={`${linePositions.start}%`}
+                y1={branchY}
+                x2={`${linePositions.end}%`}
+                y2={branchY}
+                stroke="white"
+                strokeWidth={10}
+                strokeLinecap="round"
+                opacity={0.4}
+                filter="blur(4px)"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 0.4 }}
+                transition={{ duration: 0.2 }}
+                style={{ pointerEvents: 'none' }}
+              />
+            </>
+          )}
+          {/* Main line */}
+          <motion.line
+            x1={`${linePositions.start}%`}
+            y1={branchY}
+            x2={`${linePositions.end}%`}
+            y2={branchY}
+            stroke={hasIssues ? '#EF4444' : property.color}
+            strokeWidth={isHovered ? 6 : (isSelected ? 4 : 3)}
+            strokeLinecap="round"
+            opacity={linePositions.isEmpty ? (isHovered ? 0.8 : 0.4) : (isHovered ? 1 : (isSelected ? 1 : 0.7))}
+            strokeDasharray={linePositions.isEmpty ? "4,4" : undefined}
+            initial={{ pathLength: 0 }}
+            animate={{ pathLength: 1 }}
+            transition={{ duration: 1, ease: "easeInOut" }}
+            className="drop-shadow-sm"
+            style={{
+              transition: 'stroke-width 0.2s ease, opacity 0.2s ease',
+              pointerEvents: 'none'
+            }}
+          />
+        </>
       )}
 
       {/* Branch Label */}

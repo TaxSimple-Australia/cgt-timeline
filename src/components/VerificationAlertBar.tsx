@@ -89,9 +89,9 @@ export default function VerificationAlertBar({
       {/* Pulsing glow effect - only when not resolved */}
       {!isResolved && (
         <motion.rect
-          x={`${Math.max(0, startPos)}%`}
+          x={`${startPos}%`}
           y={alertY - 3}
-          width={`${Math.min(100 - startPos, width)}%`}
+          width={`${width}%`}
           height={alertHeight + 6}
           fill={alertColor}
           opacity={0.4}
@@ -105,9 +105,9 @@ export default function VerificationAlertBar({
 
       {/* Main alert bar - flashing animation when not resolved, solid when resolved */}
       <motion.rect
-        x={`${Math.max(0, startPos)}%`}
+        x={`${startPos}%`}
         y={alertY}
-        width={`${Math.min(100 - startPos, width)}%`}
+        width={`${width}%`}
         height={alertHeight}
         fill={alertColor}
         opacity={0.9}

@@ -32,7 +32,7 @@ interface EventDetailsModalProps {
 }
 
 export default function EventDetailsModal({ event, onClose, propertyName }: EventDetailsModalProps) {
-  const { updateEvent, deleteEvent } = useTimelineStore();
+  const { updateEvent, deleteEvent, addEvent } = useTimelineStore();
 
   const [title, setTitle] = useState(event.title);
   const [date, setDate] = useState(format(event.date, 'yyyy-MM-dd'));
@@ -46,6 +46,9 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
   // Custom event specific state
   const [customColor, setCustomColor] = useState(event.color || '#6B7280');
   const [affectsStatus, setAffectsStatus] = useState(event.affectsStatus || false);
+
+  // Move in on same day checkbox (for purchase events)
+  const [moveInOnSameDay, setMoveInOnSameDay] = useState(false);
 
   // NEW: Dynamic Cost Bases
   const [costBases, setCostBases] = useState<CostBaseItem[]>(() => {
@@ -166,6 +169,18 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
       updates.marketValuation = marketValuation && !isNaN(parseFloat(marketValuation)) ? parseFloat(marketValuation) : undefined;
 
       updateEvent(event.id, updates);
+
+      // Create move_in event if checkbox is checked (for purchase events)
+      if (event.type === 'purchase' && moveInOnSameDay) {
+        addEvent({
+          propertyId: event.propertyId,
+          type: 'move_in',
+          date: new Date(date),
+          title: 'Move In',
+          position: event.position, // Use same position as purchase event
+          color: '#10B981', // Green color for move_in events
+        });
+      }
 
       // Small delay for visual feedback
       setTimeout(() => {
@@ -364,6 +379,26 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
                   required
                 />
               </div>
+
+              {/* Move in on same day checkbox (for purchase events only) */}
+              {event.type === 'purchase' && (
+                <div className="flex items-center gap-3 p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
+                  <input
+                    type="checkbox"
+                    id="moveInOnSameDay"
+                    checked={moveInOnSameDay}
+                    onChange={(e) => setMoveInOnSameDay(e.target.checked)}
+                    className="w-4 h-4 text-blue-600 bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 rounded focus:ring-2 focus:ring-blue-500 cursor-pointer"
+                  />
+                  <label
+                    htmlFor="moveInOnSameDay"
+                    className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300 cursor-pointer"
+                  >
+                    <Home className="w-4 h-4" />
+                    Move in on same day
+                  </label>
+                </div>
+              )}
             </div>
 
             {/* Financial Details Section */}

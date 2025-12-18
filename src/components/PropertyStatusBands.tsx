@@ -40,10 +40,9 @@ export default function PropertyStatusBands({
       return dateToPosition(saleEvent.date, timelineStart, timelineEnd);
     }
 
-    // For unsold properties, extend to today's position (for "Not Sold" marker)
+    // For unsold properties, extend to today's position (unclamped)
     const today = new Date();
-    const todayPosition = dateToPosition(today, timelineStart, timelineEnd);
-    return Math.max(0, Math.min(todayPosition, 100));
+    return dateToPosition(today, timelineStart, timelineEnd);
   };
 
   const lastPos = getLastPosition();
@@ -85,9 +84,9 @@ export default function PropertyStatusBands({
             {/* Glow effect when hovered */}
             {isHovered && (
               <rect
-                x={`${Math.max(0, startPos)}%`}
+                x={`${startPos}%`}
                 y={hoveredBandY - 2}
-                width={`${Math.min(100 - startPos, width)}%`}
+                width={`${width}%`}
                 height={hoveredBandHeight + 4}
                 fill={color}
                 opacity={0.3}
@@ -99,9 +98,9 @@ export default function PropertyStatusBands({
 
             {/* Interactive Status band - always visible */}
             <rect
-              x={`${Math.max(0, startPos)}%`}
+              x={`${startPos}%`}
               y={hoveredBandY}
-              width={`${Math.min(100 - startPos, width)}%`}
+              width={`${width}%`}
               height={hoveredBandHeight}
               fill={color}
               opacity={isHovered ? 0.95 : 0.4}

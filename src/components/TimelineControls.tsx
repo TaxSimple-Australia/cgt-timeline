@@ -20,7 +20,8 @@ import {
   FolderOpen,
   Menu,
   X,
-  ChevronDown
+  ChevronDown,
+  StickyNote
 } from 'lucide-react';
 
 export default function TimelineControls() {
@@ -49,7 +50,9 @@ export default function TimelineControls() {
     theme,
     toggleTheme,
     eventDisplayMode,
-    toggleEventDisplayMode
+    toggleEventDisplayMode,
+    openNotesModal,
+    timelineNotes
   } = useTimelineStore();
 
   // Shorter zoom level labels for smaller screens
@@ -378,6 +381,17 @@ export default function TimelineControls() {
               )}
             </IconButton>
 
+            <IconButton
+              onClick={openNotesModal}
+              title={timelineNotes ? "Notes (has content)" : "Notes"}
+              className={timelineNotes ? "relative" : ""}
+            >
+              <StickyNote className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-600 dark:text-slate-300" />
+              {timelineNotes && (
+                <span className="absolute -top-1 -right-1 w-2 h-2 bg-amber-500 rounded-full"></span>
+              )}
+            </IconButton>
+
             <IconButton onClick={() => setShowSettings(true)} title="Settings">
               <Settings className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-600 dark:text-slate-300" />
             </IconButton>
@@ -495,6 +509,17 @@ export default function TimelineControls() {
               <span className="text-[10px] text-slate-600 dark:text-slate-400">
                 {theme === 'dark' ? 'Light' : 'Dark'}
               </span>
+            </button>
+
+            <button
+              onClick={() => { openNotesModal(); setShowMobileMenu(false); }}
+              className="flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 relative"
+            >
+              <StickyNote className="w-5 h-5 text-slate-600 dark:text-slate-400" />
+              {timelineNotes && (
+                <span className="absolute top-1 right-1 w-2 h-2 bg-amber-500 rounded-full"></span>
+              )}
+              <span className="text-[10px] text-slate-600 dark:text-slate-400">Notes</span>
             </button>
 
             <button

@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { CheckCircle, XCircle, ChevronDown, ChevronUp, Cpu, Zap, Clock, FileJson, Download, Home, LayoutGrid, FileText, Settings2 } from 'lucide-react';
+import { CheckCircle, XCircle, ChevronDown, ChevronUp, Cpu, Zap, Clock, FileJson, Download, Home, LayoutGrid, FileText, Settings2, StickyNote } from 'lucide-react';
 import GapQuestionsPanel from './GapQuestionsPanel';
 import DetailedReportSection from './DetailedReportSection';
 import TwoColumnLayout from '../timeline-viz/TwoColumnLayout';
@@ -37,6 +37,8 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
   const events = useTimelineStore(state => state.events);
   const analysisDisplayMode = useTimelineStore(state => state.analysisDisplayMode);
   const setAnalysisDisplayMode = useTimelineStore(state => state.setAnalysisDisplayMode);
+  const openNotesModal = useTimelineStore(state => state.openNotesModal);
+  const timelineNotes = useTimelineStore(state => state.timelineNotes);
 
   // Helper function to get step number color
   const getStepColor = (stepNumber: number) => {
@@ -197,13 +199,25 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
         {/* Toolbar: Display Mode Toggle + Raw JSON Button */}
         <div className="flex items-center justify-between gap-4">
           <DisplayModeToggle />
-          <button
-            onClick={() => setShowRawJSON(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors shadow-md text-sm"
-          >
-            <FileJson className="w-4 h-4" />
-            Show Raw JSON
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={openNotesModal}
+              className={`flex items-center gap-2 px-4 py-2 ${timelineNotes ? 'bg-amber-600 hover:bg-amber-700' : 'bg-amber-500 hover:bg-amber-600'} text-white rounded-lg transition-colors shadow-md text-sm relative`}
+            >
+              <StickyNote className="w-4 h-4" />
+              Notes
+              {timelineNotes && (
+                <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-white rounded-full border-2 border-amber-600"></span>
+              )}
+            </button>
+            <button
+              onClick={() => setShowRawJSON(true)}
+              className="flex items-center gap-2 px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors shadow-md text-sm"
+            >
+              <FileJson className="w-4 h-4" />
+              Show Raw JSON
+            </button>
+          </div>
         </div>
 
         {/* Alert Banner */}
@@ -316,13 +330,25 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
         {/* Toolbar: Display Mode Toggle + Raw JSON Button */}
         <div className="flex items-center justify-between gap-4">
           <DisplayModeToggle />
-          <button
-            onClick={() => setShowRawJSON(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors shadow-md text-sm"
-          >
-            <FileJson className="w-4 h-4" />
-            Show Raw JSON
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={openNotesModal}
+              className={`flex items-center gap-2 px-4 py-2 ${timelineNotes ? 'bg-amber-600 hover:bg-amber-700' : 'bg-amber-500 hover:bg-amber-600'} text-white rounded-lg transition-colors shadow-md text-sm relative`}
+            >
+              <StickyNote className="w-4 h-4" />
+              Notes
+              {timelineNotes && (
+                <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-white rounded-full border-2 border-amber-600"></span>
+              )}
+            </button>
+            <button
+              onClick={() => setShowRawJSON(true)}
+              className="flex items-center gap-2 px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors shadow-md text-sm"
+            >
+              <FileJson className="w-4 h-4" />
+              Show Raw JSON
+            </button>
+          </div>
         </div>
 
         {/* Main Analysis Content - Markdown */}
@@ -378,13 +404,25 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
         {/* Toolbar: Display Mode Toggle + Raw JSON Button */}
         <div className="flex items-center justify-between gap-4">
           <DisplayModeToggle />
-          <button
-            onClick={() => setShowRawJSON(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors shadow-md text-sm"
-          >
-            <FileJson className="w-4 h-4" />
-            Show Raw JSON
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={openNotesModal}
+              className={`flex items-center gap-2 px-4 py-2 ${timelineNotes ? 'bg-amber-600 hover:bg-amber-700' : 'bg-amber-500 hover:bg-amber-600'} text-white rounded-lg transition-colors shadow-md text-sm relative`}
+            >
+              <StickyNote className="w-4 h-4" />
+              Notes
+              {timelineNotes && (
+                <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-white rounded-full border-2 border-amber-600"></span>
+              )}
+            </button>
+            <button
+              onClick={() => setShowRawJSON(true)}
+              className="flex items-center gap-2 px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors shadow-md text-sm"
+            >
+              <FileJson className="w-4 h-4" />
+              Show Raw JSON
+            </button>
+          </div>
         </div>
 
         {/* Top-Level Summary */}
@@ -824,13 +862,25 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
         {/* Toolbar: Display Mode Toggle + Raw JSON Button */}
         <div className="flex items-center justify-between gap-4">
           <DisplayModeToggle />
-          <button
-            onClick={() => setShowRawJSON(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors shadow-md text-sm"
-          >
-            <FileJson className="w-4 h-4" />
-            Show Raw JSON
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={openNotesModal}
+              className={`flex items-center gap-2 px-4 py-2 ${timelineNotes ? 'bg-amber-600 hover:bg-amber-700' : 'bg-amber-500 hover:bg-amber-600'} text-white rounded-lg transition-colors shadow-md text-sm relative`}
+            >
+              <StickyNote className="w-4 h-4" />
+              Notes
+              {timelineNotes && (
+                <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-white rounded-full border-2 border-amber-600"></span>
+              )}
+            </button>
+            <button
+              onClick={() => setShowRawJSON(true)}
+              className="flex items-center gap-2 px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors shadow-md text-sm"
+            >
+              <FileJson className="w-4 h-4" />
+              Show Raw JSON
+            </button>
+          </div>
         </div>
 
         {/* Horizontal Property Card Tabs */}
@@ -1001,13 +1051,25 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
       {/* Toolbar: Display Mode Toggle + Raw JSON Button */}
       <div className="flex items-center justify-between gap-4">
         <DisplayModeToggle />
-        <button
-          onClick={() => setShowRawJSON(true)}
-          className="flex items-center gap-2 px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors shadow-md text-sm"
-        >
-          <FileJson className="w-4 h-4" />
-          Show Raw JSON
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={openNotesModal}
+            className={`flex items-center gap-2 px-4 py-2 ${timelineNotes ? 'bg-amber-600 hover:bg-amber-700' : 'bg-amber-500 hover:bg-amber-600'} text-white rounded-lg transition-colors shadow-md text-sm relative`}
+          >
+            <StickyNote className="w-4 h-4" />
+            Notes
+            {timelineNotes && (
+              <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-white rounded-full border-2 border-amber-600"></span>
+            )}
+          </button>
+          <button
+            onClick={() => setShowRawJSON(true)}
+            className="flex items-center gap-2 px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors shadow-md text-sm"
+          >
+            <FileJson className="w-4 h-4" />
+            Show Raw JSON
+          </button>
+        </div>
       </div>
 
       <div className="p-6 bg-gray-50 dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700">

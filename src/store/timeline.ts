@@ -160,6 +160,10 @@ interface TimelineState {
   verificationAlerts: VerificationAlert[]; // Alert bars for failed verifications
   currentAlertIndex: number; // Index of currently resolving alert (-1 means none)
 
+  // Timeline Notes State
+  timelineNotes: string; // User notes/feedback for the timeline
+  isNotesModalOpen: boolean; // Whether the notes modal is open
+
   // Actions
   addProperty: (property: Omit<Property, 'id' | 'branch'>) => void;
   updateProperty: (id: string, property: Partial<Property>) => void;
@@ -210,6 +214,11 @@ interface TimelineState {
   moveToNextAlert: () => void;
   setCurrentAlertIndex: (index: number) => void;
   panToDate: (date: Date) => void;
+
+  // Timeline Notes Actions
+  setTimelineNotes: (notes: string) => void;
+  openNotesModal: () => void;
+  closeNotesModal: () => void;
 }
 
 const propertyColors = [
@@ -443,6 +452,10 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
     // Verification Alerts initial state
     verificationAlerts: [],
     currentAlertIndex: -1,
+
+    // Timeline Notes initial state
+    timelineNotes: '',
+    isNotesModalOpen: false,
 
   addProperty: (property) => {
     const properties = get().properties;
@@ -1710,6 +1723,19 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
       timelineEnd: newEnd,
       centerDate: date,
     });
+  },
+
+  // Timeline Notes Actions
+  setTimelineNotes: (notes: string) => {
+    set({ timelineNotes: notes });
+  },
+
+  openNotesModal: () => {
+    set({ isNotesModalOpen: true });
+  },
+
+  closeNotesModal: () => {
+    set({ isNotesModalOpen: false });
   },
 };
 });

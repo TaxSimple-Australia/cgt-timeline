@@ -28,6 +28,7 @@ export async function POST(request: NextRequest) {
       createdAt: new Date().toISOString(),
       properties: data.properties,
       events: data.events,
+      notes: data.notes || undefined,
     };
 
     await redis.set(`timeline:${shareId}`, JSON.stringify(timelineData));

@@ -46,7 +46,7 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
     enableDragEvents, toggleDragEvents,
     enableAISuggestedQuestions, toggleAISuggestedQuestions,
     apiResponseMode, setAPIResponseMode,
-    properties, events
+    properties, events, timelineNotes
   } = useTimelineStore();
   const [isGeneratingLink, setIsGeneratingLink] = useState(false);
   const [shareSuccess, setShareSuccess] = useState(false);
@@ -67,7 +67,7 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
     setShareError(null);
 
     try {
-      const serialized = serializeTimeline(properties, events);
+      const serialized = serializeTimeline(properties, events, timelineNotes);
 
       const response = await fetch('/api/timeline/save', {
         method: 'POST',

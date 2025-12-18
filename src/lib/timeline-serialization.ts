@@ -4,6 +4,7 @@ export interface SerializedTimeline {
   version: number;
   properties: any[];
   events: any[];
+  notes?: string; // Timeline notes/feedback
 }
 
 /**
@@ -12,7 +13,8 @@ export interface SerializedTimeline {
  */
 export function serializeTimeline(
   properties: Property[],
-  events: TimelineEvent[]
+  events: TimelineEvent[],
+  notes?: string
 ): SerializedTimeline {
   return {
     version: 1,
@@ -27,6 +29,7 @@ export function serializeTimeline(
       contractDate: e.contractDate?.toISOString(),
       settlementDate: e.settlementDate?.toISOString(),
     })),
+    notes: notes || undefined,
   };
 }
 
@@ -37,6 +40,7 @@ export function serializeTimeline(
 export function deserializeTimeline(data: SerializedTimeline): {
   properties: Property[];
   events: TimelineEvent[];
+  notes?: string;
 } {
   return {
     properties: data.properties.map((p) => ({
@@ -50,5 +54,6 @@ export function deserializeTimeline(data: SerializedTimeline): {
       contractDate: e.contractDate ? new Date(e.contractDate) : undefined,
       settlementDate: e.settlementDate ? new Date(e.settlementDate) : undefined,
     })),
+    notes: data.notes,
   };
 }

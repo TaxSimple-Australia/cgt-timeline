@@ -40,6 +40,7 @@ export async function GET(
       data: {
         properties: parsed.properties,
         events: parsed.events,
+        notes: parsed.notes,
       },
     });
   } catch (error) {

@@ -9,6 +9,7 @@ import CGTAnalysisDisplay from '@/components/ai-response/CGTAnalysisDisplay';
 import LoadingSpinner from '@/components/model-response/LoadingSpinner';
 import ErrorDisplay from '@/components/model-response/ErrorDisplay';
 import FeedbackModal from '@/components/FeedbackModal';
+import NotesModal from '@/components/NotesModal';
 import AllResolvedPopup from '@/components/AllResolvedPopup';
 import PropertyIssueOverlay from '@/components/PropertyIssueOverlay';
 import SuggestedQuestionsPanel from '@/components/SuggestedQuestionsPanel';
@@ -59,6 +60,7 @@ function HomeContent() {
     panToDate,
     enableAISuggestedQuestions,
     apiResponseMode,
+    setTimelineNotes,
   } = useTimelineStore();
   const { setValidationIssues, clearValidationIssues, setApiConnected } = useValidationStore();
   const [showAnalysis, setShowAnalysis] = useState(false);
@@ -115,12 +117,18 @@ function HomeContent() {
           version: 1,
           properties: result.data.properties,
           events: result.data.events,
+          notes: result.data.notes,
         });
 
         importTimelineData({
           properties: deserialized.properties,
           events: deserialized.events,
         });
+
+        // Load notes if present
+        if (deserialized.notes) {
+          setTimelineNotes(deserialized.notes);
+        }
 
         // Clear URL parameter without page reload
         router.replace('/', { scroll: false });
@@ -810,6 +818,9 @@ function HomeContent() {
           totalAlerts={verificationAlerts.length}
         />
       )}
+
+      {/* Notes Modal - Timeline notes/feedback */}
+      <NotesModal />
     </main>
   );
 }

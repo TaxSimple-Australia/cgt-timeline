@@ -1,9 +1,9 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Calendar, Eye, Copy, Check, Sparkles, Settings, Share2 } from 'lucide-react';
+import { X, Calendar, Eye, Copy, Check, Sparkles, Settings, Share2, Link, ExternalLink } from 'lucide-react';
 import { useTimelineStore } from '@/store/timeline';
 import { serializeTimeline } from '@/lib/timeline-serialization';
 
@@ -51,20 +51,34 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
   const [isGeneratingLink, setIsGeneratingLink] = useState(false);
   const [shareSuccess, setShareSuccess] = useState(false);
   const [shareError, setShareError] = useState<string | null>(null);
+  const [generatedShareUrl, setGeneratedShareUrl] = useState<string | null>(null);
+  const [clipboardCopySuccess, setClipboardCopySuccess] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const linkInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     setMounted(true);
     return () => setMounted(false);
   }, []);
 
+  // Reset share state when modal closes
+  useEffect(() => {
+    if (!isOpen) {
+      setGeneratedShareUrl(null);
+      setShareSuccess(false);
+      setShareError(null);
+      setClipboardCopySuccess(false);
+    }
+  }, [isOpen]);
+
   const canShare = properties.length > 0;
 
-  async function handleCopyShareLink() {
+  async function handleGenerateShareLink() {
     if (!canShare) return;
 
     setIsGeneratingLink(true);
     setShareError(null);
+    setClipboardCopySuccess(false);
 
     try {
       const serialized = serializeTimeline(properties, events, timelineNotes);
@@ -82,15 +96,48 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
       }
 
       const shareUrl = `${window.location.origin}?share=${result.shareId}`;
-      await navigator.clipboard.writeText(shareUrl);
-
+      setGeneratedShareUrl(shareUrl);
       setShareSuccess(true);
-      setTimeout(() => setShareSuccess(false), 3000);
+
+      // Try to auto-copy to clipboard (may fail on some browsers/Mac)
+      try {
+        await navigator.clipboard.writeText(shareUrl);
+        setClipboardCopySuccess(true);
+        setTimeout(() => setClipboardCopySuccess(false), 3000);
+      } catch (clipboardError) {
+        // Clipboard failed - user can manually copy from the displayed link
+        console.log('Auto-copy to clipboard failed, user can copy manually');
+      }
     } catch (error) {
       console.error('Error generating share link:', error);
       setShareError(error instanceof Error ? error.message : 'Failed to generate link');
     } finally {
       setIsGeneratingLink(false);
+    }
+  }
+
+  // Manual copy function for the displayed link
+  async function handleManualCopy() {
+    if (!generatedShareUrl) return;
+
+    try {
+      await navigator.clipboard.writeText(generatedShareUrl);
+      setClipboardCopySuccess(true);
+      setTimeout(() => setClipboardCopySuccess(false), 3000);
+    } catch (error) {
+      // If clipboard API fails, select the text for manual copy
+      if (linkInputRef.current) {
+        linkInputRef.current.select();
+        linkInputRef.current.setSelectionRange(0, 99999); // For mobile
+      }
+    }
+  }
+
+  // Select all text when clicking the input
+  function handleLinkInputClick() {
+    if (linkInputRef.current) {
+      linkInputRef.current.select();
+      linkInputRef.current.setSelectionRange(0, 99999);
     }
   }
 
@@ -277,14 +324,74 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                             </div>
                           )}
 
+                          {/* Generated Link Display */}
+                          {generatedShareUrl && (
+                            <div className="mb-3 space-y-2">
+                              {/* Success message */}
+                              <div className="flex items-center gap-2 text-green-600 dark:text-green-400">
+                                <Check className="w-4 h-4" />
+                                <span className="text-sm font-medium">Link generated successfully!</span>
+                              </div>
+
+                              {/* Link input with copy button */}
+                              <div className="flex gap-2">
+                                <div className="flex-1 relative">
+                                  <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
+                                    <Link className="w-4 h-4" />
+                                  </div>
+                                  <input
+                                    ref={linkInputRef}
+                                    type="text"
+                                    value={generatedShareUrl}
+                                    readOnly
+                                    onClick={handleLinkInputClick}
+                                    className="w-full pl-10 pr-3 py-2.5 text-sm bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-700 dark:text-slate-200 font-mono select-all cursor-text focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                  />
+                                </div>
+                                <button
+                                  onClick={handleManualCopy}
+                                  className={`flex items-center justify-center px-3 py-2 rounded-lg font-medium text-sm transition-colors ${
+                                    clipboardCopySuccess
+                                      ? 'bg-green-600 text-white'
+                                      : 'bg-blue-600 hover:bg-blue-700 text-white'
+                                  }`}
+                                  title="Copy to clipboard"
+                                >
+                                  {clipboardCopySuccess ? (
+                                    <Check className="w-4 h-4" />
+                                  ) : (
+                                    <Copy className="w-4 h-4" />
+                                  )}
+                                </button>
+                              </div>
+
+                              {/* Helper text */}
+                              <p className="text-xs text-slate-500 dark:text-slate-400">
+                                {clipboardCopySuccess
+                                  ? '✓ Copied to clipboard!'
+                                  : 'Click the link to select it, then copy manually (Cmd+C / Ctrl+C)'}
+                              </p>
+
+                              {/* Open in new tab button */}
+                              <a
+                                href={generatedShareUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-1.5 text-xs text-blue-600 dark:text-blue-400 hover:underline"
+                              >
+                                <ExternalLink className="w-3 h-3" />
+                                Open link in new tab
+                              </a>
+                            </div>
+                          )}
+
+                          {/* Generate button - show different state based on whether link exists */}
                           <button
-                            onClick={handleCopyShareLink}
+                            onClick={handleGenerateShareLink}
                             disabled={!canShare || isGeneratingLink}
                             className={`w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-medium text-sm transition-colors ${
                               !canShare
                                 ? 'bg-slate-200 dark:bg-slate-700 text-slate-400 dark:text-slate-500 cursor-not-allowed'
-                                : shareSuccess
-                                ? 'bg-green-600 text-white'
                                 : 'bg-blue-600 hover:bg-blue-700 text-white'
                             }`}
                           >
@@ -293,15 +400,15 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                                 <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                                 Generating...
                               </>
-                            ) : shareSuccess ? (
+                            ) : generatedShareUrl ? (
                               <>
-                                <Check className="w-4 h-4" />
-                                Link Copied!
+                                <Share2 className="w-4 h-4" />
+                                Generate New Link
                               </>
                             ) : (
                               <>
-                                <Copy className="w-4 h-4" />
-                                Copy Share Link
+                                <Share2 className="w-4 h-4" />
+                                Generate Share Link
                               </>
                             )}
                           </button>

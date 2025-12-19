@@ -211,6 +211,7 @@ export interface ApplicableRule {
 export interface PropertyAnalysis {
   property_address: string;
   high_level_description: string;
+  reasoning?: string; // AI's reasoning for CGT determination
   key_facts: KeyFacts;
   purchase_date: string;
   purchase_price: string | number;

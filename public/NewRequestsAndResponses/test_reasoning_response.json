@@ -1,0 +1,141 @@
+{
+  "success": true,
+  "data": {
+    "analysis_date": "2025-12-19",
+    "total_properties": 3,
+    "description": "Portfolio CGT analysis for three properties sold by an Australian resident taxpayer. The properties show different main residence patterns: 123 Smith Street was the primary residence until moving to 456 Johnson Avenue, which became the new main residence.",
+    "properties": [
+      {
+        "property_address": "123 Smith Street, Melbourne VIC 3000",
+        "reasoning": "This property was purchased and immediately occupied as the main residence from March 2010 until August 2015. The owner then moved out and started renting it on the same day (20 August 2015). Crucially, the owner moved into another property (456 Johnson Avenue) the very next day (21 August 2015), making that property the new main residence. Because another property became the main residence during the rental period, the six-year rule does not apply to this property.",
+        "high_level_description": "Property sold with First Use to Produce Income rule applied due to subsequent main residence election",
+        "purchase_date": "15 March 2010",
+        "purchase_price": "380000",
+        "sale_date": "25 November 2018",
+        "sale_price": "520000",
+        "total_ownership_days": 3176,
+        "total_ownership_years": "8.70",
+        "total_ownership_months": null,
+        "main_residence_days": 0,
+        "main_residence_percentage": "0",
+        "rental_period_days": 1193,
+        "rental_period_years": "3.27",
+        "market_value_at_first_rental": "398150",
+        "move_in_date": "15 March 2010",
+        "move_out_date": "20 August 2015",
+        "rent_start_date": "20 August 2015",
+        "rent_end_date": null,
+        "key_facts": {
+          "property": "123 Smith Street",
+          "purchase_date": "15 March 2010",
+          "move_in_date": "15 March 2010",
+          "move_out_date": "20 August 2015",
+          "rent_start_date": "20 August 2015",
+          "sale_date": "25 November 2018",
+          "purchase_price": "380000",
+          "market_value_at_first_rental": "398150",
+          "sale_price": "520000",
+          "total_ownership_days": 3176,
+          "main_residence_days": 0,
+          "non_main_residence_days": 3176
+        },
+        "timeline_of_events": [
+          {
+            "date": "15 Mar 2010",
+            "event": "Purchase",
+            "details": "$380,000 + $15,200 stamp duty"
+          },
+          {
+            "date": "20 Aug 2015",
+            "event": "Move Out",
+            "details": "Market value: $398,150"
+          },
+          {
+            "date": "25 Nov 2018",
+            "event": "Sale",
+            "details": "$520,000"
+          }
+        ],
+        "cost_base_items": [
+          {
+            "description": "Deemed cost base (market value at first rental)",
+            "amount": "398150"
+          },
+          {
+            "description": "Sale agent fees",
+            "amount": "13000"
+          }
+        ],
+        "total_cost_base": "413950",
+        "ownership_periods": [
+          {
+            "period_type": "Total Ownership",
+            "days": 3176,
+            "years": "8.70",
+            "percentage": "100"
+          }
+        ],
+        "calculation_steps": [
+          {
+            "step_number": 1,
+            "title": "Apply First Use Rule",
+            "description": "Property rented while another became main residence",
+            "calculation": null,
+            "result": "Deemed acquisition: $398,150",
+            "checks": null
+          }
+        ],
+        "cgt_calculation": {
+          "step1": { "title": "Calculate Gain", "content": "$520,000 - $398,150 = $121,850" },
+          "step2": { "title": "Apply Discount", "content": "$121,850 × 50% = $60,925" },
+          "step3": { "title": "Result", "content": "Net gain: $60,925" },
+          "step4": { "title": "", "content": "" },
+          "step5": { "title": "", "content": "" },
+          "step6": { "title": "", "content": "" },
+          "step7": { "title": "", "content": "" },
+          "result": "NET CAPITAL GAIN = $53,025"
+        },
+        "calculation_summary": {
+          "sale_price": "520000",
+          "total_cost_base": "413950",
+          "gross_capital_gain": "106050",
+          "main_residence_exemption_percentage": "0",
+          "main_residence_exemption_amount": "0",
+          "taxable_capital_gain": "106050",
+          "cgt_discount_applicable": true,
+          "cgt_discount_percentage": "50",
+          "cgt_discount_amount": "53025",
+          "net_capital_gain": "53025"
+        },
+        "result": "NET CAPITAL GAIN = $53,025",
+        "cgt_payable": true,
+        "applicable_rules": [
+          {
+            "section": "s118.192",
+            "name": "First Use to Produce Income Rule",
+            "description": "Deemed acquisition at market value when first rented",
+            "applies": true
+          }
+        ],
+        "what_if_scenarios": [],
+        "important_notes": [
+          "First Use to Produce Income rule applies because another property became main residence"
+        ],
+        "warnings": []
+      }
+    ],
+    "total_net_capital_gain": "53025",
+    "total_exempt_gains": "0",
+    "properties_with_cgt": 1,
+    "properties_fully_exempt": 0,
+    "general_notes": [
+      "First Use to Produce Income rule applied to 123 Smith Street"
+    ]
+  },
+  "citations": {
+    "rules_applied": [],
+    "legislation_references": [],
+    "categories": [],
+    "sources": []
+  }
+}

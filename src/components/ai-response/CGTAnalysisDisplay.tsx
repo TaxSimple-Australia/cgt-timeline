@@ -510,6 +510,16 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
                   </div>
                 )}
 
+                {/* Reasoning Section */}
+                {property.reasoning && (
+                  <div className="bg-green-950 border-2 border-green-500 rounded-xl p-6 shadow-lg">
+                    <h3 className="text-xl font-bold text-green-400 mb-3">Reasoning</h3>
+                    <p className="text-gray-300 leading-relaxed text-base">
+                      {property.reasoning}
+                    </p>
+                  </div>
+                )}
+
                 {/* Key Facts Section - Compact Grid with Colored Badges */}
                 <div className="space-y-3">
                   <h4 className="font-bold text-lg text-gray-900 dark:text-gray-100">

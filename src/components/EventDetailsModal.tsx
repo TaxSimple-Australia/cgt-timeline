@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { TimelineEvent, PropertyStatus, useTimelineStore, CostBaseItem } from '@/store/timeline';
 import { format } from 'date-fns';
-import { X, Calendar, DollarSign, Home, Tag, FileText, CheckCircle, Receipt, Info, Star, Palette } from 'lucide-react';
+import { X, Calendar, DollarSign, Home, Tag, FileText, CheckCircle, Receipt, Info, Star, Palette, Building2, Key } from 'lucide-react';
 import CostBaseSelector from './CostBaseSelector';
 import { getCostBaseDefinition } from '@/lib/cost-base-definitions';
 import CostBaseSummaryModal from './CostBaseSummaryModal';
@@ -32,7 +32,7 @@ interface EventDetailsModalProps {
 }
 
 export default function EventDetailsModal({ event, onClose, propertyName }: EventDetailsModalProps) {
-  const { updateEvent, deleteEvent, addEvent } = useTimelineStore();
+  const { updateEvent, deleteEvent, addEvent, events } = useTimelineStore();
 
   const [title, setTitle] = useState(event.title);
   const [date, setDate] = useState(format(event.date, 'yyyy-MM-dd'));
@@ -49,6 +49,16 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
 
   // Move in on same day checkbox (for purchase events)
   const [moveInOnSameDay, setMoveInOnSameDay] = useState(false);
+  const [purchaseAsVacant, setPurchaseAsVacant] = useState(false);
+  const [purchaseAsRent, setPurchaseAsRent] = useState(false);
+
+  // Move out status checkboxes (for move_out events)
+  const [moveOutAsVacant, setMoveOutAsVacant] = useState(false);
+  const [moveOutAsRent, setMoveOutAsRent] = useState(false);
+
+  // Rent end status checkboxes (for rent_end events)
+  const [rentEndAsVacant, setRentEndAsVacant] = useState(false);
+  const [rentEndAsMoveIn, setRentEndAsMoveIn] = useState(false);
 
   // NEW: Dynamic Cost Bases
   const [costBases, setCostBases] = useState<CostBaseItem[]>(() => {
@@ -172,15 +182,176 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
 
       // Create move_in event if checkbox is checked (for purchase events)
       if (event.type === 'purchase' && moveInOnSameDay) {
-        addEvent({
-          propertyId: event.propertyId,
-          type: 'move_in',
-          date: new Date(date),
-          title: 'Move In',
-          position: event.position, // Use same position as purchase event
-          color: '#10B981', // Green color for move_in events
-        });
+        // Check if a move_in event already exists for this property on the same date
+        const moveInDate = new Date(date);
+        const existingMoveIn = events.find(
+          (e) =>
+            e.propertyId === event.propertyId &&
+            e.type === 'move_in' &&
+            e.date.getTime() === moveInDate.getTime()
+        );
+
+        // Only create if no duplicate exists
+        if (!existingMoveIn) {
+          addEvent({
+            propertyId: event.propertyId,
+            type: 'move_in',
+            date: moveInDate,
+            title: 'Move In',
+            position: event.position, // Use same position as purchase event
+            color: '#10B981', // Green color for move_in events
+          });
+        }
       }
+
+      // Create status_change event for "purchase as vacant"
+      if (event.type === 'purchase' && purchaseAsVacant) {
+        const statusDate = new Date(date);
+        const existingStatusChange = events.find(
+          (e) =>
+            e.propertyId === event.propertyId &&
+            e.type === 'status_change' &&
+            e.newStatus === 'vacant' &&
+            e.date.getTime() === statusDate.getTime()
+        );
+
+        if (!existingStatusChange) {
+          addEvent({
+            propertyId: event.propertyId,
+            type: 'status_change',
+            date: statusDate,
+            title: 'Status: Vacant',
+            newStatus: 'vacant',
+            position: event.position,
+            color: '#A855F7', // Purple color for status_change events
+          });
+        }
+      }
+
+      // Create status_change event for "purchase as rent"
+      if (event.type === 'purchase' && purchaseAsRent) {
+        const statusDate = new Date(date);
+        const existingStatusChange = events.find(
+          (e) =>
+            e.propertyId === event.propertyId &&
+            e.type === 'status_change' &&
+            e.newStatus === 'rental' &&
+            e.date.getTime() === statusDate.getTime()
+        );
+
+        if (!existingStatusChange) {
+          addEvent({
+            propertyId: event.propertyId,
+            type: 'status_change',
+            date: statusDate,
+            title: 'Status: Rental',
+            newStatus: 'rental',
+            position: event.position,
+            color: '#A855F7', // Purple color for status_change events
+          });
+        }
+      }
+
+      // Create status_change event for "move out as vacant"
+      if (event.type === 'move_out' && moveOutAsVacant) {
+        const statusDate = new Date(date);
+        const existingStatusChange = events.find(
+          (e) =>
+            e.propertyId === event.propertyId &&
+            e.type === 'status_change' &&
+            e.newStatus === 'vacant' &&
+            e.date.getTime() === statusDate.getTime()
+        );
+
+        if (!existingStatusChange) {
+          addEvent({
+            propertyId: event.propertyId,
+            type: 'status_change',
+            date: statusDate,
+            title: 'Status: Vacant',
+            newStatus: 'vacant',
+            position: event.position,
+            color: '#A855F7', // Purple color for status_change events
+          });
+        }
+      }
+
+      // Create rent_start event for "move out as rent"
+      if (event.type === 'move_out' && moveOutAsRent) {
+        const rentDate = new Date(date);
+        const existingRentStart = events.find(
+          (e) =>
+            e.propertyId === event.propertyId &&
+            e.type === 'rent_start' &&
+            e.date.getTime() === rentDate.getTime()
+        );
+
+        if (!existingRentStart) {
+          addEvent({
+            propertyId: event.propertyId,
+            type: 'rent_start',
+            date: rentDate,
+            title: 'Start Rent',
+            position: event.position,
+            color: '#F59E0B', // Amber color for rent_start events
+          });
+        }
+      }
+
+      // Create status_change event for "rent end as vacant"
+      if (event.type === 'rent_end' && rentEndAsVacant) {
+        const statusDate = new Date(date);
+        const existingStatusChange = events.find(
+          (e) =>
+            e.propertyId === event.propertyId &&
+            e.type === 'status_change' &&
+            e.newStatus === 'vacant' &&
+            e.date.getTime() === statusDate.getTime()
+        );
+
+        if (!existingStatusChange) {
+          addEvent({
+            propertyId: event.propertyId,
+            type: 'status_change',
+            date: statusDate,
+            title: 'Status: Vacant',
+            newStatus: 'vacant',
+            position: event.position,
+            color: '#A855F7', // Purple color for status_change events
+          });
+        }
+      }
+
+      // Create move_in event for "rent end as move in"
+      if (event.type === 'rent_end' && rentEndAsMoveIn) {
+        const moveInDate = new Date(date);
+        const existingMoveIn = events.find(
+          (e) =>
+            e.propertyId === event.propertyId &&
+            e.type === 'move_in' &&
+            e.date.getTime() === moveInDate.getTime()
+        );
+
+        if (!existingMoveIn) {
+          addEvent({
+            propertyId: event.propertyId,
+            type: 'move_in',
+            date: moveInDate,
+            title: 'Move In',
+            position: event.position,
+            color: '#10B981', // Green color for move_in events
+          });
+        }
+      }
+
+      // Reset checkbox states to prevent duplicate creation on next save
+      setMoveInOnSameDay(false);
+      setPurchaseAsVacant(false);
+      setPurchaseAsRent(false);
+      setMoveOutAsVacant(false);
+      setMoveOutAsRent(false);
+      setRentEndAsVacant(false);
+      setRentEndAsMoveIn(false);
 
       // Small delay for visual feedback
       setTimeout(() => {
@@ -246,7 +417,9 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
                   <Home className="w-6 h-6 text-white" />
                 </div>
                 <div>
-                  <h2 className="text-xl font-bold text-slate-800 dark:text-slate-100">{event.title}</h2>
+                  <h2 className="text-xl font-bold text-slate-800 dark:text-slate-100">
+                    {event.type === 'sale' && event.title.toLowerCase() === 'sale' ? 'sold' : event.title}
+                  </h2>
                   <p className="text-sm text-slate-500 dark:text-slate-400">{propertyName}</p>
                 </div>
               </div>
@@ -284,7 +457,7 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
                 style={{ backgroundColor: event.type === 'custom' ? customColor : event.color }}
               >
                 {event.type === 'custom' && <Star className="w-3 h-3" />}
-                {event.type === 'custom' ? 'CUSTOM' : event.type === 'refinance' ? 'INHERIT' : event.type.replace('_', ' ').toUpperCase()}
+                {event.type === 'custom' ? 'CUSTOM' : event.type === 'refinance' ? 'INHERIT' : event.type === 'sale' ? 'SOLD' : event.type.replace('_', ' ').toUpperCase()}
               </span>
             </div>
 
@@ -380,52 +553,99 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
                 />
               </div>
 
-              {/* Move in on same day checkbox (for purchase events only) */}
+              {/* Purchase status checkboxes (for purchase events only) */}
               {event.type === 'purchase' && (
-                <div className="flex items-center gap-3 p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
-                  <input
-                    type="checkbox"
-                    id="moveInOnSameDay"
-                    checked={moveInOnSameDay}
-                    onChange={(e) => setMoveInOnSameDay(e.target.checked)}
-                    className="w-4 h-4 text-blue-600 bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 rounded focus:ring-2 focus:ring-blue-500 cursor-pointer"
-                  />
-                  <label
-                    htmlFor="moveInOnSameDay"
-                    className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300 cursor-pointer"
-                  >
-                    <Home className="w-4 h-4" />
-                    Move in on same day
-                  </label>
+                <div className="space-y-3">
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                    Set initial property status after purchase:
+                  </p>
+
+                  {/* Move in on same day checkbox */}
+                  <div className="flex items-center gap-3 p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
+                    <input
+                      type="checkbox"
+                      id="moveInOnSameDay"
+                      checked={moveInOnSameDay}
+                      onChange={(e) => {
+                        setMoveInOnSameDay(e.target.checked);
+                        if (e.target.checked) {
+                          setPurchaseAsVacant(false);
+                          setPurchaseAsRent(false);
+                        }
+                      }}
+                      className="w-4 h-4 text-blue-600 bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 rounded focus:ring-2 focus:ring-blue-500 cursor-pointer"
+                    />
+                    <label
+                      htmlFor="moveInOnSameDay"
+                      className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300 cursor-pointer"
+                    >
+                      <Home className="w-4 h-4" />
+                      Move in on same day (Main Residence)
+                    </label>
+                  </div>
+
+                  {/* Purchase as vacant checkbox */}
+                  <div className="flex items-center gap-3 p-4 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800">
+                    <input
+                      type="checkbox"
+                      id="purchaseAsVacant"
+                      checked={purchaseAsVacant}
+                      onChange={(e) => {
+                        setPurchaseAsVacant(e.target.checked);
+                        if (e.target.checked) {
+                          setMoveInOnSameDay(false);
+                          setPurchaseAsRent(false);
+                        }
+                      }}
+                      className="w-4 h-4 text-blue-600 bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 rounded focus:ring-2 focus:ring-blue-500 cursor-pointer"
+                    />
+                    <label
+                      htmlFor="purchaseAsVacant"
+                      className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300 cursor-pointer"
+                    >
+                      <Building2 className="w-4 h-4" />
+                      Purchase as vacant
+                    </label>
+                  </div>
+
+                  {/* Purchase as rent checkbox */}
+                  <div className="flex items-center gap-3 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                    <input
+                      type="checkbox"
+                      id="purchaseAsRent"
+                      checked={purchaseAsRent}
+                      onChange={(e) => {
+                        setPurchaseAsRent(e.target.checked);
+                        if (e.target.checked) {
+                          setMoveInOnSameDay(false);
+                          setPurchaseAsVacant(false);
+                        }
+                      }}
+                      className="w-4 h-4 text-blue-600 bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 rounded focus:ring-2 focus:ring-blue-500 cursor-pointer"
+                    />
+                    <label
+                      htmlFor="purchaseAsRent"
+                      className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300 cursor-pointer"
+                    >
+                      <Key className="w-4 h-4" />
+                      Purchase as rental/investment
+                    </label>
+                  </div>
                 </div>
               )}
             </div>
 
-            {/* Financial Details Section */}
-            <div className="space-y-4 pt-2">
-              <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide">Financial Details</h3>
-
-              {/* Total Cost Base Display for Purchase Events */}
-              {event.type === 'purchase' && (
-                <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Total Purchase Price:</span>
-                    <span className="text-lg font-bold text-slate-900 dark:text-slate-100">
-                      ${costBases.reduce((sum, cb) => sum + cb.amount, 0).toLocaleString('en-AU', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                    </span>
-                  </div>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-2">
-                    Calculated from cost bases below
-                  </p>
-                </div>
-              )}
-
-              {/* Single Amount Input (for non-purchase events) */}
-              {event.type !== 'purchase' &&
-               event.type !== 'move_in' &&
-               event.type !== 'move_out' &&
-               event.type !== 'living_in_rental_start' &&
-               event.type !== 'living_in_rental_end' && (
+            {/* Financial Details Section - Only for specific event types (not purchase or sale) */}
+            {event.type !== 'purchase' &&
+             event.type !== 'move_in' &&
+             event.type !== 'move_out' &&
+             event.type !== 'rent_start' &&
+             event.type !== 'rent_end' &&
+             event.type !== 'sale' &&
+             event.type !== 'living_in_rental_start' &&
+             event.type !== 'living_in_rental_end' && (
+              <div className="space-y-4 pt-2">
+                {/* Single Amount Input */}
                 <div>
                   <label className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                     <DollarSign className="w-4 h-4" />
@@ -443,11 +663,11 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
                     />
                   </div>
                 </div>
-              )}
-            </div>
+              </div>
+            )}
 
             {/* Cost Base Section (for CGT calculation) - NEW COMPONENT */}
-            {(event.type === 'purchase' || event.type === 'sale' || event.type === 'improvement' || event.type === 'rent_start' || event.type === 'rent_end' || event.type === 'status_change' || event.type === 'refinance' || event.type === 'custom') && (
+            {(event.type === 'purchase' || event.type === 'sale' || event.type === 'improvement' || event.type === 'status_change' || event.type === 'refinance' || event.type === 'custom') && (
               <div className="space-y-4 pt-2 border-t border-slate-200 dark:border-slate-700">
                 <CostBaseSelector
                   eventType={event.type}
@@ -457,9 +677,120 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
               </div>
             )}
 
-            {/* Move Out Event - Market Valuation (separate from cost bases) */}
+            {/* Rent End Event - Status Options */}
+            {event.type === 'rent_end' && (
+              <div className="space-y-4 pt-2 border-t border-slate-200 dark:border-slate-700">
+                <div className="space-y-3">
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                    Set property status after rent ends:
+                  </p>
+
+                  {/* Rent end as vacant checkbox */}
+                  <div className="flex items-center gap-3 p-4 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800">
+                    <input
+                      type="checkbox"
+                      id="rentEndAsVacant"
+                      checked={rentEndAsVacant}
+                      onChange={(e) => {
+                        setRentEndAsVacant(e.target.checked);
+                        if (e.target.checked) {
+                          setRentEndAsMoveIn(false);
+                        }
+                      }}
+                      className="w-4 h-4 text-blue-600 bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 rounded focus:ring-2 focus:ring-blue-500 cursor-pointer"
+                    />
+                    <label
+                      htmlFor="rentEndAsVacant"
+                      className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300 cursor-pointer"
+                    >
+                      <Building2 className="w-4 h-4" />
+                      Rent end as vacant
+                    </label>
+                  </div>
+
+                  {/* Rent end as move in checkbox */}
+                  <div className="flex items-center gap-3 p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
+                    <input
+                      type="checkbox"
+                      id="rentEndAsMoveIn"
+                      checked={rentEndAsMoveIn}
+                      onChange={(e) => {
+                        setRentEndAsMoveIn(e.target.checked);
+                        if (e.target.checked) {
+                          setRentEndAsVacant(false);
+                        }
+                      }}
+                      className="w-4 h-4 text-blue-600 bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 rounded focus:ring-2 focus:ring-blue-500 cursor-pointer"
+                    />
+                    <label
+                      htmlFor="rentEndAsMoveIn"
+                      className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300 cursor-pointer"
+                    >
+                      <Home className="w-4 h-4" />
+                      Rent end as move in (owner returns)
+                    </label>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Move Out Event - Status Options & Market Valuation */}
             {event.type === 'move_out' && (
               <div className="space-y-4 pt-2 border-t border-slate-200 dark:border-slate-700">
+                {/* Move out status checkboxes */}
+                <div className="space-y-3">
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                    Set property status after move-out:
+                  </p>
+
+                  {/* Move out as vacant checkbox */}
+                  <div className="flex items-center gap-3 p-4 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800">
+                    <input
+                      type="checkbox"
+                      id="moveOutAsVacant"
+                      checked={moveOutAsVacant}
+                      onChange={(e) => {
+                        setMoveOutAsVacant(e.target.checked);
+                        if (e.target.checked) {
+                          setMoveOutAsRent(false);
+                        }
+                      }}
+                      className="w-4 h-4 text-blue-600 bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 rounded focus:ring-2 focus:ring-blue-500 cursor-pointer"
+                    />
+                    <label
+                      htmlFor="moveOutAsVacant"
+                      className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300 cursor-pointer"
+                    >
+                      <Building2 className="w-4 h-4" />
+                      Move out as vacant
+                    </label>
+                  </div>
+
+                  {/* Move out as rent start checkbox */}
+                  <div className="flex items-center gap-3 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                    <input
+                      type="checkbox"
+                      id="moveOutAsRent"
+                      checked={moveOutAsRent}
+                      onChange={(e) => {
+                        setMoveOutAsRent(e.target.checked);
+                        if (e.target.checked) {
+                          setMoveOutAsVacant(false);
+                        }
+                      }}
+                      className="w-4 h-4 text-blue-600 bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 rounded focus:ring-2 focus:ring-blue-500 cursor-pointer"
+                    />
+                    <label
+                      htmlFor="moveOutAsRent"
+                      className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300 cursor-pointer"
+                    >
+                      <Key className="w-4 h-4" />
+                      Move out as rental/investment
+                    </label>
+                  </div>
+                </div>
+
+                {/* Market Valuation Section */}
                 <div className="space-y-3">
                   <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide">
                     Market Valuation

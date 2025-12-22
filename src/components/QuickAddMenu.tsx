@@ -32,7 +32,7 @@ interface QuickAddMenuProps {
 
 const eventTypes: { type: EventType; label: string; icon: React.ReactNode; color: string }[] = [
   { type: 'purchase', label: 'Purchase', icon: <Home className="w-4 h-4" />, color: '#3B82F6' },
-  { type: 'sale', label: 'Sale', icon: <TrendingUp className="w-4 h-4" />, color: '#8B5CF6' },
+  { type: 'sale', label: 'Sold', icon: <TrendingUp className="w-4 h-4" />, color: '#8B5CF6' },
   { type: 'move_in', label: 'Move In', icon: <Key className="w-4 h-4" />, color: '#10B981' },
   { type: 'move_out', label: 'Move Out', icon: <Package className="w-4 h-4" />, color: '#EF4444' },
   { type: 'rent_start', label: 'Start Rent', icon: <DollarSign className="w-4 h-4" />, color: '#F59E0B' },

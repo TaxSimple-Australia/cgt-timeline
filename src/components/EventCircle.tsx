@@ -293,7 +293,7 @@ export default function EventCircle({ event, cx, cy, color, onClick, tier = 0, z
             animate={{ opacity: 1, y: 0 }}
             className="bg-slate-800 text-white px-3 py-2 rounded-lg shadow-xl text-xs"
           >
-            <div className="font-semibold mb-1">{event.title}</div>
+            <div className="font-semibold mb-1">{event.type === 'sale' && event.title.toLowerCase() === 'sale' ? 'sold' : event.title}</div>
             <div className="text-slate-300 text-[10px]">
               {new Date(event.date).toLocaleDateString('en-US', {
                 month: 'short',
@@ -354,9 +354,9 @@ export default function EventCircle({ event, cx, cy, color, onClick, tier = 0, z
             textOverflow: 'ellipsis',
             whiteSpace: 'nowrap'
           }}
-          title={event.title}
+          title={event.type === 'sale' && event.title.toLowerCase() === 'sale' ? 'sold' : event.title}
         >
-          {event.title}
+          {event.type === 'sale' && event.title.toLowerCase() === 'sale' ? 'sold' : event.title}
         </div>
       </foreignObject>
     </g>

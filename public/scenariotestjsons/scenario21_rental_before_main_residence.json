@@ -1,0 +1,67 @@
+{
+  "scenario_info": {
+    "name": "Scenario 21: Home Rented Before Becoming Main Residence",
+    "description": "Alexander purchased a bungalow on 10th October 2008 for $400,000 and immediately rented it out. The tenant occupied the property from 10th October 2008 until 1st November 2013. After the tenant moved out, Alexander moved in and established it as his main residence until selling on 1st January 2015 for $650,000. This scenario demonstrates CGT implications when a property is first used for income-producing purposes before becoming a main residence.",
+    "expected_result": {
+      "exemption_type": "partial",
+      "capital_gain": 250000,
+      "notes": "Only the main residence period (1 Nov 2013 to 1 Jan 2015) qualifies for exemption. The rental period (10 Oct 2008 to 1 Nov 2013) is not exempt as the property was income-producing before becoming a main residence."
+    },
+    "applicable_rules": [
+      "Section 118-110 ITAA 1997 - Dwelling acquired after 20 August 1996 that was income-producing before main residence",
+      "Section 118-192 ITAA 1997 - Partial exemption calculation for mixed-use properties",
+      "Cost base adjustments for stamp duty and other acquisition costs",
+      "50% CGT discount applies (owned > 12 months)"
+    ],
+    "key_facts": {
+      "property_address": "77 Alina Harbor View Road, Sydney NSW 2000",
+      "purchase_date": "2008-10-10",
+      "purchase_price": 400000,
+      "sale_date": "2015-01-01",
+      "sale_price": 650000,
+      "total_ownership_days": 2275,
+      "rental_period_days": 1848,
+      "main_residence_days": 427
+    }
+  },
+  "user_query": "Calculate the CGT for Alexander's property that was rented out before becoming his main residence. Property purchased 10 Oct 2008 for $400,000, rented until 1 Nov 2013, then occupied as main residence until sold on 1 Jan 2015 for $650,000.",
+  "properties": [
+    {
+      "address": "77 Alina Harbor View Road, Sydney NSW 2000",
+      "purchase_price": 400000,
+      "current_value": 650000,
+      "property_history": [
+        {
+          "event": "purchase",
+          "date": "2008-10-10",
+          "description": "Purchased bungalow for $400,000 plus stamp duty",
+          "price": 400000,
+          "stamp_duty": 14490
+        },
+        {
+          "event": "rent_start",
+          "date": "2008-10-10",
+          "description": "Property immediately rented out to tenant after purchase"
+        },
+        {
+          "event": "rent_end",
+          "date": "2013-11-01",
+          "description": "Tenant vacates the property after 5 years of tenancy"
+        },
+        {
+          "event": "move_in",
+          "date": "2013-11-01",
+          "description": "Alexander moves in and establishes main residence at 77 Alina Harbor View Road, Sydney NSW 2000"
+        },
+        {
+          "event": "sale",
+          "date": "2015-01-01",
+          "description": "Property sold for $650,000",
+          "price": 650000,
+          "sale_agent_fees": 16250,
+          "sale_legal_fees": 1500
+        }
+      ]
+    }
+  ]
+}

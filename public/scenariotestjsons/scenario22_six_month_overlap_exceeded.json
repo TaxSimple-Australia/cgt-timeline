@@ -1,0 +1,61 @@
+{
+  "scenario_info": {
+    "name": "Scenario 22: Six Month Overlap Rule Exceeded",
+    "description": "Lucille buys a new home before selling her old one, but takes too long to sell. The overlap period exceeds the 6-month allowance."
+  },
+  "user_query": "Calculate the CGT for Lucille who bought a new home before selling her old one. The overlap period between owning both properties exceeded 6 months.",
+  "properties": [
+    {
+      "address": "64 Applewood Drive, Brisbane QLD 4064",
+      "purchase_price": 720000,
+      "current_value": 1450000,
+      "property_history": [
+        {
+          "event": "purchase",
+          "date": "2012-03-01",
+          "description": "Purchased old home for $720,000",
+          "price": 720000,
+          "stamp_duty": 28800,
+          "purchase_legal_fees": 3500
+        },
+        {
+          "event": "move_in",
+          "date": "2012-03-01",
+          "description": "Established as main residence"
+        },
+        {
+          "event": "move_out",
+          "date": "2024-02-01",
+          "description": "Moved out to new home at 88 Peach Bear Road"
+        },
+        {
+          "event": "sale",
+          "date": "2024-10-15",
+          "description": "Property sold for $1,450,000",
+          "price": 1450000,
+          "sale_agent_fees": 36250,
+          "sale_legal_fees": 3200
+        }
+      ]
+    },
+    {
+      "address": "88 Peach Bear Road, Cansas QLD 4007",
+      "purchase_price": 1200000,
+      "property_history": [
+        {
+          "event": "purchase",
+          "date": "2024-02-01",
+          "description": "Purchased new home for $1,200,000",
+          "price": 1200000,
+          "stamp_duty": 48000,
+          "purchase_legal_fees": 3500
+        },
+        {
+          "event": "move_in",
+          "date": "2024-02-01",
+          "description": "Established as main residence"
+        }
+      ]
+    }
+  ]
+}

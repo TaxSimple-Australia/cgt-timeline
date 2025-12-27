@@ -112,28 +112,76 @@ export default function TimelineControls() {
           if (event.costBases && event.costBases.length > 0) {
             const costBaseToApiFieldMap: Record<string, string> = {
               'purchase_price': 'price',
+              'sale_price': 'price',
               'land_price': 'land_price',
               'building_price': 'building_price',
               'stamp_duty': 'stamp_duty',
               'purchase_legal_fees': 'purchase_legal_fees',
+              'conveyancing_fees': 'conveyancing_fees',
+              'conveyancing_fees_purchase': 'conveyancing_fees',
+              'conveyancing_fees_sale': 'conveyancing_fees',
               'valuation_fees': 'valuation_fees',
               'building_inspection': 'building_inspection',
               'pest_inspection': 'pest_inspection',
               'purchase_agent_fees': 'purchase_agent_fees',
               'title_legal_fees': 'title_legal_fees',
               'loan_establishment': 'loan_establishment',
+              'loan_application_fees': 'loan_application_fees',
               'mortgage_insurance': 'mortgage_insurance',
+              'mortgage_discharge_fees': 'mortgage_discharge_fees',
+              'survey_fees': 'survey_fees',
+              'search_fees': 'search_fees',
+              'accountant_fees_purchase': 'accountant_fees_purchase',
+              'tax_agent_fees_sale': 'tax_agent_fees_sale',
               'sale_agent_fees': 'agent_fees',
               'sale_legal_fees': 'legal_fees',
               'advertising_costs': 'advertising_costs',
               'staging_costs': 'staging_costs',
               'auction_costs': 'auction_costs',
+              'auction_fees': 'auction_fees',
+              // Element 3: Holding Costs
+              'land_tax': 'land_tax',
+              'council_rates': 'council_rates',
+              'water_rates': 'water_rates',
+              'insurance': 'insurance',
+              'body_corporate_fees': 'body_corporate_fees',
+              'interest_on_borrowings': 'interest_on_borrowings',
+              'maintenance_costs': 'maintenance_costs',
+              'emergency_services_levy': 'emergency_services_levy',
+              // Element 5: Title Costs
+              'boundary_dispute': 'boundary_dispute',
+              'title_insurance': 'title_insurance',
+              'easement_costs': 'easement_costs',
+              'caveat_costs': 'caveat_costs',
+              'partition_action': 'partition_action',
+              'adverse_possession_defense': 'adverse_possession_defense',
+              // Element 4: Improvement types
+              'renovation_whole_house': 'improvement_cost',
+              'renovation_kitchen': 'improvement_cost',
+              'renovation_bathroom': 'improvement_cost',
+              'extension': 'improvement_cost',
+              'swimming_pool': 'improvement_cost',
+              'landscaping': 'improvement_cost',
+              'landscaping_major': 'improvement_cost',
+              'garage_carport': 'improvement_cost',
+              'garage': 'improvement_cost',
+              'fencing': 'improvement_cost',
+              'deck_patio': 'improvement_cost',
+              'hvac_system': 'improvement_cost',
+              'solar_panels': 'improvement_cost',
+              'structural_changes': 'improvement_cost',
+              'disability_modifications': 'improvement_cost',
+              'water_tank': 'improvement_cost',
+              'shed_outbuilding': 'improvement_cost',
+              'shed': 'improvement_cost',
             };
 
             event.costBases.forEach(cb => {
               const apiField = costBaseToApiFieldMap[cb.definitionId];
               if (apiField) {
                 historyItem[apiField] = cb.amount;
+              } else {
+                console.warn(`⚠️ Cost base '${cb.definitionId}' not mapped for JSON export (amount: ${cb.amount})`);
               }
             });
 

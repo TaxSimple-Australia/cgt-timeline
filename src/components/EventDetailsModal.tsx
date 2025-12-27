@@ -126,6 +126,21 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
         // Clear legacy land/building prices
         updates.landPrice = undefined;
         updates.buildingPrice = undefined;
+      } else if (event.type === 'sale') {
+        // For sale events, extract sale price from costBases if available
+        const salePriceItem = costBases.find(cb => cb.definitionId === 'sale_price');
+        if (salePriceItem && salePriceItem.amount > 0) {
+          updates.amount = salePriceItem.amount;
+        } else if (amount && !isNaN(parseFloat(amount))) {
+          // Fallback to manual amount field if no sale_price in costBases
+          updates.amount = parseFloat(amount);
+        } else {
+          updates.amount = undefined;
+        }
+
+        // Clear legacy land/building prices
+        updates.landPrice = undefined;
+        updates.buildingPrice = undefined;
       } else {
         // For other events, use the single amount field
         if (amount && !isNaN(parseFloat(amount))) {

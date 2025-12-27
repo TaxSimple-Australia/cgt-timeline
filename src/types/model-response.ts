@@ -9,6 +9,7 @@ export interface PropertyHistoryEvent {
   price_per_week?: number;
   description?: string;
   contract_date?: string;
+  settlement_date?: string;
 
   // Purchase cost base fields (First Element & Element 2)
   purchase_legal_fees?: number;
@@ -35,6 +36,26 @@ export interface PropertyHistoryEvent {
   staging_costs?: number;
   auction_costs?: number;
   mortgage_discharge_fees?: number;
+  accountant_fees_purchase?: number;
+  tax_agent_fees_sale?: number;
+
+  // Element 3: Holding/Ownership Costs
+  land_tax?: number;
+  council_rates?: number;
+  water_rates?: number;
+  insurance?: number;
+  body_corporate_fees?: number;
+  interest_on_borrowings?: number;
+  maintenance_costs?: number;
+  emergency_services_levy?: number;
+
+  // Element 5: Title Costs
+  boundary_dispute?: number;
+  title_insurance?: number;
+  easement_costs?: number;
+  caveat_costs?: number;
+  partition_action?: number;
+  adverse_possession_defense?: number;
 
   // Legacy/alternative field names
   sale_legal_fees?: number;

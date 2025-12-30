@@ -42,6 +42,20 @@ export function transformTimelineToAPIFormat(
       // Add price if available
       if (event.amount) {
         historyEvent.price = event.amount;
+      } else if (event.type === 'sale' && event.costBases) {
+        // Fallback: Extract sale_price from costBases for sale events
+        const salePriceItem = event.costBases.find(cb => cb.definitionId === 'sale_price');
+        if (salePriceItem && salePriceItem.amount > 0) {
+          historyEvent.price = salePriceItem.amount;
+          console.log('📍 Transform: Extracted sale price from costBases:', salePriceItem.amount);
+        }
+      } else if (event.type === 'purchase' && event.costBases) {
+        // Fallback: Extract purchase_price from costBases for purchase events
+        const purchasePriceItem = event.costBases.find(cb => cb.definitionId === 'purchase_price');
+        if (purchasePriceItem && purchasePriceItem.amount > 0) {
+          historyEvent.price = purchasePriceItem.amount;
+          console.log('📍 Transform: Extracted purchase price from costBases:', purchasePriceItem.amount);
+        }
       }
 
       // Add contract date for sale events
@@ -61,6 +75,12 @@ export function transformTimelineToAPIFormat(
         historyEvent.contract_date = contractDate.toISOString().split('T')[0];
       }
 
+      // Add settlement date if available
+      if (event.settlementDate) {
+        const settlementDate = event.settlementDate instanceof Date ? event.settlementDate : new Date(event.settlementDate);
+        historyEvent.settlement_date = settlementDate.toISOString().split('T')[0];
+      }
+
       // Add market value for move_out events (used for CGT apportionment)
       if (event.marketValuation !== undefined) {
         historyEvent.market_value = event.marketValuation;
@@ -71,6 +91,20 @@ export function transformTimelineToAPIFormat(
         event.costBases.forEach((costBase) => {
           // Map cost base items to API fields based on their definitionId
           switch (costBase.definitionId) {
+            // Element 1: Acquisition/Sale Price
+            case 'purchase_price':
+              if (!historyEvent.price) {
+                historyEvent.price = costBase.amount;
+              }
+              console.log('📍 Transform: Mapped purchase_price from costBases:', costBase.amount);
+              break;
+            case 'sale_price':
+              if (!historyEvent.price) {
+                historyEvent.price = costBase.amount;
+              }
+              console.log('📍 Transform: Mapped sale_price from costBases:', costBase.amount);
+              break;
+            // Element 2: Incidental Costs (Acquisition)
             case 'purchase_legal_fees':
               historyEvent.purchase_legal_fees = costBase.amount;
               break;
@@ -99,6 +133,8 @@ export function transformTimelineToAPIFormat(
               historyEvent.mortgage_insurance = costBase.amount;
               break;
             case 'conveyancing_fees':
+            case 'conveyancing_fees_purchase':
+            case 'conveyancing_fees_sale':
               historyEvent.conveyancing_fees = costBase.amount;
               break;
             case 'sale_legal_fees':
@@ -131,6 +167,56 @@ export function transformTimelineToAPIFormat(
             case 'mortgage_discharge_fees':
               historyEvent.mortgage_discharge_fees = costBase.amount;
               break;
+            case 'accountant_fees_purchase':
+              historyEvent.accountant_fees_purchase = costBase.amount;
+              break;
+            case 'tax_agent_fees_sale':
+              historyEvent.tax_agent_fees_sale = costBase.amount;
+              break;
+            // Element 3: Holding/Ownership Costs
+            case 'land_tax':
+              historyEvent.land_tax = costBase.amount;
+              break;
+            case 'council_rates':
+              historyEvent.council_rates = costBase.amount;
+              break;
+            case 'water_rates':
+              historyEvent.water_rates = costBase.amount;
+              break;
+            case 'insurance':
+              historyEvent.insurance = costBase.amount;
+              break;
+            case 'body_corporate_fees':
+              historyEvent.body_corporate_fees = costBase.amount;
+              break;
+            case 'interest_on_borrowings':
+              historyEvent.interest_on_borrowings = costBase.amount;
+              break;
+            case 'maintenance_costs':
+              historyEvent.maintenance_costs = costBase.amount;
+              break;
+            case 'emergency_services_levy':
+              historyEvent.emergency_services_levy = costBase.amount;
+              break;
+            // Element 5: Title Costs
+            case 'boundary_dispute':
+              historyEvent.boundary_dispute = costBase.amount;
+              break;
+            case 'title_insurance':
+              historyEvent.title_insurance = costBase.amount;
+              break;
+            case 'easement_costs':
+              historyEvent.easement_costs = costBase.amount;
+              break;
+            case 'caveat_costs':
+              historyEvent.caveat_costs = costBase.amount;
+              break;
+            case 'partition_action':
+              historyEvent.partition_action = costBase.amount;
+              break;
+            case 'adverse_possession_defense':
+              historyEvent.adverse_possession_defense = costBase.amount;
+              break;
             // Improvement costs
             case 'renovation_whole_house':
             case 'renovation_kitchen':
@@ -138,10 +224,20 @@ export function transformTimelineToAPIFormat(
             case 'extension':
             case 'new_structure':
             case 'landscaping_major':
+            case 'landscaping':
             case 'swimming_pool':
             case 'tennis_court':
             case 'garage':
+            case 'garage_carport':
             case 'shed':
+            case 'shed_outbuilding':
+            case 'fencing':
+            case 'deck_patio':
+            case 'hvac_system':
+            case 'solar_panels':
+            case 'structural_changes':
+            case 'disability_modifications':
+            case 'water_tank':
               // For improvements, use the price field or improvement_cost
               if (!historyEvent.price) {
                 historyEvent.price = costBase.amount;
@@ -150,7 +246,8 @@ export function transformTimelineToAPIFormat(
               break;
             default:
               // For custom or unrecognized cost bases, log a warning
-              console.warn(`Unknown cost base definition: ${costBase.definitionId}`, costBase);
+              // These won't be sent to the API but will still be preserved in the JSON download
+              console.warn(`⚠️ Cost base '${costBase.definitionId}' not mapped to API field (amount: ${costBase.amount}). This is preserved in timeline data but won't be sent to the API.`, costBase);
           }
         });
       }

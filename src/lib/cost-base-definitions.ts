@@ -124,6 +124,22 @@ export const COST_BASE_DEFINITIONS: CostBaseDefinition[] = [
     description: 'Accounting costs related to acquisition',
     applicableEvents: ['purchase'],
   },
+  {
+    id: 'loan_establishment',
+    name: 'Loan Establishment Fees',
+    category: 'element2',
+    description: 'Fees charged by lender for establishing a mortgage loan (if not claimed as a tax deduction)',
+    applicableEvents: ['purchase', 'refinance'],
+    requiresWarning: true,
+    warningText: 'Only include if not claimed as a tax deduction',
+  },
+  {
+    id: 'mortgage_insurance',
+    name: "Lender's Mortgage Insurance (LMI)",
+    category: 'element2',
+    description: "Insurance premium paid for lender's mortgage insurance when borrowing over 80% LVR",
+    applicableEvents: ['purchase'],
+  },
 
   // ===== SALE PROCEEDS (Capital Proceeds - not a cost base) =====
   {
@@ -161,6 +177,13 @@ export const COST_BASE_DEFINITIONS: CostBaseDefinition[] = [
     name: 'Advertising Costs',
     category: 'element2',
     description: 'Marketing and advertising expenses incurred to sell the property, including online listings, photography, signboards, brochures, and print advertisements.',
+    applicableEvents: ['sale'],
+  },
+  {
+    id: 'staging_costs',
+    name: 'Property Staging Costs',
+    category: 'element2',
+    description: 'Professional styling and staging costs to present the property for sale, including furniture hire and interior decoration.',
     applicableEvents: ['sale'],
   },
   {

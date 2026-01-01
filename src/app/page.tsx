@@ -349,13 +349,14 @@ function HomeContent() {
       const apiData = transformTimelineToAPIFormat(properties, events);
 
       console.log('📤 Fetching suggested questions:', apiData);
+      console.log(`🤖 Using LLM Provider: ${selectedLLMProvider}`);
 
       const response = await fetch('/api/suggest-questions', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(apiData),
+        body: JSON.stringify({ ...apiData, llmProvider: selectedLLMProvider }),
       });
 
       const result = await response.json();

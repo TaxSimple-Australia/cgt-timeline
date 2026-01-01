@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-const SUGGEST_QUESTIONS_API_URL = 'https://cgtbrain.com.au/api/v1/suggest-questions';
+// Base API URL for suggest questions endpoint
+const SUGGEST_QUESTIONS_BASE_URL = 'https://cgtbrain.com.au/suggest-questions/';
+
+// Default number of questions to request
+const DEFAULT_NUM_QUESTIONS = 5;
 
 export interface SuggestedQuestion {
   question: string;
@@ -10,7 +14,6 @@ export interface SuggestedQuestion {
 }
 
 export interface SuggestQuestionsResponse {
-  status: 'success' | 'error';
   suggested_questions?: SuggestedQuestion[];
   context_summary?: string;
   error?: string;
@@ -20,15 +23,35 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
 
-    console.log(`🔗 Calling Suggest Questions API: ${SUGGEST_QUESTIONS_API_URL}`);
-    console.log('📤 Request payload:', JSON.stringify(body, null, 2));
+    // Extract llmProvider from request (default to 'claude')
+    const llmProvider: string = body.llmProvider || 'claude';
 
-    const response = await fetch(SUGGEST_QUESTIONS_API_URL, {
+    // Extract numQuestions from request (default to 5)
+    const numQuestions: number = body.numQuestions || DEFAULT_NUM_QUESTIONS;
+
+    // Remove internal fields from payload before sending to external API
+    const { llmProvider: _, numQuestions: __, ...apiPayload } = body;
+
+    // Add llm_provider to the payload
+    const finalPayload = {
+      ...apiPayload,
+      llm_provider: llmProvider,
+    };
+
+    // Build URL with query parameter
+    const apiUrl = `${SUGGEST_QUESTIONS_BASE_URL}?num_questions=${numQuestions}`;
+
+    console.log(`🔗 Calling Suggest Questions API: ${apiUrl}`);
+    console.log(`🤖 LLM Provider: ${llmProvider}`);
+    console.log('📤 Request payload:', JSON.stringify(finalPayload, null, 2));
+
+    const response = await fetch(apiUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'Accept': 'application/json',
       },
-      body: JSON.stringify(body),
+      body: JSON.stringify(finalPayload),
     });
 
     console.log(`📥 Suggest Questions API Response Status: ${response.status}`);
@@ -42,7 +65,8 @@ export async function POST(request: NextRequest) {
     const data: SuggestQuestionsResponse = await response.json();
     console.log('✅ Suggest Questions API Response:', JSON.stringify(data, null, 2));
 
-    if (data.status === 'error') {
+    // Check if response contains an error
+    if (data.error) {
       console.error('❌ Suggest Questions API returned error:', data.error);
       return NextResponse.json(
         {
@@ -53,6 +77,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Return the suggested questions
     return NextResponse.json({
       success: true,
       data: {

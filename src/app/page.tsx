@@ -61,6 +61,7 @@ function HomeContent() {
     enableAISuggestedQuestions,
     apiResponseMode,
     setTimelineNotes,
+    selectedLLMProvider,
   } = useTimelineStore();
   const { setValidationIssues, clearValidationIssues, setApiConnected } = useValidationStore();
   const [showAnalysis, setShowAnalysis] = useState(false);
@@ -243,14 +244,15 @@ function HomeContent() {
 
       console.log('📤 Sending data to API:', JSON.stringify(apiData, null, 2));
       console.log(`🔗 Using API Response Mode: ${apiResponseMode}`);
+      console.log(`🤖 Using LLM Provider: ${selectedLLMProvider}`);
 
-      // Call the API with the response mode setting
+      // Call the API with the response mode and LLM provider settings
       const response = await fetch('/api/analyze-cgt', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ ...apiData, responseMode: apiResponseMode }),
+        body: JSON.stringify({ ...apiData, responseMode: apiResponseMode, llmProvider: selectedLLMProvider }),
       });
 
       if (!response.ok) {
@@ -441,13 +443,14 @@ function HomeContent() {
       if (isApiConfigured) {
         console.log('🌐 Calling CGT API with verified responses...');
         console.log(`🔗 Using API Response Mode: ${apiResponseMode}`);
+        console.log(`🤖 Using LLM Provider: ${selectedLLMProvider}`);
         // Call the same API endpoint with verification responses
         const response = await fetch('/api/analyze-cgt', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ ...requestData, responseMode: apiResponseMode }),
+          body: JSON.stringify({ ...requestData, responseMode: apiResponseMode, llmProvider: selectedLLMProvider }),
         });
 
         if (!response.ok) {
@@ -568,6 +571,7 @@ function HomeContent() {
       console.log('📋 Transformed Verification Responses:', JSON.stringify(verificationsData, null, 2));
       console.log('📋 Full Request Payload:', JSON.stringify(requestData, null, 2));
       console.log(`🔗 Using API Response Mode: ${apiResponseMode}`);
+      console.log(`🤖 Using LLM Provider: ${selectedLLMProvider}`);
 
       // Call the same API endpoint with clarification answers included
       const response = await fetch('/api/analyze-cgt', {
@@ -575,7 +579,7 @@ function HomeContent() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ ...requestData, responseMode: apiResponseMode }),
+        body: JSON.stringify({ ...requestData, responseMode: apiResponseMode, llmProvider: selectedLLMProvider }),
       });
 
       if (!response.ok) {

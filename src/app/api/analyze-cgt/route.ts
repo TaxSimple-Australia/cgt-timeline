@@ -3,59 +3,51 @@ import { NextRequest, NextResponse } from 'next/server';
 // API Response Mode type
 type APIResponseMode = 'markdown' | 'json';
 
-// Endpoint paths for each mode
+// Endpoint paths for each mode (new endpoints)
 const ENDPOINT_PATHS: Record<APIResponseMode, string> = {
-  markdown: '/api/v1/analyze-portfolio',
-  json: '/api/v1/analyze-portfolio-json',
+  markdown: '/calculate-cgt/',
+  json: '/calculate-cgt-json/',
 };
+
+// Base API URL
+const API_BASE_URL = 'https://cgtbrain.com.au';
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
 
-    // Extract the response mode from the request (default to 'json' for better display)
-    const responseMode: APIResponseMode = body.responseMode || 'json';
+    // Extract the response mode from the request (default to 'markdown' for View 1)
+    const responseMode: APIResponseMode = body.responseMode || 'markdown';
 
-    // Remove responseMode from the payload before sending to external API
-    const { responseMode: _, ...apiPayload } = body;
+    // Extract LLM provider from the request (default to 'claude')
+    const llmProvider: string = body.llmProvider || 'claude';
 
-    // Get the base API URL from environment variables
-    let API_BASE_URL = process.env.NEXT_PUBLIC_CGT_MODEL_API_URL;
+    // Remove internal fields from the payload before sending to external API
+    const { responseMode: _, llmProvider: __, ...apiPayload } = body;
 
-    // If API URL is not configured, return error
-    if (!API_BASE_URL || API_BASE_URL === 'YOUR_MODEL_API_URL_HERE') {
-      console.error('❌ CGT Model API URL not configured!');
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'API URL not configured. Please set NEXT_PUBLIC_CGT_MODEL_API_URL in your .env.local file.',
-        },
-        { status: 500 }
-      );
-    }
-
-    // Extract base URL (remove any existing endpoint path)
-    // e.g., https://cgtbrain.com.au/api/v1/analyze-portfolio → https://cgtbrain.com.au
-    const urlObj = new URL(API_BASE_URL);
-    const baseUrl = `${urlObj.protocol}//${urlObj.host}`;
+    // Add llm_provider to the payload
+    const finalPayload = {
+      ...apiPayload,
+      llm_provider: llmProvider,
+    };
 
     // Construct the full URL with the correct endpoint based on response mode
     const endpointPath = ENDPOINT_PATHS[responseMode];
-    const API_URL = `${baseUrl}${endpointPath}`;
+    const API_URL = `${API_BASE_URL}${endpointPath}`;
 
     console.log(`🔗 API Response Mode: ${responseMode}`);
+    console.log(`🤖 LLM Provider: ${llmProvider}`);
     console.log(`🔗 Calling CGT Model API: ${API_URL}`);
-    console.log('📤 Request payload:', JSON.stringify(apiPayload, null, 2));
+    console.log('📤 Request payload:', JSON.stringify(finalPayload, null, 2));
 
-    // Call your actual model API
+    // Call the CGT Model API
     const response = await fetch(API_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        // Add any authentication headers here if needed
-        // 'Authorization': `Bearer ${process.env.CGT_MODEL_API_KEY}`,
+        'Accept': 'application/json',
       },
-      body: JSON.stringify(apiPayload),
+      body: JSON.stringify(finalPayload),
     });
 
     console.log(`📥 API Response Status: ${response.status}`);

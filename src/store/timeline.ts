@@ -123,9 +123,19 @@ export type Theme = 'light' | 'dark';
 export type AnalysisDisplayMode = 'auto' | 'json-sections' | 'markdown';
 
 // API Response Mode: determines which endpoint to call
-// 'markdown' → /api/v1/analyze-portfolio (returns markdown string)
-// 'json' → /api/v1/analyze-portfolio-json (returns structured JSON)
+// 'markdown' → /calculate-cgt/ (returns markdown string)
+// 'json' → /calculate-cgt-json/ (returns structured JSON)
 export type APIResponseMode = 'markdown' | 'json';
+
+// LLM Provider types
+export interface LLMProviders {
+  [key: string]: string;
+}
+
+export interface LLMProvidersResponse {
+  providers: LLMProviders;
+  default: string;
+}
 
 interface TimelineState {
   properties: Property[];
@@ -147,6 +157,11 @@ interface TimelineState {
   enableAISuggestedQuestions: boolean; // Enable AI-generated question suggestions
   analysisDisplayMode: AnalysisDisplayMode; // Toggle between JSON sections view and markdown view
   apiResponseMode: APIResponseMode; // Determines which API endpoint to call (markdown or json)
+
+  // LLM Provider State
+  selectedLLMProvider: string; // Currently selected LLM provider (e.g., 'claude', 'openai')
+  availableLLMProviders: LLMProviders; // Available LLM providers from API
+  isLoadingProviders: boolean; // Loading state for fetching providers
 
   // AI Feedback State
   aiResponse: AIResponse | null; // Latest AI analysis response
@@ -196,6 +211,10 @@ interface TimelineState {
   setAnalysisDisplayMode: (mode: AnalysisDisplayMode) => void; // Set analysis display mode
   cycleAnalysisDisplayMode: () => void; // Cycle through display modes: auto -> json-sections -> markdown
   setAPIResponseMode: (mode: APIResponseMode) => void; // Set which API endpoint to use
+
+  // LLM Provider Actions
+  setSelectedLLMProvider: (provider: string) => void; // Set the selected LLM provider
+  fetchLLMProviders: () => Promise<void>; // Fetch available LLM providers from API
 
   // AI Feedback Actions
   setAIResponse: (response: AIResponse) => void; // Store AI analysis response
@@ -440,6 +459,11 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
     enableAISuggestedQuestions: true, // Default enabled
     analysisDisplayMode: 'auto', // Default: auto-detect based on response type
     apiResponseMode: 'markdown', // Default: View 1 (markdown endpoint)
+
+    // LLM Provider Initial State
+    selectedLLMProvider: 'claude', // Default provider
+    availableLLMProviders: { claude: 'Claude Sonnet 4 (Anthropic)' }, // Default fallback
+    isLoadingProviders: false,
 
     // AI Feedback Initial State
     aiResponse: null,
@@ -1339,6 +1363,41 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
   setAPIResponseMode: (mode: APIResponseMode) => {
     set({ apiResponseMode: mode });
     console.log(`🔄 API Response Mode changed to: ${mode}`);
+  },
+
+  // LLM Provider Action Implementations
+  setSelectedLLMProvider: (provider: string) => {
+    set({ selectedLLMProvider: provider });
+    console.log(`🤖 LLM Provider changed to: ${provider}`);
+  },
+
+  fetchLLMProviders: async () => {
+    set({ isLoadingProviders: true });
+
+    try {
+      console.log('🔄 Fetching LLM providers...');
+      const response = await fetch('/api/llm-providers');
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch providers: ${response.statusText}`);
+      }
+
+      const data: LLMProvidersResponse = await response.json();
+      console.log('✅ LLM providers fetched:', data);
+
+      set({
+        availableLLMProviders: data.providers,
+        // Only update selected provider if current selection is not in the list
+        selectedLLMProvider: get().selectedLLMProvider in data.providers
+          ? get().selectedLLMProvider
+          : data.default,
+        isLoadingProviders: false,
+      });
+    } catch (error) {
+      console.error('❌ Error fetching LLM providers:', error);
+      // Keep default providers on error
+      set({ isLoadingProviders: false });
+    }
   },
 
   // AI Feedback Action Implementations

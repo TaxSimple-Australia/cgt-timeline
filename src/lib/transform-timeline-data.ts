@@ -1,5 +1,42 @@
 import type { Property as TimelineProperty, TimelineEvent } from '@/store/timeline';
 import type { CGTModelResponse, Property, PropertyHistoryEvent } from '@/types/model-response';
+import type { VerificationAlert } from '@/types/verification-alert';
+
+/**
+ * Verification response format for the API
+ */
+export interface VerificationResponse {
+  gap_id: string;
+  property_address: string;
+  issue_period: {
+    start_date: string;
+    end_date: string;
+  };
+  resolution_question: string;
+  user_response: string;
+  resolved_at: string;
+}
+
+/**
+ * Transform resolved verification alerts to API verification_responses format
+ */
+export function transformVerificationAlertsToResponses(
+  alerts: VerificationAlert[]
+): VerificationResponse[] {
+  return alerts
+    .filter(alert => alert.resolved && alert.userResponse)
+    .map(alert => ({
+      gap_id: alert.questionId || alert.id,
+      property_address: alert.propertyAddress,
+      issue_period: {
+        start_date: alert.startDate,
+        end_date: alert.endDate,
+      },
+      resolution_question: alert.clarificationQuestion || `Please clarify the period from ${alert.startDate} to ${alert.endDate}`,
+      user_response: alert.userResponse || '',
+      resolved_at: alert.resolvedAt || new Date().toISOString(),
+    }));
+}
 
 /**
  * Transform timeline data to CGT model API request format
@@ -7,7 +44,8 @@ import type { CGTModelResponse, Property, PropertyHistoryEvent } from '@/types/m
 export function transformTimelineToAPIFormat(
   properties: TimelineProperty[],
   events: TimelineEvent[],
-  customQuery?: string
+  customQuery?: string,
+  verificationAlerts?: VerificationAlert[]
 ) {
   const apiProperties: Property[] = properties.map((property) => {
     // Get all events for this property
@@ -262,7 +300,8 @@ export function transformTimelineToAPIFormat(
     };
   });
 
-  return {
+  // Build the base request object
+  const request: any = {
     properties: apiProperties,
     user_query: customQuery || 'What is my total CGT liability?',
     additional_info: {
@@ -271,8 +310,18 @@ export function transformTimelineToAPIFormat(
       land_size_hectares: 0,
       marginal_tax_rate: 37, // Default, should be configurable
     },
-    use_claude: true,
   };
+
+  // Add verification_responses if there are resolved alerts
+  if (verificationAlerts && verificationAlerts.length > 0) {
+    const resolvedResponses = transformVerificationAlertsToResponses(verificationAlerts);
+    if (resolvedResponses.length > 0) {
+      request.verification_responses = resolvedResponses;
+      console.log('📋 Including verification_responses:', resolvedResponses.length);
+    }
+  }
+
+  return request;
 }
 
 /**

@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Calendar, Eye, Copy, Check, Sparkles, Settings, Share2, Link, ExternalLink } from 'lucide-react';
+import { X, Calendar, Eye, Copy, Check, Sparkles, Settings, Share2, Link, ExternalLink, Bot, ChevronDown, Loader2 } from 'lucide-react';
 import { useTimelineStore } from '@/store/timeline';
 import { serializeTimeline } from '@/lib/timeline-serialization';
 
@@ -46,7 +46,10 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
     enableDragEvents, toggleDragEvents,
     enableAISuggestedQuestions, toggleAISuggestedQuestions,
     apiResponseMode, setAPIResponseMode,
-    properties, events, timelineNotes
+    properties, events, timelineNotes,
+    // LLM Provider state
+    selectedLLMProvider, setSelectedLLMProvider,
+    availableLLMProviders, fetchLLMProviders, isLoadingProviders
   } = useTimelineStore();
   const [isGeneratingLink, setIsGeneratingLink] = useState(false);
   const [shareSuccess, setShareSuccess] = useState(false);
@@ -70,6 +73,13 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
       setClipboardCopySuccess(false);
     }
   }, [isOpen]);
+
+  // Fetch LLM providers when modal opens
+  useEffect(() => {
+    if (isOpen) {
+      fetchLLMProviders();
+    }
+  }, [isOpen, fetchLLMProviders]);
 
   const canShare = properties.length > 0;
 
@@ -268,6 +278,38 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                               </p>
                             </div>
                             <Toggle enabled={enableAISuggestedQuestions} onChange={toggleAISuggestedQuestions} id="ai-questions" />
+                          </div>
+
+                          {/* LLM Provider Selector */}
+                          <div className="p-3 rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700">
+                            <div className="flex items-center gap-2 mb-2">
+                              <Bot className="w-4 h-4 text-slate-600 dark:text-slate-400" />
+                              <label htmlFor="llm-provider" className="text-sm font-medium text-slate-900 dark:text-slate-100">
+                                AI Model
+                              </label>
+                              {isLoadingProviders && (
+                                <Loader2 className="w-3 h-3 animate-spin text-blue-500" />
+                              )}
+                            </div>
+                            <div className="relative">
+                              <select
+                                id="llm-provider"
+                                value={selectedLLMProvider}
+                                onChange={(e) => setSelectedLLMProvider(e.target.value)}
+                                disabled={isLoadingProviders}
+                                className="w-full appearance-none px-3 py-2 pr-8 text-sm bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                              >
+                                {Object.entries(availableLLMProviders).map(([key, name]) => (
+                                  <option key={key} value={key}>
+                                    {name}
+                                  </option>
+                                ))}
+                              </select>
+                              <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+                            </div>
+                            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1.5">
+                              Select the AI model for CGT analysis
+                            </p>
                           </div>
                         </div>
                       </div>

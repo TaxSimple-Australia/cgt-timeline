@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { CheckCircle, XCircle, ChevronDown, ChevronUp, Cpu, Zap, Clock, FileJson, Download, Home, LayoutGrid, FileText, Settings2, StickyNote } from 'lucide-react';
+import { CheckCircle, XCircle, ChevronDown, ChevronUp, Cpu, Zap, Clock, FileJson, Download, Home, LayoutGrid, FileText, Settings2, StickyNote, Bot, BookOpen, FileQuestion, HelpCircle } from 'lucide-react';
 import GapQuestionsPanel from './GapQuestionsPanel';
 import DetailedReportSection from './DetailedReportSection';
 import TwoColumnLayout from '../timeline-viz/TwoColumnLayout';
@@ -31,6 +31,8 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
   const [expandedDetailedReport, setExpandedDetailedReport] = useState(false);
   const [activeTab, setActiveTab] = useState('property-0');
   const [showRawJSON, setShowRawJSON] = useState(false);
+  const [showSources, setShowSources] = useState(false);
+  const [showRulesSummary, setShowRulesSummary] = useState(false);
 
   // Get timeline data and display mode from store
   const properties = useTimelineStore(state => state.properties);
@@ -91,14 +93,21 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
     );
   }
 
-  // Check for new JSON API response format (from /api/v1/analyze-portfolio-json)
+  // Check for new JSON API response format (from /calculate-cgt-json/)
   // Support both wrapped format { success, data: { properties }, citations } and direct format { properties }
   const isWrappedFormat = response.success !== undefined && response.data && response.data.properties && response.data.properties.length > 0;
   const isDirectFormat = !isWrappedFormat && response.properties && response.properties.length > 0 && response.properties[0]?.property_address;
   const isNewJSONFormat = isWrappedFormat || isDirectFormat;
 
-  // Check for markdown analysis string format
-  const hasMarkdownAnalysis = typeof response.analysis === 'string' && response.analysis.length > 0;
+  // Check for new markdown API format (from /calculate-cgt/)
+  // Format: { query, answer, sources, properties_analyzed, llm_used, needs_clarification }
+  const isNewMarkdownFormat = typeof response.answer === 'string' && response.answer.length > 0;
+
+  // Check for legacy markdown analysis string format
+  const hasLegacyMarkdownAnalysis = typeof response.analysis === 'string' && response.analysis.length > 0;
+
+  // Combined markdown check
+  const hasMarkdownAnalysis = isNewMarkdownFormat || hasLegacyMarkdownAnalysis;
 
   // Determine which display mode to use based on setting and response type
   const getEffectiveDisplayMode = () => {
@@ -187,8 +196,12 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
   // This MUST be checked BEFORE display mode logic to ensure gaps are handled
   // regardless of whether user selected JSON or Markdown mode in settings.
   // Gap handling works the same way for both endpoint responses.
+  //
+  // New markdown format uses: needs_clarification: true, clarification_questions: []
+  // Legacy JSON format uses: status: 'verification_failed', verification: { clarification_questions: [] }
   const isVerificationFailed = response.status === 'verification_failed' ||
-    (response.data?.status === 'verification_failed');
+    (response.data?.status === 'verification_failed') ||
+    (response.needs_clarification === true && response.clarification_questions && response.clarification_questions.length > 0);
   const verificationData = response.data || response;
 
   if (isVerificationFailed) {
@@ -264,11 +277,14 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
           </div>
         </div>
 
-        {/* Gap Questions */}
-        {verification?.clarification_questions && verification.clarification_questions.length > 0 && (
+        {/* Gap Questions - support both new markdown format and legacy JSON format */}
+        {(
+          (verification?.clarification_questions && verification.clarification_questions.length > 0) ||
+          (response.clarification_questions && response.clarification_questions.length > 0)
+        ) && (
           <GapQuestionsPanel
-            questions={verification.clarification_questions}
-            issues={verification.issues}
+            questions={verification?.clarification_questions || response.clarification_questions}
+            issues={verification?.issues}
             onSubmit={onRetryWithAnswers}
           />
         )}
@@ -315,15 +331,14 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
   // FORCE MARKDOWN MODE: If user selected markdown mode, show markdown view
   // ============================================================================
   if (effectiveDisplayMode === 'markdown' && hasMarkdownAnalysis) {
-    const formatCurrency = (amount: number | null | undefined) => {
-      if (amount === null || amount === undefined) return '$0.00';
-      return new Intl.NumberFormat('en-AU', {
-        style: 'currency',
-        currency: 'AUD',
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 4,
-      }).format(amount);
-    };
+    // Get markdown content from new or legacy format
+    const markdownContent = isNewMarkdownFormat ? response.answer : response.analysis;
+
+    // Extract sources data from new format
+    const sources = isNewMarkdownFormat ? response.sources : null;
+    const llmUsed = isNewMarkdownFormat ? response.llm_used : null;
+    const queryAsked = isNewMarkdownFormat ? response.query : null;
+    const propertiesAnalyzed = isNewMarkdownFormat ? response.properties_analyzed : null;
 
     return (
       <div className="space-y-6">
@@ -331,6 +346,13 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
         <div className="flex items-center justify-between gap-4">
           <DisplayModeToggle />
           <div className="flex items-center gap-2">
+            {/* LLM Used Badge */}
+            {llmUsed && (
+              <div className="flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-purple-100 to-blue-100 dark:from-purple-900/40 dark:to-blue-900/40 border border-purple-200 dark:border-purple-700 rounded-lg">
+                <Bot className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                <span className="text-sm font-medium text-purple-700 dark:text-purple-300">{llmUsed}</span>
+              </div>
+            )}
             <button
               onClick={openNotesModal}
               className={`flex items-center gap-2 px-4 py-2 ${timelineNotes ? 'bg-amber-600 hover:bg-amber-700' : 'bg-amber-500 hover:bg-amber-600'} text-white rounded-lg transition-colors shadow-md text-sm relative`}
@@ -351,6 +373,25 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
           </div>
         </div>
 
+        {/* Query Asked Banner (if available) */}
+        {queryAsked && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 border border-blue-200 dark:border-blue-800 rounded-xl p-4"
+          >
+            <div className="flex items-start gap-3">
+              <HelpCircle className="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
+              <div>
+                <div className="text-xs font-semibold text-blue-600 dark:text-blue-400 uppercase tracking-wide mb-1">
+                  Question Asked
+                </div>
+                <p className="text-gray-800 dark:text-gray-200 font-medium">{queryAsked}</p>
+              </div>
+            </div>
+          </motion.div>
+        )}
+
         {/* Main Analysis Content - Markdown */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -360,13 +401,121 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
         >
           <div className="p-6 lg:p-8">
             <MarkdownDisplay
-              content={response.analysis}
+              content={markdownContent}
               className="prose prose-gray dark:prose-invert max-w-none"
             />
           </div>
         </motion.div>
 
-        {/* Properties Summary (if present) */}
+        {/* Sources Section (Collapsible) */}
+        {sources && (
+          <div className="space-y-4">
+            {/* References Section */}
+            {sources.references && sources.references.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 }}
+                className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden"
+              >
+                <button
+                  onClick={() => setShowSources(!showSources)}
+                  className="w-full px-6 py-4 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
+                >
+                  <div className="flex items-center gap-3">
+                    <BookOpen className="w-5 h-5 text-amber-600 dark:text-amber-400" />
+                    <span className="font-semibold text-gray-900 dark:text-gray-100">
+                      References ({sources.references.length})
+                    </span>
+                  </div>
+                  <ChevronDown className={`w-5 h-5 text-gray-500 transition-transform ${showSources ? 'rotate-180' : ''}`} />
+                </button>
+                <AnimatePresence>
+                  {showSources && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: 'auto', opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.2 }}
+                      className="overflow-hidden"
+                    >
+                      <div className="px-6 pb-4 space-y-2">
+                        {sources.references.map((ref: any, index: number) => (
+                          <div
+                            key={index}
+                            className="flex items-start gap-3 p-3 bg-amber-50 dark:bg-amber-950/30 rounded-lg border border-amber-200 dark:border-amber-800"
+                          >
+                            <span className="flex-shrink-0 w-8 h-8 bg-amber-100 dark:bg-amber-900/50 rounded-full flex items-center justify-center text-amber-700 dark:text-amber-300 text-sm font-semibold">
+                              {index + 1}
+                            </span>
+                            <div className="flex-1 min-w-0">
+                              <p className="font-medium text-gray-900 dark:text-gray-100 text-sm">
+                                {ref.title}
+                              </p>
+                              <div className="flex items-center gap-3 mt-1 text-xs text-gray-600 dark:text-gray-400">
+                                <span>{ref.source_document}</span>
+                                {ref.page && (
+                                  <>
+                                    <span>•</span>
+                                    <span>Page {ref.page}</span>
+                                  </>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </motion.div>
+            )}
+
+            {/* Rules Summary Section */}
+            {sources.rules_summary && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+                className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden"
+              >
+                <button
+                  onClick={() => setShowRulesSummary(!showRulesSummary)}
+                  className="w-full px-6 py-4 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
+                >
+                  <div className="flex items-center gap-3">
+                    <FileQuestion className="w-5 h-5 text-green-600 dark:text-green-400" />
+                    <span className="font-semibold text-gray-900 dark:text-gray-100">
+                      CGT Rules Applied
+                    </span>
+                  </div>
+                  <ChevronDown className={`w-5 h-5 text-gray-500 transition-transform ${showRulesSummary ? 'rotate-180' : ''}`} />
+                </button>
+                <AnimatePresence>
+                  {showRulesSummary && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: 'auto', opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.2 }}
+                      className="overflow-hidden"
+                    >
+                      <div className="px-6 pb-6">
+                        <MarkdownDisplay
+                          content={sources.rules_summary}
+                          className="prose prose-sm prose-gray dark:prose-invert max-w-none"
+                          compactMode={true}
+                        />
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </motion.div>
+            )}
+          </div>
+        )}
+
+        {/* Properties Summary (if present - legacy format) */}
         {response.properties && response.properties.length > 0 && (
           <div className="bg-gray-50 dark:bg-gray-800/50 rounded-xl p-6 border border-gray-200 dark:border-gray-700">
             <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-4">
@@ -388,6 +537,16 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
                   )}
                 </div>
               ))}
+            </div>
+          </div>
+        )}
+
+        {/* Properties Analyzed Count Badge (new format) */}
+        {propertiesAnalyzed && !response.properties && (
+          <div className="flex justify-center">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-gray-800 rounded-full text-sm text-gray-600 dark:text-gray-400">
+              <Home className="w-4 h-4" />
+              <span>{propertiesAnalyzed} {propertiesAnalyzed === 1 ? 'property' : 'properties'} analyzed</span>
             </div>
           </div>
         )}

@@ -461,8 +461,8 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
     apiResponseMode: 'markdown', // Default: View 1 (markdown endpoint)
 
     // LLM Provider Initial State
-    selectedLLMProvider: 'claude', // Default provider
-    availableLLMProviders: { claude: 'Claude Sonnet 4 (Anthropic)' }, // Default fallback
+    selectedLLMProvider: 'deepseek', // Default provider (prefer Deepseek)
+    availableLLMProviders: { deepseek: 'Deepseek' }, // Default fallback
     isLoadingProviders: false,
 
     // AI Feedback Initial State
@@ -1385,12 +1385,24 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
       const data: LLMProvidersResponse = await response.json();
       console.log('✅ LLM providers fetched:', data);
 
+      // Determine the selected provider:
+      // 1. Prefer 'deepseek' if available
+      // 2. Otherwise keep current selection if it's in the list
+      // 3. Fall back to API default
+      const currentSelection = get().selectedLLMProvider;
+      let selectedProvider: string;
+
+      if ('deepseek' in data.providers) {
+        selectedProvider = 'deepseek';
+      } else if (currentSelection in data.providers) {
+        selectedProvider = currentSelection;
+      } else {
+        selectedProvider = data.default;
+      }
+
       set({
         availableLLMProviders: data.providers,
-        // Only update selected provider if current selection is not in the list
-        selectedLLMProvider: get().selectedLLMProvider in data.providers
-          ? get().selectedLLMProvider
-          : data.default,
+        selectedLLMProvider: selectedProvider,
         isLoadingProviders: false,
       });
     } catch (error) {

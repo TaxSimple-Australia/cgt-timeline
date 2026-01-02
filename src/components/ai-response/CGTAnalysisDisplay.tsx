@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { CheckCircle, XCircle, ChevronDown, ChevronUp, Cpu, Zap, Clock, FileJson, Download, Home, LayoutGrid, FileText, Settings2, StickyNote, Bot, BookOpen, FileQuestion, HelpCircle } from 'lucide-react';
+import { CheckCircle, XCircle, ChevronDown, ChevronUp, Cpu, Zap, Clock, FileJson, Download, Home, LayoutGrid, FileText, Settings2, StickyNote, BookOpen, FileQuestion, HelpCircle } from 'lucide-react';
 import GapQuestionsPanel from './GapQuestionsPanel';
 import DetailedReportSection from './DetailedReportSection';
 import TwoColumnLayout from '../timeline-viz/TwoColumnLayout';
@@ -336,7 +336,6 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
 
     // Extract sources data from new format
     const sources = isNewMarkdownFormat ? response.sources : null;
-    const llmUsed = isNewMarkdownFormat ? response.llm_used : null;
     const queryAsked = isNewMarkdownFormat ? response.query : null;
     const propertiesAnalyzed = isNewMarkdownFormat ? response.properties_analyzed : null;
 
@@ -346,13 +345,6 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
         <div className="flex items-center justify-between gap-4">
           <DisplayModeToggle />
           <div className="flex items-center gap-2">
-            {/* LLM Used Badge */}
-            {llmUsed && (
-              <div className="flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-purple-100 to-blue-100 dark:from-purple-900/40 dark:to-blue-900/40 border border-purple-200 dark:border-purple-700 rounded-lg">
-                <Bot className="w-4 h-4 text-purple-600 dark:text-purple-400" />
-                <span className="text-sm font-medium text-purple-700 dark:text-purple-300">{llmUsed}</span>
-              </div>
-            )}
             <button
               onClick={openNotesModal}
               className={`flex items-center gap-2 px-4 py-2 ${timelineNotes ? 'bg-amber-600 hover:bg-amber-700' : 'bg-amber-500 hover:bg-amber-600'} text-white rounded-lg transition-colors shadow-md text-sm relative`}

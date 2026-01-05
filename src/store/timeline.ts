@@ -1285,6 +1285,37 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
         });
       }
 
+      // Migrate market valuation from move_out to rent_start events
+      // For each property, find move_out events with marketValuation and corresponding rent_start events
+      importedProperties.forEach(property => {
+        const propertyEvents = importedEvents.filter(e => e.propertyId === property.id);
+
+        // Find all move_out events with market valuation
+        const moveOutEvents = propertyEvents.filter(e =>
+          e.type === 'move_out' && e.marketValuation !== undefined && e.marketValuation > 0
+        );
+
+        moveOutEvents.forEach(moveOutEvent => {
+          // Find rent_start event on or near the same date (within 30 days)
+          const rentStartEvent = propertyEvents.find(e =>
+            e.type === 'rent_start' &&
+            Math.abs(e.date.getTime() - moveOutEvent.date.getTime()) < 30 * 24 * 60 * 60 * 1000 // 30 days
+          );
+
+          if (rentStartEvent) {
+            // Move market valuation from move_out to rent_start
+            console.log(`📊 Migrating market valuation from move_out to rent_start for ${property.name}:`, {
+              moveOutDate: moveOutEvent.date,
+              rentStartDate: rentStartEvent.date,
+              marketValuation: moveOutEvent.marketValuation
+            });
+
+            rentStartEvent.marketValuation = moveOutEvent.marketValuation;
+            delete moveOutEvent.marketValuation;
+          }
+        });
+      });
+
       // Calculate timeline boundaries
       const allDates = importedEvents.map(e => e.date.getTime());
       const minDate = allDates.length > 0 ? new Date(Math.min(...allDates)) : new Date(2000, 0, 1);

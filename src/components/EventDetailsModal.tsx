@@ -42,6 +42,7 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
   const [isSaving, setIsSaving] = useState(false);
   const [showSummary, setShowSummary] = useState(false);
   const [showDateTooltip, setShowDateTooltip] = useState(false);
+  const [showMarketValuationTooltip, setShowMarketValuationTooltip] = useState(false);
 
   // Custom event specific state
   const [customColor, setCustomColor] = useState(event.color || '#6B7280');
@@ -749,7 +750,7 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
               </div>
             )}
 
-            {/* Move Out Event - Status Options & Market Valuation */}
+            {/* Move Out Event - Status Options */}
             {event.type === 'move_out' && (
               <div className="space-y-4 pt-2 border-t border-slate-200 dark:border-slate-700">
                 {/* Move out status checkboxes */}
@@ -804,19 +805,48 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
                     </label>
                   </div>
                 </div>
+              </div>
+            )}
 
+            {/* Rent Start Event - Market Valuation */}
+            {event.type === 'rent_start' && (
+              <div className="space-y-4 pt-2 border-t border-slate-200 dark:border-slate-700">
                 {/* Market Valuation Section */}
                 <div className="space-y-3">
-                  <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide">
+                  <h3 className="flex items-center gap-2 text-sm font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide">
                     Market Valuation
+                    <div
+                      className="relative"
+                      onMouseEnter={() => setShowMarketValuationTooltip(true)}
+                      onMouseLeave={() => setShowMarketValuationTooltip(false)}
+                    >
+                      <Info className="w-4 h-4 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 cursor-help" />
+
+                      {showMarketValuationTooltip && (
+                        <motion.div
+                          initial={{ opacity: 0, y: -5 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -5 }}
+                          transition={{ duration: 0.15 }}
+                          className="absolute left-1/2 -translate-x-1/2 top-full mt-2 bg-slate-900 dark:bg-slate-800 text-white px-4 py-3 rounded-lg shadow-2xl text-sm min-w-[280px] max-w-[320px] z-50 pointer-events-none border-2 border-blue-500/30"
+                        >
+                          <p className="text-slate-200 leading-relaxed">
+                            Market value applies when the main residence is first used to produce income after 20/08/1996.
+                          </p>
+
+                          {/* Arrow pointing up */}
+                          <div className="absolute bottom-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-8 border-l-transparent border-r-8 border-r-transparent border-b-8 border-b-slate-900 dark:border-b-slate-800" />
+                        </motion.div>
+                      )}
+                    </div>
                   </h3>
                   <p className="text-xs text-slate-500 dark:text-slate-400">
-                    The market value of the property at the time of moving out (required for CGT purposes)
+                    The market value of the property when it first started generating rental income (required for CGT purposes)
                   </p>
                   <div>
                     <label className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                       <DollarSign className="w-4 h-4" />
-                      Market Value at Move Out
+                      Market Value at First Income Producing Use
                     </label>
                     <div className="relative">
                       <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400">$</span>

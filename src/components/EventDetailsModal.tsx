@@ -34,10 +34,19 @@ interface EventDetailsModalProps {
 export default function EventDetailsModal({ event, onClose, propertyName }: EventDetailsModalProps) {
   const { updateEvent, deleteEvent, addEvent, events } = useTimelineStore();
 
+  // Check if this is a synthetic "Not Sold" status marker
+  const isSyntheticNotSold = (event as any).isSyntheticStatusMarker === true;
+
   const [title, setTitle] = useState(event.title);
   const [date, setDate] = useState(format(event.date, 'yyyy-MM-dd'));
   const [amount, setAmount] = useState(event.amount?.toString() || '');
-  const [description, setDescription] = useState(event.description || '');
+  // Don't prefill description for synthetic "Not Sold" markers
+  const [description, setDescription] = useState(() => {
+    if (isSyntheticNotSold) {
+      return '';
+    }
+    return event.description || '';
+  });
   const [newStatus, setNewStatus] = useState<PropertyStatus | ''>(event.newStatus || '');
   const [isSaving, setIsSaving] = useState(false);
   const [showSummary, setShowSummary] = useState(false);
@@ -60,6 +69,18 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
   // Rent end status checkboxes (for rent_end events)
   const [rentEndAsVacant, setRentEndAsVacant] = useState(false);
   const [rentEndAsMoveIn, setRentEndAsMoveIn] = useState(false);
+
+  // Sale event - Australian resident status
+  const [isResident, setIsResident] = useState(event.isResident ?? true);
+
+  // Sale event - Previous year capital losses
+  const [previousYearLosses, setPreviousYearLosses] = useState(event.previousYearLosses?.toString() || '');
+
+  // Appreciation / Future Value fields (for Not Sold markers)
+  const [appreciationValue, setAppreciationValue] = useState(event.appreciationValue?.toString() || '');
+  const [appreciationDate, setAppreciationDate] = useState(
+    event.appreciationDate ? format(event.appreciationDate, 'yyyy-MM-dd') : ''
+  );
 
   // NEW: Dynamic Cost Bases
   const [costBases, setCostBases] = useState<CostBaseItem[]>(() => {
@@ -142,6 +163,16 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
         // Clear legacy land/building prices
         updates.landPrice = undefined;
         updates.buildingPrice = undefined;
+
+        // Australian resident status for CGT
+        updates.isResident = isResident;
+
+        // Previous year capital losses
+        if (previousYearLosses && !isNaN(parseFloat(previousYearLosses))) {
+          updates.previousYearLosses = parseFloat(previousYearLosses);
+        } else {
+          updates.previousYearLosses = undefined;
+        }
       } else {
         // For other events, use the single amount field
         if (amount && !isNaN(parseFloat(amount))) {
@@ -193,6 +224,20 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
 
       // Market valuation is separate (not a cost base)
       updates.marketValuation = marketValuation && !isNaN(parseFloat(marketValuation)) ? parseFloat(marketValuation) : undefined;
+
+      // Appreciation / Future Value fields (for Not Sold markers)
+      if (isSyntheticNotSold) {
+        if (appreciationValue && !isNaN(parseFloat(appreciationValue))) {
+          updates.appreciationValue = parseFloat(appreciationValue);
+        } else {
+          updates.appreciationValue = undefined;
+        }
+        if (appreciationDate) {
+          updates.appreciationDate = new Date(appreciationDate);
+        } else {
+          updates.appreciationDate = undefined;
+        }
+      }
 
       updateEvent(event.id, updates);
 
@@ -658,8 +703,8 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
              event.type !== 'rent_start' &&
              event.type !== 'rent_end' &&
              event.type !== 'sale' &&
-             event.type !== 'living_in_rental_start' &&
-             event.type !== 'living_in_rental_end' && (
+             event.type !== 'vacant_start' &&
+             event.type !== 'vacant_end' && (
               <div className="space-y-4 pt-2">
                 {/* Single Amount Input */}
                 <div>
@@ -683,13 +728,78 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
             )}
 
             {/* Cost Base Section (for CGT calculation) - NEW COMPONENT */}
-            {(event.type === 'purchase' || event.type === 'sale' || event.type === 'improvement' || event.type === 'status_change' || event.type === 'refinance' || event.type === 'custom') && (
+            {/* Hide for synthetic "Not Sold" markers */}
+            {!isSyntheticNotSold && (event.type === 'purchase' || event.type === 'sale' || event.type === 'improvement' || event.type === 'status_change' || event.type === 'refinance' || event.type === 'custom') && (
               <div className="space-y-4 pt-2 border-t border-slate-200 dark:border-slate-700">
                 <CostBaseSelector
                   eventType={event.type}
                   costBases={costBases}
                   onChange={setCostBases}
                 />
+              </div>
+            )}
+
+            {/* Sale Event - Australian Resident Status */}
+            {event.type === 'sale' && (
+              <div className="space-y-4 pt-2 border-t border-slate-200 dark:border-slate-700">
+                <div className="flex items-center gap-3 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                  <input
+                    type="checkbox"
+                    id="isResident"
+                    checked={isResident}
+                    onChange={(e) => setIsResident(e.target.checked)}
+                    className="w-4 h-4 text-blue-600 bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 rounded focus:ring-2 focus:ring-blue-500 cursor-pointer"
+                  />
+                  <div className="flex flex-col flex-1">
+                    <div className="flex items-center gap-2">
+                      <label
+                        htmlFor="isResident"
+                        className="text-sm font-medium text-slate-700 dark:text-slate-300 cursor-pointer"
+                      >
+                        Resident / Non-Resident
+                      </label>
+                      <div className="relative group">
+                        <Info className="w-4 h-4 text-blue-500 cursor-help" />
+                        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-72 p-3 bg-slate-800 dark:bg-slate-700 text-white text-xs rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                          Since 9 May 2012, non-residents cannot claim the 50% CGT discount, and Australian residents may lose the discount for the time they were not an Australian resident.
+                          <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-800 dark:border-t-slate-700"></div>
+                        </div>
+                      </div>
+                    </div>
+                    <span className="text-xs text-slate-500 dark:text-slate-400">
+                      {isResident ? 'Australian resident for tax purposes' : 'Non-resident for tax purposes'}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Previous Year Losses Input */}
+                <div className="mt-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                      Previous Year Losses
+                    </label>
+                    <div className="relative group">
+                      <Info className="w-4 h-4 text-blue-500 cursor-help" />
+                      <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-72 p-3 bg-slate-800 dark:bg-slate-700 text-white text-xs rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                        Enter any capital losses from previous years that can be offset against this capital gain.
+                        <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-800 dark:border-t-slate-700"></div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="relative">
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400">$</span>
+                    <input
+                      type="number"
+                      value={previousYearLosses}
+                      onChange={(e) => setPreviousYearLosses(e.target.value)}
+                      placeholder="0.00"
+                      className="w-full pl-8 pr-4 py-2.5 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                  </div>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                    Capital losses from previous financial years
+                  </p>
+                </div>
               </div>
             )}
 
@@ -864,6 +974,50 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
               </div>
             )}
 
+            {/* Appreciation / Future Value Section (for Not Sold markers only) */}
+            {isSyntheticNotSold && (
+              <div className="space-y-4 pt-2 border-t border-slate-200 dark:border-slate-700">
+                <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide">
+                  Appreciation / Future Value
+                </h3>
+
+                {/* Appreciation Value */}
+                <div>
+                  <label className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                    <DollarSign className="w-4 h-4" />
+                    Future Value *
+                  </label>
+                  <div className="relative">
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400">$</span>
+                    <input
+                      type="number"
+                      value={appreciationValue}
+                      onChange={(e) => setAppreciationValue(e.target.value)}
+                      className="w-full pl-8 pr-4 py-2.5 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="0.00"
+                      step="0.01"
+                      required
+                    />
+                  </div>
+                </div>
+
+                {/* Appreciation Date */}
+                <div>
+                  <label className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                    <Calendar className="w-4 h-4" />
+                    Valuation Date *
+                  </label>
+                  <input
+                    type="date"
+                    value={appreciationDate}
+                    onChange={(e) => setAppreciationDate(e.target.value)}
+                    className="w-full px-4 py-2.5 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    required
+                  />
+                </div>
+              </div>
+            )}
+
             {/* Additional Information Section */}
             <div className="space-y-4 pt-2">
               <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide">Additional Information</h3>
@@ -885,7 +1039,8 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
             </div>
 
             {/* Status Change Dropdown (for status_change events) */}
-            {event.type === 'status_change' && (
+            {/* Hide for synthetic "Not Sold" markers */}
+            {event.type === 'status_change' && !isSyntheticNotSold && (
               <div>
                 <label className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                   <Home className="w-4 h-4" />

@@ -14,17 +14,16 @@ export type EventType =
   | 'improvement'
   | 'refinance'
   | 'status_change'
-  | 'living_in_rental_start'  // Person starts living in a rental they don't own
-  | 'living_in_rental_end'    // Person stops living in a rental they don't own
-  | 'custom';                 // User-defined custom event for any situation
+  | 'vacant_start'  // Property becomes vacant/unoccupied
+  | 'vacant_end'    // Property is no longer vacant
+  | 'custom';       // User-defined custom event for any situation
 
 export type PropertyStatus =
   | 'ppr'              // Main Residence (owner lives in it)
   | 'rental'           // Rented to tenants
   | 'vacant'           // Empty/not used
   | 'construction'     // Being built/renovated
-  | 'sold'             // Sold
-  | 'living_in_rental'; // Person living in a rental they don't own
+  | 'sold';            // Sold
 
 /**
  * Dynamic cost base item for CGT calculations
@@ -54,6 +53,8 @@ export interface TimelineEvent {
   settlementDate?: Date;    // Actual settlement date
   newStatus?: PropertyStatus; // For status_change events and custom events that affect status
   isPPR?: boolean;          // Is this event related to Main Residence?
+  isResident?: boolean;     // For sale events - Australian resident status for CGT
+  previousYearLosses?: number;  // For sale events - previous year capital losses to offset CGT
   // Price breakdown for purchases (land + building)
   landPrice?: number;       // Price of land component
   buildingPrice?: number;   // Price of building component
@@ -87,6 +88,10 @@ export interface TimelineEvent {
   saleAgentFees?: number;
   /** @deprecated Use costBases array instead */
   marketValuation?: number;
+
+  // For synthetic "Not Sold" markers - appreciation/future value
+  appreciationValue?: number;      // Future/appreciation value
+  appreciationDate?: Date;         // Date for appreciation value
 }
 
 export interface Property {
@@ -259,19 +264,18 @@ const eventColors: Record<EventType, string> = {
   improvement: '#06B6D4',
   refinance: '#6366F1',
   status_change: '#A855F7',
-  living_in_rental_start: '#F472B6',  // Pink - Start living in rental
-  living_in_rental_end: '#FB923C',    // Orange - End living in rental
-  custom: '#6B7280',                   // Gray - Custom event (user can change)
+  vacant_start: '#9CA3AF',   // Gray-400 - Property becomes vacant
+  vacant_end: '#6B7280',     // Gray-500 - Property no longer vacant
+  custom: '#6B7280',         // Gray - Custom event (user can change)
 };
 
 // Status colors for visualization
 export const statusColors: Record<PropertyStatus, string> = {
   ppr: '#10B981',         // Green - Main Residence
   rental: '#3B82F6',      // Blue - Rental/Investment
-  vacant: '#3B82F6',      // Blue - Vacant (same as rental, but no label)
+  vacant: '#9CA3AF',      // Gray - Vacant/Unoccupied
   construction: '#F59E0B', // Orange - Under construction
   sold: '#8B5CF6',        // Purple - Sold
-  living_in_rental: '#F472B6', // Pink - Living in rental (not owned)
 };
 
 // Zoom level definitions with their time spans in days
@@ -369,8 +373,8 @@ export const calculateStatusPeriods = (events: TimelineEvent[]): StatusPeriod[] 
         newStatus = 'vacant';
         break;
       case 'move_in':
-        // Move in sets vacant but won't show label
-        newStatus = 'vacant';
+        // Move in sets property as Main Residence (PPR)
+        newStatus = 'ppr';
         break;
       case 'move_out':
         // After moving out, property is vacant but won't show label
@@ -382,13 +386,13 @@ export const calculateStatusPeriods = (events: TimelineEvent[]): StatusPeriod[] 
       case 'rent_end':
         newStatus = 'vacant';
         break;
-      case 'living_in_rental_start':
-        // Person starts living in a rental they don't own
-        newStatus = 'living_in_rental';
-        break;
-      case 'living_in_rental_end':
-        // Person stops living in the rental
+      case 'vacant_start':
+        // Property becomes vacant
         newStatus = 'vacant';
+        break;
+      case 'vacant_end':
+        // Property is no longer vacant - default to ppr, subsequent events will override
+        newStatus = 'ppr';
         break;
       case 'sale':
         newStatus = 'sold';
@@ -944,14 +948,14 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
       description: 'Kitchen and bathroom renovation',
     });
 
-    // Property 4: Boyne Island Rental (Living as tenant)
+    // Property 4: Investment Property (Vacant Period)
     const prop4 = {
       id: 'demo-prop-4',
-      name: 'Boyne Island Rental, Qld 4680',
-      address: 'Rental Property',
+      name: 'Boyne Island Property, Qld 4680',
+      address: 'Investment Property',
       color: propertyColors[3],
-      currentStatus: 'living_in_rental' as PropertyStatus,
-      isRental: true,
+      currentStatus: 'vacant' as PropertyStatus,
+      isRental: false,
       branch: 3,
     };
     demoProperties.push(prop4);
@@ -959,23 +963,23 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
     demoEvents.push({
       id: 'demo-event-4-1',
       propertyId: prop4.id,
-      type: 'living_in_rental_start',
+      type: 'vacant_start',
       date: new Date(2020, 0, 1),
-      title: 'Living in Rental (Start)',
+      title: 'Vacant (Start)',
       position: 0,
-      color: eventColors.living_in_rental_start,
-      description: 'Started living in rental property',
+      color: eventColors.vacant_start,
+      description: 'Property became vacant',
     });
 
     demoEvents.push({
       id: 'demo-event-4-2',
       propertyId: prop4.id,
-      type: 'living_in_rental_end',
+      type: 'vacant_end',
       date: new Date(2021, 8, 29), // September 29, 2021
-      title: 'Living in Rental (End)',
+      title: 'Vacant (End)',
       position: 0,
-      color: eventColors.living_in_rental_end,
-      description: 'Stopped living in rental property',
+      color: eventColors.vacant_end,
+      description: 'Property no longer vacant',
     });
 
     // Set the demo data with 30-year range

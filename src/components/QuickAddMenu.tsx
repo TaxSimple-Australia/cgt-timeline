@@ -14,8 +14,6 @@ import {
   Plus,
   Building,
   X,
-  UserPlus,
-  UserMinus,
   Star,
   ChevronLeft,
   Gift
@@ -37,8 +35,8 @@ const eventTypes: { type: EventType; label: string; icon: React.ReactNode; color
   { type: 'move_out', label: 'Move Out', icon: <Package className="w-4 h-4" />, color: '#EF4444' },
   { type: 'rent_start', label: 'Start Rent', icon: <DollarSign className="w-4 h-4" />, color: '#F59E0B' },
   { type: 'rent_end', label: 'End Rent', icon: <DollarSign className="w-4 h-4" />, color: '#F97316' },
-  { type: 'living_in_rental_start', label: 'Living in Rental (Start)', icon: <UserPlus className="w-4 h-4" />, color: '#F472B6' },
-  { type: 'living_in_rental_end', label: 'Living in Rental (End)', icon: <UserMinus className="w-4 h-4" />, color: '#FB923C' },
+  { type: 'vacant_start', label: 'Vacant (Start)', icon: <Building className="w-4 h-4" />, color: '#9CA3AF' },
+  { type: 'vacant_end', label: 'Vacant (End)', icon: <Building className="w-4 h-4" />, color: '#6B7280' },
   { type: 'improvement', label: 'Improvement', icon: <Hammer className="w-4 h-4" />, color: '#06B6D4' },
   { type: 'refinance', label: 'Inherit', icon: <Gift className="w-4 h-4" />, color: '#6366F1' },
   { type: 'custom', label: 'Custom Event', icon: <Star className="w-4 h-4" />, color: '#6B7280' },
@@ -249,7 +247,7 @@ export default function QuickAddMenu({ position, timelinePosition, onClose, pres
     }
 
     // Events that don't have amounts
-    const noAmountEvents = ['move_in', 'move_out', 'living_in_rental_start', 'living_in_rental_end'];
+    const noAmountEvents = ['move_in', 'move_out', 'vacant_start', 'vacant_end'];
 
     addEvent({
       propertyId: property.id,

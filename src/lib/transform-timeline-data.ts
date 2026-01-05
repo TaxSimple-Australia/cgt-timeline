@@ -107,6 +107,16 @@ export function transformTimelineToAPIFormat(
           contractDate: event.contractDate,
           outputContractDate: historyEvent.contract_date,
         });
+
+        // Add Australian resident status for sale events
+        if (event.isResident !== undefined) {
+          historyEvent.is_resident = event.isResident;
+        }
+
+        // Add previous year losses for sale events
+        if (event.previousYearLosses !== undefined && event.previousYearLosses > 0) {
+          historyEvent.previous_year_losses = event.previousYearLosses;
+        }
       } else if (event.contractDate) {
         // For other event types, only include if explicitly set
         const contractDate = event.contractDate instanceof Date ? event.contractDate : new Date(event.contractDate);
@@ -281,6 +291,16 @@ export function transformTimelineToAPIFormat(
                 historyEvent.price = costBase.amount;
               }
               historyEvent.improvement_cost = costBase.amount;
+              break;
+            // Element 4: Capital Costs (Non-improvement)
+            case 'zoning_change_costs':
+              historyEvent.zoning_change_costs = costBase.amount;
+              break;
+            case 'asset_installation_costs':
+              historyEvent.asset_installation_costs = costBase.amount;
+              break;
+            case 'asset_relocation_costs':
+              historyEvent.asset_relocation_costs = costBase.amount;
               break;
             default:
               // For custom or unrecognized cost bases, log a warning

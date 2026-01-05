@@ -41,8 +41,9 @@ export default function ProcessFlowView({
       'improvement': 'Improvement',
       'refinance': 'Refinance',
       'status_change': 'Status Change',
-      'living_in_rental_start': 'Living in Rental Start',
-      'living_in_rental_end': 'Living in Rental End',
+      'vacant_start': 'Vacant Start',
+      'vacant_end': 'Vacant End',
+      'custom': 'Custom Event',
     };
     return typeMap[type] || type;
   };

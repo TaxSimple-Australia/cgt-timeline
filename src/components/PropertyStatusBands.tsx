@@ -49,7 +49,7 @@ export default function PropertyStatusBands({
 
   // Status labels for display
   const statusLabels: Record<PropertyStatus, string> = {
-    ppr: 'Main Residence',
+    ppr: 'Living',
     rental: 'Rental',
     vacant: 'Vacant',
     construction: 'Construction',

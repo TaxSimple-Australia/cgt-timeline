@@ -666,6 +666,7 @@ function HomeContent() {
           <Timeline
             className="w-full h-full"
             onAlertClick={(alertId) => setSelectedAlertForModal(alertId)}
+            aiBuilderOpen={isAIBuilderOpen}
           />
         </div>
 

@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Calendar, Home, Building2, DoorOpen } from 'lucide-react';
+import { Calendar, Home, Building2, DoorOpen, Clock } from 'lucide-react';
 import { OwnershipPeriod } from '@/types/model-response';
 import { cn } from '@/lib/utils';
 
@@ -9,42 +9,52 @@ interface OwnershipPeriodsChartProps {
   periods: OwnershipPeriod[];
 }
 
-const getPeriodColor = (periodType: string): { bg: string; text: string; icon: React.ReactNode } => {
+// Professional color scheme with proper contrast
+const getPeriodStyle = (periodType: string) => {
   const typeLower = periodType.toLowerCase();
 
   if (typeLower.includes('main residence') || typeLower.includes('ppr')) {
     return {
-      bg: 'bg-green-500',
-      text: 'text-green-700 dark:text-green-300',
-      icon: <Home className="w-4 h-4" />
+      barColor: 'bg-emerald-500',
+      badgeBg: 'bg-emerald-100 dark:bg-emerald-900/40',
+      badgeText: 'text-emerald-700 dark:text-emerald-300',
+      badgeBorder: 'border-emerald-200 dark:border-emerald-800',
+      dotColor: 'bg-emerald-500',
+      icon: Home,
+      label: 'Main Residence'
     };
   }
-  if (typeLower.includes('rental')) {
+  if (typeLower.includes('rental') || typeLower.includes('six-year')) {
     return {
-      bg: 'bg-blue-500',
-      text: 'text-blue-700 dark:text-blue-300',
-      icon: <Building2 className="w-4 h-4" />
+      barColor: 'bg-sky-500',
+      badgeBg: 'bg-sky-100 dark:bg-sky-900/40',
+      badgeText: 'text-sky-700 dark:text-sky-300',
+      badgeBorder: 'border-sky-200 dark:border-sky-800',
+      dotColor: 'bg-sky-500',
+      icon: Building2,
+      label: 'Rental'
     };
   }
   if (typeLower.includes('vacant')) {
     return {
-      bg: 'bg-gray-400',
-      text: 'text-gray-700 dark:text-gray-300',
-      icon: <DoorOpen className="w-4 h-4" />
-    };
-  }
-  if (typeLower.includes('total')) {
-    return {
-      bg: 'bg-purple-500',
-      text: 'text-purple-700 dark:text-purple-300',
-      icon: <Calendar className="w-4 h-4" />
+      barColor: 'bg-slate-400',
+      badgeBg: 'bg-slate-100 dark:bg-slate-800/60',
+      badgeText: 'text-slate-700 dark:text-slate-300',
+      badgeBorder: 'border-slate-200 dark:border-slate-700',
+      dotColor: 'bg-slate-400',
+      icon: DoorOpen,
+      label: 'Vacant'
     };
   }
 
   return {
-    bg: 'bg-gray-500',
-    text: 'text-gray-700 dark:text-gray-300',
-    icon: <Calendar className="w-4 h-4" />
+    barColor: 'bg-gray-400',
+    badgeBg: 'bg-gray-100 dark:bg-gray-800/60',
+    badgeText: 'text-gray-700 dark:text-gray-300',
+    badgeBorder: 'border-gray-200 dark:border-gray-700',
+    dotColor: 'bg-gray-400',
+    icon: Calendar,
+    label: periodType
   };
 };
 
@@ -58,97 +68,116 @@ export default function OwnershipPeriodsChart({ periods }: OwnershipPeriodsChart
   const totalPeriod = periods.find(p => p.period_type.toLowerCase().includes('total'));
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-5 border border-gray-200 dark:border-gray-700">
-      <div className="flex items-center gap-2 mb-4">
-        <Calendar className="w-5 h-5 text-gray-500 dark:text-gray-400" />
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-          Ownership Periods
-        </h3>
-      </div>
+    <div className="space-y-3">
+      {/* Header */}
+      <h4 className="text-sm font-bold text-gray-800 dark:text-gray-200 flex items-center gap-2">
+        <Clock className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+        Ownership Periods
+      </h4>
 
-      {/* Total Ownership */}
-      {totalPeriod && (
-        <div className="mb-5 p-4 bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Calendar className="w-5 h-5 text-purple-600 dark:text-purple-400" />
-              <span className="font-semibold text-gray-900 dark:text-white">
-                {totalPeriod.period_type}
+      <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
+        {/* Total Ownership - Compact header */}
+        {totalPeriod && (
+          <div className="flex items-center justify-between mb-4 pb-3 border-b border-gray-200 dark:border-gray-700">
+            <span className="text-sm text-gray-600 dark:text-gray-400">Total Ownership</span>
+            <div className="flex items-baseline gap-2">
+              <span className="text-lg font-bold text-gray-900 dark:text-white">
+                {parseFloat(totalPeriod.years).toFixed(1)} years
+              </span>
+              <span className="text-sm text-gray-500 dark:text-gray-400">
+                ({totalPeriod.days} days)
               </span>
             </div>
-            <div className="text-right">
-              <p className="text-2xl font-bold text-purple-700 dark:text-purple-400">
-                {totalPeriod.years} years
-              </p>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                {totalPeriod.days} days
-              </p>
+          </div>
+        )}
+
+        {/* Visual Timeline Bar */}
+        {nonTotalPeriods.length > 0 && (
+          <div className="mb-4">
+            <div className="flex h-6 rounded-md overflow-hidden">
+              {nonTotalPeriods.map((period, index) => {
+                const percentage = parseFloat(period.percentage) || 0;
+                const style = getPeriodStyle(period.period_type);
+
+                return (
+                  <div
+                    key={index}
+                    className={cn(
+                      "relative flex items-center justify-center transition-all",
+                      style.barColor,
+                      index === 0 && "rounded-l-md",
+                      index === nonTotalPeriods.length - 1 && "rounded-r-md"
+                    )}
+                    style={{ width: `${Math.max(percentage, 2)}%` }}
+                    title={`${period.period_type}: ${percentage.toFixed(1)}%`}
+                  >
+                    {percentage >= 15 && (
+                      <span className="text-white text-xs font-semibold drop-shadow-sm">
+                        {percentage.toFixed(0)}%
+                      </span>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* Visual Timeline Bar */}
-      {nonTotalPeriods.length > 0 && (
-        <div className="mb-5">
-          <div className="flex h-8 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700">
-            {nonTotalPeriods.map((period, index) => {
-              const percentage = parseFloat(period.percentage) || 0;
-              const colors = getPeriodColor(period.period_type);
+        {/* Period Legend - Compact inline */}
+        <div className="flex flex-wrap gap-3">
+          {nonTotalPeriods.map((period, index) => {
+            const style = getPeriodStyle(period.period_type);
+            const percentage = parseFloat(period.percentage) || 0;
+            const IconComponent = style.icon;
 
-              return (
-                <div
-                  key={index}
-                  className={cn("relative group", colors.bg)}
-                  style={{ width: `${percentage}%` }}
-                  title={`${period.period_type}: ${percentage}%`}
-                >
-                  {percentage > 10 && (
-                    <div className="absolute inset-0 flex items-center justify-center text-white text-xs font-semibold">
-                      {percentage.toFixed(0)}%
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      )}
+            return (
+              <div
+                key={index}
+                className={cn(
+                  "flex items-center gap-2 px-3 py-2 rounded-lg border",
+                  style.badgeBg,
+                  style.badgeBorder
+                )}
+              >
+                {/* Icon */}
+                <IconComponent className={cn("w-4 h-4", style.badgeText)} />
 
-      {/* Period Details */}
-      <div className="space-y-3">
-        {nonTotalPeriods.map((period, index) => {
-          const colors = getPeriodColor(period.period_type);
-          const percentage = parseFloat(period.percentage) || 0;
-
-          return (
-            <div key={index} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-750 rounded-lg border border-gray-200 dark:border-gray-700">
-              <div className="flex items-center gap-3">
-                <div className={cn("w-10 h-10 rounded-lg flex items-center justify-center", colors.bg.replace('500', '100').replace('400', '100'))}>
-                  <div className={colors.text}>
-                    {colors.icon}
-                  </div>
-                </div>
-                <div>
-                  <p className="font-semibold text-gray-900 dark:text-white text-sm">
-                    {period.period_type}
-                  </p>
-                  <p className="text-xs text-gray-600 dark:text-gray-400">
-                    {period.days} days ({period.years} years)
-                  </p>
-                </div>
-              </div>
-              <div className="text-right">
-                <div className="flex items-center gap-2">
-                  <div className={cn("w-3 h-3 rounded-full", colors.bg)} />
-                  <span className="text-lg font-bold text-gray-900 dark:text-white">
+                {/* Info */}
+                <div className="flex items-baseline gap-1.5">
+                  <span className={cn("font-semibold text-sm", style.badgeText)}>
                     {percentage.toFixed(1)}%
                   </span>
+                  <span className="text-xs text-gray-600 dark:text-gray-400">
+                    {period.period_type}
+                  </span>
                 </div>
+
+                {/* Days */}
+                <span className="text-xs text-gray-500 dark:text-gray-500 ml-1">
+                  ({period.days}d)
+                </span>
               </div>
+            );
+          })}
+        </div>
+
+        {/* Period note if applicable */}
+        {nonTotalPeriods.some(p => p.note) && (
+          <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
+            <div className="flex flex-wrap gap-2">
+              {nonTotalPeriods
+                .filter(p => p.note)
+                .map((period, index) => (
+                  <span
+                    key={index}
+                    className="inline-flex items-center px-2 py-1 text-xs font-medium text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-700/50 rounded"
+                  >
+                    {period.note}
+                  </span>
+                ))}
             </div>
-          );
-        })}
+          </div>
+        )}
       </div>
     </div>
   );

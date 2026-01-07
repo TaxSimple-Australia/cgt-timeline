@@ -31,6 +31,11 @@ This file serves as the project's memory and workflow guide. All instructions he
 8. PDF export (reports, visualizations, cost base summaries)
 9. Shareable timeline links
 10. Dark mode support
+11. **AI Timeline Builder** - Voice/text interface for building timelines
+    - Voice interaction (Deepgram STT + ElevenLabs TTS)
+    - Multi-LLM support (Deepseek, Claude, GPT-4, Gemini)
+    - Document upload & extraction
+    - Full undo/redo support
 
 ---
 
@@ -92,9 +97,22 @@ KV_REST_API_READ_ONLY_TOKEN=your_kv_read_token
 
 # Email (Resend)
 RESEND_API_KEY=your_resend_key
+
+# AI Timeline Builder - LLM Providers (at least one required)
+DEEPSEEK_API_KEY=your_deepseek_key        # Deepseek V3 (default, recommended)
+ANTHROPIC_API_KEY=your_anthropic_key      # Claude Sonnet 4
+OPENAI_API_KEY=your_openai_key            # GPT-4 Turbo
+GOOGLE_AI_API_KEY=your_google_ai_key      # Gemini 2.0 Flash
+
+# AI Timeline Builder - Voice Services (optional, enables voice features)
+DEEPGRAM_API_KEY=your_deepgram_key        # Speech-to-Text (Nova-2)
+ELEVENLABS_API_KEY=your_elevenlabs_key    # Text-to-Speech
 ```
 
-**Note**: If `NEXT_PUBLIC_CGT_MODEL_API_URL` is not set, app uses mock responses.
+**Notes**:
+- If `NEXT_PUBLIC_CGT_MODEL_API_URL` is not set, app uses mock responses.
+- For AI Timeline Builder, at least one LLM API key is required (Deepseek is default).
+- Voice features require both DEEPGRAM_API_KEY and ELEVENLABS_API_KEY.
 
 ---
 

@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { CheckCircle, XCircle, ChevronDown, ChevronUp, Cpu, Zap, Clock, FileJson, Download, Home, LayoutGrid, FileText, Settings2, StickyNote, BookOpen, FileQuestion, HelpCircle } from 'lucide-react';
+import { CheckCircle, XCircle, ChevronDown, ChevronUp, Cpu, Zap, Clock, FileJson, Download, Home, LayoutGrid, FileText, Settings2, StickyNote, BookOpen, FileQuestion, HelpCircle, Calendar, DollarSign, Calculator, AlertTriangle, Info, TrendingUp, Lightbulb, Brain } from 'lucide-react';
 import GapQuestionsPanel from './GapQuestionsPanel';
 import DetailedReportSection from './DetailedReportSection';
 import TwoColumnLayout from '../timeline-viz/TwoColumnLayout';
@@ -32,7 +32,7 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
   const [activeTab, setActiveTab] = useState('property-0');
   const [showRawJSON, setShowRawJSON] = useState(false);
   const [showSources, setShowSources] = useState(false);
-  const [showRulesSummary, setShowRulesSummary] = useState(false);
+  const [showRulesSummary, setShowRulesSummary] = useState(true); // Rules Summary expanded by default (important)
 
   // Get timeline data and display mode from store
   const properties = useTimelineStore(state => state.properties);
@@ -550,6 +550,52 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
   // JSON SECTIONS MODE: Beautiful structured view from GilbertBranch
   // ============================================================================
   if (effectiveDisplayMode === 'json-sections' && analysisData) {
+    // Extract additional data from wrapped response - check multiple paths
+    // The response could be in various formats:
+    // 1. Wrapped: { success, query, data: {...}, sources: {...} }
+    // 2. Direct: { analysis_date, properties, sources, ... }
+    // 3. Legacy: { citations: {...}, ... }
+    const queryAsked = response.query || response.data?.query || (response as any).user_query || null;
+    const timelineUnderstanding = response.timeline_understanding || response.data?.timeline_understanding || null;
+
+    // Sources can be at multiple locations - check all possible paths
+    // Priority: response.sources > response.citations > response.data.sources > response.data.citations
+    const sources = response.sources
+      || response.citations
+      || response.data?.sources
+      || response.data?.citations
+      || (analysisData as any).sources
+      || (analysisData as any).citations
+      || null;
+
+    // Debug: Log where sources were found
+    console.log('📊 CGTAnalysisDisplay: Sources location check:', {
+      'response.sources': !!response.sources,
+      'response.citations': !!response.citations,
+      'response.data?.sources': !!response.data?.sources,
+      'response.data?.citations': !!response.data?.citations,
+      'analysisData.sources': !!(analysisData as any).sources,
+      'foundSources': !!sources
+    });
+
+    // Rules summary can be at multiple locations
+    const rulesAppliedSummary = sources?.rules_summary
+      || response.rules_summary
+      || response.data?.rules_summary
+      || (analysisData as any).rules_summary
+      || null;
+
+    // Source references can be at multiple locations
+    const sourceReferences = sources?.references
+      || response.references
+      || response.data?.references
+      || (analysisData as any).references
+      || [];
+
+    const propertiesAnalyzedCount = response.properties_analyzed || analysisData.total_properties || 0;
+    const llmUsed = response.llm_used || response.data?.llm_used || (analysisData as any).llm_used || null;
+    const analysisDate = analysisData.analysis_date || (response as any).analysis_date || null;
+
     return (
       <div className="space-y-6">
         {/* Toolbar: Display Mode Toggle + Raw JSON Button */}
@@ -576,96 +622,116 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
           </div>
         </div>
 
+        {/* Query Asked Banner */}
+        {queryAsked && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 border border-blue-200 dark:border-blue-800 rounded-xl p-4"
+          >
+            <div className="flex items-start gap-3">
+              <HelpCircle className="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
+              <div>
+                <div className="text-xs font-semibold text-blue-600 dark:text-blue-400 uppercase tracking-wide mb-1">
+                  Question Asked
+                </div>
+                <p className="text-gray-800 dark:text-gray-200 font-medium">{queryAsked}</p>
+              </div>
+            </div>
+          </motion.div>
+        )}
+
         {/* Top-Level Summary */}
         {analysisData.description && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="bg-green-950 border-2 border-green-500 rounded-xl p-6 shadow-lg"
+            className="bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700 p-4"
           >
-            <h3 className="text-xl font-bold text-green-400 mb-3">Portfolio Summary</h3>
-            <p className="text-gray-300 leading-relaxed text-base">
+            <h3 className="text-base font-bold text-gray-800 dark:text-gray-200 mb-3">Summary</h3>
+            <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
               {analysisData.description}
             </p>
           </motion.div>
         )}
 
+        {/* Timeline Understanding */}
+        {timelineUnderstanding && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+            className="bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700 p-4"
+          >
+            <div className="flex items-start gap-3">
+              <Brain className="w-5 h-5 text-indigo-600 dark:text-indigo-400 mt-0.5 flex-shrink-0" />
+              <div>
+                <h3 className="text-base font-bold text-gray-800 dark:text-gray-200 mb-3">
+                  Timeline Analysis
+                </h3>
+                <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
+                  {timelineUnderstanding}
+                </p>
+              </div>
+            </div>
+          </motion.div>
+        )}
+
         {/* Per-Property Analysis */}
         {analysisData.properties && analysisData.properties.length > 0 && (
-          <div className="space-y-8">
-            {/* Section Header */}
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.5 }}
-              className="flex items-center gap-3"
-            >
-              <div className="h-1 w-12 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full"></div>
-              <h2 className="text-3xl font-black text-gray-900 dark:text-white">
-                Property Analysis
-              </h2>
-            </motion.div>
-
+          <div className="space-y-4">
             {analysisData.properties.map((property, index) => (
               <motion.div
                 key={index}
-                initial={{ opacity: 0, y: 30 }}
+                initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1, duration: 0.6 }}
-                className="bg-slate-50 dark:bg-slate-900 rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition-shadow duration-300 border border-slate-200 dark:border-slate-700"
+                transition={{ delay: index * 0.1, duration: 0.4 }}
+                className="bg-white dark:bg-gray-900 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700"
               >
-                {/* Property Header with Gradient Accent */}
-                <div className="relative bg-green-950 border-b-4 border-green-500 dark:border-green-500/30">
-                  {/* Decorative corner accent */}
-                  <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-green-500/10 to-emerald-500/10 rounded-bl-full"></div>
+                {/* Property Header - Clean and Professional */}
+                <div className="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-800/80 border-b border-gray-200 dark:border-gray-700 px-5 py-4">
+                  <div className="flex items-center justify-between gap-4">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <span className="flex-shrink-0 w-8 h-8 bg-blue-600 dark:bg-blue-500 text-white rounded-lg text-sm font-bold flex items-center justify-center shadow-sm">
+                        {index + 1}
+                      </span>
+                      <Home className="w-5 h-5 text-gray-600 dark:text-gray-400 flex-shrink-0" />
+                      <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 truncate">
+                        {property.property_address}
+                      </h3>
+                    </div>
 
-                  <div className="relative z-10 p-6">
-                    <div className="flex items-center justify-between gap-4 mb-4">
-                      <div className="flex-1">
-                        <h3 className="text-2xl font-black text-white flex items-center gap-3">
-                          <span className="inline-flex items-center justify-center w-10 h-10 bg-green-600 text-white rounded-lg">
-                            {index + 1}
-                          </span>
-                          <Home className="w-6 h-6 text-white" />
-                          {property.property_address}
-                        </h3>
-                      </div>
-
-                      {/* Result Badge - Prominent */}
-                      <div className={`flex-shrink-0 px-6 py-3 rounded-xl font-bold text-sm shadow-lg flex items-center gap-2 ${
-                        property.cgt_payable
-                          ? 'bg-gradient-to-br from-red-500 to-pink-600 text-white'
-                          : 'bg-gradient-to-br from-emerald-500 to-teal-600 text-white'
-                      }`}>
-                        {property.cgt_payable ? <XCircle className="w-5 h-5" /> : <CheckCircle className="w-5 h-5" />}
-                        <span>{property.result}</span>
-                      </div>
+                    {/* Result Badge */}
+                    <div className={`flex-shrink-0 px-4 py-1.5 rounded-full text-sm font-bold flex items-center gap-2 ${
+                      property.cgt_payable
+                        ? 'bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300 border border-red-200 dark:border-red-800'
+                        : 'bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300 border border-green-200 dark:border-green-800'
+                    }`}>
+                      {property.cgt_payable ? <XCircle className="w-4 h-4" /> : <CheckCircle className="w-4 h-4" />}
+                      <span>{property.result}</span>
                     </div>
                   </div>
                 </div>
 
                 {/* Property Content */}
-                <div className="p-6 space-y-6">
+                <div className="p-4 space-y-4">
 
                 {/* High Level Description */}
                 {property.high_level_description && (
-                  <div className="bg-gradient-to-br from-gray-50 to-slate-50 dark:from-gray-900 dark:to-slate-900 rounded-xl p-5 border border-gray-200 dark:border-gray-700">
-                    <h4 className="font-bold text-lg text-gray-900 dark:text-gray-100 mb-3 flex items-center gap-2">
-                      <span className="text-xl">📝</span>
-                      High Level Description
-                    </h4>
-                    <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
-                      {property.high_level_description}
-                    </p>
+                  <div className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
+                    {property.high_level_description}
                   </div>
                 )}
 
                 {/* Reasoning Section */}
                 {property.reasoning && (
-                  <div className="bg-green-950 border-2 border-green-500 rounded-xl p-6 shadow-lg">
-                    <h3 className="text-xl font-bold text-green-400 mb-3">Reasoning</h3>
-                    <p className="text-gray-300 leading-relaxed text-base">
+                  <div className="bg-amber-50 dark:bg-amber-950/20 rounded-lg p-4 border border-amber-200 dark:border-amber-800/50">
+                    <h4 className="text-sm font-bold text-amber-800 dark:text-amber-200 mb-2 flex items-center gap-2">
+                      <Lightbulb className="w-4 h-4" />
+                      Reasoning
+                    </h4>
+                    <p className="text-sm text-amber-900 dark:text-amber-100/80 leading-relaxed">
                       {property.reasoning}
                     </p>
                   </div>
@@ -673,11 +739,12 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
 
                 {/* Key Facts Section - Compact Grid with Colored Badges */}
                 <div className="space-y-3">
-                  <h4 className="font-bold text-lg text-gray-900 dark:text-gray-100">
+                  <h4 className="text-sm font-bold text-gray-800 dark:text-gray-200 flex items-center gap-2">
+                    <Info className="w-4 h-4 text-blue-600 dark:text-blue-400" />
                     Key Facts
                   </h4>
 
-                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2">
                     {/* Purchase Card */}
                     <div className="bg-white dark:bg-gray-800 rounded-lg p-3 border border-gray-100 dark:border-gray-700">
                       <span className="inline-block px-2 py-0.5 text-xs font-semibold rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300 mb-2">
@@ -796,8 +863,9 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
                 {/* CGT Calculation - Minimal clean layout */}
                 {(property.cgt_calculation || (property.calculation_steps && property.calculation_steps.length > 0)) && (
                   <div className="space-y-3">
-                    <h4 className="font-bold text-lg text-gray-900 dark:text-gray-100">
-                      CGT Calculation
+                    <h4 className="text-sm font-bold text-gray-800 dark:text-gray-200 flex items-center gap-2">
+                      <Calculator className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                      CGT Calculation Steps
                     </h4>
 
                     {/* New format: cgt_calculation with step1-7 */}
@@ -886,7 +954,7 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
 
                                 {/* Result - Green Pill */}
                                 <div className="inline-flex">
-                                  <span className="px-4 py-2 border-2 border-emerald-500 dark:border-emerald-500 text-white bg-transparent rounded-full text-sm font-semibold">
+                                  <span className="px-3 py-1.5 bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700 rounded-full text-sm font-semibold">
                                     {step.result}
                                   </span>
                                 </div>
@@ -930,11 +998,317 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
                   rules={property.applicable_rules?.filter(rule => rule.applies) || []}
                 />
 
+                {/* Section 5: Cost Base Items - Compact */}
+                {property.cost_base_items && property.cost_base_items.length > 0 && (
+                  <div className="space-y-3">
+                    <h4 className="text-sm font-bold text-gray-800 dark:text-gray-200 flex items-center gap-2">
+                      <DollarSign className="w-4 h-4 text-green-600 dark:text-green-400" />
+                      Cost Base Breakdown
+                    </h4>
+                    <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-3 border border-gray-200 dark:border-gray-700">
+                      <div className="space-y-1.5">
+                        {property.cost_base_items.map((item, itemIndex) => (
+                          <div key={itemIndex} className="flex items-center justify-between text-sm">
+                            <span className="text-gray-600 dark:text-gray-400">{item.description}</span>
+                            <span className="font-medium text-gray-900 dark:text-gray-100">${formatNumber(item.amount)}</span>
+                          </div>
+                        ))}
+                      </div>
+                      <div className="mt-2 pt-2 border-t border-gray-300 dark:border-gray-600 flex items-center justify-between">
+                        <span className="font-semibold text-gray-800 dark:text-gray-200">Total Cost Base</span>
+                        <span className="font-bold text-gray-900 dark:text-white">${formatNumber(property.total_cost_base)}</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Section 6: Ownership Periods */}
+                {property.ownership_periods && property.ownership_periods.length > 0 && (
+                  <OwnershipPeriodsChart periods={property.ownership_periods} />
+                )}
+
+                {/* Section 7: Calculation Summary - Compact */}
+                {property.calculation_summary && (
+                  <div className="space-y-3">
+                    <h4 className="text-sm font-bold text-gray-800 dark:text-gray-200 flex items-center gap-2">
+                      <TrendingUp className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                      Calculation Summary
+                    </h4>
+                    <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-3 border border-gray-200 dark:border-gray-700">
+                      {/* Key figures in compact rows */}
+                      <div className="space-y-1.5 text-sm">
+                        <div className="flex justify-between">
+                          <span className="text-gray-600 dark:text-gray-400">Sale Price</span>
+                          <span className="font-medium text-gray-900 dark:text-gray-100">${formatNumber(property.calculation_summary.sale_price)}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-600 dark:text-gray-400">Cost Base</span>
+                          <span className="font-medium text-gray-900 dark:text-gray-100">-${formatNumber(property.calculation_summary.total_cost_base)}</span>
+                        </div>
+                        <div className="flex justify-between pt-1 border-t border-gray-200 dark:border-gray-600">
+                          <span className="text-gray-700 dark:text-gray-300 font-medium">Gross Capital Gain</span>
+                          <span className="font-semibold text-gray-900 dark:text-white">${formatNumber(property.calculation_summary.gross_capital_gain)}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-600 dark:text-gray-400">Main Residence Exemption ({formatNumber(property.calculation_summary.main_residence_exemption_percentage)}%)</span>
+                          <span className="font-medium text-green-700 dark:text-green-400">-${formatNumber(property.calculation_summary.main_residence_exemption_amount)}</span>
+                        </div>
+                        {property.calculation_summary.cgt_discount_applicable && (
+                          <div className="flex justify-between">
+                            <span className="text-gray-600 dark:text-gray-400">CGT Discount ({formatNumber(property.calculation_summary.cgt_discount_percentage)}%)</span>
+                            <span className="font-medium text-green-700 dark:text-green-400">-${formatNumber(property.calculation_summary.cgt_discount_amount)}</span>
+                          </div>
+                        )}
+                      </div>
+                      {/* Net Capital Gain */}
+                      <div className={`mt-3 p-3 rounded-lg flex items-center justify-between ${
+                        parseFloat(String(property.calculation_summary.net_capital_gain)) === 0
+                          ? 'bg-green-100 dark:bg-green-900/40 border border-green-200 dark:border-green-800'
+                          : 'bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800'
+                      }`}>
+                        <span className="font-semibold text-gray-800 dark:text-gray-200">Net Capital Gain</span>
+                        <span className={`text-xl font-bold ${
+                          parseFloat(String(property.calculation_summary.net_capital_gain)) === 0
+                            ? 'text-green-700 dark:text-green-400'
+                            : 'text-red-700 dark:text-red-400'
+                        }`}>
+                          ${formatNumber(property.calculation_summary.net_capital_gain)}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Section 8: What-If Scenarios */}
+                {property.what_if_scenarios && property.what_if_scenarios.length > 0 && (
+                  <WhatIfScenariosSection scenarios={property.what_if_scenarios} />
+                )}
+
+                {/* Section 9: Important Notes - Compact */}
+                {property.important_notes && property.important_notes.length > 0 && (
+                  <div className="bg-blue-50 dark:bg-blue-950/20 rounded-lg p-3 border border-blue-200 dark:border-blue-800">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Info className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                      <span className="font-semibold text-sm text-blue-800 dark:text-blue-200">Important Notes</span>
+                    </div>
+                    <ul className="space-y-1 text-sm text-gray-700 dark:text-gray-300 pl-6 list-disc">
+                      {property.important_notes.map((note, noteIndex) => (
+                        <li key={noteIndex}>{note}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {/* Section 10: Warnings - Compact */}
+                {property.warnings && property.warnings.length > 0 && (
+                  <div className="bg-amber-50 dark:bg-amber-950/20 rounded-lg p-3 border border-amber-200 dark:border-amber-800">
+                    <div className="flex items-center gap-2 mb-2">
+                      <AlertTriangle className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+                      <span className="font-semibold text-sm text-amber-800 dark:text-amber-200">Warnings</span>
+                    </div>
+                    <ul className="space-y-1 text-sm text-gray-700 dark:text-gray-300 pl-6 list-disc">
+                      {property.warnings.map((warning, warnIndex) => (
+                        <li key={warnIndex}>{warning}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
                 </div>
               </motion.div>
             ))}
           </div>
         )}
+
+        {/* Portfolio Totals - Compact */}
+        {(analysisData.total_net_capital_gain !== undefined || analysisData.properties_with_cgt !== undefined) && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 rounded-lg border border-blue-200 dark:border-blue-800 p-5"
+          >
+            <h3 className="text-base font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+              <TrendingUp className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+              Portfolio Summary
+            </h3>
+            <div className="flex flex-wrap gap-4 items-center">
+              {/* Total Net Capital Gain */}
+              <div className={`px-4 py-2 rounded-lg ${
+                parseFloat(String(analysisData.total_net_capital_gain || 0)) === 0
+                  ? 'bg-green-100 dark:bg-green-900/40 border border-green-200 dark:border-green-800'
+                  : 'bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800'
+              }`}>
+                <div className="text-xs text-gray-600 dark:text-gray-400">Net CGT</div>
+                <div className={`text-lg font-bold ${
+                  parseFloat(String(analysisData.total_net_capital_gain || 0)) === 0
+                    ? 'text-green-700 dark:text-green-400'
+                    : 'text-red-700 dark:text-red-400'
+                }`}>
+                  ${formatNumber(analysisData.total_net_capital_gain)}
+                </div>
+              </div>
+              {/* Total Gross Gains */}
+              {(analysisData as any).total_gross_gains !== undefined && (
+                <div className="px-4 py-2 rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+                  <div className="text-xs text-gray-600 dark:text-gray-400">Gross Gains</div>
+                  <div className="text-lg font-bold text-gray-900 dark:text-white">
+                    ${formatNumber((analysisData as any).total_gross_gains)}
+                  </div>
+                </div>
+              )}
+              {/* Counts */}
+              <div className="flex gap-3 text-sm">
+                <div className="flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-gray-400"></span>
+                  <span className="text-gray-600 dark:text-gray-400">{analysisData.properties_with_cgt || 0} with CGT</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-green-500"></span>
+                  <span className="text-gray-600 dark:text-gray-400">{analysisData.properties_fully_exempt || 0} exempt</span>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+
+        {/* General Notes - Compact */}
+        {analysisData.general_notes && analysisData.general_notes.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+            className="bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700 p-4"
+          >
+            <h3 className="text-base font-bold text-gray-800 dark:text-gray-200 mb-3 flex items-center gap-2">
+              <Info className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+              General Notes
+            </h3>
+            <ul className="space-y-1.5 text-sm text-gray-700 dark:text-gray-300 pl-6 list-disc">
+              {analysisData.general_notes.map((note, noteIndex) => (
+                <li key={noteIndex}>{note}</li>
+              ))}
+            </ul>
+          </motion.div>
+        )}
+
+        {/* Sources & Rules Summary */}
+        {(rulesAppliedSummary || sourceReferences.length > 0) && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.4 }}
+            className="space-y-3"
+          >
+            {/* Rules Summary Section - Always visible, expanded by default */}
+            {rulesAppliedSummary && (
+              <div className="bg-teal-50 dark:bg-teal-950/20 rounded-lg border border-teal-200 dark:border-teal-800 overflow-hidden">
+                <button
+                  onClick={() => setShowRulesSummary(!showRulesSummary)}
+                  className="w-full px-5 py-4 flex items-center justify-between hover:bg-teal-100 dark:hover:bg-teal-900/30 transition-colors"
+                >
+                  <div className="flex items-center gap-2">
+                    <FileQuestion className="w-5 h-5 text-teal-600 dark:text-teal-400" />
+                    <span className="font-bold text-base text-teal-800 dark:text-teal-200">
+                      CGT Rules Applied
+                    </span>
+                  </div>
+                  <ChevronDown className={`w-5 h-5 text-teal-500 transition-transform ${showRulesSummary ? 'rotate-180' : ''}`} />
+                </button>
+                <AnimatePresence>
+                  {showRulesSummary && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: 'auto', opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.2 }}
+                      className="overflow-hidden"
+                    >
+                      <div className="px-4 pb-4">
+                        <MarkdownDisplay
+                          content={rulesAppliedSummary}
+                          className="prose prose-sm prose-gray dark:prose-invert max-w-none"
+                          compactMode={true}
+                        />
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            )}
+
+            {/* References Section - Collapsed by default */}
+            {sourceReferences.length > 0 && (
+              <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+                <button
+                  onClick={() => setShowSources(!showSources)}
+                  className="w-full px-5 py-4 flex items-center justify-between hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors"
+                >
+                  <div className="flex items-center gap-2">
+                    <BookOpen className="w-5 h-5 text-amber-600 dark:text-amber-400" />
+                    <span className="font-bold text-base text-gray-800 dark:text-gray-200">
+                      Source References ({sourceReferences.length})
+                    </span>
+                  </div>
+                  <ChevronDown className={`w-5 h-5 text-gray-400 transition-transform ${showSources ? 'rotate-180' : ''}`} />
+                </button>
+                <AnimatePresence>
+                  {showSources && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: 'auto', opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.2 }}
+                      className="overflow-hidden"
+                    >
+                      <div className="px-4 pb-3 space-y-1.5">
+                        {sourceReferences.map((ref: any, refIndex: number) => (
+                          <div
+                            key={refIndex}
+                            className="flex items-start gap-2 py-2 border-b border-gray-100 dark:border-gray-700 last:border-0"
+                          >
+                            <span className="flex-shrink-0 w-5 h-5 bg-gray-200 dark:bg-gray-700 rounded text-center text-xs font-medium text-gray-600 dark:text-gray-400 leading-5">
+                              {refIndex + 1}
+                            </span>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm text-gray-800 dark:text-gray-200">
+                                {ref.title}
+                              </p>
+                              <p className="text-xs text-gray-500 dark:text-gray-500">
+                                {ref.source_document}{ref.page && ` • Page ${ref.page}`}
+                              </p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            )}
+          </motion.div>
+        )}
+
+        {/* Footer: Metadata Badges */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5, delay: 0.5 }}
+          className="flex flex-wrap items-center justify-center gap-3 pt-4"
+        >
+          {/* Analysis Date */}
+          {analysisDate && (
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-gray-100 dark:bg-gray-800 rounded-full text-sm text-gray-600 dark:text-gray-400">
+              <Calendar className="w-4 h-4" />
+              <span>Analyzed: {analysisDate}</span>
+            </div>
+          )}
+          {/* Properties Analyzed */}
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-100 dark:bg-blue-900/30 rounded-full text-sm text-blue-700 dark:text-blue-300">
+            <Home className="w-4 h-4" />
+            <span>{propertiesAnalyzedCount} {propertiesAnalyzedCount === 1 ? 'property' : 'properties'} analyzed</span>
+          </div>
+        </motion.div>
       </div>
     );
   }

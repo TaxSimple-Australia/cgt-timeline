@@ -192,6 +192,7 @@ export interface OwnershipPeriod {
   days: number;
   years: string;
   percentage: string;
+  note?: string; // e.g., "s118.110", "s118.145"
 }
 
 export interface CalculationStep {

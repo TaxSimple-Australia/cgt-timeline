@@ -38,41 +38,38 @@ export default function PropertyTimelineEvents({ timeline }: PropertyTimelineEve
 
   return (
     <div className="space-y-3">
-      <h4 className="font-bold text-lg text-slate-700 dark:text-slate-300 flex items-center gap-2">
-        <Calendar className="w-5 h-5 text-slate-600 dark:text-slate-400" />
+      <h4 className="text-sm font-bold text-gray-800 dark:text-gray-200 flex items-center gap-2">
+        <Calendar className="w-4 h-4 text-orange-600 dark:text-orange-400" />
         Timeline of Events
       </h4>
 
-      <div className="overflow-hidden rounded-lg border-2 border-slate-200 dark:border-slate-700 shadow-sm">
+      <div className="overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700">
         <table className="w-full">
           <thead>
-            <tr className="bg-gradient-to-r from-blue-100 via-indigo-100 to-purple-100 dark:from-blue-900/30 dark:via-indigo-900/30 dark:to-purple-900/30 border-b-2 border-indigo-300 dark:border-indigo-700">
-              <th className="px-4 py-2.5 text-left text-xs font-semibold text-blue-700 dark:text-blue-300 uppercase tracking-wider w-36 border-r border-indigo-200 dark:border-indigo-700">
+            <tr className="bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+              <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-28">
                 Date
               </th>
-              <th className="px-4 py-2.5 text-left text-xs font-semibold text-indigo-700 dark:text-indigo-300 uppercase tracking-wider w-40 border-r border-indigo-200 dark:border-indigo-700">
+              <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-32">
                 Event
               </th>
-              <th className="px-4 py-2.5 text-left text-xs font-semibold text-purple-700 dark:text-purple-300 uppercase tracking-wider">
+              <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                 Details
               </th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
+          <tbody className="divide-y divide-gray-100 dark:divide-gray-800 bg-white dark:bg-gray-900">
             {timeline.map((event, index) => (
-              <tr
-                key={index}
-                className={cn("transition-all", getEventRowColor(event.event))}
-              >
-                <td className="px-4 py-3 text-sm font-medium text-gray-900 dark:text-white whitespace-nowrap border-r border-slate-200 dark:border-slate-700">
+              <tr key={index} className="hover:bg-gray-50 dark:hover:bg-gray-800/50">
+                <td className="px-3 py-2 text-sm text-gray-900 dark:text-gray-100 whitespace-nowrap">
                   {event.date}
                 </td>
-                <td className="px-4 py-3 border-r border-slate-200 dark:border-slate-700">
-                  <span className={`inline-block px-2.5 py-1 text-xs font-semibold rounded-full ${getEventBadgeColor(event.event)}`}>
+                <td className="px-3 py-2">
+                  <span className={`inline-block px-2 py-0.5 text-xs font-medium rounded ${getEventBadgeColor(event.event)}`}>
                     {event.event}
                   </span>
                 </td>
-                <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300">
+                <td className="px-3 py-2 text-sm text-gray-600 dark:text-gray-400">
                   {event.details}
                 </td>
               </tr>

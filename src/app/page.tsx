@@ -282,26 +282,37 @@ function HomeContent() {
       // Use raw API response data
       console.log('✅ Using raw API data:', result.data);
 
-      // Extract data from nested structure (new API format: result.data.data)
-      // Also support old format for backwards compatibility
-      const analysisData = result.data.data || result.data;
-      console.log('📊 Extracted analysis data:', analysisData);
+      // IMPORTANT: Keep the FULL response structure including sources, query, etc.
+      // The new API format is: { success, query, data: {...}, sources: {...}, ... }
+      // We need to preserve the outer wrapper for sources and other metadata
+      const fullResponse = result.data;
+      // For backwards compatibility, also get the inner data for checks
+      // The inner data is nested at result.data.data OR result.data itself (for flat responses)
+      const innerData = result.data.data || result.data;
+
+      // Debug: Log the full structure to verify sources are present
+      console.log('📊 Full response structure keys:', Object.keys(fullResponse || {}));
+      console.log('📊 Has sources?:', !!fullResponse?.sources);
+      console.log('📊 Has query?:', !!fullResponse?.query);
+      console.log('📊 Inner analysis data keys:', Object.keys(innerData || {}));
 
       // Check if API needs clarification - handle multiple response formats
+      // Use innerData for compatibility checks
       const needsClarification =
-        analysisData?.needs_clarification === true ||
-        analysisData?.summary?.requires_clarification === true ||
-        analysisData?.status === "verification_failed";
+        innerData?.needs_clarification === true ||
+        fullResponse?.needs_clarification === true ||
+        innerData?.summary?.requires_clarification === true ||
+        innerData?.status === "verification_failed";
 
       if (needsClarification) {
         // Extract verification alerts for failed properties
-        const alerts = extractVerificationAlerts(analysisData, properties);
+        const alerts = extractVerificationAlerts(innerData, properties);
         console.log('🚨 Extracted alerts (needs clarification):', alerts);
         setVerificationAlerts(alerts);
 
         // Set validation issues in store if present
-        if (analysisData.verification?.issues) {
-          setValidationIssues(analysisData.verification.issues, properties);
+        if (innerData.verification?.issues) {
+          setValidationIssues(innerData.verification.issues, properties);
         }
 
         // Close the analysis panel - alerts will be displayed on timeline ONLY
@@ -313,7 +324,8 @@ function HomeContent() {
         // Analysis is complete - no clarifications needed
         console.log('✅ Analysis complete - no clarifications needed');
         setVerificationAlerts([]); // Clear any previous alerts
-        setAnalysisData(analysisData); // Set the actual analysis results
+        // IMPORTANT: Store the FULL response including sources, query, etc.
+        setAnalysisData(fullResponse);
       }
 
       setApiConnected(true);
@@ -498,12 +510,20 @@ function HomeContent() {
       // Popup already closed by button click
       // setShowAllResolvedPopup(false); // Not needed - already closed
 
+      // Store the FULL response including sources, query, etc.
+      // result.data contains the complete external API response
+      const fullResponse = result.data;
+      console.log('📊 Re-submit: Full response keys:', Object.keys(fullResponse || {}));
+      console.log('📊 Re-submit: Has sources?:', !!fullResponse?.sources);
+
       // Set validation issues in store if present
-      if (result.data.verification?.issues) {
-        setValidationIssues(result.data.verification.issues, properties);
+      const innerData = result.data.data || result.data;
+      if (innerData.verification?.issues) {
+        setValidationIssues(innerData.verification.issues, properties);
       }
 
-      setAnalysisData(result.data);
+      // Store the FULL response (not just inner data) to preserve sources and metadata
+      setAnalysisData(fullResponse);
 
       // Analysis panel is already open (set at start of function)
       console.log('✅ Successfully re-submitted with verifications - showing CGT analysis');
@@ -612,15 +632,21 @@ function HomeContent() {
         result.data?.summary?.requires_clarification === true ||
         result.data?.status === "verification_failed";
 
+      // Store the FULL response including sources, query, etc.
+      const fullResponse = result.data;
+      const innerData = result.data.data || result.data;
+      console.log('📊 Gap retry: Full response keys:', Object.keys(fullResponse || {}));
+      console.log('📊 Gap retry: Has sources?:', !!fullResponse?.sources);
+
       if (stillNeedsClarification) {
         // Extract verification alerts for remaining issues
-        const alerts = extractVerificationAlerts(result.data, properties);
+        const alerts = extractVerificationAlerts(innerData, properties);
         console.log('🚨 Extracted alerts after retry (still needs clarification):', alerts);
         setVerificationAlerts(alerts);
 
         // Set validation issues in store if present
-        if (result.data.verification?.issues) {
-          setValidationIssues(result.data.verification.issues, properties);
+        if (innerData.verification?.issues) {
+          setValidationIssues(innerData.verification.issues, properties);
         }
 
         // DON'T set analysisData - we want ONLY timeline alerts, not panel questions
@@ -631,7 +657,8 @@ function HomeContent() {
         // Analysis is complete - no more clarifications needed
         console.log('✅ Analysis successful after gap clarifications - no more clarifications needed');
         setVerificationAlerts([]); // Clear any previous alerts
-        setAnalysisData(result.data); // Now we can show the actual results
+        // Store the FULL response (not just inner data) to preserve sources and metadata
+        setAnalysisData(fullResponse);
         // Keep panel open to show final results
       }
     } catch (err) {

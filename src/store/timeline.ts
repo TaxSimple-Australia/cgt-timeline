@@ -462,7 +462,7 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
     enableDragEvents: true,
     enableAISuggestedQuestions: true, // Default enabled
     analysisDisplayMode: 'auto', // Default: auto-detect based on response type
-    apiResponseMode: 'markdown', // Default: View 1 (markdown endpoint)
+    apiResponseMode: 'json', // Default: View 2 (json endpoint)
 
     // LLM Provider Initial State
     selectedLLMProvider: 'deepseek', // Default provider (prefer Deepseek)

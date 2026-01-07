@@ -33,8 +33,8 @@ export const calculatePortfolioStats = (
     improvement: 0,
     refinance: 0,
     status_change: 0,
-    living_in_rental_start: 0,
-    living_in_rental_end: 0,
+    vacant_start: 0,
+    vacant_end: 0,
     custom: 0,
   };
 
@@ -76,8 +76,8 @@ export const getEventTypeBreakdownText = (eventBreakdown: Record<EventType, numb
     eventBreakdown.move_out +
     eventBreakdown.rent_start +
     eventBreakdown.rent_end +
-    eventBreakdown.living_in_rental_start +
-    eventBreakdown.living_in_rental_end;
+    eventBreakdown.vacant_start +
+    eventBreakdown.vacant_end;
 
   if (occupancyEvents > 0) parts.push(`Occupancy: ${occupancyEvents}`);
 
@@ -165,8 +165,8 @@ export const getEventIcon = (type: EventType): string => {
     improvement: '🔨',
     refinance: '🏦',
     status_change: '📋',
-    living_in_rental_start: '🏡',
-    living_in_rental_end: '🏘️',
+    vacant_start: '🏚️',
+    vacant_end: '🏢',
     custom: '⭐',
   };
 
@@ -187,8 +187,8 @@ export const getShortEventName = (type: EventType): string => {
     improvement: 'Improve',
     refinance: 'Refinance',
     status_change: 'Status',
-    living_in_rental_start: 'Live In',
-    living_in_rental_end: 'Move Out',
+    vacant_start: 'Vacant',
+    vacant_end: 'End Vacant',
     custom: 'Custom',
   };
 
@@ -209,8 +209,8 @@ export const getFullEventName = (type: EventType): string => {
     improvement: 'Capital Improvement',
     refinance: 'Refinanced',
     status_change: 'Status Change',
-    living_in_rental_start: 'Living in Rental Started',
-    living_in_rental_end: 'Living in Rental Ended',
+    vacant_start: 'Vacancy Started',
+    vacant_end: 'Vacancy Ended',
     custom: 'Custom Event',
   };
 
@@ -294,10 +294,9 @@ export const getStatusColor = (status: string): string => {
   const colors: Record<string, string> = {
     ppr: '#10b981', // green
     rental: '#3b82f6', // blue
-    vacant: '#94a3b8', // gray
+    vacant: '#9ca3af', // gray
     construction: '#f59e0b', // orange
     sold: '#8b5cf6', // purple
-    living_in_rental: '#ec4899', // pink
   };
 
   return colors[status] || '#64748b';
@@ -313,7 +312,6 @@ export const getStatusLabel = (status: string): string => {
     vacant: 'Vacant',
     construction: 'Under Construction',
     sold: 'Sold',
-    living_in_rental: 'Living in Rental',
   };
 
   return labels[status] || status;

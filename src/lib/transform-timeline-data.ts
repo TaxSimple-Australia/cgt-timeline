@@ -1,6 +1,7 @@
 import type { Property as TimelineProperty, TimelineEvent } from '@/store/timeline';
 import type { CGTModelResponse, Property, PropertyHistoryEvent } from '@/types/model-response';
 import type { VerificationAlert } from '@/types/verification-alert';
+import { sanitizeDateForAPI } from '@/lib/date-utils';
 
 /**
  * Verification response format for the API
@@ -61,10 +62,15 @@ export function transformTimelineToAPIFormat(
 
     // Transform events to API format
     const property_history: PropertyHistoryEvent[] = propertyEvents.map((event) => {
-      // Ensure date is a Date object before formatting
-      const eventDate = event.date instanceof Date ? event.date : new Date(event.date);
+      // Use sanitizeDateForAPI for robust date handling
+      const sanitizedDate = sanitizeDateForAPI(event.date);
+      if (!sanitizedDate) {
+        console.error('❌ Transform: Invalid event date, skipping event:', event);
+        return null;
+      }
+
       const historyEvent: PropertyHistoryEvent = {
-        date: eventDate.toISOString().split('T')[0], // Format as YYYY-MM-DD
+        date: sanitizedDate, // Already in YYYY-MM-DD format from sanitization
         event: event.type,
         // For custom events, use the title as description if no description is set
         description: event.type === 'custom'
@@ -100,23 +106,39 @@ export function transformTimelineToAPIFormat(
       // For sale events, always include contract_date (use event date if not set)
       if (event.type === 'sale') {
         const contractDateValue = event.contractDate || event.date;
-        const contractDate = contractDateValue instanceof Date ? contractDateValue : new Date(contractDateValue);
-        historyEvent.contract_date = contractDate.toISOString().split('T')[0];
-        console.log('📋 Transform: Sale event contract_date:', {
-          eventDate: event.date,
-          contractDate: event.contractDate,
-          outputContractDate: historyEvent.contract_date,
-        });
+        const sanitizedContractDate = sanitizeDateForAPI(contractDateValue);
+        if (sanitizedContractDate) {
+          historyEvent.contract_date = sanitizedContractDate;
+          console.log('📋 Transform: Sale event contract_date:', {
+            eventDate: event.date,
+            contractDate: event.contractDate,
+            outputContractDate: historyEvent.contract_date,
+          });
+        }
+
+        // Add Australian resident status for sale events
+        if (event.isResident !== undefined) {
+          historyEvent.is_resident = event.isResident;
+        }
+
+        // Add previous year losses for sale events
+        if (event.previousYearLosses !== undefined && event.previousYearLosses > 0) {
+          historyEvent.previous_year_losses = event.previousYearLosses;
+        }
       } else if (event.contractDate) {
         // For other event types, only include if explicitly set
-        const contractDate = event.contractDate instanceof Date ? event.contractDate : new Date(event.contractDate);
-        historyEvent.contract_date = contractDate.toISOString().split('T')[0];
+        const sanitizedContractDate = sanitizeDateForAPI(event.contractDate);
+        if (sanitizedContractDate) {
+          historyEvent.contract_date = sanitizedContractDate;
+        }
       }
 
       // Add settlement date if available
       if (event.settlementDate) {
-        const settlementDate = event.settlementDate instanceof Date ? event.settlementDate : new Date(event.settlementDate);
-        historyEvent.settlement_date = settlementDate.toISOString().split('T')[0];
+        const sanitizedSettlementDate = sanitizeDateForAPI(event.settlementDate);
+        if (sanitizedSettlementDate) {
+          historyEvent.settlement_date = sanitizedSettlementDate;
+        }
       }
 
       // Add market value for move_out events (used for CGT apportionment)
@@ -282,16 +304,76 @@ export function transformTimelineToAPIFormat(
               }
               historyEvent.improvement_cost = costBase.amount;
               break;
+            // Element 4: Capital Costs (Non-improvement)
+            case 'zoning_change_costs':
+              historyEvent.zoning_change_costs = costBase.amount;
+              break;
+            case 'asset_installation_costs':
+              historyEvent.asset_installation_costs = costBase.amount;
+              break;
+            case 'asset_relocation_costs':
+              historyEvent.asset_relocation_costs = costBase.amount;
+              break;
             default:
-              // For custom or unrecognized cost bases, log a warning
-              // These won't be sent to the API but will still be preserved in the JSON download
-              console.warn(`⚠️ Cost base '${costBase.definitionId}' not mapped to API field (amount: ${costBase.amount}). This is preserved in timeline data but won't be sent to the API.`, costBase);
+              // Handle custom cost base items by mapping them to appropriate fallback fields
+              if (costBase.isCustom) {
+                console.log(`🔧 Processing custom cost base: "${costBase.name}" (${costBase.category}, ${costBase.amount})`);
+
+                switch (costBase.category) {
+                  case 'element2':
+                    // Element 2: Incidental Costs - map to appropriate field based on event type
+                    if (event.type === 'sale') {
+                      // Sale events: aggregate to tax_agent_fees_sale
+                      historyEvent.tax_agent_fees_sale = (historyEvent.tax_agent_fees_sale || 0) + costBase.amount;
+                      console.log(`  ✅ Added to tax_agent_fees_sale (sale event): ${costBase.amount}`);
+                    } else if (event.type === 'purchase') {
+                      // Purchase events: aggregate to accountant_fees_purchase
+                      historyEvent.accountant_fees_purchase = (historyEvent.accountant_fees_purchase || 0) + costBase.amount;
+                      console.log(`  ✅ Added to accountant_fees_purchase (purchase event): ${costBase.amount}`);
+                    } else {
+                      // Other events: default to accountant_fees_purchase
+                      historyEvent.accountant_fees_purchase = (historyEvent.accountant_fees_purchase || 0) + costBase.amount;
+                      console.log(`  ✅ Added to accountant_fees_purchase (other event): ${costBase.amount}`);
+                    }
+                    break;
+
+                  case 'element3':
+                    // Element 3: Ownership/Holding Costs - aggregate to maintenance_costs
+                    historyEvent.maintenance_costs = (historyEvent.maintenance_costs || 0) + costBase.amount;
+                    console.log(`  ✅ Added to maintenance_costs: ${costBase.amount}`);
+                    break;
+
+                  case 'element4':
+                    // Element 4: Capital Improvements - aggregate to improvement_cost (generic field)
+                    historyEvent.improvement_cost = (historyEvent.improvement_cost || 0) + costBase.amount;
+                    console.log(`  ✅ Added to improvement_cost: ${costBase.amount}`);
+                    break;
+
+                  case 'element5':
+                    // Element 5: Title Costs - aggregate to title_legal_fees
+                    historyEvent.title_legal_fees = (historyEvent.title_legal_fees || 0) + costBase.amount;
+                    console.log(`  ✅ Added to title_legal_fees: ${costBase.amount}`);
+                    break;
+
+                  case 'element1':
+                    // Element 1: Acquisition costs cannot be safely added to price
+                    // Log warning but don't modify the price field
+                    console.warn(`  ⚠️ Cannot safely map custom Element 1 cost "${costBase.name}" (${costBase.amount}) to API. Element 1 costs should use predefined fields only.`);
+                    break;
+
+                  default:
+                    console.warn(`  ⚠️ Unknown category "${costBase.category}" for custom cost base "${costBase.name}" (${costBase.amount})`);
+                }
+              } else {
+                // For non-custom unrecognized cost bases, log a warning
+                console.warn(`⚠️ Cost base '${costBase.definitionId}' not mapped to API field (amount: ${costBase.amount}). This is preserved in timeline data but won't be sent to the API.`, costBase);
+              }
           }
         });
       }
 
       return historyEvent;
-    });
+    }).filter((event): event is PropertyHistoryEvent => event !== null); // Filter out null entries from invalid dates
 
     return {
       address: `${property.name}, ${property.address}`,

@@ -14,8 +14,7 @@ import {
   Hammer,
   RefreshCw,
   FileEdit,
-  UserPlus,
-  Users
+  Building
 } from 'lucide-react';
 
 interface GanttChartViewProps {
@@ -43,8 +42,8 @@ export default function GanttChartView({
       improvement: Hammer,
       refinance: RefreshCw,
       status_change: FileEdit,
-      living_in_rental_start: Users,
-      living_in_rental_end: UserPlus,
+      vacant_start: Building,
+      vacant_end: Building,
       custom: Home,
     };
     return iconMap[eventType] || Home;

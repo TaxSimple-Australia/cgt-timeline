@@ -26,8 +26,13 @@ export interface PropertyHistoryEvent {
   search_fees?: number;
   loan_application_fees?: number;
 
-  // Capital improvement fields (Second Element)
+  // Capital improvement fields (Fourth Element)
   improvement_cost?: number;
+
+  // Element 4: Capital Costs (Non-improvement)
+  zoning_change_costs?: number;
+  asset_installation_costs?: number;
+  asset_relocation_costs?: number;
 
   // Selling cost base fields (Fifth Element)
   legal_fees?: number;
@@ -38,6 +43,12 @@ export interface PropertyHistoryEvent {
   mortgage_discharge_fees?: number;
   accountant_fees_purchase?: number;
   tax_agent_fees_sale?: number;
+
+  // Sale event - Australian resident status for CGT
+  is_resident?: boolean;
+
+  // Sale event - Previous year capital losses to offset CGT
+  previous_year_losses?: number;
 
   // Element 3: Holding/Ownership Costs
   land_tax?: number;

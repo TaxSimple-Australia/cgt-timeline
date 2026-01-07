@@ -49,12 +49,11 @@ export default function PropertyStatusBands({
 
   // Status labels for display
   const statusLabels: Record<PropertyStatus, string> = {
-    ppr: 'Main Residence',
+    ppr: 'Living',
     rental: 'Rental',
     vacant: 'Vacant',
     construction: 'Construction',
     sold: 'Sold',
-    living_in_rental: 'Living in Rental',
   };
 
   return (
@@ -123,8 +122,8 @@ export default function PropertyStatusBands({
               }}
             />
 
-            {/* Status label (show if band is wide enough, but not for vacant) */}
-            {width > 5 && period.status !== 'vacant' && (
+            {/* Status label (show if band is wide enough) */}
+            {width > 5 && (
               <text
                 x={`${startPos + width / 2}%`}
                 y={hoveredBandY + hoveredBandHeight / 2}

@@ -389,6 +389,29 @@ export const COST_BASE_DEFINITIONS: CostBaseDefinition[] = [
     applicableEvents: ['improvement'],
   },
 
+  // Fourth Element - Capital Costs (Non-improvement)
+  {
+    id: 'zoning_change_costs',
+    name: 'Zoning Change Application Costs',
+    category: 'element4',
+    description: 'Costs of applying for zoning changes (whether successful or not)',
+    applicableEvents: ['improvement', 'purchase', 'custom'],
+  },
+  {
+    id: 'asset_installation_costs',
+    name: 'Asset Installation Costs',
+    category: 'element4',
+    description: 'Costs to install an asset on the property',
+    applicableEvents: ['improvement', 'purchase', 'custom'],
+  },
+  {
+    id: 'asset_relocation_costs',
+    name: 'Asset Moving/Relocation Costs',
+    category: 'element4',
+    description: 'Costs to move or relocate an asset',
+    applicableEvents: ['improvement', 'custom'],
+  },
+
   // ===== ELEMENT 5: TITLE COSTS =====
   {
     id: 'title_legal_fees',

@@ -4,11 +4,10 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { TimelineEvent, PropertyStatus, useTimelineStore, CostBaseItem } from '@/store/timeline';
 import { format } from 'date-fns';
-import { X, Calendar, DollarSign, Home, Tag, FileText, CheckCircle, Receipt, Info, Star, Palette, Building2, Key, AlertCircle } from 'lucide-react';
+import { X, Calendar, DollarSign, Home, Tag, FileText, CheckCircle, Receipt, Info, Star, Palette, Building2, Key } from 'lucide-react';
 import CostBaseSelector from './CostBaseSelector';
 import { getCostBaseDefinition } from '@/lib/cost-base-definitions';
 import CostBaseSummaryModal from './CostBaseSummaryModal';
-import { parseDateFlexible, formatDateDisplay, isValidDateRange, DATE_FORMAT_PLACEHOLDER } from '@/lib/date-utils';
 
 // Color palette for custom events
 const customEventColors = [
@@ -40,9 +39,6 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
 
   const [title, setTitle] = useState(event.title);
   const [date, setDate] = useState(format(event.date, 'yyyy-MM-dd'));
-  const [dateInput, setDateInput] = useState(format(event.date, 'dd/MM/yyyy')); // User-friendly display format
-  const [parsedDate, setParsedDate] = useState<Date | null>(event.date);
-  const [dateError, setDateError] = useState('');
   const [amount, setAmount] = useState(event.amount?.toString() || '');
   // Don't prefill description for synthetic "Not Sold" markers
   const [description, setDescription] = useState(() => {
@@ -85,11 +81,6 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
   const [appreciationDate, setAppreciationDate] = useState(
     event.appreciationDate ? format(event.appreciationDate, 'yyyy-MM-dd') : ''
   );
-  const [appreciationDateInput, setAppreciationDateInput] = useState(
-    event.appreciationDate ? format(event.appreciationDate, 'dd/MM/yyyy') : ''
-  );
-  const [parsedAppreciationDate, setParsedAppreciationDate] = useState<Date | null>(event.appreciationDate || null);
-  const [appreciationDateError, setAppreciationDateError] = useState('');
 
   // NEW: Dynamic Cost Bases
   const [costBases, setCostBases] = useState<CostBaseItem[]>(() => {
@@ -139,82 +130,13 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
 
   const [marketValuation, setMarketValuation] = useState(event.marketValuation?.toString() || '');
 
-  // Date input handler with flexible parsing
-  const handleDateChange = (value: string) => {
-    setDateInput(value);
-
-    if (!value.trim()) {
-      setDateError('Date is required');
-      setParsedDate(null);
-      return;
-    }
-
-    const parsed = parseDateFlexible(value);
-
-    if (!parsed) {
-      setDateError('Invalid date format. Try: 15/01/2023, 15 Jan 2023, or 2023-01-15');
-      setParsedDate(null);
-      return;
-    }
-
-    const validation = isValidDateRange(parsed);
-    if (!validation.valid) {
-      setDateError(validation.error || 'Invalid date');
-      setParsedDate(null);
-      return;
-    }
-
-    // Success - update all date states
-    setDateError('');
-    setParsedDate(parsed);
-    setDate(format(parsed, 'yyyy-MM-dd')); // Keep old format for backward compatibility
-  };
-
-  // Appreciation date handler
-  const handleAppreciationDateChange = (value: string) => {
-    setAppreciationDateInput(value);
-
-    if (!value.trim()) {
-      setAppreciationDateError('');
-      setParsedAppreciationDate(null);
-      setAppreciationDate('');
-      return;
-    }
-
-    const parsed = parseDateFlexible(value);
-
-    if (!parsed) {
-      setAppreciationDateError('Invalid date format. Try: 15/01/2023, 15 Jan 2023, or 2023-01-15');
-      setParsedAppreciationDate(null);
-      return;
-    }
-
-    const validation = isValidDateRange(parsed);
-    if (!validation.valid) {
-      setAppreciationDateError(validation.error || 'Invalid date');
-      setParsedAppreciationDate(null);
-      return;
-    }
-
-    // Success
-    setAppreciationDateError('');
-    setParsedAppreciationDate(parsed);
-    setAppreciationDate(format(parsed, 'yyyy-MM-dd'));
-  };
-
   const handleSave = () => {
     try {
-      // Validate date before saving
-      if (dateError || !parsedDate) {
-        alert('Please fix the date error before saving');
-        return;
-      }
-
       setIsSaving(true);
 
       const updates: Partial<TimelineEvent> = {
         title: title.trim(),
-        date: parsedDate, // Use the validated parsed date
+        date: new Date(date),
       };
 
       // Handle price/amount calculation
@@ -665,29 +587,16 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
                           animate={{ opacity: 1, y: 0 }}
                           exit={{ opacity: 0, y: -5 }}
                           transition={{ duration: 0.15 }}
-                          className="absolute left-1/2 -translate-x-1/2 top-full mt-2 bg-slate-900 dark:bg-slate-800 text-white px-4 py-3 rounded-lg shadow-2xl text-sm min-w-[280px] max-w-[360px] z-50 pointer-events-none border-2 border-blue-500/30"
+                          className="absolute left-1/2 -translate-x-1/2 top-full mt-2 bg-slate-900 dark:bg-slate-800 text-white px-4 py-3 rounded-lg shadow-2xl text-sm min-w-[280px] max-w-[320px] z-50 pointer-events-none border-2 border-blue-500/30"
                         >
                           <div className="font-semibold mb-1.5 text-blue-300">
                             {event.type === 'purchase' ? 'Settlement Date' : 'Contract Date'}
                           </div>
-                          <p className="text-slate-200 leading-relaxed mb-3">
+                          <p className="text-slate-200 leading-relaxed">
                             {event.type === 'purchase'
                               ? 'The date when ownership legally transferred to you'
                               : 'The date when the sale contract was signed (not settlement date)'}
                           </p>
-
-                          <div className="border-t border-slate-700 pt-2 mt-2">
-                            <div className="font-semibold mb-1.5 text-blue-300 text-xs">
-                              Accepted Date Formats:
-                            </div>
-                            <ul className="text-slate-300 text-xs space-y-0.5">
-                              <li>• DD/MM/YYYY (15/01/2023)</li>
-                              <li>• DD MMM YYYY (15 Jan 2023)</li>
-                              <li>• YYYY-MM-DD (2023-01-15)</li>
-                              <li>• DD/MM/YY (15/01/23)</li>
-                              <li>• Or use the calendar picker →</li>
-                            </ul>
-                          </div>
 
                           {/* Arrow pointing up */}
                           <div className="absolute bottom-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-8 border-l-transparent border-r-8 border-r-transparent border-b-8 border-b-slate-900 dark:border-b-slate-800" />
@@ -696,61 +605,13 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
                     </div>
                   )}
                 </label>
-                <div className="relative flex gap-2">
-                  <input
-                    type="text"
-                    value={dateInput}
-                    onChange={(e) => handleDateChange(e.target.value)}
-                    placeholder={DATE_FORMAT_PLACEHOLDER}
-                    className={`flex-1 px-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                      dateError
-                        ? 'border-red-500 dark:border-red-500'
-                        : parsedDate
-                        ? 'border-green-500 dark:border-green-500'
-                        : 'border-slate-300 dark:border-slate-600'
-                    } bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100`}
-                    required
-                  />
-                  <div className="relative">
-                    <input
-                      type="date"
-                      value={date}
-                      onChange={(e) => {
-                        const newDate = e.target.value;
-                        if (newDate) {
-                          setDate(newDate);
-                          const parsed = new Date(newDate);
-                          setParsedDate(parsed);
-                          setDateInput(format(parsed, 'dd/MM/yyyy'));
-                          setDateError('');
-                        }
-                      }}
-                      className="absolute inset-0 opacity-0 cursor-pointer"
-                    />
-                    <button
-                      type="button"
-                      className="px-3 py-2.5 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 hover:bg-slate-50 dark:hover:bg-slate-600 rounded-lg transition-colors"
-                      onClick={(e) => {
-                        const input = e.currentTarget.previousElementSibling as HTMLInputElement;
-                        input?.showPicker?.();
-                      }}
-                    >
-                      <Calendar className="w-5 h-5 text-slate-600 dark:text-slate-400" />
-                    </button>
-                  </div>
-                </div>
-                {dateError && (
-                  <div className="flex items-start gap-2 text-xs text-red-600 dark:text-red-400 mt-1">
-                    <AlertCircle className="w-3 h-3 mt-0.5 flex-shrink-0" />
-                    <span>{dateError}</span>
-                  </div>
-                )}
-                {parsedDate && !dateError && (
-                  <div className="flex items-center gap-2 text-xs text-green-600 dark:text-green-400 mt-1">
-                    <CheckCircle className="w-3 h-3 flex-shrink-0" />
-                    <span>{formatDateDisplay(parsedDate)}</span>
-                  </div>
-                )}
+                <input
+                  type="date"
+                  value={date}
+                  onChange={(e) => setDate(e.target.value)}
+                  className="w-full px-4 py-2.5 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  required
+                />
               </div>
 
               {/* Purchase status checkboxes (for purchase events only) */}
@@ -1146,61 +1007,13 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
                     <Calendar className="w-4 h-4" />
                     Valuation Date *
                   </label>
-                  <div className="relative flex gap-2">
-                    <input
-                      type="text"
-                      value={appreciationDateInput}
-                      onChange={(e) => handleAppreciationDateChange(e.target.value)}
-                      placeholder={DATE_FORMAT_PLACEHOLDER}
-                      className={`flex-1 px-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                        appreciationDateError
-                          ? 'border-red-500 dark:border-red-500'
-                          : parsedAppreciationDate
-                          ? 'border-green-500 dark:border-green-500'
-                          : 'border-slate-300 dark:border-slate-600'
-                      } bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100`}
-                      required
-                    />
-                    <div className="relative">
-                      <input
-                        type="date"
-                        value={appreciationDate}
-                        onChange={(e) => {
-                          const newDate = e.target.value;
-                          if (newDate) {
-                            setAppreciationDate(newDate);
-                            const parsed = new Date(newDate);
-                            setParsedAppreciationDate(parsed);
-                            setAppreciationDateInput(format(parsed, 'dd/MM/yyyy'));
-                            setAppreciationDateError('');
-                          }
-                        }}
-                        className="absolute inset-0 opacity-0 cursor-pointer"
-                      />
-                      <button
-                        type="button"
-                        className="px-3 py-2.5 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 hover:bg-slate-50 dark:hover:bg-slate-600 rounded-lg transition-colors"
-                        onClick={(e) => {
-                          const input = e.currentTarget.previousElementSibling as HTMLInputElement;
-                          input?.showPicker?.();
-                        }}
-                      >
-                        <Calendar className="w-5 h-5 text-slate-600 dark:text-slate-400" />
-                      </button>
-                    </div>
-                  </div>
-                  {appreciationDateError && (
-                    <div className="flex items-start gap-2 text-xs text-red-600 dark:text-red-400 mt-1">
-                      <AlertCircle className="w-3 h-3 mt-0.5 flex-shrink-0" />
-                      <span>{appreciationDateError}</span>
-                    </div>
-                  )}
-                  {parsedAppreciationDate && !appreciationDateError && (
-                    <div className="flex items-center gap-2 text-xs text-green-600 dark:text-green-400 mt-1">
-                      <CheckCircle className="w-3 h-3 flex-shrink-0" />
-                      <span>{formatDateDisplay(parsedAppreciationDate)}</span>
-                    </div>
-                  )}
+                  <input
+                    type="date"
+                    value={appreciationDate}
+                    onChange={(e) => setAppreciationDate(e.target.value)}
+                    className="w-full px-4 py-2.5 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    required
+                  />
                 </div>
               </div>
             )}

@@ -17,12 +17,12 @@
         },
         {
           "date": "2015-08-20",
-          "event": "move_out",
-          "market_value": 398150
+          "event": "move_out"
         },
         {
           "date": "2015-08-20",
-          "event": "rent_start"
+          "event": "rent_start",
+          "market_value": 398150
         },
         {
           "date": "2018-11-25",
@@ -61,12 +61,12 @@
         },
         {
           "date": "2018-10-31",
-          "event": "move_out",
-          "market_value": 776900
+          "event": "move_out"
         },
         {
           "date": "2018-10-31",
-          "event": "rent_start"
+          "event": "rent_start",
+          "market_value": 776900
         },
         {
           "date": "2019-03-20",
@@ -136,12 +136,12 @@
         },
         {
           "date": "2023-01-10",
-          "event": "move_out",
-          "market_value": 821850
+          "event": "move_out"
         },
         {
           "date": "2023-05-15",
           "event": "sale",
+          "market_value": 821850,
           "price": 905000,
           "contract_date": "2023-05-15",
           "agent_fees": 22625,

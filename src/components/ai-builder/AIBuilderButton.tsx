@@ -18,21 +18,22 @@ export default function AIBuilderButton({ onClick, isOpen }: AIBuilderButtonProp
       initial={{ scale: 0, opacity: 0 }}
       animate={{ scale: 1, opacity: 1 }}
       exit={{ scale: 0, opacity: 0 }}
-      whileHover={{ scale: 1.1 }}
+      whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.95 }}
       onClick={onClick}
       className={cn(
-        'fixed bottom-8 right-[72px] z-40',
-        'w-10 h-10 flex items-center justify-center',
+        'fixed bottom-8 right-20 z-40',
+        'flex items-center gap-1.5 px-3 py-2',
         'bg-gradient-to-br from-purple-600 to-blue-600',
         'hover:from-purple-700 hover:to-blue-700',
-        'text-white rounded-full',
+        'text-white text-sm font-medium rounded-full',
         'shadow-lg shadow-purple-500/25',
         'transition-all duration-300'
       )}
       title="AI Timeline Builder"
     >
-      <Sparkles className="w-5 h-5" />
+      <Sparkles className="w-4 h-4" />
+      <span>AI Builder</span>
 
       {/* Pulse indicator */}
       <motion.div

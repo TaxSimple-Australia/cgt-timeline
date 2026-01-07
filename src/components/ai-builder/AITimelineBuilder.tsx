@@ -432,53 +432,67 @@ export default function AITimelineBuilder({ isOpen, onClose }: AITimelineBuilder
           y: 0,
           scale: 1,
           height: isMinimized ? 'auto' : 'calc(100vh - 96px)',
+          width: isMinimized ? 180 : 500,
           top: isMinimized ? 'auto' : '80px',
           bottom: '16px',
         }}
         exit={{ opacity: 0, y: 20, scale: 0.95 }}
         transition={{ duration: 0.2 }}
         className={cn(
-          'fixed right-4 w-[500px] bg-white dark:bg-gray-900',
+          'fixed right-4 bg-white dark:bg-gray-900',
           'rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700',
           'flex flex-col overflow-hidden z-50'
         )}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-purple-500 to-blue-500">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
-              <MessageSquare className="w-4 h-4 text-white" />
-            </div>
+        <div className={cn(
+          "flex items-center justify-between border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-purple-500 to-blue-500",
+          isMinimized ? "px-3 py-2" : "px-4 py-3"
+        )}>
+          <div className="flex items-center gap-2">
+            {!isMinimized && (
+              <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
+                <MessageSquare className="w-4 h-4 text-white" />
+              </div>
+            )}
             <div>
-              <h3 className="text-sm font-semibold text-white">AI Timeline Builder</h3>
-              <p className="text-xs text-white/70">
-                {voiceState === 'listening'
-                  ? 'Listening...'
-                  : isProcessing
-                  ? 'Thinking...'
-                  : 'Ready to help'}
-              </p>
+              <h3 className={cn("font-semibold text-white", isMinimized ? "text-xs" : "text-sm")}>
+                {isMinimized ? "AI Builder" : "AI Timeline Builder"}
+              </h3>
+              {!isMinimized && (
+                <p className="text-xs text-white/70">
+                  {voiceState === 'listening'
+                    ? 'Listening...'
+                    : isProcessing
+                    ? 'Thinking...'
+                    : 'Ready to help'}
+                </p>
+              )}
             </div>
           </div>
 
           <div className="flex items-center gap-1">
-            {/* Undo/Redo */}
-            <button
-              onClick={handleUndo}
-              disabled={!actionExecutorRef.current?.canUndo()}
-              className="p-1.5 text-white/70 hover:text-white hover:bg-white/10 rounded-lg disabled:opacity-30"
-              title="Undo"
-            >
-              <Undo2 className="w-4 h-4" />
-            </button>
-            <button
-              onClick={handleRedo}
-              disabled={!actionExecutorRef.current?.canRedo()}
-              className="p-1.5 text-white/70 hover:text-white hover:bg-white/10 rounded-lg disabled:opacity-30"
-              title="Redo"
-            >
-              <Redo2 className="w-4 h-4" />
-            </button>
+            {/* Undo/Redo - hide when minimized */}
+            {!isMinimized && (
+              <>
+                <button
+                  onClick={handleUndo}
+                  disabled={!actionExecutorRef.current?.canUndo()}
+                  className="p-1.5 text-white/70 hover:text-white hover:bg-white/10 rounded-lg disabled:opacity-30"
+                  title="Undo"
+                >
+                  <Undo2 className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={handleRedo}
+                  disabled={!actionExecutorRef.current?.canRedo()}
+                  className="p-1.5 text-white/70 hover:text-white hover:bg-white/10 rounded-lg disabled:opacity-30"
+                  title="Redo"
+                >
+                  <Redo2 className="w-4 h-4" />
+                </button>
+              </>
+            )}
 
             {/* Minimize/Maximize */}
             <button

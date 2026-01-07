@@ -382,21 +382,39 @@ export default function Timeline({ className, onAlertClick }: TimelineProps) {
               ))}
             </svg>
 
-            {/* No Properties Message */}
+            {/* No Properties Message - Centered Welcome Display */}
             {properties.length === 0 && (
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="text-center">
-                  <h3 className="text-2xl font-bold text-slate-700 dark:text-slate-300 mb-2">
+              <div className="absolute inset-0 flex items-center justify-center" style={{ top: '48px' }}>
+                <div className="flex flex-col items-center justify-center text-center max-w-md px-4">
+                  <h3 className="text-2xl font-bold text-slate-700 dark:text-slate-300 mb-3">
                     Welcome to CGT Timeline
                   </h3>
                   <p className="text-slate-500 dark:text-slate-400 mb-4">
                     Click anywhere on the timeline to add your first property
                   </p>
-                  <div className="flex items-center justify-center gap-2 text-slate-400 dark:text-slate-500">
+                  <div className="flex items-center justify-center gap-2 text-slate-400 dark:text-slate-500 mb-6">
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 15l-2 5L9 9l11 4-5 2z" />
                     </svg>
                     <span className="text-sm">Click on the timeline to begin</span>
+                  </div>
+
+                  {/* AI Timeline Builder Hint */}
+                  <div className="pt-4 border-t border-slate-200 dark:border-slate-700 w-full flex flex-col items-center">
+                    <p className="text-slate-400 dark:text-slate-500 text-sm mb-2">
+                      Or try the
+                    </p>
+                    <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-500/10 to-blue-500/10 dark:from-purple-500/20 dark:to-blue-500/20 rounded-xl border border-purple-200 dark:border-purple-800">
+                      <svg className="w-5 h-5 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+                      </svg>
+                      <span className="text-sm font-medium bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+                        AI Timeline Builder
+                      </span>
+                    </div>
+                    <p className="text-slate-400 dark:text-slate-500 text-xs mt-2">
+                      Build your timeline by simply describing your property history
+                    </p>
                   </div>
                 </div>
               </div>

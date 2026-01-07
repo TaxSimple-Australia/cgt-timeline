@@ -22,6 +22,7 @@ import { deserializeTimeline } from '@/lib/timeline-serialization';
 import '@/lib/test-verification-alerts'; // Load test utilities for browser console
 import { ChevronDown, ChevronUp, Sparkles, AlertTriangle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { AITimelineBuilder, AIBuilderButton } from '@/components/ai-builder';
 
 // Loading screen component for Suspense fallback
 function ShareLoadingScreen() {
@@ -79,6 +80,9 @@ function HomeContent() {
   const [suggestedQuestionsContext, setSuggestedQuestionsContext] = useState('');
   const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
   const [suggestionsError, setSuggestionsError] = useState<string | null>(null);
+
+  // AI Timeline Builder state
+  const [isAIBuilderOpen, setIsAIBuilderOpen] = useState(false);
 
   // Ref to track if we've loaded demo alerts (prevent re-loading on resolution)
   const demoAlertsLoadedRef = useRef(false);
@@ -144,15 +148,16 @@ function HomeContent() {
     }
   }
 
-  // Load demo data on initial mount (only if not loading from share link)
-  useEffect(() => {
-    const shareId = searchParams.get('share');
-    if (properties.length === 0 && !shareId) {
-      loadDemoData().catch(err => {
-        console.error('Failed to load demo data:', err);
-      });
-    }
-  }, []); // Only run once on mount
+  // NOTE: Demo data loading disabled - app starts with empty timeline
+  // Users can manually load demo data or use the AI Timeline Builder
+  // useEffect(() => {
+  //   const shareId = searchParams.get('share');
+  //   if (properties.length === 0 && !shareId) {
+  //     loadDemoData().catch(err => {
+  //       console.error('Failed to load demo data:', err);
+  //     });
+  //   }
+  // }, []);
 
   // TEST: Auto-load verification alerts from demo response on mount (ONCE ONLY)
   // DISABLED: Complete demo scenario has no gaps, so no need to auto-load alerts
@@ -826,6 +831,16 @@ function HomeContent() {
 
       {/* Notes Modal - Timeline notes/feedback */}
       <NotesModal />
+
+      {/* AI Timeline Builder - Voice/Chat interface for building timelines */}
+      <AIBuilderButton
+        onClick={() => setIsAIBuilderOpen(true)}
+        isOpen={isAIBuilderOpen}
+      />
+      <AITimelineBuilder
+        isOpen={isAIBuilderOpen}
+        onClose={() => setIsAIBuilderOpen(false)}
+      />
     </main>
   );
 }

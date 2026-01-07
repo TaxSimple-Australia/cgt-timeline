@@ -17,10 +17,9 @@ import TimelineVisualizationsModal from './TimelineVisualizationsModal';
 interface TimelineProps {
   className?: string;
   onAlertClick?: (alertId: string) => void;
-  aiBuilderOpen?: boolean;
 }
 
-export default function Timeline({ className, onAlertClick, aiBuilderOpen = false }: TimelineProps) {
+export default function Timeline({ className, onAlertClick }: TimelineProps) {
   const timelineRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [draggedEventId, setDraggedEventId] = useState<string | null>(null);
@@ -450,7 +449,7 @@ export default function Timeline({ className, onAlertClick, aiBuilderOpen = fals
       )}
 
       {/* Timeline Snapshot Widget */}
-      <TimelineSnapshot aiBuilderOpen={aiBuilderOpen} />
+      <TimelineSnapshot />
 
       {/* Timeline Visualizations Button */}
       <button

@@ -16,11 +16,7 @@ import PhaseTimelineView from './timeline-viz/snapshot/PhaseTimelineView';
 
 type SnapshotView = 'timeline' | 'roadmap' | 'gantt' | 'horizontal' | 'phase';
 
-interface TimelineSnapshotProps {
-  aiBuilderOpen?: boolean;
-}
-
-export default function TimelineSnapshot({ aiBuilderOpen = false }: TimelineSnapshotProps) {
+export default function TimelineSnapshot() {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedView, setSelectedView] = useState<SnapshotView>('timeline');
   const [clickedEvent, setClickedEvent] = useState<{ event: TimelineEvent; property: Property; clientX: number; clientY: number } | null>(null);
@@ -250,18 +246,17 @@ export default function TimelineSnapshot({ aiBuilderOpen = false }: TimelineSnap
 
   return (
     <div>
-      {/* Floating Camera Button */}
+      {/* Floating Camera Button - positioned bottom left next to Timeline Visualizations */}
       <AnimatePresence>
         {!isOpen && (
           <motion.button
             initial={{ scale: 0, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1, right: aiBuilderOpen ? 520 : 24 }}
+            animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0, opacity: 0 }}
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => setIsOpen(true)}
-            className="fixed bottom-8 z-40 w-10 h-10 rounded-full shadow-lg bg-gradient-to-br from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 flex items-center justify-center transition-all duration-300"
-            style={{ right: aiBuilderOpen ? 520 : 24 }}
+            className="fixed bottom-8 left-[72px] z-40 w-10 h-10 rounded-full shadow-lg bg-gradient-to-br from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 flex items-center justify-center transition-all duration-300"
             title="Open Timeline Snapshot"
           >
             <Camera className="w-5 h-5 text-white" />

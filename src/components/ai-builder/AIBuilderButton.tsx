@@ -33,7 +33,7 @@ export default function AIBuilderButton({ onClick, isOpen }: AIBuilderButtonProp
       title="AI Timeline Builder"
     >
       <Sparkles className="w-4 h-4" />
-      <span>AI Builder</span>
+      <span>AI Timeline Builder</span>
 
       {/* Pulse indicator */}
       <motion.div

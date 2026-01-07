@@ -252,16 +252,11 @@ export default function AITimelineBuilder({ isOpen, onClose }: AITimelineBuilder
       );
 
       await voiceManagerRef.current.connect();
-
-      // If STT is available, switch to voice tab
-      if (capabilities.sttAvailable && activeTab === 'chat') {
-        setActiveTab('voice');
-      }
     } catch (error) {
       console.error('Failed to initialize voice:', error);
       setVoiceCapabilities({ sttAvailable: false, ttsAvailable: false, checked: true });
     }
-  }, [activeTab]);
+  }, []);
 
   // Check voice capabilities on open
   useEffect(() => {
@@ -522,6 +517,26 @@ export default function AITimelineBuilder({ isOpen, onClose }: AITimelineBuilder
             {/* Tabs */}
             <div className="flex items-center justify-between px-4 py-2 border-b border-gray-200 dark:border-gray-700">
               <div className="flex gap-1">
+                {/* Chat Tab - Default tab, always first */}
+                <button
+                  onClick={() => setActiveTab('chat')}
+                  className={cn(
+                    'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors',
+                    activeTab === 'chat'
+                      ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300'
+                      : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'
+                  )}
+                >
+                  <MessageSquare className="w-4 h-4" />
+                  Chat
+                  {/* Show TTS indicator if available */}
+                  {voiceCapabilities.ttsAvailable && !voiceCapabilities.sttAvailable && (
+                    <span title="Voice responses enabled">
+                      <Volume2 className="w-3 h-3 text-green-500" />
+                    </span>
+                  )}
+                </button>
+
                 {/* Voice Tab - disabled if STT not available */}
                 <button
                   onClick={() => voiceCapabilities.sttAvailable && setActiveTab('voice')}
@@ -541,26 +556,6 @@ export default function AITimelineBuilder({ isOpen, onClose }: AITimelineBuilder
                     <MicOff className="w-4 h-4" />
                   )}
                   Voice
-                </button>
-
-                {/* Chat Tab */}
-                <button
-                  onClick={() => setActiveTab('chat')}
-                  className={cn(
-                    'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors',
-                    activeTab === 'chat'
-                      ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300'
-                      : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'
-                  )}
-                >
-                  <MessageSquare className="w-4 h-4" />
-                  Chat
-                  {/* Show TTS indicator if available */}
-                  {voiceCapabilities.ttsAvailable && !voiceCapabilities.sttAvailable && (
-                    <span title="Voice responses enabled">
-                      <Volume2 className="w-3 h-3 text-green-500" />
-                    </span>
-                  )}
                 </button>
 
                 {/* Documents Tab */}

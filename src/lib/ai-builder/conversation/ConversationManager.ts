@@ -337,6 +337,90 @@ export class ConversationManager {
       case 'set_property_status':
         return this.handleSetPropertyStatus(args);
 
+      // Timeline Navigation & Visualization
+      case 'zoom_timeline':
+        return this.handleZoomTimeline(args);
+      case 'pan_to_date':
+        return this.handlePanToDate(args);
+      case 'focus_on_property':
+        return this.handleFocusOnProperty(args);
+      case 'focus_on_event':
+        return this.handleFocusOnEvent(args);
+
+      // Data Operations
+      case 'clear_all_data':
+        return this.handleClearAllData(args);
+      case 'load_demo_data':
+        return this.handleLoadDemoData(args);
+      case 'export_timeline_data':
+        return this.handleExportTimelineData(args);
+      case 'import_timeline_data':
+        return this.handleImportTimelineData(args);
+
+      // Enhanced Property Operations
+      case 'duplicate_property':
+        return this.handleDuplicateProperty(args);
+      case 'get_property_details':
+        return this.handleGetPropertyDetails(args);
+
+      // Enhanced Event Operations
+      case 'move_event':
+        return this.handleMoveEvent(args);
+      case 'duplicate_event':
+        return this.handleDuplicateEvent(args);
+      case 'get_event_details':
+        return this.handleGetEventDetails(args);
+
+      // Bulk Operations
+      case 'bulk_add_events':
+        return this.handleBulkAddEvents(args);
+      case 'bulk_delete_events':
+        return this.handleBulkDeleteEvents(args);
+
+      // Cost Base Operations
+      case 'update_cost_base_item':
+        return this.handleUpdateCostBaseItem(args);
+      case 'delete_cost_base_item':
+        return this.handleDeleteCostBaseItem(args);
+      case 'get_cost_base_summary':
+        return this.handleGetCostBaseSummary(args);
+
+      // UI State Operations
+      case 'toggle_theme':
+        return this.handleToggleTheme(args);
+      case 'toggle_event_display':
+        return this.handleToggleEventDisplay(args);
+      case 'select_property':
+        return this.handleSelectProperty(args);
+      case 'select_event':
+        return this.handleSelectEvent(args);
+
+      // Verification & Analysis
+      case 'get_verification_alerts':
+        return this.handleGetVerificationAlerts(args);
+      case 'resolve_verification_alert':
+        return this.handleResolveVerificationAlert(args);
+      case 'get_analysis_results':
+        return this.handleGetAnalysisResults(args);
+
+      // Timeline Notes
+      case 'set_timeline_notes':
+        return this.handleSetTimelineNotes(args);
+      case 'get_timeline_notes':
+        return this.handleGetTimelineNotes(args);
+
+      // History Operations
+      case 'get_action_history':
+        return this.handleGetActionHistory(args);
+
+      // Custom Event
+      case 'add_custom_event':
+        return this.handleAddCustomEvent(args);
+
+      // Settings
+      case 'update_timeline_settings':
+        return this.handleUpdateTimelineSettings(args);
+
       default:
         return { success: false, error: `Unknown tool: ${name}` };
     }
@@ -1090,6 +1174,1012 @@ export class ConversationManager {
       living_in_rental_end: '#FB923C',
     };
     return colors[eventType] || '#6B7280';
+  }
+
+  // ============================================================================
+  // TIMELINE NAVIGATION & VISUALIZATION HANDLERS
+  // ============================================================================
+
+  private async handleZoomTimeline(args: Record<string, unknown>): Promise<unknown> {
+    const action: TimelineAction = {
+      id: `action-${Date.now()}`,
+      type: 'ZOOM_TIMELINE',
+      timestamp: new Date(),
+      payload: {
+        direction: args.direction as string,
+        level: args.level as string,
+        centerOnDate: args.centerOnDate ? this.parseDate(args.centerOnDate as string) : undefined,
+      },
+      description: args.level ? `Set zoom to ${args.level}` : `Zoom ${args.direction}`,
+    };
+
+    await this.config.executeAction(action);
+    this.config.onAction(action);
+
+    return {
+      success: true,
+      message: args.level ? `Zoomed to ${args.level} view` : `Zoomed ${args.direction}`,
+    };
+  }
+
+  private async handlePanToDate(args: Record<string, unknown>): Promise<unknown> {
+    const date = this.parseDate(args.date as string);
+
+    const action: TimelineAction = {
+      id: `action-${Date.now()}`,
+      type: 'PAN_TO_DATE',
+      timestamp: new Date(),
+      payload: { date },
+      description: `Pan to ${date.toLocaleDateString()}`,
+    };
+
+    await this.config.executeAction(action);
+    this.config.onAction(action);
+
+    return {
+      success: true,
+      message: `Timeline centered on ${date.toLocaleDateString('en-AU')}`,
+    };
+  }
+
+  private async handleFocusOnProperty(args: Record<string, unknown>): Promise<unknown> {
+    let propertyId = args.propertyId as string;
+    if (propertyId === 'last' || !propertyId) {
+      if (args.propertyAddress) {
+        const property = this.findPropertyByAddress(args.propertyAddress as string);
+        if (property) propertyId = property.id;
+      } else if (this.lastPropertyId) {
+        propertyId = this.lastPropertyId;
+      }
+    }
+
+    if (!propertyId) {
+      return { success: false, error: 'Property not found' };
+    }
+
+    const action: TimelineAction = {
+      id: `action-${Date.now()}`,
+      type: 'FOCUS_ON_PROPERTY',
+      timestamp: new Date(),
+      payload: { propertyId },
+      description: `Focus on property`,
+    };
+
+    await this.config.executeAction(action);
+    this.config.onAction(action);
+
+    return { success: true, message: 'Focused on property', propertyId };
+  }
+
+  private async handleFocusOnEvent(args: Record<string, unknown>): Promise<unknown> {
+    let eventId = args.eventId as string;
+    if (eventId === 'last' || !eventId) {
+      if (this.lastEventId) {
+        eventId = this.lastEventId;
+      }
+    }
+
+    if (!eventId) {
+      return { success: false, error: 'Event not found' };
+    }
+
+    const action: TimelineAction = {
+      id: `action-${Date.now()}`,
+      type: 'FOCUS_ON_EVENT',
+      timestamp: new Date(),
+      payload: { eventId },
+      description: `Focus on event`,
+    };
+
+    await this.config.executeAction(action);
+    this.config.onAction(action);
+
+    return { success: true, message: 'Focused on event', eventId };
+  }
+
+  // ============================================================================
+  // DATA OPERATIONS HANDLERS
+  // ============================================================================
+
+  private async handleClearAllData(args: Record<string, unknown>): Promise<unknown> {
+    if (!args.confirmed) {
+      return {
+        success: false,
+        requiresConfirmation: true,
+        message: 'Please confirm you want to clear ALL data from the timeline.',
+      };
+    }
+
+    const action: TimelineAction = {
+      id: `action-${Date.now()}`,
+      type: 'CLEAR_ALL',
+      timestamp: new Date(),
+      payload: {},
+      description: 'Clear all timeline data',
+    };
+
+    await this.config.executeAction(action);
+    this.config.onAction(action);
+    this.lastPropertyId = null;
+    this.lastEventId = null;
+
+    return { success: true, message: 'All timeline data has been cleared' };
+  }
+
+  private async handleLoadDemoData(args: Record<string, unknown>): Promise<unknown> {
+    const action: TimelineAction = {
+      id: `action-${Date.now()}`,
+      type: 'LOAD_DEMO_DATA',
+      timestamp: new Date(),
+      payload: { confirmed: args.confirmed },
+      description: 'Load demo data',
+    };
+
+    await this.config.executeAction(action);
+    this.config.onAction(action);
+
+    return { success: true, message: 'Demo data has been loaded' };
+  }
+
+  private async handleExportTimelineData(args: Record<string, unknown>): Promise<unknown> {
+    const properties = this.config.getProperties();
+    const events = this.config.getEvents();
+
+    const exportData = {
+      exportedAt: new Date().toISOString(),
+      format: args.format || 'json',
+      properties: properties.map(p => ({
+        ...p,
+        purchaseDate: p.purchaseDate?.toISOString(),
+        saleDate: p.saleDate?.toISOString(),
+      })),
+      events: events.map(e => ({
+        ...e,
+        date: e.date.toISOString(),
+        contractDate: e.contractDate?.toISOString(),
+        settlementDate: e.settlementDate?.toISOString(),
+      })),
+    };
+
+    if (args.format === 'summary') {
+      return {
+        success: true,
+        summary: {
+          totalProperties: properties.length,
+          totalEvents: events.length,
+          properties: properties.map(p => ({
+            address: p.address,
+            purchasePrice: p.purchasePrice,
+            status: p.currentStatus,
+            eventCount: events.filter(e => e.propertyId === p.id).length,
+          })),
+        },
+      };
+    }
+
+    return { success: true, data: exportData };
+  }
+
+  private async handleImportTimelineData(args: Record<string, unknown>): Promise<unknown> {
+    const data = args.data as Record<string, unknown>;
+    if (!data) {
+      return { success: false, error: 'No data provided to import' };
+    }
+
+    const action: TimelineAction = {
+      id: `action-${Date.now()}`,
+      type: 'BULK_IMPORT',
+      timestamp: new Date(),
+      payload: { data, merge: args.merge },
+      description: 'Import timeline data',
+    };
+
+    await this.config.executeAction(action);
+    this.config.onAction(action);
+
+    return { success: true, message: 'Timeline data imported successfully' };
+  }
+
+  // ============================================================================
+  // ENHANCED PROPERTY OPERATIONS HANDLERS
+  // ============================================================================
+
+  private async handleDuplicateProperty(args: Record<string, unknown>): Promise<unknown> {
+    let sourcePropertyId = args.propertyId as string;
+    if (!sourcePropertyId && args.propertyAddress) {
+      const property = this.findPropertyByAddress(args.propertyAddress as string);
+      if (property) sourcePropertyId = property.id;
+    }
+
+    if (!sourcePropertyId) {
+      return { success: false, error: 'Source property not found' };
+    }
+
+    const sourceProperty = this.config.getProperties().find(p => p.id === sourcePropertyId);
+    if (!sourceProperty) {
+      return { success: false, error: 'Source property not found' };
+    }
+
+    const sourceEvents = this.config.getEvents().filter(e => e.propertyId === sourcePropertyId);
+
+    // Add new property
+    const newPropertyAction: TimelineAction = {
+      id: `action-${Date.now()}`,
+      type: 'ADD_PROPERTY',
+      timestamp: new Date(),
+      payload: {
+        property: {
+          name: (args.newName as string) || `${sourceProperty.name} (Copy)`,
+          address: args.newAddress as string,
+          purchasePrice: sourceProperty.purchasePrice,
+          purchaseDate: sourceProperty.purchaseDate,
+          color: '',
+        },
+      },
+      description: `Duplicate property: ${sourceProperty.address}`,
+    };
+
+    await this.config.executeAction(newPropertyAction);
+    this.config.onAction(newPropertyAction);
+
+    const properties = this.config.getProperties();
+    const newProperty = properties[properties.length - 1];
+
+    if (newProperty && sourceEvents.length > 0) {
+      // Copy all events to the new property
+      for (const event of sourceEvents) {
+        const eventAction: TimelineAction = {
+          id: `action-${Date.now()}-${Math.random().toString(36).substring(7)}`,
+          type: 'ADD_EVENT',
+          timestamp: new Date(),
+          payload: {
+            event: {
+              ...event,
+              id: undefined, // Let the store generate a new ID
+              propertyId: newProperty.id,
+            },
+          },
+          description: `Copy ${event.type} event`,
+        };
+        await this.config.executeAction(eventAction);
+      }
+    }
+
+    this.lastPropertyId = newProperty?.id || null;
+
+    return {
+      success: true,
+      message: `Property duplicated to ${args.newAddress}`,
+      newPropertyId: newProperty?.id,
+      eventsCopied: sourceEvents.length,
+    };
+  }
+
+  private async handleGetPropertyDetails(args: Record<string, unknown>): Promise<unknown> {
+    let propertyId = args.propertyId as string;
+    if (propertyId === 'last' || !propertyId) {
+      if (args.propertyAddress) {
+        const property = this.findPropertyByAddress(args.propertyAddress as string);
+        if (property) propertyId = property.id;
+      } else if (this.lastPropertyId) {
+        propertyId = this.lastPropertyId;
+      }
+    }
+
+    const property = this.config.getProperties().find(p => p.id === propertyId);
+    if (!property) {
+      return { success: false, error: 'Property not found' };
+    }
+
+    const events = this.config.getEvents()
+      .filter(e => e.propertyId === propertyId)
+      .sort((a, b) => a.date.getTime() - b.date.getTime());
+
+    const result: Record<string, unknown> = {
+      success: true,
+      property: {
+        id: property.id,
+        name: property.name,
+        address: property.address,
+        purchasePrice: property.purchasePrice,
+        purchaseDate: property.purchaseDate?.toISOString().split('T')[0],
+        currentStatus: property.currentStatus,
+        salePrice: property.salePrice,
+        saleDate: property.saleDate?.toISOString().split('T')[0],
+      },
+    };
+
+    if (args.includeEvents !== false) {
+      result.events = events.map(e => ({
+        id: e.id,
+        type: e.type,
+        date: e.date.toISOString().split('T')[0],
+        title: e.title,
+        amount: e.amount,
+        costBasesCount: e.costBases?.length || 0,
+      }));
+    }
+
+    if (args.includeCostBases !== false) {
+      const allCostBases: CostBaseItem[] = [];
+      events.forEach(e => {
+        if (e.costBases) {
+          allCostBases.push(...e.costBases);
+        }
+      });
+
+      const byCategory: Record<string, number> = {};
+      allCostBases.forEach(cb => {
+        byCategory[cb.category] = (byCategory[cb.category] || 0) + cb.amount;
+      });
+
+      result.costBaseSummary = {
+        totalItems: allCostBases.length,
+        totalAmount: allCostBases.reduce((sum, cb) => sum + cb.amount, 0),
+        byCategory,
+      };
+    }
+
+    return result;
+  }
+
+  // ============================================================================
+  // ENHANCED EVENT OPERATIONS HANDLERS
+  // ============================================================================
+
+  private async handleMoveEvent(args: Record<string, unknown>): Promise<unknown> {
+    let eventId = args.eventId as string;
+    if (eventId === 'last' || !eventId) {
+      if (this.lastEventId) {
+        eventId = this.lastEventId;
+      }
+    }
+
+    if (!eventId) {
+      return { success: false, error: 'Event not found' };
+    }
+
+    const newDate = this.parseDate(args.newDate as string);
+
+    const action: TimelineAction = {
+      id: `action-${Date.now()}`,
+      type: 'UPDATE_EVENT',
+      timestamp: new Date(),
+      payload: {
+        eventId,
+        updates: {
+          date: newDate,
+          contractDate: newDate, // Sync for sale events
+        },
+      },
+      description: `Move event to ${newDate.toLocaleDateString()}`,
+    };
+
+    await this.config.executeAction(action);
+    this.config.onAction(action);
+
+    return {
+      success: true,
+      message: `Event moved to ${newDate.toLocaleDateString('en-AU')}`,
+    };
+  }
+
+  private async handleDuplicateEvent(args: Record<string, unknown>): Promise<unknown> {
+    let eventId = args.eventId as string;
+    if (eventId === 'last' || !eventId) {
+      if (this.lastEventId) {
+        eventId = this.lastEventId;
+      }
+    }
+
+    const event = this.config.getEvents().find(e => e.id === eventId);
+    if (!event) {
+      return { success: false, error: 'Event not found' };
+    }
+
+    const newDate = args.newDate ? this.parseDate(args.newDate as string) : event.date;
+    const targetPropertyId = (args.targetPropertyId as string) || event.propertyId;
+
+    const action: TimelineAction = {
+      id: `action-${Date.now()}`,
+      type: 'ADD_EVENT',
+      timestamp: new Date(),
+      payload: {
+        event: {
+          ...event,
+          id: undefined,
+          propertyId: targetPropertyId,
+          date: newDate,
+        },
+      },
+      description: `Duplicate ${event.type} event`,
+    };
+
+    await this.config.executeAction(action);
+    this.config.onAction(action);
+
+    const events = this.config.getEvents();
+    const newEvent = events[events.length - 1];
+    this.lastEventId = newEvent?.id || null;
+
+    return {
+      success: true,
+      message: `Event duplicated`,
+      newEventId: newEvent?.id,
+    };
+  }
+
+  private async handleGetEventDetails(args: Record<string, unknown>): Promise<unknown> {
+    let eventId = args.eventId as string;
+    if (eventId === 'last' || !eventId) {
+      if (this.lastEventId) {
+        eventId = this.lastEventId;
+      }
+    }
+
+    const event = this.config.getEvents().find(e => e.id === eventId);
+    if (!event) {
+      return { success: false, error: 'Event not found' };
+    }
+
+    const property = this.config.getProperties().find(p => p.id === event.propertyId);
+
+    return {
+      success: true,
+      event: {
+        id: event.id,
+        type: event.type,
+        date: event.date.toISOString().split('T')[0],
+        title: event.title,
+        description: event.description,
+        amount: event.amount,
+        newStatus: event.newStatus,
+        contractDate: event.contractDate?.toISOString().split('T')[0],
+        settlementDate: event.settlementDate?.toISOString().split('T')[0],
+        costBases: event.costBases,
+      },
+      propertyAddress: property?.address,
+    };
+  }
+
+  // ============================================================================
+  // BULK OPERATIONS HANDLERS
+  // ============================================================================
+
+  private async handleBulkAddEvents(args: Record<string, unknown>): Promise<unknown> {
+    let propertyId = args.propertyId as string;
+    if (propertyId === 'last' || !propertyId) {
+      if (args.propertyAddress) {
+        const property = this.findPropertyByAddress(args.propertyAddress as string);
+        if (property) propertyId = property.id;
+      } else if (this.lastPropertyId) {
+        propertyId = this.lastPropertyId;
+      }
+    }
+
+    if (!propertyId) {
+      return { success: false, error: 'Property not found' };
+    }
+
+    const events = args.events as Array<Record<string, unknown>>;
+    if (!events || events.length === 0) {
+      return { success: false, error: 'No events provided' };
+    }
+
+    let addedCount = 0;
+    for (const eventData of events) {
+      const action: TimelineAction = {
+        id: `action-${Date.now()}-${Math.random().toString(36).substring(7)}`,
+        type: 'ADD_EVENT',
+        timestamp: new Date(),
+        payload: {
+          event: {
+            propertyId,
+            type: eventData.eventType as TimelineEvent['type'],
+            date: this.parseDate(eventData.date as string),
+            title: (eventData.title as string) || this.getDefaultEventTitle(eventData.eventType as string),
+            description: eventData.description as string,
+            amount: eventData.amount as number,
+            newStatus: eventData.newStatus as TimelineEvent['newStatus'],
+            marketValuation: eventData.marketValuation as number,
+            position: 0,
+            color: this.getEventColor(eventData.eventType as string),
+          },
+        },
+        description: `Add ${eventData.eventType} event`,
+      };
+
+      await this.config.executeAction(action);
+      this.config.onAction(action);
+      addedCount++;
+    }
+
+    return {
+      success: true,
+      message: `Added ${addedCount} events`,
+      eventsAdded: addedCount,
+    };
+  }
+
+  private async handleBulkDeleteEvents(args: Record<string, unknown>): Promise<unknown> {
+    if (!args.confirmed) {
+      return {
+        success: false,
+        requiresConfirmation: true,
+        message: 'Please confirm bulk deletion of events.',
+      };
+    }
+
+    const eventIds = args.eventIds as string[];
+    let deletedCount = 0;
+
+    if (eventIds && eventIds.length > 0) {
+      for (const eventId of eventIds) {
+        const event = this.config.getEvents().find(e => e.id === eventId);
+        if (event) {
+          const action: TimelineAction = {
+            id: `action-${Date.now()}-${Math.random().toString(36).substring(7)}`,
+            type: 'DELETE_EVENT',
+            timestamp: new Date(),
+            payload: { event },
+            description: `Delete ${event.type} event`,
+          };
+          await this.config.executeAction(action);
+          this.config.onAction(action);
+          deletedCount++;
+        }
+      }
+    }
+
+    return {
+      success: true,
+      message: `Deleted ${deletedCount} events`,
+      eventsDeleted: deletedCount,
+    };
+  }
+
+  // ============================================================================
+  // COST BASE OPERATIONS HANDLERS
+  // ============================================================================
+
+  private async handleUpdateCostBaseItem(args: Record<string, unknown>): Promise<unknown> {
+    const eventId = args.eventId as string;
+    const costBaseId = args.costBaseId as string;
+    const updates = args.updates as Record<string, unknown>;
+
+    const event = this.config.getEvents().find(e => e.id === eventId);
+    if (!event) {
+      return { success: false, error: 'Event not found' };
+    }
+
+    if (!event.costBases) {
+      return { success: false, error: 'Event has no cost bases' };
+    }
+
+    const costBase = event.costBases.find(cb => cb.id === costBaseId);
+    if (!costBase) {
+      return { success: false, error: 'Cost base item not found' };
+    }
+
+    const updatedCostBases = event.costBases.map(cb => {
+      if (cb.id === costBaseId) {
+        return {
+          ...cb,
+          name: (updates.name as string) || cb.name,
+          amount: (updates.amount as number) ?? cb.amount,
+          description: (updates.description as string) || cb.description,
+        };
+      }
+      return cb;
+    });
+
+    const action: TimelineAction = {
+      id: `action-${Date.now()}`,
+      type: 'UPDATE_EVENT',
+      timestamp: new Date(),
+      payload: {
+        eventId,
+        updates: { costBases: updatedCostBases },
+      },
+      description: `Update cost base item`,
+    };
+
+    await this.config.executeAction(action);
+    this.config.onAction(action);
+
+    return { success: true, message: 'Cost base item updated' };
+  }
+
+  private async handleDeleteCostBaseItem(args: Record<string, unknown>): Promise<unknown> {
+    const eventId = args.eventId as string;
+    const costBaseId = args.costBaseId as string;
+    const costBaseName = args.costBaseName as string;
+
+    const event = this.config.getEvents().find(e => e.id === eventId);
+    if (!event || !event.costBases) {
+      return { success: false, error: 'Event or cost bases not found' };
+    }
+
+    const updatedCostBases = event.costBases.filter(cb => {
+      if (costBaseId) return cb.id !== costBaseId;
+      if (costBaseName) return cb.name.toLowerCase() !== costBaseName.toLowerCase();
+      return true;
+    });
+
+    const action: TimelineAction = {
+      id: `action-${Date.now()}`,
+      type: 'UPDATE_EVENT',
+      timestamp: new Date(),
+      payload: {
+        eventId,
+        updates: { costBases: updatedCostBases },
+      },
+      description: `Delete cost base item`,
+    };
+
+    await this.config.executeAction(action);
+    this.config.onAction(action);
+
+    return { success: true, message: 'Cost base item deleted' };
+  }
+
+  private async handleGetCostBaseSummary(args: Record<string, unknown>): Promise<unknown> {
+    let events: TimelineEvent[] = [];
+
+    if (args.eventId) {
+      const event = this.config.getEvents().find(e => e.id === args.eventId);
+      if (event) events = [event];
+    } else if (args.propertyId || args.propertyAddress) {
+      let propertyId = args.propertyId as string;
+      if (!propertyId && args.propertyAddress) {
+        const property = this.findPropertyByAddress(args.propertyAddress as string);
+        if (property) propertyId = property.id;
+      }
+      if (propertyId) {
+        events = this.config.getEvents().filter(e => e.propertyId === propertyId);
+      }
+    } else {
+      events = this.config.getEvents();
+    }
+
+    const allCostBases: Array<CostBaseItem & { eventType: string; eventDate: string }> = [];
+    events.forEach(e => {
+      if (e.costBases) {
+        e.costBases.forEach(cb => {
+          allCostBases.push({
+            ...cb,
+            eventType: e.type,
+            eventDate: e.date.toISOString().split('T')[0],
+          });
+        });
+      }
+    });
+
+    const byCategory: Record<string, { items: typeof allCostBases; total: number }> = {};
+    allCostBases.forEach(cb => {
+      if (!byCategory[cb.category]) {
+        byCategory[cb.category] = { items: [], total: 0 };
+      }
+      byCategory[cb.category].items.push(cb);
+      byCategory[cb.category].total += cb.amount;
+    });
+
+    return {
+      success: true,
+      summary: {
+        totalItems: allCostBases.length,
+        totalAmount: allCostBases.reduce((sum, cb) => sum + cb.amount, 0),
+        byCategory,
+        items: allCostBases,
+      },
+    };
+  }
+
+  // ============================================================================
+  // UI STATE OPERATIONS HANDLERS
+  // ============================================================================
+
+  private async handleToggleTheme(args: Record<string, unknown>): Promise<unknown> {
+    const action: TimelineAction = {
+      id: `action-${Date.now()}`,
+      type: 'TOGGLE_THEME',
+      timestamp: new Date(),
+      payload: { theme: args.theme },
+      description: args.theme === 'toggle' ? 'Toggle theme' : `Set theme to ${args.theme}`,
+    };
+
+    await this.config.executeAction(action);
+    this.config.onAction(action);
+
+    return { success: true, message: 'Theme updated' };
+  }
+
+  private async handleToggleEventDisplay(args: Record<string, unknown>): Promise<unknown> {
+    const action: TimelineAction = {
+      id: `action-${Date.now()}`,
+      type: 'TOGGLE_EVENT_DISPLAY',
+      timestamp: new Date(),
+      payload: { mode: args.mode },
+      description: args.mode === 'toggle' ? 'Toggle event display' : `Set display to ${args.mode}`,
+    };
+
+    await this.config.executeAction(action);
+    this.config.onAction(action);
+
+    return { success: true, message: 'Event display mode updated' };
+  }
+
+  private async handleSelectProperty(args: Record<string, unknown>): Promise<unknown> {
+    let propertyId = args.propertyId as string;
+    if (args.propertyAddress) {
+      const property = this.findPropertyByAddress(args.propertyAddress as string);
+      if (property) propertyId = property.id;
+    }
+
+    const action: TimelineAction = {
+      id: `action-${Date.now()}`,
+      type: 'SELECT_PROPERTY',
+      timestamp: new Date(),
+      payload: { propertyId },
+      description: propertyId ? 'Select property' : 'Deselect property',
+    };
+
+    await this.config.executeAction(action);
+    this.config.onAction(action);
+
+    return { success: true, message: propertyId ? 'Property selected' : 'Property deselected' };
+  }
+
+  private async handleSelectEvent(args: Record<string, unknown>): Promise<unknown> {
+    let eventId = args.eventId as string;
+
+    const action: TimelineAction = {
+      id: `action-${Date.now()}`,
+      type: 'SELECT_EVENT',
+      timestamp: new Date(),
+      payload: { eventId },
+      description: eventId ? 'Select event' : 'Deselect event',
+    };
+
+    await this.config.executeAction(action);
+    this.config.onAction(action);
+
+    return { success: true, message: eventId ? 'Event selected' : 'Event deselected' };
+  }
+
+  // ============================================================================
+  // VERIFICATION & ANALYSIS HANDLERS
+  // ============================================================================
+
+  private async handleGetVerificationAlerts(_args: Record<string, unknown>): Promise<unknown> {
+    const action: TimelineAction = {
+      id: `action-${Date.now()}`,
+      type: 'GET_VERIFICATION_ALERTS',
+      timestamp: new Date(),
+      payload: { includeResolved: _args.includeResolved },
+      description: 'Get verification alerts',
+    };
+
+    await this.config.executeAction(action);
+
+    return {
+      success: true,
+      message: 'Verification alerts retrieved. Check the timeline for any issues that need attention.',
+    };
+  }
+
+  private async handleResolveVerificationAlert(args: Record<string, unknown>): Promise<unknown> {
+    const action: TimelineAction = {
+      id: `action-${Date.now()}`,
+      type: 'RESOLVE_VERIFICATION_ALERT',
+      timestamp: new Date(),
+      payload: {
+        alertId: args.alertId,
+        response: args.response,
+        selectedOption: args.selectedOption,
+      },
+      description: 'Resolve verification alert',
+    };
+
+    await this.config.executeAction(action);
+    this.config.onAction(action);
+
+    return { success: true, message: 'Verification alert resolved' };
+  }
+
+  private async handleGetAnalysisResults(args: Record<string, unknown>): Promise<unknown> {
+    const action: TimelineAction = {
+      id: `action-${Date.now()}`,
+      type: 'GET_ANALYSIS_RESULTS',
+      timestamp: new Date(),
+      payload: {
+        propertyId: args.propertyId,
+        format: args.format,
+      },
+      description: 'Get CGT analysis results',
+    };
+
+    await this.config.executeAction(action);
+
+    return {
+      success: true,
+      message: 'Analysis results retrieved. If no analysis has been run yet, please use calculate_cgt first.',
+    };
+  }
+
+  // ============================================================================
+  // TIMELINE NOTES HANDLERS
+  // ============================================================================
+
+  private async handleSetTimelineNotes(args: Record<string, unknown>): Promise<unknown> {
+    const action: TimelineAction = {
+      id: `action-${Date.now()}`,
+      type: 'SET_TIMELINE_NOTES',
+      timestamp: new Date(),
+      payload: {
+        notes: args.notes,
+        append: args.append,
+      },
+      description: 'Update timeline notes',
+    };
+
+    await this.config.executeAction(action);
+    this.config.onAction(action);
+
+    return { success: true, message: 'Timeline notes updated' };
+  }
+
+  private async handleGetTimelineNotes(_args: Record<string, unknown>): Promise<unknown> {
+    const action: TimelineAction = {
+      id: `action-${Date.now()}`,
+      type: 'GET_TIMELINE_NOTES',
+      timestamp: new Date(),
+      payload: {},
+      description: 'Get timeline notes',
+    };
+
+    await this.config.executeAction(action);
+
+    return {
+      success: true,
+      message: 'Timeline notes retrieved. Check the Notes section in the UI.',
+    };
+  }
+
+  // ============================================================================
+  // HISTORY OPERATIONS HANDLERS
+  // ============================================================================
+
+  private async handleGetActionHistory(args: Record<string, unknown>): Promise<unknown> {
+    const action: TimelineAction = {
+      id: `action-${Date.now()}`,
+      type: 'GET_ACTION_HISTORY',
+      timestamp: new Date(),
+      payload: {
+        limit: args.limit,
+        includeRedoStack: args.includeRedoStack,
+      },
+      description: 'Get action history',
+    };
+
+    await this.config.executeAction(action);
+
+    return {
+      success: true,
+      message: 'Action history retrieved. You can use undo_action or redo_action to navigate history.',
+    };
+  }
+
+  // ============================================================================
+  // CUSTOM EVENT HANDLER
+  // ============================================================================
+
+  private async handleAddCustomEvent(args: Record<string, unknown>): Promise<unknown> {
+    let propertyId = args.propertyId as string;
+    if (propertyId === 'last' || !propertyId) {
+      if (args.propertyAddress) {
+        const property = this.findPropertyByAddress(args.propertyAddress as string);
+        if (property) propertyId = property.id;
+      } else if (this.lastPropertyId) {
+        propertyId = this.lastPropertyId;
+      }
+    }
+
+    if (!propertyId) {
+      return { success: false, error: 'Property not found' };
+    }
+
+    // Map color names to hex values
+    const colorMap: Record<string, string> = {
+      red: '#EF4444',
+      orange: '#F97316',
+      amber: '#F59E0B',
+      lime: '#84CC16',
+      emerald: '#10B981',
+      cyan: '#06B6D4',
+      blue: '#3B82F6',
+      indigo: '#6366F1',
+      violet: '#8B5CF6',
+      pink: '#EC4899',
+      gray: '#6B7280',
+      dark: '#1F2937',
+    };
+
+    const eventColor = colorMap[(args.color as string) || 'gray'] || '#6B7280';
+
+    // Build cost bases if provided
+    const costBases: CostBaseItem[] = [];
+    if (args.costBases && Array.isArray(args.costBases)) {
+      (args.costBases as Array<{ name: string; amount: number; category: string }>).forEach((cb, idx) => {
+        costBases.push({
+          id: `cb-${Date.now()}-${idx}`,
+          definitionId: 'custom',
+          name: cb.name,
+          amount: cb.amount,
+          category: (cb.category as CostBaseCategory) || 'element4',
+          isCustom: true,
+        });
+      });
+    }
+
+    const action: TimelineAction = {
+      id: `action-${Date.now()}`,
+      type: 'ADD_EVENT',
+      timestamp: new Date(),
+      payload: {
+        event: {
+          propertyId,
+          type: 'custom' as const,
+          date: this.parseDate(args.date as string),
+          title: args.title as string,
+          description: args.description as string,
+          amount: args.amount as number,
+          color: eventColor,
+          affectsStatus: args.affectsStatus as boolean,
+          newStatus: args.newStatus as TimelineEvent['newStatus'],
+          position: 0,
+          costBases: costBases.length > 0 ? costBases : undefined,
+        },
+      },
+      description: `Add custom event: ${args.title}`,
+    };
+
+    await this.config.executeAction(action);
+    this.config.onAction(action);
+
+    const events = this.config.getEvents();
+    const newEvent = events[events.length - 1];
+    this.lastEventId = newEvent?.id || null;
+
+    return {
+      success: true,
+      message: `Added custom event: ${args.title}`,
+      eventId: newEvent?.id,
+    };
+  }
+
+  // ============================================================================
+  // SETTINGS HANDLER
+  // ============================================================================
+
+  private async handleUpdateTimelineSettings(args: Record<string, unknown>): Promise<unknown> {
+    const action: TimelineAction = {
+      id: `action-${Date.now()}`,
+      type: 'UPDATE_SETTINGS',
+      timestamp: new Date(),
+      payload: {
+        lockFutureDates: args.lockFutureDates,
+        enableDragEvents: args.enableDragEvents,
+        enableAISuggestedQuestions: args.enableAISuggestedQuestions,
+        apiResponseMode: args.apiResponseMode,
+      },
+      description: 'Update timeline settings',
+    };
+
+    await this.config.executeAction(action);
+    this.config.onAction(action);
+
+    return { success: true, message: 'Timeline settings updated' };
   }
 
   clearHistory(): void {

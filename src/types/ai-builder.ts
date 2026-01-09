@@ -175,7 +175,30 @@ export type ActionType =
   | 'UPDATE_EVENT'
   | 'DELETE_EVENT'
   | 'BULK_IMPORT'
-  | 'CLEAR_ALL';
+  | 'CLEAR_ALL'
+  // Timeline Navigation & Visualization
+  | 'ZOOM_TIMELINE'
+  | 'PAN_TO_DATE'
+  | 'FOCUS_ON_PROPERTY'
+  | 'FOCUS_ON_EVENT'
+  // Data Operations
+  | 'LOAD_DEMO_DATA'
+  // UI State Operations
+  | 'TOGGLE_THEME'
+  | 'TOGGLE_EVENT_DISPLAY'
+  | 'SELECT_PROPERTY'
+  | 'SELECT_EVENT'
+  // Verification & Analysis
+  | 'GET_VERIFICATION_ALERTS'
+  | 'RESOLVE_VERIFICATION_ALERT'
+  | 'GET_ANALYSIS_RESULTS'
+  // Timeline Notes
+  | 'SET_TIMELINE_NOTES'
+  | 'GET_TIMELINE_NOTES'
+  // History Operations
+  | 'GET_ACTION_HISTORY'
+  // Settings
+  | 'UPDATE_SETTINGS';
 
 export interface TimelineAction {
   id: string;
@@ -193,7 +216,30 @@ export type ActionPayload =
   | UpdateEventPayload
   | DeleteEventPayload
   | BulkImportPayload
-  | ClearAllPayload;
+  | ClearAllPayload
+  // Timeline Navigation Payloads
+  | ZoomTimelinePayload
+  | PanToDatePayload
+  | FocusOnPropertyPayload
+  | FocusOnEventPayload
+  // Data Operations Payloads
+  | LoadDemoDataPayload
+  // UI State Payloads
+  | ToggleThemePayload
+  | ToggleEventDisplayPayload
+  | SelectPropertyPayload
+  | SelectEventPayload
+  // Verification & Analysis Payloads
+  | GetVerificationAlertsPayload
+  | ResolveVerificationAlertPayload
+  | GetAnalysisResultsPayload
+  // Timeline Notes Payloads
+  | SetTimelineNotesPayload
+  | GetTimelineNotesPayload
+  // History Payloads
+  | GetActionHistoryPayload
+  // Settings Payload
+  | UpdateSettingsPayload;
 
 export interface AddPropertyPayload {
   property: Omit<Property, 'id' | 'branch'>;
@@ -234,6 +280,85 @@ export interface BulkImportPayload {
 export interface ClearAllPayload {
   previousProperties: Property[];
   previousEvents: TimelineEvent[];
+}
+
+// Timeline Navigation Payloads
+export interface ZoomTimelinePayload {
+  direction?: 'in' | 'out';
+  level?: string;
+  centerOnDate?: Date;
+}
+
+export interface PanToDatePayload {
+  date: Date;
+}
+
+export interface FocusOnPropertyPayload {
+  propertyId: string;
+}
+
+export interface FocusOnEventPayload {
+  eventId: string;
+}
+
+// Data Operations Payloads
+export interface LoadDemoDataPayload {
+  confirmed?: boolean;
+}
+
+// UI State Payloads
+export interface ToggleThemePayload {
+  theme?: 'light' | 'dark' | 'toggle';
+}
+
+export interface ToggleEventDisplayPayload {
+  mode?: 'cards' | 'circles' | 'toggle';
+}
+
+export interface SelectPropertyPayload {
+  propertyId: string | null;
+}
+
+export interface SelectEventPayload {
+  eventId: string | null;
+}
+
+// Verification & Analysis Payloads
+export interface GetVerificationAlertsPayload {
+  includeResolved?: boolean;
+}
+
+export interface ResolveVerificationAlertPayload {
+  alertId: string;
+  response?: string;
+  selectedOption?: string;
+}
+
+export interface GetAnalysisResultsPayload {
+  propertyId?: string;
+  format?: 'summary' | 'detailed' | 'json';
+}
+
+// Timeline Notes Payloads
+export interface SetTimelineNotesPayload {
+  notes: string;
+  append?: boolean;
+}
+
+export interface GetTimelineNotesPayload {}
+
+// History Payloads
+export interface GetActionHistoryPayload {
+  limit?: number;
+  includeRedoStack?: boolean;
+}
+
+// Settings Payload
+export interface UpdateSettingsPayload {
+  lockFutureDates?: boolean;
+  enableDragEvents?: boolean;
+  enableAISuggestedQuestions?: boolean;
+  apiResponseMode?: string;
 }
 
 export interface ActionResult {

@@ -5,9 +5,9 @@ import { LLM_PROVIDERS } from '../types';
 
 // Gemini content part types
 type GeminiPart =
-  | { text: string }
+  | { text: string; thoughtSignature?: string }
   | { inlineData: { mimeType: string; data: string } }
-  | { functionCall: { name: string; args: Record<string, unknown> } }
+  | { functionCall: { name: string; args: Record<string, unknown> }; thoughtSignature?: string }
   | { functionResponse: { name: string; response: unknown } };
 
 export class GeminiService implements ILLMService {
@@ -112,23 +112,38 @@ export class GeminiService implements ILLMService {
           };
         }
 
-        // Assistant messages with tool calls - include functionCall parts
+        // Assistant messages with tool calls - include functionCall parts with thoughtSignature
         if (msg.role === 'assistant' && msg.toolCalls && msg.toolCalls.length > 0) {
-          const parts: Array<{ text?: string; functionCall?: { name: string; args: Record<string, unknown> } }> = [];
+          const parts: Array<{
+            text?: string;
+            functionCall?: { name: string; args: Record<string, unknown> };
+            thoughtSignature?: string;
+          }> = [];
 
           // Add text content if present
           if (msg.content) {
             parts.push({ text: msg.content });
           }
 
-          // Add functionCall for each tool call
+          // Add functionCall for each tool call, including thoughtSignature if present
           for (const toolCall of msg.toolCalls) {
-            parts.push({
+            const part: {
+              functionCall: { name: string; args: Record<string, unknown> };
+              thoughtSignature?: string;
+            } = {
               functionCall: {
                 name: toolCall.name,
                 args: toolCall.arguments,
               },
-            });
+            };
+
+            // CRITICAL: Preserve thoughtSignature for Gemini 3 models
+            // This is REQUIRED for multi-turn function calling to work correctly
+            if (toolCall.thoughtSignature) {
+              part.thoughtSignature = toolCall.thoughtSignature;
+            }
+
+            parts.push(part);
           }
 
           return {
@@ -267,15 +282,23 @@ export class GeminiService implements ILLMService {
             content += part.text;
           }
 
-          // Extract function calls
+          // Extract function calls with thoughtSignature preservation
           if (part.functionCall) {
-            toolCalls.push({
+            const toolCall: ToolCall = {
               id: `call_${Date.now()}_${Math.random().toString(36).substring(7)}`,
               name: part.functionCall.name,
               arguments: part.functionCall.args || {},
-            });
+            };
+
+            // CRITICAL: Capture thoughtSignature for Gemini 3 models
+            // This MUST be passed back in subsequent requests for multi-turn function calling
+            if (part.thoughtSignature) {
+              toolCall.thoughtSignature = part.thoughtSignature;
+              console.log(`📝 Captured thoughtSignature for function call: ${part.functionCall.name}`);
+            }
+
+            toolCalls.push(toolCall);
           }
-          // Note: thoughtSignature is metadata we ignore, but we still extract text from the same part
         }
       } else if (candidate.content?.text) {
         // Alternative format: direct text content

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Paperclip, X } from 'lucide-react';
+import { Send, Paperclip, X, AlertTriangle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
@@ -96,6 +96,23 @@ export default function TextInput({
 
   return (
     <div className="border-t border-gray-200 dark:border-gray-700 p-3">
+      {/* Media support warning - appears when files are attached */}
+      <AnimatePresence>
+        {attachedFiles.length > 0 && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            className="flex items-center gap-2 px-3 py-2 mb-2 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg overflow-hidden"
+          >
+            <AlertTriangle className="w-4 h-4 text-amber-500 flex-shrink-0" />
+            <p className="text-xs text-amber-700 dark:text-amber-300">
+              Media support is still under development and might not work properly.
+            </p>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Attached files preview */}
       <AnimatePresence>
         {attachedFiles.length > 0 && (

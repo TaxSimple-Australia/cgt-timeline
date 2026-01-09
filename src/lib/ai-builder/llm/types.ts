@@ -48,6 +48,8 @@ export interface ToolCall {
   id: string;
   name: string;
   arguments: Record<string, unknown>;
+  // Gemini 3 thought signature - required for multi-turn function calling
+  thoughtSignature?: string;
 }
 
 export interface LLMRequest {

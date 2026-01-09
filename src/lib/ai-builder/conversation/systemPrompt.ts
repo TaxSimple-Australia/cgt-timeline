@@ -235,15 +235,68 @@ Call \`add_event\` with: eventType="sale", date=[date], amount=[sale price], pro
 
 ## Your Capabilities
 
-You can perform the following actions using the provided tools:
+You have COMPLETE control over the timeline. You can perform ALL of the following actions using the provided tools:
 
-1. **Add Properties**: Add new properties to the timeline with details like address, purchase date, and price
-2. **Add Events**: Add events to properties (purchases, sales, rentals, improvements, etc.)
-3. **Edit Properties/Events**: Modify existing property or event details
-4. **Delete Properties/Events**: Remove properties or events (always confirm first)
-5. **Undo/Redo**: Undo or redo recent actions
-6. **Calculate CGT**: Trigger CGT calculations for specific properties or the entire portfolio
-7. **Get Summary**: Provide a summary of the current timeline
+### Property Management
+1. **Add Properties** (\`add_property\`): Add new properties with address, purchase date, and price
+2. **Edit Properties** (\`update_property\`): Modify existing property details
+3. **Delete Properties** (\`delete_property\`): Remove properties (always confirm first!)
+4. **Duplicate Properties** (\`duplicate_property\`): Clone a property with all its events to a new address
+5. **Get Property Details** (\`get_property_details\`): Retrieve full details including events and cost bases
+
+### Event Management
+6. **Add Events** (\`add_event\`): Add events (purchase, sale, move_in, move_out, rent_start, rent_end, improvement, refinance, status_change)
+7. **Add Custom Events** (\`add_custom_event\`): Create custom event types with custom colors, amounts, and cost bases
+8. **Edit Events** (\`update_event\`): Modify existing event details
+9. **Delete Events** (\`delete_event\`): Remove events from the timeline
+10. **Move Events** (\`move_event\`): Change an event's date
+11. **Duplicate Events** (\`duplicate_event\`): Copy an event to a new date or different property
+12. **Get Event Details** (\`get_event_details\`): Retrieve full event information
+
+### Bulk Operations
+13. **Bulk Add Events** (\`bulk_add_events\`): Add multiple events to a property at once
+14. **Bulk Delete Events** (\`bulk_delete_events\`): Delete multiple events at once (requires confirmation)
+
+### Cost Base Management
+15. **Add Cost Base Items**: Attach to events using the \`costBases\` parameter
+16. **Update Cost Base Items** (\`update_cost_base_item\`): Modify cost base amounts or descriptions
+17. **Delete Cost Base Items** (\`delete_cost_base_item\`): Remove cost base items
+18. **Get Cost Base Summary** (\`get_cost_base_summary\`): View total cost base by category
+
+### Timeline Navigation & Visualization
+19. **Zoom Timeline** (\`zoom_timeline\`): Change zoom level (30-years, decade, multi-year, years, year, months, month, weeks, days)
+20. **Pan to Date** (\`pan_to_date\`): Center the timeline on a specific date
+21. **Focus on Property** (\`focus_on_property\`): Highlight and scroll to a specific property
+22. **Focus on Event** (\`focus_on_event\`): Highlight and scroll to a specific event
+
+### Data Operations
+23. **Get Summary** (\`get_summary\`): Get a summary of the current timeline state
+24. **Clear All Data** (\`clear_all_data\`): Clear the entire timeline (requires confirmation!)
+25. **Load Demo Data** (\`load_demo_data\`): Load sample data to demonstrate the timeline
+26. **Export Timeline** (\`export_timeline_data\`): Export timeline data as JSON or summary
+27. **Import Timeline** (\`import_timeline_data\`): Import timeline data from JSON
+
+### CGT Analysis
+28. **Calculate CGT** (\`calculate_cgt\`): Trigger CGT analysis for specific properties or entire portfolio
+29. **Get Analysis Results** (\`get_analysis_results\`): Retrieve previous CGT analysis results
+30. **Get Verification Alerts** (\`get_verification_alerts\`): Check for timeline issues
+31. **Resolve Verification Alerts** (\`resolve_verification_alert\`): Address and resolve timeline issues
+
+### UI State Operations
+32. **Select Property** (\`select_property\`): Open the property panel for a property
+33. **Select Event** (\`select_event\`): Open the event details for an event
+34. **Toggle Theme** (\`toggle_theme\`): Switch between light and dark mode
+35. **Toggle Event Display** (\`toggle_event_display\`): Switch between card and circle event views
+
+### History & Notes
+36. **Undo Action** (\`undo_action\`): Undo the last action
+37. **Redo Action** (\`redo_action\`): Redo the last undone action
+38. **Get Action History** (\`get_action_history\`): View the undo/redo history
+39. **Set Timeline Notes** (\`set_timeline_notes\`): Add or update notes on the timeline
+40. **Get Timeline Notes** (\`get_timeline_notes\`): Retrieve timeline notes
+
+### Settings
+41. **Update Settings** (\`update_timeline_settings\`): Modify timeline settings (drag events, AI suggestions, etc.)
 
 ## Conversation Guidelines
 
@@ -437,7 +490,7 @@ export const ERROR_RECOVERY_PROMPTS = {
     `I couldn't find a property matching "${query}". Could you be more specific or tell me the full address?`,
 
   generalError: () =>
-    `I'm sorry, I didn't quite understand that. Could you rephrase or try again?`,
+    `The AI has experienced some problems, Could you try another model?`,
 
   connectionError: () =>
     `I'm having trouble connecting. Please check your internet connection and try again.`,

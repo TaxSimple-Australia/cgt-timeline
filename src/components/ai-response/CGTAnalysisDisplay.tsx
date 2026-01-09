@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { CheckCircle, XCircle, ChevronDown, ChevronUp, Cpu, Zap, Clock, FileJson, Download, Home, LayoutGrid, FileText, Settings2, StickyNote, BookOpen, FileQuestion, HelpCircle, Calendar, DollarSign, Calculator, AlertTriangle, Info, TrendingUp, Lightbulb, Brain } from 'lucide-react';
+import { CheckCircle, XCircle, ChevronDown, ChevronUp, Cpu, Zap, Clock, FileJson, Download, Home, LayoutGrid, FileText, Settings2, StickyNote, BookOpen, FileQuestion, HelpCircle, Calendar, DollarSign, Calculator, AlertTriangle, Info, TrendingUp, Lightbulb, Brain, MessageCircle } from 'lucide-react';
 import GapQuestionsPanel from './GapQuestionsPanel';
 import DetailedReportSection from './DetailedReportSection';
 import TwoColumnLayout from '../timeline-viz/TwoColumnLayout';
@@ -15,6 +15,7 @@ import PropertyTimelineEvents from './PropertyTimelineEvents';
 import WhatIfScenariosSection from './WhatIfScenariosSection';
 import ApplicableRulesDisplay from './ApplicableRulesDisplay';
 import OwnershipPeriodsChart from './OwnershipPeriodsChart';
+import FollowUpChatWindow from './FollowUpChatWindow';
 import { AnalysisData, Citations } from '@/types/model-response';
 
 interface CGTAnalysisDisplayProps {
@@ -33,6 +34,7 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
   const [showRawJSON, setShowRawJSON] = useState(false);
   const [showSources, setShowSources] = useState(false);
   const [showRulesSummary, setShowRulesSummary] = useState(true); // Rules Summary expanded by default (important)
+  const [showFollowUpChat, setShowFollowUpChat] = useState(false);
 
   // Get timeline data and display mode from store
   const properties = useTimelineStore(state => state.properties);
@@ -93,11 +95,38 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
     );
   }
 
-  // Check for new JSON API response format (from /calculate-cgt-json/)
-  // Support both wrapped format { success, data: { properties }, citations } and direct format { properties }
-  const isWrappedFormat = response.success !== undefined && response.data && response.data.properties && response.data.properties.length > 0;
-  const isDirectFormat = !isWrappedFormat && response.properties && response.properties.length > 0 && response.properties[0]?.property_address;
-  const isNewJSONFormat = isWrappedFormat || isDirectFormat;
+  // ============================================================================
+  // FORMAT DETECTION - Handle multiple API response formats
+  // ============================================================================
+  // Format 1 (double-wrapped): { success, data: { success, query, data: { properties: [...] }, sources, session_id } }
+  // Format 2 (wrapped): { success, data: { properties: [...] }, citations }
+  // Format 3 (direct): { properties: [...] }
+  // Format 4 (markdown): { query, answer, sources, ... }
+  // ============================================================================
+
+  // Check for double-wrapped format (new JSON endpoint with our API wrapper)
+  // Structure: response.data.data.properties
+  const isDoubleWrappedFormat = response.success !== undefined &&
+    response.data?.success !== undefined &&
+    response.data?.data?.properties &&
+    response.data?.data?.properties.length > 0;
+
+  // Check for single-wrapped format: response.data.properties
+  const isWrappedFormat = !isDoubleWrappedFormat &&
+    response.success !== undefined &&
+    response.data &&
+    response.data.properties &&
+    response.data.properties.length > 0;
+
+  // Check for direct format: response.properties
+  const isDirectFormat = !isDoubleWrappedFormat &&
+    !isWrappedFormat &&
+    response.properties &&
+    response.properties.length > 0 &&
+    response.properties[0]?.property_address;
+
+  // Combined JSON format check
+  const isNewJSONFormat = isDoubleWrappedFormat || isWrappedFormat || isDirectFormat;
 
   // Check for new markdown API format (from /calculate-cgt/)
   // Format: { query, answer, sources, properties_analyzed, llm_used, needs_clarification }
@@ -109,70 +138,37 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
   // Combined markdown check
   const hasMarkdownAnalysis = isNewMarkdownFormat || hasLegacyMarkdownAnalysis;
 
-  // Determine which display mode to use based on setting and response type
+  // Debug log for format detection
+  console.log('📊 CGTAnalysisDisplay Format Detection:', {
+    isDoubleWrappedFormat,
+    isWrappedFormat,
+    isDirectFormat,
+    isNewJSONFormat,
+    isNewMarkdownFormat,
+    hasLegacyMarkdownAnalysis,
+    hasMarkdownAnalysis
+  });
+
+  // Determine which display mode to use - Auto-detect based on available data
   const getEffectiveDisplayMode = () => {
-    if (analysisDisplayMode !== 'auto') {
-      return analysisDisplayMode;
-    }
-    // Auto mode: prefer JSON sections if available, otherwise markdown
+    // If JSON data is available, use json-sections view
     if (isNewJSONFormat) {
       return 'json-sections';
     }
+    // If markdown is available, use markdown view
     if (hasMarkdownAnalysis) {
       return 'markdown';
     }
-    // Fall back to whatever is available
-    return isNewJSONFormat ? 'json-sections' : 'markdown';
+    // Default to markdown
+    return 'markdown';
   };
 
   const effectiveDisplayMode = getEffectiveDisplayMode();
 
-  // Display mode toggle component
+  // Display mode toggle component - Currently hidden as we only use Markdown mode
   const DisplayModeToggle = () => {
-    // Only show toggle if we have both formats available or if user has forced a mode
-    const canShowBothModes = (isNewJSONFormat || hasMarkdownAnalysis);
-    if (!canShowBothModes && analysisDisplayMode === 'auto') return null;
-
-    return (
-      <div className="flex items-center gap-2 bg-gray-100 dark:bg-gray-800 rounded-lg p-1">
-        <button
-          onClick={() => setAnalysisDisplayMode('auto')}
-          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
-            analysisDisplayMode === 'auto'
-              ? 'bg-white dark:bg-gray-700 text-blue-600 dark:text-blue-400 shadow-sm'
-              : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
-          }`}
-          title="Auto-detect display mode based on response type"
-        >
-          <Settings2 className="w-4 h-4" />
-          Auto
-        </button>
-        <button
-          onClick={() => setAnalysisDisplayMode('json-sections')}
-          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
-            analysisDisplayMode === 'json-sections'
-              ? 'bg-white dark:bg-gray-700 text-emerald-600 dark:text-emerald-400 shadow-sm'
-              : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
-          }`}
-          title="Display as beautiful structured JSON sections"
-        >
-          <LayoutGrid className="w-4 h-4" />
-          Sections
-        </button>
-        <button
-          onClick={() => setAnalysisDisplayMode('markdown')}
-          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
-            analysisDisplayMode === 'markdown'
-              ? 'bg-white dark:bg-gray-700 text-purple-600 dark:text-purple-400 shadow-sm'
-              : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
-          }`}
-          title="Display as markdown text"
-        >
-          <FileText className="w-4 h-4" />
-          Markdown
-        </button>
-      </div>
-    );
+    // Return null - we're only using Markdown mode for now
+    return null;
   };
 
   // Helper function for formatting numbers (used in multiple places)
@@ -182,13 +178,73 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
     return num.toLocaleString('en-AU');
   };
 
+  // ============================================================================
+  // DATA EXTRACTION - Extract analysis data based on detected format
+  // ============================================================================
   // Prepare analysis data for JSON sections view (if available)
   const analysisData = isNewJSONFormat
-    ? ((isWrappedFormat ? response.data : response) as AnalysisData)
+    ? (isDoubleWrappedFormat
+        ? (response.data.data as AnalysisData)
+        : isWrappedFormat
+          ? (response.data as AnalysisData)
+          : (response as AnalysisData))
     : null;
+
+  // Extract citations/sources - check multiple locations
   const citations = isNewJSONFormat
-    ? ((isWrappedFormat ? response.citations : (response as any).citations) as Citations)
+    ? (isDoubleWrappedFormat
+        ? (response.data.sources as Citations)
+        : isWrappedFormat
+          ? ((response.citations || response.data.sources) as Citations)
+          : ((response as any).citations as Citations))
     : null;
+
+  // Extract session_id for follow-up questions - check all possible locations
+  // Double-wrapped: response.data.session_id
+  // Wrapped: response.session_id or response.data.session_id
+  // Direct: response.session_id
+  const sessionId = response.session_id
+    || response.data?.session_id
+    || response.data?.data?.session_id
+    || (analysisData as any)?.session_id
+    || null;
+
+  // Extract initial query for context - check all possible locations
+  const initialQuery = response.query
+    || response.data?.query
+    || response.data?.data?.query
+    || (analysisData as any)?.query
+    || null;
+
+  console.log('📊 CGTAnalysisDisplay Data Extraction:', {
+    hasAnalysisData: !!analysisData,
+    hasCitations: !!citations,
+    sessionId,
+    initialQuery: initialQuery?.substring(0, 50) + '...'
+  });
+
+  // Helper function to convert LLM display name to API key
+  // The API expects keys like 'deepseek', 'claude', 'openai', 'olmo'
+  // But the response contains display names like 'DeepSeek Chat (DeepSeek)'
+  const getLLMProviderKey = (displayName: string | null | undefined): string => {
+    if (!displayName) return 'deepseek'; // Default
+    const lowerName = displayName.toLowerCase();
+    if (lowerName.includes('deepseek')) return 'deepseek';
+    if (lowerName.includes('claude') || lowerName.includes('anthropic')) return 'claude';
+    if (lowerName.includes('openai') || lowerName.includes('gpt')) return 'openai';
+    if (lowerName.includes('olmo') || lowerName.includes('openrouter')) return 'olmo';
+    // If it's already a key format, return as-is
+    if (['deepseek', 'claude', 'openai', 'olmo'].includes(lowerName)) return lowerName;
+    return 'deepseek'; // Default fallback
+  };
+
+  // Get LLM provider KEY (not display name) from response - check all locations
+  const llmUsedRaw = response.llm_used
+    || response.data?.llm_used
+    || response.data?.data?.llm_used
+    || (analysisData as any)?.llm_used
+    || null;
+  const llmProvider = getLLMProviderKey(llmUsedRaw);
 
   // ============================================================================
   // PRIORITY CHECK: VERIFICATION FAILED / GAP QUESTIONS (applies to ALL modes)
@@ -225,10 +281,10 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
             </button>
             <button
               onClick={() => setShowRawJSON(true)}
-              className="flex items-center gap-2 px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors shadow-md text-sm"
+              className="flex items-center justify-center w-8 h-8 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors shadow-sm"
+              title="Show Raw JSON"
             >
-              <FileJson className="w-4 h-4" />
-              Show Raw JSON
+              <span className="text-sm font-mono font-bold">{'{}'}</span>
             </button>
           </div>
         </div>
@@ -345,6 +401,16 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
         <div className="flex items-center justify-between gap-4">
           <DisplayModeToggle />
           <div className="flex items-center gap-2">
+            {/* Follow-up Questions Button - only show if session_id is available */}
+            {sessionId && (
+              <button
+                onClick={() => setShowFollowUpChat(true)}
+                className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-lg transition-all shadow-md text-sm"
+              >
+                <MessageCircle className="w-4 h-4" />
+                Follow-up
+              </button>
+            )}
             <button
               onClick={openNotesModal}
               className={`flex items-center gap-2 px-4 py-2 ${timelineNotes ? 'bg-amber-600 hover:bg-amber-700' : 'bg-amber-500 hover:bg-amber-600'} text-white rounded-lg transition-colors shadow-md text-sm relative`}
@@ -357,10 +423,10 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
             </button>
             <button
               onClick={() => setShowRawJSON(true)}
-              className="flex items-center gap-2 px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors shadow-md text-sm"
+              className="flex items-center justify-center w-8 h-8 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors shadow-sm"
+              title="Show Raw JSON"
             >
-              <FileJson className="w-4 h-4" />
-              Show Raw JSON
+              <span className="text-sm font-mono font-bold">{'{}'}</span>
             </button>
           </div>
         </div>
@@ -542,6 +608,17 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
             </div>
           </div>
         )}
+
+        {/* Follow-up Chat Window */}
+        {sessionId && (
+          <FollowUpChatWindow
+            isOpen={showFollowUpChat}
+            onClose={() => setShowFollowUpChat(false)}
+            sessionId={sessionId}
+            initialQuery={initialQuery}
+            llmProvider={llmProvider}
+          />
+        )}
       </div>
     );
   }
@@ -552,36 +629,47 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
   if (effectiveDisplayMode === 'json-sections' && analysisData) {
     // Extract additional data from wrapped response - check multiple paths
     // The response could be in various formats:
-    // 1. Wrapped: { success, query, data: {...}, sources: {...} }
-    // 2. Direct: { analysis_date, properties, sources, ... }
-    // 3. Legacy: { citations: {...}, ... }
-    const queryAsked = response.query || response.data?.query || (response as any).user_query || null;
-    const timelineUnderstanding = response.timeline_understanding || response.data?.timeline_understanding || null;
+    // 1. Double-wrapped: { success, data: { success, query, data: {...}, sources: {...}, session_id } }
+    // 2. Wrapped: { success, query, data: {...}, sources: {...} }
+    // 3. Direct: { analysis_date, properties, sources, ... }
+    // 4. Legacy: { citations: {...}, ... }
+    const queryAsked = response.query
+      || response.data?.query
+      || response.data?.data?.query
+      || (response as any).user_query
+      || null;
+    const timelineUnderstanding = response.timeline_understanding
+      || response.data?.timeline_understanding
+      || response.data?.data?.timeline_understanding
+      || (analysisData as any).timeline_understanding
+      || null;
 
-    // Sources can be at multiple locations - check all possible paths
-    // Priority: response.sources > response.citations > response.data.sources > response.data.citations
+    // Sources can be at multiple locations - check all possible paths including double-wrapped
+    // Priority: response.sources > response.data.sources (double-wrapped) > response.citations > etc.
     const sources = response.sources
+      || response.data?.sources  // Double-wrapped format: sources at response.data.sources
       || response.citations
-      || response.data?.sources
       || response.data?.citations
       || (analysisData as any).sources
       || (analysisData as any).citations
       || null;
 
     // Debug: Log where sources were found
-    console.log('📊 CGTAnalysisDisplay: Sources location check:', {
+    console.log('📊 CGTAnalysisDisplay JSON Sections: Sources location check:', {
       'response.sources': !!response.sources,
-      'response.citations': !!response.citations,
       'response.data?.sources': !!response.data?.sources,
+      'response.citations': !!response.citations,
       'response.data?.citations': !!response.data?.citations,
       'analysisData.sources': !!(analysisData as any).sources,
-      'foundSources': !!sources
+      'foundSources': !!sources,
+      'isDoubleWrappedFormat': isDoubleWrappedFormat
     });
 
     // Rules summary can be at multiple locations
     const rulesAppliedSummary = sources?.rules_summary
       || response.rules_summary
       || response.data?.rules_summary
+      || response.data?.data?.rules_summary
       || (analysisData as any).rules_summary
       || null;
 
@@ -589,12 +677,23 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
     const sourceReferences = sources?.references
       || response.references
       || response.data?.references
+      || response.data?.data?.references
       || (analysisData as any).references
       || [];
 
-    const propertiesAnalyzedCount = response.properties_analyzed || analysisData.total_properties || 0;
-    const llmUsed = response.llm_used || response.data?.llm_used || (analysisData as any).llm_used || null;
-    const analysisDate = analysisData.analysis_date || (response as any).analysis_date || null;
+    const propertiesAnalyzedCount = response.properties_analyzed
+      || response.data?.properties_analyzed
+      || analysisData.total_properties
+      || 0;
+    const llmUsed = response.llm_used
+      || response.data?.llm_used
+      || response.data?.data?.llm_used
+      || (analysisData as any).llm_used
+      || null;
+    const analysisDate = analysisData.analysis_date
+      || response.data?.data?.analysis_date
+      || (response as any).analysis_date
+      || null;
 
     return (
       <div className="space-y-6">
@@ -602,6 +701,16 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
         <div className="flex items-center justify-between gap-4">
           <DisplayModeToggle />
           <div className="flex items-center gap-2">
+            {/* Follow-up Questions Button - only show if session_id is available */}
+            {sessionId && (
+              <button
+                onClick={() => setShowFollowUpChat(true)}
+                className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-lg transition-all shadow-md text-sm"
+              >
+                <MessageCircle className="w-4 h-4" />
+                Follow-up
+              </button>
+            )}
             <button
               onClick={openNotesModal}
               className={`flex items-center gap-2 px-4 py-2 ${timelineNotes ? 'bg-amber-600 hover:bg-amber-700' : 'bg-amber-500 hover:bg-amber-600'} text-white rounded-lg transition-colors shadow-md text-sm relative`}
@@ -614,10 +723,10 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
             </button>
             <button
               onClick={() => setShowRawJSON(true)}
-              className="flex items-center gap-2 px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors shadow-md text-sm"
+              className="flex items-center justify-center w-8 h-8 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors shadow-sm"
+              title="Show Raw JSON"
             >
-              <FileJson className="w-4 h-4" />
-              Show Raw JSON
+              <span className="text-sm font-mono font-bold">{'{}'}</span>
             </button>
           </div>
         </div>
@@ -1309,6 +1418,17 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
             <span>{propertiesAnalyzedCount} {propertiesAnalyzedCount === 1 ? 'property' : 'properties'} analyzed</span>
           </div>
         </motion.div>
+
+        {/* Follow-up Chat Window */}
+        {sessionId && (
+          <FollowUpChatWindow
+            isOpen={showFollowUpChat}
+            onClose={() => setShowFollowUpChat(false)}
+            sessionId={sessionId}
+            initialQuery={initialQuery}
+            llmProvider={llmProvider}
+          />
+        )}
       </div>
     );
   }
@@ -1410,10 +1530,10 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
             </button>
             <button
               onClick={() => setShowRawJSON(true)}
-              className="flex items-center gap-2 px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors shadow-md text-sm"
+              className="flex items-center justify-center w-8 h-8 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors shadow-sm"
+              title="Show Raw JSON"
             >
-              <FileJson className="w-4 h-4" />
-              Show Raw JSON
+              <span className="text-sm font-mono font-bold">{'{}'}</span>
             </button>
           </div>
         </div>

@@ -166,21 +166,21 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
             className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[99999]"
           />
 
-          {/* Modal - Wider */}
-          <div className="fixed inset-0 z-[100000] flex items-center justify-center p-4">
+          {/* Modal - Responsive with equal top/bottom margins */}
+          <div className="fixed inset-0 z-[100000] flex items-center justify-center p-4 sm:p-6 md:p-8">
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
               transition={{ type: 'spring', duration: 0.3 }}
-              className="w-full max-w-3xl"
+              className="w-full max-w-3xl max-h-[calc(100vh-2rem)] sm:max-h-[calc(100vh-3rem)] md:max-h-[calc(100vh-4rem)] flex flex-col"
             >
-              <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 overflow-hidden">
-                {/* Header */}
-                <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900">
+              <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 overflow-hidden flex flex-col max-h-full">
+                {/* Header - Fixed */}
+                <div className="flex-shrink-0 flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900">
                   <div className="flex items-center gap-2">
                     <Settings className="w-5 h-5 text-slate-600 dark:text-slate-400" />
-                    <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100">
+                    <h2 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-slate-100">
                       Settings
                     </h2>
                   </div>
@@ -192,14 +192,14 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                   </button>
                 </div>
 
-                {/* Content - Two Column Layout */}
-                <div className="px-6 py-5">
-                  <div className="grid grid-cols-2 gap-6">
+                {/* Content - Scrollable, Responsive Grid */}
+                <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-4 sm:py-5">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                     {/* Left Column */}
-                    <div className="space-y-5">
+                    <div className="space-y-4 sm:space-y-5">
                       {/* Timeline Settings Section */}
                       <div>
-                        <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3 flex items-center gap-2">
+                        <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2 sm:mb-3 flex items-center gap-2">
                           <Calendar className="w-4 h-4" />
                           Timeline Settings
                         </h3>
@@ -235,7 +235,7 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
 
                       {/* Display Settings Section */}
                       <div>
-                        <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3 flex items-center gap-2">
+                        <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2 sm:mb-3 flex items-center gap-2">
                           <Eye className="w-4 h-4" />
                           Display Settings
                         </h3>
@@ -258,10 +258,10 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                     </div>
 
                     {/* Right Column */}
-                    <div className="space-y-5">
+                    <div className="space-y-4 sm:space-y-5">
                       {/* AI Features Section */}
                       <div>
-                        <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3 flex items-center gap-2">
+                        <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2 sm:mb-3 flex items-center gap-2">
                           <Sparkles className="w-4 h-4" />
                           AI Features
                         </h3>
@@ -316,7 +316,7 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
 
                       {/* Analysis View Section */}
                       <div>
-                        <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3 flex items-center gap-2">
+                        <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2 sm:mb-3 flex items-center gap-2">
                           <Eye className="w-4 h-4" />
                           Analysis View
                         </h3>
@@ -350,7 +350,7 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
 
                       {/* Share Timeline Section */}
                       <div>
-                        <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3 flex items-center gap-2">
+                        <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2 sm:mb-3 flex items-center gap-2">
                           <Share2 className="w-4 h-4" />
                           Share Timeline
                         </h3>
@@ -466,12 +466,12 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                   </div>
                 </div>
 
-                {/* Footer */}
-                <div className="px-6 py-4 border-t border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900">
+                {/* Footer - Fixed */}
+                <div className="flex-shrink-0 px-4 sm:px-6 py-3 sm:py-4 border-t border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900">
                   <div className="flex justify-end">
                     <button
                       onClick={onClose}
-                      className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors"
+                      className="px-4 sm:px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors text-sm sm:text-base"
                     >
                       Done
                     </button>

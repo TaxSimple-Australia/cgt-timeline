@@ -65,6 +65,14 @@ export interface TimelineEvent {
   // NEW: Dynamic Cost Base Items
   costBases?: CostBaseItem[];  // Array of cost base items for this event
 
+  // NEW: Ownership and Usage Splits
+  businessUsePercentage?: number;  // Percentage of property used for business/rental (0-100)
+  floorAreaData?: {
+    total: number;      // Total floor area in sqm
+    exclusive: number;  // Exclusive rental area in sqm (e.g., bedroom)
+    shared: number;     // Shared area in sqm (e.g., kitchen, bathroom)
+  };
+
   // DEPRECATED: Legacy cost base fields (kept for backward compatibility during migration)
   /** @deprecated Use costBases array instead */
   purchaseLegalFees?: number;
@@ -107,6 +115,12 @@ export interface Property {
   currentStatus?: PropertyStatus;
   branch: number; // Y-position for branch visualization
   isRental?: boolean; // Is this a rental property you don't own?
+
+  // NEW: Multi-owner support
+  owners?: Array<{
+    name: string;
+    percentage: number;  // Ownership percentage (must total 100%)
+  }>;
 }
 
 export type ZoomLevel =

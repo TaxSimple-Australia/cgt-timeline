@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { format } from 'date-fns';
 import { useTimelineStore } from '@/store/timeline';
 import { formatCurrency } from '@/lib/utils';
+import { getPurchasePrice, calculatePurchaseIncidentalCosts, calculateImprovementCosts, calculateSellingCosts } from '@/lib/cost-base-calculations';
 import {
   X,
   Edit2,
@@ -50,25 +51,15 @@ export default function PropertyPanel() {
   const totalInvestment = (purchaseEvent?.amount || 0) + improvements;
   const capitalGain = saleEvent ? (saleEvent.amount || 0) - totalInvestment : null;
 
-  // Calculate total cost base for CGT using new costBases array
+  // Calculate total cost base for CGT using helper functions
+  // This correctly handles both legacy events (event.amount) and new events (costBases array)
   const calculateCostBase = () => {
-    let costBase = 0;
+    const improvementEvents = propertyEvents.filter(e => e.type === 'improvement');
 
-    // Element 1: Purchase price
-    if (purchaseEvent?.amount) {
-      costBase += purchaseEvent.amount;
-    }
-
-    // Sum all cost bases from all events for this property
-    propertyEvents.forEach(event => {
-      if (event.costBases && event.costBases.length > 0) {
-        event.costBases.forEach(cb => {
-          costBase += cb.amount;
-        });
-      }
-    });
-
-    return costBase;
+    return getPurchasePrice(purchaseEvent) +
+           calculatePurchaseIncidentalCosts(purchaseEvent) +
+           calculateImprovementCosts(improvementEvents) +
+           calculateSellingCosts(saleEvent);
   };
 
   const totalCostBase = calculateCostBase();

@@ -146,6 +146,43 @@ export function transformTimelineToAPIFormat(
         historyEvent.market_value = event.marketValuation;
       }
 
+      // NEW: Add split data to description so AI can read it (Gilbert's contextual approach)
+      const additionalInfo: string[] = [];
+
+      if (event.businessUsePercentage !== undefined && event.businessUsePercentage > 0) {
+        additionalInfo.push(`Business use: ${event.businessUsePercentage}% of property used for business/rental purposes`);
+        console.log('📊 Transform: Business use percentage:', event.businessUsePercentage, '(added to description)');
+      }
+
+      if (event.floorAreaData) {
+        const { total, exclusive, shared } = event.floorAreaData;
+        const exclusivePercent = (exclusive / total) * 100;
+        const sharedPercent = (shared / total) * 50;
+        const totalPercent = exclusivePercent + sharedPercent;
+
+        additionalInfo.push(
+          `Partial rental: Total floor area ${total}sqm, exclusive rental area ${exclusive}sqm, shared area ${shared}sqm. ` +
+          `Income-producing percentage: ${totalPercent.toFixed(2)}% (calculated as exclusive ${exclusivePercent.toFixed(2)}% + shared ${sharedPercent.toFixed(2)}%)`
+        );
+
+        console.log('📐 Transform: Floor areas:', {
+          total,
+          exclusive,
+          shared,
+          calculatedPercentage: totalPercent.toFixed(2) + '%',
+          addedTo: 'description'
+        });
+      }
+
+      // Append split information to description so AI can understand it
+      if (additionalInfo.length > 0) {
+        const splitInfo = additionalInfo.join('. ');
+        historyEvent.description = historyEvent.description
+          ? `${historyEvent.description}. ${splitInfo}`
+          : splitInfo;
+        console.log('✅ Transform: Split data added to description:', splitInfo);
+      }
+
       // Extract cost base items from the costBases array
       if (event.costBases && event.costBases.length > 0) {
         event.costBases.forEach((costBase) => {
@@ -378,7 +415,9 @@ export function transformTimelineToAPIFormat(
     return {
       address: `${property.name}, ${property.address}`,
       property_history,
-      notes: '', // Can be populated from property notes if available
+      notes: property.owners && property.owners.length > 0
+        ? `Owners: ${property.owners.map(o => `${o.name} (${o.percentage}%)`).join(', ')}`
+        : '', // Multi-owner data serialized to notes field for API
     };
   });
 

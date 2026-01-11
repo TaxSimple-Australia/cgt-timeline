@@ -2,9 +2,8 @@
 
 import React from 'react';
 import { Property, TimelineEvent, EventType } from '@/store/timeline';
-import { format, differenceInDays, startOfMonth, endOfMonth, eachMonthOfInterval } from 'date-fns';
+import { format, differenceInDays, differenceInYears } from 'date-fns';
 import {
-  Key,
   Home,
   DollarSign,
   LogIn,
@@ -24,12 +23,133 @@ interface GanttChartViewProps {
   absoluteEnd: Date;
 }
 
+// Compression modes for different timeline spans
+type CompressionMode = 'standard' | 'moderate' | 'heavy' | 'maximum';
+
+interface CompressionConfig {
+  mode: CompressionMode;
+  rowHeight: number;
+  headerHeight: number;
+  barHeight: number;
+  eventSize: number;
+  showEventIcons: boolean;
+  propertyNameSize: string;
+  addressSize: string;
+  dateMarkerSize: string;
+  dateMarkerInterval: number; // Years between markers
+  showDurationLabels: boolean;
+  labelMargin: string; // Width for property labels
+}
+
 export default function GanttChartView({
   properties,
   events,
   absoluteStart,
   absoluteEnd,
 }: GanttChartViewProps) {
+  // Calculate earliest purchase date across all properties
+  const calculateChartStartDate = (): Date => {
+    if (properties.length === 0) return absoluteStart;
+
+    // Find earliest purchase date from all properties
+    const purchaseDates = properties
+      .map(p => p.purchaseDate)
+      .filter((date): date is Date => date !== null && date !== undefined);
+
+    if (purchaseDates.length > 0) {
+      return new Date(Math.min(...purchaseDates.map(d => d.getTime())));
+    }
+
+    // Fallback to earliest event date
+    const eventDates = events.map(e => e.date);
+    if (eventDates.length > 0) {
+      return new Date(Math.min(...eventDates.map(d => d.getTime())));
+    }
+
+    return absoluteStart;
+  };
+
+  const chartStartDate = calculateChartStartDate();
+
+  // Calculate timeline span in years
+  const timelineSpanYears = differenceInYears(absoluteEnd, chartStartDate);
+  const propertyCount = properties.length;
+
+  // Determine compression mode based on timeline span
+  const getCompressionConfig = (): CompressionConfig => {
+    // Short timeline (0-5 years) - Standard layout
+    if (timelineSpanYears <= 5) {
+      return {
+        mode: 'standard',
+        rowHeight: 60,
+        headerHeight: 80,
+        barHeight: 32,
+        eventSize: 24,
+        showEventIcons: true,
+        propertyNameSize: 'text-sm',
+        addressSize: 'text-xs',
+        dateMarkerSize: 'text-sm',
+        dateMarkerInterval: 1,
+        showDurationLabels: true,
+        labelMargin: '250px',
+      };
+    }
+
+    // Medium timeline (5-20 years) - Moderate compression
+    if (timelineSpanYears <= 20) {
+      return {
+        mode: 'moderate',
+        rowHeight: 50,
+        headerHeight: 70,
+        barHeight: 24,
+        eventSize: 20,
+        showEventIcons: true,
+        propertyNameSize: 'text-sm',
+        addressSize: 'text-xs',
+        dateMarkerSize: 'text-sm',
+        dateMarkerInterval: 2,
+        showDurationLabels: true,
+        labelMargin: '220px',
+      };
+    }
+
+    // Long timeline (20-50 years) - Heavy compression
+    if (timelineSpanYears <= 50) {
+      return {
+        mode: 'heavy',
+        rowHeight: 40,
+        headerHeight: 60,
+        barHeight: 20,
+        eventSize: 12,
+        showEventIcons: false,
+        propertyNameSize: 'text-xs',
+        addressSize: 'text-[10px]',
+        dateMarkerSize: 'text-xs',
+        dateMarkerInterval: 5,
+        showDurationLabels: false,
+        labelMargin: '200px',
+      };
+    }
+
+    // Very long timeline (50+ years) - Maximum compression
+    return {
+      mode: 'maximum',
+      rowHeight: 35,
+      headerHeight: 50,
+      barHeight: 16,
+      eventSize: 8,
+      showEventIcons: false,
+      propertyNameSize: 'text-xs',
+      addressSize: 'text-[9px]',
+      dateMarkerSize: 'text-xs',
+      dateMarkerInterval: 10,
+      showDurationLabels: false,
+      labelMargin: '180px',
+    };
+  };
+
+  const config = getCompressionConfig();
+
   // Get icon for event type
   const getEventIcon = (eventType: EventType) => {
     const iconMap: Record<EventType, typeof Home> = {
@@ -49,22 +169,22 @@ export default function GanttChartView({
     return iconMap[eventType] || Home;
   };
 
-  // Calculate position as percentage
+  // Calculate position as percentage using chartStartDate instead of absoluteStart
   const getDatePosition = (date: Date): number => {
-    const totalRange = absoluteEnd.getTime() - absoluteStart.getTime();
-    const offset = date.getTime() - absoluteStart.getTime();
+    const totalRange = absoluteEnd.getTime() - chartStartDate.getTime();
+    const offset = date.getTime() - chartStartDate.getTime();
     return (offset / totalRange) * 100;
   };
 
-  // Generate date range markers (years or quarters based on timeline span)
+  // Generate date range markers with adaptive intervals
   const generateDateMarkers = () => {
-    const totalDays = differenceInDays(absoluteEnd, absoluteStart);
-    const startYear = absoluteStart.getFullYear();
+    const startYear = chartStartDate.getFullYear();
     const endYear = absoluteEnd.getFullYear();
     const yearSpan = endYear - startYear;
+    const interval = config.dateMarkerInterval;
 
-    // If span is less than 3 years, show quarters
-    if (yearSpan < 3) {
+    // For very short timelines (< 3 years), show quarters
+    if (yearSpan < 3 && config.mode === 'standard') {
       const markers = [];
       for (let year = startYear; year <= endYear; year++) {
         const quarters = [
@@ -75,21 +195,55 @@ export default function GanttChartView({
         ];
         markers.push(...quarters);
       }
-      return markers.filter(m => m.date >= absoluteStart && m.date <= absoluteEnd);
+      return markers.filter(m => m.date >= chartStartDate && m.date <= absoluteEnd);
     }
 
-    // Otherwise show years
+    // Otherwise show years with interval
     const markers = [];
-    for (let year = startYear; year <= endYear; year++) {
+    for (let year = startYear; year <= endYear; year += interval) {
       markers.push({
         label: `${year}`,
         date: new Date(year, 0, 1),
       });
     }
+
+    // Always include the end year if not already included
+    if ((endYear - startYear) % interval !== 0) {
+      markers.push({
+        label: `${endYear}`,
+        date: new Date(endYear, 0, 1),
+      });
+    }
+
     return markers;
   };
 
   const dateMarkers = generateDateMarkers();
+
+  // Calculate label tiers to prevent overlap
+  const calculateLabelTiers = (propertyEvents: TimelineEvent[]) => {
+    const sortedEvents = [...propertyEvents].sort((a, b) => a.date.getTime() - b.date.getTime());
+    const tiers = new Map<string, number>();
+    const overlapThreshold = 8; // Position percentage threshold for overlap
+
+    sortedEvents.forEach((event, index) => {
+      const eventPos = getDatePosition(event.date);
+      let tier = 0;
+
+      for (let i = 0; i < index; i++) {
+        const prevEvent = sortedEvents[i];
+        const prevPos = getDatePosition(prevEvent.date);
+        const prevTier = tiers.get(prevEvent.id) || 0;
+
+        if (Math.abs(eventPos - prevPos) < overlapThreshold && tier === prevTier) {
+          tier = prevTier + 1;
+        }
+      }
+      tiers.set(event.id, tier);
+    });
+
+    return tiers;
+  };
 
   // Group events by property and calculate duration bars
   const propertyRows = properties.map((property) => {
@@ -105,16 +259,32 @@ export default function GanttChartView({
       ? (property.saleDate || saleEvent?.date || absoluteEnd)
       : absoluteEnd;
 
+    // Calculate label tiers for this property's events
+    const labelTiers = calculateLabelTiers(propertyEvents);
+
     return {
       property,
       propertyStart,
       propertyEnd,
       events: propertyEvents,
+      labelTiers,
     };
   });
 
-  const ROW_HEIGHT = 60;
-  const HEADER_HEIGHT = 80;
+  // Format date based on compression mode
+  const formatDateForMode = (date: Date): string => {
+    switch (config.mode) {
+      case 'standard':
+        return format(date, 'MMM yyyy');
+      case 'moderate':
+        return format(date, 'MMM yy');
+      case 'heavy':
+      case 'maximum':
+        return format(date, 'yyyy');
+      default:
+        return format(date, 'MMM yyyy');
+    }
+  };
 
   return (
     <div className="w-full h-full bg-white dark:bg-slate-900 rounded-lg">
@@ -124,7 +294,7 @@ export default function GanttChartView({
           Gantt Chart View
         </h3>
         <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-          Property ownership and event timeline
+          Property ownership and event timeline ({timelineSpanYears} years • {config.mode} compression)
         </p>
       </div>
 
@@ -132,7 +302,7 @@ export default function GanttChartView({
       <div className="relative overflow-x-auto">
         <div className="min-w-[1000px] p-8">
           {/* Timeline Header with Date Range Markers */}
-          <div className="relative mb-4" style={{ height: `${HEADER_HEIGHT}px`, marginLeft: '250px' }}>
+          <div className="relative mb-4" style={{ height: `${config.headerHeight}px`, marginLeft: config.labelMargin }}>
             {/* Date range labels */}
             <div className="relative h-full">
               {dateMarkers.map((marker) => {
@@ -143,13 +313,13 @@ export default function GanttChartView({
                     className="absolute top-0"
                     style={{ left: `${position}%` }}
                   >
-                    <div className="text-sm font-bold text-slate-700 dark:text-slate-300 -translate-x-1/2">
+                    <div className={`${config.dateMarkerSize} font-bold text-slate-700 dark:text-slate-300 -translate-x-1/2`}>
                       {marker.label}
                     </div>
                     {/* Vertical grid line */}
                     <div
                       className="absolute top-8 w-px bg-slate-200 dark:bg-slate-700 -translate-x-1/2"
-                      style={{ height: `${properties.length * ROW_HEIGHT + 20}px` }}
+                      style={{ height: `${properties.length * config.rowHeight + 20}px` }}
                     />
                   </div>
                 );
@@ -159,7 +329,7 @@ export default function GanttChartView({
 
           {/* Property Rows */}
           <div className="space-y-0">
-            {propertyRows.map(({ property, propertyStart, propertyEnd, events: propertyEvents }, index) => {
+            {propertyRows.map(({ property, propertyStart, propertyEnd, events: propertyEvents, labelTiers }, index) => {
               const startPos = getDatePosition(propertyStart);
               const endPos = getDatePosition(propertyEnd);
               const barWidth = endPos - startPos;
@@ -168,67 +338,126 @@ export default function GanttChartView({
                 <div
                   key={property.id}
                   className="relative flex items-center border-b border-slate-100 dark:border-slate-800"
-                  style={{ height: `${ROW_HEIGHT}px` }}
+                  style={{ height: `${config.rowHeight}px` }}
                 >
                   {/* Task Label (Left side) */}
                   <div
                     className="absolute left-0 flex flex-col justify-center pr-4"
-                    style={{ width: '250px' }}
+                    style={{ width: config.labelMargin }}
                   >
                     <div
-                      className="font-semibold text-sm truncate"
+                      className={`font-semibold ${config.propertyNameSize} truncate`}
                       style={{ color: property.color }}
                     >
                       {property.name}
                     </div>
-                    {property.address && (
-                      <div className="text-xs text-slate-500 dark:text-slate-400 truncate">
+                    {property.address && config.mode !== 'maximum' && (
+                      <div className={`${config.addressSize} text-slate-500 dark:text-slate-400 truncate`}>
                         {property.address}
                       </div>
                     )}
                   </div>
 
                   {/* Timeline area */}
-                  <div className="relative flex-1" style={{ marginLeft: '250px' }}>
+                  <div className="relative flex-1" style={{ marginLeft: config.labelMargin }}>
                     {/* Property duration bar */}
                     <div
-                      className="absolute h-8 shadow-md transition-all hover:shadow-lg cursor-pointer"
+                      className="absolute shadow-md transition-all hover:shadow-lg cursor-pointer"
                       style={{
                         backgroundColor: property.color,
                         left: `${startPos}%`,
                         width: `${barWidth}%`,
+                        height: `${config.barHeight}px`,
                         top: '50%',
                         transform: 'translateY(-50%)',
                         opacity: 0.8,
-                        borderRadius: '10px',
+                        borderRadius: config.mode === 'maximum' ? '6px' : '10px',
                       }}
-                      title={`${property.name}: ${format(propertyStart, 'MMM yyyy')} - ${format(propertyEnd, 'MMM yyyy')}`}
+                      title={`${property.name}: ${formatDateForMode(propertyStart)} - ${formatDateForMode(propertyEnd)}`}
                     >
-                      {/* Duration label inside bar if wide enough */}
-                      {barWidth > 15 && (
-                        <div className="absolute inset-0 flex items-center justify-center text-xs font-semibold text-white dark:text-slate-900 px-2">
-                          {format(propertyStart, 'MMM yyyy')} - {format(propertyEnd, 'MMM yyyy')}
+                      {/* Duration label inside bar if wide enough and mode allows */}
+                      {config.showDurationLabels && barWidth > 15 && (
+                        <div className="absolute inset-0 flex items-center justify-center text-[10px] font-semibold text-white dark:text-slate-900 px-2">
+                          {formatDateForMode(propertyStart)} - {formatDateForMode(propertyEnd)}
                         </div>
                       )}
                     </div>
 
-                    {/* Event markers with icons */}
+                    {/* Event markers - simplified for compressed modes */}
                     {propertyEvents.map((event) => {
                       const eventPos = getDatePosition(event.date);
                       const EventIcon = getEventIcon(event.type);
+
+                      // Determine label size based on compression mode
+                      const labelFontSize = config.mode === 'maximum' ? 8 :
+                                          config.mode === 'heavy' ? 9 :
+                                          config.mode === 'moderate' ? 10 : 11;
+
+                      // Get tier for stacking overlapping labels
+                      const tier = labelTiers.get(event.id) || 0;
+                      const tierSpacing = 18; // Vertical spacing between tiers
+                      const baseLabelOffset = config.eventSize / 2 + 14; // Increased from 6 to 14 for more clearance
+                      const labelOffset = baseLabelOffset + (tier * tierSpacing);
+
                       return (
                         <div
                           key={event.id}
-                          className="absolute w-6 h-6 rounded-full border-2 border-white dark:border-slate-900 shadow-md cursor-pointer hover:scale-125 transition-transform z-10 flex items-center justify-center"
+                          className="absolute"
                           style={{
-                            backgroundColor: event.color,
                             left: `${eventPos}%`,
                             top: '50%',
                             transform: 'translate(-50%, -50%)',
                           }}
-                          title={`${event.title} - ${format(event.date, 'MMM dd, yyyy')}`}
                         >
-                          <EventIcon className="w-3 h-3 text-white dark:text-slate-900" strokeWidth={2.5} />
+                          {/* Event label above marker - stacked by tier */}
+                          <div
+                            className="absolute whitespace-nowrap text-center pointer-events-none"
+                            style={{
+                              left: '50%',
+                              transform: 'translateX(-50%)',
+                              bottom: `${labelOffset}px`,
+                            }}
+                          >
+                            <div
+                              className="px-1.5 py-0.5 rounded"
+                              style={{
+                                fontSize: `${labelFontSize}px`,
+                                fontWeight: 600,
+                                color: '#ffffff',
+                                backgroundColor: event.color,
+                                lineHeight: '1.2',
+                                boxShadow: '0 1px 3px rgba(0,0,0,0.3)',
+                              }}
+                            >
+                              {event.title}
+                            </div>
+                          </div>
+
+                          {/* Event marker circle */}
+                          <div
+                            className="rounded-full border-2 border-white dark:border-slate-900 shadow-md cursor-pointer hover:scale-125 transition-transform z-10"
+                            style={{
+                              backgroundColor: event.color,
+                              width: `${config.eventSize}px`,
+                              height: `${config.eventSize}px`,
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                            }}
+                            title={`${event.title} - ${format(event.date, 'MMM dd, yyyy')}`}
+                          >
+                            {/* Only show icons for non-compressed modes */}
+                            {config.showEventIcons && (
+                              <EventIcon
+                                className="text-white dark:text-slate-900"
+                                style={{
+                                  width: `${config.eventSize * 0.5}px`,
+                                  height: `${config.eventSize * 0.5}px`,
+                                  strokeWidth: 2.5
+                                }}
+                              />
+                            )}
+                          </div>
                         </div>
                       );
                     })}
@@ -243,66 +472,6 @@ export default function GanttChartView({
             <div className="text-center py-16 text-slate-400 dark:text-slate-600">
               <p className="text-lg font-semibold">No properties to display</p>
               <p className="text-sm mt-2">Add properties to see the Gantt chart</p>
-            </div>
-          )}
-
-          {/* Legend/Key */}
-          {properties.length > 0 && (
-            <div className="mt-8 pt-6 border-t border-slate-200 dark:border-slate-700">
-              <div className="flex items-start gap-2 mb-3">
-                <Key className="w-5 h-5 text-slate-600 dark:text-slate-400 mt-0.5" />
-                <h4 className="text-sm font-bold text-slate-700 dark:text-slate-300">Event Legend</h4>
-              </div>
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-2">
-                <div className="flex items-center gap-2">
-                  <div className="w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center">
-                    <DollarSign className="w-3 h-3 text-white" strokeWidth={2.5} />
-                  </div>
-                  <span className="text-xs text-slate-600 dark:text-slate-400">Purchase/Sale</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center">
-                    <LogIn className="w-3 h-3 text-white" strokeWidth={2.5} />
-                  </div>
-                  <span className="text-xs text-slate-600 dark:text-slate-400">Move In</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-6 h-6 rounded-full bg-red-500 flex items-center justify-center">
-                    <LogOut className="w-3 h-3 text-white" strokeWidth={2.5} />
-                  </div>
-                  <span className="text-xs text-slate-600 dark:text-slate-400">Move Out</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-6 h-6 rounded-full bg-purple-500 flex items-center justify-center">
-                    <Briefcase className="w-3 h-3 text-white" strokeWidth={2.5} />
-                  </div>
-                  <span className="text-xs text-slate-600 dark:text-slate-400">Rent Start</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-6 h-6 rounded-full bg-orange-500 flex items-center justify-center">
-                    <XCircle className="w-3 h-3 text-white" strokeWidth={2.5} />
-                  </div>
-                  <span className="text-xs text-slate-600 dark:text-slate-400">Rent End</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-6 h-6 rounded-full bg-amber-600 flex items-center justify-center">
-                    <Hammer className="w-3 h-3 text-white" strokeWidth={2.5} />
-                  </div>
-                  <span className="text-xs text-slate-600 dark:text-slate-400">Improvement</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-6 h-6 rounded-full bg-cyan-500 flex items-center justify-center">
-                    <RefreshCw className="w-3 h-3 text-white" strokeWidth={2.5} />
-                  </div>
-                  <span className="text-xs text-slate-600 dark:text-slate-400">Refinance</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-6 h-6 rounded-full bg-slate-500 flex items-center justify-center">
-                    <FileEdit className="w-3 h-3 text-white" strokeWidth={2.5} />
-                  </div>
-                  <span className="text-xs text-slate-600 dark:text-slate-400">Status Change</span>
-                </div>
-              </div>
             </div>
           )}
         </div>

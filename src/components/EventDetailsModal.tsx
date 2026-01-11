@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { TimelineEvent, PropertyStatus, useTimelineStore, CostBaseItem } from '@/store/timeline';
 import { format } from 'date-fns';
-import { X, Calendar, DollarSign, Home, Tag, FileText, CheckCircle, Receipt, Info, Star, Palette, Building2, Key, AlertCircle } from 'lucide-react';
+import { X, Calendar, DollarSign, Home, Tag, FileText, CheckCircle, Receipt, Info, Star, Palette, Building2, Key, AlertCircle, Briefcase, TrendingUp, Package, Hammer, Gift } from 'lucide-react';
 import CostBaseSelector from './CostBaseSelector';
 import { getCostBaseDefinition } from '@/lib/cost-base-definitions';
 import CostBaseSummaryModal from './CostBaseSummaryModal';
@@ -26,6 +26,22 @@ const customEventColors = [
   '#1F2937', // Dark
 ];
 
+// Event type options with their default colors and labels
+const eventTypeOptions = [
+  { type: 'purchase' as const, label: 'Purchase', color: '#3B82F6' },
+  { type: 'sale' as const, label: 'Sold', color: '#8B5CF6' },
+  { type: 'move_in' as const, label: 'Move In', color: '#10B981' },
+  { type: 'move_out' as const, label: 'Move Out', color: '#EF4444' },
+  { type: 'rent_start' as const, label: 'Start Rent', color: '#F59E0B' },
+  { type: 'rent_end' as const, label: 'End Rent', color: '#F97316' },
+  { type: 'vacant_start' as const, label: 'Vacant (Start)', color: '#9CA3AF' },
+  { type: 'vacant_end' as const, label: 'Vacant (End)', color: '#6B7280' },
+  { type: 'improvement' as const, label: 'Improvement', color: '#06B6D4' },
+  { type: 'refinance' as const, label: 'Inherit', color: '#6366F1' },
+  { type: 'status_change' as const, label: 'Status Change', color: '#A855F7' },
+  { type: 'custom' as const, label: 'Custom Event', color: '#6B7280' },
+];
+
 interface EventDetailsModalProps {
   event: TimelineEvent;
   onClose: () => void;
@@ -33,7 +49,7 @@ interface EventDetailsModalProps {
 }
 
 export default function EventDetailsModal({ event, onClose, propertyName }: EventDetailsModalProps) {
-  const { updateEvent, deleteEvent, addEvent, events } = useTimelineStore();
+  const { updateEvent, deleteEvent, addEvent, events, properties, updateProperty } = useTimelineStore();
 
   // Check if this is a synthetic "Not Sold" status marker
   const isSyntheticNotSold = (event as any).isSyntheticStatusMarker === true;
@@ -52,6 +68,7 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
     return event.description || '';
   });
   const [newStatus, setNewStatus] = useState<PropertyStatus | ''>(event.newStatus || '');
+  const [eventType, setEventType] = useState(event.type);
   const [isSaving, setIsSaving] = useState(false);
   const [showSummary, setShowSummary] = useState(false);
   const [showDateTooltip, setShowDateTooltip] = useState(false);
@@ -74,11 +91,57 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
   const [rentEndAsVacant, setRentEndAsVacant] = useState(false);
   const [rentEndAsMoveIn, setRentEndAsMoveIn] = useState(false);
 
+  // Vacant end status checkboxes (for vacant_end events - extract from notes if present)
+  const [vacantEndAsMoveIn, setVacantEndAsMoveIn] = useState(() => {
+    if (event.type === 'vacant_end' && event.description) {
+      return event.description.includes('Next status: Owner Move back in');
+    }
+    return false;
+  });
+  const [vacantEndAsRent, setVacantEndAsRent] = useState(() => {
+    if (event.type === 'vacant_end' && event.description) {
+      return event.description.includes('Next status: Rental');
+    }
+    return false;
+  });
+
   // Sale event - Australian resident status
   const [isResident, setIsResident] = useState(event.isResident ?? true);
 
   // Sale event - Previous year capital losses
   const [previousYearLosses, setPreviousYearLosses] = useState(event.previousYearLosses?.toString() || '');
+
+  // Sale event - Marginal tax rate (extract from notes if present)
+  const [marginalTaxRate, setMarginalTaxRate] = useState(() => {
+    if (event.type === 'sale' && event.description) {
+      const match = event.description.match(/Marginal tax rate: ([\d.]+)%/);
+      if (match && match[1]) {
+        return match[1];
+      }
+    }
+    return '37'; // Default to 37%
+  });
+
+  // NEW: Business use / usage splits (Gilbert's contextual approach)
+  const [hasBusinessUse, setHasBusinessUse] = useState(!!event.businessUsePercentage);
+  const [businessUsePercentage, setBusinessUsePercentage] = useState(event.businessUsePercentage?.toString() || '');
+
+  const [hasPartialRental, setHasPartialRental] = useState(!!event.floorAreaData);
+  const [totalFloorArea, setTotalFloorArea] = useState(event.floorAreaData?.total?.toString() || '');
+  const [exclusiveRentalArea, setExclusiveRentalArea] = useState(event.floorAreaData?.exclusive?.toString() || '');
+  const [sharedArea, setSharedArea] = useState(event.floorAreaData?.shared?.toString() || '');
+
+  // NEW: Multi-owner support (get property to check existing owners)
+  const currentProperty = properties.find(p => p.id === event.propertyId);
+  const [hasMultipleOwners, setHasMultipleOwners] = useState(!!(currentProperty?.owners && currentProperty.owners.length > 0));
+  const [owners, setOwners] = useState<Array<{ name: string; percentage: number }>>(
+    currentProperty?.owners || [{ name: '', percentage: 100 }]
+  );
+
+  // NEW: Check if property has move_in events (for conditional floor area display)
+  const propertyHasMoveIn = events.some(
+    e => e.propertyId === event.propertyId && e.type === 'move_in'
+  );
 
   // Appreciation / Future Value fields (for Not Sold markers)
   const [appreciationValue, setAppreciationValue] = useState(event.appreciationValue?.toString() || '');
@@ -217,6 +280,26 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
         date: parsedDate, // Use the validated parsed date
       };
 
+      // Handle event type change
+      if (eventType !== event.type) {
+        updates.type = eventType;
+        // Update color to match new event type (unless it's custom and user has chosen a color)
+        const defaultColor = eventTypeOptions.find(opt => opt.type === eventType)?.color;
+        if (defaultColor) {
+          updates.color = defaultColor;
+        }
+        // Update title to match new event type default if title hasn't been customized
+        const eventTypeLabel = eventTypeOptions.find(opt => opt.type === eventType)?.label;
+        if (eventTypeLabel && !title.trim()) {
+          updates.title = eventTypeLabel;
+        }
+      }
+
+      // Handle custom color (for custom events or if color was changed)
+      if (eventType === 'custom' || event.type === 'custom') {
+        updates.color = customColor;
+      }
+
       // Handle price/amount calculation
       if (event.type === 'purchase') {
         // For purchase events, calculate amount from cost bases
@@ -263,9 +346,41 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
         updates.buildingPrice = undefined;
       }
 
+      // Handle description with marginal tax rate for sale events
+      let finalDescription = description.trim();
+
+      // For sale events, append marginal tax rate to notes
+      if (event.type === 'sale' && marginalTaxRate && !isNaN(parseFloat(marginalTaxRate))) {
+        const taxRateNote = `\n\nMarginal tax rate: ${parseFloat(marginalTaxRate)}%`;
+
+        // Check if tax rate already in description to avoid duplicates
+        if (!finalDescription.includes('Marginal tax rate:')) {
+          finalDescription += taxRateNote;
+        } else {
+          // Update existing tax rate in notes
+          finalDescription = finalDescription.replace(
+            /Marginal tax rate: [\d.]+%/g,
+            `Marginal tax rate: ${parseFloat(marginalTaxRate)}%`
+          );
+        }
+      }
+
+      // For vacant_end events, append next status to notes
+      if (event.type === 'vacant_end') {
+        // Remove any existing "Next status:" text first
+        finalDescription = finalDescription.replace(/\n*Next status: (Owner Move back in|Rental)/g, '');
+
+        // Add the selected status
+        if (vacantEndAsMoveIn) {
+          finalDescription = finalDescription.trim() + '\n\nNext status: Owner Move back in';
+        } else if (vacantEndAsRent) {
+          finalDescription = finalDescription.trim() + '\n\nNext status: Rental';
+        }
+      }
+
       // Only include description if not empty
-      if (description.trim()) {
-        updates.description = description.trim();
+      if (finalDescription) {
+        updates.description = finalDescription;
       } else {
         updates.description = undefined;
       }
@@ -287,6 +402,26 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
 
       // NEW: Dynamic Cost Bases
       updates.costBases = costBases.length > 0 ? costBases : undefined;
+
+      // NEW: Business use / usage splits (Gilbert's contextual approach)
+      if (hasBusinessUse && businessUsePercentage && !isNaN(parseFloat(businessUsePercentage))) {
+        updates.businessUsePercentage = parseFloat(businessUsePercentage);
+      } else {
+        updates.businessUsePercentage = undefined;
+      }
+
+      if (hasPartialRental && totalFloorArea && exclusiveRentalArea && sharedArea) {
+        const total = parseFloat(totalFloorArea);
+        const exclusive = parseFloat(exclusiveRentalArea);
+        const shared = parseFloat(sharedArea);
+        if (!isNaN(total) && !isNaN(exclusive) && !isNaN(shared) && total > 0) {
+          updates.floorAreaData = { total, exclusive, shared };
+        } else {
+          updates.floorAreaData = undefined;
+        }
+      } else {
+        updates.floorAreaData = undefined;
+      }
 
       // DEPRECATED: Clear legacy cost base fields (they're now in costBases array)
       updates.purchaseLegalFees = undefined;
@@ -318,6 +453,26 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
       }
 
       updateEvent(event.id, updates);
+
+      // NEW: Update property with multi-owner data (for purchase events)
+      if (event.type === 'purchase' && hasMultipleOwners && currentProperty) {
+        // Validate that percentages total 100%
+        const totalPercentage = owners.reduce((sum, owner) => sum + (owner.percentage || 0), 0);
+        const validOwners = owners.filter(owner => owner.name.trim() !== '' && owner.percentage > 0);
+
+        if (validOwners.length > 0) {
+          if (Math.abs(totalPercentage - 100) > 0.01) {
+            alert(`Ownership percentages must equal 100% (currently ${totalPercentage.toFixed(2)}%). Please adjust the percentages before saving.`);
+            setIsSaving(false);
+            return; // PREVENT SAVE if percentages don't total 100%
+          }
+          updateProperty(currentProperty.id, { owners: validOwners });
+          console.log('👥 Multi-owner data saved:', validOwners);
+        }
+      } else if (!hasMultipleOwners && currentProperty) {
+        // Clear owners if checkbox is unchecked
+        updateProperty(currentProperty.id, { owners: undefined });
+      }
 
       // Create move_in event if checkbox is checked (for purchase events)
       if (event.type === 'purchase' && moveInOnSameDay) {
@@ -491,6 +646,8 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
       setMoveOutAsRent(false);
       setRentEndAsVacant(false);
       setRentEndAsMoveIn(false);
+      setVacantEndAsMoveIn(false);
+      setVacantEndAsRent(false);
 
       // Small delay for visual feedback
       setTimeout(() => {
@@ -587,21 +744,35 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
 
           {/* Content */}
           <div className="p-6 space-y-5 max-h-[60vh] overflow-y-auto">
-            {/* Event Type Badge */}
-            <div className="flex items-center gap-2 pb-4 border-b border-slate-100 dark:border-slate-700">
-              <Tag className="w-4 h-4 text-slate-500 dark:text-slate-400" />
-              <span className="text-sm text-slate-600 dark:text-slate-400">Event Type:</span>
-              <span
-                className="px-3 py-1 rounded-full text-xs font-semibold text-white flex items-center gap-1"
-                style={{ backgroundColor: event.type === 'custom' ? customColor : event.color }}
+            {/* Event Type Selector */}
+            <div className="space-y-3 pb-4 border-b border-slate-100 dark:border-slate-700">
+              <div className="flex items-center gap-2">
+                <Tag className="w-4 h-4 text-slate-500 dark:text-slate-400" />
+                <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Event Type</span>
+              </div>
+              <select
+                value={eventType}
+                onChange={(e) => {
+                  const newType = e.target.value as typeof eventType;
+                  setEventType(newType);
+                  // Auto-update color to match event type (unless it's custom)
+                  if (newType !== 'custom') {
+                    const defaultColor = eventTypeOptions.find(opt => opt.type === newType)?.color || event.color;
+                    setCustomColor(defaultColor);
+                  }
+                }}
+                className="w-full px-4 py-2.5 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
-                {event.type === 'custom' && <Star className="w-3 h-3" />}
-                {event.type === 'custom' ? 'CUSTOM' : event.type === 'refinance' ? 'INHERIT' : event.type === 'sale' ? 'SOLD' : event.type.replace('_', ' ').toUpperCase()}
-              </span>
+                {eventTypeOptions.map((option) => (
+                  <option key={option.type} value={option.type}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
             </div>
 
             {/* Custom Event Color Picker */}
-            {event.type === 'custom' && (
+            {eventType === 'custom' && (
               <div className="space-y-3 pb-4 border-b border-slate-100 dark:border-slate-700">
                 <div className="flex items-center gap-2">
                   <Palette className="w-4 h-4 text-slate-500 dark:text-slate-400" />
@@ -831,6 +1002,168 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
                       Purchase as rental/investment
                     </label>
                   </div>
+
+                  {/* NEW: Business use % (Gilbert's contextual approach) */}
+                  {moveInOnSameDay && (
+                    <div className="space-y-3 p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200 dark:border-purple-800">
+                      <div className="flex items-center gap-3">
+                        <input
+                          type="checkbox"
+                          id="hasBusinessUse"
+                          checked={hasBusinessUse}
+                          onChange={(e) => setHasBusinessUse(e.target.checked)}
+                          className="w-4 h-4 text-blue-600 bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 rounded focus:ring-2 focus:ring-blue-500 cursor-pointer"
+                        />
+                        <label
+                          htmlFor="hasBusinessUse"
+                          className="text-sm font-medium text-slate-700 dark:text-slate-300 cursor-pointer"
+                        >
+                          Using part for business or rental?
+                        </label>
+                      </div>
+
+                      {hasBusinessUse && (
+                        <div>
+                          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                            Business use percentage (0-100%)
+                          </label>
+                          <input
+                            type="number"
+                            min="0"
+                            max="100"
+                            step="0.1"
+                            value={businessUsePercentage}
+                            onChange={(e) => setBusinessUsePercentage(e.target.value)}
+                            className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            placeholder="e.g., 25"
+                          />
+                          <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                            Enter the percentage of the property used for business or rental purposes
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* NEW: Multi-owner support (Gilbert's contextual approach) */}
+                  <div className="space-y-3 p-4 bg-orange-50 dark:bg-orange-900/20 rounded-lg border border-orange-200 dark:border-orange-800">
+                    <div className="flex items-center gap-3">
+                      <input
+                        type="checkbox"
+                        id="hasMultipleOwners"
+                        checked={hasMultipleOwners}
+                        onChange={(e) => {
+                          setHasMultipleOwners(e.target.checked);
+                          if (e.target.checked && owners.length === 1 && owners[0].name === '') {
+                            // Initialize with 2 owners when checkbox is first checked
+                            setOwners([
+                              { name: '', percentage: 50 },
+                              { name: '', percentage: 50 }
+                            ]);
+                          }
+                        }}
+                        className="w-4 h-4 text-blue-600 bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 rounded focus:ring-2 focus:ring-blue-500 cursor-pointer"
+                      />
+                      <label
+                        htmlFor="hasMultipleOwners"
+                        className="text-sm font-medium text-slate-700 dark:text-slate-300 cursor-pointer"
+                      >
+                        Shared ownership? (Multiple owners)
+                      </label>
+                    </div>
+
+                    <p className="text-xs text-slate-500 dark:text-slate-400">
+                      Check this if multiple people own this property (e.g., couples, co-investors, family trusts)
+                    </p>
+
+                    {hasMultipleOwners && (
+                      <div className="space-y-3">
+                        <p className="text-xs text-slate-500 dark:text-slate-400">
+                          Enter owner names and ownership percentages. Total must equal 100%.
+                        </p>
+
+                        {owners.map((owner, index) => (
+                          <div key={index} className="flex gap-2 items-start">
+                            <div className="flex-1">
+                              <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">
+                                Owner {index + 1} Name
+                              </label>
+                              <input
+                                type="text"
+                                value={owner.name}
+                                onChange={(e) => {
+                                  const newOwners = [...owners];
+                                  newOwners[index].name = e.target.value;
+                                  setOwners(newOwners);
+                                }}
+                                className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                                placeholder="e.g., Alex Smith"
+                              />
+                            </div>
+                            <div className="w-28">
+                              <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">
+                                % Owned
+                              </label>
+                              <input
+                                type="number"
+                                min="0"
+                                max="100"
+                                step="0.1"
+                                value={owner.percentage}
+                                onChange={(e) => {
+                                  const newOwners = [...owners];
+                                  newOwners[index].percentage = parseFloat(e.target.value) || 0;
+                                  setOwners(newOwners);
+                                }}
+                                className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                                placeholder="50"
+                              />
+                            </div>
+                            {owners.length > 1 && (
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const newOwners = owners.filter((_, i) => i !== index);
+                                  setOwners(newOwners);
+                                }}
+                                className="mt-6 p-2 text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
+                                title="Remove owner"
+                              >
+                                <X className="w-4 h-4" />
+                              </button>
+                            )}
+                          </div>
+                        ))}
+
+                        <button
+                          type="button"
+                          onClick={() => setOwners([...owners, { name: '', percentage: 0 }])}
+                          className="w-full px-3 py-2 text-sm font-medium text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg border border-blue-300 dark:border-blue-700 transition-colors"
+                        >
+                          + Add Another Owner
+                        </button>
+
+                        {/* Ownership percentage validation */}
+                        <div className="p-3 bg-white dark:bg-slate-700 rounded-lg border border-slate-300 dark:border-slate-600">
+                          <p className="text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">
+                            Total ownership:
+                          </p>
+                          <p className={`text-lg font-bold ${
+                            Math.abs(owners.reduce((sum, o) => sum + o.percentage, 0) - 100) < 0.01
+                              ? 'text-green-600 dark:text-green-400'
+                              : 'text-red-600 dark:text-red-400'
+                          }`}>
+                            {owners.reduce((sum, o) => sum + o.percentage, 0).toFixed(2)}%
+                          </p>
+                          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                            {Math.abs(owners.reduce((sum, o) => sum + o.percentage, 0) - 100) < 0.01
+                              ? '✓ Ownership percentages are valid'
+                              : '⚠️ Must equal 100%'}
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
             </div>
@@ -939,6 +1272,35 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
                     Capital losses from previous financial years
                   </p>
                 </div>
+
+                {/* Marginal Tax Rate Input */}
+                <div className="mt-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                      Marginal Tax Rate (%)
+                    </label>
+                    <div className="relative group">
+                      <Info className="w-4 h-4 text-blue-500 cursor-help" />
+                      <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-72 p-3 bg-slate-800 dark:bg-slate-700 text-white text-xs rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                        Your marginal tax rate (personal tax bracket). Common rates: 32.5%, 37%, 45% (incl. Medicare levy). This will be included in the notes for AI analysis.
+                        <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-800 dark:border-t-slate-700"></div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="relative">
+                    <input
+                      type="number"
+                      value={marginalTaxRate}
+                      onChange={(e) => setMarginalTaxRate(e.target.value)}
+                      placeholder="37.00"
+                      min="0"
+                      max="100"
+                      step="0.01"
+                      className="w-full pl-4 pr-8 py-2.5 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                    <span className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400">%</span>
+                  </div>
+                </div>
               </div>
             )}
 
@@ -993,6 +1355,63 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
                     >
                       <Home className="w-4 h-4" />
                       Rent end as move in (owner returns)
+                    </label>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Vacant End Event - Status Options */}
+            {event.type === 'vacant_end' && (
+              <div className="space-y-4 pt-2 border-t border-slate-200 dark:border-slate-700">
+                <div className="space-y-3">
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                    Set property status after vacancy ends:
+                  </p>
+
+                  {/* Vacant end as move in checkbox */}
+                  <div className="flex items-center gap-3 p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
+                    <input
+                      type="checkbox"
+                      id="vacantEndAsMoveIn"
+                      checked={vacantEndAsMoveIn}
+                      onChange={(e) => {
+                        setVacantEndAsMoveIn(e.target.checked);
+                        if (e.target.checked) {
+                          setVacantEndAsRent(false); // Mutual exclusivity
+                        }
+                      }}
+                      className="w-4 h-4 text-green-600 bg-slate-100 dark:bg-slate-800 border-slate-300 dark:border-slate-600 rounded focus:ring-green-500 focus:ring-2"
+                    />
+                    <label
+                      htmlFor="vacantEndAsMoveIn"
+                      className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300 cursor-pointer"
+                    >
+                      <Home className="w-4 h-4" />
+                      Owner Move back in
+                    </label>
+                  </div>
+
+                  {/* Vacant end as rental checkbox */}
+                  <div className="flex items-center gap-3 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                    <input
+                      type="checkbox"
+                      id="vacantEndAsRent"
+                      checked={vacantEndAsRent}
+                      onChange={(e) => {
+                        setVacantEndAsRent(e.target.checked);
+                        if (e.target.checked) {
+                          setVacantEndAsMoveIn(false); // Mutual exclusivity
+                        }
+                      }}
+                      className="w-4 h-4 text-blue-600 bg-slate-100 dark:bg-slate-800 border-slate-300 dark:border-slate-600 rounded focus:ring-blue-500 focus:ring-2"
+                    />
+                    <label
+                      htmlFor="vacantEndAsRent"
+                      className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300 cursor-pointer"
+                    >
+                      <Briefcase className="w-4 h-4" />
+                      Rental
                     </label>
                   </div>
                 </div>
@@ -1110,6 +1529,105 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
                     </div>
                   </div>
                 </div>
+
+                {/* NEW: Partial rental (Airbnb) floor area inputs - Only show if user lives in property */}
+                {propertyHasMoveIn && (
+                <div className="space-y-3 p-4 bg-cyan-50 dark:bg-cyan-900/20 rounded-lg border border-cyan-200 dark:border-cyan-800 mt-4">
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="checkbox"
+                      id="hasPartialRental"
+                      checked={hasPartialRental}
+                      onChange={(e) => setHasPartialRental(e.target.checked)}
+                      className="w-4 h-4 text-blue-600 bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 rounded focus:ring-2 focus:ring-blue-500 cursor-pointer"
+                    />
+                    <label
+                      htmlFor="hasPartialRental"
+                      className="text-sm font-medium text-slate-700 dark:text-slate-300 cursor-pointer"
+                    >
+                      Renting part of your home? (e.g., Airbnb room)
+                    </label>
+                  </div>
+
+                  {hasPartialRental && (
+                    <div className="space-y-3">
+                      <p className="text-xs text-slate-500 dark:text-slate-400">
+                        Enter floor areas for accurate income-producing percentage calculation
+                      </p>
+
+                      <div>
+                        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                          Total floor area (sqm)
+                        </label>
+                        <input
+                          type="number"
+                          min="0"
+                          step="0.1"
+                          value={totalFloorArea}
+                          onChange={(e) => setTotalFloorArea(e.target.value)}
+                          className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          placeholder="e.g., 180"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                          Exclusive rental area (sqm)
+                        </label>
+                        <input
+                          type="number"
+                          min="0"
+                          step="0.1"
+                          value={exclusiveRentalArea}
+                          onChange={(e) => setExclusiveRentalArea(e.target.value)}
+                          className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          placeholder="e.g., 18 (bedroom only)"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                          Shared area (sqm)
+                        </label>
+                        <input
+                          type="number"
+                          min="0"
+                          step="0.1"
+                          value={sharedArea}
+                          onChange={(e) => setSharedArea(e.target.value)}
+                          className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          placeholder="e.g., 45 (kitchen, bathroom)"
+                        />
+                      </div>
+
+                      {totalFloorArea && exclusiveRentalArea && sharedArea && (
+                        <div className="p-3 bg-white dark:bg-slate-700 rounded-lg border border-slate-300 dark:border-slate-600">
+                          <p className="text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">
+                            Calculated income-producing percentage:
+                          </p>
+                          <p className="text-lg font-bold text-blue-600 dark:text-blue-400">
+                            {(() => {
+                              const total = parseFloat(totalFloorArea);
+                              const exclusive = parseFloat(exclusiveRentalArea);
+                              const shared = parseFloat(sharedArea);
+                              if (!isNaN(total) && !isNaN(exclusive) && !isNaN(shared) && total > 0) {
+                                const exclusivePercent = (exclusive / total) * 100;
+                                const sharedPercent = (shared / total) * 50;
+                                const totalPercent = exclusivePercent + sharedPercent;
+                                return `${totalPercent.toFixed(2)}%`;
+                              }
+                              return '0%';
+                            })()}
+                          </p>
+                          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                            Formula: (Exclusive / Total) + (Shared / Total × 50%)
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+                )}
               </div>
             )}
 

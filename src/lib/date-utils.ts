@@ -14,6 +14,60 @@ export function parseDateFlexible(input: string): Date | null {
     return null;
   }
 
+  // Check for compact formats (no separators) first
+  // Only process if the input contains only digits
+  if (/^\d+$/.test(trimmed)) {
+    const digits = trimmed.length;
+
+    // 8 digits: DDMMYYYY (e.g., 14032008 = 14/03/2008)
+    if (digits === 8) {
+      const day = parseInt(trimmed.substring(0, 2), 10);
+      const month = parseInt(trimmed.substring(2, 4), 10);
+      const year = parseInt(trimmed.substring(4, 8), 10);
+
+      if (day >= 1 && day <= 31 && month >= 1 && month <= 12) {
+        const date = new Date(year, month - 1, day);
+        if (isValid(date) && date.getDate() === day && date.getMonth() === month - 1) {
+          return date;
+        }
+      }
+    }
+
+    // 6 digits: DDMMYY (e.g., 140308 = 14/03/2008)
+    if (digits === 6) {
+      const day = parseInt(trimmed.substring(0, 2), 10);
+      const month = parseInt(trimmed.substring(2, 4), 10);
+      const yearShort = parseInt(trimmed.substring(4, 6), 10);
+
+      // Assume 20XX for 00-50, 19XX for 51-99
+      const year = yearShort <= 50 ? 2000 + yearShort : 1900 + yearShort;
+
+      if (day >= 1 && day <= 31 && month >= 1 && month <= 12) {
+        const date = new Date(year, month - 1, day);
+        if (isValid(date) && date.getDate() === day && date.getMonth() === month - 1) {
+          return date;
+        }
+      }
+    }
+
+    // 5 digits: DDMYY (e.g., 14308 = 14/3/08, single-digit month only)
+    if (digits === 5) {
+      const day = parseInt(trimmed.substring(0, 2), 10);
+      const month = parseInt(trimmed.substring(2, 3), 10);
+      const yearShort = parseInt(trimmed.substring(3, 5), 10);
+
+      // Assume 20XX for 00-50, 19XX for 51-99
+      const year = yearShort <= 50 ? 2000 + yearShort : 1900 + yearShort;
+
+      if (day >= 1 && day <= 31 && month >= 1 && month <= 9) {
+        const date = new Date(year, month - 1, day);
+        if (isValid(date) && date.getDate() === day && date.getMonth() === month - 1) {
+          return date;
+        }
+      }
+    }
+  }
+
   // Try common formats in order of preference (Australian formats first)
   const formats = [
     'dd/MM/yyyy',        // 15/01/2023 - Australian standard
@@ -171,8 +225,9 @@ export function isSameDay(date1: Date | undefined, date2: Date | undefined): boo
  */
 export const DATE_FORMAT_EXAMPLES = [
   '15/01/2023',
+  '15012023',
   '15 Jan 2023',
   '2023-01-15',
 ];
 
-export const DATE_FORMAT_PLACEHOLDER = 'e.g., 15/01/2023, 15 Jan 2023, 2023-01-15';
+export const DATE_FORMAT_PLACEHOLDER = 'e.g., 15/01/2023, 15012023, 15 Jan 2023, or 2023-01-15';

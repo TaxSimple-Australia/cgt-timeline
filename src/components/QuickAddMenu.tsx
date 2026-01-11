@@ -326,6 +326,12 @@ export default function QuickAddMenu({ position, timelinePosition, onClose, pres
               type="text"
               value={propertyName}
               onChange={(e) => setPropertyName(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  handleAddProperty();
+                }
+              }}
               placeholder="e.g., Main Residence, 123 Main St"
               className="w-full mt-1 px-3 py-2 border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
               autoFocus

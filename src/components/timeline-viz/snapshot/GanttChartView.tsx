@@ -51,19 +51,23 @@ export default function GanttChartView({
   const calculateChartStartDate = (): Date => {
     if (properties.length === 0) return absoluteStart;
 
-    // Find earliest purchase date from all properties
-    const purchaseDates = properties
-      .map(p => p.purchaseDate)
-      .filter((date): date is Date => date !== null && date !== undefined);
+    const allDates: Date[] = [];
 
-    if (purchaseDates.length > 0) {
-      return new Date(Math.min(...purchaseDates.map(d => d.getTime())));
-    }
+    // Collect all purchase dates from properties
+    properties.forEach(p => {
+      if (p.purchaseDate) {
+        allDates.push(p.purchaseDate);
+      }
+    });
 
-    // Fallback to earliest event date
-    const eventDates = events.map(e => e.date);
-    if (eventDates.length > 0) {
-      return new Date(Math.min(...eventDates.map(d => d.getTime())));
+    // Collect all event dates
+    events.forEach(e => {
+      allDates.push(e.date);
+    });
+
+    // Return the earliest date found
+    if (allDates.length > 0) {
+      return new Date(Math.min(...allDates.map(d => d.getTime())));
     }
 
     return absoluteStart;
@@ -71,8 +75,46 @@ export default function GanttChartView({
 
   const chartStartDate = calculateChartStartDate();
 
+  // Calculate latest end date across all properties
+  const calculateChartEndDate = (): Date => {
+    if (properties.length === 0) return absoluteEnd;
+
+    // Find the latest end date from all properties
+    const propertyEndDates: Date[] = [];
+
+    properties.forEach((property) => {
+      const propertyEvents = events.filter((e) => e.propertyId === property.id);
+      const isSold = property.currentStatus === 'sold' || property.saleDate;
+      const saleEvent = propertyEvents.find((e) => e.type === 'sale');
+
+      if (isSold) {
+        // If sold, use sale date
+        const saleDate = property.saleDate || saleEvent?.date;
+        if (saleDate) {
+          propertyEndDates.push(saleDate);
+        }
+      } else {
+        // If not sold, use the latest event date for this property
+        if (propertyEvents.length > 0) {
+          const latestEventDate = new Date(Math.max(...propertyEvents.map(e => e.date.getTime())));
+          propertyEndDates.push(latestEventDate);
+        }
+      }
+    });
+
+    // If no dates found, fall back to absoluteEnd
+    if (propertyEndDates.length === 0) {
+      return absoluteEnd;
+    }
+
+    const maxDate = new Date(Math.max(...propertyEndDates.map(d => d.getTime())));
+    return maxDate;
+  };
+
+  const chartEndDate = calculateChartEndDate();
+
   // Calculate timeline span in years
-  const timelineSpanYears = differenceInYears(absoluteEnd, chartStartDate);
+  const timelineSpanYears = differenceInYears(chartEndDate, chartStartDate);
   const propertyCount = properties.length;
 
   // Determine compression mode based on timeline span
@@ -171,7 +213,7 @@ export default function GanttChartView({
 
   // Calculate position as percentage using chartStartDate instead of absoluteStart
   const getDatePosition = (date: Date): number => {
-    const totalRange = absoluteEnd.getTime() - chartStartDate.getTime();
+    const totalRange = chartEndDate.getTime() - chartStartDate.getTime();
     const offset = date.getTime() - chartStartDate.getTime();
     return (offset / totalRange) * 100;
   };
@@ -179,7 +221,7 @@ export default function GanttChartView({
   // Generate date range markers with adaptive intervals
   const generateDateMarkers = () => {
     const startYear = chartStartDate.getFullYear();
-    const endYear = absoluteEnd.getFullYear();
+    const endYear = chartEndDate.getFullYear();
     const yearSpan = endYear - startYear;
     const interval = config.dateMarkerInterval;
 
@@ -195,7 +237,7 @@ export default function GanttChartView({
         ];
         markers.push(...quarters);
       }
-      return markers.filter(m => m.date >= chartStartDate && m.date <= absoluteEnd);
+      return markers.filter(m => m.date >= chartStartDate && m.date <= chartEndDate);
     }
 
     // Otherwise show years with interval
@@ -252,12 +294,14 @@ export default function GanttChartView({
       .sort((a, b) => a.date.getTime() - b.date.getTime());
 
     // Determine property start and end dates
-    const propertyStart = property.purchaseDate || propertyEvents[0]?.date || absoluteStart;
+    const propertyStart = property.purchaseDate || propertyEvents[0]?.date || chartStartDate;
     const isSold = property.currentStatus === 'sold' || property.saleDate;
     const saleEvent = propertyEvents.find((e) => e.type === 'sale');
     const propertyEnd = isSold
-      ? (property.saleDate || saleEvent?.date || absoluteEnd)
-      : absoluteEnd;
+      ? (property.saleDate || saleEvent?.date || chartEndDate)
+      : (propertyEvents.length > 0
+          ? new Date(Math.max(...propertyEvents.map(e => e.date.getTime())))
+          : chartEndDate);
 
     // Calculate label tiers for this property's events
     const labelTiers = calculateLabelTiers(propertyEvents);
@@ -291,7 +335,7 @@ export default function GanttChartView({
       {/* Header */}
       <div className="px-8 py-4 border-b-2 border-slate-200 dark:border-slate-700">
         <h3 className="text-2xl font-bold text-slate-800 dark:text-slate-200">
-          Gantt Chart View
+          Simple Timeline View
         </h3>
         <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
           Property ownership and event timeline ({timelineSpanYears} years • {config.mode} compression)
@@ -410,28 +454,31 @@ export default function GanttChartView({
                           }}
                         >
                           {/* Event label above marker - stacked by tier */}
-                          <div
-                            className="absolute whitespace-nowrap text-center pointer-events-none"
-                            style={{
-                              left: '50%',
-                              transform: 'translateX(-50%)',
-                              bottom: `${labelOffset}px`,
-                            }}
-                          >
+                          {/* Only show labels for purchase and sale events */}
+                          {(event.type === 'purchase' || event.type === 'sale') && (
                             <div
-                              className="px-1.5 py-0.5 rounded"
+                              className="absolute whitespace-nowrap text-center pointer-events-none"
                               style={{
-                                fontSize: `${labelFontSize}px`,
-                                fontWeight: 600,
-                                color: '#ffffff',
-                                backgroundColor: event.color,
-                                lineHeight: '1.2',
-                                boxShadow: '0 1px 3px rgba(0,0,0,0.3)',
+                                left: '50%',
+                                transform: 'translateX(-50%)',
+                                bottom: `${labelOffset}px`,
                               }}
                             >
-                              {event.title}
+                              <div
+                                className="px-1.5 py-0.5 rounded"
+                                style={{
+                                  fontSize: `${labelFontSize}px`,
+                                  fontWeight: 600,
+                                  color: '#ffffff',
+                                  backgroundColor: event.color,
+                                  lineHeight: '1.2',
+                                  boxShadow: '0 1px 3px rgba(0,0,0,0.3)',
+                                }}
+                              >
+                                {event.title}
+                              </div>
                             </div>
-                          </div>
+                          )}
 
                           {/* Event marker circle */}
                           <div
@@ -446,8 +493,8 @@ export default function GanttChartView({
                             }}
                             title={`${event.title} - ${format(event.date, 'MMM dd, yyyy')}`}
                           >
-                            {/* Only show icons for non-compressed modes */}
-                            {config.showEventIcons && (
+                            {/* Always show icons for middle events (no label), conditionally for purchase/sale */}
+                            {(config.showEventIcons || (event.type !== 'purchase' && event.type !== 'sale')) && (
                               <EventIcon
                                 className="text-white dark:text-slate-900"
                                 style={{

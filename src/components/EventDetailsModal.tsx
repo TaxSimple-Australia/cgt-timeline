@@ -131,13 +131,6 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
   const [exclusiveRentalArea, setExclusiveRentalArea] = useState(event.floorAreaData?.exclusive?.toString() || '');
   const [sharedArea, setSharedArea] = useState(event.floorAreaData?.shared?.toString() || '');
 
-  // NEW: Multi-owner support (get property to check existing owners)
-  const currentProperty = properties.find(p => p.id === event.propertyId);
-  const [hasMultipleOwners, setHasMultipleOwners] = useState(!!(currentProperty?.owners && currentProperty.owners.length > 0));
-  const [owners, setOwners] = useState<Array<{ name: string; percentage: number }>>(
-    currentProperty?.owners || [{ name: '', percentage: 100 }]
-  );
-
   // NEW: Check if property has move_in events (for conditional floor area display)
   const propertyHasMoveIn = events.some(
     e => e.propertyId === event.propertyId && e.type === 'move_in'
@@ -453,26 +446,6 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
       }
 
       updateEvent(event.id, updates);
-
-      // NEW: Update property with multi-owner data (for purchase events)
-      if (event.type === 'purchase' && hasMultipleOwners && currentProperty) {
-        // Validate that percentages total 100%
-        const totalPercentage = owners.reduce((sum, owner) => sum + (owner.percentage || 0), 0);
-        const validOwners = owners.filter(owner => owner.name.trim() !== '' && owner.percentage > 0);
-
-        if (validOwners.length > 0) {
-          if (Math.abs(totalPercentage - 100) > 0.01) {
-            alert(`Ownership percentages must equal 100% (currently ${totalPercentage.toFixed(2)}%). Please adjust the percentages before saving.`);
-            setIsSaving(false);
-            return; // PREVENT SAVE if percentages don't total 100%
-          }
-          updateProperty(currentProperty.id, { owners: validOwners });
-          console.log('👥 Multi-owner data saved:', validOwners);
-        }
-      } else if (!hasMultipleOwners && currentProperty) {
-        // Clear owners if checkbox is unchecked
-        updateProperty(currentProperty.id, { owners: undefined });
-      }
 
       // Create move_in event if checkbox is checked (for purchase events)
       if (event.type === 'purchase' && moveInOnSameDay) {
@@ -932,27 +905,88 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
                   </p>
 
                   {/* Move in on same day checkbox */}
-                  <div className="flex items-center gap-3 p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
-                    <input
-                      type="checkbox"
-                      id="moveInOnSameDay"
-                      checked={moveInOnSameDay}
-                      onChange={(e) => {
-                        setMoveInOnSameDay(e.target.checked);
-                        if (e.target.checked) {
-                          setPurchaseAsVacant(false);
-                          setPurchaseAsRent(false);
-                        }
-                      }}
-                      className="w-4 h-4 text-blue-600 bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 rounded focus:ring-2 focus:ring-blue-500 cursor-pointer"
-                    />
-                    <label
-                      htmlFor="moveInOnSameDay"
-                      className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300 cursor-pointer"
-                    >
-                      <Home className="w-4 h-4" />
-                      Move in on same day (Main Residence)
-                    </label>
+                  <div className="bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800 overflow-hidden">
+                    <div className="flex items-center gap-3 p-4">
+                      <input
+                        type="checkbox"
+                        id="moveInOnSameDay"
+                        checked={moveInOnSameDay}
+                        onChange={(e) => {
+                          setMoveInOnSameDay(e.target.checked);
+                          if (e.target.checked) {
+                            setPurchaseAsVacant(false);
+                            setPurchaseAsRent(false);
+                          }
+                        }}
+                        className="w-4 h-4 text-blue-600 bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 rounded focus:ring-2 focus:ring-blue-500 cursor-pointer"
+                      />
+                      <label
+                        htmlFor="moveInOnSameDay"
+                        className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300 cursor-pointer"
+                      >
+                        <Home className="w-4 h-4" />
+                        Move in on same day (Main Residence)
+                      </label>
+                    </div>
+
+                    {/* Business use section - nested inside Move in checkbox */}
+                    <AnimatePresence>
+                      {moveInOnSameDay && (
+                        <motion.div
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: 'auto', opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          transition={{ duration: 0.2 }}
+                          className="border-t border-green-200 dark:border-green-700"
+                        >
+                          <div className="p-4 bg-green-100/50 dark:bg-green-900/30 space-y-3">
+                            <div className="flex items-center gap-3">
+                              <input
+                                type="checkbox"
+                                id="hasBusinessUse"
+                                checked={hasBusinessUse}
+                                onChange={(e) => setHasBusinessUse(e.target.checked)}
+                                className="w-4 h-4 text-blue-600 bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 rounded focus:ring-2 focus:ring-blue-500 cursor-pointer"
+                              />
+                              <label
+                                htmlFor="hasBusinessUse"
+                                className="text-sm font-medium text-slate-700 dark:text-slate-300 cursor-pointer"
+                              >
+                                Using part for business or rental?
+                              </label>
+                            </div>
+
+                            <AnimatePresence>
+                              {hasBusinessUse && (
+                                <motion.div
+                                  initial={{ height: 0, opacity: 0 }}
+                                  animate={{ height: 'auto', opacity: 1 }}
+                                  exit={{ height: 0, opacity: 0 }}
+                                  transition={{ duration: 0.15 }}
+                                >
+                                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                                    Business use percentage (0-100%)
+                                  </label>
+                                  <input
+                                    type="number"
+                                    min="0"
+                                    max="100"
+                                    step="0.1"
+                                    value={businessUsePercentage}
+                                    onChange={(e) => setBusinessUsePercentage(e.target.value)}
+                                    className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    placeholder="e.g., 25"
+                                  />
+                                  <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                                    Enter the percentage of the property used for business or rental purposes
+                                  </p>
+                                </motion.div>
+                              )}
+                            </AnimatePresence>
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                   </div>
 
                   {/* Purchase as vacant checkbox */}
@@ -1003,167 +1037,6 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
                     </label>
                   </div>
 
-                  {/* NEW: Business use % (Gilbert's contextual approach) */}
-                  {moveInOnSameDay && (
-                    <div className="space-y-3 p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200 dark:border-purple-800">
-                      <div className="flex items-center gap-3">
-                        <input
-                          type="checkbox"
-                          id="hasBusinessUse"
-                          checked={hasBusinessUse}
-                          onChange={(e) => setHasBusinessUse(e.target.checked)}
-                          className="w-4 h-4 text-blue-600 bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 rounded focus:ring-2 focus:ring-blue-500 cursor-pointer"
-                        />
-                        <label
-                          htmlFor="hasBusinessUse"
-                          className="text-sm font-medium text-slate-700 dark:text-slate-300 cursor-pointer"
-                        >
-                          Using part for business or rental?
-                        </label>
-                      </div>
-
-                      {hasBusinessUse && (
-                        <div>
-                          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                            Business use percentage (0-100%)
-                          </label>
-                          <input
-                            type="number"
-                            min="0"
-                            max="100"
-                            step="0.1"
-                            value={businessUsePercentage}
-                            onChange={(e) => setBusinessUsePercentage(e.target.value)}
-                            className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            placeholder="e.g., 25"
-                          />
-                          <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-                            Enter the percentage of the property used for business or rental purposes
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                  )}
-
-                  {/* NEW: Multi-owner support (Gilbert's contextual approach) */}
-                  <div className="space-y-3 p-4 bg-orange-50 dark:bg-orange-900/20 rounded-lg border border-orange-200 dark:border-orange-800">
-                    <div className="flex items-center gap-3">
-                      <input
-                        type="checkbox"
-                        id="hasMultipleOwners"
-                        checked={hasMultipleOwners}
-                        onChange={(e) => {
-                          setHasMultipleOwners(e.target.checked);
-                          if (e.target.checked && owners.length === 1 && owners[0].name === '') {
-                            // Initialize with 2 owners when checkbox is first checked
-                            setOwners([
-                              { name: '', percentage: 50 },
-                              { name: '', percentage: 50 }
-                            ]);
-                          }
-                        }}
-                        className="w-4 h-4 text-blue-600 bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 rounded focus:ring-2 focus:ring-blue-500 cursor-pointer"
-                      />
-                      <label
-                        htmlFor="hasMultipleOwners"
-                        className="text-sm font-medium text-slate-700 dark:text-slate-300 cursor-pointer"
-                      >
-                        Shared ownership? (Multiple owners)
-                      </label>
-                    </div>
-
-                    <p className="text-xs text-slate-500 dark:text-slate-400">
-                      Check this if multiple people own this property (e.g., couples, co-investors, family trusts)
-                    </p>
-
-                    {hasMultipleOwners && (
-                      <div className="space-y-3">
-                        <p className="text-xs text-slate-500 dark:text-slate-400">
-                          Enter owner names and ownership percentages. Total must equal 100%.
-                        </p>
-
-                        {owners.map((owner, index) => (
-                          <div key={index} className="flex gap-2 items-start">
-                            <div className="flex-1">
-                              <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">
-                                Owner {index + 1} Name
-                              </label>
-                              <input
-                                type="text"
-                                value={owner.name}
-                                onChange={(e) => {
-                                  const newOwners = [...owners];
-                                  newOwners[index].name = e.target.value;
-                                  setOwners(newOwners);
-                                }}
-                                className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-                                placeholder="e.g., Alex Smith"
-                              />
-                            </div>
-                            <div className="w-28">
-                              <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">
-                                % Owned
-                              </label>
-                              <input
-                                type="number"
-                                min="0"
-                                max="100"
-                                step="0.1"
-                                value={owner.percentage}
-                                onChange={(e) => {
-                                  const newOwners = [...owners];
-                                  newOwners[index].percentage = parseFloat(e.target.value) || 0;
-                                  setOwners(newOwners);
-                                }}
-                                className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-                                placeholder="50"
-                              />
-                            </div>
-                            {owners.length > 1 && (
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  const newOwners = owners.filter((_, i) => i !== index);
-                                  setOwners(newOwners);
-                                }}
-                                className="mt-6 p-2 text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
-                                title="Remove owner"
-                              >
-                                <X className="w-4 h-4" />
-                              </button>
-                            )}
-                          </div>
-                        ))}
-
-                        <button
-                          type="button"
-                          onClick={() => setOwners([...owners, { name: '', percentage: 0 }])}
-                          className="w-full px-3 py-2 text-sm font-medium text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg border border-blue-300 dark:border-blue-700 transition-colors"
-                        >
-                          + Add Another Owner
-                        </button>
-
-                        {/* Ownership percentage validation */}
-                        <div className="p-3 bg-white dark:bg-slate-700 rounded-lg border border-slate-300 dark:border-slate-600">
-                          <p className="text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">
-                            Total ownership:
-                          </p>
-                          <p className={`text-lg font-bold ${
-                            Math.abs(owners.reduce((sum, o) => sum + o.percentage, 0) - 100) < 0.01
-                              ? 'text-green-600 dark:text-green-400'
-                              : 'text-red-600 dark:text-red-400'
-                          }`}>
-                            {owners.reduce((sum, o) => sum + o.percentage, 0).toFixed(2)}%
-                          </p>
-                          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                            {Math.abs(owners.reduce((sum, o) => sum + o.percentage, 0) - 100) < 0.01
-                              ? '✓ Ownership percentages are valid'
-                              : '⚠️ Must equal 100%'}
-                          </p>
-                        </div>
-                      </div>
-                    )}
-                  </div>
                 </div>
               )}
             </div>

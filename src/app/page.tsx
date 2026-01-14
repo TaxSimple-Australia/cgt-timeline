@@ -66,6 +66,7 @@ function HomeContent() {
     selectedLLMProvider,
     savedAnalysis,
     aiResponse,
+    setAIResponse,
   } = useTimelineStore();
   const { setValidationIssues, clearValidationIssues, setApiConnected } = useValidationStore();
   const [showAnalysis, setShowAnalysis] = useState(false);
@@ -327,6 +328,7 @@ function HomeContent() {
         setVerificationAlerts([]); // Clear any previous alerts
         // IMPORTANT: Store the FULL response including sources, query, etc.
         setAnalysisData(fullResponse);
+        setAIResponse(fullResponse); // Also save to store for sharing
       }
 
       setApiConnected(true);
@@ -525,6 +527,7 @@ function HomeContent() {
 
       // Store the FULL response (not just inner data) to preserve sources and metadata
       setAnalysisData(fullResponse);
+      setAIResponse(fullResponse); // Also save to store for sharing
 
       // Analysis panel is already open (set at start of function)
       console.log('✅ Successfully re-submitted with verifications - showing CGT analysis');
@@ -660,6 +663,7 @@ function HomeContent() {
         setVerificationAlerts([]); // Clear any previous alerts
         // Store the FULL response (not just inner data) to preserve sources and metadata
         setAnalysisData(fullResponse);
+        setAIResponse(fullResponse); // Also save to store for sharing
         // Keep panel open to show final results
       }
     } catch (err) {

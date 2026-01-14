@@ -488,6 +488,7 @@ export default function QuickAddMenu({ position, timelinePosition, onClose, pres
                 type="number"
                 value={customAmount}
                 onChange={(e) => setCustomAmount(e.target.value)}
+                onWheel={(e) => e.currentTarget.blur()}
                 placeholder="0.00"
                 className="w-full pl-7 pr-3 py-2 border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
               />

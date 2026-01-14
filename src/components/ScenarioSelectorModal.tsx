@@ -1,10 +1,11 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, FolderOpen, FileJson, CheckCircle, Loader2, Info, ChevronLeft } from 'lucide-react';
+import { X, FolderOpen, FileJson, Loader2, Info, ChevronLeft, Home, Building2, TrendingUp, Search, Filter } from 'lucide-react';
 import { useTimelineStore } from '@/store/timeline';
+import { cn } from '@/lib/utils';
 
 interface ScenarioInfo {
   name: string;
@@ -24,6 +25,7 @@ interface Scenario {
   filename: string;
   title: string;
   description: string;
+  category: string;
   scenario_info?: ScenarioInfo;
   properties: any[];
 }
@@ -60,8 +62,12 @@ const SCENARIO_CONFIG: { filename: string; displayTitle: string; category: strin
   { filename: 'scenario15_three_property_portfolio.json', displayTitle: 'Three Property Portfolio', category: 'Complex' },
 ];
 
-// Extract just filenames for backwards compatibility
-const SCENARIO_FILES = SCENARIO_CONFIG.map(s => s.filename);
+// Category configuration
+const CATEGORIES = [
+  { id: 'all', label: 'All Scenarios', icon: Filter },
+  { id: 'Basic', label: 'Basic', icon: Home },
+  { id: 'Complex', label: 'Complex', icon: TrendingUp },
+];
 
 export default function ScenarioSelectorModal({ isOpen, onClose }: ScenarioSelectorModalProps) {
   const [scenarios, setScenarios] = useState<Scenario[]>([]);
@@ -69,6 +75,8 @@ export default function ScenarioSelectorModal({ isOpen, onClose }: ScenarioSelec
   const [loadingScenario, setLoadingScenario] = useState<string | null>(null);
   const [mounted, setMounted] = useState(false);
   const [viewingScenario, setViewingScenario] = useState<Scenario | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [searchQuery, setSearchQuery] = useState('');
 
   const { importTimelineData, clearAllData } = useTimelineStore();
 
@@ -82,6 +90,8 @@ export default function ScenarioSelectorModal({ isOpen, onClose }: ScenarioSelec
     if (isOpen) {
       // Always reset to list view when opening the modal
       setViewingScenario(null);
+      setSelectedCategory('all');
+      setSearchQuery('');
       loadScenarios();
     }
   }, [isOpen]);
@@ -100,8 +110,9 @@ export default function ScenarioSelectorModal({ isOpen, onClose }: ScenarioSelec
           loadedScenarios.push({
             id: config.filename,
             filename: config.filename,
-            title: config.displayTitle, // Use the professional display title from config
+            title: config.displayTitle,
             description: scenarioInfo?.description || data.user_query || 'No description available',
+            category: config.category,
             scenario_info: scenarioInfo,
             properties: data.properties,
           });
@@ -115,40 +126,41 @@ export default function ScenarioSelectorModal({ isOpen, onClose }: ScenarioSelec
     setLoading(false);
   };
 
-  const formatFilenameAsTitle = (filename: string): string => {
-    // Remove .json extension and scenario prefix, then format
-    return filename
-      .replace('.json', '')
-      .replace(/^scenario\d+_/, '')
-      .split('_')
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(' ');
-  };
+  // Filter scenarios based on category and search
+  const filteredScenarios = useMemo(() => {
+    return scenarios.filter(scenario => {
+      const matchesCategory = selectedCategory === 'all' || scenario.category === selectedCategory;
+      const matchesSearch = searchQuery === '' ||
+        scenario.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        scenario.description.toLowerCase().includes(searchQuery.toLowerCase());
+      return matchesCategory && matchesSearch;
+    });
+  }, [scenarios, selectedCategory, searchQuery]);
+
+  // Get counts per category
+  const categoryCounts = useMemo(() => {
+    const counts: Record<string, number> = { all: scenarios.length };
+    scenarios.forEach(s => {
+      counts[s.category] = (counts[s.category] || 0) + 1;
+    });
+    return counts;
+  }, [scenarios]);
 
   const handleSelectScenario = async (scenario: Scenario) => {
     setLoadingScenario(scenario.id);
 
     try {
-      // Fetch the full scenario data
       const response = await fetch(`/scenariotestjsons/${scenario.filename}`);
       if (!response.ok) {
         throw new Error('Failed to load scenario');
       }
 
       const data = await response.json();
-
-      // Clear existing data first
       clearAllData();
-
-      // Small delay to ensure state is cleared
       await new Promise(resolve => setTimeout(resolve, 100));
-
-      // Import the scenario data
       importTimelineData(data);
 
       console.log(`✅ Loaded scenario: ${scenario.title}`);
-
-      // Close the modal
       onClose();
     } catch (error) {
       console.error('❌ Failed to load scenario:', error);
@@ -167,6 +179,18 @@ export default function ScenarioSelectorModal({ isOpen, onClose }: ScenarioSelec
     setViewingScenario(null);
   };
 
+  // Get category color
+  const getCategoryColor = (category: string) => {
+    switch (category) {
+      case 'Basic':
+        return 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400';
+      case 'Complex':
+        return 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400';
+      default:
+        return 'bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300';
+    }
+  };
+
   if (!mounted) return null;
 
   const modalContent = (
@@ -183,13 +207,13 @@ export default function ScenarioSelectorModal({ isOpen, onClose }: ScenarioSelec
           />
 
           {/* Modal */}
-          <div className="fixed inset-0 z-[100000] flex items-center justify-center p-4">
+          <div className="fixed inset-0 z-[100000] flex items-center justify-center p-4 sm:p-6 md:p-8">
             <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
               transition={{ type: 'spring', duration: 0.3 }}
-              className="w-full max-w-2xl max-h-[80vh] flex flex-col"
+              className="w-full max-w-[95vw] xl:max-w-[1400px] max-h-[90vh] flex flex-col"
             >
               <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 overflow-hidden flex flex-col">
                 {/* Header */}
@@ -215,8 +239,58 @@ export default function ScenarioSelectorModal({ isOpen, onClose }: ScenarioSelec
                   </button>
                 </div>
 
+                {/* Category Tabs and Search */}
+                {!viewingScenario && !loading && (
+                  <div className="px-6 py-3 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                      {/* Category Tabs */}
+                      <div className="flex items-center gap-2">
+                        {CATEGORIES.map((cat) => {
+                          const Icon = cat.icon;
+                          const isActive = selectedCategory === cat.id;
+                          return (
+                            <button
+                              key={cat.id}
+                              onClick={() => setSelectedCategory(cat.id)}
+                              className={cn(
+                                'flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-all',
+                                isActive
+                                  ? 'bg-blue-500 text-white shadow-md'
+                                  : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-600'
+                              )}
+                            >
+                              <Icon className="w-4 h-4" />
+                              <span>{cat.label}</span>
+                              <span className={cn(
+                                'px-1.5 py-0.5 rounded-full text-xs',
+                                isActive
+                                  ? 'bg-white/20 text-white'
+                                  : 'bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400'
+                              )}>
+                                {categoryCounts[cat.id] || 0}
+                              </span>
+                            </button>
+                          );
+                        })}
+                      </div>
+
+                      {/* Search */}
+                      <div className="relative w-full sm:w-64">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                        <input
+                          type="text"
+                          placeholder="Search scenarios..."
+                          value={searchQuery}
+                          onChange={(e) => setSearchQuery(e.target.value)}
+                          className="w-full pl-9 pr-4 py-2 text-sm bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 {/* Content - Scrollable */}
-                <div className="flex-1 overflow-y-auto p-4">
+                <div className="flex-1 overflow-y-auto p-4 sm:p-6">
                   {loading ? (
                     <div className="flex items-center justify-center py-12">
                       <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
@@ -227,7 +301,7 @@ export default function ScenarioSelectorModal({ isOpen, onClose }: ScenarioSelec
                     <motion.div
                       initial={{ opacity: 0, x: 20 }}
                       animate={{ opacity: 1, x: 0 }}
-                      className="space-y-4"
+                      className="max-w-3xl mx-auto space-y-4"
                     >
                       {/* Back button */}
                       <button
@@ -240,9 +314,14 @@ export default function ScenarioSelectorModal({ isOpen, onClose }: ScenarioSelec
 
                       {/* Scenario title and description */}
                       <div className="bg-slate-50 dark:bg-slate-700/50 rounded-xl p-5">
-                        <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100 mb-2">
-                          {viewingScenario.title}
-                        </h3>
+                        <div className="flex items-start justify-between mb-3">
+                          <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100">
+                            {viewingScenario.title}
+                          </h3>
+                          <span className={cn('px-2 py-1 rounded-full text-xs font-medium', getCategoryColor(viewingScenario.category))}>
+                            {viewingScenario.category}
+                          </span>
+                        </div>
                         <p className="text-sm text-slate-600 dark:text-slate-300 mb-4">
                           {viewingScenario.description}
                         </p>
@@ -348,77 +427,105 @@ export default function ScenarioSelectorModal({ isOpen, onClose }: ScenarioSelec
                         )}
                       </button>
                     </motion.div>
-                  ) : scenarios.length === 0 ? (
+                  ) : filteredScenarios.length === 0 ? (
                     <div className="text-center py-12">
                       <FileJson className="w-12 h-12 text-slate-300 dark:text-slate-600 mx-auto mb-3" />
-                      <p className="text-slate-500 dark:text-slate-400">No scenarios found</p>
+                      <p className="text-slate-500 dark:text-slate-400">
+                        {searchQuery ? 'No scenarios match your search' : 'No scenarios found'}
+                      </p>
                     </div>
                   ) : (
-                    /* Scenario List View */
-                    <div className="space-y-3">
-                      {scenarios.map((scenario, index) => {
-                        const scenarioNumber = index + 1;
+                    /* Scenario Grid View */
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                      {filteredScenarios.map((scenario, index) => {
+                        const globalIndex = scenarios.findIndex(s => s.id === scenario.id) + 1;
+                        const isLoading = loadingScenario === scenario.id;
+                        const isDisabled = loadingScenario !== null && !isLoading;
 
                         return (
                           <motion.div
                             key={scenario.id}
-                            initial={{ opacity: 0, x: -20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ delay: index * 0.03 }}
-                            className={`w-full text-left p-4 rounded-xl border-2 transition-all ${
-                              loadingScenario === scenario.id
-                                ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
-                                : 'border-slate-200 dark:border-slate-700 hover:border-blue-300 dark:hover:border-blue-600 hover:bg-slate-50 dark:hover:bg-slate-700/50'
-                            } ${loadingScenario && loadingScenario !== scenario.id ? 'opacity-50' : ''}`}
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: index * 0.02 }}
+                            className={cn(
+                              'group relative bg-white dark:bg-slate-700/50 rounded-xl border-2 overflow-hidden transition-all duration-200',
+                              isLoading
+                                ? 'border-blue-500 ring-2 ring-blue-500/20'
+                                : 'border-slate-200 dark:border-slate-600 hover:border-blue-400 dark:hover:border-blue-500 hover:shadow-lg',
+                              isDisabled && 'opacity-50 pointer-events-none'
+                            )}
                           >
-                            <div className="flex items-start gap-4">
-                              {/* Number counter */}
-                              <div
-                                className="flex-shrink-0 w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center cursor-pointer"
-                                onClick={() => !loadingScenario && handleSelectScenario(scenario)}
-                              >
-                                <span className="text-white font-bold text-sm">
-                                  {scenarioNumber}
+                            {/* Card Header with Number and Category */}
+                            <div className="flex items-center justify-between px-4 py-2 bg-slate-50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-700">
+                              <div className="flex items-center gap-2">
+                                <span className="flex items-center justify-center w-7 h-7 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 text-white text-xs font-bold">
+                                  {globalIndex}
+                                </span>
+                                <span className={cn('px-2 py-0.5 rounded-full text-xs font-medium', getCategoryColor(scenario.category))}>
+                                  {scenario.category}
                                 </span>
                               </div>
-
-                              <div className="flex-1 min-w-0">
-                                <div
-                                  className="cursor-pointer"
-                                  onClick={() => !loadingScenario && handleSelectScenario(scenario)}
-                                >
-                                  <h3 className="font-semibold text-slate-900 dark:text-slate-100 mb-1">
-                                    {scenario.title}
-                                  </h3>
-                                  <p className="text-sm text-slate-500 dark:text-slate-400 line-clamp-2">
-                                    {scenario.description}
-                                  </p>
-                                </div>
-
-                                {/* Properties count indicator */}
-                                <div
-                                  className="mt-2 cursor-pointer"
-                                  onClick={() => !loadingScenario && handleSelectScenario(scenario)}
-                                >
-                                  <span className="text-xs text-slate-400 dark:text-slate-500">
-                                    {scenario.properties?.length || 0} {scenario.properties?.length === 1 ? 'property' : 'properties'}
-                                  </span>
-                                </div>
+                              <div className="flex items-center gap-1">
+                                <Building2 className="w-3.5 h-3.5 text-slate-400" />
+                                <span className="text-xs text-slate-500 dark:text-slate-400">
+                                  {scenario.properties?.length || 0}
+                                </span>
                               </div>
+                            </div>
 
-                              <div className="flex-shrink-0 flex items-center gap-2">
-                                {loadingScenario === scenario.id ? (
-                                  <Loader2 className="w-5 h-5 text-blue-500 animate-spin" />
-                                ) : (
-                                  <button
-                                    onClick={(e) => handleViewInfo(e, scenario)}
-                                    className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-700 hover:bg-blue-100 dark:hover:bg-blue-900/50 flex items-center justify-center transition-colors"
-                                    title="View more info"
-                                  >
-                                    <Info className="w-4 h-4 text-slate-500 dark:text-slate-400 hover:text-blue-500" />
-                                  </button>
+                            {/* Card Body */}
+                            <div className="p-4">
+                              <h3 className="font-semibold text-slate-900 dark:text-slate-100 text-sm mb-2 line-clamp-2 min-h-[40px]">
+                                {scenario.title}
+                              </h3>
+                              <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-2 min-h-[32px]">
+                                {scenario.description}
+                              </p>
+
+                              {/* Quick Stats */}
+                              {scenario.scenario_info?.expected_result?.exemption_percentage !== undefined && (
+                                <div className="mt-3 pt-3 border-t border-slate-100 dark:border-slate-600">
+                                  <div className="flex items-center justify-between text-xs">
+                                    <span className="text-slate-400 dark:text-slate-500">Exemption</span>
+                                    <span className="font-semibold text-green-600 dark:text-green-400">
+                                      {scenario.scenario_info.expected_result.exemption_percentage}%
+                                    </span>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+
+                            {/* Card Actions */}
+                            <div className="flex items-center gap-2 px-4 py-3 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-100 dark:border-slate-700">
+                              <button
+                                onClick={() => handleSelectScenario(scenario)}
+                                disabled={loadingScenario !== null}
+                                className={cn(
+                                  'flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-lg text-sm font-medium transition-all',
+                                  'bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white',
+                                  'disabled:opacity-50 disabled:cursor-not-allowed'
                                 )}
-                              </div>
+                              >
+                                {isLoading ? (
+                                  <>
+                                    <Loader2 className="w-4 h-4 animate-spin" />
+                                    <span>Loading...</span>
+                                  </>
+                                ) : (
+                                  <>
+                                    <FolderOpen className="w-4 h-4" />
+                                    <span>Load</span>
+                                  </>
+                                )}
+                              </button>
+                              <button
+                                onClick={(e) => handleViewInfo(e, scenario)}
+                                className="p-2 rounded-lg bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-600 transition-colors"
+                                title="View details"
+                              >
+                                <Info className="w-4 h-4 text-slate-500 dark:text-slate-400" />
+                              </button>
                             </div>
                           </motion.div>
                         );
@@ -431,7 +538,13 @@ export default function ScenarioSelectorModal({ isOpen, onClose }: ScenarioSelec
                 <div className="px-6 py-4 border-t border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900">
                   <div className="flex items-center justify-between">
                     <p className="text-xs text-slate-400 dark:text-slate-500">
-                      Loading a scenario will replace your current timeline
+                      {!loading && !viewingScenario && (
+                        <>
+                          Showing {filteredScenarios.length} of {scenarios.length} scenarios
+                          {searchQuery && ` matching "${searchQuery}"`}
+                        </>
+                      )}
+                      {!searchQuery && !viewingScenario && ' • Loading a scenario will replace your current timeline'}
                     </p>
                     <button
                       onClick={onClose}

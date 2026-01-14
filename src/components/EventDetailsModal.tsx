@@ -1040,6 +1040,7 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
                                     step="0.1"
                                     value={businessUsePercentage}
                                     onChange={(e) => setBusinessUsePercentage(e.target.value)}
+                                    onWheel={(e) => e.currentTarget.blur()}
                                     className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                     placeholder="e.g., 25"
                                   />
@@ -1095,6 +1096,7 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
                                   step="0.1"
                                   value={businessUsePercentage}
                                   onChange={(e) => setBusinessUsePercentage(e.target.value)}
+                                  onWheel={(e) => e.currentTarget.blur()}
                                   className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                   placeholder="e.g., 25"
                                 />
@@ -1268,6 +1270,7 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
                       type="number"
                       value={amount}
                       onChange={(e) => setAmount(e.target.value)}
+                      onWheel={(e) => e.currentTarget.blur()}
                       className="w-full pl-8 pr-4 py-2.5 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       placeholder="0.00"
                       step="0.01"
@@ -1342,6 +1345,7 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
                       type="number"
                       value={previousYearLosses}
                       onChange={(e) => setPreviousYearLosses(e.target.value)}
+                      onWheel={(e) => e.currentTarget.blur()}
                       placeholder="0.00"
                       className="w-full pl-8 pr-4 py-2.5 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     />
@@ -1370,6 +1374,7 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
                       type="number"
                       value={marginalTaxRate}
                       onChange={(e) => setMarginalTaxRate(e.target.value)}
+                      onWheel={(e) => e.currentTarget.blur()}
                       placeholder="37.00"
                       min="0"
                       max="100"
@@ -1600,6 +1605,7 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
                         type="number"
                         value={marketValuation}
                         onChange={(e) => setMarketValuation(e.target.value)}
+                        onWheel={(e) => e.currentTarget.blur()}
                         className="w-full pl-8 pr-4 py-2.5 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         placeholder="0.00"
                         step="0.01"
@@ -1643,6 +1649,7 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
                           step="0.1"
                           value={totalFloorArea}
                           onChange={(e) => setTotalFloorArea(e.target.value)}
+                          onWheel={(e) => e.currentTarget.blur()}
                           className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                           placeholder="e.g., 180"
                         />
@@ -1658,6 +1665,7 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
                           step="0.1"
                           value={exclusiveRentalArea}
                           onChange={(e) => setExclusiveRentalArea(e.target.value)}
+                          onWheel={(e) => e.currentTarget.blur()}
                           className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                           placeholder="e.g., 18 (bedroom only)"
                         />
@@ -1673,6 +1681,7 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
                           step="0.1"
                           value={sharedArea}
                           onChange={(e) => setSharedArea(e.target.value)}
+                          onWheel={(e) => e.currentTarget.blur()}
                           className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                           placeholder="e.g., 45 (kitchen, bathroom)"
                         />
@@ -1728,6 +1737,7 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
                       type="number"
                       value={appreciationValue}
                       onChange={(e) => setAppreciationValue(e.target.value)}
+                      onWheel={(e) => e.currentTarget.blur()}
                       className="w-full pl-8 pr-4 py-2.5 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       placeholder="0.00"
                       step="0.01"

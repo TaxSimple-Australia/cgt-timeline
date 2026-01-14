@@ -83,6 +83,8 @@ export default function PropertyPanel() {
   const totalCostBase = calculateCostBase();
 
   // Group all cost bases by category for display
+  // IMPORTANT: Excludes purchase_price, land_price, building_price, sale_price from element1
+  // as these are shown separately (Purchase Price field uses purchaseEvent.amount)
   const groupCostBasesByCategory = () => {
     const grouped: Record<string, Array<{name: string; amount: number; eventTitle?: string}>> = {
       element1: [],
@@ -92,9 +94,15 @@ export default function PropertyPanel() {
       element5: [],
     };
 
+    // Items to exclude from display (they're shown separately or are proceeds, not costs)
+    const excludeFromDisplay = ['purchase_price', 'land_price', 'building_price', 'sale_price'];
+
     propertyEvents.forEach(event => {
       if (event.costBases && event.costBases.length > 0) {
         event.costBases.forEach(cb => {
+          // Skip items that are shown separately (purchase/sale prices)
+          if (excludeFromDisplay.includes(cb.definitionId)) return;
+
           grouped[cb.category].push({
             name: cb.name,
             amount: cb.amount,
@@ -366,6 +374,7 @@ export default function PropertyPanel() {
                                 newOwners[index].percentage = parseFloat(e.target.value) || 0;
                                 setEditedOwners(newOwners);
                               }}
+                              onWheel={(e) => e.currentTarget.blur()}
                               className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
                               placeholder="50"
                             />
@@ -570,6 +579,7 @@ export default function PropertyPanel() {
                           type="number"
                           value={owner.percentage}
                           onChange={(e) => handleOwnerChange(idx, 'percentage', e.target.value)}
+                          onWheel={(e) => e.currentTarget.blur()}
                           placeholder="%"
                           min="0"
                           max="100"
@@ -640,10 +650,10 @@ export default function PropertyPanel() {
                   </div>
                 )}
 
-                {/* Element 1: Acquisition Costs (from costBases) */}
+                {/* Element 1: Other Acquisition Costs (excludes purchase price shown above) */}
                 {groupedCostBases.element1.length > 0 && (
                   <>
-                    <div className="text-[10px] font-semibold text-indigo-500 dark:text-indigo-400 uppercase pt-2 border-t border-indigo-200">Acquisition Costs</div>
+                    <div className="text-[10px] font-semibold text-indigo-500 dark:text-indigo-400 uppercase pt-2 border-t border-indigo-200">Other Acquisition Costs</div>
                     {groupedCostBases.element1.map((cb, idx) => (
                       <div key={`e1-${idx}`} className="flex justify-between items-center pl-2">
                         <span className="text-indigo-600 dark:text-indigo-300 truncate">{cb.name}</span>
@@ -710,6 +720,14 @@ export default function PropertyPanel() {
                   <span className="font-bold text-indigo-700 dark:text-indigo-200">Total Cost Base</span>
                   <span className="font-bold text-lg text-indigo-900 dark:text-indigo-100">{formatCurrency(totalCostBase)}</span>
                 </div>
+
+                {/* Sale Price - shown separately below cost base */}
+                {saleEvent?.amount && (
+                  <div className="flex justify-between items-center pt-3 mt-3 border-t border-indigo-200 dark:border-indigo-600">
+                    <span className="font-semibold text-emerald-600 dark:text-emerald-400">Sale Price</span>
+                    <span className="font-bold text-lg text-emerald-700 dark:text-emerald-300">{formatCurrency(saleEvent.amount)}</span>
+                  </div>
+                )}
               </div>
             </div>
           )}

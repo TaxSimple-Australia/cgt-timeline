@@ -706,7 +706,7 @@ function HomeContent() {
         <ConversationBox
           onSendQuery={handleQuerySubmit}
           isLoading={isLoading}
-          showViewAnalysisButton={!!analysisData}
+          showViewAnalysisButton={!!(analysisData || aiResponse || savedAnalysis?.response)}
           onViewAnalysis={() => setShowAnalysis(true)}
           useAISuggestions={enableAISuggestedQuestions}
           onQuestionButtonClick={handleFetchSuggestedQuestions}
@@ -763,9 +763,9 @@ function HomeContent() {
                   <LoadingSpinner />
                 ) : error ? (
                   <ErrorDisplay message={error} onRetry={handleRetry} />
-                ) : analysisData && getUnresolvedAlerts().length === 0 ? (
+                ) : (analysisData || aiResponse || savedAnalysis?.response) && getUnresolvedAlerts().length === 0 ? (
                   <CGTAnalysisDisplay
-                    response={analysisData}
+                    response={analysisData || aiResponse || savedAnalysis?.response}
                     onRetryWithAnswers={handleRetryWithGapAnswers}
                   />
                 ) : getUnresolvedAlerts().length > 0 ? (

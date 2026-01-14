@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CheckCircle, XCircle, ChevronDown, ChevronUp, Cpu, Zap, Clock, FileJson, Download, Home, LayoutGrid, FileText, Settings2, StickyNote, BookOpen, FileQuestion, HelpCircle, Calendar, DollarSign, Calculator, AlertTriangle, Info, TrendingUp, Lightbulb, Brain, MessageCircle } from 'lucide-react';
 import GapQuestionsPanel from './GapQuestionsPanel';
@@ -17,6 +17,7 @@ import ApplicableRulesDisplay from './ApplicableRulesDisplay';
 import OwnershipPeriodsChart from './OwnershipPeriodsChart';
 import FollowUpChatWindow from './FollowUpChatWindow';
 import { AnalysisData, Citations } from '@/types/model-response';
+import { AnalysisStickyNotesLayer, AddStickyNoteButton, ShareLinkButton } from '../sticky-notes';
 
 interface CGTAnalysisDisplayProps {
   response: any; // AI response (success or verification_failed)
@@ -35,6 +36,9 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
   const [showSources, setShowSources] = useState(false);
   const [showRulesSummary, setShowRulesSummary] = useState(true); // Rules Summary expanded by default (important)
   const [showFollowUpChat, setShowFollowUpChat] = useState(false);
+
+  // Ref for sticky notes layer
+  const analysisContainerRef = useRef<HTMLDivElement>(null);
 
   // Get timeline data and display mode from store
   const properties = useTimelineStore(state => state.properties);
@@ -264,11 +268,17 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
     const { summary, verification, properties: apiProperties } = verificationData;
 
     return (
-      <div className="space-y-6">
+      <div ref={analysisContainerRef} className="relative space-y-6">
         {/* Toolbar: Display Mode Toggle + Raw JSON Button */}
         <div className="flex items-center justify-between gap-4">
           <DisplayModeToggle />
           <div className="flex items-center gap-2">
+            {/* Share Link Button */}
+            <ShareLinkButton variant="analysis" includeAnalysis={true} />
+
+            {/* Add Sticky Note Button */}
+            <AddStickyNoteButton context="analysis" />
+
             <button
               onClick={openNotesModal}
               className={`flex items-center gap-2 px-4 py-2 ${timelineNotes ? 'bg-amber-600 hover:bg-amber-700' : 'bg-amber-500 hover:bg-amber-600'} text-white rounded-lg transition-colors shadow-md text-sm relative`}
@@ -379,6 +389,9 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
             ))}
           </div>
         )}
+
+        {/* Analysis Sticky Notes Layer */}
+        <AnalysisStickyNotesLayer containerRef={analysisContainerRef} />
       </div>
     );
   }
@@ -396,7 +409,7 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
     const propertiesAnalyzed = isNewMarkdownFormat ? response.properties_analyzed : null;
 
     return (
-      <div className="space-y-6">
+      <div ref={analysisContainerRef} className="relative space-y-6">
         {/* Toolbar: Display Mode Toggle + Raw JSON Button */}
         <div className="flex items-center justify-between gap-4">
           <DisplayModeToggle />
@@ -411,6 +424,13 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
                 Follow-up
               </button>
             )}
+
+            {/* Share Link Button */}
+            <ShareLinkButton variant="analysis" includeAnalysis={true} />
+
+            {/* Add Sticky Note Button */}
+            <AddStickyNoteButton context="analysis" />
+
             <button
               onClick={openNotesModal}
               className={`flex items-center gap-2 px-4 py-2 ${timelineNotes ? 'bg-amber-600 hover:bg-amber-700' : 'bg-amber-500 hover:bg-amber-600'} text-white rounded-lg transition-colors shadow-md text-sm relative`}
@@ -456,6 +476,7 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
           className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden"
+          data-sticky-section="summary"
         >
           <div className="p-6 lg:p-8">
             <MarkdownDisplay
@@ -536,6 +557,7 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
                 className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden"
+                data-sticky-section="rules"
               >
                 <button
                   onClick={() => setShowRulesSummary(!showRulesSummary)}
@@ -619,6 +641,9 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
             llmProvider={llmProvider}
           />
         )}
+
+        {/* Analysis Sticky Notes Layer */}
+        <AnalysisStickyNotesLayer containerRef={analysisContainerRef} />
       </div>
     );
   }
@@ -696,7 +721,7 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
       || null;
 
     return (
-      <div className="space-y-6">
+      <div ref={analysisContainerRef} className="relative space-y-6">
         {/* Toolbar: Display Mode Toggle + Raw JSON Button */}
         <div className="flex items-center justify-between gap-4">
           <DisplayModeToggle />
@@ -711,6 +736,13 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
                 Follow-up
               </button>
             )}
+
+            {/* Share Link Button */}
+            <ShareLinkButton variant="analysis" includeAnalysis={true} />
+
+            {/* Add Sticky Note Button */}
+            <AddStickyNoteButton context="analysis" />
+
             <button
               onClick={openNotesModal}
               className={`flex items-center gap-2 px-4 py-2 ${timelineNotes ? 'bg-amber-600 hover:bg-amber-700' : 'bg-amber-500 hover:bg-amber-600'} text-white rounded-lg transition-colors shadow-md text-sm relative`}
@@ -797,6 +829,8 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1, duration: 0.4 }}
                 className="bg-white dark:bg-gray-900 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700"
+                data-sticky-section="property-card"
+                data-sticky-element={(property as any).property_id || property.property_address}
               >
                 {/* Property Header - Clean and Professional */}
                 <div className="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-800/80 border-b border-gray-200 dark:border-gray-700 px-5 py-4">
@@ -971,7 +1005,7 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
 
                 {/* CGT Calculation - Minimal clean layout */}
                 {(property.cgt_calculation || (property.calculation_steps && property.calculation_steps.length > 0)) && (
-                  <div className="space-y-3">
+                  <div className="space-y-3" data-sticky-section="calculation-breakdown" data-sticky-element={(property as any).property_id || (property as any).address}>
                     <h4 className="text-sm font-bold text-gray-800 dark:text-gray-200 flex items-center gap-2">
                       <Calculator className="w-4 h-4 text-purple-600 dark:text-purple-400" />
                       CGT Calculation Steps
@@ -1190,7 +1224,9 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
 
                 {/* Section 8: What-If Scenarios */}
                 {property.what_if_scenarios && property.what_if_scenarios.length > 0 && (
-                  <WhatIfScenariosSection scenarios={property.what_if_scenarios} />
+                  <div data-sticky-section="what-if" data-sticky-element={(property as any).property_id || (property as any).address}>
+                    <WhatIfScenariosSection scenarios={property.what_if_scenarios} />
+                  </div>
                 )}
 
                 {/* Section 9: Important Notes - Compact */}
@@ -1429,6 +1465,9 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
             llmProvider={llmProvider}
           />
         )}
+
+        {/* Analysis Sticky Notes Layer */}
+        <AnalysisStickyNotesLayer containerRef={analysisContainerRef} />
       </div>
     );
   }
@@ -1513,11 +1552,17 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
     }
 
     return (
-      <div className="space-y-8">
+      <div ref={analysisContainerRef} className="relative space-y-8">
         {/* Toolbar: Display Mode Toggle + Raw JSON Button */}
         <div className="flex items-center justify-between gap-4">
           <DisplayModeToggle />
           <div className="flex items-center gap-2">
+            {/* Share Link Button */}
+            <ShareLinkButton variant="analysis" includeAnalysis={true} />
+
+            {/* Add Sticky Note Button */}
+            <AddStickyNoteButton context="analysis" />
+
             <button
               onClick={openNotesModal}
               className={`flex items-center gap-2 px-4 py-2 ${timelineNotes ? 'bg-amber-600 hover:bg-amber-700' : 'bg-amber-500 hover:bg-amber-600'} text-white rounded-lg transition-colors shadow-md text-sm relative`}
@@ -1641,6 +1686,8 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
                 transition={{ duration: 0.2 }}
+                data-sticky-section="property-card"
+                data-sticky-element={(property as any).property_id || (property as any).address}
               >
                 {/* Two Column View: Timeline + Calculation Details */}
                 <PropertyTwoColumnView
@@ -1682,6 +1729,7 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
               exit={{ height: 0, opacity: 0 }}
               transition={{ duration: 0.3 }}
               className="overflow-hidden"
+              data-sticky-section="detailed-report"
             >
               <DetailedReportSection
                 properties={apiProperties}
@@ -1696,17 +1744,26 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
             </motion.div>
           )}
         </AnimatePresence>
+
+        {/* Analysis Sticky Notes Layer */}
+        <AnalysisStickyNotesLayer containerRef={analysisContainerRef} />
       </div>
     );
   }
 
   // Unknown status - Display full JSON response with toggle
   return (
-    <div className="space-y-6">
+    <div ref={analysisContainerRef} className="relative space-y-6">
       {/* Toolbar: Display Mode Toggle + Raw JSON Button */}
       <div className="flex items-center justify-between gap-4">
         <DisplayModeToggle />
         <div className="flex items-center gap-2">
+          {/* Share Link Button */}
+          <ShareLinkButton variant="analysis" includeAnalysis={true} />
+
+          {/* Add Sticky Note Button */}
+          <AddStickyNoteButton context="analysis" />
+
           <button
             onClick={openNotesModal}
             className={`flex items-center gap-2 px-4 py-2 ${timelineNotes ? 'bg-amber-600 hover:bg-amber-700' : 'bg-amber-500 hover:bg-amber-600'} text-white rounded-lg transition-colors shadow-md text-sm relative`}
@@ -1740,6 +1797,9 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
           </pre>
         </div>
       </div>
+
+      {/* Analysis Sticky Notes Layer */}
+      <AnalysisStickyNotesLayer containerRef={analysisContainerRef} />
     </div>
   );
 }

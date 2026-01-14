@@ -22,18 +22,40 @@ export async function POST(request: NextRequest) {
     // Generate unique short ID (10 characters)
     const shareId = nanoid(10);
 
-    // Store in Vercel KV with metadata
+    // Store in Vercel KV with metadata - v2.0.0 format includes sticky notes and analysis
     const timelineData = {
-      version: data.version || 1,
-      createdAt: new Date().toISOString(),
+      version: data.version || '2.0.0',
+      createdAt: data.createdAt || new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
       properties: data.properties,
       events: data.events,
       notes: data.notes || undefined,
+      // New v2.0.0 fields for sticky notes
+      timelineStickyNotes: data.timelineStickyNotes || [],
+      // Saved analysis with analysis sticky notes
+      savedAnalysis: data.savedAnalysis ? {
+        response: data.savedAnalysis.response,
+        analyzedAt: data.savedAnalysis.analyzedAt,
+        analysisStickyNotes: data.savedAnalysis.analysisStickyNotes || [],
+        provider: data.savedAnalysis.provider,
+      } : undefined,
+      // Optional metadata
+      title: data.title,
+      description: data.description,
     };
 
-    await redis.set(`timeline:${shareId}`, JSON.stringify(timelineData));
+    // Set with 90-day expiration (7776000 seconds)
+    await redis.set(`timeline:${shareId}`, JSON.stringify(timelineData), {
+      ex: 7776000,
+    });
 
-    console.log(`✅ Timeline saved with ID: ${shareId}`);
+    console.log(`✅ Timeline saved with ID: ${shareId}`, {
+      properties: timelineData.properties.length,
+      events: timelineData.events.length,
+      timelineStickyNotes: timelineData.timelineStickyNotes.length,
+      hasAnalysis: !!timelineData.savedAnalysis,
+      analysisStickyNotes: timelineData.savedAnalysis?.analysisStickyNotes?.length || 0,
+    });
 
     return NextResponse.json({ success: true, shareId });
   } catch (error) {

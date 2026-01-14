@@ -5,6 +5,7 @@ import { format } from 'date-fns';
 import { useTimelineStore } from '@/store/timeline';
 import SettingsModal from './SettingsModal';
 import ScenarioSelectorModal from './ScenarioSelectorModal';
+import { ShareLinkButton, AddStickyNoteButton } from './sticky-notes';
 import {
   ZoomIn,
   ZoomOut,
@@ -21,7 +22,9 @@ import {
   Menu,
   X,
   ChevronDown,
-  StickyNote
+  StickyNote,
+  Share2,
+  Plus
 } from 'lucide-react';
 
 export default function TimelineControls() {
@@ -405,6 +408,12 @@ export default function TimelineControls() {
               <input type="file" accept=".json" onChange={handleImport} className="hidden" />
             </label>
 
+            {/* Share Link Button */}
+            <ShareLinkButton variant="toolbar" includeAnalysis={true} />
+
+            {/* Add Sticky Note Button */}
+            <AddStickyNoteButton context="timeline" />
+
             <IconButton onClick={() => setShowScenarioSelector(true)} title="Load Scenario" variant="gradient">
               <FolderOpen className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-purple-600 dark:text-purple-400" />
             </IconButton>
@@ -514,6 +523,18 @@ export default function TimelineControls() {
               <span className="text-[10px] text-slate-600 dark:text-slate-400">Import</span>
               <input type="file" accept=".json" onChange={(e) => { handleImport(e); setShowMobileMenu(false); }} className="hidden" />
             </label>
+
+            {/* Share Link - Mobile */}
+            <div onClick={() => setShowMobileMenu(false)} className="flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20">
+              <ShareLinkButton variant="toolbar" includeAnalysis={true} className="!p-0 !bg-transparent !border-0 !shadow-none" />
+              <span className="text-[10px] text-blue-600 dark:text-blue-400">Share</span>
+            </div>
+
+            {/* Add Note - Mobile */}
+            <div onClick={() => setShowMobileMenu(false)} className="flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-amber-50 dark:hover:bg-amber-900/20">
+              <AddStickyNoteButton context="timeline" className="!p-0 !bg-transparent !border-0 !shadow-none" />
+              <span className="text-[10px] text-amber-600 dark:text-amber-400">Add Note</span>
+            </div>
 
             <button
               onClick={() => { setShowScenarioSelector(true); setShowMobileMenu(false); }}

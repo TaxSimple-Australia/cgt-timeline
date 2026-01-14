@@ -3,6 +3,14 @@ import { addDays, format } from 'date-fns';
 import type { AIResponse, TimelineIssue, PositionedGap, AIIssue } from '../types/ai-feedback';
 import type { VerificationAlert } from '../types/verification-alert';
 import type { CostBaseCategory } from '../lib/cost-base-definitions';
+import type {
+  StickyNote,
+  StickyNoteColor,
+  TimelineNotePosition,
+  AnalysisNotePosition,
+  ShareableTimelineData,
+} from '../types/sticky-note';
+import { generateStickyNoteId, DEFAULT_STICKY_NOTE_COLOR } from '../types/sticky-note';
 
 export type EventType =
   | 'purchase'
@@ -243,6 +251,37 @@ interface TimelineState {
   setTimelineNotes: (notes: string) => void;
   openNotesModal: () => void;
   closeNotesModal: () => void;
+
+  // Sticky Notes State
+  timelineStickyNotes: StickyNote[];
+  analysisStickyNotes: StickyNote[];
+  savedAnalysis: {
+    response: AIResponse | null;
+    analyzedAt: string | null;
+    provider: string | null;
+  } | null;
+
+  // Sticky Notes Actions - Timeline
+  addTimelineStickyNote: (note: Omit<StickyNote, 'id' | 'createdAt' | 'updatedAt'>) => string;
+  updateTimelineStickyNote: (id: string, updates: Partial<StickyNote>) => void;
+  deleteTimelineStickyNote: (id: string) => void;
+  moveTimelineStickyNote: (id: string, newPosition: TimelineNotePosition) => void;
+  clearTimelineStickyNotes: () => void;
+
+  // Sticky Notes Actions - Analysis
+  addAnalysisStickyNote: (note: Omit<StickyNote, 'id' | 'createdAt' | 'updatedAt'>) => string;
+  updateAnalysisStickyNote: (id: string, updates: Partial<StickyNote>) => void;
+  deleteAnalysisStickyNote: (id: string) => void;
+  moveAnalysisStickyNote: (id: string, newPosition: AnalysisNotePosition) => void;
+  clearAnalysisStickyNotes: () => void;
+
+  // Analysis Saving Actions
+  saveCurrentAnalysis: () => void;
+  clearSavedAnalysis: () => void;
+
+  // Enhanced Export/Import for Sharing
+  exportShareableData: () => ShareableTimelineData;
+  importShareableData: (data: ShareableTimelineData) => void;
 }
 
 const propertyColors = [
@@ -484,6 +523,11 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
     // Timeline Notes initial state
     timelineNotes: '',
     isNotesModalOpen: false,
+
+    // Sticky Notes initial state
+    timelineStickyNotes: [],
+    analysisStickyNotes: [],
+    savedAnalysis: null,
 
   addProperty: (property) => {
     const properties = get().properties;
@@ -1842,6 +1886,259 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
 
   closeNotesModal: () => {
     set({ isNotesModalOpen: false });
+  },
+
+  // ========================================================================
+  // STICKY NOTES - Timeline
+  // ========================================================================
+
+  addTimelineStickyNote: (noteData) => {
+    const id = generateStickyNoteId();
+    const now = new Date().toISOString();
+    const note: StickyNote = {
+      ...noteData,
+      id,
+      createdAt: now,
+      updatedAt: now,
+    };
+    set((state) => ({
+      timelineStickyNotes: [...state.timelineStickyNotes, note],
+    }));
+    console.log('📝 Added timeline sticky note:', { id, content: note.content.substring(0, 50) });
+    return id;
+  },
+
+  updateTimelineStickyNote: (id, updates) => {
+    set((state) => ({
+      timelineStickyNotes: state.timelineStickyNotes.map((note) =>
+        note.id === id
+          ? { ...note, ...updates, updatedAt: new Date().toISOString() }
+          : note
+      ),
+    }));
+    console.log('📝 Updated timeline sticky note:', id);
+  },
+
+  deleteTimelineStickyNote: (id) => {
+    set((state) => ({
+      timelineStickyNotes: state.timelineStickyNotes.filter((note) => note.id !== id),
+    }));
+    console.log('🗑️ Deleted timeline sticky note:', id);
+  },
+
+  moveTimelineStickyNote: (id, newPosition) => {
+    set((state) => ({
+      timelineStickyNotes: state.timelineStickyNotes.map((note) =>
+        note.id === id
+          ? { ...note, position: newPosition, updatedAt: new Date().toISOString() }
+          : note
+      ),
+    }));
+    console.log('📍 Moved timeline sticky note:', { id, newPosition });
+  },
+
+  clearTimelineStickyNotes: () => {
+    set({ timelineStickyNotes: [] });
+    console.log('🧹 Cleared all timeline sticky notes');
+  },
+
+  // ========================================================================
+  // STICKY NOTES - Analysis
+  // ========================================================================
+
+  addAnalysisStickyNote: (noteData) => {
+    const id = generateStickyNoteId();
+    const now = new Date().toISOString();
+    const note: StickyNote = {
+      ...noteData,
+      id,
+      createdAt: now,
+      updatedAt: now,
+    };
+    set((state) => ({
+      analysisStickyNotes: [...state.analysisStickyNotes, note],
+    }));
+    console.log('📝 Added analysis sticky note:', { id, content: note.content.substring(0, 50) });
+    return id;
+  },
+
+  updateAnalysisStickyNote: (id, updates) => {
+    set((state) => ({
+      analysisStickyNotes: state.analysisStickyNotes.map((note) =>
+        note.id === id
+          ? { ...note, ...updates, updatedAt: new Date().toISOString() }
+          : note
+      ),
+    }));
+    console.log('📝 Updated analysis sticky note:', id);
+  },
+
+  deleteAnalysisStickyNote: (id) => {
+    set((state) => ({
+      analysisStickyNotes: state.analysisStickyNotes.filter((note) => note.id !== id),
+    }));
+    console.log('🗑️ Deleted analysis sticky note:', id);
+  },
+
+  moveAnalysisStickyNote: (id, newPosition) => {
+    set((state) => ({
+      analysisStickyNotes: state.analysisStickyNotes.map((note) =>
+        note.id === id
+          ? { ...note, position: newPosition, updatedAt: new Date().toISOString() }
+          : note
+      ),
+    }));
+    console.log('📍 Moved analysis sticky note:', { id, newPosition });
+  },
+
+  clearAnalysisStickyNotes: () => {
+    set({ analysisStickyNotes: [] });
+    console.log('🧹 Cleared all analysis sticky notes');
+  },
+
+  // ========================================================================
+  // ANALYSIS SAVING
+  // ========================================================================
+
+  saveCurrentAnalysis: () => {
+    const { aiResponse, selectedLLMProvider } = get();
+    if (aiResponse) {
+      set({
+        savedAnalysis: {
+          response: aiResponse,
+          analyzedAt: new Date().toISOString(),
+          provider: selectedLLMProvider || null,
+        },
+      });
+      console.log('💾 Saved current analysis');
+    }
+  },
+
+  clearSavedAnalysis: () => {
+    set({
+      savedAnalysis: null,
+      analysisStickyNotes: [],
+    });
+    console.log('🧹 Cleared saved analysis');
+  },
+
+  // ========================================================================
+  // SHAREABLE DATA EXPORT/IMPORT
+  // ========================================================================
+
+  exportShareableData: () => {
+    const state = get();
+    const now = new Date().toISOString();
+
+    // Serialize properties
+    const serializedProperties = state.properties.map((p) => ({
+      ...p,
+      purchaseDate: p.purchaseDate?.toISOString(),
+      saleDate: p.saleDate?.toISOString(),
+    }));
+
+    // Serialize events
+    const serializedEvents = state.events.map((e) => ({
+      ...e,
+      date: e.date.toISOString(),
+      contractDate: e.contractDate?.toISOString(),
+      settlementDate: e.settlementDate?.toISOString(),
+      appreciationDate: e.appreciationDate?.toISOString(),
+    }));
+
+    const shareableData: ShareableTimelineData = {
+      version: '2.0.0',
+      properties: serializedProperties,
+      events: serializedEvents,
+      notes: state.timelineNotes || undefined,
+      timelineStickyNotes: state.timelineStickyNotes,
+      savedAnalysis: state.savedAnalysis?.response ? {
+        response: state.savedAnalysis.response,
+        analyzedAt: state.savedAnalysis.analyzedAt || now,
+        analysisStickyNotes: state.analysisStickyNotes,
+        provider: state.savedAnalysis.provider || undefined,
+      } : (state.aiResponse ? {
+        response: state.aiResponse,
+        analyzedAt: now,
+        analysisStickyNotes: state.analysisStickyNotes,
+        provider: state.selectedLLMProvider || undefined,
+      } : undefined),
+      createdAt: now,
+      updatedAt: now,
+    };
+
+    console.log('📤 Exported shareable data:', {
+      properties: shareableData.properties.length,
+      events: shareableData.events.length,
+      timelineStickyNotes: shareableData.timelineStickyNotes.length,
+      hasAnalysis: !!shareableData.savedAnalysis,
+      analysisStickyNotes: shareableData.savedAnalysis?.analysisStickyNotes?.length || 0,
+    });
+
+    return shareableData;
+  },
+
+  importShareableData: (data) => {
+    try {
+      console.log('📥 Importing shareable data:', {
+        version: data.version,
+        properties: data.properties?.length,
+        events: data.events?.length,
+        timelineStickyNotes: data.timelineStickyNotes?.length,
+        hasAnalysis: !!data.savedAnalysis,
+      });
+
+      // Deserialize properties
+      const properties = (data.properties || []).map((p: any) => ({
+        ...p,
+        purchaseDate: p.purchaseDate ? new Date(p.purchaseDate) : undefined,
+        saleDate: p.saleDate ? new Date(p.saleDate) : undefined,
+      }));
+
+      // Deserialize events
+      const events = (data.events || []).map((e: any) => ({
+        ...e,
+        date: new Date(e.date),
+        contractDate: e.contractDate ? new Date(e.contractDate) : undefined,
+        settlementDate: e.settlementDate ? new Date(e.settlementDate) : undefined,
+        appreciationDate: e.appreciationDate ? new Date(e.appreciationDate) : undefined,
+      }));
+
+      // Calculate timeline boundaries
+      const allDates = events.map((e: any) => e.date.getTime());
+      const minDate = allDates.length > 0 ? new Date(Math.min(...allDates)) : new Date(2000, 0, 1);
+      const maxDate = new Date();
+      maxDate.setFullYear(maxDate.getFullYear() + 3);
+
+      // Set the imported data
+      set({
+        properties,
+        events,
+        timelineNotes: data.notes || '',
+        timelineStickyNotes: data.timelineStickyNotes || [],
+        analysisStickyNotes: data.savedAnalysis?.analysisStickyNotes || [],
+        aiResponse: data.savedAnalysis?.response || null,
+        savedAnalysis: data.savedAnalysis ? {
+          response: data.savedAnalysis.response,
+          analyzedAt: data.savedAnalysis.analyzedAt,
+          provider: data.savedAnalysis.provider || null,
+        } : null,
+        timelineStart: minDate,
+        timelineEnd: maxDate,
+        absoluteStart: minDate,
+        absoluteEnd: maxDate,
+        centerDate: new Date((minDate.getTime() + maxDate.getTime()) / 2),
+        zoomLevel: calculateZoomLevel(minDate, maxDate),
+        selectedProperty: null,
+        selectedEvent: null,
+        lastInteractedEventId: null,
+      });
+
+      console.log('✅ Successfully imported shareable data');
+    } catch (error) {
+      console.error('❌ Error importing shareable data:', error);
+      throw error;
+    }
   },
 };
 });

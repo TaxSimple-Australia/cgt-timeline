@@ -33,14 +33,38 @@ export async function GET(
     // Parse if stored as string
     const parsed = typeof data === 'string' ? JSON.parse(data) : data;
 
-    console.log(`✅ Timeline loaded with ID: ${shareId}`);
+    // Handle backwards compatibility with v1 data
+    const version = parsed.version || '1.0.0';
+    const isV2 = version.startsWith('2');
 
+    console.log(`✅ Timeline loaded with ID: ${shareId}`, {
+      version,
+      properties: parsed.properties?.length || 0,
+      events: parsed.events?.length || 0,
+      timelineStickyNotes: parsed.timelineStickyNotes?.length || 0,
+      hasAnalysis: !!parsed.savedAnalysis,
+    });
+
+    // Return full v2.0.0 data structure
     return NextResponse.json({
       success: true,
       data: {
-        properties: parsed.properties,
-        events: parsed.events,
+        version: isV2 ? version : '2.0.0',
+        properties: parsed.properties || [],
+        events: parsed.events || [],
         notes: parsed.notes,
+        // v2.0.0 fields - provide defaults for v1 data
+        timelineStickyNotes: parsed.timelineStickyNotes || [],
+        savedAnalysis: parsed.savedAnalysis ? {
+          response: parsed.savedAnalysis.response,
+          analyzedAt: parsed.savedAnalysis.analyzedAt,
+          analysisStickyNotes: parsed.savedAnalysis.analysisStickyNotes || [],
+          provider: parsed.savedAnalysis.provider,
+        } : undefined,
+        createdAt: parsed.createdAt,
+        updatedAt: parsed.updatedAt,
+        title: parsed.title,
+        description: parsed.description,
       },
     });
   } catch (error) {

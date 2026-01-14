@@ -12,7 +12,15 @@ import QuickAddMenu from './QuickAddMenu';
 import EventDetailsModal from './EventDetailsModal';
 import TimelineSnapshot from './TimelineSnapshot';
 import TimelineVisualizationsModal from './TimelineVisualizationsModal';
+import { StickyNotesLayer, ShareLinkButton, AddStickyNoteButton } from './sticky-notes';
 // import ResidenceGapOverlay from './ResidenceGapOverlay'; // REMOVED: Duplicate of GilbertBranch VerificationAlertBar
+
+// Extend Window interface for global sticky note drag flag
+declare global {
+  interface Window {
+    __stickyNoteDragging?: boolean;
+  }
+}
 
 interface TimelineProps {
   className?: string;
@@ -57,7 +65,8 @@ export default function Timeline({ className, onAlertClick }: TimelineProps) {
 
   // Handle timeline click to add events
   const handleTimelineClick = (e: MouseEvent<HTMLDivElement>) => {
-    if (isDragging || isDraggingTimebar) return;
+    // Check if a sticky note is being dragged (global flag set by StickyNote component)
+    if (isDragging || isDraggingTimebar || window.__stickyNoteDragging) return;
 
     const rect = timelineRef.current?.getBoundingClientRect();
     if (!rect) return;
@@ -73,6 +82,9 @@ export default function Timeline({ className, onAlertClick }: TimelineProps) {
 
   // Handle branch line click to add events for a specific property
   const handleBranchClick = (propertyId: string, position: number, clientX: number, clientY: number) => {
+    // Check if a sticky note is being dragged
+    if (window.__stickyNoteDragging) return;
+
     setClickPosition(position);
     setQuickAddPosition({ x: clientX, y: clientY });
     setPreselectedPropertyId(propertyId); // Preselect the property
@@ -381,6 +393,9 @@ export default function Timeline({ className, onAlertClick }: TimelineProps) {
                 />
               ))}
             </svg>
+
+            {/* Sticky Notes Layer */}
+            <StickyNotesLayer containerRef={timelineRef} />
 
             {/* No Properties Message - Centered Welcome Display */}
             {properties.length === 0 && (

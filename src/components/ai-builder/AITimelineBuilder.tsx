@@ -96,7 +96,7 @@ export default function AITimelineBuilder({ isOpen, onClose }: AITimelineBuilder
     checked: false,
   });
   const [aiBuilderProviders, setAiBuilderProviders] = useState<Record<string, string>>({});
-  const [aiBuilderSelectedProvider, setAiBuilderSelectedProvider] = useState<string>('gemini');
+  const [aiBuilderSelectedProvider, setAiBuilderSelectedProvider] = useState<string>('deepseek');
 
   // Refs
   const voiceManagerRef = useRef<VoiceManager | null>(null);
@@ -125,11 +125,11 @@ export default function AITimelineBuilder({ isOpen, onClose }: AITimelineBuilder
         const data = await response.json();
         console.log('AI Builder providers:', data);
         setAiBuilderProviders(data.providers || {});
-        setAiBuilderSelectedProvider(data.default || 'gemini');
+        setAiBuilderSelectedProvider(data.default || 'deepseek');
       } catch (error) {
         console.error('Failed to fetch AI Builder providers:', error);
-        // Fallback to Gemini
-        setAiBuilderProviders({ gemini: 'Gemini 3 Pro' });
+        // Fallback to Deepseek
+        setAiBuilderProviders({ deepseek: 'Deepseek Chat' });
       }
     };
 

@@ -120,7 +120,7 @@ export default function ShareLinkButton({
         whileHover={{ scale: 1.03 }}
         whileTap={{ scale: 0.97 }}
         className={cn(
-          'flex items-center gap-2 px-3 py-2 rounded-lg',
+          'flex items-center gap-1.5 px-2 py-1.5 rounded-md',
           'bg-blue-100 hover:bg-blue-200 dark:bg-blue-900/30 dark:hover:bg-blue-900/50',
           'text-blue-700 dark:text-blue-300',
           'border border-blue-300 dark:border-blue-700',
@@ -129,10 +129,8 @@ export default function ShareLinkButton({
         )}
         title="Share timeline"
       >
-        <Share2 className="w-4 h-4" />
-        {variant === 'toolbar' && (
-          <span className="text-sm font-medium hidden sm:inline">Share</span>
-        )}
+        <Share2 className="w-3.5 h-3.5" />
+        <span className="text-xs font-medium hidden sm:inline">Share</span>
       </motion.button>
 
       {/* Popup */}

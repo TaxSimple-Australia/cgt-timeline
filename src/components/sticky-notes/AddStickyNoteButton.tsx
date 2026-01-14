@@ -77,7 +77,7 @@ export default function AddStickyNoteButton({
       whileHover={{ scale: 1.03 }}
       whileTap={{ scale: 0.97 }}
       className={cn(
-        'flex items-center gap-2 px-3 py-2 rounded-lg',
+        'flex items-center gap-1.5 px-2 py-1.5 rounded-md',
         'bg-amber-100 hover:bg-amber-200 dark:bg-amber-900/30 dark:hover:bg-amber-900/50',
         'text-amber-700 dark:text-amber-300',
         'border border-amber-300 dark:border-amber-700',
@@ -87,10 +87,10 @@ export default function AddStickyNoteButton({
       title={`Add sticky note to ${context}`}
     >
       <div className="relative">
-        <StickyNote className="w-4 h-4" />
-        <Plus className="w-2.5 h-2.5 absolute -bottom-0.5 -right-0.5 bg-amber-100 dark:bg-amber-900 rounded-full" />
+        <StickyNote className="w-3.5 h-3.5" />
+        <Plus className="w-2 h-2 absolute -bottom-0.5 -right-0.5 bg-amber-100 dark:bg-amber-900 rounded-full" />
       </div>
-      <span className="text-sm font-medium hidden sm:inline">Add Note</span>
+      <span className="text-xs font-medium hidden sm:inline">Add Note</span>
     </motion.button>
   );
 }

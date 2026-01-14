@@ -215,29 +215,77 @@ export function isFailedResponse(response: AIResponse): response is AIFailedResp
   return response.status === 'verification_failed';
 }
 
-// Extract issues from any response type
-export function getIssuesFromResponse(response: AIResponse): AIIssue[] {
-  if (isSuccessResponse(response)) {
-    return response.pre_verification.issues || [];
-  } else {
-    return response.verification.issues || [];
+// Extract issues from any response type - defensive against various response formats
+export function getIssuesFromResponse(response: AIResponse | any): AIIssue[] {
+  if (!response) return [];
+
+  // Handle wrapped response formats
+  const data = response.data?.data || response.data || response;
+
+  // Try success response format
+  if (data.pre_verification?.issues) {
+    return data.pre_verification.issues;
   }
+
+  // Try failed verification format
+  if (data.verification?.issues) {
+    return data.verification.issues;
+  }
+
+  // Try direct issues array
+  if (Array.isArray(data.issues)) {
+    return data.issues;
+  }
+
+  return [];
 }
 
-// Extract gaps from any response type
-export function getGapsFromResponse(response: AIResponse): TimelineGap[] {
-  if (isSuccessResponse(response)) {
-    return response.pre_verification.timeline_analysis.gaps || [];
-  } else {
-    return response.verification.timeline_analysis.gaps || [];
+// Extract gaps from any response type - defensive against various response formats
+export function getGapsFromResponse(response: AIResponse | any): TimelineGap[] {
+  if (!response) return [];
+
+  // Handle wrapped response formats
+  const data = response.data?.data || response.data || response;
+
+  // Try success response format
+  if (data.pre_verification?.timeline_analysis?.gaps) {
+    return data.pre_verification.timeline_analysis.gaps;
   }
+
+  // Try failed verification format
+  if (data.verification?.timeline_analysis?.gaps) {
+    return data.verification.timeline_analysis.gaps;
+  }
+
+  // Try direct timeline_analysis
+  if (data.timeline_analysis?.gaps) {
+    return data.timeline_analysis.gaps;
+  }
+
+  return [];
 }
 
-// Extract timeline analysis from any response type
-export function getTimelineAnalysis(response: AIResponse): TimelineAnalysis | null {
-  if (isSuccessResponse(response)) {
-    return response.pre_verification.timeline_analysis;
-  } else {
-    return response.verification.timeline_analysis;
+// Extract timeline analysis from any response type - defensive against various response formats
+export function getTimelineAnalysis(response: AIResponse | any): TimelineAnalysis | null {
+  if (!response) return null;
+
+  // Handle wrapped response formats
+  const data = response.data?.data || response.data || response;
+
+  // Try success response format
+  if (data.pre_verification?.timeline_analysis) {
+    return data.pre_verification.timeline_analysis;
   }
+
+  // Try failed verification format
+  if (data.verification?.timeline_analysis) {
+    return data.verification.timeline_analysis;
+  }
+
+  // Try direct timeline_analysis
+  if (data.timeline_analysis) {
+    return data.timeline_analysis;
+  }
+
+  return null;
 }

@@ -78,6 +78,14 @@ export interface PropertyHistoryEvent {
   // Legacy field names for backwards compatibility
   market_valuation?: number;
   market_value_at_first_income?: number;
+
+  // NEW: Business/Rental Usage Splits (Gilbert's contextual approach)
+  business_use_percentage?: number;  // Percentage used for business/rental (0-100)
+
+  // NEW: Floor Area Data for Partial Rental (e.g., Airbnb room rental)
+  total_floor_area?: number;         // Total property floor area in sqm
+  exclusive_rental_area?: number;    // Exclusive rental area in sqm (e.g., bedroom)
+  shared_area?: number;              // Shared area in sqm (e.g., kitchen, bathroom)
 }
 
 export interface Property {

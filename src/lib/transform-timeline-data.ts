@@ -102,6 +102,22 @@ export function transformTimelineToAPIFormat(
         }
       }
 
+      // Add over 2 hectares flag for purchase events (affects main residence exemption)
+      if (event.type === 'purchase' && event.overTwoHectares) {
+        // Add to description to alert the CGT calculator about land size limitation
+        const landSizeNote = ' [Land exceeds 2 hectares - main residence exemption limited to dwelling + 2 hectares per ATO Section 118-120]';
+        historyEvent.description = (historyEvent.description || event.title) + landSizeNote;
+        console.log('📍 Transform: Over 2 hectares flag detected for purchase event');
+      }
+
+      // Add land-only flag for purchase events (affects depreciation)
+      if (event.type === 'purchase' && event.isLandOnly) {
+        // Add to description to alert the CGT calculator about no building depreciation
+        const landOnlyNote = ' [Land only property - no building depreciation available]';
+        historyEvent.description = (historyEvent.description || event.title) + landOnlyNote;
+        console.log('📍 Transform: Land-only flag detected for purchase event');
+      }
+
       // Add contract date for sale events
       // For sale events, always include contract_date (use event date if not set)
       if (event.type === 'sale') {
@@ -144,6 +160,43 @@ export function transformTimelineToAPIFormat(
       // Add market value for move_out events (used for CGT apportionment)
       if (event.marketValuation !== undefined) {
         historyEvent.market_value = event.marketValuation;
+      }
+
+      // NEW: Add split data to description so AI can read it (Gilbert's contextual approach)
+      const additionalInfo: string[] = [];
+
+      if (event.businessUsePercentage !== undefined && event.businessUsePercentage > 0) {
+        additionalInfo.push(`Business use: ${event.businessUsePercentage}% of property used for business/rental purposes`);
+        console.log('📊 Transform: Business use percentage:', event.businessUsePercentage, '(added to description)');
+      }
+
+      if (event.floorAreaData) {
+        const { total, exclusive, shared } = event.floorAreaData;
+        const exclusivePercent = (exclusive / total) * 100;
+        const sharedPercent = (shared / total) * 50;
+        const totalPercent = exclusivePercent + sharedPercent;
+
+        additionalInfo.push(
+          `Partial rental: Total floor area ${total}sqm, exclusive rental area ${exclusive}sqm, shared area ${shared}sqm. ` +
+          `Income-producing percentage: ${totalPercent.toFixed(2)}% (calculated as exclusive ${exclusivePercent.toFixed(2)}% + shared ${sharedPercent.toFixed(2)}%)`
+        );
+
+        console.log('📐 Transform: Floor areas:', {
+          total,
+          exclusive,
+          shared,
+          calculatedPercentage: totalPercent.toFixed(2) + '%',
+          addedTo: 'description'
+        });
+      }
+
+      // Append split information to description so AI can understand it
+      if (additionalInfo.length > 0) {
+        const splitInfo = additionalInfo.join('. ');
+        historyEvent.description = historyEvent.description
+          ? `${historyEvent.description}. ${splitInfo}`
+          : splitInfo;
+        console.log('✅ Transform: Split data added to description:', splitInfo);
       }
 
       // Extract cost base items from the costBases array
@@ -378,7 +431,9 @@ export function transformTimelineToAPIFormat(
     return {
       address: `${property.name}, ${property.address}`,
       property_history,
-      notes: '', // Can be populated from property notes if available
+      notes: property.owners && property.owners.length > 0
+        ? `Owners: ${property.owners.map(o => `${o.name} (${o.percentage}%)`).join(', ')}`
+        : '', // Multi-owner data serialized to notes field for API
     };
   });
 

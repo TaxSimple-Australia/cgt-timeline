@@ -126,7 +126,7 @@ export default function PropertyStatusBands({
             {width > 5 && (
               <text
                 x={`${startPos + width / 2}%`}
-                y={hoveredBandY + hoveredBandHeight / 2}
+                y={hoveredBandY - 12}
                 textAnchor="middle"
                 dominantBaseline="middle"
                 className={isHovered ? "text-[13px] font-bold fill-slate-900 dark:fill-slate-100" : "text-[12px] font-bold fill-slate-900 dark:fill-slate-100"}

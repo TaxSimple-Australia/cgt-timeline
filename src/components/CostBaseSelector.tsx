@@ -17,6 +17,25 @@ interface CostBaseSelectorProps {
   onChange: (costBases: CostBaseItem[]) => void;
 }
 
+/**
+ * Parse amount input with precision safety to prevent floating-point drift
+ * Handles formatted input (e.g., "500,000") and rounds to 2 decimal places
+ */
+const parseAmountSafely = (input: string): number => {
+  // Remove thousand separators (commas, spaces) and trim
+  const cleaned = input.replace(/[,\s]/g, '').trim();
+
+  if (cleaned === '' || cleaned === '-') return 0;
+
+  const parsed = parseFloat(cleaned);
+
+  if (isNaN(parsed)) return 0;
+
+  // Round to 2 decimal places to prevent floating-point drift
+  // This ensures 500000 stays 500000.00, not 499999.99999999
+  return Math.round(parsed * 100) / 100;
+};
+
 export default function CostBaseSelector({
   eventType,
   costBases,
@@ -184,7 +203,7 @@ export default function CostBaseSelector({
                       onChange={e =>
                         handleUpdateAmount(
                           costBase.id,
-                          parseFloat(e.target.value) || 0
+                          parseAmountSafely(e.target.value)
                         )
                       }
                       className="w-full pl-7 pr-3 py-2 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
@@ -261,10 +280,13 @@ export default function CostBaseSelector({
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100]"
-              onClick={() => {
-                setShowSelectorPopup(false);
-                setShowCustomInput(false);
-                setCustomName('');
+              onMouseDown={(e) => {
+                // Only close if clicking directly on backdrop, not if click originated inside content
+                if (e.target === e.currentTarget) {
+                  setShowSelectorPopup(false);
+                  setShowCustomInput(false);
+                  setCustomName('');
+                }
               }}
             />
 

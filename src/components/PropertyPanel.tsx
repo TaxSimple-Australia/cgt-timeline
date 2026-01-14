@@ -1,10 +1,11 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { format } from 'date-fns';
 import { useTimelineStore } from '@/store/timeline';
-import { formatCurrency } from '@/lib/utils';
+import { formatCurrency, cn } from '@/lib/utils';
+import { getPurchasePrice, calculatePurchaseIncidentalCosts, calculateImprovementCosts, calculateSellingCosts } from '@/lib/cost-base-calculations';
 import {
   X,
   Edit2,
@@ -15,7 +16,11 @@ import {
   TrendingUp,
   Calendar,
   Calculator,
-  FileText
+  FileText,
+  Users,
+  Plus,
+  ChevronDown,
+  ChevronUp
 } from 'lucide-react';
 import DeletePropertyModal from './DeletePropertyModal';
 
@@ -33,7 +38,21 @@ export default function PropertyPanel() {
   const [editedName, setEditedName] = useState('');
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
+  const [isEditingOwners, setIsEditingOwners] = useState(false);
+  const [owners, setOwners] = useState<{name: string; percentage: number}[]>([]);
+  const [editedOwners, setEditedOwners] = useState<{name: string; percentage: number}[]>([{ name: '', percentage: 100 }]);
+  const [showOwnershipSection, setShowOwnershipSection] = useState(false);
+
   const property = properties.find(p => p.id === selectedProperty);
+
+  // Initialize owners state when property changes
+  useEffect(() => {
+    if (property?.owners && property.owners.length > 0) {
+      setOwners(property.owners);
+    } else {
+      setOwners([{ name: '', percentage: 100 }]);
+    }
+  }, [property?.id, property?.owners]);
   if (!property) return null;
   
   const propertyEvents = events
@@ -50,25 +69,15 @@ export default function PropertyPanel() {
   const totalInvestment = (purchaseEvent?.amount || 0) + improvements;
   const capitalGain = saleEvent ? (saleEvent.amount || 0) - totalInvestment : null;
 
-  // Calculate total cost base for CGT using new costBases array
+  // Calculate total cost base for CGT using helper functions
+  // This correctly handles both legacy events (event.amount) and new events (costBases array)
   const calculateCostBase = () => {
-    let costBase = 0;
+    const improvementEvents = propertyEvents.filter(e => e.type === 'improvement');
 
-    // Element 1: Purchase price
-    if (purchaseEvent?.amount) {
-      costBase += purchaseEvent.amount;
-    }
-
-    // Sum all cost bases from all events for this property
-    propertyEvents.forEach(event => {
-      if (event.costBases && event.costBases.length > 0) {
-        event.costBases.forEach(cb => {
-          costBase += cb.amount;
-        });
-      }
-    });
-
-    return costBase;
+    return getPurchasePrice(purchaseEvent) +
+           calculatePurchaseIncidentalCosts(purchaseEvent) +
+           calculateImprovementCosts(improvementEvents) +
+           calculateSellingCosts(saleEvent);
   };
 
   const totalCostBase = calculateCostBase();
@@ -140,6 +149,37 @@ export default function PropertyPanel() {
   const handleDeleteCancel = () => {
     setShowDeleteModal(false);
   };
+
+  // Ownership handlers
+  const handleAddOwner = () => {
+    setOwners([...owners, { name: '', percentage: 0 }]);
+  };
+
+  const handleRemoveOwner = (index: number) => {
+    if (owners.length > 1) {
+      setOwners(owners.filter((_, i) => i !== index));
+    }
+  };
+
+  const handleOwnerChange = (index: number, field: 'name' | 'percentage', value: string | number) => {
+    const newOwners = [...owners];
+    if (field === 'percentage') {
+      newOwners[index].percentage = typeof value === 'string' ? parseFloat(value) || 0 : value;
+    } else {
+      newOwners[index].name = value as string;
+    }
+    setOwners(newOwners);
+  };
+
+  const handleSaveOwners = () => {
+    const validOwners = owners.filter(o => o.name.trim() !== '' || o.percentage > 0);
+    updateProperty(property.id, { owners: validOwners.length > 0 ? validOwners : undefined });
+    setIsEditingOwners(false);
+  };
+
+  const totalOwnershipPercentage = owners.reduce((sum, o) => sum + o.percentage, 0);
+  const isOwnershipValid = Math.abs(totalOwnershipPercentage - 100) < 0.01;
+  const hasMultipleOwners = property.owners && property.owners.length > 1;
 
   return (
     <AnimatePresence>
@@ -218,6 +258,200 @@ export default function PropertyPanel() {
 
         {/* Scrollable Content */}
         <div className="overflow-y-auto max-h-[calc(90vh-80px)]">
+          <div className="p-4 space-y-4">
+          {/* Owner Percentage Section - Collapsible */}
+          <div className="bg-orange-50 dark:bg-orange-900/20 p-4 rounded-lg border border-orange-200 dark:border-orange-800">
+            <button
+              type="button"
+              onClick={() => setShowOwnershipSection(!showOwnershipSection)}
+              className="flex items-center gap-2 w-full text-orange-700 dark:text-orange-300 hover:text-orange-900 dark:hover:text-orange-100 transition-colors"
+            >
+              <ChevronDown className={cn(
+                "w-4 h-4 transition-transform",
+                showOwnershipSection && "rotate-180"
+              )} />
+              <Users className="w-4 h-4" />
+              <span className="text-sm font-semibold">Owner Percentage</span>
+              {property.owners && property.owners.length > 0 && !showOwnershipSection && (
+                <span className="ml-auto text-xs bg-orange-100 dark:bg-orange-800 px-2 py-0.5 rounded-full font-semibold">
+                  {property.owners.length}
+                </span>
+              )}
+            </button>
+
+            <AnimatePresence>
+              {showOwnershipSection && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: "auto", opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.2 }}
+                  className="overflow-hidden mt-3"
+                >
+                  {!isEditingOwners && (!property.owners || property.owners.length === 0) ? (
+                    // No owners yet - show Add Owner button
+                    <div className="text-center py-3">
+                      <p className="text-xs text-slate-500 dark:text-slate-400 mb-3">
+                        Add owner details and ownership percentages
+                      </p>
+                      <button
+                        onClick={() => {
+                          setEditedOwners([{ name: '', percentage: 100 }]);
+                          setIsEditingOwners(true);
+                        }}
+                        className="px-4 py-2 text-sm font-medium text-orange-600 dark:text-orange-400 hover:bg-orange-100 dark:hover:bg-orange-800 rounded-lg border border-orange-300 dark:border-orange-700 transition-colors"
+                      >
+                        + Add Owner
+                      </button>
+                    </div>
+                  ) : !isEditingOwners ? (
+                    // Display mode - show existing owners
+                    <>
+                      <div className="space-y-2">
+                        {property.owners?.map((owner, idx) => (
+                          <div key={idx} className="flex justify-between items-center text-sm">
+                            <span className="text-orange-800 dark:text-orange-200 font-medium">
+                              {owner.name}
+                            </span>
+                            <span className="text-orange-900 dark:text-orange-100 font-bold">
+                              {owner.percentage.toFixed(1)}%
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+
+                      <div className="mt-2 pt-2 border-t border-orange-200 dark:border-orange-700">
+                        <p className="text-xs text-orange-600 dark:text-orange-300">
+                          ✓ Total: {property.owners?.reduce((sum, o) => sum + o.percentage, 0).toFixed(1)}%
+                        </p>
+                      </div>
+                    </>
+                  ) : (
+                    // Edit mode
+                    <div className="space-y-3">
+                      <p className="text-xs text-slate-500 dark:text-slate-400">
+                        Enter owner names and ownership percentages. Total must equal 100%.
+                      </p>
+
+                      {editedOwners.map((owner, index) => (
+                        <div key={index} className="flex gap-2 items-start">
+                          <div className="flex-1">
+                            <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">
+                              Owner {index + 1} Name
+                            </label>
+                            <input
+                              type="text"
+                              value={owner.name}
+                              onChange={(e) => {
+                                const newOwners = [...editedOwners];
+                                newOwners[index].name = e.target.value;
+                                setEditedOwners(newOwners);
+                              }}
+                              className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                              placeholder="e.g., Alex Smith"
+                            />
+                          </div>
+                          <div className="w-28">
+                            <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">
+                              % Owned
+                            </label>
+                            <input
+                              type="number"
+                              min="0"
+                              max="100"
+                              step="0.1"
+                              value={owner.percentage}
+                              onChange={(e) => {
+                                const newOwners = [...editedOwners];
+                                newOwners[index].percentage = parseFloat(e.target.value) || 0;
+                                setEditedOwners(newOwners);
+                              }}
+                              className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                              placeholder="50"
+                            />
+                          </div>
+                          {editedOwners.length > 1 && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const newOwners = editedOwners.filter((_, i) => i !== index);
+                                setEditedOwners(newOwners);
+                              }}
+                              className="mt-6 p-2 text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
+                              title="Remove owner"
+                            >
+                              <X className="w-4 h-4" />
+                            </button>
+                          )}
+                        </div>
+                      ))}
+
+                      <button
+                        type="button"
+                        onClick={() => setEditedOwners([...editedOwners, { name: '', percentage: 0 }])}
+                        className="w-full px-3 py-2 text-sm font-medium text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg border border-blue-300 dark:border-blue-700 transition-colors"
+                      >
+                        + Add Another Owner
+                      </button>
+
+                      {/* Ownership percentage validation */}
+                      <div className="p-3 bg-white dark:bg-slate-700 rounded-lg border border-slate-300 dark:border-slate-600">
+                        <p className="text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">
+                          Total ownership:
+                        </p>
+                        <p className={`text-lg font-bold ${
+                          Math.abs(editedOwners.reduce((sum, o) => sum + o.percentage, 0) - 100) < 0.01
+                            ? 'text-green-600 dark:text-green-400'
+                            : 'text-red-600 dark:text-red-400'
+                        }`}>
+                          {editedOwners.reduce((sum, o) => sum + o.percentage, 0).toFixed(2)}%
+                        </p>
+                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                          {Math.abs(editedOwners.reduce((sum, o) => sum + o.percentage, 0) - 100) < 0.01
+                            ? '✓ Ownership percentages are valid'
+                            : '⚠️ Must equal 100%'}
+                        </p>
+                      </div>
+
+                      {/* Save/Cancel buttons */}
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => {
+                            const totalPercentage = editedOwners.reduce((sum, o) => sum + o.percentage, 0);
+                            const validOwners = editedOwners.filter(o => o.name.trim() !== '' && o.percentage > 0);
+
+                            if (validOwners.length === 0) {
+                              alert('Please add at least one owner with a name and percentage');
+                              return;
+                            }
+
+                            if (Math.abs(totalPercentage - 100) > 0.01) {
+                              alert(`Ownership percentages must equal 100% (currently ${totalPercentage.toFixed(2)}%)`);
+                              return;
+                            }
+
+                            updateProperty(property.id, { owners: validOwners });
+                            setIsEditingOwners(false);
+                          }}
+                          className="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors"
+                        >
+                          Save
+                        </button>
+                        <button
+                          onClick={() => setIsEditingOwners(false)}
+                          className="flex-1 px-4 py-2 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-900 dark:text-slate-100 font-medium rounded-lg transition-colors"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+          </div>
+
           {/* Key Metrics */}
           <div className="p-4 space-y-4">
           <div className="grid grid-cols-2 gap-3">
@@ -278,6 +512,115 @@ export default function PropertyPanel() {
                 {capitalGain ? formatCurrency(capitalGain) : '-'}
               </div>
             </div>
+          </div>
+
+          {/* Ownership Section */}
+          <div className="bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-700 overflow-hidden">
+            <button
+              onClick={() => setShowOwnershipSection(!showOwnershipSection)}
+              className="w-full p-3 flex items-center justify-between hover:bg-amber-100 dark:hover:bg-amber-900/30 transition-colors"
+            >
+              <div className="flex items-center gap-2 text-amber-700 dark:text-amber-300">
+                <Users className="w-4 h-4" />
+                <span className="text-sm font-medium">
+                  Ownership {hasMultipleOwners && `(${property.owners?.length} owners)`}
+                </span>
+              </div>
+              {showOwnershipSection ? (
+                <ChevronUp className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+              ) : (
+                <ChevronDown className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+              )}
+            </button>
+
+            {showOwnershipSection && (
+              <div className="px-4 py-3 border-t border-amber-200 dark:border-amber-700">
+                {!isEditingOwners ? (
+                  <div className="space-y-3">
+                    {property.owners && property.owners.length > 0 ? (
+                      property.owners.map((owner, idx) => (
+                        <div key={idx} className="flex justify-between items-center text-sm py-1">
+                          <span className="text-amber-800 dark:text-amber-200">{owner.name || 'Owner ' + (idx + 1)}</span>
+                          <span className="font-semibold text-amber-900 dark:text-amber-100">{owner.percentage}%</span>
+                        </div>
+                      ))
+                    ) : (
+                      <p className="text-sm text-amber-600 dark:text-amber-400 py-1">Single owner (100%)</p>
+                    )}
+                    <button
+                      onClick={() => setIsEditingOwners(true)}
+                      className="mt-3 flex items-center gap-2 px-3 py-2 text-sm font-medium text-amber-700 dark:text-amber-200 bg-amber-100 dark:bg-amber-800/40 hover:bg-amber-200 dark:hover:bg-amber-800/60 border border-amber-300 dark:border-amber-600 rounded-lg transition-colors"
+                    >
+                      <Edit2 className="w-4 h-4" />
+                      Edit ownership
+                    </button>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {owners.map((owner, idx) => (
+                      <div key={idx} className="flex items-center gap-3">
+                        <input
+                          type="text"
+                          value={owner.name}
+                          onChange={(e) => handleOwnerChange(idx, 'name', e.target.value)}
+                          placeholder="Owner name"
+                          className="flex-1 px-3 py-2 text-sm border border-amber-300 dark:border-amber-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100"
+                        />
+                        <input
+                          type="number"
+                          value={owner.percentage}
+                          onChange={(e) => handleOwnerChange(idx, 'percentage', e.target.value)}
+                          placeholder="%"
+                          min="0"
+                          max="100"
+                          className="w-24 px-3 py-2 text-sm border border-amber-300 dark:border-amber-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100"
+                        />
+                        <span className="text-sm text-amber-700 dark:text-amber-300">%</span>
+                        {owners.length > 1 && (
+                          <button
+                            onClick={() => handleRemoveOwner(idx)}
+                            className="p-1.5 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 rounded"
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
+                        )}
+                      </div>
+                    ))}
+
+                    <button
+                      onClick={handleAddOwner}
+                      className="flex items-center gap-2 text-sm text-amber-700 dark:text-amber-300 hover:text-amber-900 dark:hover:text-amber-100 py-1"
+                    >
+                      <Plus className="w-4 h-4" />
+                      Add owner
+                    </button>
+
+                    <div className={`text-sm font-medium py-2 ${isOwnershipValid ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+                      Total: {totalOwnershipPercentage}% {!isOwnershipValid && '(must equal 100%)'}
+                    </div>
+
+                    <div className="flex gap-3 pt-2">
+                      <button
+                        onClick={handleSaveOwners}
+                        disabled={!isOwnershipValid}
+                        className="px-4 py-2 text-sm bg-amber-600 text-white rounded-lg hover:bg-amber-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        Save
+                      </button>
+                      <button
+                        onClick={() => {
+                          setOwners(property.owners || [{ name: '', percentage: 100 }]);
+                          setIsEditingOwners(false);
+                        }}
+                        className="px-4 py-2 text-sm border border-amber-300 dark:border-amber-600 text-amber-700 dark:text-amber-300 rounded-lg hover:bg-amber-100 dark:hover:bg-amber-900/30"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Cost Base Breakdown for CGT - NEW: Using dynamic costBases array */}
@@ -391,7 +734,8 @@ export default function PropertyPanel() {
               </div>
             )}
           </div>
-          
+
+
           {/* Events Timeline */}
           <div>
             <h3 className="font-semibold text-slate-800 dark:text-slate-100 mb-3 flex items-center gap-2">

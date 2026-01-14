@@ -66,12 +66,22 @@ export interface TimelineEvent {
   // Price breakdown for purchases (land + building)
   landPrice?: number;       // Price of land component
   buildingPrice?: number;   // Price of building component
+  overTwoHectares?: boolean; // For purchase events - property land exceeds 2 hectares (affects main residence exemption per ATO Section 118-120)
+  isLandOnly?: boolean;     // For purchase events - property is land only (no building), affects depreciation calculations
 
   // Custom event fields
   affectsStatus?: boolean;  // For custom events: does this event change property status?
 
   // NEW: Dynamic Cost Base Items
   costBases?: CostBaseItem[];  // Array of cost base items for this event
+
+  // NEW: Ownership and Usage Splits
+  businessUsePercentage?: number;  // Percentage of property used for business/rental (0-100)
+  floorAreaData?: {
+    total: number;      // Total floor area in sqm
+    exclusive: number;  // Exclusive rental area in sqm (e.g., bedroom)
+    shared: number;     // Shared area in sqm (e.g., kitchen, bathroom)
+  };
 
   // DEPRECATED: Legacy cost base fields (kept for backward compatibility during migration)
   /** @deprecated Use costBases array instead */
@@ -115,6 +125,12 @@ export interface Property {
   currentStatus?: PropertyStatus;
   branch: number; // Y-position for branch visualization
   isRental?: boolean; // Is this a rental property you don't own?
+
+  // NEW: Multi-owner support
+  owners?: Array<{
+    name: string;
+    percentage: number;  // Ownership percentage (must total 100%)
+  }>;
 }
 
 export type ZoomLevel =
@@ -396,8 +412,31 @@ export interface StatusPeriod {
 export const calculateStatusPeriods = (events: TimelineEvent[]): StatusPeriod[] => {
   const periods: StatusPeriod[] = [];
 
-  // Sort events by date
-  const sortedEvents = [...events].sort((a, b) => a.date.getTime() - b.date.getTime());
+  // Event priority for same-date events (higher number = processed later = takes precedence)
+  const eventPriority: Record<string, number> = {
+    'purchase': 1,              // Establishes baseline (vacant)
+    'move_in': 2,               // Status-changing events
+    'move_out': 2,
+    'rent_start': 2,
+    'rent_end': 2,
+    'vacant_start': 2,
+    'vacant_end': 2,
+    'status_change': 2,
+    'living_in_rental_start': 2,
+    'living_in_rental_end': 2,
+    'sale': 3,                  // Final status (highest priority)
+    'improvement': 0,           // Non-status events (lowest)
+    'refinance': 0,
+    'custom': 0,
+  };
+
+  // Sort events by date, then by priority for same-date events
+  const sortedEvents = [...events].sort((a, b) => {
+    const timeDiff = a.date.getTime() - b.date.getTime();
+    if (timeDiff !== 0) return timeDiff;
+    // Same date - sort by priority (lower priority processed first)
+    return (eventPriority[a.type] || 0) - (eventPriority[b.type] || 0);
+  });
 
   let currentStatus: PropertyStatus | null = null;
   let currentStartDate: Date | null = null;

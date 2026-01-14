@@ -428,49 +428,27 @@ export default function StickyNote({
           </p>
         )}
 
-        {/* Color Picker and Minimize Button */}
+        {/* Color Picker */}
         {!isReadOnly && (
-          <div className="mt-3 pt-2 border-t border-gray-300/30 space-y-2">
-            {/* Large Minimize Button - Center of note */}
-            <button
-              onClick={handleMinimizeToggle}
-              onMouseDown={stopPropagation}
-              className={cn(
-                'w-full py-2.5 px-3 rounded-lg flex items-center justify-center gap-2',
-                'transition-all duration-200',
-                'hover:scale-[1.02] active:scale-[0.98]'
-              )}
-              style={{
-                backgroundColor: colors.dark,
-                color: colors.text,
-              }}
-              title="Minimize to icon"
-            >
-              <Minimize2 className="w-5 h-5" />
-              <span className="text-sm font-medium">Minimize</span>
-            </button>
-
-            {/* Color Picker */}
-            <div className="flex gap-1.5 justify-center">
-              {(Object.keys(STICKY_NOTE_COLORS) as StickyNoteColor[]).map((color) => (
-                <button
-                  key={color}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleColorChange(color);
-                  }}
-                  onMouseDown={stopPropagation}
-                  className={cn(
-                    'w-5 h-5 rounded-full border-2 transition-all hover:scale-110',
-                    note.color === color
-                      ? 'border-gray-600 scale-110 ring-2 ring-gray-400/50'
-                      : 'border-white/50 hover:border-gray-400'
-                  )}
-                  style={{ backgroundColor: STICKY_NOTE_COLORS[color].border }}
-                  title={color.charAt(0).toUpperCase() + color.slice(1)}
-                />
-              ))}
-            </div>
+          <div className="flex gap-1.5 mt-3 pt-2 border-t border-gray-300/30">
+            {(Object.keys(STICKY_NOTE_COLORS) as StickyNoteColor[]).map((color) => (
+              <button
+                key={color}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleColorChange(color);
+                }}
+                onMouseDown={stopPropagation}
+                className={cn(
+                  'w-5 h-5 rounded-full border-2 transition-all hover:scale-110',
+                  note.color === color
+                    ? 'border-gray-600 scale-110 ring-2 ring-gray-400/50'
+                    : 'border-white/50 hover:border-gray-400'
+                )}
+                style={{ backgroundColor: STICKY_NOTE_COLORS[color].border }}
+                title={color.charAt(0).toUpperCase() + color.slice(1)}
+              />
+            ))}
           </div>
         )}
       </div>

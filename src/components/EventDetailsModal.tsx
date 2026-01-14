@@ -4,11 +4,12 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { TimelineEvent, PropertyStatus, useTimelineStore, CostBaseItem } from '@/store/timeline';
 import { format } from 'date-fns';
-import { X, Calendar, DollarSign, Home, Tag, FileText, CheckCircle, Receipt, Info, Star, Palette, Building2, Key, AlertCircle, Briefcase, TrendingUp, Package, Hammer, Gift } from 'lucide-react';
+import { X, Calendar, DollarSign, Home, Tag, FileText, CheckCircle, Receipt, Info, Star, Palette, Building2, Key, AlertCircle, Briefcase, TrendingUp, Package, Hammer, Gift, MapPin, ChevronDown } from 'lucide-react';
 import CostBaseSelector from './CostBaseSelector';
 import { getCostBaseDefinition } from '@/lib/cost-base-definitions';
 import CostBaseSummaryModal from './CostBaseSummaryModal';
 import { parseDateFlexible, formatDateDisplay, isValidDateRange, DATE_FORMAT_PLACEHOLDER } from '@/lib/date-utils';
+import { cn } from '@/lib/utils';
 
 // Color palette for custom events
 const customEventColors = [
@@ -82,6 +83,13 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
   const [moveInOnSameDay, setMoveInOnSameDay] = useState(false);
   const [purchaseAsVacant, setPurchaseAsVacant] = useState(false);
   const [purchaseAsRent, setPurchaseAsRent] = useState(false);
+  const [overTwoHectares, setOverTwoHectares] = useState(event.overTwoHectares || false);
+  const [isLandOnly, setIsLandOnly] = useState(event.isLandOnly || false);
+
+  // Property details section (collapsible) - auto-expand if any options are set
+  const [showPropertyDetails, setShowPropertyDetails] = useState(
+    event.isLandOnly || event.overTwoHectares || false
+  );
 
   // Move out status checkboxes (for move_out events)
   const [moveOutAsVacant, setMoveOutAsVacant] = useState(false);
@@ -130,6 +138,9 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
   const [totalFloorArea, setTotalFloorArea] = useState(event.floorAreaData?.total?.toString() || '');
   const [exclusiveRentalArea, setExclusiveRentalArea] = useState(event.floorAreaData?.exclusive?.toString() || '');
   const [sharedArea, setSharedArea] = useState(event.floorAreaData?.shared?.toString() || '');
+
+  // Get current property (used for partial rental floor area)
+  const currentProperty = properties.find(p => p.id === event.propertyId);
 
   // NEW: Check if property has move_in events (for conditional floor area display)
   const propertyHasMoveIn = events.some(
@@ -302,6 +313,12 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
         // Clear legacy land/building prices
         updates.landPrice = undefined;
         updates.buildingPrice = undefined;
+
+        // Over 2 hectares flag (for main residence exemption calculation)
+        updates.overTwoHectares = overTwoHectares || undefined;
+
+        // Land only flag (affects depreciation calculations)
+        updates.isLandOnly = isLandOnly || undefined;
       } else if (event.type === 'sale') {
         // For sale events, extract sale price from costBases if available
         const salePriceItem = costBases.find(cb => cb.definitionId === 'sale_price');
@@ -327,6 +344,10 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
         } else {
           updates.previousYearLosses = undefined;
         }
+      } else if (event.type === 'improvement') {
+        // For improvement events, calculate amount from cost bases (like purchase)
+        const totalCostBases = costBases.reduce((sum, cb) => sum + cb.amount, 0);
+        updates.amount = totalCostBases > 0 ? totalCostBases : undefined;
       } else {
         // For other events, use the single amount field
         if (amount && !isNaN(parseFloat(amount))) {
@@ -611,6 +632,28 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
         }
       }
 
+      // Create move_in event for "vacant end as move in"
+      if (event.type === 'vacant_end' && vacantEndAsMoveIn) {
+        const moveInDate = new Date(date);
+        const existingMoveIn = events.find(
+          (e) =>
+            e.propertyId === event.propertyId &&
+            e.type === 'move_in' &&
+            e.date.getTime() === moveInDate.getTime()
+        );
+
+        if (!existingMoveIn) {
+          addEvent({
+            propertyId: event.propertyId,
+            type: 'move_in',
+            date: moveInDate,
+            title: 'Move In',
+            position: event.position,
+            color: '#10B981', // Green color for move_in events
+          });
+        }
+      }
+
       // Reset checkbox states to prevent duplicate creation on next save
       setMoveInOnSameDay(false);
       setPurchaseAsVacant(false);
@@ -675,26 +718,26 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
           {/* Header */}
           <div
             className="px-6 py-4 border-b border-slate-200 dark:border-slate-700"
-            style={{ backgroundColor: `${event.color}15` }}
+            style={{ backgroundColor: `${customColor}15` }}
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div
                   className="w-12 h-12 rounded-full flex items-center justify-center shadow-md"
-                  style={{ backgroundColor: event.color }}
+                  style={{ backgroundColor: customColor }}
                 >
                   <Home className="w-6 h-6 text-white" />
                 </div>
                 <div>
                   <h2 className="text-xl font-bold text-slate-800 dark:text-slate-100">
-                    {event.type === 'sale' && event.title.toLowerCase() === 'sale' ? 'sold' : event.title}
+                    {eventType === 'sale' && event.title.toLowerCase() === 'sale' ? 'sold' : event.title}
                   </h2>
                   <p className="text-sm text-slate-500 dark:text-slate-400">{propertyName}</p>
                 </div>
               </div>
               <div className="flex items-center gap-2">
                 {/* Cost Base Summary Button - Only show for events with cost bases */}
-                {(event.type === 'purchase' || event.type === 'sale' || event.type === 'improvement') &&
+                {(eventType === 'purchase' || eventType === 'sale' || eventType === 'improvement') &&
                  costBases && costBases.length > 0 && (
                   <button
                     onClick={() => setShowSummary(true)}
@@ -727,11 +770,34 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
                 value={eventType}
                 onChange={(e) => {
                   const newType = e.target.value as typeof eventType;
+                  const newTypeOption = eventTypeOptions.find(opt => opt.type === newType);
+
                   setEventType(newType);
+
                   // Auto-update color to match event type (unless it's custom)
-                  if (newType !== 'custom') {
-                    const defaultColor = eventTypeOptions.find(opt => opt.type === newType)?.color || event.color;
-                    setCustomColor(defaultColor);
+                  if (newType !== 'custom' && newTypeOption) {
+                    setCustomColor(newTypeOption.color);
+                  }
+
+                  // Auto-update title to match new event type (unless user has customized it)
+                  const currentTypeLabel = eventTypeOptions.find(opt => opt.type === event.type)?.label;
+                  const isCustomTitle = title.trim() && title.trim() !== currentTypeLabel;
+
+                  if (!isCustomTitle && newTypeOption) {
+                    setTitle(newTypeOption.label);
+                  }
+
+                  // Reset type-specific checkboxes when changing event types
+                  if (newType !== event.type) {
+                    setMoveInOnSameDay(false);
+                    setPurchaseAsVacant(false);
+                    setPurchaseAsRent(false);
+                    setMoveOutAsVacant(false);
+                    setMoveOutAsRent(false);
+                    setRentEndAsVacant(false);
+                    setRentEndAsMoveIn(false);
+                    setVacantEndAsMoveIn(false);
+                    setVacantEndAsRent(false);
                   }
                 }}
                 className="w-full px-4 py-2.5 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -793,9 +859,9 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
               <div>
                 <label className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                   <Calendar className="w-4 h-4" />
-                  {event.type === 'purchase' ? 'Settlement Date *' :
-                   event.type === 'sale' ? 'Contract Date *' : 'Date *'}
-                  {(event.type === 'purchase' || event.type === 'sale') && (
+                  {eventType === 'purchase' ? 'Settlement Date *' :
+                   eventType === 'sale' ? 'Contract Date *' : 'Date *'}
+                  {(eventType === 'purchase' || eventType === 'sale') && (
                     <div
                       className="relative"
                       onMouseEnter={() => setShowDateTooltip(true)}
@@ -812,10 +878,10 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
                           className="absolute left-1/2 -translate-x-1/2 top-full mt-2 bg-slate-900 dark:bg-slate-800 text-white px-4 py-3 rounded-lg shadow-2xl text-sm min-w-[280px] max-w-[360px] z-50 pointer-events-none border-2 border-blue-500/30"
                         >
                           <div className="font-semibold mb-1.5 text-blue-300">
-                            {event.type === 'purchase' ? 'Settlement Date' : 'Contract Date'}
+                            {eventType === 'purchase' ? 'Settlement Date' : 'Contract Date'}
                           </div>
                           <p className="text-slate-200 leading-relaxed mb-3">
-                            {event.type === 'purchase'
+                            {eventType === 'purchase'
                               ? 'The date when ownership legally transferred to you'
                               : 'The date when the sale contract was signed (not settlement date)'}
                           </p>
@@ -898,7 +964,7 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
               </div>
 
               {/* Purchase status checkboxes (for purchase events only) */}
-              {event.type === 'purchase' && (
+              {eventType === 'purchase' && (
                 <div className="space-y-3">
                   <p className="text-xs text-slate-500 dark:text-slate-400">
                     Set initial property status after purchase:
@@ -989,6 +1055,60 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
                     </AnimatePresence>
                   </div>
 
+                  {/* Business use % - appears immediately below "Move in" with animation */}
+                  <AnimatePresence>
+                    {moveInOnSameDay && (
+                      <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: "auto" }}
+                        exit={{ opacity: 0, height: 0 }}
+                        transition={{ duration: 0.2 }}
+                        className="overflow-hidden"
+                      >
+                        <div className="ml-6 border-l-2 border-purple-300 dark:border-purple-700 pl-4">
+                          <div className="space-y-3 p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200 dark:border-purple-800">
+                            <div className="flex items-center gap-3">
+                              <input
+                                type="checkbox"
+                                id="hasBusinessUse"
+                                checked={hasBusinessUse}
+                                onChange={(e) => setHasBusinessUse(e.target.checked)}
+                                className="w-4 h-4 text-blue-600 bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 rounded focus:ring-2 focus:ring-blue-500 cursor-pointer"
+                              />
+                              <label
+                                htmlFor="hasBusinessUse"
+                                className="text-sm font-medium text-slate-700 dark:text-slate-300 cursor-pointer"
+                              >
+                                Using part for business or rental?
+                              </label>
+                            </div>
+
+                            {hasBusinessUse && (
+                              <div>
+                                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                                  Business use percentage (0-100%)
+                                </label>
+                                <input
+                                  type="number"
+                                  min="0"
+                                  max="100"
+                                  step="0.1"
+                                  value={businessUsePercentage}
+                                  onChange={(e) => setBusinessUsePercentage(e.target.value)}
+                                  className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                  placeholder="e.g., 25"
+                                />
+                                <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                                  Enter the percentage of the property used for business or rental purposes
+                                </p>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+
                   {/* Purchase as vacant checkbox */}
                   <div className="flex items-center gap-3 p-4 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800">
                     <input
@@ -1037,19 +1157,104 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
                     </label>
                   </div>
 
+                  {/* Property Characteristics - Collapsible Section */}
+                  <div className="mt-4">
+                    <button
+                      type="button"
+                      onClick={() => setShowPropertyDetails(!showPropertyDetails)}
+                      className="flex items-center gap-2 w-full text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 transition-colors"
+                    >
+                      <ChevronDown className={cn(
+                        "w-4 h-4 transition-transform",
+                        showPropertyDetails && "rotate-180"
+                      )} />
+                      Additional Property Details
+                      {(isLandOnly || overTwoHectares) && (
+                        <span className="ml-auto text-xs bg-blue-100 dark:bg-blue-900 px-2 py-0.5 rounded-full font-semibold">
+                          {[isLandOnly, overTwoHectares].filter(Boolean).length}
+                        </span>
+                      )}
+                    </button>
+
+                    <AnimatePresence>
+                      {showPropertyDetails && (
+                        <motion.div
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: "auto", opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          transition={{ duration: 0.2 }}
+                          className="overflow-hidden space-y-3 mt-3"
+                        >
+                          {/* Land Only checkbox */}
+                          <div className="flex items-center gap-3 p-4 bg-teal-50 dark:bg-teal-900/20 rounded-lg border border-teal-200 dark:border-teal-800">
+                            <input
+                              type="checkbox"
+                              id="isLandOnly"
+                              checked={isLandOnly}
+                              onChange={(e) => setIsLandOnly(e.target.checked)}
+                              className="w-4 h-4 text-blue-600 bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 rounded focus:ring-2 focus:ring-blue-500 cursor-pointer"
+                            />
+                            <label
+                              htmlFor="isLandOnly"
+                              className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300 cursor-pointer"
+                            >
+                              <MapPin className="w-4 h-4" />
+                              Land Only (no building)
+                            </label>
+                            <div className="ml-auto">
+                              <div className="group relative">
+                                <Info className="w-4 h-4 text-slate-400 dark:text-slate-500 cursor-help" />
+                                <div className="invisible group-hover:visible absolute right-0 top-6 w-72 p-3 bg-slate-900 dark:bg-slate-800 text-white text-xs rounded-lg shadow-lg z-10">
+                                  <p className="font-semibold mb-1">Land Only Property</p>
+                                  <p>Property is land only (no building). Building depreciation will not be available for CGT calculations. This affects capital works deductions under Division 43.</p>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Over 2 Hectares checkbox */}
+                          <div className="flex items-center gap-3 p-4 bg-orange-50 dark:bg-orange-900/20 rounded-lg border border-orange-200 dark:border-orange-800">
+                            <input
+                              type="checkbox"
+                              id="overTwoHectares"
+                              checked={overTwoHectares}
+                              onChange={(e) => setOverTwoHectares(e.target.checked)}
+                              className="w-4 h-4 text-blue-600 bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 rounded focus:ring-2 focus:ring-blue-500 cursor-pointer"
+                            />
+                            <label
+                              htmlFor="overTwoHectares"
+                              className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300 cursor-pointer"
+                            >
+                              <AlertCircle className="w-4 h-4" />
+                              Land exceeds 2 hectares
+                            </label>
+                            <div className="ml-auto">
+                              <div className="group relative">
+                                <Info className="w-4 h-4 text-slate-400 dark:text-slate-500 cursor-help" />
+                                <div className="invisible group-hover:visible absolute right-0 top-6 w-72 p-3 bg-slate-900 dark:bg-slate-800 text-white text-xs rounded-lg shadow-lg z-10">
+                                  <p className="font-semibold mb-1">Main Residence Exemption Limitation</p>
+                                  <p>The main residence CGT exemption only covers the dwelling plus up to 2 hectares of adjacent land. If your property exceeds 2 hectares, the excess land may be subject to CGT (ATO Section 118-120).</p>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
                 </div>
               )}
             </div>
 
             {/* Financial Details Section - Only for specific event types (not purchase or sale) */}
-            {event.type !== 'purchase' &&
-             event.type !== 'move_in' &&
-             event.type !== 'move_out' &&
-             event.type !== 'rent_start' &&
-             event.type !== 'rent_end' &&
-             event.type !== 'sale' &&
-             event.type !== 'vacant_start' &&
-             event.type !== 'vacant_end' && (
+            {eventType !== 'purchase' &&
+             eventType !== 'move_in' &&
+             eventType !== 'move_out' &&
+             eventType !== 'rent_start' &&
+             eventType !== 'rent_end' &&
+             eventType !== 'sale' &&
+             eventType !== 'vacant_start' &&
+             eventType !== 'vacant_end' && (
               <div className="space-y-4 pt-2">
                 {/* Single Amount Input */}
                 <div>
@@ -1074,7 +1279,7 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
 
             {/* Cost Base Section (for CGT calculation) - NEW COMPONENT */}
             {/* Hide for synthetic "Not Sold" markers */}
-            {!isSyntheticNotSold && (event.type === 'purchase' || event.type === 'sale' || event.type === 'improvement' || event.type === 'status_change' || event.type === 'refinance' || event.type === 'custom') && (
+            {!isSyntheticNotSold && (eventType === 'purchase' || eventType === 'sale' || eventType === 'improvement' || eventType === 'status_change' || eventType === 'refinance' || eventType === 'custom') && (
               <div className="space-y-4 pt-2 border-t border-slate-200 dark:border-slate-700">
                 <CostBaseSelector
                   eventType={event.type}
@@ -1085,7 +1290,7 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
             )}
 
             {/* Sale Event - Australian Resident Status */}
-            {event.type === 'sale' && (
+            {eventType === 'sale' && (
               <div className="space-y-4 pt-2 border-t border-slate-200 dark:border-slate-700">
                 <div className="flex items-center gap-3 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
                   <input
@@ -1178,7 +1383,7 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
             )}
 
             {/* Rent End Event - Status Options */}
-            {event.type === 'rent_end' && (
+            {eventType === 'rent_end' && (
               <div className="space-y-4 pt-2 border-t border-slate-200 dark:border-slate-700">
                 <div className="space-y-3">
                   <p className="text-xs text-slate-500 dark:text-slate-400">
@@ -1235,7 +1440,7 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
             )}
 
             {/* Vacant End Event - Status Options */}
-            {event.type === 'vacant_end' && (
+            {eventType === 'vacant_end' && (
               <div className="space-y-4 pt-2 border-t border-slate-200 dark:border-slate-700">
                 <div className="space-y-3">
                   <p className="text-xs text-slate-500 dark:text-slate-400">
@@ -1292,7 +1497,7 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
             )}
 
             {/* Move Out Event - Status Options */}
-            {event.type === 'move_out' && (
+            {eventType === 'move_out' && (
               <div className="space-y-4 pt-2 border-t border-slate-200 dark:border-slate-700">
                 {/* Move out status checkboxes */}
                 <div className="space-y-3">
@@ -1350,7 +1555,7 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
             )}
 
             {/* Rent Start Event - Market Valuation */}
-            {event.type === 'rent_start' && (
+            {eventType === 'rent_start' && (
               <div className="space-y-4 pt-2 border-t border-slate-200 dark:border-slate-700">
                 {/* Market Valuation Section */}
                 <div className="space-y-3">
@@ -1618,7 +1823,7 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
 
             {/* Status Change Dropdown (for status_change events) */}
             {/* Hide for synthetic "Not Sold" markers */}
-            {event.type === 'status_change' && !isSyntheticNotSold && (
+            {eventType === 'status_change' && !isSyntheticNotSold && (
               <div>
                 <label className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                   <Home className="w-4 h-4" />
@@ -1640,7 +1845,7 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
             )}
 
             {/* Custom Event Status Change Option */}
-            {event.type === 'custom' && (
+            {eventType === 'custom' && (
               <div className="space-y-3 pt-2 border-t border-slate-200 dark:border-slate-700">
                 <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide">Status Change</h3>
 

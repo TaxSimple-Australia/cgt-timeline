@@ -58,6 +58,8 @@ export interface TimelineEvent {
   // Price breakdown for purchases (land + building)
   landPrice?: number;       // Price of land component
   buildingPrice?: number;   // Price of building component
+  overTwoHectares?: boolean; // For purchase events - property land exceeds 2 hectares (affects main residence exemption per ATO Section 118-120)
+  isLandOnly?: boolean;     // For purchase events - property is land only (no building), affects depreciation calculations
 
   // Custom event fields
   affectsStatus?: boolean;  // For custom events: does this event change property status?
@@ -371,8 +373,31 @@ export interface StatusPeriod {
 export const calculateStatusPeriods = (events: TimelineEvent[]): StatusPeriod[] => {
   const periods: StatusPeriod[] = [];
 
-  // Sort events by date
-  const sortedEvents = [...events].sort((a, b) => a.date.getTime() - b.date.getTime());
+  // Event priority for same-date events (higher number = processed later = takes precedence)
+  const eventPriority: Record<string, number> = {
+    'purchase': 1,              // Establishes baseline (vacant)
+    'move_in': 2,               // Status-changing events
+    'move_out': 2,
+    'rent_start': 2,
+    'rent_end': 2,
+    'vacant_start': 2,
+    'vacant_end': 2,
+    'status_change': 2,
+    'living_in_rental_start': 2,
+    'living_in_rental_end': 2,
+    'sale': 3,                  // Final status (highest priority)
+    'improvement': 0,           // Non-status events (lowest)
+    'refinance': 0,
+    'custom': 0,
+  };
+
+  // Sort events by date, then by priority for same-date events
+  const sortedEvents = [...events].sort((a, b) => {
+    const timeDiff = a.date.getTime() - b.date.getTime();
+    if (timeDiff !== 0) return timeDiff;
+    // Same date - sort by priority (lower priority processed first)
+    return (eventPriority[a.type] || 0) - (eventPriority[b.type] || 0);
+  });
 
   let currentStatus: PropertyStatus | null = null;
   let currentStartDate: Date | null = null;

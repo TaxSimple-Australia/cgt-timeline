@@ -50,16 +50,70 @@ export function parseDateFlexible(input: string): Date | null {
       }
     }
 
-    // 5 digits: DDMYY (e.g., 14308 = 14/3/08, single-digit month only)
+    // 7 digits: DMMYYYY or MDDYYYY or DDMYYYY - Smart detection
+    if (digits === 7) {
+      // Try multiple interpretations with smart detection
+      const interpretations = [
+        // DMMYYYY (e.g., 1152008 = D=1, MM=15, YYYY=2008)
+        { day: parseInt(trimmed.substring(0, 1), 10), month: parseInt(trimmed.substring(1, 3), 10), year: parseInt(trimmed.substring(3, 7), 10) },
+        // DDMYYYY (e.g., 1152008 = DD=11, M=5, YYYY=2008)
+        { day: parseInt(trimmed.substring(0, 2), 10), month: parseInt(trimmed.substring(2, 3), 10), year: parseInt(trimmed.substring(3, 7), 10) },
+        // MDDYYYY (e.g., 1152008 = M=1, DD=15, YYYY=2008) - fallback for when month > 12 in DMMYYYY
+        { day: parseInt(trimmed.substring(1, 3), 10), month: parseInt(trimmed.substring(0, 1), 10), year: parseInt(trimmed.substring(3, 7), 10) },
+      ];
+
+      for (const { day, month, year } of interpretations) {
+        // Smart detection: skip invalid interpretations
+        if (day >= 1 && day <= 31 && month >= 1 && month <= 12 && year >= 1900 && year <= 2100) {
+          const date = new Date(year, month - 1, day);
+          if (isValid(date) && date.getDate() === day && date.getMonth() === month - 1) {
+            return date;
+          }
+        }
+      }
+    }
+
+    // 5 digits: DDMYY or DMYY - Smart detection
     if (digits === 5) {
-      const day = parseInt(trimmed.substring(0, 2), 10);
-      const month = parseInt(trimmed.substring(2, 3), 10);
-      const yearShort = parseInt(trimmed.substring(3, 5), 10);
+      // Try DDMYY first (e.g., 14308 = 14/3/08)
+      let day = parseInt(trimmed.substring(0, 2), 10);
+      let month = parseInt(trimmed.substring(2, 3), 10);
+      let yearShort = parseInt(trimmed.substring(3, 5), 10);
+
+      // Assume 20XX for 00-50, 19XX for 51-99
+      let year = yearShort <= 50 ? 2000 + yearShort : 1900 + yearShort;
+
+      if (day >= 1 && day <= 31 && month >= 1 && month <= 9) {
+        const date = new Date(year, month - 1, day);
+        if (isValid(date) && date.getDate() === day && date.getMonth() === month - 1) {
+          return date;
+        }
+      }
+
+      // Try DMYY as fallback (e.g., 11508 = 1/15/08)
+      day = parseInt(trimmed.substring(0, 1), 10);
+      month = parseInt(trimmed.substring(1, 3), 10);
+      yearShort = parseInt(trimmed.substring(3, 5), 10);
+      year = yearShort <= 50 ? 2000 + yearShort : 1900 + yearShort;
+
+      if (day >= 1 && day <= 9 && month >= 1 && month <= 12) {
+        const date = new Date(year, month - 1, day);
+        if (isValid(date) && date.getDate() === day && date.getMonth() === month - 1) {
+          return date;
+        }
+      }
+    }
+
+    // 4 digits: DMYY - Single digit day and month (e.g., 1408 = 1/4/08)
+    if (digits === 4) {
+      const day = parseInt(trimmed.substring(0, 1), 10);
+      const month = parseInt(trimmed.substring(1, 2), 10);
+      const yearShort = parseInt(trimmed.substring(2, 4), 10);
 
       // Assume 20XX for 00-50, 19XX for 51-99
       const year = yearShort <= 50 ? 2000 + yearShort : 1900 + yearShort;
 
-      if (day >= 1 && day <= 31 && month >= 1 && month <= 9) {
+      if (day >= 1 && day <= 9 && month >= 1 && month <= 9) {
         const date = new Date(year, month - 1, day);
         if (isValid(date) && date.getDate() === day && date.getMonth() === month - 1) {
           return date;
@@ -224,10 +278,12 @@ export function isSameDay(date1: Date | undefined, date2: Date | undefined): boo
  * Common date format examples for user guidance
  */
 export const DATE_FORMAT_EXAMPLES = [
-  '15/01/2023',
-  '15012023',
-  '15 Jan 2023',
-  '2023-01-15',
+  '15/01/2023',      // Standard Australian format
+  '15012023',        // 8 digits: DDMMYYYY
+  '14308',           // 5 digits: DDMYY (14 March 2008)
+  '1152008',         // 7 digits: Smart detect (1 Jan 2008 or 11 May 2008)
+  '15 Jan 2023',     // Natural language
+  '2023-01-15',      // ISO format
 ];
 
-export const DATE_FORMAT_PLACEHOLDER = 'e.g., 15/01/2023, 15012023, 15 Jan 2023, or 2023-01-15';
+export const DATE_FORMAT_PLACEHOLDER = 'e.g., 15/01/2023, 14032008, 14308, 1152008, 15 Jan 2023';

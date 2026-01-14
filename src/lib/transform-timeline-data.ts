@@ -102,6 +102,22 @@ export function transformTimelineToAPIFormat(
         }
       }
 
+      // Add over 2 hectares flag for purchase events (affects main residence exemption)
+      if (event.type === 'purchase' && event.overTwoHectares) {
+        // Add to description to alert the CGT calculator about land size limitation
+        const landSizeNote = ' [Land exceeds 2 hectares - main residence exemption limited to dwelling + 2 hectares per ATO Section 118-120]';
+        historyEvent.description = (historyEvent.description || event.title) + landSizeNote;
+        console.log('📍 Transform: Over 2 hectares flag detected for purchase event');
+      }
+
+      // Add land-only flag for purchase events (affects depreciation)
+      if (event.type === 'purchase' && event.isLandOnly) {
+        // Add to description to alert the CGT calculator about no building depreciation
+        const landOnlyNote = ' [Land only property - no building depreciation available]';
+        historyEvent.description = (historyEvent.description || event.title) + landOnlyNote;
+        console.log('📍 Transform: Land-only flag detected for purchase event');
+      }
+
       // Add contract date for sale events
       // For sale events, always include contract_date (use event date if not set)
       if (event.type === 'sale') {

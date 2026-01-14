@@ -132,6 +132,18 @@ body {
   @apply bg-slate-500;
 }
 
+/* Hide number input spinners/arrows */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
 /* Smooth animations */
 * {
   @apply transition-colors duration-150;

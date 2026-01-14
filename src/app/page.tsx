@@ -18,7 +18,7 @@ import type { SuggestedQuestion } from '@/types/suggested-questions';
 import { useValidationStore } from '@/store/validation';
 import { transformTimelineToAPIFormat } from '@/lib/transform-timeline-data';
 import { extractVerificationAlerts } from '@/lib/extract-verification-alerts';
-import { deserializeTimeline } from '@/lib/timeline-serialization';
+// deserializeTimeline replaced by importShareableData from store
 import '@/lib/test-verification-alerts'; // Load test utilities for browser console
 import { ChevronDown, ChevronUp, Sparkles, AlertTriangle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -45,6 +45,7 @@ function HomeContent() {
     selectedProperty,
     loadDemoData,
     importTimelineData,
+    importShareableData,
     properties,
     events,
     selectedIssue,
@@ -63,6 +64,8 @@ function HomeContent() {
     apiResponseMode,
     setTimelineNotes,
     selectedLLMProvider,
+    savedAnalysis,
+    aiResponse,
   } = useTimelineStore();
   const { setValidationIssues, clearValidationIssues, setApiConnected } = useValidationStore();
   const [showAnalysis, setShowAnalysis] = useState(false);
@@ -115,24 +118,22 @@ function HomeContent() {
       }
 
       if (result.success && result.data) {
-        console.log('✅ Shared timeline loaded successfully:', result.data);
-
-        // Deserialize and import the timeline data
-        const deserialized = deserializeTimeline({
-          version: 1,
-          properties: result.data.properties,
-          events: result.data.events,
-          notes: result.data.notes,
+        console.log('✅ Shared timeline loaded successfully:', {
+          properties: result.data.properties?.length,
+          events: result.data.events?.length,
+          timelineStickyNotes: result.data.timelineStickyNotes?.length,
+          hasAnalysis: !!result.data.savedAnalysis,
+          analysisStickyNotes: result.data.savedAnalysis?.analysisStickyNotes?.length,
         });
 
-        importTimelineData({
-          properties: deserialized.properties,
-          events: deserialized.events,
-        });
+        // Use importShareableData to load EVERYTHING including sticky notes and analysis
+        importShareableData(result.data);
 
-        // Load notes if present
-        if (deserialized.notes) {
-          setTimelineNotes(deserialized.notes);
+        // If there's saved analysis, auto-show it
+        if (result.data.savedAnalysis?.response) {
+          console.log('📊 Shared timeline has analysis - auto-showing');
+          setAnalysisData(result.data.savedAnalysis.response);
+          setShowAnalysis(true);
         }
 
         // Clear URL parameter without page reload

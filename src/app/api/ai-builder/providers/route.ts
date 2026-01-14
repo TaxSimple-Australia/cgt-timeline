@@ -4,7 +4,7 @@ import { LLM_PROVIDERS } from '@/lib/ai-builder/llm/types';
 export async function GET() {
   // Check which providers are available based on API keys
   const availableProviders: Record<string, string> = {};
-  let defaultProvider = 'gemini';
+  let defaultProvider = 'deepseek';
 
   const keyMap: Record<string, string> = {
     deepseek: 'DEEPSEEK_API_KEY',
@@ -20,8 +20,8 @@ export async function GET() {
     }
   }
 
-  // Determine default provider - Gemini 3 Pro is preferred
-  const preferredOrder = ['gemini', 'claude', 'deepseek', 'gpt4'];
+  // Determine default provider - Deepseek is preferred
+  const preferredOrder = ['deepseek', 'claude', 'gemini', 'gpt4'];
   for (const id of preferredOrder) {
     if (id in availableProviders) {
       defaultProvider = id;
@@ -29,11 +29,11 @@ export async function GET() {
     }
   }
 
-  // If no providers available, return mock list with Gemini as default
+  // If no providers available, return mock list with Deepseek as default
   if (Object.keys(availableProviders).length === 0) {
     return NextResponse.json({
-      providers: { gemini: 'Gemini 3 Pro' },
-      default: 'gemini',
+      providers: { deepseek: 'Deepseek Chat' },
+      default: 'deepseek',
       warning: 'No LLM API keys configured. Using mock mode.',
     });
   }

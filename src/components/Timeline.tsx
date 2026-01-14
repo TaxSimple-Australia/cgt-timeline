@@ -25,9 +25,10 @@ declare global {
 interface TimelineProps {
   className?: string;
   onAlertClick?: (alertId: string) => void;
+  onOpenAIBuilder?: () => void;
 }
 
-export default function Timeline({ className, onAlertClick }: TimelineProps) {
+export default function Timeline({ className, onAlertClick, onOpenAIBuilder }: TimelineProps) {
   const timelineRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [draggedEventId, setDraggedEventId] = useState<string | null>(null);
@@ -414,19 +415,27 @@ export default function Timeline({ className, onAlertClick }: TimelineProps) {
                     <span className="text-sm">Click on the timeline to begin</span>
                   </div>
 
-                  {/* AI Timeline Builder Hint */}
+                  {/* AI Timeline Builder Button */}
                   <div className="pt-4 border-t border-slate-200 dark:border-slate-700 w-full flex flex-col items-center">
                     <p className="text-slate-400 dark:text-slate-500 text-sm mb-2">
                       Or try the
                     </p>
-                    <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-500/10 to-blue-500/10 dark:from-purple-500/20 dark:to-blue-500/20 rounded-xl border border-purple-200 dark:border-purple-800">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        onOpenAIBuilder?.();
+                      }}
+                      onMouseDown={(e) => e.stopPropagation()}
+                      className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-500/10 to-blue-500/10 dark:from-purple-500/20 dark:to-blue-500/20 rounded-xl border border-purple-200 dark:border-purple-800 hover:from-purple-500/20 hover:to-blue-500/20 dark:hover:from-purple-500/30 dark:hover:to-blue-500/30 hover:border-purple-300 dark:hover:border-purple-700 transition-all cursor-pointer hover:scale-105 hover:shadow-lg"
+                    >
                       <svg className="w-5 h-5 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
                       </svg>
                       <span className="text-sm font-medium bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
                         AI Timeline Builder
                       </span>
-                    </div>
+                    </button>
                     <p className="text-slate-400 dark:text-slate-500 text-xs mt-2">
                       Build your timeline by simply describing your property history
                     </p>

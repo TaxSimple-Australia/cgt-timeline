@@ -90,7 +90,7 @@ export default function AddStickyNoteButton({
         <StickyNote className="w-3.5 h-3.5" />
         <Plus className="w-2 h-2 absolute -bottom-0.5 -right-0.5 bg-amber-100 dark:bg-amber-900 rounded-full" />
       </div>
-      <span className="text-xs font-medium hidden sm:inline">Add Note</span>
+      <span className="text-xs font-medium hidden sm:inline">Note</span>
     </motion.button>
   );
 }

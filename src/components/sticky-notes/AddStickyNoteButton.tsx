@@ -14,6 +14,8 @@ interface AddStickyNoteButtonProps {
   onNoteAdded?: (noteId: string) => void;
   /** Custom position for the note (optional) */
   position?: TimelineNotePosition | AnalysisNotePosition;
+  /** Reference to the timeline container (for calculating visible center) */
+  containerRef?: React.RefObject<HTMLDivElement>;
   className?: string;
 }
 
@@ -21,6 +23,7 @@ export default function AddStickyNoteButton({
   context,
   onNoteAdded,
   position,
+  containerRef,
   className,
 }: AddStickyNoteButtonProps) {
   const {
@@ -32,21 +35,57 @@ export default function AddStickyNoteButton({
     timelineEnd,
   } = useTimelineStore();
 
+  // Calculate the visible center of the timeline viewport
+  const getVisibleCenterPosition = (): TimelineNotePosition => {
+    const container = containerRef?.current;
+
+    if (!container) {
+      // Fallback to center of entire timeline if no container ref
+      return {
+        anchorDate: new Date((timelineStart.getTime() + timelineEnd.getTime()) / 2).toISOString(),
+        verticalOffset: 0,
+      };
+    }
+
+    const rect = container.getBoundingClientRect();
+    const scrollTop = container.scrollTop;
+    const scrollHeight = container.scrollHeight;
+    const viewportHeight = rect.height;
+    const viewportWidth = rect.width;
+
+    // Calculate the center of the visible viewport in content coordinates
+    const visibleCenterY = scrollTop + (viewportHeight / 2);
+
+    // Convert to verticalOffset (relative to 50% of content height)
+    const contentCenterY = scrollHeight / 2;
+    const verticalOffset = visibleCenterY - contentCenterY;
+
+    // Calculate what date is at the horizontal center of the viewport
+    // The timeline width maps to timelineStart -> timelineEnd
+    const totalTimeRange = timelineEnd.getTime() - timelineStart.getTime();
+
+    // Horizontal center is at 50% of viewport width
+    // Since the timeline fills the container, 50% of width = 50% through the time range
+    const centerDate = new Date(timelineStart.getTime() + (totalTimeRange * 0.5));
+
+    return {
+      anchorDate: centerDate.toISOString(),
+      verticalOffset: verticalOffset,
+    };
+  };
+
   const handleClick = () => {
     let noteId: string;
 
     if (context === 'timeline') {
-      // Default position: center of visible timeline, slightly above center
-      const defaultPosition: TimelineNotePosition = position as TimelineNotePosition || {
-        anchorDate: new Date((timelineStart.getTime() + timelineEnd.getTime()) / 2).toISOString(),
-        verticalOffset: -50,
-      };
+      // Use provided position or calculate visible center
+      const notePosition: TimelineNotePosition = position as TimelineNotePosition || getVisibleCenterPosition();
 
       noteId = addTimelineStickyNote({
         content: '',
         color: DEFAULT_STICKY_NOTE_COLOR,
         context: 'timeline',
-        position: defaultPosition,
+        position: notePosition,
         isMinimized: true, // Start as icon - user clicks to expand
         zIndex: 1000 + timelineStickyNotes.length,
       });

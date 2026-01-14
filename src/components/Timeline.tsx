@@ -290,7 +290,7 @@ export default function Timeline({ className, onAlertClick, onOpenAIBuilder }: T
   return (
     <div className={cn('relative w-full h-full bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800', className)}>
       {/* Controls */}
-      <TimelineControls />
+      <TimelineControls timelineContainerRef={timelineRef} />
 
       {/* Main Timeline Container */}
       <div className="relative h-full pt-20 pb-4 px-8">

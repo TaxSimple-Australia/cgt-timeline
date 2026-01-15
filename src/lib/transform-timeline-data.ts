@@ -425,6 +425,15 @@ export function transformTimelineToAPIFormat(
         });
       }
 
+      // Add improvement amount to description for AI context (for improvement events)
+      if (event.type === 'improvement' && historyEvent.improvement_cost && historyEvent.improvement_cost > 0) {
+        const amountInfo = `Improvement cost: $${historyEvent.improvement_cost.toLocaleString('en-AU', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+        historyEvent.description = historyEvent.description
+          ? `${historyEvent.description}. ${amountInfo}`
+          : amountInfo;
+        console.log('💰 Transform: Added improvement amount to description:', historyEvent.improvement_cost);
+      }
+
       return historyEvent;
     }).filter((event): event is PropertyHistoryEvent => event !== null); // Filter out null entries from invalid dates
 

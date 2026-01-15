@@ -230,6 +230,7 @@ interface TimelineState {
   setCenterDate: (date: Date) => void;
   panToPosition: (position: number) => void; // Position 0-100 on absolute timeline
   loadDemoData: () => Promise<void>; // Load demo data from JSON file
+  migrateSaleEventTitles: () => void; // Migrate sale events with marginal tax rate in title
   clearAllData: () => void; // Clear all properties and events
   importTimelineData: (data: any) => void; // Import timeline data from JSON
   toggleTheme: () => void; // Cycle through themes: light -> dark -> golden -> light
@@ -570,10 +571,32 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
 
   addProperty: (property) => {
     const properties = get().properties;
+
+    // Determine color: use provided color or find first unused color from palette
+    let selectedColor = property.color;
+    if (!selectedColor) {
+      // Get colors currently in use
+      const usedColors = new Set(properties.map(p => p.color.toUpperCase()));
+
+      // Find first unused color from palette
+      selectedColor = propertyColors[0];
+      for (const color of propertyColors) {
+        if (!usedColors.has(color.toUpperCase())) {
+          selectedColor = color;
+          break;
+        }
+      }
+
+      // If all colors are used, cycle through them
+      if (usedColors.size >= propertyColors.length) {
+        selectedColor = propertyColors[properties.length % propertyColors.length];
+      }
+    }
+
     const newProperty: Property = {
       ...property,
       id: `prop-${Date.now()}`,
-      color: property.color || propertyColors[properties.length % propertyColors.length],
+      color: selectedColor,
       branch: properties.length,
     };
     set({ properties: [...properties, newProperty] });
@@ -1081,6 +1104,54 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
       centerDate: centerDate,
       zoomLevel: '30-years',
     });
+    }
+  },
+
+  // Migrate sale events with marginal tax rate in title to description
+  migrateSaleEventTitles: () => {
+    const events = get().events;
+    let migratedCount = 0;
+
+    const migratedEvents = events.map((event) => {
+      // Only migrate sale events with "Marginal tax rate" in the title
+      if (event.type === 'sale' && event.title && event.title.includes('Marginal tax rate:')) {
+        migratedCount++;
+
+        // Extract the marginal tax rate from title
+        const match = event.title.match(/Marginal tax rate: ([\d.]+)%/);
+        const taxRateValue = match ? match[1] : null;
+
+        // Build the new description
+        let newDescription = event.description || '';
+
+        // Add marginal tax rate to description if we extracted it and it's not already there
+        if (taxRateValue && !newDescription.includes('Marginal tax rate:')) {
+          const taxRateNote = `Marginal tax rate: ${taxRateValue}%`;
+          newDescription = newDescription
+            ? `${newDescription}. ${taxRateNote}`
+            : taxRateNote;
+        }
+
+        console.log(`📝 Migration: Fixed sale event title from "${event.title}" to "Sold"`, {
+          eventId: event.id,
+          oldTitle: event.title,
+          newTitle: 'Sold',
+          extractedTaxRate: taxRateValue,
+          newDescription
+        });
+
+        return {
+          ...event,
+          title: 'Sold',
+          description: newDescription
+        };
+      }
+      return event;
+    });
+
+    if (migratedCount > 0) {
+      console.log(`✅ Migration complete: Fixed ${migratedCount} sale event title(s)`);
+      set({ events: migratedEvents });
     }
   },
 

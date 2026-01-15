@@ -218,10 +218,37 @@ export default function QuickAddMenu({ position, timelinePosition, onClose, pres
   const handleAddProperty = () => {
     if (!propertyName) return;
 
+    // Use predefined property colors and avoid duplicates
+    const propertyColors = [
+      '#3B82F6', // Blue
+      '#8B5CF6', // Purple
+      '#10B981', // Green
+      '#F59E0B', // Amber
+      '#EC4899', // Pink
+      '#14B8A6', // Teal
+    ];
+
+    // Get colors currently in use
+    const usedColors = new Set(properties.map(p => p.color.toUpperCase()));
+
+    // Find first unused color, or cycle through if all are used
+    let selectedColor = propertyColors[0];
+    for (const color of propertyColors) {
+      if (!usedColors.has(color.toUpperCase())) {
+        selectedColor = color;
+        break;
+      }
+    }
+
+    // If all colors are used, use the next in sequence
+    if (usedColors.size >= propertyColors.length) {
+      selectedColor = propertyColors[properties.length % propertyColors.length];
+    }
+
     addProperty({
       name: propertyName,
       address: '', // Address is now included in the name field
-      color: `#${Math.floor(Math.random()*16777215).toString(16)}`,
+      color: selectedColor,
       isRental: isRentalProperty || undefined,
     });
 

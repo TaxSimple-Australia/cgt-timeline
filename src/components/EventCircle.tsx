@@ -33,6 +33,21 @@ export default function EventCircle({ event, cx, cy, color, onClick, tier = 0, z
   const { timelineIssues, selectIssue } = useTimelineStore();
   const eventIssues = timelineIssues.filter(issue => issue.eventId === event.id);
 
+  // Helper function to get display title for sale events
+  const getDisplayTitle = (event: TimelineEvent): string => {
+    if (event.type === 'sale') {
+      // Handle case where title is exactly "sale" (case-insensitive)
+      if (event.title.toLowerCase() === 'sale') {
+        return 'sold';
+      }
+      // Handle case where title contains "Marginal tax rate:" (data needs migration)
+      if (event.title.includes('Marginal tax rate:')) {
+        return 'Sold';
+      }
+    }
+    return event.title;
+  };
+
   // Calculate label Y position based on tier
   // Each tier adds vertical space to avoid overlap
   const TIER_SPACING = 18; // Pixels between tiers
@@ -293,7 +308,7 @@ export default function EventCircle({ event, cx, cy, color, onClick, tier = 0, z
             animate={{ opacity: 1, y: 0 }}
             className="bg-slate-800 text-white px-3 py-2 rounded-lg shadow-xl text-xs"
           >
-            <div className="font-semibold mb-1">{event.type === 'sale' && event.title.toLowerCase() === 'sale' ? 'sold' : event.title}</div>
+            <div className="font-semibold mb-1">{getDisplayTitle(event)}</div>
             <div className="text-slate-300 text-[10px]">
               {new Date(event.date).toLocaleDateString('en-US', {
                 month: 'short',
@@ -354,9 +369,9 @@ export default function EventCircle({ event, cx, cy, color, onClick, tier = 0, z
             textOverflow: 'ellipsis',
             whiteSpace: 'nowrap'
           }}
-          title={event.type === 'sale' && event.title.toLowerCase() === 'sale' ? 'sold' : event.title}
+          title={getDisplayTitle(event)}
         >
-          {event.type === 'sale' && event.title.toLowerCase() === 'sale' ? 'sold' : event.title}
+          {getDisplayTitle(event)}
         </div>
       </foreignObject>
     </g>

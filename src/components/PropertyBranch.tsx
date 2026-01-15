@@ -475,7 +475,7 @@ export default function PropertyBranch({
       )}
 
       {/* Branch Label */}
-      <foreignObject x="10" y={branchY - 30} width="300" height="60">
+      <foreignObject x="10" y={branchY - 30} width="300" height="60" style={{ pointerEvents: 'none' }}>
         <div className="flex items-center gap-2 group select-none">
           <div
             className={cn(
@@ -484,7 +484,7 @@ export default function PropertyBranch({
               "hover:ring-2 hover:ring-offset-1 hover:ring-slate-300 dark:hover:ring-slate-500",
               "hover:scale-110"
             )}
-            style={{ backgroundColor: property.color }}
+            style={{ backgroundColor: property.color, pointerEvents: 'auto' }}
             onClick={handlePropertyClick}
             title={`Click to view ${property.name} details`}
           />

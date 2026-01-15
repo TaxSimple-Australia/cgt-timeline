@@ -44,6 +44,7 @@ function HomeContent() {
   const {
     selectedProperty,
     loadDemoData,
+    migrateSaleEventTitles,
     importTimelineData,
     importShareableData,
     properties,
@@ -196,6 +197,11 @@ function HomeContent() {
     const apiUrl = process.env.NEXT_PUBLIC_CGT_MODEL_API_URL;
     setApiConnected(!!apiUrl && apiUrl !== 'YOUR_MODEL_API_URL_HERE');
   }, []);
+
+  // Run data migration on mount (one-time fix for sale event titles)
+  useEffect(() => {
+    migrateSaleEventTitles();
+  }, [migrateSaleEventTitles]);
 
   // Watch for all verification alerts being resolved
   useEffect(() => {

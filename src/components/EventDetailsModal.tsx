@@ -80,9 +80,48 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
   const [affectsStatus, setAffectsStatus] = useState(event.affectsStatus || false);
 
   // Move in on same day checkbox (for purchase events)
-  const [moveInOnSameDay, setMoveInOnSameDay] = useState(false);
-  const [purchaseAsVacant, setPurchaseAsVacant] = useState(false);
-  const [purchaseAsRent, setPurchaseAsRent] = useState(false);
+  const [moveInOnSameDay, setMoveInOnSameDay] = useState(() => {
+    // Check if a move_in event already exists on the same date as this purchase
+    if (event.type === 'purchase') {
+      const purchaseDate = event.date.getTime();
+      const existingMoveIn = events.find(
+        (e) =>
+          e.propertyId === event.propertyId &&
+          e.type === 'move_in' &&
+          e.date.getTime() === purchaseDate
+      );
+      return !!existingMoveIn;
+    }
+    return false;
+  });
+  const [purchaseAsVacant, setPurchaseAsVacant] = useState(() => {
+    // Check if a vacant_start event exists on the same date as this purchase
+    if (event.type === 'purchase') {
+      const purchaseDate = event.date.getTime();
+      const existingVacant = events.find(
+        (e) =>
+          e.propertyId === event.propertyId &&
+          e.type === 'vacant_start' &&
+          e.date.getTime() === purchaseDate
+      );
+      return !!existingVacant;
+    }
+    return false;
+  });
+  const [purchaseAsRent, setPurchaseAsRent] = useState(() => {
+    // Check if a rent_start event exists on the same date as this purchase
+    if (event.type === 'purchase') {
+      const purchaseDate = event.date.getTime();
+      const existingRent = events.find(
+        (e) =>
+          e.propertyId === event.propertyId &&
+          e.type === 'rent_start' &&
+          e.date.getTime() === purchaseDate
+      );
+      return !!existingRent;
+    }
+    return false;
+  });
   const [overTwoHectares, setOverTwoHectares] = useState(event.overTwoHectares || false);
   const [isLandOnly, setIsLandOnly] = useState(event.isLandOnly || false);
 
@@ -92,12 +131,64 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
   );
 
   // Move out status checkboxes (for move_out events)
-  const [moveOutAsVacant, setMoveOutAsVacant] = useState(false);
-  const [moveOutAsRent, setMoveOutAsRent] = useState(false);
+  const [moveOutAsVacant, setMoveOutAsVacant] = useState(() => {
+    // Check if a vacant_start event exists on the same date as this move_out
+    if (event.type === 'move_out') {
+      const moveOutDate = event.date.getTime();
+      const existingVacant = events.find(
+        (e) =>
+          e.propertyId === event.propertyId &&
+          e.type === 'vacant_start' &&
+          e.date.getTime() === moveOutDate
+      );
+      return !!existingVacant;
+    }
+    return false;
+  });
+  const [moveOutAsRent, setMoveOutAsRent] = useState(() => {
+    // Check if a rent_start event exists on the same date as this move_out
+    if (event.type === 'move_out') {
+      const moveOutDate = event.date.getTime();
+      const existingRent = events.find(
+        (e) =>
+          e.propertyId === event.propertyId &&
+          e.type === 'rent_start' &&
+          e.date.getTime() === moveOutDate
+      );
+      return !!existingRent;
+    }
+    return false;
+  });
 
   // Rent end status checkboxes (for rent_end events)
-  const [rentEndAsVacant, setRentEndAsVacant] = useState(false);
-  const [rentEndAsMoveIn, setRentEndAsMoveIn] = useState(false);
+  const [rentEndAsVacant, setRentEndAsVacant] = useState(() => {
+    // Check if a vacant_start event exists on the same date as this rent_end
+    if (event.type === 'rent_end') {
+      const rentEndDate = event.date.getTime();
+      const existingVacant = events.find(
+        (e) =>
+          e.propertyId === event.propertyId &&
+          e.type === 'vacant_start' &&
+          e.date.getTime() === rentEndDate
+      );
+      return !!existingVacant;
+    }
+    return false;
+  });
+  const [rentEndAsMoveIn, setRentEndAsMoveIn] = useState(() => {
+    // Check if a move_in event exists on the same date as this rent_end
+    if (event.type === 'rent_end') {
+      const rentEndDate = event.date.getTime();
+      const existingMoveIn = events.find(
+        (e) =>
+          e.propertyId === event.propertyId &&
+          e.type === 'move_in' &&
+          e.date.getTime() === rentEndDate
+      );
+      return !!existingMoveIn;
+    }
+    return false;
+  });
 
   // Vacant end status checkboxes (for vacant_end events - extract from notes if present)
   const [vacantEndAsMoveIn, setVacantEndAsMoveIn] = useState(() => {
@@ -995,68 +1086,9 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
                       </label>
                     </div>
 
-                    {/* Business use section - nested inside Move in checkbox */}
-                    <AnimatePresence>
-                      {moveInOnSameDay && (
-                        <motion.div
-                          initial={{ height: 0, opacity: 0 }}
-                          animate={{ height: 'auto', opacity: 1 }}
-                          exit={{ height: 0, opacity: 0 }}
-                          transition={{ duration: 0.2 }}
-                          className="border-t border-green-200 dark:border-green-700"
-                        >
-                          <div className="p-4 bg-green-100/50 dark:bg-green-900/30 space-y-3">
-                            <div className="flex items-center gap-3">
-                              <input
-                                type="checkbox"
-                                id="hasBusinessUse"
-                                checked={hasBusinessUse}
-                                onChange={(e) => setHasBusinessUse(e.target.checked)}
-                                className="w-4 h-4 text-blue-600 bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 rounded focus:ring-2 focus:ring-blue-500 cursor-pointer"
-                              />
-                              <label
-                                htmlFor="hasBusinessUse"
-                                className="text-sm font-medium text-slate-700 dark:text-slate-300 cursor-pointer"
-                              >
-                                Using part for business or rental?
-                              </label>
-                            </div>
-
-                            <AnimatePresence>
-                              {hasBusinessUse && (
-                                <motion.div
-                                  initial={{ height: 0, opacity: 0 }}
-                                  animate={{ height: 'auto', opacity: 1 }}
-                                  exit={{ height: 0, opacity: 0 }}
-                                  transition={{ duration: 0.15 }}
-                                >
-                                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                                    Business use percentage (0-100%)
-                                  </label>
-                                  <input
-                                    type="number"
-                                    min="0"
-                                    max="100"
-                                    step="0.1"
-                                    value={businessUsePercentage}
-                                    onChange={(e) => setBusinessUsePercentage(e.target.value)}
-                                    onWheel={(e) => e.currentTarget.blur()}
-                                    className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                    placeholder="e.g., 25"
-                                  />
-                                  <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-                                    Enter the percentage of the property used for business or rental purposes
-                                  </p>
-                                </motion.div>
-                              )}
-                            </AnimatePresence>
-                          </div>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
                   </div>
 
-                  {/* Business use % - appears immediately below "Move in" with animation */}
+                  {/* Business use section - separate indented box */}
                   <AnimatePresence>
                     {moveInOnSameDay && (
                       <motion.div
@@ -1066,7 +1098,7 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
                         transition={{ duration: 0.2 }}
                         className="overflow-hidden"
                       >
-                        <div className="ml-6 border-l-2 border-purple-300 dark:border-purple-700 pl-4">
+                        <div className="ml-8">
                           <div className="space-y-3 p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200 dark:border-purple-800">
                             <div className="flex items-center gap-3">
                               <input

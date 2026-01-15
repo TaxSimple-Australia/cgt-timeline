@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { TimelineEvent, PropertyStatus, useTimelineStore, CostBaseItem } from '@/store/timeline';
 import { format } from 'date-fns';
-import { X, Calendar, DollarSign, Home, Tag, FileText, CheckCircle, Receipt, Info, Star, Palette, Building2, Key, AlertCircle, Briefcase, TrendingUp, Package, Hammer, Gift, MapPin, ChevronDown } from 'lucide-react';
+import { X, Calendar, DollarSign, Home, Tag, FileText, CheckCircle, Receipt, Info, Star, Palette, Building2, Key, AlertCircle, Briefcase, TrendingUp, Package, Hammer, Gift, MapPin, ChevronDown, Square, Maximize2 } from 'lucide-react';
 import CostBaseSelector from './CostBaseSelector';
 import { getCostBaseDefinition } from '@/lib/cost-base-definitions';
 import CostBaseSummaryModal from './CostBaseSummaryModal';
@@ -204,8 +204,8 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
     return false;
   });
 
-  // Sale event - Australian resident status
-  const [isResident, setIsResident] = useState(event.isResident ?? true);
+  // Sale event - Non-resident status (unchecked = resident by default)
+  const [isNonResident, setIsNonResident] = useState(event.isResident === false);
 
   // Sale event - Previous year capital losses
   const [previousYearLosses, setPreviousYearLosses] = useState(event.previousYearLosses?.toString() || '');
@@ -426,8 +426,8 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
         updates.landPrice = undefined;
         updates.buildingPrice = undefined;
 
-        // Australian resident status for CGT
-        updates.isResident = isResident;
+        // Australian resident status for CGT (isNonResident checked = non-resident)
+        updates.isResident = !isNonResident;
 
         // Previous year capital losses
         if (previousYearLosses && !isNaN(parseFloat(previousYearLosses))) {
@@ -436,9 +436,15 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
           updates.previousYearLosses = undefined;
         }
       } else if (event.type === 'improvement') {
-        // For improvement events, calculate amount from cost bases (like purchase)
+        // For improvement events, use cost bases if available, otherwise fall back to amount field
         const totalCostBases = costBases.reduce((sum, cb) => sum + cb.amount, 0);
-        updates.amount = totalCostBases > 0 ? totalCostBases : undefined;
+        if (totalCostBases > 0) {
+          updates.amount = totalCostBases;
+        } else if (amount && !isNaN(parseFloat(amount))) {
+          updates.amount = parseFloat(amount);
+        } else {
+          updates.amount = undefined;
+        }
       } else {
         // For other events, use the single amount field
         if (amount && !isNaN(parseFloat(amount))) {
@@ -1232,7 +1238,7 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
                               htmlFor="isLandOnly"
                               className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300 cursor-pointer"
                             >
-                              <MapPin className="w-4 h-4" />
+                              <Square className="w-4 h-4" />
                               Land Only (no building)
                             </label>
                             <div className="ml-auto">
@@ -1259,7 +1265,7 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
                               htmlFor="overTwoHectares"
                               className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300 cursor-pointer"
                             >
-                              <AlertCircle className="w-4 h-4" />
+                              <Maximize2 className="w-4 h-4" />
                               Land exceeds 2 hectares
                             </label>
                             <div className="ml-auto">
@@ -1280,8 +1286,9 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
               )}
             </div>
 
-            {/* Financial Details Section - Only for specific event types (not purchase or sale) */}
-            {eventType !== 'purchase' &&
+            {/* Financial Details Section - Only for specific event types (not purchase, sale, or Not Sold markers) */}
+            {!isSyntheticNotSold &&
+             eventType !== 'purchase' &&
              eventType !== 'move_in' &&
              eventType !== 'move_out' &&
              eventType !== 'rent_start' &&
@@ -1324,24 +1331,24 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
               </div>
             )}
 
-            {/* Sale Event - Australian Resident Status */}
+            {/* Sale Event - Non-Resident Status */}
             {eventType === 'sale' && (
               <div className="space-y-4 pt-2 border-t border-slate-200 dark:border-slate-700">
                 <div className="flex items-center gap-3 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
                   <input
                     type="checkbox"
-                    id="isResident"
-                    checked={isResident}
-                    onChange={(e) => setIsResident(e.target.checked)}
+                    id="isNonResident"
+                    checked={isNonResident}
+                    onChange={(e) => setIsNonResident(e.target.checked)}
                     className="w-4 h-4 text-blue-600 bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 rounded focus:ring-2 focus:ring-blue-500 cursor-pointer"
                   />
                   <div className="flex flex-col flex-1">
                     <div className="flex items-center gap-2">
                       <label
-                        htmlFor="isResident"
+                        htmlFor="isNonResident"
                         className="text-sm font-medium text-slate-700 dark:text-slate-300 cursor-pointer"
                       >
-                        Resident / Non-Resident
+                        Non-Resident
                       </label>
                       <div className="relative group">
                         <Info className="w-4 h-4 text-blue-500 cursor-help" />
@@ -1352,7 +1359,7 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
                       </div>
                     </div>
                     <span className="text-xs text-slate-500 dark:text-slate-400">
-                      {isResident ? 'Australian resident for tax purposes' : 'Non-resident for tax purposes'}
+                      {isNonResident ? 'Non-resident for tax purposes' : 'Australian resident for tax purposes'}
                     </span>
                   </div>
                 </div>

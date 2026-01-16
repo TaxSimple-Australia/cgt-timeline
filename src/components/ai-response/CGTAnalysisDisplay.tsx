@@ -18,6 +18,7 @@ import OwnershipPeriodsChart from './OwnershipPeriodsChart';
 import FollowUpChatWindow from './FollowUpChatWindow';
 import { AnalysisData, Citations } from '@/types/model-response';
 import { AnalysisStickyNotesLayer, AddStickyNoteButton, ShareLinkButton } from '../sticky-notes';
+import { AnalysisDrawingAnnotationsLayer, AddDrawingButton } from '../annotations';
 
 interface CGTAnalysisDisplayProps {
   response: any; // AI response (success or verification_failed)
@@ -276,6 +277,9 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
             {/* Share Link Button */}
             <ShareLinkButton variant="analysis" includeAnalysis={true} />
 
+            {/* Add Drawing Button */}
+            <AddDrawingButton context="analysis" />
+
             {/* Add Sticky Note Button */}
             <AddStickyNoteButton context="analysis" />
 
@@ -390,6 +394,9 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
           </div>
         )}
 
+        {/* Analysis Drawing Annotations Layer */}
+        <AnalysisDrawingAnnotationsLayer containerRef={analysisContainerRef} />
+
         {/* Analysis Sticky Notes Layer */}
         <AnalysisStickyNotesLayer containerRef={analysisContainerRef} />
       </div>
@@ -427,6 +434,9 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
 
             {/* Share Link Button */}
             <ShareLinkButton variant="analysis" includeAnalysis={true} />
+
+            {/* Add Drawing Button */}
+            <AddDrawingButton context="analysis" />
 
             {/* Add Sticky Note Button */}
             <AddStickyNoteButton context="analysis" />
@@ -642,6 +652,9 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
           />
         )}
 
+        {/* Analysis Drawing Annotations Layer */}
+        <AnalysisDrawingAnnotationsLayer containerRef={analysisContainerRef} />
+
         {/* Analysis Sticky Notes Layer */}
         <AnalysisStickyNotesLayer containerRef={analysisContainerRef} />
       </div>
@@ -739,6 +752,9 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
 
             {/* Share Link Button */}
             <ShareLinkButton variant="analysis" includeAnalysis={true} />
+
+            {/* Add Drawing Button */}
+            <AddDrawingButton context="analysis" />
 
             {/* Add Sticky Note Button */}
             <AddStickyNoteButton context="analysis" />
@@ -1466,6 +1482,9 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
           />
         )}
 
+        {/* Analysis Drawing Annotations Layer */}
+        <AnalysisDrawingAnnotationsLayer containerRef={analysisContainerRef} />
+
         {/* Analysis Sticky Notes Layer */}
         <AnalysisStickyNotesLayer containerRef={analysisContainerRef} />
       </div>
@@ -1559,6 +1578,9 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
           <div className="flex items-center gap-2">
             {/* Share Link Button */}
             <ShareLinkButton variant="analysis" includeAnalysis={true} />
+
+            {/* Add Drawing Button */}
+            <AddDrawingButton context="analysis" />
 
             {/* Add Sticky Note Button */}
             <AddStickyNoteButton context="analysis" />
@@ -1745,6 +1767,9 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
           )}
         </AnimatePresence>
 
+        {/* Analysis Drawing Annotations Layer */}
+        <AnalysisDrawingAnnotationsLayer containerRef={analysisContainerRef} />
+
         {/* Analysis Sticky Notes Layer */}
         <AnalysisStickyNotesLayer containerRef={analysisContainerRef} />
       </div>
@@ -1760,6 +1785,9 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
         <div className="flex items-center gap-2">
           {/* Share Link Button */}
           <ShareLinkButton variant="analysis" includeAnalysis={true} />
+
+          {/* Add Drawing Button */}
+          <AddDrawingButton context="analysis" />
 
           {/* Add Sticky Note Button */}
           <AddStickyNoteButton context="analysis" />
@@ -1797,6 +1825,9 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
           </pre>
         </div>
       </div>
+
+      {/* Analysis Drawing Annotations Layer */}
+      <AnalysisDrawingAnnotationsLayer containerRef={analysisContainerRef} />
 
       {/* Analysis Sticky Notes Layer */}
       <AnalysisStickyNotesLayer containerRef={analysisContainerRef} />

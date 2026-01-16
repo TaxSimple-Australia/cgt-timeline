@@ -62,6 +62,7 @@ function HomeContent() {
     panToDate,
     enableAISuggestedQuestions,
     apiResponseMode,
+    setAPIResponseMode,
     setTimelineNotes,
     selectedLLMProvider,
     savedAnalysis,
@@ -215,6 +216,39 @@ function HomeContent() {
     }
   }, [properties.length, events.length]);
 
+  // Helper function to check if API response format is valid/recognizable
+  // Returns true if the response can be displayed properly
+  const isValidResponseFormat = (response: any): boolean => {
+    if (!response) return false;
+
+    // Check for JSON formats (double-wrapped, wrapped, or direct)
+    const isDoubleWrappedFormat = response.success !== undefined &&
+      response.data?.success !== undefined &&
+      response.data?.data?.properties &&
+      response.data?.data?.properties.length > 0;
+
+    const isWrappedFormat = !isDoubleWrappedFormat &&
+      response.success !== undefined &&
+      response.data &&
+      response.data.properties &&
+      response.data.properties.length > 0;
+
+    const isDirectFormat = !isDoubleWrappedFormat &&
+      !isWrappedFormat &&
+      response.properties &&
+      response.properties.length > 0 &&
+      response.properties[0]?.property_address;
+
+    const isNewJSONFormat = isDoubleWrappedFormat || isWrappedFormat || isDirectFormat;
+
+    // Check for markdown formats
+    const isNewMarkdownFormat = typeof response.answer === 'string' && response.answer.length > 0;
+    const hasLegacyMarkdownAnalysis = typeof response.analysis === 'string' && response.analysis.length > 0;
+    const hasMarkdownAnalysis = isNewMarkdownFormat || hasLegacyMarkdownAnalysis;
+
+    return isNewJSONFormat || hasMarkdownAnalysis;
+  };
+
   // Function to trigger CGT analysis with custom query
   const handleAnalyze = async (customQuery?: string) => {
     if (properties.length === 0) {
@@ -266,7 +300,7 @@ function HomeContent() {
         throw new Error(`API request failed with status ${response.status}`);
       }
 
-      const result = await response.json();
+      let result = await response.json();
       console.log('📥 Received from API:', result);
 
       if (!result.success) {
@@ -279,6 +313,33 @@ function HomeContent() {
         }
 
         throw new Error(displayError);
+      }
+
+      // Check if response format is valid - if not and we're in JSON mode, auto-fallback to markdown
+      if (!isValidResponseFormat(result.data) && apiResponseMode === 'json') {
+        console.log('⚠️ Unknown response format detected in JSON mode - auto-switching to markdown mode');
+        setAPIResponseMode('markdown');
+
+        // Retry the API call with markdown mode
+        const retryResponse = await fetch('/api/analyze-cgt', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ ...apiData, responseMode: 'markdown', llmProvider: selectedLLMProvider }),
+        });
+
+        if (!retryResponse.ok) {
+          throw new Error(`API retry request failed with status ${retryResponse.status}`);
+        }
+
+        result = await retryResponse.json();
+        console.log('📥 Received from API (markdown fallback):', result);
+
+        if (!result.success) {
+          const errorMessage = result.error || 'API request failed';
+          throw new Error(`Analysis Error: ${errorMessage}`);
+        }
       }
 
       // Use raw API response data
@@ -492,6 +553,33 @@ function HomeContent() {
 
           throw new Error(displayError);
         }
+
+        // Check if response format is valid - if not and we're in JSON mode, auto-fallback to markdown
+        if (!isValidResponseFormat(result.data) && apiResponseMode === 'json') {
+          console.log('⚠️ Unknown response format detected in JSON mode - auto-switching to markdown mode');
+          setAPIResponseMode('markdown');
+
+          // Retry the API call with markdown mode
+          const retryResponse = await fetch('/api/analyze-cgt', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ ...requestData, responseMode: 'markdown', llmProvider: selectedLLMProvider }),
+          });
+
+          if (!retryResponse.ok) {
+            throw new Error(`API retry request failed with status ${retryResponse.status}`);
+          }
+
+          result = await retryResponse.json();
+          console.log('📥 Received from API after resolution (markdown fallback):', result);
+
+          if (!result.success) {
+            const errorMessage = result.error || 'API request failed';
+            throw new Error(`Analysis Error: ${errorMessage}`);
+          }
+        }
       } else {
         console.log('🧪 DEMO MODE: Using successful demo response (no API configured)');
         // Load successful demo response for demonstration
@@ -616,7 +704,7 @@ function HomeContent() {
         throw new Error(`API request failed with status ${response.status}`);
       }
 
-      const result = await response.json();
+      let result = await response.json();
       console.log('📥 Received from API after gap clarifications:', result);
 
       if (!result.success) {
@@ -628,6 +716,33 @@ function HomeContent() {
         }
 
         throw new Error(displayError);
+      }
+
+      // Check if response format is valid - if not and we're in JSON mode, auto-fallback to markdown
+      if (!isValidResponseFormat(result.data) && apiResponseMode === 'json') {
+        console.log('⚠️ Unknown response format detected in JSON mode - auto-switching to markdown mode');
+        setAPIResponseMode('markdown');
+
+        // Retry the API call with markdown mode
+        const retryResponse = await fetch('/api/analyze-cgt', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ ...requestData, responseMode: 'markdown', llmProvider: selectedLLMProvider }),
+        });
+
+        if (!retryResponse.ok) {
+          throw new Error(`API retry request failed with status ${retryResponse.status}`);
+        }
+
+        result = await retryResponse.json();
+        console.log('📥 Received from API after gap clarifications (markdown fallback):', result);
+
+        if (!result.success) {
+          const errorMessage = result.error || 'API request failed';
+          throw new Error(`Analysis Error: ${errorMessage}`);
+        }
       }
 
       // Check if API still needs clarification - handle multiple response formats

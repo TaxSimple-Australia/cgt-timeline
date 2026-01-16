@@ -11,6 +11,16 @@ import type {
   ShareableTimelineData,
 } from '../types/sticky-note';
 import { generateStickyNoteId, DEFAULT_STICKY_NOTE_COLOR } from '../types/sticky-note';
+import type {
+  DrawingAnnotation,
+  DrawingStrokeStyle,
+  TimelineDrawingPosition,
+  AnalysisDrawingPosition,
+} from '../types/drawing-annotation';
+import {
+  generateDrawingAnnotationId,
+  DEFAULT_DRAWING_STROKE,
+} from '../types/drawing-annotation';
 
 export type EventType =
   | 'purchase'
@@ -291,6 +301,33 @@ interface TimelineState {
   moveAnalysisStickyNote: (id: string, newPosition: AnalysisNotePosition) => void;
   clearAnalysisStickyNotes: () => void;
 
+  // Drawing Annotations State
+  timelineDrawingAnnotations: DrawingAnnotation[];
+  analysisDrawingAnnotations: DrawingAnnotation[];
+  isDrawingMode: boolean;
+  currentDrawingStroke: DrawingStrokeStyle;
+
+  // Drawing Annotations Actions - Timeline
+  addTimelineDrawingAnnotation: (annotation: Omit<DrawingAnnotation, 'id' | 'createdAt' | 'updatedAt'>) => string;
+  updateTimelineDrawingAnnotation: (id: string, updates: Partial<DrawingAnnotation>) => void;
+  deleteTimelineDrawingAnnotation: (id: string) => void;
+  moveTimelineDrawingAnnotation: (id: string, newPosition: TimelineDrawingPosition) => void;
+  moveTimelineDrawingAnnotationNote: (id: string, newPosition: TimelineNotePosition) => void;
+  clearTimelineDrawingAnnotations: () => void;
+
+  // Drawing Annotations Actions - Analysis
+  addAnalysisDrawingAnnotation: (annotation: Omit<DrawingAnnotation, 'id' | 'createdAt' | 'updatedAt'>) => string;
+  updateAnalysisDrawingAnnotation: (id: string, updates: Partial<DrawingAnnotation>) => void;
+  deleteAnalysisDrawingAnnotation: (id: string) => void;
+  moveAnalysisDrawingAnnotation: (id: string, newPosition: AnalysisDrawingPosition) => void;
+  moveAnalysisDrawingAnnotationNote: (id: string, newPosition: AnalysisNotePosition) => void;
+  clearAnalysisDrawingAnnotations: () => void;
+
+  // Drawing Mode Actions
+  setDrawingMode: (enabled: boolean) => void;
+  toggleDrawingMode: () => void;
+  setDrawingStroke: (stroke: Partial<DrawingStrokeStyle>) => void;
+
   // Analysis Saving Actions
   saveCurrentAnalysis: () => void;
   clearSavedAnalysis: () => void;
@@ -567,6 +604,12 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
     timelineStickyNotes: [],
     analysisStickyNotes: [],
     savedAnalysis: null,
+
+    // Drawing Annotations initial state
+    timelineDrawingAnnotations: [],
+    analysisDrawingAnnotations: [],
+    isDrawingMode: false,
+    currentDrawingStroke: DEFAULT_DRAWING_STROKE,
 
   addProperty: (property) => {
     const properties = get().properties;
@@ -1099,6 +1142,13 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
       selectedIssue: null,
       verificationAlerts: [],
       currentAlertIndex: -1,
+      // Clear sticky notes and drawing annotations
+      timelineStickyNotes: [],
+      analysisStickyNotes: [],
+      timelineDrawingAnnotations: [],
+      analysisDrawingAnnotations: [],
+      isDrawingMode: false,
+      savedAnalysis: null,
     });
   },
 
@@ -2036,6 +2086,165 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
   },
 
   // ========================================================================
+  // DRAWING ANNOTATIONS - Timeline
+  // ========================================================================
+
+  addTimelineDrawingAnnotation: (annotationData) => {
+    const id = generateDrawingAnnotationId();
+    const now = new Date().toISOString();
+    const annotation: DrawingAnnotation = {
+      ...annotationData,
+      id,
+      createdAt: now,
+      updatedAt: now,
+    };
+    set((state) => ({
+      timelineDrawingAnnotations: [...state.timelineDrawingAnnotations, annotation],
+    }));
+    console.log('🖊️ Added timeline drawing annotation:', { id, pathPoints: annotation.path.length });
+    return id;
+  },
+
+  updateTimelineDrawingAnnotation: (id, updates) => {
+    set((state) => ({
+      timelineDrawingAnnotations: state.timelineDrawingAnnotations.map((ann) =>
+        ann.id === id
+          ? { ...ann, ...updates, updatedAt: new Date().toISOString() }
+          : ann
+      ),
+    }));
+    console.log('🖊️ Updated timeline drawing annotation:', id);
+  },
+
+  deleteTimelineDrawingAnnotation: (id) => {
+    set((state) => ({
+      timelineDrawingAnnotations: state.timelineDrawingAnnotations.filter((ann) => ann.id !== id),
+    }));
+    console.log('🗑️ Deleted timeline drawing annotation:', id);
+  },
+
+  moveTimelineDrawingAnnotation: (id, newPosition) => {
+    set((state) => ({
+      timelineDrawingAnnotations: state.timelineDrawingAnnotations.map((ann) =>
+        ann.id === id
+          ? { ...ann, drawingPosition: newPosition, updatedAt: new Date().toISOString() }
+          : ann
+      ),
+    }));
+    console.log('📍 Moved timeline drawing annotation:', { id, newPosition });
+  },
+
+  moveTimelineDrawingAnnotationNote: (id, newPosition) => {
+    set((state) => ({
+      timelineDrawingAnnotations: state.timelineDrawingAnnotations.map((ann) =>
+        ann.id === id
+          ? {
+              ...ann,
+              note: { ...ann.note, position: newPosition },
+              updatedAt: new Date().toISOString(),
+            }
+          : ann
+      ),
+    }));
+    console.log('📍 Moved timeline drawing annotation note:', { id, newPosition });
+  },
+
+  clearTimelineDrawingAnnotations: () => {
+    set({ timelineDrawingAnnotations: [] });
+    console.log('🧹 Cleared all timeline drawing annotations');
+  },
+
+  // ========================================================================
+  // DRAWING ANNOTATIONS - Analysis
+  // ========================================================================
+
+  addAnalysisDrawingAnnotation: (annotationData) => {
+    const id = generateDrawingAnnotationId();
+    const now = new Date().toISOString();
+    const annotation: DrawingAnnotation = {
+      ...annotationData,
+      id,
+      createdAt: now,
+      updatedAt: now,
+    };
+    set((state) => ({
+      analysisDrawingAnnotations: [...state.analysisDrawingAnnotations, annotation],
+    }));
+    console.log('🖊️ Added analysis drawing annotation:', { id, pathPoints: annotation.path.length });
+    return id;
+  },
+
+  updateAnalysisDrawingAnnotation: (id, updates) => {
+    set((state) => ({
+      analysisDrawingAnnotations: state.analysisDrawingAnnotations.map((ann) =>
+        ann.id === id
+          ? { ...ann, ...updates, updatedAt: new Date().toISOString() }
+          : ann
+      ),
+    }));
+    console.log('🖊️ Updated analysis drawing annotation:', id);
+  },
+
+  deleteAnalysisDrawingAnnotation: (id) => {
+    set((state) => ({
+      analysisDrawingAnnotations: state.analysisDrawingAnnotations.filter((ann) => ann.id !== id),
+    }));
+    console.log('🗑️ Deleted analysis drawing annotation:', id);
+  },
+
+  moveAnalysisDrawingAnnotation: (id, newPosition) => {
+    set((state) => ({
+      analysisDrawingAnnotations: state.analysisDrawingAnnotations.map((ann) =>
+        ann.id === id
+          ? { ...ann, drawingPosition: newPosition, updatedAt: new Date().toISOString() }
+          : ann
+      ),
+    }));
+    console.log('📍 Moved analysis drawing annotation:', { id, newPosition });
+  },
+
+  moveAnalysisDrawingAnnotationNote: (id, newPosition) => {
+    set((state) => ({
+      analysisDrawingAnnotations: state.analysisDrawingAnnotations.map((ann) =>
+        ann.id === id
+          ? {
+              ...ann,
+              note: { ...ann.note, position: newPosition },
+              updatedAt: new Date().toISOString(),
+            }
+          : ann
+      ),
+    }));
+    console.log('📍 Moved analysis drawing annotation note:', { id, newPosition });
+  },
+
+  clearAnalysisDrawingAnnotations: () => {
+    set({ analysisDrawingAnnotations: [] });
+    console.log('🧹 Cleared all analysis drawing annotations');
+  },
+
+  // ========================================================================
+  // DRAWING MODE
+  // ========================================================================
+
+  setDrawingMode: (enabled) => {
+    set({ isDrawingMode: enabled });
+    console.log('🖊️ Drawing mode:', enabled ? 'enabled' : 'disabled');
+  },
+
+  toggleDrawingMode: () => {
+    set((state) => ({ isDrawingMode: !state.isDrawingMode }));
+    console.log('🖊️ Toggled drawing mode');
+  },
+
+  setDrawingStroke: (stroke) => {
+    set((state) => ({
+      currentDrawingStroke: { ...state.currentDrawingStroke, ...stroke },
+    }));
+    console.log('🖊️ Updated drawing stroke:', stroke);
+  },
+
+  // ========================================================================
   // ANALYSIS SAVING
   // ========================================================================
 
@@ -2086,20 +2295,23 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
     }));
 
     const shareableData: ShareableTimelineData = {
-      version: '2.0.0',
+      version: '2.1.0', // Bumped version for drawing annotations support
       properties: serializedProperties,
       events: serializedEvents,
       notes: state.timelineNotes || undefined,
       timelineStickyNotes: state.timelineStickyNotes,
+      timelineDrawingAnnotations: state.timelineDrawingAnnotations,
       savedAnalysis: state.savedAnalysis?.response ? {
         response: state.savedAnalysis.response,
         analyzedAt: state.savedAnalysis.analyzedAt || now,
         analysisStickyNotes: state.analysisStickyNotes,
+        analysisDrawingAnnotations: state.analysisDrawingAnnotations,
         provider: state.savedAnalysis.provider || undefined,
       } : (state.aiResponse ? {
         response: state.aiResponse,
         analyzedAt: now,
         analysisStickyNotes: state.analysisStickyNotes,
+        analysisDrawingAnnotations: state.analysisDrawingAnnotations,
         provider: state.selectedLLMProvider || undefined,
       } : undefined),
       createdAt: now,
@@ -2110,8 +2322,10 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
       properties: shareableData.properties.length,
       events: shareableData.events.length,
       timelineStickyNotes: shareableData.timelineStickyNotes.length,
+      timelineDrawingAnnotations: shareableData.timelineDrawingAnnotations?.length || 0,
       hasAnalysis: !!shareableData.savedAnalysis,
       analysisStickyNotes: shareableData.savedAnalysis?.analysisStickyNotes?.length || 0,
+      analysisDrawingAnnotations: shareableData.savedAnalysis?.analysisDrawingAnnotations?.length || 0,
     });
 
     return shareableData;
@@ -2124,6 +2338,7 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
         properties: data.properties?.length,
         events: data.events?.length,
         timelineStickyNotes: data.timelineStickyNotes?.length,
+        timelineDrawingAnnotations: data.timelineDrawingAnnotations?.length,
         hasAnalysis: !!data.savedAnalysis,
       });
 
@@ -2155,7 +2370,9 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
         events,
         timelineNotes: data.notes || '',
         timelineStickyNotes: data.timelineStickyNotes || [],
+        timelineDrawingAnnotations: data.timelineDrawingAnnotations || [],
         analysisStickyNotes: data.savedAnalysis?.analysisStickyNotes || [],
+        analysisDrawingAnnotations: data.savedAnalysis?.analysisDrawingAnnotations || [],
         aiResponse: data.savedAnalysis?.response || null,
         savedAnalysis: data.savedAnalysis ? {
           response: data.savedAnalysis.response,
@@ -2171,9 +2388,13 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
         selectedProperty: null,
         selectedEvent: null,
         lastInteractedEventId: null,
+        isDrawingMode: false, // Reset drawing mode on import
       });
 
-      console.log('✅ Successfully imported shareable data');
+      console.log('✅ Successfully imported shareable data with', {
+        timelineDrawingAnnotations: data.timelineDrawingAnnotations?.length || 0,
+        analysisDrawingAnnotations: data.savedAnalysis?.analysisDrawingAnnotations?.length || 0,
+      });
     } catch (error) {
       console.error('❌ Error importing shareable data:', error);
       throw error;

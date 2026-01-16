@@ -6,6 +6,7 @@ import { useTimelineStore } from '@/store/timeline';
 import SettingsModal from './SettingsModal';
 import ScenarioSelectorModal from './ScenarioSelectorModal';
 import { ShareLinkButton, AddStickyNoteButton } from './sticky-notes';
+import { DrawingToolButton } from './annotations';
 import {
   ZoomIn,
   ZoomOut,
@@ -419,6 +420,9 @@ export default function TimelineControls({ timelineContainerRef }: TimelineContr
             {/* Add Sticky Note Button */}
             <AddStickyNoteButton context="timeline" containerRef={timelineContainerRef} />
 
+            {/* Drawing Tool Button */}
+            <DrawingToolButton />
+
             <IconButton onClick={() => setShowScenarioSelector(true)} title="Load Scenario" variant="gradient">
               <FolderOpen className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-purple-600 dark:text-purple-400" />
             </IconButton>
@@ -539,6 +543,11 @@ export default function TimelineControls({ timelineContainerRef }: TimelineContr
             <div onClick={() => setShowMobileMenu(false)} className="flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-amber-50 dark:hover:bg-amber-900/20">
               <AddStickyNoteButton context="timeline" containerRef={timelineContainerRef} className="!p-0 !bg-transparent !border-0 !shadow-none" />
               <span className="text-[10px] text-amber-600 dark:text-amber-400">Add Note</span>
+            </div>
+
+            {/* Draw - Mobile */}
+            <div onClick={() => setShowMobileMenu(false)} className="flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
+              <DrawingToolButton className="!shadow-none" />
             </div>
 
             <button

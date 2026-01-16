@@ -165,9 +165,93 @@ export function transformTimelineToAPIFormat(
       // NEW: Add split data to description so AI can read it (Gilbert's contextual approach)
       const additionalInfo: string[] = [];
 
-      if (event.businessUsePercentage !== undefined && event.businessUsePercentage > 0) {
+      // Check for Mixed-Use split percentages (new approach)
+      if (event.livingUsePercentage !== undefined || event.rentalUsePercentage !== undefined) {
+        const living = event.livingUsePercentage || 0;
+        const rental = event.rentalUsePercentage || 0;
+        const business = event.businessUsePercentage || 0;
+
+        const parts: string[] = [];
+        if (living > 0) parts.push(`${living}% owner-occupied`);
+        if (rental > 0) parts.push(`${rental}% rental`);
+        if (business > 0) parts.push(`${business}% business`);
+
+        additionalInfo.push(`Mixed-Use property: ${parts.join(', ')}`);
+        console.log('📊 Transform: Mixed-Use percentages:', { living, rental, business }, '(added to description)');
+      } else if (event.businessUsePercentage !== undefined && event.businessUsePercentage > 0) {
+        // Fallback to old business use approach if no living/rental percentages
         additionalInfo.push(`Business use: ${event.businessUsePercentage}% of property used for business/rental purposes`);
         console.log('📊 Transform: Business use percentage:', event.businessUsePercentage, '(added to description)');
+      }
+
+      // NEW: Add ownership change information (contextual approach for AI)
+      if (event.type === 'ownership_change') {
+        const ownershipParts: string[] = [];
+
+        // Add reason
+        if (event.ownershipChangeReason) {
+          const reasonLabels = {
+            divorce: 'Divorce',
+            sale_transfer: 'Sale/Transfer',
+            gift: 'Gift',
+            other: event.ownershipChangeReasonOther || 'Other'
+          };
+          ownershipParts.push(`Reason: ${reasonLabels[event.ownershipChangeReason]}`);
+        }
+
+        // Add leaving owners
+        if (event.leavingOwners && event.leavingOwners.length > 0) {
+          ownershipParts.push(`Leaving owner(s): ${event.leavingOwners.join(', ')}`);
+        }
+
+        // Add new owners with percentages
+        if (event.newOwners && event.newOwners.length > 0) {
+          const newOwnersList = event.newOwners
+            .map(owner => `${owner.name} (${owner.percentage}%)`)
+            .join(', ');
+          ownershipParts.push(`New owner(s): ${newOwnersList}`);
+        }
+
+        if (ownershipParts.length > 0) {
+          additionalInfo.push(`Ownership Change - ${ownershipParts.join('. ')}`);
+          console.log('👥 Transform: Ownership change details added to description');
+        }
+      }
+
+      // NEW: Add subdivision information (contextual approach for AI)
+      if (event.type === 'subdivision' && event.subdivisionDetails) {
+        const subdivisionParts: string[] = [];
+
+        subdivisionParts.push(`Property subdivided into ${event.subdivisionDetails.totalLots} lots`);
+
+        // Add child property details
+        if (event.subdivisionDetails.childProperties && event.subdivisionDetails.childProperties.length > 0) {
+          const childDetails = event.subdivisionDetails.childProperties
+            .map((child, idx) => {
+              const parts = [`Lot ${idx + 1}: ${child.name}`];
+              if (child.lotNumber) parts.push(`(${child.lotNumber})`);
+              if (child.lotSize) parts.push(`${child.lotSize.toFixed(0)} sqm`);
+              if (child.allocatedCostBase) parts.push(`Cost base: $${child.allocatedCostBase.toLocaleString('en-AU')}`);
+              return parts.join(' ');
+            })
+            .join('; ');
+          subdivisionParts.push(childDetails);
+        }
+
+        // Add allocation method
+        if (event.subdivisionDetails.allocationMethod) {
+          const methodLabels = {
+            by_lot_size: 'by lot size',
+            equal: 'equally',
+            manual: 'manually',
+          };
+          subdivisionParts.push(`Cost base allocated ${methodLabels[event.subdivisionDetails.allocationMethod] || 'proportionally'}`);
+        }
+
+        if (subdivisionParts.length > 0) {
+          additionalInfo.push(`Subdivision - ${subdivisionParts.join('. ')}`);
+          console.log('🏘️ Transform: Subdivision details added to description');
+        }
       }
 
       if (event.floorAreaData) {
@@ -432,6 +516,43 @@ export function transformTimelineToAPIFormat(
           ? `${historyEvent.description}. ${amountInfo}`
           : amountInfo;
         console.log('💰 Transform: Added improvement amount to description:', historyEvent.improvement_cost);
+      }
+
+      // Handle subdivision fees (stored in subdivisionDetails, not costBases)
+      if (event.type === 'subdivision' && event.subdivisionDetails) {
+        const fees = event.subdivisionDetails;
+
+        // Map subdivision fees to appropriate API fields
+        if (fees.surveyorFees && fees.surveyorFees > 0) {
+          historyEvent.survey_fees = (historyEvent.survey_fees || 0) + fees.surveyorFees;
+          console.log('📐 Transform: Added subdivision surveyor fees:', fees.surveyorFees);
+        }
+
+        if (fees.planningFees && fees.planningFees > 0) {
+          // Planning fees can be added to legal fees or search fees
+          historyEvent.search_fees = (historyEvent.search_fees || 0) + fees.planningFees;
+          console.log('📋 Transform: Added subdivision planning fees:', fees.planningFees);
+        }
+
+        if (fees.legalFees && fees.legalFees > 0) {
+          historyEvent.legal_fees = (historyEvent.legal_fees || 0) + fees.legalFees;
+          console.log('⚖️ Transform: Added subdivision legal fees:', fees.legalFees);
+        }
+
+        if (fees.titleFees && fees.titleFees > 0) {
+          historyEvent.title_legal_fees = (historyEvent.title_legal_fees || 0) + fees.titleFees;
+          console.log('📜 Transform: Added subdivision title fees:', fees.titleFees);
+        }
+
+        // Add total subdivision costs to description for AI context
+        const totalFees = (fees.surveyorFees || 0) + (fees.planningFees || 0) + (fees.legalFees || 0) + (fees.titleFees || 0);
+        if (totalFees > 0) {
+          const feesInfo = `Total subdivision costs: $${totalFees.toLocaleString('en-AU', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+          historyEvent.description = historyEvent.description
+            ? `${historyEvent.description}. ${feesInfo}`
+            : feesInfo;
+          console.log('💰 Transform: Added total subdivision costs to description:', totalFees);
+        }
       }
 
       return historyEvent;

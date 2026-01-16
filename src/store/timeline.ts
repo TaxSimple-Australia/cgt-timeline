@@ -24,6 +24,8 @@ export type EventType =
   | 'status_change'
   | 'vacant_start'  // Property becomes vacant/unoccupied
   | 'vacant_end'    // Property is no longer vacant
+  | 'ownership_change'  // Change of ownership event
+  | 'subdivision'   // Property subdivision into multiple lots
   | 'custom';       // User-defined custom event for any situation
 
 export type PropertyStatus =
@@ -32,6 +34,12 @@ export type PropertyStatus =
   | 'vacant'           // Empty/not used
   | 'construction'     // Being built/renovated
   | 'sold';            // Sold
+
+export type OwnershipChangeReason =
+  | 'divorce'          // Divorce settlement
+  | 'sale_transfer'    // Sale or transfer
+  | 'gift'             // Gift to family member or other
+  | 'other';           // Other reason
 
 /**
  * Dynamic cost base item for CGT calculations
@@ -76,11 +84,37 @@ export interface TimelineEvent {
   costBases?: CostBaseItem[];  // Array of cost base items for this event
 
   // NEW: Ownership and Usage Splits
-  businessUsePercentage?: number;  // Percentage of property used for business/rental (0-100)
+  businessUsePercentage?: number;  // Percentage of property used for business (0-100)
+  rentalUsePercentage?: number;    // Percentage of property used for rental/investment (0-100)
+  livingUsePercentage?: number;    // Percentage of property used as owner-occupied/main residence (0-100)
   floorAreaData?: {
     total: number;      // Total floor area in sqm
     exclusive: number;  // Exclusive rental area in sqm (e.g., bedroom)
     shared: number;     // Shared area in sqm (e.g., kitchen, bathroom)
+  };
+
+  // NEW: Ownership Change fields
+  leavingOwners?: string[];  // Array of owner names who are leaving
+  newOwners?: Array<{name: string; percentage: number}>;  // New owners being added
+  ownershipChangeReason?: OwnershipChangeReason;  // Reason for ownership change
+  ownershipChangeReasonOther?: string;  // Custom reason if "other" selected
+
+  // NEW: Subdivision fields
+  subdivisionDetails?: {
+    parentPropertyId: string;              // Original property being subdivided
+    childProperties: Array<{
+      id: string;                          // New property ID
+      name: string;                        // e.g., "Lot 1", "Lot 2"
+      lotNumber?: string;                  // Lot/parcel number
+      lotSize?: number;                    // Size in sqm for cost base allocation
+      allocatedCostBase?: number;          // Portion of parent cost base
+    }>;
+    totalLots: number;                     // Total number of lots created
+    surveyorFees?: number;                 // Surveyor costs
+    planningFees?: number;                 // Planning/council fees
+    legalFees?: number;                    // Legal fees
+    titleFees?: number;                    // Title registration fees
+    allocationMethod: 'equal' | 'by_lot_size' | 'manual';  // How cost base was split
   };
 
   // DEPRECATED: Legacy cost base fields (kept for backward compatibility during migration)
@@ -131,6 +165,14 @@ export interface Property {
     name: string;
     percentage: number;  // Ownership percentage (must total 100%)
   }>;
+
+  // NEW: Subdivision tracking
+  parentPropertyId?: string;      // Links back to parent if this is a subdivided lot
+  subdivisionDate?: Date;         // Date this property was created via subdivision
+  subdivisionGroup?: string;      // UUID linking all lots from same subdivision
+  lotNumber?: string;             // e.g., "Lot 1", "Lot 2"
+  lotSize?: number;               // Size in sqm or hectares
+  initialCostBase?: number;       // Allocated cost base for subdivided lots
 }
 
 export type ZoomLevel =
@@ -212,6 +254,21 @@ interface TimelineState {
   addProperty: (property: Omit<Property, 'id' | 'branch'>) => void;
   updateProperty: (id: string, property: Partial<Property>) => void;
   deleteProperty: (id: string) => void;
+  subdivideProperty: (config: {
+    parentPropertyId: string;
+    subdivisionDate: Date;
+    lots: Array<{
+      name: string;
+      address?: string;
+      lotSize: number;  // Required for proportional allocation
+    }>;
+    fees: {
+      surveyorFees?: number;
+      planningFees?: number;
+      legalFees?: number;
+      titleFees?: number;
+    };
+  }) => void;
 
   addEvent: (event: Omit<TimelineEvent, 'id'>) => void;
   updateEvent: (id: string, event: Partial<TimelineEvent>) => void;
@@ -322,6 +379,8 @@ const eventColors: Record<EventType, string> = {
   status_change: '#A855F7',
   vacant_start: '#9CA3AF',   // Gray-400 - Property becomes vacant
   vacant_end: '#6B7280',     // Gray-500 - Property no longer vacant
+  ownership_change: '#A855F7',  // Purple - Change of ownership
+  subdivision: '#EC4899',    // Pink - Property subdivision
   custom: '#6B7280',         // Gray - Custom event (user can change)
 };
 
@@ -611,20 +670,126 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
   },
   
   deleteProperty: (id) => {
-    set((state) => ({
-      properties: state.properties.filter((p) => p.id !== id),
-      events: state.events.filter((e) => e.propertyId !== id),
-      // Clear AI analysis and verification alerts when property is deleted
-      aiResponse: null,
-      timelineIssues: [],
-      positionedGaps: [],
-      residenceGapIssues: [],
-      selectedIssue: null,
-      verificationAlerts: [],
-      currentAlertIndex: -1,
-    }));
+    set((state) => {
+      const property = state.properties.find((p) => p.id === id);
+
+      // If deleting a parent property, also delete all children
+      if (property && !property.parentPropertyId) {
+        const children = state.properties.filter((p) => p.parentPropertyId === id);
+        const allIdsToDelete = [id, ...children.map((c) => c.id)];
+
+        return {
+          properties: state.properties.filter((p) => !allIdsToDelete.includes(p.id!)),
+          events: state.events.filter((e) => !allIdsToDelete.includes(e.propertyId)),
+          // Clear AI analysis and verification alerts when property is deleted
+          aiResponse: null,
+          timelineIssues: [],
+          positionedGaps: [],
+          residenceGapIssues: [],
+          selectedIssue: null,
+          verificationAlerts: [],
+          currentAlertIndex: -1,
+        };
+      } else {
+        // Regular delete for child or non-subdivided property
+        return {
+          properties: state.properties.filter((p) => p.id !== id),
+          events: state.events.filter((e) => e.propertyId !== id),
+          // Clear AI analysis and verification alerts when property is deleted
+          aiResponse: null,
+          timelineIssues: [],
+          positionedGaps: [],
+          residenceGapIssues: [],
+          selectedIssue: null,
+          verificationAlerts: [],
+          currentAlertIndex: -1,
+        };
+      }
+    });
   },
-  
+
+  subdivideProperty: (config) => {
+    const { parentPropertyId, subdivisionDate, lots, fees } = config;
+    const state = get();
+    const parentProperty = state.properties.find((p) => p.id === parentPropertyId);
+
+    if (!parentProperty) {
+      console.error('Parent property not found:', parentPropertyId);
+      return;
+    }
+
+    // Generate subdivision group ID
+    const subdivisionGroup = `subdiv-${Date.now()}`;
+
+    // Calculate total lot size for proportional allocation
+    const totalLotSize = lots.reduce((sum, lot) => sum + lot.lotSize, 0);
+
+    // Calculate parent's cost base (purchase price + improvements before subdivision)
+    const parentPurchasePrice = parentProperty.purchasePrice || 0;
+    const parentImprovements = state.events
+      .filter((e) => e.propertyId === parentPropertyId && e.type === 'improvement' && e.date < subdivisionDate)
+      .reduce((sum, e) => sum + (e.amount || 0), 0);
+    const parentCostBase = parentPurchasePrice + parentImprovements;
+
+    // Calculate total subdivision fees
+    const totalFees = (fees.surveyorFees || 0) + (fees.planningFees || 0) + (fees.legalFees || 0) + (fees.titleFees || 0);
+    const feePerLot = totalFees / lots.length;
+
+    // Create child properties with allocated cost bases
+    const childProperties: Property[] = lots.map((lot, index) => {
+      // Proportional allocation based on lot size
+      const proportion = lot.lotSize / totalLotSize;
+      const allocatedCostBase = parentCostBase * proportion + feePerLot;
+
+      return {
+        id: `prop-${Date.now()}-${index}`,
+        name: lot.name,
+        address: lot.address || parentProperty.address,
+        color: propertyColors[(state.properties.length + index) % propertyColors.length],
+        branch: state.properties.length + index, // Will be recalculated by layout
+        parentPropertyId,
+        subdivisionDate,
+        subdivisionGroup,
+        lotNumber: `Lot ${index + 1}`,
+        lotSize: lot.lotSize,
+        purchasePrice: allocatedCostBase,
+        purchaseDate: subdivisionDate, // Child lot's acquisition date is the subdivision date
+        owners: parentProperty.owners, // Inherit ownership
+      };
+    });
+
+    // Create subdivision event on parent
+    const subdivisionEvent: TimelineEvent = {
+      id: `event-${Date.now()}`,
+      propertyId: parentPropertyId,
+      type: 'subdivision',
+      date: subdivisionDate,
+      title: `Subdivided into ${lots.length} lots`,
+      position: 0, // Position will be calculated
+      color: '#EC4899',
+      subdivisionDetails: {
+        parentPropertyId,
+        childProperties: childProperties.map((cp, i) => ({
+          id: cp.id,
+          name: cp.name,
+          lotSize: lots[i].lotSize,
+          allocatedCostBase: cp.purchasePrice,
+        })),
+        totalLots: lots.length,
+        ...fees,
+        allocationMethod: 'by_lot_size',
+      },
+    };
+
+    // Update state - child lots start with clean timeline from subdivision date
+    set({
+      properties: [...state.properties, ...childProperties],
+      events: [...state.events, subdivisionEvent],
+    });
+
+    console.log(`✅ Subdivided ${parentProperty.name} into ${lots.length} lots`);
+  },
+
   addEvent: (event) => {
     const newEvent: TimelineEvent = {
       ...event,

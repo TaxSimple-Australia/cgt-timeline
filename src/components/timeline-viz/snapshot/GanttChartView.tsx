@@ -13,7 +13,9 @@ import {
   Hammer,
   RefreshCw,
   FileEdit,
-  Building
+  Building,
+  Users,
+  Split
 } from 'lucide-react';
 
 interface GanttChartViewProps {
@@ -206,6 +208,8 @@ export default function GanttChartView({
       status_change: FileEdit,
       vacant_start: Building,
       vacant_end: Building,
+      ownership_change: Users,
+      subdivision: Split,
       custom: Home,
     };
     return iconMap[eventType] || Home;

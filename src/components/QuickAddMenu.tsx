@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef, useLayoutEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { useTimelineStore, EventType } from '@/store/timeline';
+import { useTimelineStore, EventType, Property } from '@/store/timeline';
 import { positionToDate } from '@/lib/utils';
 import {
   Home,
@@ -16,9 +16,12 @@ import {
   X,
   Star,
   ChevronLeft,
-  Gift
+  Gift,
+  Users,
+  Split
 } from 'lucide-react';
 import { PropertyStatus } from '@/store/timeline';
+import SubdivisionModal from './SubdivisionModal';
 
 interface QuickAddMenuProps {
   position: { x: number; y: number };
@@ -39,6 +42,8 @@ const eventTypes: { type: EventType; label: string; icon: React.ReactNode; color
   { type: 'vacant_end', label: 'Vacant (End)', icon: <Building className="w-4 h-4" />, color: '#6B7280' },
   { type: 'improvement', label: 'Improvement', icon: <Hammer className="w-4 h-4" />, color: '#06B6D4' },
   { type: 'refinance', label: 'Inherit', icon: <Gift className="w-4 h-4" />, color: '#6366F1' },
+  { type: 'ownership_change', label: 'Change of Ownership', icon: <Users className="w-4 h-4" />, color: '#A855F7' },
+  { type: 'subdivision', label: 'Subdivision', icon: <Split className="w-4 h-4" />, color: '#EC4899' },
   { type: 'custom', label: 'Custom Event', icon: <Star className="w-4 h-4" />, color: '#6B7280' },
 ];
 
@@ -83,6 +88,10 @@ export default function QuickAddMenu({ position, timelinePosition, onClose, pres
   const [customAffectsStatus, setCustomAffectsStatus] = useState(false);
   const [customNewStatus, setCustomNewStatus] = useState<PropertyStatus | ''>('');
   const [customAmount, setCustomAmount] = useState<string>('');
+
+  // Subdivision modal state
+  const [showSubdivisionModal, setShowSubdivisionModal] = useState(false);
+  const [subdivisionProperty, setSubdivisionProperty] = useState<Property | null>(null);
 
   const { properties, addProperty, addEvent, timelineStart, timelineEnd } = useTimelineStore();
   const clickDate = positionToDate(timelinePosition, timelineStart, timelineEnd);
@@ -195,6 +204,9 @@ export default function QuickAddMenu({ position, timelinePosition, onClose, pres
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
+      // Don't close if subdivision modal is open
+      if (showSubdivisionModal) return;
+
       if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
         onClose();
       }
@@ -213,7 +225,7 @@ export default function QuickAddMenu({ position, timelinePosition, onClose, pres
       document.removeEventListener('mousedown', handleClickOutside);
       document.removeEventListener('keydown', handleEsc);
     };
-  }, [onClose]);
+  }, [onClose, showSubdivisionModal]);
 
   const handleAddProperty = () => {
     if (!propertyName) return;
@@ -267,6 +279,13 @@ export default function QuickAddMenu({ position, timelinePosition, onClose, pres
     const property = properties.find(p => p.id === selectedProperty) || properties[0];
     if (!property) return;
 
+    // If subdivision event, show the subdivision modal instead
+    if (type === 'subdivision') {
+      setSubdivisionProperty(property);
+      setShowSubdivisionModal(true);
+      return;
+    }
+
     // If custom event, show the custom form instead
     if (type === 'custom') {
       setShowCustomForm(true);
@@ -311,22 +330,23 @@ export default function QuickAddMenu({ position, timelinePosition, onClose, pres
   };
 
   return (
-    <motion.div
-      ref={menuRef}
-      className="fixed z-50 bg-white dark:bg-slate-800 rounded-xl shadow-2xl border border-slate-200 dark:border-slate-700 p-4 min-w-[280px] flex flex-col overflow-hidden"
-      style={{
-        left: adjustedPosition.x,
-        top: adjustedPosition.y,
-        maxHeight: menuMaxHeight, // Dynamic max-height based on position - PREVENTS OVERFLOW
-      }}
-      initial={{ scale: 0.9, opacity: 0 }}
-      animate={{
-        scale: isPositioned ? 1 : 0.9,
-        opacity: isPositioned ? 1 : 0
-      }}
-      exit={{ scale: 0.9, opacity: 0 }}
-      transition={{ duration: 0.15, ease: "easeOut" }}
-    >
+    <>
+      <motion.div
+        ref={menuRef}
+        className="fixed z-50 bg-white dark:bg-slate-800 rounded-xl shadow-2xl border border-slate-200 dark:border-slate-700 p-4 min-w-[280px] flex flex-col overflow-hidden"
+        style={{
+          left: adjustedPosition.x,
+          top: adjustedPosition.y,
+          maxHeight: menuMaxHeight, // Dynamic max-height based on position - PREVENTS OVERFLOW
+        }}
+        initial={{ scale: 0.9, opacity: 0 }}
+        animate={{
+          scale: isPositioned ? 1 : 0.9,
+          opacity: isPositioned ? 1 : 0
+        }}
+        exit={{ scale: 0.9, opacity: 0 }}
+        transition={{ duration: 0.15, ease: "easeOut" }}
+      >
       {/* Fixed header */}
       <div className="flex items-center justify-between mb-3 flex-shrink-0">
         <h3 className="font-semibold text-slate-800 dark:text-slate-100">Add to Timeline</h3>
@@ -571,6 +591,21 @@ export default function QuickAddMenu({ position, timelinePosition, onClose, pres
         </div>
       )}
       </div>{/* End scrollable content area */}
-    </motion.div>
+      </motion.div>
+
+      {/* Subdivision Modal */}
+      {subdivisionProperty && (
+        <SubdivisionModal
+          property={subdivisionProperty}
+          isOpen={showSubdivisionModal}
+          onClose={() => {
+            setShowSubdivisionModal(false);
+            setSubdivisionProperty(null);
+            onClose(); // Also close the QuickAddMenu
+          }}
+          clickedDate={clickDate}
+        />
+      )}
+    </>
   );
 }

@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { TimelineEvent, PropertyStatus, useTimelineStore, CostBaseItem } from '@/store/timeline';
 import { format } from 'date-fns';
-import { X, Calendar, DollarSign, Home, Tag, FileText, CheckCircle, Receipt, Info, Star, Palette, Building2, Key, AlertCircle, Briefcase, TrendingUp, Package, Hammer, Gift, MapPin, ChevronDown, Square, Maximize2 } from 'lucide-react';
+import { X, Calendar, DollarSign, Home, Tag, FileText, CheckCircle, CheckCircle2, Receipt, Info, Star, Palette, Building2, Key, AlertCircle, Briefcase, TrendingUp, Package, Hammer, Gift, MapPin, ChevronDown, Square, Maximize2, Percent, Plus } from 'lucide-react';
 import CostBaseSelector from './CostBaseSelector';
 import { getCostBaseDefinition } from '@/lib/cost-base-definitions';
 import CostBaseSummaryModal from './CostBaseSummaryModal';
@@ -229,6 +229,25 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
   const [totalFloorArea, setTotalFloorArea] = useState(event.floorAreaData?.total?.toString() || '');
   const [exclusiveRentalArea, setExclusiveRentalArea] = useState(event.floorAreaData?.exclusive?.toString() || '');
   const [sharedArea, setSharedArea] = useState(event.floorAreaData?.shared?.toString() || '');
+
+  // NEW: Mixed-Use checkbox and percentages
+  const [purchaseAsMixedUse, setPurchaseAsMixedUse] = useState(() => {
+    // Initialize as true if any split-use percentages exist
+    return !!(event.rentalUsePercentage || event.livingUsePercentage || (event.businessUsePercentage && event.type === 'purchase'));
+  });
+  const [livingUsePercentage, setLivingUsePercentage] = useState(event.livingUsePercentage?.toString() || '');
+  const [rentalUsePercentage, setRentalUsePercentage] = useState(event.rentalUsePercentage?.toString() || '');
+  const [mixedBusinessUsePercentage, setMixedBusinessUsePercentage] = useState(
+    event.type === 'purchase' && event.businessUsePercentage ? event.businessUsePercentage.toString() : ''
+  );
+
+  // NEW: Ownership change state variables
+  const [leavingOwners, setLeavingOwners] = useState<string[]>(event.leavingOwners || []);
+  const [newOwners, setNewOwners] = useState<Array<{name: string; percentage: number}>>(
+    event.newOwners || []
+  );
+  const [ownershipChangeReason, setOwnershipChangeReason] = useState(event.ownershipChangeReason || 'sale_transfer');
+  const [ownershipChangeReasonOther, setOwnershipChangeReasonOther] = useState(event.ownershipChangeReasonOther || '');
 
   // Get current property (used for partial rental floor area)
   const currentProperty = properties.find(p => p.id === event.propertyId);
@@ -534,6 +553,80 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
         updates.floorAreaData = undefined;
       }
 
+      // NEW: Mixed-Use split percentages
+      if (purchaseAsMixedUse) {
+        const living = parseFloat(livingUsePercentage) || 0;
+        const rental = parseFloat(rentalUsePercentage) || 0;
+        const business = parseFloat(mixedBusinessUsePercentage) || 0;
+        const total = living + rental + business;
+
+        // Validate that total equals 100% before saving
+        if (total !== 100) {
+          alert(`Mixed-Use percentages must total 100%. Current total: ${total.toFixed(1)}%`);
+          setIsSaving(false);
+          return;
+        }
+
+        // Save the percentages
+        updates.livingUsePercentage = living > 0 ? living : undefined;
+        updates.rentalUsePercentage = rental > 0 ? rental : undefined;
+        updates.businessUsePercentage = business > 0 ? business : undefined;
+      } else {
+        // Clear mixed-use percentages if checkbox is not checked
+        // Only clear if not set via the other business use checkbox
+        if (!hasBusinessUse) {
+          updates.businessUsePercentage = undefined;
+        }
+        updates.livingUsePercentage = undefined;
+        updates.rentalUsePercentage = undefined;
+      }
+
+      // NEW: Ownership Change validation and data
+      if (eventType === 'ownership_change') {
+        // Validate that at least one leaving owner is selected
+        if (!leavingOwners || leavingOwners.length === 0) {
+          alert('Please select at least one leaving owner.');
+          setIsSaving(false);
+          return;
+        }
+
+        // Validate that at least one new owner is added
+        if (!newOwners || newOwners.length === 0) {
+          alert('Please add at least one new owner.');
+          setIsSaving(false);
+          return;
+        }
+
+        // Validate that all new owners have names
+        const hasEmptyNames = newOwners.some(owner => !owner.name.trim());
+        if (hasEmptyNames) {
+          alert('Please enter names for all new owners.');
+          setIsSaving(false);
+          return;
+        }
+
+        // Validate that new owners' percentages total 100%
+        const totalPercentage = newOwners.reduce((sum, owner) => sum + (owner.percentage || 0), 0);
+        if (totalPercentage !== 100) {
+          alert(`New owners' percentages must total 100%. Current total: ${totalPercentage.toFixed(1)}%`);
+          setIsSaving(false);
+          return;
+        }
+
+        // Validate that if reason is "other", reasonOther is provided
+        if (ownershipChangeReason === 'other' && !ownershipChangeReasonOther.trim()) {
+          alert('Please specify the reason for ownership change.');
+          setIsSaving(false);
+          return;
+        }
+
+        // Save ownership change data
+        updates.leavingOwners = leavingOwners;
+        updates.newOwners = newOwners;
+        updates.ownershipChangeReason = ownershipChangeReason;
+        updates.ownershipChangeReasonOther = ownershipChangeReason === 'other' ? ownershipChangeReasonOther.trim() : undefined;
+      }
+
       // DEPRECATED: Clear legacy cost base fields (they're now in costBases array)
       updates.purchaseLegalFees = undefined;
       updates.valuationFees = undefined;
@@ -747,6 +840,28 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
             title: 'Move In',
             position: event.position,
             color: '#10B981', // Green color for move_in events
+          });
+        }
+      }
+
+      // Auto-update property owners for ownership_change events
+      if (eventType === 'ownership_change' && event.propertyId) {
+        const currentProperty = properties.find(p => p.id === event.propertyId);
+        if (currentProperty) {
+          // Create new owners array by filtering out leaving owners and adding new owners
+          const updatedOwners = [
+            // Keep existing owners that are not leaving
+            ...(currentProperty.owners || []).filter(owner => !leavingOwners.includes(owner.name)),
+            // Add new owners
+            ...newOwners.map(owner => ({
+              name: owner.name,
+              percentage: owner.percentage
+            }))
+          ];
+
+          // Update the property with new owners
+          updateProperty(event.propertyId, {
+            owners: updatedOwners
           });
         }
       }
@@ -1079,6 +1194,7 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
                           if (e.target.checked) {
                             setPurchaseAsVacant(false);
                             setPurchaseAsRent(false);
+                            setPurchaseAsMixedUse(false);
                           }
                         }}
                         className="w-4 h-4 text-blue-600 bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 rounded focus:ring-2 focus:ring-blue-500 cursor-pointer"
@@ -1160,6 +1276,7 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
                         if (e.target.checked) {
                           setMoveInOnSameDay(false);
                           setPurchaseAsRent(false);
+                          setPurchaseAsMixedUse(false);
                         }
                       }}
                       className="w-4 h-4 text-blue-600 bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 rounded focus:ring-2 focus:ring-blue-500 cursor-pointer"
@@ -1184,6 +1301,7 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
                         if (e.target.checked) {
                           setMoveInOnSameDay(false);
                           setPurchaseAsVacant(false);
+                          setPurchaseAsMixedUse(false);
                         }
                       }}
                       className="w-4 h-4 text-blue-600 bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 rounded focus:ring-2 focus:ring-blue-500 cursor-pointer"
@@ -1195,6 +1313,142 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
                       <Key className="w-4 h-4" />
                       Purchase as rental/investment
                     </label>
+                  </div>
+
+                  {/* Mixed-Use checkbox */}
+                  <div className="bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200 dark:border-purple-800 overflow-hidden">
+                    <div className="flex items-center gap-3 p-4">
+                      <input
+                        type="checkbox"
+                        id="purchaseAsMixedUse"
+                        checked={purchaseAsMixedUse}
+                        onChange={(e) => {
+                          setPurchaseAsMixedUse(e.target.checked);
+                          if (e.target.checked) {
+                            setMoveInOnSameDay(false);
+                            setPurchaseAsVacant(false);
+                            setPurchaseAsRent(false);
+                          }
+                        }}
+                        className="w-4 h-4 text-blue-600 bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 rounded focus:ring-2 focus:ring-blue-500 cursor-pointer"
+                      />
+                      <label
+                        htmlFor="purchaseAsMixedUse"
+                        className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300 cursor-pointer"
+                      >
+                        <Percent className="w-4 h-4" />
+                        Mixed-Use (Specify percentages)
+                      </label>
+                    </div>
+
+                    {/* Percentage inputs - shown when Mixed-Use is checked */}
+                    <AnimatePresence>
+                      {purchaseAsMixedUse && (
+                        <motion.div
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: "auto" }}
+                          exit={{ opacity: 0, height: 0 }}
+                          transition={{ duration: 0.2 }}
+                          className="border-t border-purple-200 dark:border-purple-800 p-4 space-y-4 bg-white dark:bg-slate-800"
+                        >
+                          <p className="text-xs text-slate-500 dark:text-slate-400 mb-3">
+                            Specify the percentage of each use type (must total 100%)
+                          </p>
+
+                          {/* Living/Owner-occupied percentage */}
+                          <div>
+                            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                              Living (Owner-occupied) %
+                            </label>
+                            <input
+                              type="number"
+                              min="0"
+                              max="100"
+                              step="0.1"
+                              value={livingUsePercentage}
+                              onChange={(e) => setLivingUsePercentage(e.target.value)}
+                              onWheel={(e) => e.currentTarget.blur()}
+                              className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                              placeholder="e.g., 40"
+                            />
+                          </div>
+
+                          {/* Rental percentage */}
+                          <div>
+                            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                              Rental %
+                            </label>
+                            <input
+                              type="number"
+                              min="0"
+                              max="100"
+                              step="0.1"
+                              value={rentalUsePercentage}
+                              onChange={(e) => setRentalUsePercentage(e.target.value)}
+                              onWheel={(e) => e.currentTarget.blur()}
+                              className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                              placeholder="e.g., 50"
+                            />
+                          </div>
+
+                          {/* Business percentage */}
+                          <div>
+                            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                              Business %
+                            </label>
+                            <input
+                              type="number"
+                              min="0"
+                              max="100"
+                              step="0.1"
+                              value={mixedBusinessUsePercentage}
+                              onChange={(e) => setMixedBusinessUsePercentage(e.target.value)}
+                              onWheel={(e) => e.currentTarget.blur()}
+                              className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                              placeholder="e.g., 10"
+                            />
+                          </div>
+
+                          {/* Total validation display */}
+                          {(() => {
+                            const living = parseFloat(livingUsePercentage) || 0;
+                            const rental = parseFloat(rentalUsePercentage) || 0;
+                            const business = parseFloat(mixedBusinessUsePercentage) || 0;
+                            const total = living + rental + business;
+                            const isValid = total === 100;
+                            const isEmpty = total === 0;
+
+                            if (isEmpty) {
+                              return (
+                                <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
+                                  <AlertCircle className="w-4 h-4" />
+                                  <span>Enter percentages above</span>
+                                </div>
+                              );
+                            }
+
+                            return (
+                              <div className={cn(
+                                "flex items-center gap-2 text-xs font-medium",
+                                isValid ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"
+                              )}>
+                                {isValid ? (
+                                  <>
+                                    <CheckCircle2 className="w-4 h-4" />
+                                    <span>Total: {total.toFixed(1)}% ✓</span>
+                                  </>
+                                ) : (
+                                  <>
+                                    <AlertCircle className="w-4 h-4" />
+                                    <span>Total: {total.toFixed(1)}% (must equal 100%)</span>
+                                  </>
+                                )}
+                              </div>
+                            );
+                          })()}
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                   </div>
 
                   {/* Property Characteristics - Collapsible Section */}
@@ -1295,7 +1549,8 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
              eventType !== 'rent_end' &&
              eventType !== 'sale' &&
              eventType !== 'vacant_start' &&
-             eventType !== 'vacant_end' && (
+             eventType !== 'vacant_end' &&
+             eventType !== 'ownership_change' && (
               <div className="space-y-4 pt-2">
                 {/* Single Amount Input */}
                 <div>
@@ -1476,7 +1731,7 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
                       className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300 cursor-pointer"
                     >
                       <Home className="w-4 h-4" />
-                      Rent end as move in (owner returns)
+                      Owner Move back in
                     </label>
                   </div>
                 </div>
@@ -1851,24 +2106,26 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
             )}
 
             {/* Additional Information Section */}
-            <div className="space-y-4 pt-2">
-              <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide">Additional Information</h3>
+            {eventType !== 'ownership_change' && (
+              <div className="space-y-4 pt-2">
+                <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide">Additional Information</h3>
 
-              {/* Description Input */}
-              <div>
-                <label className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                  <FileText className="w-4 h-4" />
-                  Notes
-                </label>
-                <textarea
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  rows={3}
-                  className="w-full px-4 py-2.5 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
-                  placeholder="Add notes about this event..."
-                />
+                {/* Description Input */}
+                <div>
+                  <label className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                    <FileText className="w-4 h-4" />
+                    Notes
+                  </label>
+                  <textarea
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    rows={3}
+                    className="w-full px-4 py-2.5 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                    placeholder="Add notes about this event..."
+                  />
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Status Change Dropdown (for status_change events) */}
             {/* Hide for synthetic "Not Sold" markers */}
@@ -1933,6 +2190,215 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
                     </select>
                   </div>
                 )}
+              </div>
+            )}
+
+            {/* Ownership Change Event */}
+            {eventType === 'ownership_change' && (
+              <div className="space-y-4 pt-2 border-t border-slate-200 dark:border-slate-700">
+                <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide">
+                  Ownership Transfer Details
+                </h3>
+
+                {/* Reason Dropdown */}
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                    Reason for Ownership Change *
+                  </label>
+                  <select
+                    value={ownershipChangeReason}
+                    onChange={(e) => setOwnershipChangeReason(e.target.value as any)}
+                    className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="divorce">Divorce</option>
+                    <option value="sale_transfer">Sale / Transfer</option>
+                    <option value="gift">Gift</option>
+                    <option value="other">Other</option>
+                  </select>
+                </div>
+
+                {/* Other Reason Text Input (conditional) */}
+                {ownershipChangeReason === 'other' && (
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                      Please specify reason
+                    </label>
+                    <input
+                      type="text"
+                      value={ownershipChangeReasonOther}
+                      onChange={(e) => setOwnershipChangeReasonOther(e.target.value)}
+                      className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="e.g., Estate transfer, Corporate restructure..."
+                    />
+                  </div>
+                )}
+
+                {/* Leaving Owners */}
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">
+                    Leaving Owner(s) *
+                  </label>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mb-2">
+                    Select the owner(s) who are transferring their ownership
+                  </p>
+                  {currentProperty?.owners && currentProperty.owners.length > 0 ? (
+                    <div className="space-y-2">
+                      {currentProperty.owners.map((owner, index) => (
+                        <div
+                          key={index}
+                          className="flex items-center gap-3 p-3 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800"
+                        >
+                          <input
+                            type="checkbox"
+                            id={`leaving-owner-${index}`}
+                            checked={leavingOwners.includes(owner.name)}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                setLeavingOwners([...leavingOwners, owner.name]);
+                              } else {
+                                setLeavingOwners(leavingOwners.filter(name => name !== owner.name));
+                              }
+                            }}
+                            className="w-4 h-4 text-blue-600 bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 rounded focus:ring-2 focus:ring-blue-500 cursor-pointer"
+                          />
+                          <label
+                            htmlFor={`leaving-owner-${index}`}
+                            className="flex-1 text-sm text-slate-700 dark:text-slate-300 cursor-pointer"
+                          >
+                            {owner.name} ({owner.percentage}%)
+                          </label>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="p-3 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800 text-sm text-amber-800 dark:text-amber-200">
+                      No owners found for this property. Please add owners in the Property Panel first.
+                    </div>
+                  )}
+                </div>
+
+                {/* New Owners */}
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">
+                    New Owner(s) *
+                  </label>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mb-2">
+                    Add the new owner(s) receiving the transferred ownership
+                  </p>
+
+                  {newOwners.length > 0 && (
+                    <div className="space-y-2 mb-3">
+                      {newOwners.map((owner, index) => (
+                        <div
+                          key={index}
+                          className="flex items-center gap-2 p-3 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800"
+                        >
+                          <input
+                            type="text"
+                            value={owner.name}
+                            onChange={(e) => {
+                              const updated = [...newOwners];
+                              updated[index].name = e.target.value;
+                              setNewOwners(updated);
+                            }}
+                            className="flex-1 px-3 py-1.5 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 rounded focus:ring-2 focus:ring-blue-500 text-sm"
+                            placeholder="Owner name"
+                          />
+                          <input
+                            type="number"
+                            min="0"
+                            max="100"
+                            step="0.1"
+                            value={owner.percentage}
+                            onChange={(e) => {
+                              const updated = [...newOwners];
+                              updated[index].percentage = parseFloat(e.target.value) || 0;
+                              setNewOwners(updated);
+                            }}
+                            onWheel={(e) => e.currentTarget.blur()}
+                            className="w-24 px-3 py-1.5 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 rounded focus:ring-2 focus:ring-blue-500 text-sm"
+                            placeholder="%"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setNewOwners(newOwners.filter((_, i) => i !== index));
+                            }}
+                            className="p-1.5 text-red-600 hover:bg-red-100 dark:hover:bg-red-900/30 rounded transition-colors"
+                            title="Remove owner"
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setNewOwners([...newOwners, { name: '', percentage: 0 }]);
+                    }}
+                    className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/30 rounded-lg border border-blue-200 dark:border-blue-800 transition-colors"
+                  >
+                    <Plus className="w-4 h-4" />
+                    Add New Owner
+                  </button>
+                </div>
+
+                {/* Percentage Validation Summary */}
+                {newOwners.length > 0 && (() => {
+                  const total = newOwners.reduce((sum, owner) => sum + (owner.percentage || 0), 0);
+                  const isValid = total === 100;
+                  const isEmpty = total === 0;
+
+                  if (isEmpty) {
+                    return (
+                      <div className="flex items-center gap-2 p-3 bg-slate-50 dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700">
+                        <AlertCircle className="w-4 h-4 text-slate-500 dark:text-slate-400" />
+                        <span className="text-xs text-slate-600 dark:text-slate-400">
+                          Enter ownership percentages above
+                        </span>
+                      </div>
+                    );
+                  }
+
+                  return (
+                    <div className={cn(
+                      "flex items-center gap-2 p-3 rounded-lg border font-medium",
+                      isValid
+                        ? "bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800 text-green-700 dark:text-green-300"
+                        : "bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800 text-red-700 dark:text-red-300"
+                    )}>
+                      {isValid ? (
+                        <>
+                          <CheckCircle2 className="w-4 h-4" />
+                          <span className="text-sm">Total: {total.toFixed(1)}% ✓</span>
+                        </>
+                      ) : (
+                        <>
+                          <AlertCircle className="w-4 h-4" />
+                          <span className="text-sm">Total: {total.toFixed(1)}% (must equal 100%)</span>
+                        </>
+                      )}
+                    </div>
+                  );
+                })()}
+
+                {/* Notes Section for Ownership Change */}
+                <div className="pt-4 border-t border-slate-200 dark:border-slate-700">
+                  <label className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                    <FileText className="w-4 h-4" />
+                    Notes
+                  </label>
+                  <textarea
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    rows={3}
+                    className="w-full px-4 py-2.5 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                    placeholder="Add notes about this ownership change..."
+                  />
+                </div>
               </div>
             )}
           </div>

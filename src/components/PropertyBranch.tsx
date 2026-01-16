@@ -2,7 +2,7 @@
 
 import React, { useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { AlertTriangle } from 'lucide-react';
+import { AlertTriangle, Split } from 'lucide-react';
 import { Property, TimelineEvent, useTimelineStore, statusColors, calculateStatusPeriods } from '@/store/timeline';
 import { useValidationStore } from '@/store/validation';
 import EventCircle from './EventCircle';
@@ -11,6 +11,7 @@ import PropertyStatusBands from './PropertyStatusBands';
 import TimelineGap from './TimelineGap';
 import VerificationAlertBar from './VerificationAlertBar';
 import { cn, dateToPosition } from '@/lib/utils';
+import { isSubdivided, getSubdivisionDate, getChildProperties } from '@/lib/subdivision-helpers';
 import type { PositionedGap } from '@/types/ai-feedback';
 
 interface PropertyBranchProps {
@@ -42,9 +43,15 @@ export default function PropertyBranch({
   onHoverChange,
   onAlertClick,
 }: PropertyBranchProps) {
-  const { eventDisplayMode, positionedGaps, selectIssue, selectProperty, enableDragEvents, updateEvent, verificationAlerts, resolveVerificationAlert } = useTimelineStore();
+  const { eventDisplayMode, positionedGaps, selectIssue, selectProperty, enableDragEvents, updateEvent, verificationAlerts, resolveVerificationAlert, properties } = useTimelineStore();
   const { getIssuesForProperty } = useValidationStore();
   const branchY = 100 + branchIndex * 120; // Vertical spacing between branches
+
+  // Check if this property has been subdivided
+  const hasBeenSubdivided = isSubdivided(property, properties);
+  const subdivisionDate = hasBeenSubdivided ? getSubdivisionDate(property) : null;
+  const subdivisionPosition = subdivisionDate ? dateToPosition(subdivisionDate, timelineStart, timelineEnd) : null;
+  const childLots = hasBeenSubdivided ? getChildProperties(property.id!, properties) : [];
 
   // Get verification alerts for this property
   const propertyAlerts = verificationAlerts.filter(alert => alert.propertyId === property.id);
@@ -276,13 +283,19 @@ export default function PropertyBranch({
 
   // Calculate first and last event positions for the line
   const getLinePositions = () => {
+    // For child lots, calculate the minimum start position based on subdivision date
+    const isChildLot = Boolean(property.parentPropertyId);
+    const subdivisionStartPos = isChildLot && property.subdivisionDate
+      ? dateToPosition(property.subdivisionDate, timelineStart, timelineEnd)
+      : 0;
+
     if (eventsWithTiers.length === 0) {
-      // Empty property - show line from start to today (if visible)
+      // Empty property - show line from subdivision date (or start) to today
       const todayPos = getTodayPosition(timelineStart, timelineEnd);
       // Clamp to visible range for rendering
       const clampedTodayPos = Math.max(0, Math.min(todayPos, 100));
       return {
-        start: 0,
+        start: Math.max(0, subdivisionStartPos), // Child lots start from subdivision date
         end: clampedTodayPos,
         isEmpty: true
       };
@@ -292,6 +305,9 @@ export default function PropertyBranch({
     const firstEventPos = Math.min(...positions);
     const lastEventPos = Math.max(...positions);
 
+    // For child lots, ensure line doesn't start before subdivision date
+    const actualStartPos = Math.max(firstEventPos, subdivisionStartPos);
+
     // For unsold properties, extend to today's position (the "Not Sold" marker)
     if (!isSold) {
       const todayPos = getTodayPosition(timelineStart, timelineEnd);
@@ -300,7 +316,7 @@ export default function PropertyBranch({
       // If today is before the visible range (todayPos < 0), end at last event
       if (todayPos < 0) {
         return {
-          start: firstEventPos,
+          start: actualStartPos, // Use actualStartPos for child lots
           end: lastEventPos,
           isEmpty: false
         };
@@ -309,14 +325,14 @@ export default function PropertyBranch({
       // If today is visible or after visible range, extend to today (clamped to 100% max)
       const clampedTodayPos = Math.min(todayPos, 100);
       return {
-        start: firstEventPos,
+        start: actualStartPos, // Use actualStartPos for child lots
         end: Math.max(lastEventPos, clampedTodayPos),
         isEmpty: false
       };
     }
 
     // For sold properties, line ends at the last event (sale)
-    return { start: firstEventPos, end: lastEventPos, isEmpty: false };
+    return { start: actualStartPos, end: lastEventPos, isEmpty: false }; // Use actualStartPos for child lots
   };
 
   const linePositions = getLinePositions();
@@ -451,7 +467,7 @@ export default function PropertyBranch({
               />
             </>
           )}
-          {/* Main line */}
+          {/* Main line - continuous regardless of subdivision */}
           <motion.line
             x1={`${linePositions.start}%`}
             y1={branchY}
@@ -488,14 +504,38 @@ export default function PropertyBranch({
             onClick={handlePropertyClick}
             title={`Click to view ${property.name} details`}
           />
-          <span className={cn(
-            "font-semibold text-sm transition-all pointer-events-none truncate",
-            isSelected
-              ? "text-slate-900 dark:text-slate-100"
-              : "text-slate-600 dark:text-slate-400"
-          )}>
-            {property.name}
-          </span>
+          <div className="flex flex-col gap-0.5 pointer-events-none">
+            <div className="flex items-center gap-1.5">
+              <span className={cn(
+                "font-semibold text-sm transition-all truncate",
+                isSelected
+                  ? "text-slate-900 dark:text-slate-100"
+                  : "text-slate-600 dark:text-slate-400"
+              )}>
+                {property.name}
+              </span>
+              {/* Show "Subdivided" badge for parent properties */}
+              {hasBeenSubdivided && childLots.length > 0 && (
+                <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium bg-pink-500/10 text-pink-600 dark:text-pink-400 border border-pink-500/20">
+                  <Split className="w-3 h-3" />
+                  {childLots.length} lots
+                </span>
+              )}
+            </div>
+            {/* Show lot number and size for subdivided child properties */}
+            {property.lotNumber && (
+              <span className="text-xs text-slate-500 dark:text-slate-400">
+                {property.lotNumber}
+                {property.lotSize && ` • ${property.lotSize.toFixed(0)} sqm`}
+              </span>
+            )}
+            {/* Show owner information if available */}
+            {property.owners && property.owners.length > 0 && (
+              <span className="text-xs text-slate-500 dark:text-slate-400">
+                Owned by: {property.owners.map(o => `${o.name} (${o.percentage}%)`).join(', ')}
+              </span>
+            )}
+          </div>
         </div>
       </foreignObject>
 

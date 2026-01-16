@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef, useEffect, MouseEvent } from 'react';
+import React, { useState, useRef, useEffect, MouseEvent, useMemo } from 'react';
 import { format } from 'date-fns';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTimelineStore, EventType, TimelineEvent } from '@/store/timeline';
@@ -13,6 +13,8 @@ import EventDetailsModal from './EventDetailsModal';
 import TimelineSnapshot from './TimelineSnapshot';
 import TimelineVisualizationsModal from './TimelineVisualizationsModal';
 import { StickyNotesLayer, ShareLinkButton, AddStickyNoteButton } from './sticky-notes';
+import SubdivisionSplitVisual from './SubdivisionSplitVisual';
+import { calculateBranchPositions, calculateSubdivisionConnections } from '@/lib/subdivision-helpers';
 // import ResidenceGapOverlay from './ResidenceGapOverlay'; // REMOVED: Duplicate of GilbertBranch VerificationAlertBar
 
 // Extend Window interface for global sticky note drag flag
@@ -63,6 +65,17 @@ export default function Timeline({ className, onAlertClick, onOpenAIBuilder }: T
     timelineIssues,
     // residenceGapIssues, // REMOVED: Not needed - using GilbertBranch VerificationAlertBar instead
   } = useTimelineStore();
+
+  // Calculate branch positions for subdivision hierarchy
+  const branchPositions = useMemo(() => {
+    return calculateBranchPositions(properties);
+  }, [properties]);
+
+  // Calculate subdivision connections for visual rendering
+  const subdivisionConnections = useMemo(() => {
+    const dateToPos = (date: Date) => dateToPosition(date, timelineStart, timelineEnd);
+    return calculateSubdivisionConnections(properties, branchPositions, dateToPos);
+  }, [properties, branchPositions, timelineStart, timelineEnd]);
 
   // Handle timeline click to add events
   const handleTimelineClick = (e: MouseEvent<HTMLDivElement>) => {
@@ -376,23 +389,46 @@ export default function Timeline({ className, onAlertClick, onOpenAIBuilder }: T
               {/* REMOVED: ResidenceGapOverlay - Duplicate of GilbertBranch VerificationAlertBar */}
               {/* Gap questions now handled exclusively by VerificationAlertBar → PropertyIssueOverlay */}
 
-              {properties.map((property, index) => (
-                <PropertyBranch
-                  key={property.id}
-                  property={property}
-                  events={events.filter(e => e.propertyId === property.id)}
-                  branchIndex={index}
-                  onDragStart={handleDragStart}
-                  isSelected={selectedProperty === property.id}
-                  isHovered={hoveredPropertyId === property.id}
-                  timelineStart={timelineStart}
-                  timelineEnd={timelineEnd}
-                  onEventClick={(event) => handleEventClick(event, property.name)}
-                  onBranchClick={handleBranchClick}
-                  onHoverChange={(isHovered) => setHoveredPropertyId(isHovered ? property.id : null)}
-                  onAlertClick={onAlertClick}
-                />
-              ))}
+              {properties.map((property, index) => {
+                // Use calculated branch position if property is part of subdivision hierarchy
+                const branchPos = branchPositions.get(property.id!);
+                const effectiveBranchIndex = branchPos ? branchPos.yOffset / 80 : index;
+
+                return (
+                  <PropertyBranch
+                    key={property.id}
+                    property={property}
+                    events={events.filter(e => e.propertyId === property.id)}
+                    branchIndex={effectiveBranchIndex}
+                    onDragStart={handleDragStart}
+                    isSelected={selectedProperty === property.id}
+                    isHovered={hoveredPropertyId === property.id}
+                    timelineStart={timelineStart}
+                    timelineEnd={timelineEnd}
+                    onEventClick={(event) => handleEventClick(event, property.name)}
+                    onBranchClick={handleBranchClick}
+                    onHoverChange={(isHovered) => setHoveredPropertyId(isHovered ? property.id : null)}
+                    onAlertClick={onAlertClick}
+                  />
+                );
+              })}
+
+              {/* Subdivision Visual Connections */}
+              {subdivisionConnections.length > 0 && timelineRef.current && (
+                <foreignObject
+                  x="0"
+                  y="0"
+                  width="100%"
+                  height="100%"
+                  style={{ pointerEvents: 'none' }}
+                >
+                  <SubdivisionSplitVisual
+                    connections={subdivisionConnections}
+                    containerHeight={minContentHeight - 48}
+                    containerWidth={timelineRef.current.offsetWidth}
+                  />
+                </foreignObject>
+              )}
             </svg>
 
             {/* Sticky Notes Layer */}

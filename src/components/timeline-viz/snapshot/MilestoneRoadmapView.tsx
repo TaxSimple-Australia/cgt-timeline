@@ -25,6 +25,8 @@ const getEventAbbreviation = (eventType: EventType): string => {
     status_change: 'SC',
     vacant_start: 'VS',
     vacant_end: 'VE',
+    ownership_change: 'OC',
+    subdivision: 'SD',
     custom: 'CU',
   };
   return abbreviations[eventType] || 'EV';
@@ -43,6 +45,8 @@ const getEventTypeLabel = (eventType: EventType): string => {
     status_change: 'Status Change',
     vacant_start: 'Vacant Start',
     vacant_end: 'Vacant End',
+    ownership_change: 'Ownership Change',
+    subdivision: 'Subdivision',
     custom: 'Custom Event',
   };
   return labels[eventType] || eventType;

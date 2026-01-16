@@ -42,23 +42,29 @@ export async function GET(
       properties: parsed.properties?.length || 0,
       events: parsed.events?.length || 0,
       timelineStickyNotes: parsed.timelineStickyNotes?.length || 0,
+      timelineDrawingAnnotations: parsed.timelineDrawingAnnotations?.length || 0,
       hasAnalysis: !!parsed.savedAnalysis,
+      analysisStickyNotes: parsed.savedAnalysis?.analysisStickyNotes?.length || 0,
+      analysisDrawingAnnotations: parsed.savedAnalysis?.analysisDrawingAnnotations?.length || 0,
     });
 
-    // Return full v2.0.0 data structure
+    // Return full v2.1.0 data structure (includes drawing annotations)
     return NextResponse.json({
       success: true,
       data: {
-        version: isV2 ? version : '2.0.0',
+        version: isV2 ? version : '2.1.0',
         properties: parsed.properties || [],
         events: parsed.events || [],
         notes: parsed.notes,
         // v2.0.0 fields - provide defaults for v1 data
         timelineStickyNotes: parsed.timelineStickyNotes || [],
+        // v2.1.0 fields - drawing annotations
+        timelineDrawingAnnotations: parsed.timelineDrawingAnnotations || [],
         savedAnalysis: parsed.savedAnalysis ? {
           response: parsed.savedAnalysis.response,
           analyzedAt: parsed.savedAnalysis.analyzedAt,
           analysisStickyNotes: parsed.savedAnalysis.analysisStickyNotes || [],
+          analysisDrawingAnnotations: parsed.savedAnalysis.analysisDrawingAnnotations || [],
           provider: parsed.savedAnalysis.provider,
         } : undefined,
         createdAt: parsed.createdAt,

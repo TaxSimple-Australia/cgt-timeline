@@ -1,0 +1,70 @@
+{
+  "title": "Beneficiary Moves Into Inherited Property",
+  "scenario_info": {
+    "name": "Beneficiary Moves Into Inherited Property",
+    "description": "Sarah inherits her father's investment property (which was NOT his main residence). She moves into the property as her main residence for 4 years before selling. Because the property was not the deceased's main residence, Sarah cannot use the 2-year rule. However, she can claim the main residence exemption for the period she lived there.",
+    "expected_result": {
+      "exemption_type": "partial",
+      "exemption_percentage": 98.98,
+      "capital_gain": 121100,
+      "taxable_gain": 654,
+      "notes": "Small taxable portion due to 16-day delay before moving in. After 50% discount."
+    },
+    "applicable_rules": [
+      "ITAA97 s118.195: 2-year rule NOT applicable (property was NOT deceased's main residence)",
+      "Sarah inherits father's cost base and acquisition date",
+      "ITAA97 s118.185: Partial main residence exemption for period Sarah lived there",
+      "Small taxable portion due to 16-day delay before moving in",
+      "ITAA97 s115.25: 50% CGT discount applies"
+    ]
+  },
+  "properties": [
+    {
+      "address": "120 Investment Crescent, Mackay QLD 4740",
+      "property_history": [
+        {
+          "date": "2010-06-15",
+          "event": "purchase",
+          "price": 320000,
+          "stamp_duty": 12800,
+          "purchase_legal_fees": 2200,
+          "description": "Father's original purchase - used as investment property"
+        },
+        {
+          "date": "2010-06-15",
+          "event": "rent_start",
+          "description": "Father rented property from purchase - never lived in"
+        },
+        {
+          "date": "2020-08-01",
+          "event": "inheritance",
+          "market_value": 395000,
+          "description": "Father passes. Property was his investment property (NOT his main residence). Inherited by Sarah."
+        },
+        {
+          "date": "2020-09-15",
+          "event": "rent_end",
+          "description": "Sarah receives property as beneficiary. Tenant vacates."
+        },
+        {
+          "date": "2020-10-01",
+          "event": "move_in",
+          "description": "Sarah moves in as her main residence"
+        },
+        {
+          "date": "2024-09-30",
+          "event": "sale",
+          "price": 480000,
+          "contract_date": "2024-09-30",
+          "agent_fees": 12000,
+          "legal_fees": 1900
+        }
+      ],
+      "notes": "Partial main residence exemption (98.98%). 2-year rule does NOT apply because property was father's investment, not his main residence. Sarah inherits father's cost base. Only the 16-day vacant period before Sarah moved in is taxable."
+    }
+  ],
+  "user_query": "I inherited my father's investment property in 2020 - he never lived there, it was always rented. I moved in and made it my main residence for 4 years. What's my CGT when I sell?",
+  "additional_info": {
+    "australian_resident": true
+  }
+}

@@ -1,0 +1,72 @@
+{
+  "title": "Relationship Breakdown Property Transfer",
+  "scenario_info": {
+    "name": "Relationship Breakdown Property Transfer",
+    "description": "Mark and Linda divorce after 12 years of marriage. Their family home is transferred to Linda as part of the property settlement. Under the relationship breakdown rollover provisions, Mark disregards any capital gain on the transfer. Linda inherits Mark's cost base and acquisition date.",
+    "expected_result": {
+      "exemption_type": "full",
+      "exemption_percentage": 100,
+      "capital_gain": 190250,
+      "taxable_gain": 0,
+      "cgt_payable": 0,
+      "notes": "Mark's transfer exempt under rollover. Linda's sale exempt under MRE."
+    },
+    "applicable_rules": [
+      "ITAA97 s126.5: Relationship breakdown CGT rollover",
+      "Transfer must be due to court order, BFA, or award",
+      "Mark's gain/loss disregarded on transfer",
+      "Linda inherits Mark's cost base AND acquisition date",
+      "ITAA97 s118.110: Main residence exemption applies to Linda's sale",
+      "Key: Linda's ownership period includes Mark's original purchase date"
+    ]
+  },
+  "properties": [
+    {
+      "address": "65 Harmony Drive, Gladstone QLD 4680",
+      "property_history": [
+        {
+          "date": "2012-05-01",
+          "event": "purchase",
+          "price": 380000,
+          "stamp_duty": 13300,
+          "purchase_legal_fees": 2800,
+          "description": "Purchased as joint tenants (50/50) by Mark and Linda"
+        },
+        {
+          "date": "2012-05-01",
+          "event": "move_in",
+          "description": "Mark and Linda establish as main residence"
+        },
+        {
+          "date": "2018-06-15",
+          "event": "improvement",
+          "price": 45000,
+          "description": "Pool installation"
+        },
+        {
+          "date": "2023-03-01",
+          "event": "move_out",
+          "description": "Mark moves out - separation"
+        },
+        {
+          "date": "2023-08-15",
+          "event": "status_change",
+          "description": "Mark's 50% transferred to Linda via court order. CGT rollover applies under s126.5. Linda now owns 100%."
+        },
+        {
+          "date": "2024-10-01",
+          "event": "sale",
+          "price": 650000,
+          "contract_date": "2024-10-01",
+          "agent_fees": 16250,
+          "legal_fees": 2400
+        }
+      ],
+      "notes": "Full exemption. Mark's transfer to Linda exempt under relationship breakdown rollover (s126.5). Linda inherits Mark's cost base and acquisition date. Linda's sale exempt under MRE as property was her main residence for entire period (including Mark's original ownership)."
+    }
+  ],
+  "user_query": "My ex-husband transferred his share of our family home to me as part of our divorce settlement. I've now sold it. What are the CGT implications for both of us?",
+  "additional_info": {
+    "australian_resident": true
+  }
+}

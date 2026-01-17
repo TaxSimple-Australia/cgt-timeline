@@ -60,6 +60,27 @@ const SCENARIO_CONFIG: { filename: string; displayTitle: string; category: strin
   { filename: 'scenario13_couple_separate_properties.json', displayTitle: 'Couple with Separate Properties', category: 'Complex' },
   { filename: 'scenario14_foreign_resident_period.json', displayTitle: 'Foreign Resident Period Impact', category: 'Complex' },
   { filename: 'scenario15_three_property_portfolio.json', displayTitle: 'Three Property Portfolio', category: 'Complex' },
+  // Extended CGT Scenarios (21-40) - Advanced edge cases and special rules
+  { filename: 'scenario21_aged_care_indefinite_absence.json', displayTitle: 'Aged Care - Indefinite Absence', category: 'Extended' },
+  { filename: 'scenario22_delayed_move_in_work.json', displayTitle: 'Delayed Move-In (Work Assignment)', category: 'Extended' },
+  { filename: 'scenario23_six_year_periods_reset.json', displayTitle: 'Multiple 6-Year Periods Reset', category: 'Extended' },
+  { filename: 'scenario24_deceased_estate_two_years.json', displayTitle: 'Deceased Estate (Within 2 Years)', category: 'Extended' },
+  { filename: 'scenario25_beneficiary_moves_in.json', displayTitle: 'Beneficiary Moves Into Inherited Property', category: 'Extended' },
+  { filename: 'scenario26_pre_cgt_major_improvements.json', displayTitle: 'Pre-CGT with Major Improvements', category: 'Extended' },
+  { filename: 'scenario27_large_rural_property.json', displayTitle: 'Large Rural Property (>2 Hectares)', category: 'Extended' },
+  { filename: 'scenario28_granny_flat_arrangement.json', displayTitle: 'Granny Flat Arrangement', category: 'Extended' },
+  { filename: 'scenario29_relationship_breakdown.json', displayTitle: 'Relationship Breakdown Rollover', category: 'Extended' },
+  { filename: 'scenario30_home_office_business.json', displayTitle: 'Home Office Business Use', category: 'Extended' },
+  { filename: 'scenario31_foreign_resident_life_event.json', displayTitle: 'Foreign Resident Life Event', category: 'Extended' },
+  { filename: 'scenario32_pre_may_2012_foreign.json', displayTitle: 'Pre-9 May 2012 Foreign Residency', category: 'Extended' },
+  { filename: 'scenario33_spouses_different_residences.json', displayTitle: 'Spouses - Different Main Residences', category: 'Extended' },
+  { filename: 'scenario34_vacant_periods_extended_rental.json', displayTitle: 'Vacant Periods During Rental', category: 'Extended' },
+  { filename: 'scenario35_four_year_construction.json', displayTitle: '4-Year Construction Rule Exceeded', category: 'Extended' },
+  { filename: 'scenario36_subdivision_land_sale.json', displayTitle: 'Subdivision - Separate Land Sale', category: 'Extended' },
+  { filename: 'scenario37_deceased_estate_covid.json', displayTitle: 'Deceased Estate - COVID Extension', category: 'Extended' },
+  { filename: 'scenario38_small_business_15_year.json', displayTitle: 'Small Business 15-Year Exemption', category: 'Extended' },
+  { filename: 'scenario39_investment_then_main_residence.json', displayTitle: 'Investment Then Main Residence', category: 'Extended' },
+  { filename: 'scenario40_four_property_portfolio.json', displayTitle: 'Four Property Portfolio', category: 'Extended' },
 ];
 
 // Category configuration
@@ -67,6 +88,7 @@ const CATEGORIES = [
   { id: 'all', label: 'All Scenarios', icon: Filter },
   { id: 'Basic', label: 'Basic', icon: Home },
   { id: 'Complex', label: 'Complex', icon: TrendingUp },
+  { id: 'Extended', label: 'Extended', icon: Building2 },
 ];
 
 export default function ScenarioSelectorModal({ isOpen, onClose }: ScenarioSelectorModalProps) {
@@ -186,6 +208,8 @@ export default function ScenarioSelectorModal({ isOpen, onClose }: ScenarioSelec
         return 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400';
       case 'Complex':
         return 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400';
+      case 'Extended':
+        return 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400';
       default:
         return 'bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300';
     }

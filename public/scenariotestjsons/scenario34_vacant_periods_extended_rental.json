@@ -1,0 +1,84 @@
+{
+  "title": "Vacant Periods During Extended Rental",
+  "scenario_info": {
+    "name": "Vacant Periods During Extended Rental",
+    "description": "Michelle rents her main residence for 8 years with two vacant periods when tenants change. The vacant periods count towards the 6-year limit when the property is available for rent. Total rental period exceeds 6 years, resulting in partial exemption.",
+    "expected_result": {
+      "exemption_type": "partial",
+      "exemption_percentage": 66.69,
+      "capital_gain": 165000,
+      "taxable_gain": 27481,
+      "notes": "After 50% discount. Vacant periods while available for rent count towards 6-year limit."
+    },
+    "applicable_rules": [
+      "ITAA97 s118.145: Six-year absence rule exceeded",
+      "Vacant periods while property available for rent count towards 6-year limit",
+      "Only genuinely taking property off rental market stops the clock",
+      "ITAA97 s118.192: First use to produce income rule",
+      "50% CGT discount applies to taxable portion",
+      "Rental period (9 years including vacant) exceeds 6 years by 3 years"
+    ]
+  },
+  "properties": [
+    {
+      "address": "42 Acacia Close, Maryborough QLD 4650",
+      "property_history": [
+        {
+          "date": "2012-01-01",
+          "event": "purchase",
+          "price": 280000,
+          "stamp_duty": 8400,
+          "purchase_legal_fees": 1800
+        },
+        {
+          "date": "2012-01-01",
+          "event": "move_in",
+          "description": "Established as main residence"
+        },
+        {
+          "date": "2016-01-01",
+          "event": "move_out",
+          "description": "Relocated for work"
+        },
+        {
+          "date": "2016-01-01",
+          "event": "rent_start",
+          "description": "First tenant moves in. Market value at first rental: $340,000"
+        },
+        {
+          "date": "2019-07-01",
+          "event": "status_change",
+          "description": "Tenant leaves. Property VACANT but still available for rent (counts toward 6-year limit)"
+        },
+        {
+          "date": "2019-10-01",
+          "event": "rent_start",
+          "description": "Second tenant moves in after 3-month vacancy"
+        },
+        {
+          "date": "2022-03-01",
+          "event": "status_change",
+          "description": "Tenant leaves. Property VACANT but still available for rent (counts toward 6-year limit)"
+        },
+        {
+          "date": "2022-05-01",
+          "event": "rent_start",
+          "description": "Third tenant moves in after 2-month vacancy"
+        },
+        {
+          "date": "2024-12-31",
+          "event": "sale",
+          "price": 520000,
+          "contract_date": "2024-12-31",
+          "agent_fees": 13000,
+          "legal_fees": 2000
+        }
+      ],
+      "notes": "Partial exemption (66.69%). Total rental period including vacant periods: 9 years. Exceeds 6-year limit by 3 years. Market value at first rental ($340,000) becomes cost base. Taxable gain after 50% discount: $27,481."
+    }
+  ],
+  "user_query": "I've rented my home for 8 years but there were two vacant periods between tenants (3 months and 2 months). The property was always available for rent during those times. Does the 6-year rule still apply?",
+  "additional_info": {
+    "australian_resident": true
+  }
+}

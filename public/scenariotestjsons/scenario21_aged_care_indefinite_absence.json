@@ -1,0 +1,68 @@
+{
+  "title": "Aged Care Entry with Indefinite Absence",
+  "scenario_info": {
+    "name": "Aged Care Entry with Indefinite Absence",
+    "description": "Margaret purchases her home and lives in it for 20 years before entering permanent aged care. She leaves the property vacant (not rented) for 7 years while in aged care before selling. Because the property was not used to produce income during her absence, she can treat it as her main residence indefinitely under s118.145.",
+    "expected_result": {
+      "exemption_type": "full",
+      "exemption_percentage": 100,
+      "capital_gain": 288450,
+      "taxable_gain": 0,
+      "cgt_payable": 0
+    },
+    "applicable_rules": [
+      "ITAA97 s118.145: Indefinite absence rule applies (property not income producing)",
+      "Property can be treated as main residence indefinitely when not rented",
+      "No limit on how long the property can be vacant",
+      "Full exemption applies regardless of 7+ years in aged care"
+    ]
+  },
+  "properties": [
+    {
+      "address": "15 Magnolia Street, Toowoomba QLD 4350",
+      "property_history": [
+        {
+          "date": "2000-03-01",
+          "event": "purchase",
+          "price": 185000,
+          "stamp_duty": 5550,
+          "purchase_legal_fees": 1200
+        },
+        {
+          "date": "2000-03-01",
+          "event": "move_in",
+          "description": "Established as main residence"
+        },
+        {
+          "date": "2008-06-15",
+          "event": "improvement",
+          "price": 25000,
+          "description": "Kitchen renovation"
+        },
+        {
+          "date": "2017-04-01",
+          "event": "move_out",
+          "description": "Entered permanent residential aged care"
+        },
+        {
+          "date": "2017-04-01",
+          "event": "status_change",
+          "description": "Property left vacant - not rented. Indefinite absence rule applies."
+        },
+        {
+          "date": "2024-08-15",
+          "event": "sale",
+          "price": 520000,
+          "contract_date": "2024-08-15",
+          "agent_fees": 13000,
+          "legal_fees": 1800
+        }
+      ],
+      "notes": "Full main residence exemption. Property was vacant (not rented) during aged care. Under s118.145, property continues to be treated as main residence indefinitely when not producing income."
+    }
+  ],
+  "user_query": "I moved into aged care 7 years ago and left my home vacant the entire time. I never rented it out. Now I'm selling it. What is my CGT liability?",
+  "additional_info": {
+    "australian_resident": true
+  }
+}

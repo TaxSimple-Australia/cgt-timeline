@@ -1,0 +1,61 @@
+{
+  "title": "Large Rural Property Exceeding Two Hectares",
+  "scenario_info": {
+    "name": "Large Rural Property Exceeding Two Hectares",
+    "description": "Patricia owns a 5-hectare rural property where she has lived for 15 years. The main residence exemption only applies to the dwelling and up to 2 hectares of adjacent land used for private purposes. She must choose which 2 hectares to include, with the remaining 3 hectares subject to CGT.",
+    "expected_result": {
+      "exemption_type": "partial",
+      "exemption_percentage": 60,
+      "capital_gain": 291320,
+      "taxable_gain": 145660,
+      "notes": "After 50% CGT discount. Only dwelling + 2ha exempt, remaining 3ha taxable."
+    },
+    "applicable_rules": [
+      "ITAA97 s118.120: Main residence exemption includes adjacent land up to 2 hectares",
+      "Land must be used mainly for private and domestic purposes",
+      "ATO TD 1999/67: Client can choose which 2 hectares are included",
+      "Remaining land (3 hectares) is a separate CGT asset",
+      "ITAA97 s115.25: 50% CGT discount applies to taxable portion"
+    ]
+  },
+  "properties": [
+    {
+      "address": "450 Mountain View Road, Atherton QLD 4883",
+      "property_history": [
+        {
+          "date": "2010-01-01",
+          "event": "purchase",
+          "price": 420000,
+          "stamp_duty": 14700,
+          "purchase_legal_fees": 3000,
+          "description": "5 hectare rural property"
+        },
+        {
+          "date": "2010-01-01",
+          "event": "move_in",
+          "description": "Established as main residence on 5 hectare rural block"
+        },
+        {
+          "date": "2015-06-15",
+          "event": "improvement",
+          "price": 35000,
+          "description": "Shed construction on exempt 2ha portion"
+        },
+        {
+          "date": "2024-12-15",
+          "event": "sale",
+          "price": 1200000,
+          "contract_date": "2024-12-15",
+          "agent_fees": 30000,
+          "legal_fees": 4000,
+          "description": "Value split: Dwelling + 2ha = $720,000 (60%), Remaining 3ha = $480,000 (40%)"
+        }
+      ],
+      "notes": "Partial exemption. Main residence exemption covers dwelling + 2 hectares (60% = $720,000). Remaining 3 hectares ($480,000) is taxable. Capital gain on taxable portion: $291,320. After 50% discount: $145,660."
+    }
+  ],
+  "user_query": "I've lived on my 5 hectare rural property for 15 years. I know there's a 2 hectare limit on the main residence exemption. How much CGT will I pay when I sell?",
+  "additional_info": {
+    "australian_resident": true
+  }
+}

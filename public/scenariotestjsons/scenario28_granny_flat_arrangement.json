@@ -1,0 +1,70 @@
+{
+  "title": "Granny Flat Arrangement",
+  "scenario_info": {
+    "name": "Granny Flat Arrangement",
+    "description": "Helen transfers her home to her daughter Isabella in exchange for a granny flat right (right to live in the property for life). Since 1 July 2021, CGT does not apply when creating a granny flat arrangement. Helen's main residence exemption covers the transfer, and Isabella has no CGT liability for granting the granny flat right.",
+    "expected_result": {
+      "exemption_type": "full",
+      "exemption_percentage": 100,
+      "capital_gain": 0,
+      "taxable_gain": 0,
+      "cgt_payable": 0,
+      "notes": "Both parties exempt - Helen (MRE + granny flat exemption), Isabella (MRE on sale)"
+    },
+    "applicable_rules": [
+      "ITAA97 s118.80: Granny flat arrangements exempt from CGT (from 1 July 2021)",
+      "Helen: MRE applies to transfer + Granny flat CGT exemption",
+      "Isabella: No CGT on granting life interest + MRE on eventual sale",
+      "Granny flat must be: Written, non-commercial, provide life interest",
+      "Transfer for market value = Isabella's cost base for future CGT"
+    ]
+  },
+  "properties": [
+    {
+      "address": "28 Family Court, Rockhampton QLD 4700",
+      "property_history": [
+        {
+          "date": "2005-03-01",
+          "event": "purchase",
+          "price": 285000,
+          "stamp_duty": 10000,
+          "purchase_legal_fees": 2000,
+          "description": "Helen's original purchase"
+        },
+        {
+          "date": "2005-03-01",
+          "event": "move_in",
+          "description": "Helen established as main residence"
+        },
+        {
+          "date": "2022-08-01",
+          "event": "status_change",
+          "description": "Granny flat arrangement created. Helen transfers property to daughter Isabella in exchange for life interest. CGT exempt under s118.80."
+        },
+        {
+          "date": "2022-08-01",
+          "event": "move_in",
+          "description": "Isabella moves in as owner. Helen retains life interest."
+        },
+        {
+          "date": "2024-11-15",
+          "event": "status_change",
+          "description": "Helen passes away. Granny flat arrangement terminates."
+        },
+        {
+          "date": "2024-11-15",
+          "event": "sale",
+          "price": 520000,
+          "contract_date": "2024-11-15",
+          "agent_fees": 13000,
+          "legal_fees": 2000
+        }
+      ],
+      "notes": "Full exemption for all parties. Helen's transfer exempt under MRE + granny flat arrangement (s118.80). Isabella's sale exempt under MRE (lived there as main residence since transfer). Granny flat exemption applies from 1 July 2021."
+    }
+  ],
+  "user_query": "My mother transferred her house to me in 2022 in exchange for a granny flat arrangement where she could live there for life. She recently passed away and I'm selling. What are the CGT implications?",
+  "additional_info": {
+    "australian_resident": true
+  }
+}

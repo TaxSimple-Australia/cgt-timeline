@@ -1,0 +1,144 @@
+{
+  "title": "Four Property Portfolio Optimization",
+  "scenario_info": {
+    "name": "Four Property Portfolio Optimization",
+    "description": "Victoria is selling her entire property portfolio in the 2024-25 financial year: her family home (main residence), a beach house (former main residence now rented), an investment unit (never lived in), and an inherited farm (from deceased parent). Strategic MRE nomination is critical to minimize total CGT.",
+    "expected_result": {
+      "exemption_type": "mixed",
+      "total_capital_gain": 1170000,
+      "total_taxable_gain": 92238,
+      "property_a_gain": 0,
+      "property_b_gain": 54738,
+      "property_c_gain": 37500,
+      "property_d_gain": 0,
+      "notes": "After 50% discounts. Optimal strategy: Claim MRE on family home, use 2-year rule for farm."
+    },
+    "applicable_rules": [
+      "Property A: ITAA97 s118.110 - Full main residence exemption",
+      "Property B: ITAA97 s118.145 - Six-year rule exceeded (partial exemption)",
+      "Property B: ITAA97 s118.192 - First use to produce income",
+      "Property C: No exemption - pure investment property",
+      "Property D: ITAA97 s118.195 - Deceased estate 2-year rule",
+      "ITAA97 s115.25: 50% CGT discount applies to all taxable portions"
+    ]
+  },
+  "properties": [
+    {
+      "address": "45 Residence Court, Noosa QLD 4567",
+      "property_history": [
+        {
+          "date": "2016-03-01",
+          "event": "purchase",
+          "price": 680000,
+          "stamp_duty": 27200,
+          "purchase_legal_fees": 3500
+        },
+        {
+          "date": "2016-03-01",
+          "event": "move_in",
+          "description": "Established as main residence - current family home"
+        },
+        {
+          "date": "2024-11-15",
+          "event": "sale",
+          "price": 1450000,
+          "contract_date": "2024-11-15",
+          "agent_fees": 36250,
+          "legal_fees": 4000
+        }
+      ],
+      "notes": "Property A - Family Home. FULL MRE applies. Main residence entire ownership (8.8 years). Capital gain ~$680,000. Taxable: $0."
+    },
+    {
+      "address": "28 Oceanview Drive, Coolum QLD 4573",
+      "property_history": [
+        {
+          "date": "2012-06-01",
+          "event": "purchase",
+          "price": 420000,
+          "stamp_duty": 16800,
+          "purchase_legal_fees": 2800
+        },
+        {
+          "date": "2012-06-01",
+          "event": "move_in",
+          "description": "Was main residence before moving to Noosa"
+        },
+        {
+          "date": "2016-03-01",
+          "event": "move_out",
+          "description": "Moved to Noosa property"
+        },
+        {
+          "date": "2016-03-01",
+          "event": "rent_start",
+          "description": "Started renting (8.6 years - exceeds 6-year rule). Market value: $580,000"
+        },
+        {
+          "date": "2024-10-15",
+          "event": "sale",
+          "price": 980000,
+          "contract_date": "2024-10-15",
+          "agent_fees": 24500,
+          "legal_fees": 3200
+        }
+      ],
+      "notes": "Property B - Beach House. PARTIAL MRE. Former main residence, rented 8.6 years (exceeds 6-year limit by 2.6 years). First use to produce income rule applies. Taxable gain after discount: $54,738."
+    },
+    {
+      "address": "505/100 City Road, Brisbane QLD 4000",
+      "property_history": [
+        {
+          "date": "2018-08-15",
+          "event": "purchase",
+          "price": 385000,
+          "stamp_duty": 15400,
+          "purchase_legal_fees": 2200
+        },
+        {
+          "date": "2018-08-15",
+          "event": "rent_start",
+          "description": "Investment property - rented from day one, never lived in"
+        },
+        {
+          "date": "2024-12-01",
+          "event": "sale",
+          "price": 495000,
+          "contract_date": "2024-12-01",
+          "agent_fees": 12375,
+          "legal_fees": 2000
+        }
+      ],
+      "notes": "Property C - Investment Unit. NO MRE. Pure investment from day one. Capital gain ~$75,000. Taxable after discount: $37,500."
+    },
+    {
+      "address": "1200 Rural Highway, Roma QLD 4455",
+      "property_history": [
+        {
+          "date": "2022-09-01",
+          "event": "inheritance",
+          "market_value": 580000,
+          "description": "Inherited from father. Was father's main residence."
+        },
+        {
+          "date": "2022-09-15",
+          "event": "status_change",
+          "description": "Victoria receives property as beneficiary. Left vacant."
+        },
+        {
+          "date": "2024-12-20",
+          "event": "sale",
+          "price": 650000,
+          "contract_date": "2024-12-20",
+          "agent_fees": 16250,
+          "legal_fees": 2800
+        }
+      ],
+      "notes": "Property D - Inherited Farm. FULL EXEMPTION under 2-year rule. Was father's main residence, sold within 2 years (2.3 years, within extension). Capital gain ~$55,000. Taxable: $0."
+    }
+  ],
+  "user_query": "I'm selling my entire property portfolio this year: my family home, a beach house I used to live in but have rented for 8 years, an investment unit, and a farm I inherited from my father. What's my total CGT?",
+  "additional_info": {
+    "australian_resident": true
+  }
+}

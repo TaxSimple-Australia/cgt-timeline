@@ -1,0 +1,66 @@
+{
+  "title": "Four-Year Construction Rule Exceeded",
+  "scenario_info": {
+    "name": "Four-Year Construction Rule Exceeded",
+    "description": "Brian purchases vacant land and builds his home, but construction takes 5 years due to delays. Because the 4-year construction rule is exceeded, the land can only be treated as his main residence for the 4 years immediately before the completed dwelling became his main residence.",
+    "expected_result": {
+      "exemption_type": "partial",
+      "exemption_percentage": 85.54,
+      "capital_gain": 184500,
+      "taxable_gain": 13340,
+      "notes": "After 50% discount. First year of land ownership not covered by 4-year rule."
+    },
+    "applicable_rules": [
+      "ITAA97 s118.150: 4-year construction rule",
+      "If construction exceeds 4 years, MRE only applies for 4 years before completion",
+      "Land was not MR for first year (excess beyond 4-year limit)",
+      "ITAA97 s118.185: Partial exemption applies",
+      "14.46% of gain is taxable (first year of land ownership)",
+      "ITAA97 s115.25: 50% CGT discount applies"
+    ]
+  },
+  "properties": [
+    {
+      "address": "15 Hillside Estate, Warwick QLD 4370",
+      "property_history": [
+        {
+          "date": "2018-01-01",
+          "event": "purchase",
+          "price": 150000,
+          "stamp_duty": 4500,
+          "purchase_legal_fees": 1500,
+          "description": "Vacant land purchase"
+        },
+        {
+          "date": "2018-07-01",
+          "event": "status_change",
+          "description": "Construction begins"
+        },
+        {
+          "date": "2022-12-15",
+          "event": "improvement",
+          "price": 320000,
+          "description": "Construction complete after 5 years (exceeded 4-year rule)"
+        },
+        {
+          "date": "2023-01-01",
+          "event": "move_in",
+          "description": "Moved in as main residence. 4-year construction rule only covers back to 1 Jan 2019."
+        },
+        {
+          "date": "2024-11-30",
+          "event": "sale",
+          "price": 680000,
+          "contract_date": "2024-11-30",
+          "agent_fees": 17000,
+          "legal_fees": 2500
+        }
+      ],
+      "notes": "Partial exemption (85.54%). Construction took 5 years, exceeding the 4-year rule. Land treated as main residence only from 1 Jan 2019 (4 years before move-in). First year of ownership (2018) is not covered = 14.46% taxable. Taxable gain after 50% discount: $13,340."
+    }
+  ],
+  "user_query": "I bought vacant land in 2018 and built my home, but construction took 5 years due to delays. I finally moved in at the start of 2023. Now I'm selling. What's my CGT position?",
+  "additional_info": {
+    "australian_resident": true
+  }
+}

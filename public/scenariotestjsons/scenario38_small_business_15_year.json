@@ -1,0 +1,60 @@
+{
+  "title": "Small Business CGT Concessions",
+  "scenario_info": {
+    "name": "Small Business CGT Concessions - 15-Year Exemption",
+    "description": "David operates a photography studio from a commercial property he has owned for 16 years. He sells the property and qualifies for the small business 15-year exemption, which allows him to disregard the entire capital gain. He also contributes part of the proceeds to superannuation.",
+    "expected_result": {
+      "exemption_type": "full",
+      "exemption_percentage": 100,
+      "capital_gain": 309700,
+      "taxable_gain": 0,
+      "cgt_payable": 0,
+      "notes": "15-year exemption - entire capital gain disregarded. Can contribute to super under CGT cap."
+    },
+    "applicable_rules": [
+      "ITAA97 Subdiv 152-B: 15-year exemption",
+      "Must own active asset for 15+ continuous years",
+      "Must be 55+ or retiring/permanently incapacitated",
+      "Entire capital gain exempt (not just reduced)",
+      "ITAA97 s292.100: CGT cap for super contributions",
+      "Exempt amount can be contributed to super under CGT cap",
+      "2024-25 lifetime CGT cap: $1,780,000"
+    ]
+  },
+  "properties": [
+    {
+      "address": "55 Commercial Street, Nambour QLD 4560",
+      "property_history": [
+        {
+          "date": "2008-01-01",
+          "event": "purchase",
+          "price": 280000,
+          "stamp_duty": 9800,
+          "purchase_legal_fees": 2200,
+          "description": "Commercial property purchase"
+        },
+        {
+          "date": "2008-01-01",
+          "event": "status_change",
+          "description": "Photography studio established - 100% business use. Property becomes active asset."
+        },
+        {
+          "date": "2024-12-15",
+          "event": "sale",
+          "price": 620000,
+          "contract_date": "2024-12-15",
+          "agent_fees": 15500,
+          "legal_fees": 2800
+        }
+      ],
+      "notes": "Full exemption under small business 15-year rule. Owned active asset for 16.9 years. David is 58 years old. Meets all conditions: active asset 15+ years, age 55+, small business entity. Gain of $309,700 fully exempt. Can contribute exempt amount to super under CGT cap."
+    }
+  ],
+  "user_query": "I've run my photography studio from my commercial property for 16 years. I'm 58 and selling the property. Do I qualify for the small business CGT concessions?",
+  "additional_info": {
+    "australian_resident": true,
+    "business_owner": true,
+    "owner_age": 58,
+    "turnover_under_2m": true
+  }
+}

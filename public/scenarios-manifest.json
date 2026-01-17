@@ -1,0 +1,1345 @@
+{
+  "version": "1.0.0",
+  "generatedAt": "2026-01-17T21:29:09.471Z",
+  "totalScenarios": 82,
+  "categories": {
+    "Core Concepts": 10,
+    "Multi-Factor": 10,
+    "Special Rules": 20,
+    "Real-World": 42
+  },
+  "scenarios": [
+    {
+      "id": "scenariotestjsons/scenario1_full_main_residence_exemption.json",
+      "filename": "scenario1_full_main_residence_exemption.json",
+      "path": "scenariotestjsons",
+      "title": "Full Main Residence Exemption",
+      "description": "Sarah purchases her first home and lives in it continuously from purchase until sale. Full main residence exemption applies.",
+      "category": "Core Concepts",
+      "propertyCount": 1,
+      "scenario_info": {
+        "name": "Full Main Residence Exemption",
+        "expected_result": {
+          "exemption_type": "full",
+          "exemption_percentage": 100,
+          "capital_gain": 398750,
+          "taxable_gain": 0,
+          "cgt_payable": 0
+        },
+        "applicable_rules": [
+          "ITAA97 s118.110"
+        ]
+      }
+    },
+    {
+      "id": "scenariotestjsons/scenario2_six_year_rule_within.json",
+      "filename": "scenario2_six_year_rule_within.json",
+      "path": "scenariotestjsons",
+      "title": "6-Year Absence Rule (Within Limit)",
+      "description": "Michael purchases a home, lives in it for 4 years, then moves interstate for work and rents out the property for 5 years. Six-year rule applies - full exemption.",
+      "category": "Core Concepts",
+      "propertyCount": 1,
+      "scenario_info": {
+        "name": "Six-Year Absence Rule (Within 6 Years)",
+        "expected_result": {
+          "exemption_type": "full",
+          "exemption_percentage": 100,
+          "capital_gain": 617500,
+          "taxable_gain": 0,
+          "cgt_payable": 0,
+          "rental_period_years": 5.13,
+          "six_year_rule_applies": true
+        },
+        "applicable_rules": [
+          "ITAA97 s118.145"
+        ]
+      }
+    },
+    {
+      "id": "scenariotestjsons/scenario3_six_year_rule_exceeded.json",
+      "filename": "scenario3_six_year_rule_exceeded.json",
+      "path": "scenariotestjsons",
+      "title": "6-Year Absence Rule (Exceeded)",
+      "description": "Property owner lived in for 2 years, then rented out for over 10 years (exceeding the 6-year rule). Partial exemption applies based on time as main residence.",
+      "category": "Core Concepts",
+      "propertyCount": 1,
+      "scenario_info": {
+        "name": "Six-Year Absence Rule (Exceeded)",
+        "expected_result": {
+          "exemption_type": "partial",
+          "exemption_percentage": 20,
+          "six_year_rule_applies": false,
+          "rental_period_years": 10.25
+        },
+        "applicable_rules": [
+          "ITAA97 s118.145",
+          "ITAA97 s115.25"
+        ]
+      }
+    },
+    {
+      "id": "scenariotestjsons/scenario4_rental_first_then_main_residence.json",
+      "filename": "scenario4_rental_first_then_main_residence.json",
+      "path": "scenariotestjsons",
+      "title": "Rental First, Then Main Residence",
+      "description": "Emma purchases an investment property and rents it immediately. After 3 years, she moves in. Six-year rule does NOT apply - only main residence period is exempt.",
+      "category": "Core Concepts",
+      "propertyCount": 1,
+      "scenario_info": {
+        "name": "Rental First, Then Main Residence (First Use to Produce Income)",
+        "expected_result": {
+          "exemption_type": "partial",
+          "exemption_percentage": 63.2,
+          "capital_gain": 218325,
+          "taxable_proportion": 36.8,
+          "taxable_gain_before_discount": 80344,
+          "taxable_gain_after_discount": 40172,
+          "rental_period_days": 1165,
+          "main_residence_period_days": 2001,
+          "six_year_rule_applies": false
+        },
+        "applicable_rules": [
+          "ITAA97 s118.185",
+          "ITAA97 s115.25"
+        ]
+      }
+    },
+    {
+      "id": "scenariotestjsons/scenario5_moving_between_residences.json",
+      "filename": "scenario5_moving_between_residences.json",
+      "path": "scenariotestjsons",
+      "title": "Moving Between Residences",
+      "description": "David owns his main residence and purchases a new home. He moves in while still owning the old one (5.5 month overlap). Both properties treated as main residence under s118.140.",
+      "category": "Core Concepts",
+      "propertyCount": 2,
+      "scenario_info": {
+        "name": "Moving Between Main Residences (6-Month Overlap Rule)",
+        "expected_result": {
+          "property_1": {
+            "exemption_type": "full",
+            "exemption_percentage": 100,
+            "capital_gain": 321600,
+            "taxable_gain": 0,
+            "cgt_payable": 0
+          },
+          "property_2": {
+            "status": "current_main_residence",
+            "not_sold": true
+          },
+          "overlap_period_days": 165,
+          "overlap_within_6_months": true
+        },
+        "applicable_rules": [
+          "ITAA97 s118.140"
+        ]
+      }
+    },
+    {
+      "id": "scenariotestjsons/new_scenario_1_full_main_residence.json",
+      "filename": "new_scenario_1_full_main_residence.json",
+      "path": "scenariotestjsons",
+      "title": "Full Main Residence (Variant B)",
+      "description": "I lived in my home for the entire time I owned it. What is my CGT liability on sale?",
+      "category": "Core Concepts",
+      "propertyCount": 1
+    },
+    {
+      "id": "scenariotestjsons/new_scenario_2_six_year_within.json",
+      "filename": "new_scenario_2_six_year_within.json",
+      "path": "scenariotestjsons",
+      "title": "6-Year Rule Within (Variant B)",
+      "description": "I moved to Melbourne for work and rented my Gold Coast home for about 5.5 years before selling. What is my CGT liability?",
+      "category": "Core Concepts",
+      "propertyCount": 1
+    },
+    {
+      "id": "scenariotestjsons/new_scenario_3_six_year_exceeded.json",
+      "filename": "new_scenario_3_six_year_exceeded.json",
+      "path": "scenariotestjsons",
+      "title": "6-Year Rule Exceeded (Variant B)",
+      "description": "I rented my Sydney home for over 8 years while working in Singapore. How much CGT do I owe now that I've sold?",
+      "category": "Core Concepts",
+      "propertyCount": 1
+    },
+    {
+      "id": "scenariotestjsons/new_scenario_4_rental_first.json",
+      "filename": "new_scenario_4_rental_first.json",
+      "path": "scenariotestjsons",
+      "title": "Rental First (Variant B)",
+      "description": "I bought an investment property, rented it for 4 years, then moved in for 6 years before selling. What CGT do I owe?",
+      "category": "Core Concepts",
+      "propertyCount": 1
+    },
+    {
+      "id": "scenariotestjsons/new_scenario_5_moving_between_residences.json",
+      "filename": "new_scenario_5_moving_between_residences.json",
+      "path": "scenariotestjsons",
+      "title": "Moving Between Residences (Variant B)",
+      "description": "I bought a new home and moved in before selling my old home. The overlap was about 4.5 months. What CGT do I owe?",
+      "category": "Core Concepts",
+      "propertyCount": 2
+    },
+    {
+      "id": "scenariotestjsons/scenario6_multiple_absence_periods.json",
+      "filename": "scenario6_multiple_absence_periods.json",
+      "path": "scenariotestjsons",
+      "title": "Multiple Absence Periods",
+      "description": "Ian owns a Sydney home and is posted to different cities for work over 30 years. He rents out Sydney during absences, buys/sells other properties, but never claims MRE on them. The combined rental periods exceed 6 years.",
+      "category": "Multi-Factor",
+      "propertyCount": 3,
+      "scenario_info": {
+        "name": "Multiple Absence Periods (ATO Example 80)",
+        "expected_result": {
+          "exemption_type": "partial",
+          "exemption_percentage": 96.74,
+          "taxable_proportion": 3.26
+        },
+        "applicable_rules": [
+          "ITAA97 s118.145: Six-year absence rule (partial - combined rental exceeds 6 years)",
+          "Multiple absence periods are combined for the 6-year test",
+          "Can choose to treat Sydney as MR since no other property claimed as MR",
+          "ITAA97 s115.25: 50% CGT discount applies"
+        ]
+      }
+    },
+    {
+      "id": "scenariotestjsons/scenario7_two_properties_strategic_mre.json",
+      "filename": "scenario7_two_properties_strategic_mre.json",
+      "path": "scenariotestjsons",
+      "title": "Two Properties - Strategic MRE Choice",
+      "description": "David owns two properties and must strategically choose which one to claim the main residence exemption on. He lived in a beach house first, then moved to a city apartment. The beach house was rented for exactly 6 years.",
+      "category": "Multi-Factor",
+      "propertyCount": 2,
+      "scenario_info": {
+        "name": "Two Properties with Strategic MRE Decision",
+        "expected_result": {
+          "exemption_type": "partial",
+          "exemption_percentage": 100,
+          "notes": "If beach house MRE claimed, it gets full exemption (6-year rule). City apartment would be partially taxable."
+        },
+        "applicable_rules": [
+          "ITAA97 s118.145: Six-year absence rule applies to beach house (rental = 6 years exactly)",
+          "Can only claim ONE property as main residence at any time",
+          "Strategic choice: Claim MRE on property with larger gain",
+          "ITAA97 s115.25: 50% CGT discount applies to taxable portions"
+        ]
+      }
+    },
+    {
+      "id": "scenariotestjsons/scenario8_inherited_property_rental.json",
+      "filename": "scenario8_inherited_property_rental.json",
+      "path": "scenariotestjsons",
+      "title": "Inherited Property with Rental",
+      "description": "Emma inherits her mother's home (which was mum's main residence) and then rents it out before selling more than 2 years after the date of death.",
+      "category": "Multi-Factor",
+      "propertyCount": 1,
+      "scenario_info": {
+        "name": "Inherited Property Then Rented",
+        "expected_result": {
+          "exemption_type": "none",
+          "capital_gain": 143450,
+          "taxable_gain": 71725,
+          "notes": "Since sold more than 2 years after death and Emma never lived there, no MRE applies for Emma's period."
+        },
+        "applicable_rules": [
+          "ITAA97 s118.195: 2-year disposal rule NOT met (sold 4+ years after death)",
+          "Cost base = Market value at date of death ($780,000)",
+          "Emma never established property as her main residence",
+          "ITAA97 s115.25: 50% CGT discount applies (inherited acquisition date)"
+        ]
+      }
+    },
+    {
+      "id": "scenariotestjsons/scenario9_investment_then_ppr_then_rental.json",
+      "filename": "scenario9_investment_then_ppr_then_rental.json",
+      "path": "scenariotestjsons",
+      "title": "Investment → Main Residence → Rental",
+      "description": "Michael buys an investment property, later moves in as main residence, then moves out and rents again. The six-year rule does NOT apply because property was rented before becoming main residence.",
+      "category": "Multi-Factor",
+      "propertyCount": 1,
+      "scenario_info": {
+        "name": "Complex Pattern: Rental-PPR-Rental",
+        "expected_result": {
+          "exemption_type": "partial",
+          "exemption_percentage": 28.93,
+          "taxable_proportion": 71.07,
+          "notes": "Six-year rule unavailable. Only actual residence period exempt."
+        },
+        "applicable_rules": [
+          "Six-year rule (s118.145) does NOT apply - property was investment BEFORE main residence",
+          "ITAA97 s118.185: Partial main residence exemption for actual residence period only",
+          "Original cost base used (not market value reset)",
+          "ITAA97 s115.25: 50% CGT discount applies"
+        ]
+      }
+    },
+    {
+      "id": "scenariotestjsons/scenario10_six_month_overlap_exceeded.json",
+      "filename": "scenario10_six_month_overlap_exceeded.json",
+      "path": "scenariotestjsons",
+      "title": "6-Month Overlap Rule Exceeded",
+      "description": "Jennifer buys a new home before selling her old one, but takes 8.5 months to sell the old home, exceeding the 6-month overlap allowance by 74 days.",
+      "category": "Multi-Factor",
+      "propertyCount": 2,
+      "scenario_info": {
+        "name": "Moving Between Homes - Overlap Exceeded",
+        "expected_result": {
+          "exemption_type": "partial",
+          "exemption_percentage": 98.4,
+          "taxable_proportion": 1.6,
+          "notes": "74 days of overlap period taxable on one property"
+        },
+        "applicable_rules": [
+          "ITAA97 s118.140: 6-month overlap rule",
+          "Overlap of 257 days exceeds 183-day limit by 74 days",
+          "Must choose which property loses exemption for excess period",
+          "Old home taxable for 74 days (smallest proportion)",
+          "ITAA97 s115.25: 50% CGT discount applies"
+        ]
+      }
+    },
+    {
+      "id": "scenariotestjsons/scenario11_construction_four_year_rule.json",
+      "filename": "scenario11_construction_four_year_rule.json",
+      "path": "scenariotestjsons",
+      "title": "Construction & 4-Year Building Rule",
+      "description": "Robert buys vacant land and builds his dream home. Construction takes 2.6 years. The 4-year construction rule allows the land to be treated as main residence from purchase.",
+      "category": "Multi-Factor",
+      "propertyCount": 1,
+      "scenario_info": {
+        "name": "4-Year Construction Rule Application",
+        "expected_result": {
+          "exemption_type": "full",
+          "exemption_percentage": 100,
+          "capital_gain": 0,
+          "taxable_gain": 0
+        },
+        "applicable_rules": [
+          "ITAA97 s118.150: 4-year construction rule applies",
+          "Construction period (2.6 years) is within 4-year limit",
+          "Land treated as main residence from acquisition date",
+          "Moved in as soon as practicable after completion",
+          "Full main residence exemption applies"
+        ]
+      }
+    },
+    {
+      "id": "scenariotestjsons/scenario12_airbnb_room_rental.json",
+      "filename": "scenario12_airbnb_room_rental.json",
+      "path": "scenariotestjsons",
+      "title": "Partial Use - Airbnb Room Rental",
+      "description": "Sophie lives in her home but rents out a spare room on Airbnb for 5 years. The interest deductibility test applies, requiring floor area apportionment.",
+      "category": "Multi-Factor",
+      "propertyCount": 1,
+      "scenario_info": {
+        "name": "Home with Airbnb Room Rental",
+        "expected_result": {
+          "exemption_type": "partial",
+          "exemption_percentage": 86.57,
+          "taxable_proportion": 13.43,
+          "notes": "Floor area and time apportionment required"
+        },
+        "applicable_rules": [
+          "ITAA97 s118.190: Interest deductibility test applies",
+          "Exclusive rented area: 18/180 sqm = 10%",
+          "Shared areas: (45/180) x 50% = 12.5%",
+          "Total income-producing: 22.5%",
+          "Time factor: 1,826/3,059 days = 59.7%",
+          "Taxable: 22.5% x 59.7% = 13.43%"
+        ]
+      }
+    },
+    {
+      "id": "scenariotestjsons/scenario13_couple_separate_properties.json",
+      "filename": "scenario13_couple_separate_properties.json",
+      "path": "scenariotestjsons",
+      "title": "Couple with Separate Properties",
+      "description": "Alex and Sam each own a home before they get married. After cohabitation, they can only claim one property as main residence. Alex's property becomes partially taxable.",
+      "category": "Multi-Factor",
+      "propertyCount": 2,
+      "scenario_info": {
+        "name": "Couple with Separate Properties Before Marriage",
+        "expected_result": {
+          "exemption_type": "partial",
+          "exemption_percentage": 50.68,
+          "taxable_proportion": 49.32,
+          "notes": "From cohabitation date, couple must choose ONE main residence"
+        },
+        "applicable_rules": [
+          "Couples can only claim ONE main residence at any time",
+          "From cohabitation (1 Mar 2020), must choose which property is MR",
+          "Alex's property: MR for 1,705 days before cohabitation",
+          "Alex's property: NOT MR for 1,660 days after cohabitation",
+          "Total ownership: 3,365 days",
+          "ITAA97 s115.25: 50% CGT discount applies"
+        ]
+      }
+    },
+    {
+      "id": "scenariotestjsons/scenario14_foreign_resident_period.json",
+      "filename": "scenario14_foreign_resident_period.json",
+      "path": "scenariotestjsons",
+      "title": "Foreign Resident Period Impact",
+      "description": "Lisa is an Australian resident who moves to Singapore for work for 4 years, becoming a foreign resident for tax purposes. She rents her Australian home, then returns before selling.",
+      "category": "Multi-Factor",
+      "propertyCount": 1,
+      "scenario_info": {
+        "name": "Australian Who Moves Overseas Then Returns",
+        "expected_result": {
+          "exemption_type": "full",
+          "exemption_percentage": 100,
+          "capital_gain": 0,
+          "notes": "Six-year rule applies. Since Lisa returned before selling, she is Australian resident at sale and can claim MRE."
+        },
+        "applicable_rules": [
+          "ITAA97 s118.145: Six-year absence rule applies (rental = 4 years < 6 years)",
+          "Lisa was foreign resident for 4 years but RETURNED before sale",
+          "Since Australian resident at time of sale, MRE available",
+          "CGT discount would be reduced for foreign resident period if gain was taxable",
+          "Full MRE means no CGT payable regardless"
+        ]
+      }
+    },
+    {
+      "id": "scenariotestjsons/scenario15_three_property_portfolio.json",
+      "filename": "scenario15_three_property_portfolio.json",
+      "path": "scenariotestjsons",
+      "title": "Three Property Portfolio",
+      "description": "Investment portfolio with three properties sold in the same financial year. Each property has different CGT treatment: family home (full MRE), investment unit (no exemption), holiday house (no exemption, mixed use).",
+      "category": "Multi-Factor",
+      "propertyCount": 3,
+      "scenario_info": {
+        "name": "Multiple Properties with Different CGT Treatments",
+        "expected_result": {
+          "exemption_type": "mixed",
+          "total_net_capital_gain": 202088,
+          "property_a_gain": 0,
+          "property_b_gain": 57788,
+          "property_c_gain": 144300
+        },
+        "applicable_rules": [
+          "Property A: Full MRE - main residence entire period",
+          "Property B: No exemption - pure investment from day one",
+          "Property C: No exemption - holiday house with occasional rental",
+          "ITAA97 s115.25: 50% CGT discount applies to B and C",
+          "Capital gains aggregated for the financial year"
+        ]
+      }
+    },
+    {
+      "id": "scenariotestjsons/scenario21_aged_care_indefinite_absence.json",
+      "filename": "scenario21_aged_care_indefinite_absence.json",
+      "path": "scenariotestjsons",
+      "title": "Aged Care - Indefinite Absence",
+      "description": "Margaret purchases her home and lives in it for 20 years before entering permanent aged care. She leaves the property vacant (not rented) for 7 years while in aged care before selling. Because the property was not used to produce income during her absence, she can treat it as her main residence indefinitely under s118.145.",
+      "category": "Special Rules",
+      "propertyCount": 1,
+      "scenario_info": {
+        "name": "Aged Care Entry with Indefinite Absence",
+        "expected_result": {
+          "exemption_type": "full",
+          "exemption_percentage": 100,
+          "capital_gain": 288450,
+          "taxable_gain": 0,
+          "cgt_payable": 0
+        },
+        "applicable_rules": [
+          "ITAA97 s118.145: Indefinite absence rule applies (property not income producing)",
+          "Property can be treated as main residence indefinitely when not rented",
+          "No limit on how long the property can be vacant",
+          "Full exemption applies regardless of 7+ years in aged care"
+        ]
+      }
+    },
+    {
+      "id": "scenariotestjsons/scenario22_delayed_move_in_work.json",
+      "filename": "scenario22_delayed_move_in_work.json",
+      "path": "scenariotestjsons",
+      "title": "Delayed Move-In (Work Assignment)",
+      "description": "Anthony purchases a home but cannot move in immediately due to a work assignment overseas that was arranged before the purchase. He moves in 8 months after purchase when his assignment ends. Because the delay was due to unforeseen work circumstances, the dwelling is treated as his main residence from the acquisition date.",
+      "category": "Special Rules",
+      "propertyCount": 1,
+      "scenario_info": {
+        "name": "Delayed Move-In Due to Work Assignment",
+        "expected_result": {
+          "exemption_type": "full",
+          "exemption_percentage": 100,
+          "capital_gain": 165365,
+          "taxable_gain": 0,
+          "cgt_payable": 0
+        },
+        "applicable_rules": [
+          "ATO guidance on delayed move-in: Valid exceptions include illness or work-related travel",
+          "Delay of 8 months accepted due to pre-arranged overseas work assignment",
+          "Moved in as soon as practicable (5 days after assignment ended)",
+          "Property not rented during delay = full exemption from acquisition date",
+          "Note: Renting during delay would NOT qualify for this exception"
+        ]
+      }
+    },
+    {
+      "id": "scenariotestjsons/scenario23_six_year_periods_reset.json",
+      "filename": "scenario23_six_year_periods_reset.json",
+      "path": "scenariotestjsons",
+      "title": "Multiple 6-Year Periods Reset",
+      "description": "Rebecca purchases a home, lives in it for 5 years, rents it out for 4 years while working overseas, moves back in for 2 years, then rents it again for 5 years before selling. Because she genuinely moved back in and re-established the property as her main residence, she is entitled to a new 6-year period for the second rental. The full main residence exemption applies.",
+      "category": "Special Rules",
+      "propertyCount": 1,
+      "scenario_info": {
+        "name": "Multiple Six-Year Periods Reset",
+        "expected_result": {
+          "exemption_type": "full",
+          "exemption_percentage": 100,
+          "capital_gain": 354850,
+          "taxable_gain": 0,
+          "cgt_payable": 0
+        },
+        "applicable_rules": [
+          "ITAA97 s118.145: Six-year absence rule can be reset",
+          "When owner genuinely moves back in and re-establishes main residence, a new 6-year period starts",
+          "9 years total rental split: 4 years + 5 years = both within respective 6-year limits",
+          "Key: Must genuinely re-establish main residence (not just a brief visit)"
+        ]
+      }
+    },
+    {
+      "id": "scenariotestjsons/scenario24_deceased_estate_two_years.json",
+      "filename": "scenario24_deceased_estate_two_years.json",
+      "path": "scenariotestjsons",
+      "title": "Deceased Estate (Within 2 Years)",
+      "description": "William's mother passes away and leaves him her home, which was her main residence. William sells the property within 2 years of her death. Because the property was the deceased's main residence and was sold within 2 years, William is entitled to a full CGT exemption under the deceased estate provisions.",
+      "category": "Special Rules",
+      "propertyCount": 1,
+      "scenario_info": {
+        "name": "Deceased Estate Sold Within Two Years",
+        "expected_result": {
+          "exemption_type": "full",
+          "exemption_percentage": 100,
+          "capital_gain": 10250,
+          "taxable_gain": 0,
+          "cgt_payable": 0
+        },
+        "applicable_rules": [
+          "ITAA97 s118.195: 2-year disposal rule",
+          "Property was deceased's main residence at time of death",
+          "Sold within 2 years = Full exemption (regardless of whether beneficiary lived there)",
+          "William did not need to move in to claim exemption",
+          "Note: If sold after 2 years, partial exemption may apply"
+        ]
+      }
+    },
+    {
+      "id": "scenariotestjsons/scenario25_beneficiary_moves_in.json",
+      "filename": "scenario25_beneficiary_moves_in.json",
+      "path": "scenariotestjsons",
+      "title": "Beneficiary Moves Into Inherited Property",
+      "description": "Sarah inherits her father's investment property (which was NOT his main residence). She moves into the property as her main residence for 4 years before selling. Because the property was not the deceased's main residence, Sarah cannot use the 2-year rule. However, she can claim the main residence exemption for the period she lived there.",
+      "category": "Special Rules",
+      "propertyCount": 1,
+      "scenario_info": {
+        "name": "Beneficiary Moves Into Inherited Property",
+        "expected_result": {
+          "exemption_type": "partial",
+          "exemption_percentage": 98.98,
+          "capital_gain": 121100,
+          "taxable_gain": 654,
+          "notes": "Small taxable portion due to 16-day delay before moving in. After 50% discount."
+        },
+        "applicable_rules": [
+          "ITAA97 s118.195: 2-year rule NOT applicable (property was NOT deceased's main residence)",
+          "Sarah inherits father's cost base and acquisition date",
+          "ITAA97 s118.185: Partial main residence exemption for period Sarah lived there",
+          "Small taxable portion due to 16-day delay before moving in",
+          "ITAA97 s115.25: 50% CGT discount applies"
+        ]
+      }
+    },
+    {
+      "id": "scenariotestjsons/scenario26_pre_cgt_major_improvements.json",
+      "filename": "scenario26_pre_cgt_major_improvements.json",
+      "path": "scenariotestjsons",
+      "title": "Pre-CGT with Major Improvements",
+      "description": "George purchased a property in 1982 (before CGT commenced on 20 September 1985). In 2015, he undertook a major renovation costing $250,000. He sells the property in 2024. While the original property is exempt as a pre-CGT asset, the major capital improvement is a separate CGT asset. However, since it was his main residence, both are exempt.",
+      "category": "Special Rules",
+      "propertyCount": 1,
+      "scenario_info": {
+        "name": "Pre-CGT Property with Major Post-CGT Improvements",
+        "expected_result": {
+          "exemption_type": "full",
+          "exemption_percentage": 100,
+          "capital_gain": 50000,
+          "taxable_gain": 0,
+          "cgt_payable": 0,
+          "notes": "Pre-CGT property exempt. Major improvement also exempt under main residence exemption."
+        },
+        "applicable_rules": [
+          "ITAA97 s149.10: Pre-CGT assets (acquired before 20 September 1985) exempt",
+          "ITAA97 s108.70: Major capital improvements are separate CGT assets",
+          "Major improvement threshold 2024-25: >5% of proceeds AND >$182,665",
+          "ITAA97 s118.110: Main residence exemption extends to improvements used as part of home",
+          "Note: If property was NOT main residence, improvement would be taxable"
+        ]
+      }
+    },
+    {
+      "id": "scenariotestjsons/scenario27_large_rural_property.json",
+      "filename": "scenario27_large_rural_property.json",
+      "path": "scenariotestjsons",
+      "title": "Large Rural Property (>2 Hectares)",
+      "description": "Patricia owns a 5-hectare rural property where she has lived for 15 years. The main residence exemption only applies to the dwelling and up to 2 hectares of adjacent land used for private purposes. She must choose which 2 hectares to include, with the remaining 3 hectares subject to CGT.",
+      "category": "Special Rules",
+      "propertyCount": 1,
+      "scenario_info": {
+        "name": "Large Rural Property Exceeding Two Hectares",
+        "expected_result": {
+          "exemption_type": "partial",
+          "exemption_percentage": 60,
+          "capital_gain": 291320,
+          "taxable_gain": 145660,
+          "notes": "After 50% CGT discount. Only dwelling + 2ha exempt, remaining 3ha taxable."
+        },
+        "applicable_rules": [
+          "ITAA97 s118.120: Main residence exemption includes adjacent land up to 2 hectares",
+          "Land must be used mainly for private and domestic purposes",
+          "ATO TD 1999/67: Client can choose which 2 hectares are included",
+          "Remaining land (3 hectares) is a separate CGT asset",
+          "ITAA97 s115.25: 50% CGT discount applies to taxable portion"
+        ]
+      }
+    },
+    {
+      "id": "scenariotestjsons/scenario28_granny_flat_arrangement.json",
+      "filename": "scenario28_granny_flat_arrangement.json",
+      "path": "scenariotestjsons",
+      "title": "Granny Flat Arrangement",
+      "description": "Helen transfers her home to her daughter Isabella in exchange for a granny flat right (right to live in the property for life). Since 1 July 2021, CGT does not apply when creating a granny flat arrangement. Helen's main residence exemption covers the transfer, and Isabella has no CGT liability for granting the granny flat right.",
+      "category": "Special Rules",
+      "propertyCount": 1,
+      "scenario_info": {
+        "name": "Granny Flat Arrangement",
+        "expected_result": {
+          "exemption_type": "full",
+          "exemption_percentage": 100,
+          "capital_gain": 0,
+          "taxable_gain": 0,
+          "cgt_payable": 0,
+          "notes": "Both parties exempt - Helen (MRE + granny flat exemption), Isabella (MRE on sale)"
+        },
+        "applicable_rules": [
+          "ITAA97 s118.80: Granny flat arrangements exempt from CGT (from 1 July 2021)",
+          "Helen: MRE applies to transfer + Granny flat CGT exemption",
+          "Isabella: No CGT on granting life interest + MRE on eventual sale",
+          "Granny flat must be: Written, non-commercial, provide life interest",
+          "Transfer for market value = Isabella's cost base for future CGT"
+        ]
+      }
+    },
+    {
+      "id": "scenariotestjsons/scenario29_relationship_breakdown.json",
+      "filename": "scenario29_relationship_breakdown.json",
+      "path": "scenariotestjsons",
+      "title": "Relationship Breakdown Rollover",
+      "description": "Mark and Linda divorce after 12 years of marriage. Their family home is transferred to Linda as part of the property settlement. Under the relationship breakdown rollover provisions, Mark disregards any capital gain on the transfer. Linda inherits Mark's cost base and acquisition date.",
+      "category": "Special Rules",
+      "propertyCount": 1,
+      "scenario_info": {
+        "name": "Relationship Breakdown Property Transfer",
+        "expected_result": {
+          "exemption_type": "full",
+          "exemption_percentage": 100,
+          "capital_gain": 190250,
+          "taxable_gain": 0,
+          "cgt_payable": 0,
+          "notes": "Mark's transfer exempt under rollover. Linda's sale exempt under MRE."
+        },
+        "applicable_rules": [
+          "ITAA97 s126.5: Relationship breakdown CGT rollover",
+          "Transfer must be due to court order, BFA, or award",
+          "Mark's gain/loss disregarded on transfer",
+          "Linda inherits Mark's cost base AND acquisition date",
+          "ITAA97 s118.110: Main residence exemption applies to Linda's sale",
+          "Key: Linda's ownership period includes Mark's original purchase date"
+        ]
+      }
+    },
+    {
+      "id": "scenariotestjsons/scenario30_home_office_business.json",
+      "filename": "scenario30_home_office_business.json",
+      "path": "scenariotestjsons",
+      "title": "Home Office Business Use",
+      "description": "Daniel works from home and has used 15% of his home exclusively for his photography business for the past 6 years. When he sells the property, the business-use portion is not eligible for the full main residence exemption under the interest deductibility test.",
+      "category": "Special Rules",
+      "propertyCount": 1,
+      "scenario_info": {
+        "name": "Home Office Business Use",
+        "expected_result": {
+          "exemption_type": "partial",
+          "exemption_percentage": 88.33,
+          "capital_gain": 223000,
+          "taxable_gain": 13012,
+          "notes": "After 50% CGT discount. 11.67% taxable (15% floor area x 77.79% time)."
+        },
+        "applicable_rules": [
+          "ITAA97 s118.190: Interest deductibility test",
+          "Part of home used for income-producing purposes (business)",
+          "Taxable proportion = Floor area % x Time proportion",
+          "Business use of 15% for 77.79% of ownership = 11.67% taxable",
+          "ITAA97 s115.25: 50% CGT discount applies to taxable portion",
+          "Note: Different from Airbnb room rental - this is exclusive business use"
+        ]
+      }
+    },
+    {
+      "id": "scenariotestjsons/scenario31_foreign_resident_life_event.json",
+      "filename": "scenario31_foreign_resident_life_event.json",
+      "path": "scenariotestjsons",
+      "title": "Foreign Resident Life Event",
+      "description": "Jessica moved to the UK in 2019 and became a foreign resident for tax purposes. In 2023, her husband passed away. Under the life event exception, she has 6 years from the date of his death to sell her Australian main residence and claim the main residence exemption, despite being a foreign resident.",
+      "category": "Special Rules",
+      "propertyCount": 1,
+      "scenario_info": {
+        "name": "Foreign Resident Life Event Exception",
+        "expected_result": {
+          "exemption_type": "full",
+          "exemption_percentage": 100,
+          "capital_gain": 287100,
+          "taxable_gain": 0,
+          "cgt_payable": 0,
+          "notes": "Life event exception + six-year rule = full exemption despite foreign residency"
+        },
+        "applicable_rules": [
+          "ITAA97 s118.110: Foreign residents cannot claim MRE (since 1 July 2020)",
+          "Exception: Life event within 6 years - death of spouse, child under 18, or terminal illness",
+          "ITAA97 s118.145: Six-year absence rule (rental 5.67 years < 6 years)",
+          "Jessica can claim MRE despite being foreign resident due to husband's death",
+          "Must sell within 6 years of life event (sold 1.5 years after)"
+        ]
+      }
+    },
+    {
+      "id": "scenariotestjsons/scenario32_pre_may_2012_foreign.json",
+      "filename": "scenario32_pre_may_2012_foreign.json",
+      "path": "scenariotestjsons",
+      "title": "Pre-9 May 2012 Foreign Residency",
+      "description": "Andrew owned his main residence since 2008 and became a foreign resident from 2015-2020. He returned to Australia and sold in 2024. Because he owned the property before 9 May 2012 and was a resident on that date, special rules apply. The six-year absence rule covers the rental, so full MRE applies.",
+      "category": "Special Rules",
+      "propertyCount": 1,
+      "scenario_info": {
+        "name": "Pre-9 May 2012 Property with Foreign Residency",
+        "expected_result": {
+          "exemption_type": "full",
+          "exemption_percentage": 100,
+          "capital_gain": 340000,
+          "taxable_gain": 0,
+          "cgt_payable": 0,
+          "notes": "Australian resident at sale + six-year rule = full MRE"
+        },
+        "applicable_rules": [
+          "ITAA97 s118.145: Six-year absence rule (rental 5 years < 6 years)",
+          "Returned to Australia and sold as resident = Can claim MRE",
+          "ITAA97 s115.105: CGT discount reduced for foreign resident periods (post-9 May 2012)",
+          "Special rule: Property owned on 9 May 2012 while resident = Pre-9 May portion gets full discount",
+          "Since full MRE applies, these discount rules don't affect outcome"
+        ]
+      }
+    },
+    {
+      "id": "scenariotestjsons/scenario33_spouses_different_residences.json",
+      "filename": "scenario33_spouses_different_residences.json",
+      "path": "scenariotestjsons",
+      "title": "Spouses - Different Main Residences",
+      "description": "Chris and Morgan are married but live in different cities for work. Chris lives in Brisbane and Morgan lives in Sydney. They each nominate their respective dwelling as their main residence. Under s118.170, spouses can claim different main residences, but with limitations on the exemption.",
+      "category": "Special Rules",
+      "propertyCount": 2,
+      "scenario_info": {
+        "name": "Spouses Nominating Different Main Residences",
+        "expected_result": {
+          "exemption_type": "partial",
+          "exemption_percentage": 58.31,
+          "capital_gain": 206200,
+          "taxable_gain": 42982,
+          "notes": "After 50% discount. Only 50% exemption during period of different main residences."
+        },
+        "applicable_rules": [
+          "ITAA97 s118.170: Spouses living in different main residences",
+          "If spouse owns >50% of nominated dwelling, exemption = 50% for period living apart",
+          "Chris owns 100%, so only 50% exemption applies during different MR period",
+          "If Chris owned 50% or less, would get 100% exemption on their share",
+          "ITAA97 s115.25: 50% CGT discount applies"
+        ]
+      }
+    },
+    {
+      "id": "scenariotestjsons/scenario34_vacant_periods_extended_rental.json",
+      "filename": "scenario34_vacant_periods_extended_rental.json",
+      "path": "scenariotestjsons",
+      "title": "Vacant Periods During Rental",
+      "description": "Michelle rents her main residence for 8 years with two vacant periods when tenants change. The vacant periods count towards the 6-year limit when the property is available for rent. Total rental period exceeds 6 years, resulting in partial exemption.",
+      "category": "Special Rules",
+      "propertyCount": 1,
+      "scenario_info": {
+        "name": "Vacant Periods During Extended Rental",
+        "expected_result": {
+          "exemption_type": "partial",
+          "exemption_percentage": 66.69,
+          "capital_gain": 165000,
+          "taxable_gain": 27481,
+          "notes": "After 50% discount. Vacant periods while available for rent count towards 6-year limit."
+        },
+        "applicable_rules": [
+          "ITAA97 s118.145: Six-year absence rule exceeded",
+          "Vacant periods while property available for rent count towards 6-year limit",
+          "Only genuinely taking property off rental market stops the clock",
+          "ITAA97 s118.192: First use to produce income rule",
+          "50% CGT discount applies to taxable portion",
+          "Rental period (9 years including vacant) exceeds 6 years by 3 years"
+        ]
+      }
+    },
+    {
+      "id": "scenariotestjsons/scenario35_four_year_construction.json",
+      "filename": "scenario35_four_year_construction.json",
+      "path": "scenariotestjsons",
+      "title": "4-Year Construction Rule Exceeded",
+      "description": "Brian purchases vacant land and builds his home, but construction takes 5 years due to delays. Because the 4-year construction rule is exceeded, the land can only be treated as his main residence for the 4 years immediately before the completed dwelling became his main residence.",
+      "category": "Special Rules",
+      "propertyCount": 1,
+      "scenario_info": {
+        "name": "Four-Year Construction Rule Exceeded",
+        "expected_result": {
+          "exemption_type": "partial",
+          "exemption_percentage": 85.54,
+          "capital_gain": 184500,
+          "taxable_gain": 13340,
+          "notes": "After 50% discount. First year of land ownership not covered by 4-year rule."
+        },
+        "applicable_rules": [
+          "ITAA97 s118.150: 4-year construction rule",
+          "If construction exceeds 4 years, MRE only applies for 4 years before completion",
+          "Land was not MR for first year (excess beyond 4-year limit)",
+          "ITAA97 s118.185: Partial exemption applies",
+          "14.46% of gain is taxable (first year of land ownership)",
+          "ITAA97 s115.25: 50% CGT discount applies"
+        ]
+      }
+    },
+    {
+      "id": "scenariotestjsons/scenario36_subdivision_land_sale.json",
+      "filename": "scenario36_subdivision_land_sale.json",
+      "path": "scenariotestjsons",
+      "title": "Subdivision - Separate Land Sale",
+      "description": "Karen owns a large block with her main residence. She subdivides and sells the vacant block separately from the dwelling. Because the vacant block is sold separately, it is NOT eligible for the main residence exemption, even though the dwelling block remains exempt.",
+      "category": "Special Rules",
+      "propertyCount": 2,
+      "scenario_info": {
+        "name": "Subdivision and Separate Land Sale",
+        "expected_result": {
+          "exemption_type": "none",
+          "exemption_percentage": 0,
+          "capital_gain": 10562,
+          "taxable_gain": 5281,
+          "notes": "After 50% discount. Subdivided vacant land sold separately has NO MRE."
+        },
+        "applicable_rules": [
+          "ITAA97 s118.165: Subdivided vacant land NOT exempt when sold separately",
+          "Vacant block is treated as separate CGT asset from subdivision date",
+          "Original cost base must be apportioned between lots",
+          "If sold together with dwelling, full MRE would apply to both lots",
+          "ITAA97 s115.25: 50% CGT discount applies to vacant block"
+        ]
+      }
+    },
+    {
+      "id": "scenariotestjsons/scenario37_deceased_estate_covid.json",
+      "filename": "scenario37_deceased_estate_covid.json",
+      "path": "scenariotestjsons",
+      "title": "Deceased Estate - COVID Extension",
+      "description": "Peter's mother passed away in March 2020. Due to COVID-19 restrictions on real estate activities, he was unable to sell the property within 2 years. The ATO provides automatic extensions for delays caused by COVID-19 government restrictions.",
+      "category": "Special Rules",
+      "propertyCount": 1,
+      "scenario_info": {
+        "name": "Deceased Estate with COVID Extension",
+        "expected_result": {
+          "exemption_type": "full",
+          "exemption_percentage": 100,
+          "capital_gain": 48700,
+          "taxable_gain": 0,
+          "cgt_payable": 0,
+          "notes": "COVID extension applies - sold 3.4 years after death but still qualifies for 2-year rule"
+        },
+        "applicable_rules": [
+          "ITAA97 s118.195: 2-year disposal rule",
+          "PCG 2019/5: Automatic extension for qualifying circumstances",
+          "COVID-19 restrictions = Qualifying circumstance",
+          "More than 12 months of delay within first 2 years = Automatic extension",
+          "Peter did not need to apply for extension",
+          "If COVID extension didn't apply, partial exemption would calculate from date of death"
+        ]
+      }
+    },
+    {
+      "id": "scenariotestjsons/scenario38_small_business_15_year.json",
+      "filename": "scenario38_small_business_15_year.json",
+      "path": "scenariotestjsons",
+      "title": "Small Business 15-Year Exemption",
+      "description": "David operates a photography studio from a commercial property he has owned for 16 years. He sells the property and qualifies for the small business 15-year exemption, which allows him to disregard the entire capital gain. He also contributes part of the proceeds to superannuation.",
+      "category": "Special Rules",
+      "propertyCount": 1,
+      "scenario_info": {
+        "name": "Small Business CGT Concessions - 15-Year Exemption",
+        "expected_result": {
+          "exemption_type": "full",
+          "exemption_percentage": 100,
+          "capital_gain": 309700,
+          "taxable_gain": 0,
+          "cgt_payable": 0,
+          "notes": "15-year exemption - entire capital gain disregarded. Can contribute to super under CGT cap."
+        },
+        "applicable_rules": [
+          "ITAA97 Subdiv 152-B: 15-year exemption",
+          "Must own active asset for 15+ continuous years",
+          "Must be 55+ or retiring/permanently incapacitated",
+          "Entire capital gain exempt (not just reduced)",
+          "ITAA97 s292.100: CGT cap for super contributions",
+          "Exempt amount can be contributed to super under CGT cap",
+          "2024-25 lifetime CGT cap: $1,780,000"
+        ]
+      }
+    },
+    {
+      "id": "scenariotestjsons/scenario39_investment_then_main_residence.json",
+      "filename": "scenario39_investment_then_main_residence.json",
+      "path": "scenariotestjsons",
+      "title": "Investment Then Main Residence",
+      "description": "Amanda purchases an investment property and rents it out for 3 years. She then moves in and lives there as her main residence for 2 years before selling. The six-year absence rule does NOT apply because the property was an investment first. Only the period as main residence qualifies for exemption.",
+      "category": "Special Rules",
+      "propertyCount": 1,
+      "scenario_info": {
+        "name": "Investment Property Becomes Main Residence Then Sold",
+        "expected_result": {
+          "exemption_type": "partial",
+          "exemption_percentage": 39.98,
+          "capital_gain": 101550,
+          "taxable_gain": 30475,
+          "notes": "After 50% discount. Only lived-in period is exempt. Six-year rule does NOT apply."
+        },
+        "applicable_rules": [
+          "ITAA97 s118.185: Partial main residence exemption",
+          "Six-year rule NOT applicable: Property was investment first, then main residence",
+          "Only actual residence period (39.98%) is exempt",
+          "Rental period (60.02%) is taxable",
+          "ITAA97 s115.25: 50% CGT discount applies",
+          "Key distinction: If MR first then rental, six-year rule would apply"
+        ]
+      }
+    },
+    {
+      "id": "scenariotestjsons/scenario40_four_property_portfolio.json",
+      "filename": "scenario40_four_property_portfolio.json",
+      "path": "scenariotestjsons",
+      "title": "Four Property Portfolio",
+      "description": "Victoria is selling her entire property portfolio in the 2024-25 financial year: her family home (main residence), a beach house (former main residence now rented), an investment unit (never lived in), and an inherited farm (from deceased parent). Strategic MRE nomination is critical to minimize total CGT.",
+      "category": "Special Rules",
+      "propertyCount": 4,
+      "scenario_info": {
+        "name": "Four Property Portfolio Optimization",
+        "expected_result": {
+          "exemption_type": "mixed",
+          "total_capital_gain": 1170000,
+          "total_taxable_gain": 92238,
+          "property_a_gain": 0,
+          "property_b_gain": 54738,
+          "property_c_gain": 37500,
+          "property_d_gain": 0,
+          "notes": "After 50% discounts. Optimal strategy: Claim MRE on family home, use 2-year rule for farm."
+        },
+        "applicable_rules": [
+          "Property A: ITAA97 s118.110 - Full main residence exemption",
+          "Property B: ITAA97 s118.145 - Six-year rule exceeded (partial exemption)",
+          "Property B: ITAA97 s118.192 - First use to produce income",
+          "Property C: No exemption - pure investment property",
+          "Property D: ITAA97 s118.195 - Deceased estate 2-year rule",
+          "ITAA97 s115.25: 50% CGT discount applies to all taxable portions"
+        ]
+      }
+    },
+    {
+      "id": "tests/aged_care_main_residence.json",
+      "filename": "aged_care_main_residence.json",
+      "path": "tests",
+      "title": "Aged Care - Main Residence",
+      "description": "I moved into an aged care home 5 years ago. My old house has been sitting empty ever since - I never rented it out. I'm now selling it to pay for my care. Do I still get the main residence exemption even though I haven't lived there for years?",
+      "category": "Real-World",
+      "propertyCount": 1
+    },
+    {
+      "id": "tests/airbnb_investment_only.json",
+      "filename": "airbnb_investment_only.json",
+      "path": "tests",
+      "title": "Airbnb - Investment Only",
+      "description": "I bought a holiday apartment in 2019 purely for Airbnb - I never lived in it. I'm selling now. Is it just treated like any other investment property for CGT?",
+      "category": "Real-World",
+      "propertyCount": 1
+    },
+    {
+      "id": "tests/airbnb_spare_room.json",
+      "filename": "airbnb_spare_room.json",
+      "path": "tests",
+      "title": "Airbnb - Spare Room",
+      "description": "I've been renting my spare room on Airbnb for years while I live in the house. The spare room is about 20% of the floor area. How does this affect my main residence exemption?",
+      "category": "Real-World",
+      "propertyCount": 1
+    },
+    {
+      "id": "tests/bare_trust_no_cgt.json",
+      "filename": "bare_trust_no_cgt.json",
+      "path": "tests",
+      "title": "Bare Trust - No CGT",
+      "description": "My property is held in a bare trust where I'm the sole beneficiary with absolute entitlement. The trustee is selling it but I've lived in it as my home since purchase. Do I get the main residence exemption even though I don't hold legal title?",
+      "category": "Real-World",
+      "propertyCount": 1
+    },
+    {
+      "id": "tests/compulsory_acquisition_rollover.json",
+      "filename": "compulsory_acquisition_rollover.json",
+      "path": "tests",
+      "title": "Compulsory Acquisition Rollover",
+      "description": "The government compulsorily acquired my investment property for a road project. I received $980,000 compensation. I want to buy another investment property with the money. Can I defer the CGT?",
+      "category": "Real-World",
+      "propertyCount": 1
+    },
+    {
+      "id": "tests/death_of_joint_owner.json",
+      "filename": "death_of_joint_owner.json",
+      "path": "tests",
+      "title": "Death of Joint Owner",
+      "description": "My husband and I owned our home as joint tenants. He passed away in 2022 and I automatically became the sole owner. I'm now selling the property. Do I pay CGT on his share that I inherited?",
+      "category": "Real-World",
+      "propertyCount": 1
+    },
+    {
+      "id": "tests/defacto_breakdown_rollover.json",
+      "filename": "defacto_breakdown_rollover.json",
+      "path": "tests",
+      "title": "De Facto Breakdown Rollover",
+      "description": "My de facto partner and I separated after 8 years. The house was in his name but got transferred to me under a binding financial agreement. I lived in it for another 2 years then sold. How is the CGT calculated?",
+      "category": "Real-World",
+      "propertyCount": 1
+    },
+    {
+      "id": "tests/divorce_complex_mre_then_rented_after_transfer.json",
+      "filename": "divorce_complex_mre_then_rented_after_transfer.json",
+      "path": "tests",
+      "title": "Divorce - MRE Then Rented After Transfer",
+      "description": "My ex-wife and I bought our home in 2010. We separated in 2019, I moved out in 2020, and she got full ownership in 2021. She lived there until mid-2021 then moved interstate and rented it out for 4 years before selling. How does the CGT work when she's changed the use after the divorce transfer?",
+      "category": "Real-World",
+      "propertyCount": 1
+    },
+    {
+      "id": "tests/executor_sale_before_distribution.json",
+      "filename": "executor_sale_before_distribution.json",
+      "path": "tests",
+      "title": "Executor Sale Before Distribution",
+      "description": "I'm the executor of my mother's estate. She lived in her house for 20 years until she passed. I'm selling it now (within 2 years of her death) before distributing the proceeds to myself as sole beneficiary. What's the CGT situation?",
+      "category": "Real-World",
+      "propertyCount": 1
+    },
+    {
+      "id": "tests/first_use_overseas_posting.json",
+      "filename": "first_use_overseas_posting.json",
+      "path": "tests",
+      "title": "First Use - Overseas Posting",
+      "description": "I moved overseas for work in 2019 and rented out my Sydney home. I rented accommodation in Singapore - never bought property there. I've now sold after 6 years.first use rule apply to me?",
+      "category": "Real-World",
+      "propertyCount": 1
+    },
+    {
+      "id": "tests/inherited_land_built_dwelling_then_sold.json",
+      "filename": "inherited_land_built_dwelling_then_sold.json",
+      "path": "tests",
+      "title": "Inherited Land - Built Dwelling Then Sold",
+      "description": "I inherited vacant land from my grandmother in 2020. She'd owned it since 2005 but never built on it. I built a house and moved in during 2022, and I've now sold. How is CGT calculated when I've added a building to inherited land and then lived in it?",
+      "category": "Real-World",
+      "propertyCount": 1
+    },
+    {
+      "id": "tests/inherited_land_farmland_subdivided_sold.json",
+      "filename": "inherited_land_farmland_subdivided_sold.json",
+      "path": "tests",
+      "title": "Inherited Farmland - Subdivided & Sold",
+      "description": "My brother and I inherited our parents' farm when dad died in 2021. We subdivided it into 6 lots - kept the farmhouse lot and sold the other 5 as rural residential blocks. The farm was our parents' home since 1992. How is CGT calculated when we've subdivided inherited property?",
+      "category": "Real-World",
+      "propertyCount": 2
+    },
+    {
+      "id": "tests/inherited_land_vacant_pre_cgt_deceased.json",
+      "filename": "inherited_land_vacant_pre_cgt_deceased.json",
+      "path": "tests",
+      "title": "Inherited Vacant Land - Pre-CGT Deceased",
+      "description": "My father bought vacant land in 1978 for $25,000 and never built on it. He passed away in 2022 and I inherited it. I've now sold it for $780,000. Since the land was bought before CGT, is it still exempt? I heard there's a 2-year rule for inherited property.",
+      "category": "Real-World",
+      "propertyCount": 1
+    },
+    {
+      "id": "tests/inherited_property_2year_rule.json",
+      "filename": "inherited_property_2year_rule.json",
+      "path": "tests",
+      "title": "Inherited Property - 2 Year Rule",
+      "description": "My mother passed away in August 2023 and I inherited her home. I rented it out for about 20 months and then sold it in July 2025. Do I have to pay CGT?",
+      "category": "Real-World",
+      "propertyCount": 1
+    },
+    {
+      "id": "tests/investment_property_divorce_transfer.json",
+      "filename": "investment_property_divorce_transfer.json",
+      "path": "tests",
+      "title": "Investment Property - Divorce Transfer",
+      "description": "I received an investment property in my divorce settlement. It was always rented - never our home. I've now sold it. My ex bought it in 2016 and transferred it to me in 2024. How do I calculate CGT?",
+      "category": "Real-World",
+      "propertyCount": 1
+    },
+    {
+      "id": "tests/joint_ownership_main_residence_choice.json",
+      "filename": "joint_ownership_main_residence_choice.json",
+      "path": "tests",
+      "title": "Joint Ownership - MR Choice",
+      "description": "What is the CGT for Anna and Mark on their properties? Anna owned both a flat and a townhouse (jointly with Mark) from 2001-02-05 to 2002-03-11. How does the main residence choice affect their CGT?",
+      "category": "Real-World",
+      "propertyCount": 2
+    },
+    {
+      "id": "tests/joint_sale_during_separation.json",
+      "filename": "joint_sale_during_separation.json",
+      "path": "tests",
+      "title": "Joint Sale During Separation",
+      "description": "My husband and I separated in 2023. We owned our home jointly 50/50. Instead of one of us keeping it, we decided to sell. I moved out when we separated but he stayed until the sale. How do we each handle the CGT?",
+      "category": "Real-World",
+      "propertyCount": 1
+    },
+    {
+      "id": "tests/joint_tenants_equal_split.json",
+      "filename": "joint_tenants_equal_split.json",
+      "path": "tests",
+      "title": "Joint Tenants - Equal Split",
+      "description": "My husband and I own an investment property as joint tenants. We just sold it. How do we split the CGT between us?",
+      "category": "Real-World",
+      "propertyCount": 1
+    },
+    {
+      "id": "tests/main_residence_land_exceeds_2ha.json",
+      "filename": "main_residence_land_exceeds_2ha.json",
+      "path": "tests",
+      "title": "Main Residence - Land Exceeds 2ha",
+      "description": "I'm selling my rural property which is 5 hectares. The house and gardens use about 1.5 hectares. I've lived here since 2012. Does the whole property get the main residence exemption or only part of it?",
+      "category": "Real-World",
+      "propertyCount": 1
+    },
+    {
+      "id": "tests/mortgagee_sale_foreclosure.json",
+      "filename": "mortgagee_sale_foreclosure.json",
+      "path": "tests",
+      "title": "Mortgagee Sale - Foreclosure",
+      "description": "I couldn't keep up with my mortgage payments and the bank foreclosed on my property. It was my home for 3 years then I rented it out for a few years before the bank sold it. Do I still have to pay CGT even though I lost the property?",
+      "category": "Real-World",
+      "propertyCount": 1
+    },
+    {
+      "id": "tests/multiple_beneficiaries.json",
+      "filename": "multiple_beneficiaries.json",
+      "path": "tests",
+      "title": "Multiple Beneficiaries",
+      "description": "My father passed away in 2023 and left his home to me and my 2 siblings equally. We rented it out and now we're selling it more than 2 years after his death. How do we each calculate CGT?",
+      "category": "Real-World",
+      "propertyCount": 1
+    },
+    {
+      "id": "tests/pre_cgt_inheritance.json",
+      "filename": "pre_cgt_inheritance.json",
+      "path": "tests",
+      "title": "Pre-CGT Inheritance",
+      "description": "I inherited my father's house which he bought in 1978. He lived there his whole life until he passed. I rented it for a while then sold it. Since it was pre-CGT, is it still exempt?",
+      "category": "Real-World",
+      "propertyCount": 1
+    },
+    {
+      "id": "tests/pre_cgt_property_with_improvements.json",
+      "filename": "pre_cgt_property_with_improvements.json",
+      "path": "tests",
+      "title": "Pre-CGT Property with Improvements",
+      "description": "My ex-husband bought our home in 1983 before we married. He added me to the title in 1988 when we got married. We did a $320K renovation in 2005. In the divorce I got full ownership in 2021, then rented it out. Now I'm selling. This seems incredibly complicated - half is pre-CGT, half isn't, plus the renovation?",
+      "category": "Real-World",
+      "propertyCount": 1
+    },
+    {
+      "id": "tests/relationship_breakdown_rollover.json",
+      "filename": "relationship_breakdown_rollover.json",
+      "path": "tests",
+      "title": "Relationship Breakdown Rollover",
+      "description": "I received my ex-husband's share of our home in our 2019 divorce settlement. I've now sold the property. How do I calculate CGT? We bought it together in 2010?",
+      "category": "Real-World",
+      "propertyCount": 1
+    },
+    {
+      "id": "tests/six_month_overlap_old_home_rented.json",
+      "filename": "six_month_overlap_old_home_rented.json",
+      "path": "tests",
+      "title": "6-Month Overlap - Old Home Rented",
+      "description": "I bought a new home in May 2025 and moved in June. I rented out my old home for a few months before selling in November. I sold within 6 months of buying the new place - does the 6-month rule still apply?",
+      "category": "Real-World",
+      "propertyCount": 2
+    },
+    {
+      "id": "tests/six_year_rule_exceeded.json",
+      "filename": "six_year_rule_exceeded.json",
+      "path": "tests",
+      "title": "6-Year Rule Exceeded",
+      "description": "I lived in my home for 5 years then rented it for over 10 years. I exceeded the 6-year rule. How do I calculate the partial exemption for the years beyond 6?",
+      "category": "Real-World",
+      "propertyCount": 1
+    },
+    {
+      "id": "tests/six_year_rule_multiple_absences.json",
+      "filename": "six_year_rule_multiple_absences.json",
+      "path": "tests",
+      "title": "6-Year Rule - Multiple Absences",
+      "description": "I moved in and out of my home multiple times. First absence was 4 years (2011-2015), then I moved back for 3 years, then absent again for 7 years. Does each absence get its own 6-year rule?",
+      "category": "Real-World",
+      "propertyCount": 1
+    },
+    {
+      "id": "tests/six_year_rule_within_limit.json",
+      "filename": "six_year_rule_within_limit.json",
+      "path": "tests",
+      "title": "6-Year Rule Within Limit",
+      "description": "I lived in my home for 5 years then rented it out for 5.5 years while renting elsewhere. I never owned another home. I'm selling now - do I get the full main residence exemption under the 6-year rule?",
+      "category": "Real-World",
+      "propertyCount": 1
+    },
+    {
+      "id": "tests/subdivision_build_and_sell.json",
+      "filename": "subdivision_build_and_sell.json",
+      "path": "tests",
+      "title": "Subdivision - Build & Sell",
+      "description": "I subdivided my investment property in 2021, built a new house on the vacant lot, and now I've sold it. How do I calculate the CGT? The land was originally part of another property I still own.",
+      "category": "Real-World",
+      "propertyCount": 2
+    },
+    {
+      "id": "tests/subdivision_main_residence_vacant_land.json",
+      "filename": "subdivision_main_residence_vacant_land.json",
+      "path": "tests",
+      "title": "Subdivision - MR Vacant Land",
+      "description": "I subdivided my backyard in 2022 and now I'm selling the vacant block. I still live in my house on the other lot. Do I have to pay CGT on the vacant land sale even though it was part of my home?",
+      "category": "Real-World",
+      "propertyCount": 1
+    },
+    {
+      "id": "tests/subdivision_multiple_lots_sold.json",
+      "filename": "subdivision_multiple_lots_sold.json",
+      "path": "tests",
+      "title": "Subdivision - Multiple Lots Sold",
+      "description": "I subdivided my 5-acre property into 4 lots. I kept the lot with my house and sold the other 3 vacant lots over different years. How do I calculate CGT for each lot sold?",
+      "category": "Real-World",
+      "propertyCount": 1
+    },
+    {
+      "id": "tests/subdivision_pre_cgt_property.json",
+      "filename": "subdivision_pre_cgt_property.json",
+      "path": "tests",
+      "title": "Subdivision - Pre-CGT Property",
+      "description": "I bought this property in 1979 . I've subdivided it and sold two of the new blocks. Is it all exempt because the original property was pre-CGT?",
+      "category": "Real-World",
+      "propertyCount": 1
+    },
+    {
+      "id": "tests/subdivision_retain_dwelling_sell_vacant.json",
+      "filename": "subdivision_retain_dwelling_sell_vacant.json",
+      "path": "tests",
+      "title": "Subdivision - Retain Dwelling, Sell Vacant",
+      "description": "I subdivided my property last year. I kept the lot with my house and sold the vacant block. I still live in my house. How is CGT calculated on the vacant block I sold?",
+      "category": "Real-World",
+      "propertyCount": 1
+    },
+    {
+      "id": "tests/subdivision_strata_title.json",
+      "filename": "subdivision_strata_title.json",
+      "path": "tests",
+      "title": "Subdivision - Strata Title",
+      "description": "I converted my duplex to strata title in 2020. I live in one unit and rented out the other. I've now sold the rental unit. How do I calculate CGT for the strata unit?",
+      "category": "Real-World",
+      "propertyCount": 1
+    },
+    {
+      "id": "tests/tenants_in_common_unequal.json",
+      "filename": "tenants_in_common_unequal.json",
+      "path": "tests",
+      "title": "Tenants in Common - Unequal",
+      "description": "My sister and I bought an investment unit together as tenants in common. I own 70% and she owns 30%. We've sold it - how do we each calculate our CGT?",
+      "category": "Real-World",
+      "propertyCount": 1
+    },
+    {
+      "id": "tests/time_apportionment_multiple_periods.json",
+      "filename": "time_apportionment_multiple_periods.json",
+      "path": "tests",
+      "title": "Time Apportionment - Multiple Periods",
+      "description": "I moved in and out of my property several times over the years. I lived there 2008-2012, rented it 2012-2016, moved back 2016-2020, then rented again 2020-2025. How do I calculate the exempt and taxable portions?",
+      "category": "Real-World",
+      "propertyCount": 1
+    },
+    {
+      "id": "tests/time_apportionment_with_absence_rule.json",
+      "filename": "time_apportionment_with_absence_rule.json",
+      "path": "tests",
+      "title": "Time Apportionment with Absence Rule",
+      "description": "I lived in my home for 5 years then rented it for 8 years. I know the 6-year rule gives me 6 years of exemption while absent. But I was away for 8 years. How do I calculate the partial exemption?",
+      "category": "Real-World",
+      "propertyCount": 1
+    },
+    {
+      "id": "tests/transfer_to_family_trust.json",
+      "filename": "transfer_to_family_trust.json",
+      "path": "tests",
+      "title": "Transfer to Family Trust",
+      "description": "I want to transfer my investment property to my family trust for asset protection. Will I have to pay CGT when I make the transfer?",
+      "category": "Real-World",
+      "propertyCount": 1
+    },
+    {
+      "id": "tests/trust_distribution_to_beneficiary.json",
+      "filename": "trust_distribution_to_beneficiary.json",
+      "path": "tests",
+      "title": "Trust Distribution to Beneficiary",
+      "description": "Our family trust owns an investment property. Instead of selling it, we want to distribute the property directly to my daughter who is a beneficiary. What are the CGT implications?",
+      "category": "Real-World",
+      "propertyCount": 1
+    },
+    {
+      "id": "tests/two_year_building_rule_eligible.json",
+      "filename": "two_year_building_rule_eligible.json",
+      "path": "tests",
+      "title": "2-Year Building Rule - Eligible",
+      "description": "I bought vacant land in March 2022, built a house, and moved in July 2023 - about 16 months after buying the land. I'm selling now. Can I get the main residence exemption from when I bought the land?",
+      "category": "Real-World",
+      "propertyCount": 1
+    },
+    {
+      "id": "tests/two_year_building_rule_exceeded.json",
+      "filename": "two_year_building_rule_exceeded.json",
+      "path": "tests",
+      "title": "2-Year Building Rule - Exceeded",
+      "description": "I bought vacant land in 2018 but didn't start building until 2023 due to delays. I moved into the finished house in 2024 - over 5 years after buying the land. Have I lost the main residence exemption for the land period?",
+      "category": "Real-World",
+      "propertyCount": 1
+    },
+    {
+      "id": "tests/two_year_building_rule_renovation.json",
+      "filename": "two_year_building_rule_renovation.json",
+      "path": "tests",
+      "title": "2-Year Building Rule - Renovation",
+      "description": "I bought a property with an old house, demolished it, and built a new house. I moved in about 15 months after purchase. Does the 2-year building rule apply to knockdown rebuilds?",
+      "category": "Real-World",
+      "propertyCount": 1
+    }
+  ]
+}

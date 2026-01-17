@@ -1,0 +1,56 @@
+{
+  "properties": [
+    {
+      "address": "78 Partner Lane, Newtown NSW 2042",
+      "property_history": [
+        {
+          "date": "2014-05-20",
+          "event": "purchase",
+          "price": 680000,
+          "stamp_duty": 26000,
+          "purchase_legal_fees": 2600
+        },
+        {
+          "date": "2014-06-01",
+          "event": "move_in"
+        },
+        {
+          "date": "2022-08-01",
+          "event": "separation"
+        },
+        {
+          "date": "2023-03-15",
+          "event": "defacto_transfer",
+          "market_value": 1150000
+        },
+        {
+          "date": "2025-09-01",
+          "event": "sale",
+          "price": 1380000,
+          "contract_date": "2025-09-01",
+          "agent_fees": 34500,
+          "legal_fees": 3200
+        },
+        {
+          "date": "2025-09-01",
+          "event": "move_out"
+        }
+      ],
+      "notes": "sold - De facto couple (8 years together) separated 2022. Property was in Partner A's name, transferred to Partner B under binding financial agreement 2023. Partner B continued living there then sold 2025."
+    }
+  ],
+  "user_query": "My de facto partner and I separated after 8 years. The house was in his name but got transferred to me under a binding financial agreement. I lived in it for another 2 years then sold. How is the CGT calculated?",
+  "additional_info": {
+    "australian_resident": true,
+    "tax_year": "2025-2026",
+    "relationship_type": "de_facto",
+    "relationship_duration_years": 8,
+    "relationship_breakdown_transfer": true,
+    "transfer_under": "binding_financial_agreement",
+    "transfer_date": "2023-03-15",
+    "market_value_at_transfer": 1150000,
+    "rollover_applies": true
+  },
+  "llm_provider": "deepseek",
+  "use_claude": true
+}

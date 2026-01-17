@@ -1,0 +1,56 @@
+{
+  "properties": [
+    {
+      "address": "8 Old Farm Road, Dural NSW 2158",
+      "property_history": [
+        {
+          "date": "1979-11-10",
+          "event": "purchase",
+          "price": 45000,
+          "purchase_legal_fees": 600,
+          "stamp_duty": 800
+        },
+        {
+          "date": "1979-12-01",
+          "event": "move_in"
+        },
+        {
+          "date": "2023-04-01",
+          "event": "subdivision_approved",
+          "subdivision_costs": 85000,
+          "valuation_lot_a": 1800000,
+          "valuation_lot_b": 950000,
+          "valuation_lot_c": 1050000,
+          "total_value_at_subdivision": 3800000
+        },
+        {
+          "date": "2023-06-15",
+          "event": "subdivision_registered"
+        },
+        {
+          "date": "2023-08-01",
+          "event": "sale",
+          "price": 980000,
+          "contract_date": "2023-08-01",
+          "agent_fees": 24500,
+          "legal_fees": 2200
+        },
+        {
+          "date": "2025-09-15",
+          "event": "sale",
+          "price": 1350000,
+          "contract_date": "2025-09-15",
+          "agent_fees": 33750,
+          "legal_fees": 2500
+        }
+      ],
+      "notes": "Subdivided in 2023 into 3 lots: Lot A (2 acres with farmhouse - retained), Lot B (1.5 acres vacant - sold 2023), Lot C (1.5 acres vacant - sold 2025). Original 5 acre block."
+    }
+  ],
+  "user_query": "I bought this property in 1979 . I've subdivided it and sold two of the new blocks. Is it all exempt because the original property was pre-CGT?",
+  "additional_info": {
+    "australian_resident": true
+  },
+  "llm_provider": "deepseek",
+  "use_claude": true
+}

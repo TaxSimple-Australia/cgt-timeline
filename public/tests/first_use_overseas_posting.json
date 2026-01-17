@@ -1,0 +1,49 @@
+{
+  "properties": [
+    {
+      "address": "55 Expat Avenue, Double Bay NSW 2028",
+      "property_history": [
+        {
+          "date": "2015-03-20",
+          "event": "purchase",
+          "price": 1100000,
+          "stamp_duty": 48000,
+          "purchase_legal_fees": 4000
+        },
+        {
+          "date": "2015-04-01",
+          "event": "move_in"
+        },
+        {
+          "date": "2019-07-01",
+          "event": "move_out_overseas",
+          "market_value": 1450000,
+          "reason": "work_posting_singapore"
+        },
+        {
+          "date": "2019-07-15",
+          "event": "rent_start"
+        },
+        {
+          "date": "2025-06-30",
+          "event": "rent_end"
+        },
+        {
+          "date": "2025-07-15",
+          "event": "sale",
+          "price": 2100000,
+          "contract_date": "2025-07-15",
+          "agent_fees": 42000,
+          "legal_fees": 4500
+        }
+      ],
+      "notes": "sold - Owner moved overseas for work 2019, rented out property. Rented accommodation overseas (never owned property there)."
+    }
+  ],
+  "user_query": "I moved overseas for work in 2019 and rented out my Sydney home. I rented accommodation in Singapore - never bought property there. I've now sold after 6 years.first use rule apply to me?",
+  "additional_info": {
+    "australian_resident": true
+  },
+  "llm_provider": "deepseek",
+  "use_claude": true
+}

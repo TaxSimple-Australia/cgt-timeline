@@ -1,0 +1,89 @@
+{
+  "properties": [
+    {
+      "address": "Lot 1, 500 Farm Lane, Richmond NSW 2753",
+      "original_lot": "Part of 'Greenacres Farm' - 50 hectares",
+      "property_history": [
+        {
+          "date": "1992-06-20",
+          "event": "purchase_by_deceased",
+          "price": 450000,
+          "stamp_duty": 15000,
+          "purchase_legal_fees": 3500,
+          "notes": "Parents purchased working farm with farmhouse. Used as primary production and main residence."
+        },
+        {
+          "date": "1992-07-01",
+          "event": "move_in",
+          "notes": "Parents lived in farmhouse, operated cattle farm"
+        },
+        {
+          "date": "2021-03-15",
+          "event": "death_of_owner",
+          "market_value_total_farm": 4200000,
+          "notes": "Father passed (mother predeceased). Farm was their main residence and primary production."
+        },
+        {
+          "date": "2021-06-01",
+          "event": "inherited",
+          "beneficiaries": ["Child A 50%", "Child B 50%"],
+          "notes": "Two children inherited farm equally"
+        },
+        {
+          "date": "2023-08-15",
+          "event": "subdivision_approved",
+          "description": "Subdivided into: Lot 1 (farmhouse + 5ha), Lot 2-6 (5 x 9ha rural residential lots)",
+          "subdivision_costs": 380000,
+          "valuation_lot_1": 1800000,
+          "valuation_lots_2_to_6": 550000,
+          "notes": "Rezoned and subdivided - farmhouse lot retained, 5 lots for sale"
+        },
+        {
+          "date": "2023-09-01",
+          "event": "subdivision_registered"
+        }
+      ],
+      "notes": "Retained Lot 1 - farmhouse still held by beneficiaries."
+    },
+    {
+      "address": "Lot 2-6, Farm Lane, Richmond NSW 2753",
+      "original_lot": "5 subdivided lots from inherited farm",
+      "property_history": [
+        {
+          "date": "2023-09-01",
+          "event": "subdivision_registered",
+          "market_value_each_lot": 550000,
+          "total_market_value_5_lots": 2750000,
+          "apportioned_cost_base_per_lot": 287500,
+          "notes": "New CGT assets created on subdivision."
+        },
+        {
+          "date": "2024-03-15",
+          "event": "sale",
+          "lots_sold": 2,
+          "price_per_lot": 620000,
+          "total_sale_price": 1240000,
+          "agent_fees": 31000,
+          "legal_fees": 4500,
+          "notes": "First 2 lots sold - 6 months after subdivision"
+        },
+        {
+          "date": "2025-09-20",
+          "event": "sale",
+          "lots_sold": 3,
+          "price_per_lot": 680000,
+          "total_sale_price": 2040000,
+          "agent_fees": 51000,
+          "legal_fees": 6200,
+          "notes": "Remaining 3 lots sold - 2 years after subdivision"
+        }
+      ],
+      "notes": "sold - All 5 subdivided lots sold."
+    }
+  ],
+  "user_query": "My brother and I inherited our parents' farm when dad died in 2021. We subdivided it into 6 lots - kept the farmhouse lot and sold the other 5 as rural residential blocks. The farm was our parents' home since 1992. How is CGT calculated when we've subdivided inherited property?",
+  "additional_info": {
+    "australian_resident": true
+  },
+  "llm_provider": "deepseek"
+}

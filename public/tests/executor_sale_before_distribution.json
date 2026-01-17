@@ -1,0 +1,48 @@
+{
+  "properties": [
+    {
+      "address": "34 Estate Avenue, Brighton VIC 3186",
+      "property_history": [
+        {
+          "date": "2005-09-10",
+          "event": "purchase",
+          "price": 620000,
+          "stamp_duty": 32000,
+          "purchase_legal_fees": 2800
+        },
+        {
+          "date": "2005-10-01",
+          "event": "move_in"
+        },
+        {
+          "date": "2024-11-15",
+          "event": "death_of_owner",
+          "market_value": 1850000
+        },
+        {
+          "date": "2025-04-01",
+          "event": "sale",
+          "price": 1920000,
+          "contract_date": "2025-04-01",
+          "agent_fees": 38400,
+          "legal_fees": 3800
+        }
+      ],
+      "notes": "sold - Executor selling deceased's main residence before distributing to beneficiaries. Deceased lived in property from 2005 until death. Sale within 2 years of death. Beneficiary is sole child."
+    }
+  ],
+  "user_query": "I'm the executor of my mother's estate. She lived in her house for 20 years until she passed. I'm selling it now (within 2 years of her death) before distributing the proceeds to myself as sole beneficiary. What's the CGT situation?",
+  "additional_info": {
+    "australian_resident": true,
+    "tax_year": "2025-2026",
+    "executor_sale": true,
+    "sale_before_distribution": true,
+    "deceased_main_residence": true,
+    "date_of_death": "2024-11-15",
+    "market_value_at_death": 1850000,
+    "sold_within_2_years": true,
+    "sole_beneficiary": true
+  },
+  "llm_provider": "deepseek",
+  "use_claude": true
+}

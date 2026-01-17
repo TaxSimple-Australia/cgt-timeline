@@ -1,0 +1,48 @@
+{
+  "properties": [
+    {
+      "address": "44 Absence Mix Road, Artarmon NSW 2064",
+      "property_history": [
+        {
+          "date": "2012-06-20",
+          "event": "purchase",
+          "price": 780000,
+          "stamp_duty": 32000,
+          "purchase_legal_fees": 3000
+        },
+        {
+          "date": "2012-07-01",
+          "event": "move_in"
+        },
+        {
+          "date": "2017-09-01",
+          "event": "move_out",
+          "market_value": 1050000
+        },
+        {
+          "date": "2017-09-15",
+          "event": "rent_start"
+        },
+        {
+          "date": "2025-10-31",
+          "event": "rent_end"
+        },
+        {
+          "date": "2025-11-15",
+          "event": "sale",
+          "price": 1480000,
+          "contract_date": "2025-11-15",
+          "agent_fees": 29600,
+          "legal_fees": 3400
+        }
+      ],
+      "notes": "sold - Lived 2012-2017 (5 years), rented 2017-2025 (8 years)."
+    }
+  ],
+  "user_query": "I lived in my home for 5 years then rented it for 8 years. I know the 6-year rule gives me 6 years of exemption while absent. But I was away for 8 years. How do I calculate the partial exemption?",
+  "additional_info": {
+    "australian_resident": true
+  },
+  "llm_provider": "deepseek",
+  "use_claude": true
+}

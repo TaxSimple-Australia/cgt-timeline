@@ -1,0 +1,65 @@
+{
+  "properties": [
+    {
+      "address": "200 Rural Road, Dural NSW 2158",
+      "property_history": [
+        {
+          "date": "2008-11-15",
+          "event": "purchase",
+          "price": 1200000,
+          "stamp_duty": 55000,
+          "purchase_legal_fees": 4500
+        },
+        {
+          "date": "2008-12-01",
+          "event": "move_in"
+        },
+        {
+          "date": "2023-06-01",
+          "event": "subdivision_approved",
+          "subdivision_costs": 120000,
+          "valuation_lot_1": 1500000,
+          "valuation_lot_2": 600000,
+          "valuation_lot_3": 550000,
+          "valuation_lot_4": 500000,
+          "total_value_at_subdivision": 3150000
+        },
+        {
+          "date": "2023-08-15",
+          "event": "subdivision_registered"
+        },
+        {
+          "date": "2024-02-01",
+          "event": "sale",
+          "price": 620000,
+          "contract_date": "2024-02-01",
+          "agent_fees": 15500,
+          "legal_fees": 2200
+        },
+        {
+          "date": "2024-09-15",
+          "event": "sale",
+          "price": 580000,
+          "contract_date": "2024-09-15",
+          "agent_fees": 14500,
+          "legal_fees": 2200
+        },
+        {
+          "date": "2025-05-01",
+          "event": "sale",
+          "price": 540000,
+          "contract_date": "2025-05-01",
+          "agent_fees": 13500,
+          "legal_fees": 2200
+        }
+      ],
+      "notes": "sold - Large 5-acre block subdivided into 4 lots (2023). Lot 1 with house retained. Lots 2, 3, 4 sold in different financial years (2024, 2024, 2025)."
+    }
+  ],
+  "user_query": "I subdivided my 5-acre property into 4 lots. I kept the lot with my house and sold the other 3 vacant lots over different years. How do I calculate CGT for each lot sold?",
+  "additional_info": {
+    "australian_resident": true
+  },
+  "llm_provider": "claude",
+  "use_claude": true
+}

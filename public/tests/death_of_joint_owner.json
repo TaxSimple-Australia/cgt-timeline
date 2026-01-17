@@ -1,0 +1,44 @@
+{
+  "properties": [
+    {
+      "address": "22 Riverside Drive, Toorak VIC 3142",
+      "property_history": [
+        {
+          "date": "2008-05-10",
+          "event": "purchase",
+          "price": 1200000,
+          "stamp_duty": 66000,
+          "purchase_legal_fees": 4500
+        },
+        {
+          "date": "2008-06-01",
+          "event": "move_in"
+        },
+        {
+          "date": "2022-09-15",
+          "event": "death_of_joint_owner",
+          "market_value": 2800000
+        },
+        {
+          "date": "2025-10-01",
+          "event": "sale",
+          "price": 3200000,
+          "contract_date": "2025-10-01",
+          "agent_fees": 64000,
+          "legal_fees": 5500
+        },
+        {
+          "date": "2025-10-01",
+          "event": "move_out"
+        }
+      ],
+      "notes": "sold - Husband and wife owned as joint tenants. Husband died Sept 2022. Wife became sole owner via right of survivorship. Property was main residence entire time for both owners."
+    }
+  ],
+  "user_query": "My husband and I owned our home as joint tenants. He passed away in 2022 and I automatically became the sole owner. I'm now selling the property. Do I pay CGT on his share that I inherited?",
+  "additional_info": {
+    "australian_resident": true
+  },
+  "llm_provider": "deepseek",
+  "use_claude": true
+}

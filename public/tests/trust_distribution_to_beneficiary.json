@@ -1,0 +1,35 @@
+{
+  "properties": [
+    {
+      "address": "88 Trust Avenue, Paddington QLD 4064",
+      "property_history": [
+        {
+          "date": "2012-08-15",
+          "event": "purchase",
+          "price": 480000,
+          "stamp_duty": 15000,
+          "purchase_legal_fees": 2200
+        },
+        {
+          "date": "2012-09-01",
+          "event": "rent_start"
+        },
+        {
+          "date": "2025-05-31",
+          "event": "rent_end"
+        },
+        {
+          "date": "2025-06-15",
+          "event": "distribution_to_beneficiary",
+          "market_value": 920000
+        }
+      ],
+      "notes": "Family discretionary trust distributing investment property in-specie to adult beneficiary (daughter). Trust has held property since 2012."
+    }
+  ],
+  "user_query": "Our family trust owns an investment property. Instead of selling it, we want to distribute the property directly to my daughter who is a beneficiary. What are the CGT implications?",
+  "additional_info": {
+    "australian_resident": true
+  },
+  "llm_provider": "deepseek"
+}

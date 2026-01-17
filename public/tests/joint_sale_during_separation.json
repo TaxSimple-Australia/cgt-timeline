@@ -1,0 +1,51 @@
+{
+  "properties": [
+    {
+      "address": "92 Separation Street, Hawthorn VIC 3122",
+      "property_history": [
+        {
+          "date": "2011-09-10",
+          "event": "purchase",
+          "price": 780000,
+          "stamp_duty": 42000,
+          "purchase_legal_fees": 3200
+        },
+        {
+          "date": "2011-10-01",
+          "event": "move_in"
+        },
+        {
+          "date": "2023-06-15",
+          "event": "separation"
+        },
+        {
+          "date": "2023-07-01",
+          "event": "move_out"
+        },
+        {
+          "date": "2025-08-15",
+          "event": "sale",
+          "price": 1650000,
+          "contract_date": "2025-08-15",
+          "agent_fees": 33000,
+          "legal_fees": 4200
+        }
+      ],
+      "notes": "sold - Married couple separated June 2023. Property jointly owned 50/50. Wife moved out at separation. Husband remained until sale. Sold before divorce finalised."
+    }
+  ],
+  "user_query": "My husband and I separated in 2023. We owned our home jointly 50/50. Instead of one of us keeping it, we decided to sell. I moved out when we separated but he stayed until the sale. How do we each handle the CGT?",
+  "additional_info": {
+    "australian_resident": true,
+    "tax_year": "2025-2026",
+    "relationship_type": "married",
+    "ownership_type": "joint_tenants",
+    "owner_1_share": 50,
+    "owner_2_share": 50,
+    "separation_date": "2023-06-15",
+    "sale_during_separation": true,
+    "divorce_not_finalised": true
+  },
+  "llm_provider": "deepseek",
+  "use_claude": true
+}

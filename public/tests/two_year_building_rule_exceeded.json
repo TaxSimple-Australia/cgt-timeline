@@ -1,0 +1,48 @@
+{
+  "properties": [
+    {
+      "address": "Lot 12, 55 Delayed Build Road, Box Hill NSW 2765",
+      "property_history": [
+        {
+          "date": "2018-06-20",
+          "event": "purchase_vacant_land",
+          "price": 480000,
+          "stamp_duty": 18000,
+          "purchase_legal_fees": 2200
+        },
+        {
+          "date": "2023-02-01",
+          "event": "construction_start",
+          "construction_cost": 520000
+        },
+        {
+          "date": "2024-01-15",
+          "event": "construction_complete"
+        },
+        {
+          "date": "2024-02-01",
+          "event": "move_in"
+        },
+        {
+          "date": "2025-09-01",
+          "event": "sale",
+          "price": 1350000,
+          "contract_date": "2025-09-01",
+          "agent_fees": 27000,
+          "legal_fees": 3200
+        },
+        {
+          "date": "2025-09-01",
+          "event": "move_out"
+        }
+      ],
+      "notes": "sold - Vacant land purchased 2018, construction delayed, moved in 2024 (5.5 years after land purchase)."
+    }
+  ],
+  "user_query": "I bought vacant land in 2018 but didn't start building until 2023 due to delays. I moved into the finished house in 2024 - over 5 years after buying the land. Have I lost the main residence exemption for the land period?",
+  "additional_info": {
+    "australian_resident": true
+ 
+  },
+  "llm_provider": "deepseek"
+}

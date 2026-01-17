@@ -1,15 +1,14 @@
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, FolderOpen, FileJson, Loader2, Info, ChevronLeft, Home, Building2, TrendingUp, Search, Filter } from 'lucide-react';
+import { X, FolderOpen, FileJson, Loader2, Info, ChevronLeft, Home, Building2, TrendingUp, Search, Filter, FlaskConical } from 'lucide-react';
 import { useTimelineStore } from '@/store/timeline';
 import { cn } from '@/lib/utils';
 
 interface ScenarioInfo {
-  name: string;
-  description: string;
+  name?: string;
   expected_result?: {
     exemption_type?: string;
     exemption_percentage?: number;
@@ -27,7 +26,16 @@ interface Scenario {
   description: string;
   category: string;
   scenario_info?: ScenarioInfo;
-  properties: any[];
+  propertyCount?: number;
+  path?: string;
+}
+
+interface ScenarioManifest {
+  version: string;
+  generatedAt: string;
+  totalScenarios: number;
+  categories: Record<string, number>;
+  scenarios: Scenario[];
 }
 
 interface ScenarioSelectorModalProps {
@@ -35,61 +43,17 @@ interface ScenarioSelectorModalProps {
   onClose: () => void;
 }
 
-// Define the scenarios with clear, professional titles
-const SCENARIO_CONFIG: { filename: string; displayTitle: string; category: string }[] = [
-  // Basic CGT Scenarios (1-5)
-  { filename: 'scenario1_full_main_residence_exemption.json', displayTitle: 'Full Main Residence Exemption', category: 'Basic' },
-  { filename: 'scenario2_six_year_rule_within.json', displayTitle: '6-Year Absence Rule (Within Limit)', category: 'Basic' },
-  { filename: 'scenario3_six_year_rule_exceeded.json', displayTitle: '6-Year Absence Rule (Exceeded)', category: 'Basic' },
-  { filename: 'scenario4_rental_first_then_main_residence.json', displayTitle: 'Rental First, Then Main Residence', category: 'Basic' },
-  { filename: 'scenario5_moving_between_residences.json', displayTitle: 'Moving Between Residences', category: 'Basic' },
-  // Basic CGT Scenarios Variant B (6-10)
-  { filename: 'new_scenario_1_full_main_residence.json', displayTitle: 'Full Main Residence (Variant B)', category: 'Basic' },
-  { filename: 'new_scenario_2_six_year_within.json', displayTitle: '6-Year Rule Within (Variant B)', category: 'Basic' },
-  { filename: 'new_scenario_3_six_year_exceeded.json', displayTitle: '6-Year Rule Exceeded (Variant B)', category: 'Basic' },
-  { filename: 'new_scenario_4_rental_first.json', displayTitle: 'Rental First (Variant B)', category: 'Basic' },
-  { filename: 'new_scenario_5_moving_between_residences.json', displayTitle: 'Moving Between Residences (Variant B)', category: 'Basic' },
-  // Complex CGT Scenarios (11-20)
-  { filename: 'scenario6_multiple_absence_periods.json', displayTitle: 'Multiple Absence Periods', category: 'Complex' },
-  { filename: 'scenario7_two_properties_strategic_mre.json', displayTitle: 'Two Properties - Strategic MRE Choice', category: 'Complex' },
-  { filename: 'scenario8_inherited_property_rental.json', displayTitle: 'Inherited Property with Rental', category: 'Complex' },
-  { filename: 'scenario9_investment_then_ppr_then_rental.json', displayTitle: 'Investment → Main Residence → Rental', category: 'Complex' },
-  { filename: 'scenario10_six_month_overlap_exceeded.json', displayTitle: '6-Month Overlap Rule Exceeded', category: 'Complex' },
-  { filename: 'scenario11_construction_four_year_rule.json', displayTitle: 'Construction & 4-Year Building Rule', category: 'Complex' },
-  { filename: 'scenario12_airbnb_room_rental.json', displayTitle: 'Partial Use - Airbnb Room Rental', category: 'Complex' },
-  { filename: 'scenario13_couple_separate_properties.json', displayTitle: 'Couple with Separate Properties', category: 'Complex' },
-  { filename: 'scenario14_foreign_resident_period.json', displayTitle: 'Foreign Resident Period Impact', category: 'Complex' },
-  { filename: 'scenario15_three_property_portfolio.json', displayTitle: 'Three Property Portfolio', category: 'Complex' },
-  // Extended CGT Scenarios (21-40) - Advanced edge cases and special rules
-  { filename: 'scenario21_aged_care_indefinite_absence.json', displayTitle: 'Aged Care - Indefinite Absence', category: 'Extended' },
-  { filename: 'scenario22_delayed_move_in_work.json', displayTitle: 'Delayed Move-In (Work Assignment)', category: 'Extended' },
-  { filename: 'scenario23_six_year_periods_reset.json', displayTitle: 'Multiple 6-Year Periods Reset', category: 'Extended' },
-  { filename: 'scenario24_deceased_estate_two_years.json', displayTitle: 'Deceased Estate (Within 2 Years)', category: 'Extended' },
-  { filename: 'scenario25_beneficiary_moves_in.json', displayTitle: 'Beneficiary Moves Into Inherited Property', category: 'Extended' },
-  { filename: 'scenario26_pre_cgt_major_improvements.json', displayTitle: 'Pre-CGT with Major Improvements', category: 'Extended' },
-  { filename: 'scenario27_large_rural_property.json', displayTitle: 'Large Rural Property (>2 Hectares)', category: 'Extended' },
-  { filename: 'scenario28_granny_flat_arrangement.json', displayTitle: 'Granny Flat Arrangement', category: 'Extended' },
-  { filename: 'scenario29_relationship_breakdown.json', displayTitle: 'Relationship Breakdown Rollover', category: 'Extended' },
-  { filename: 'scenario30_home_office_business.json', displayTitle: 'Home Office Business Use', category: 'Extended' },
-  { filename: 'scenario31_foreign_resident_life_event.json', displayTitle: 'Foreign Resident Life Event', category: 'Extended' },
-  { filename: 'scenario32_pre_may_2012_foreign.json', displayTitle: 'Pre-9 May 2012 Foreign Residency', category: 'Extended' },
-  { filename: 'scenario33_spouses_different_residences.json', displayTitle: 'Spouses - Different Main Residences', category: 'Extended' },
-  { filename: 'scenario34_vacant_periods_extended_rental.json', displayTitle: 'Vacant Periods During Rental', category: 'Extended' },
-  { filename: 'scenario35_four_year_construction.json', displayTitle: '4-Year Construction Rule Exceeded', category: 'Extended' },
-  { filename: 'scenario36_subdivision_land_sale.json', displayTitle: 'Subdivision - Separate Land Sale', category: 'Extended' },
-  { filename: 'scenario37_deceased_estate_covid.json', displayTitle: 'Deceased Estate - COVID Extension', category: 'Extended' },
-  { filename: 'scenario38_small_business_15_year.json', displayTitle: 'Small Business 15-Year Exemption', category: 'Extended' },
-  { filename: 'scenario39_investment_then_main_residence.json', displayTitle: 'Investment Then Main Residence', category: 'Extended' },
-  { filename: 'scenario40_four_property_portfolio.json', displayTitle: 'Four Property Portfolio', category: 'Extended' },
-];
-
 // Category configuration
 const CATEGORIES = [
   { id: 'all', label: 'All Scenarios', icon: Filter },
-  { id: 'Basic', label: 'Basic', icon: Home },
-  { id: 'Complex', label: 'Complex', icon: TrendingUp },
-  { id: 'Extended', label: 'Extended', icon: Building2 },
+  { id: 'Core Concepts', label: 'Core Concepts', icon: Home },
+  { id: 'Multi-Factor', label: 'Multi-Factor', icon: TrendingUp },
+  { id: 'Special Rules', label: 'Special Rules', icon: Building2 },
+  { id: 'Real-World', label: 'Real-World', icon: FlaskConical },
 ];
+
+// Global cache for manifest - persists across modal opens/closes
+let manifestCache: ScenarioManifest | null = null;
 
 export default function ScenarioSelectorModal({ isOpen, onClose }: ScenarioSelectorModalProps) {
   const [scenarios, setScenarios] = useState<Scenario[]>([]);
@@ -99,6 +63,7 @@ export default function ScenarioSelectorModal({ isOpen, onClose }: ScenarioSelec
   const [viewingScenario, setViewingScenario] = useState<Scenario | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const [error, setError] = useState<string | null>(null);
 
   const { importTimelineData, clearAllData } = useTimelineStore();
 
@@ -107,45 +72,44 @@ export default function ScenarioSelectorModal({ isOpen, onClose }: ScenarioSelec
     return () => setMounted(false);
   }, []);
 
-  // Load scenario metadata and reset view when modal opens
+  // Load scenario manifest when modal opens
   useEffect(() => {
     if (isOpen) {
-      // Always reset to list view when opening the modal
+      // Reset view state when opening
       setViewingScenario(null);
       setSelectedCategory('all');
       setSearchQuery('');
-      loadScenarios();
+      setError(null);
+      loadManifest();
     }
   }, [isOpen]);
 
-  const loadScenarios = async () => {
-    setLoading(true);
-    const loadedScenarios: Scenario[] = [];
-
-    for (const config of SCENARIO_CONFIG) {
-      try {
-        const response = await fetch(`/scenariotestjsons/${config.filename}`);
-        if (response.ok) {
-          const data = await response.json();
-          const scenarioInfo = data.scenario_info;
-
-          loadedScenarios.push({
-            id: config.filename,
-            filename: config.filename,
-            title: config.displayTitle,
-            description: scenarioInfo?.description || data.user_query || 'No description available',
-            category: config.category,
-            scenario_info: scenarioInfo,
-            properties: data.properties,
-          });
-        }
-      } catch (error) {
-        console.error(`Failed to load scenario ${config.filename}:`, error);
-      }
+  const loadManifest = async () => {
+    // Use cached manifest if available
+    if (manifestCache) {
+      setScenarios(manifestCache.scenarios);
+      setLoading(false);
+      console.log('📦 Using cached scenarios manifest');
+      return;
     }
 
-    setScenarios(loadedScenarios);
-    setLoading(false);
+    setLoading(true);
+    try {
+      const response = await fetch('/scenarios-manifest.json');
+      if (!response.ok) {
+        throw new Error('Failed to load scenarios manifest');
+      }
+
+      const manifest: ScenarioManifest = await response.json();
+      manifestCache = manifest; // Cache for future use
+      setScenarios(manifest.scenarios);
+      console.log(`✅ Loaded ${manifest.totalScenarios} scenarios from manifest (v${manifest.version})`);
+    } catch (err) {
+      console.error('❌ Failed to load manifest:', err);
+      setError('Failed to load scenarios. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   // Filter scenarios based on category and search
@@ -172,7 +136,8 @@ export default function ScenarioSelectorModal({ isOpen, onClose }: ScenarioSelec
     setLoadingScenario(scenario.id);
 
     try {
-      const response = await fetch(`/scenariotestjsons/${scenario.filename}`);
+      const basePath = scenario.path || 'scenariotestjsons';
+      const response = await fetch(`/${basePath}/${scenario.filename}`);
       if (!response.ok) {
         throw new Error('Failed to load scenario');
       }
@@ -204,12 +169,14 @@ export default function ScenarioSelectorModal({ isOpen, onClose }: ScenarioSelec
   // Get category color
   const getCategoryColor = (category: string) => {
     switch (category) {
-      case 'Basic':
+      case 'Core Concepts':
         return 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400';
-      case 'Complex':
+      case 'Multi-Factor':
         return 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400';
-      case 'Extended':
+      case 'Special Rules':
         return 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400';
+      case 'Real-World':
+        return 'bg-cyan-100 text-cyan-700 dark:bg-cyan-900/30 dark:text-cyan-400';
       default:
         return 'bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300';
     }
@@ -268,7 +235,7 @@ export default function ScenarioSelectorModal({ isOpen, onClose }: ScenarioSelec
                   <div className="px-6 py-3 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50">
                     <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                       {/* Category Tabs */}
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 flex-wrap">
                         {CATEGORIES.map((cat) => {
                           const Icon = cat.icon;
                           const isActive = selectedCategory === cat.id;
@@ -319,6 +286,17 @@ export default function ScenarioSelectorModal({ isOpen, onClose }: ScenarioSelec
                     <div className="flex items-center justify-center py-12">
                       <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
                       <span className="ml-3 text-slate-600 dark:text-slate-400">Loading scenarios...</span>
+                    </div>
+                  ) : error ? (
+                    <div className="text-center py-12">
+                      <FileJson className="w-12 h-12 text-red-300 dark:text-red-600 mx-auto mb-3" />
+                      <p className="text-red-500 dark:text-red-400">{error}</p>
+                      <button
+                        onClick={loadManifest}
+                        className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+                      >
+                        Retry
+                      </button>
                     </div>
                   ) : viewingScenario ? (
                     /* Scenario Detail View */
@@ -410,26 +388,19 @@ export default function ScenarioSelectorModal({ isOpen, onClose }: ScenarioSelec
                           </div>
                         )}
 
-                        {/* Properties */}
-                        <div>
-                          <h4 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
-                            Properties ({viewingScenario.properties?.length || 0})
-                          </h4>
-                          <div className="space-y-2">
-                            {viewingScenario.properties?.map((prop, idx) => (
-                              <div key={idx} className="bg-white dark:bg-slate-800 rounded-lg p-3">
-                                <p className="font-medium text-slate-900 dark:text-slate-100 text-sm">
-                                  {prop.address}
-                                </p>
-                                {prop.property_history && (
-                                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                                    {prop.property_history.length} events
-                                  </p>
-                                )}
-                              </div>
-                            ))}
+                        {/* Properties count */}
+                        {viewingScenario.propertyCount !== undefined && (
+                          <div>
+                            <h4 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                              Properties
+                            </h4>
+                            <div className="bg-white dark:bg-slate-800 rounded-lg p-3">
+                              <p className="text-sm text-slate-600 dark:text-slate-400">
+                                {viewingScenario.propertyCount} {viewingScenario.propertyCount === 1 ? 'property' : 'properties'} in this scenario
+                              </p>
+                            </div>
                           </div>
-                        </div>
+                        )}
                       </div>
 
                       {/* Load button */}
@@ -493,7 +464,7 @@ export default function ScenarioSelectorModal({ isOpen, onClose }: ScenarioSelec
                               <div className="flex items-center gap-1">
                                 <Building2 className="w-3.5 h-3.5 text-slate-400" />
                                 <span className="text-xs text-slate-500 dark:text-slate-400">
-                                  {scenario.properties?.length || 0}
+                                  {scenario.propertyCount || 0}
                                 </span>
                               </div>
                             </div>

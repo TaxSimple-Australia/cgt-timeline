@@ -1,0 +1,39 @@
+{
+  "properties": [
+    {
+      "address": "88 Holiday Let Lane, Noosa QLD 4567",
+      "property_history": [
+        {
+          "date": "2019-07-10",
+          "event": "purchase",
+          "price": 720000,
+          "stamp_duty": 26000,
+          "purchase_legal_fees": 2800
+        },
+        {
+          "date": "2019-08-01",
+          "event": "airbnb_start"
+        },
+        {
+          "date": "2025-08-31",
+          "event": "airbnb_end"
+        },
+        {
+          "date": "2025-09-15",
+          "event": "sale",
+          "price": 1050000,
+          "contract_date": "2025-09-15",
+          "agent_fees": 21000,
+          "legal_fees": 2800
+        }
+      ],
+      "notes": "sold - Pure investment Airbnb property. Never main residence."
+    }
+  ],
+  "user_query": "I bought a holiday apartment in 2019 purely for Airbnb - I never lived in it. I'm selling now. Is it just treated like any other investment property for CGT?",
+  "additional_info": {
+    "australian_resident": true
+  },
+  "llm_provider": "deepseek",
+  "use_claude": true
+}

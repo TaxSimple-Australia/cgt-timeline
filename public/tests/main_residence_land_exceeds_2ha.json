@@ -1,0 +1,39 @@
+{
+  "properties": [
+    {
+      "address": "500 Rural Estate Road, Dural NSW 2158",
+      "property_history": [
+        {
+          "date": "2012-08-20",
+          "event": "purchase",
+          "price": 1500000,
+          "stamp_duty": 65000,
+          "purchase_legal_fees": 4500
+        },
+        {
+          "date": "2012-09-01",
+          "event": "move_in"
+        },
+        {
+          "date": "2025-10-01",
+          "event": "sale",
+          "price": 4200000,
+          "contract_date": "2025-10-01",
+          "agent_fees": 84000,
+          "legal_fees": 6500
+        },
+        {
+          "date": "2025-10-01",
+          "event": "move_out"
+        }
+      ],
+      "notes": "sold - Main residence on 5 hectare rural property. House and gardens use approximately 1.5 hectares."
+    }
+  ],
+  "user_query": "I'm selling my rural property which is 5 hectares. The house and gardens use about 1.5 hectares. I've lived here since 2012. Does the whole property get the main residence exemption or only part of it?",
+  "additional_info": {
+    "australian_resident": true
+  },
+  "llm_provider": "deepseek",
+  "use_claude": true
+}

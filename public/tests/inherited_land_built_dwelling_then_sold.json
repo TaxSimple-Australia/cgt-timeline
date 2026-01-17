@@ -1,0 +1,64 @@
+{
+  "properties": [
+    {
+      "address": "22 Legacy Street, Castle Hill NSW 2154",
+      "property_history": [
+        {
+          "date": "2005-09-15",
+          "event": "purchase_by_deceased",
+          "price": 380000,
+          "stamp_duty": 13500,
+          "purchase_legal_fees": 2200,
+          "notes": "Grandmother purchased vacant block intending to build retirement home. Never built due to health issues."
+        },
+        {
+          "date": "2020-07-10",
+          "event": "death_of_owner",
+          "market_value_at_death": 920000,
+          "notes": "Grandmother passed away. Land was still vacant"
+        },
+        {
+          "date": "2020-10-15",
+          "event": "inherited",
+          "beneficiary": "Granddaughter",
+          "notes": "Sole beneficiary inherited vacant land"
+        },
+        {
+          "date": "2021-06-01",
+          "event": "construction_start",
+          "description": "Beneficiary built family home on inherited land",
+          "notes": "Decided to build and live in property"
+        },
+        {
+          "date": "2022-04-15",
+          "event": "construction_complete",
+          "construction_cost": 580000
+        },
+        {
+          "date": "2022-05-01",
+          "event": "move_in",
+          "notes": "Beneficiary moved in - now main residence"
+        },
+        {
+          "date": "2025-11-01",
+          "event": "sale",
+          "price": 1850000,
+          "contract_date": "2025-11-01",
+          "agent_fees": 37000,
+          "legal_fees": 4200
+        },
+        {
+          "date": "2025-11-01",
+          "event": "move_out"
+        }
+      ],
+      "notes": "sold - Inherited vacant land, beneficiary built home and lived in it. Complex CGT: Land inherited (cost base = MV at death), building added to cost base. Partial MRE from move-in date only."
+    }
+  ],
+  "user_query": "I inherited vacant land from my grandmother in 2020. She'd owned it since 2005 but never built on it. I built a house and moved in during 2022, and I've now sold. How is CGT calculated when I've added a building to inherited land and then lived in it?",
+  "additional_info": {
+    "australian_resident": true
+  },
+  "llm_provider": "deepseek",
+  "use_claude": true
+}

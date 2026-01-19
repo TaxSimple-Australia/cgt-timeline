@@ -14,7 +14,7 @@ export interface BranchPosition {
 }
 
 const BRANCH_VERTICAL_SPACING = 80; // Pixels between sibling branches
-const PARENT_CHILD_VERTICAL_GAP = 120; // Pixels from parent to first child
+const PARENT_CHILD_VERTICAL_GAP = 30; // Pixels from parent to first child (reduced from 120)
 
 /**
  * Calculate branch positions for all properties including subdivisions

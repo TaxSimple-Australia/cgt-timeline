@@ -2,38 +2,31 @@
 
 import React from 'react';
 
-interface MixedUseIndicatorProps {
+interface LandIndicatorProps {
   x: number;           // Position percentage (0-100)
   y: number;           // Vertical position
-  livingPercentage?: number;
-  rentalPercentage?: number;
-  businessPercentage?: number;
+  isLandOnly?: boolean;
+  overTwoHectares?: boolean;
 }
 
-export default function MixedUseIndicator({
+export default function LandIndicator({
   x,
   y,
-  livingPercentage = 0,
-  rentalPercentage = 0,
-  businessPercentage = 0,
-}: MixedUseIndicatorProps) {
-  // Only show if at least one percentage is set
-  const hasPercentages = livingPercentage > 0 || rentalPercentage > 0 || businessPercentage > 0;
-
-  if (!hasPercentages) {
+  isLandOnly = false,
+  overTwoHectares = false,
+}: LandIndicatorProps) {
+  // Only show if at least one flag is set
+  if (!isLandOnly && !overTwoHectares) {
     return null;
   }
 
-  // Build the label text showing only non-zero percentages
+  // Build the label text
   const parts: string[] = [];
-  if (livingPercentage > 0) {
-    parts.push(`Living: ${livingPercentage.toFixed(0)}%`);
+  if (isLandOnly) {
+    parts.push('Land Only');
   }
-  if (rentalPercentage > 0) {
-    parts.push(`Rental: ${rentalPercentage.toFixed(0)}%`);
-  }
-  if (businessPercentage > 0) {
-    parts.push(`Business: ${businessPercentage.toFixed(0)}%`);
+  if (overTwoHectares) {
+    parts.push('2+ Ha');
   }
 
   const labelText = parts.join(' | ');

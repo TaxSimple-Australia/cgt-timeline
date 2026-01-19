@@ -80,6 +80,14 @@ export default function Timeline({ className, onAlertClick, onOpenAIBuilder }: T
     return calculateSubdivisionConnections(properties, branchPositions, events, dateToPos);
   }, [properties, branchPositions, events, timelineStart, timelineEnd]);
 
+  // Filter properties for rendering:
+  // - Show parent properties (even if subdivided - they keep their original name)
+  // - Show child lots EXCEPT Lot 1 (main continuation) since Lot 1 continues on the parent line
+  // - Lot 2, Lot 3, etc. render as separate child branches below the parent
+  const visibleProperties = useMemo(() => {
+    return properties.filter(property => !property.isMainLotContinuation);
+  }, [properties]);
+
   // Handle timeline click to add events
   const handleTimelineClick = (e: MouseEvent<HTMLDivElement>) => {
     // Check if a sticky note is being dragged (global flag set by StickyNote component)
@@ -406,16 +414,30 @@ export default function Timeline({ className, onAlertClick, onOpenAIBuilder }: T
                 <SubdivisionSplitVisual connections={subdivisionConnections} />
               )}
 
-              {properties.map((property, index) => {
+              {properties.filter(p => !p.isMainLotContinuation).map((property, index) => {
                 // Use calculated branch position if property is part of subdivision hierarchy
                 const branchPos = branchPositions.get(property.id!);
                 const effectiveBranchIndex = branchPos ? branchPos.yOffset / 80 : index;
+
+                // For subdivided parent properties, also include Lot 1's events (main continuation)
+                // This allows the parent line to show events that happened after subdivision on Lot 1
+                const lot1 = properties.find(p => p.parentPropertyId === property.id && p.isMainLotContinuation);
+                // Get subdivision date from Lot 1 to filter events properly and avoid duplicates
+                const subdivisionDate = lot1?.subdivisionDate;
+                const eventsToShow = lot1 && subdivisionDate
+                  ? [
+                      // Parent's events BEFORE subdivision
+                      ...events.filter(e => e.propertyId === property.id && e.date < subdivisionDate),
+                      // Lot 1's events ON or AFTER subdivision
+                      ...events.filter(e => e.propertyId === lot1.id && e.date >= subdivisionDate)
+                    ]
+                  : events.filter(e => e.propertyId === property.id);
 
                 return (
                   <PropertyBranch
                     key={property.id}
                     property={property}
-                    events={events.filter(e => e.propertyId === property.id)}
+                    events={eventsToShow}
                     branchIndex={effectiveBranchIndex}
                     onDragStart={handleDragStart}
                     isSelected={selectedProperty === property.id}

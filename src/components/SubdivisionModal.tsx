@@ -181,8 +181,24 @@ export default function SubdivisionModal({ property, isOpen, onClose, clickedDat
                   {lots.map((lot, index) => (
                     <div
                       key={lot.id}
-                      className="p-4 border border-slate-200 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-900/50"
+                      className={cn(
+                        "p-4 border rounded-lg",
+                        index === 0
+                          ? "border-green-300 dark:border-green-600 bg-green-50 dark:bg-green-900/20"
+                          : "border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50"
+                      )}
                     >
+                      {/* Main timeline continuation badge for Lot 1 */}
+                      {index === 0 && (
+                        <div className="mb-3 flex items-center gap-2 text-xs text-green-700 dark:text-green-400">
+                          <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-green-100 dark:bg-green-800/30 font-medium">
+                            Continues Main Timeline
+                          </span>
+                          <span className="text-green-600 dark:text-green-500">
+                            This lot inherits the parent property's CGT history
+                          </span>
+                        </div>
+                      )}
                       <div className="flex items-start justify-between gap-4">
                         <div className="flex-1 space-y-3">
                           {/* Lot Name */}
@@ -398,13 +414,23 @@ export default function SubdivisionModal({ property, isOpen, onClose, clickedDat
               <div className="p-4 bg-blue-50 dark:bg-blue-500/10 rounded-lg border border-blue-200 dark:border-blue-500/20">
                 <div className="flex items-start gap-3">
                   <AlertCircle className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
-                  <div className="text-sm text-blue-700 dark:text-blue-300 space-y-1">
-                    <p className="font-medium">Cost Base Allocation</p>
-                    <p className="text-xs text-blue-600 dark:text-blue-400">
-                      The parent property's cost base will be allocated proportionally to each lot
-                      based on lot size. Subdivision fees will be distributed equally across all
-                      lots.
-                    </p>
+                  <div className="text-sm text-blue-700 dark:text-blue-300 space-y-2">
+                    <div>
+                      <p className="font-medium">CGT Timeline Continuation</p>
+                      <p className="text-xs text-blue-600 dark:text-blue-400">
+                        Lot 1 will inherit all events from the parent property's timeline before subdivision.
+                        This preserves the CGT history (purchase date, improvements, etc.) for the main lot.
+                        Other lots start fresh from the subdivision date.
+                      </p>
+                    </div>
+                    <div>
+                      <p className="font-medium">Cost Base Allocation</p>
+                      <p className="text-xs text-blue-600 dark:text-blue-400">
+                        The parent property's cost base will be allocated proportionally to each lot
+                        based on lot size. Subdivision fees will be distributed equally across all
+                        lots.
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>

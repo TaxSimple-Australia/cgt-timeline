@@ -681,12 +681,17 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
           return;
         }
 
-        // Validate that new owners' percentages total 100%
+        // Calculate total percentage of leaving owners
+        const leavingOwnersTotal = currentProperty?.owners
+          ?.filter(owner => leavingOwners.includes(owner.name))
+          .reduce((sum, owner) => sum + owner.percentage, 0) || 0;
+
+        // Validate that new owners' percentages equal the leaving owners' total
         const totalPercentage = newOwners.reduce((sum, owner) => sum + (owner.percentage || 0), 0);
-        if (totalPercentage !== 100) {
+        if (Math.abs(totalPercentage - leavingOwnersTotal) > 0.1) {
           showWarning(
             'Invalid percentages',
-            `New owners' percentages must total 100%. Current total: ${totalPercentage.toFixed(1)}%`
+            `New owners' percentages must equal ${leavingOwnersTotal}% (the leaving owners' total). Current total: ${totalPercentage.toFixed(1)}%`
           );
           setIsSaving(false);
           return;
@@ -1112,6 +1117,30 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
                   </option>
                 ))}
               </select>
+
+              {/* Land Options - Compact checkboxes for Purchase events */}
+              {eventType === 'purchase' && (
+                <div className="flex items-center gap-4 mt-2">
+                  <label className="flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-400 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={isLandOnly}
+                      onChange={(e) => setIsLandOnly(e.target.checked)}
+                      className="w-3 h-3 text-blue-600 rounded focus:ring-1 focus:ring-blue-500"
+                    />
+                    Land only
+                  </label>
+                  <label className="flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-400 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={overTwoHectares}
+                      onChange={(e) => setOverTwoHectares(e.target.checked)}
+                      className="w-3 h-3 text-blue-600 rounded focus:ring-1 focus:ring-blue-500"
+                    />
+                    Over 2 hectares
+                  </label>
+                </div>
+              )}
             </div>
 
             {/* Custom Event Color Picker */}
@@ -1457,91 +1486,6 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
                     </AnimatePresence>
                   </div>
 
-                  {/* Property Characteristics - Collapsible Section */}
-                  <div className="mt-4">
-                    <button
-                      type="button"
-                      onClick={() => setShowPropertyDetails(!showPropertyDetails)}
-                      className="flex items-center gap-2 w-full text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 transition-colors"
-                    >
-                      <ChevronDown className={cn(
-                        "w-4 h-4 transition-transform",
-                        showPropertyDetails && "rotate-180"
-                      )} />
-                      Additional Property Details
-                      {(isLandOnly || overTwoHectares) && (
-                        <span className="ml-auto text-xs bg-blue-100 dark:bg-blue-900 px-2 py-0.5 rounded-full font-semibold">
-                          {[isLandOnly, overTwoHectares].filter(Boolean).length}
-                        </span>
-                      )}
-                    </button>
-
-                    <AnimatePresence>
-                      {showPropertyDetails && (
-                        <motion.div
-                          initial={{ height: 0, opacity: 0 }}
-                          animate={{ height: "auto", opacity: 1 }}
-                          exit={{ height: 0, opacity: 0 }}
-                          transition={{ duration: 0.2 }}
-                          className="overflow-hidden space-y-3 mt-3"
-                        >
-                          {/* Land Only checkbox */}
-                          <div className="flex items-center gap-3 p-4 bg-teal-50 dark:bg-teal-900/20 rounded-lg border border-teal-200 dark:border-teal-800">
-                            <input
-                              type="checkbox"
-                              id="isLandOnly"
-                              checked={isLandOnly}
-                              onChange={(e) => setIsLandOnly(e.target.checked)}
-                              className="w-4 h-4 text-blue-600 bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 rounded focus:ring-2 focus:ring-blue-500 cursor-pointer"
-                            />
-                            <label
-                              htmlFor="isLandOnly"
-                              className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300 cursor-pointer"
-                            >
-                              <Square className="w-4 h-4" />
-                              Land Only (no building)
-                            </label>
-                            <div className="ml-auto">
-                              <div className="group relative">
-                                <Info className="w-4 h-4 text-slate-400 dark:text-slate-500 cursor-help" />
-                                <div className="invisible group-hover:visible absolute right-0 top-6 w-72 p-3 bg-slate-900 dark:bg-slate-800 text-white text-xs rounded-lg shadow-lg z-10">
-                                  <p className="font-semibold mb-1">Land Only Property</p>
-                                  <p>Property is land only (no building). Building depreciation will not be available for CGT calculations. This affects capital works deductions under Division 43.</p>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-
-                          {/* Over 2 Hectares checkbox */}
-                          <div className="flex items-center gap-3 p-4 bg-orange-50 dark:bg-orange-900/20 rounded-lg border border-orange-200 dark:border-orange-800">
-                            <input
-                              type="checkbox"
-                              id="overTwoHectares"
-                              checked={overTwoHectares}
-                              onChange={(e) => setOverTwoHectares(e.target.checked)}
-                              className="w-4 h-4 text-blue-600 bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 rounded focus:ring-2 focus:ring-blue-500 cursor-pointer"
-                            />
-                            <label
-                              htmlFor="overTwoHectares"
-                              className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300 cursor-pointer"
-                            >
-                              <Maximize2 className="w-4 h-4" />
-                              Land exceeds 2 hectares
-                            </label>
-                            <div className="ml-auto">
-                              <div className="group relative">
-                                <Info className="w-4 h-4 text-slate-400 dark:text-slate-500 cursor-help" />
-                                <div className="invisible group-hover:visible absolute right-0 top-6 w-72 p-3 bg-slate-900 dark:bg-slate-800 text-white text-xs rounded-lg shadow-lg z-10">
-                                  <p className="font-semibold mb-1">Main Residence Exemption Limitation</p>
-                                  <p>The main residence CGT exemption only covers the dwelling plus up to 2 hectares of adjacent land. If your property exceeds 2 hectares, the excess land may be subject to CGT (ATO Section 118-120).</p>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </div>
                 </div>
               )}
             </div>
@@ -2287,14 +2231,40 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
                   )}
                 </div>
 
+                {/* Percentage Being Transferred Summary */}
+                {leavingOwners.length > 0 && (() => {
+                  const leavingOwnersTotal = currentProperty?.owners
+                    ?.filter(owner => leavingOwners.includes(owner.name))
+                    .reduce((sum, owner) => sum + owner.percentage, 0) || 0;
+                  return (
+                    <div className="flex items-center gap-2 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                      <TrendingUp className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                      <span className="text-sm text-blue-700 dark:text-blue-300">
+                        Transferring: <strong>{leavingOwnersTotal}%</strong> ownership
+                      </span>
+                    </div>
+                  );
+                })()}
+
                 {/* New Owners */}
                 <div className="space-y-2">
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">
-                    New Owner(s) *
-                  </label>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 mb-2">
-                    Add the new owner(s) receiving the transferred ownership
-                  </p>
+                  {(() => {
+                    const leavingOwnersTotal = currentProperty?.owners
+                      ?.filter(owner => leavingOwners.includes(owner.name))
+                      .reduce((sum, owner) => sum + owner.percentage, 0) || 0;
+                    return (
+                      <>
+                        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">
+                          New Owner(s) Receiving {leavingOwnersTotal > 0 ? `${leavingOwnersTotal}%` : 'Ownership'} *
+                        </label>
+                        <p className="text-xs text-slate-500 dark:text-slate-400 mb-2">
+                          {leavingOwnersTotal > 0
+                            ? `New owner percentages must total ${leavingOwnersTotal}%`
+                            : 'Select leaving owner(s) above first'}
+                        </p>
+                      </>
+                    );
+                  })()}
 
                   {newOwners.length > 0 && (
                     <div className="space-y-2 mb-3">
@@ -2358,16 +2328,31 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
 
                 {/* Percentage Validation Summary */}
                 {newOwners.length > 0 && (() => {
+                  const leavingOwnersTotal = currentProperty?.owners
+                    ?.filter(owner => leavingOwners.includes(owner.name))
+                    .reduce((sum, owner) => sum + owner.percentage, 0) || 0;
                   const total = newOwners.reduce((sum, owner) => sum + (owner.percentage || 0), 0);
-                  const isValid = total === 100;
+                  const isValid = Math.abs(total - leavingOwnersTotal) < 0.1 && leavingOwnersTotal > 0;
                   const isEmpty = total === 0;
+                  const noLeavingOwners = leavingOwnersTotal === 0;
+
+                  if (noLeavingOwners) {
+                    return (
+                      <div className="flex items-center gap-2 p-3 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800">
+                        <AlertCircle className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+                        <span className="text-xs text-amber-700 dark:text-amber-300">
+                          Select leaving owner(s) above to see required percentage
+                        </span>
+                      </div>
+                    );
+                  }
 
                   if (isEmpty) {
                     return (
                       <div className="flex items-center gap-2 p-3 bg-slate-50 dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700">
                         <AlertCircle className="w-4 h-4 text-slate-500 dark:text-slate-400" />
                         <span className="text-xs text-slate-600 dark:text-slate-400">
-                          Enter ownership percentages above
+                          Enter ownership percentages totaling {leavingOwnersTotal}%
                         </span>
                       </div>
                     );
@@ -2388,7 +2373,7 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
                       ) : (
                         <>
                           <AlertCircle className="w-4 h-4" />
-                          <span className="text-sm">Total: {total.toFixed(1)}% (must equal 100%)</span>
+                          <span className="text-sm">Total: {total.toFixed(1)}% (must equal {leavingOwnersTotal}%)</span>
                         </>
                       )}
                     </div>

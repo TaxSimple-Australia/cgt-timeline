@@ -27,6 +27,8 @@ export type EventType =
   | 'vacant_end'    // Property is no longer vacant
   | 'ownership_change'  // Change of ownership event
   | 'subdivision'   // Property subdivision into multiple lots
+  | 'living_in_rental_start'  // Start living in rental property
+  | 'living_in_rental_end'    // Stop living in rental property
   | 'custom';       // User-defined custom event for any situation
 
 export type PropertyStatus =
@@ -193,6 +195,7 @@ export interface Property {
   lotNumber?: string;             // e.g., "Lot 1", "Lot 2"
   lotSize?: number;               // Size in sqm or hectares
   initialCostBase?: number;       // Allocated cost base for subdivided lots
+  isMainLotContinuation?: boolean; // True if this lot continues parent's CGT history (typically Lot 1)
 }
 
 export type ZoomLevel =
@@ -408,6 +411,8 @@ const eventColors: Record<EventType, string> = {
   vacant_end: '#6B7280',     // Gray-500 - Property no longer vacant
   ownership_change: '#A855F7',  // Purple - Change of ownership
   subdivision: '#EC4899',    // Pink - Property subdivision
+  living_in_rental_start: '#EC4899',  // Pink - Start living in rental
+  living_in_rental_end: '#DB2777',    // Darker pink - Stop living in rental
   custom: '#6B7280',         // Gray - Custom event (user can change)
 };
 
@@ -806,6 +811,9 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
       const proportion = lot.lotSize / totalLotSize;
       const allocatedCostBase = parentCostBase * proportion + feePerLot;
 
+      // Lot 1 (index 0) continues the main property's CGT timeline
+      const isMainLot = index === 0;
+
       return {
         id: `prop-${Date.now()}-${index}`,
         name: lot.name,
@@ -818,10 +826,26 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
         lotNumber: `Lot ${index + 1}`,
         lotSize: lot.lotSize,
         purchasePrice: allocatedCostBase,
-        purchaseDate: subdivisionDate, // Child lot's acquisition date is the subdivision date
+        purchaseDate: isMainLot ? parentProperty.purchaseDate : subdivisionDate, // Main lot inherits original purchase date
         owners: parentProperty.owners, // Inherit ownership
+        isMainLotContinuation: isMainLot, // Mark Lot 1 as main timeline continuation
       };
     });
+
+    // Get parent events before subdivision date to copy to Lot 1
+    const parentEventsBeforeSubdivision = state.events.filter(
+      (e) => e.propertyId === parentPropertyId && e.date < subdivisionDate
+    );
+
+    // Create copies of parent events for Lot 1 (main lot continuation)
+    const lot1Id = childProperties[0]?.id;
+    const copiedEventsForLot1: TimelineEvent[] = lot1Id
+      ? parentEventsBeforeSubdivision.map((event) => ({
+          ...event,
+          id: `event-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
+          propertyId: lot1Id,
+        }))
+      : [];
 
     // Create subdivision event on parent
     const subdivisionEvent: TimelineEvent = {
@@ -846,8 +870,10 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
       },
     };
 
-    // Update state - child lots start with clean timeline from subdivision date
-    // Also update parent property with subdivisionDate for proper timeline rendering
+    // Update state
+    // - Lot 1 inherits parent's events before subdivision (continues CGT timeline)
+    // - Lot 2+ start fresh from subdivision date
+    // - Parent property is marked with subdivisionDate
     set({
       properties: [
         ...state.properties.map(p =>
@@ -857,10 +883,11 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
         ),
         ...childProperties
       ],
-      events: [...state.events, subdivisionEvent],
+      events: [...state.events, subdivisionEvent, ...copiedEventsForLot1],
     });
 
     console.log(`✅ Subdivided ${parentProperty.name} into ${lots.length} lots`);
+    console.log(`📋 Lot 1 inherited ${copiedEventsForLot1.length} events from parent timeline`);
   },
 
   addEvent: (event) => {

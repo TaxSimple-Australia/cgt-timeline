@@ -210,6 +210,8 @@ export default function GanttChartView({
       vacant_end: Building,
       ownership_change: Users,
       subdivision: Split,
+      living_in_rental_start: LogIn,
+      living_in_rental_end: LogOut,
       custom: Home,
     };
     return iconMap[eventType] || Home;

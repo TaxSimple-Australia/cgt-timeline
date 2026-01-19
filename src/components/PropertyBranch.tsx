@@ -11,6 +11,7 @@ import PropertyStatusBands from './PropertyStatusBands';
 import TimelineGap from './TimelineGap';
 import VerificationAlertBar from './VerificationAlertBar';
 import MixedUseIndicator from './MixedUseIndicator';
+import LandIndicator from './LandIndicator';
 import { cn, dateToPosition } from '@/lib/utils';
 import { isSubdivided, getSubdivisionDate, getChildProperties } from '@/lib/subdivision-helpers';
 import type { PositionedGap } from '@/types/ai-feedback';
@@ -60,16 +61,6 @@ export default function PropertyBranch({
   // Get verification alerts for this property
   const propertyAlerts = verificationAlerts.filter(alert => alert.propertyId === property.id);
 
-  // Debug logging
-  if (verificationAlerts.length > 0) {
-    console.log(`🔍 PropertyBranch [${property.name}]:`, {
-      propertyId: property.id,
-      totalAlerts: verificationAlerts.length,
-      matchedAlerts: propertyAlerts.length,
-      alerts: propertyAlerts,
-    });
-  }
-
   // Handle property circle click to select property
   const handlePropertyClick = (e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent triggering timeline click (QuickAddMenu)
@@ -88,28 +79,34 @@ export default function PropertyBranch({
     const x = e.clientX - rect.left;
     const position = (x / rect.width) * 100;
 
-    onBranchClick(property.id, position, e.clientX, e.clientY);
+    // If clicking after subdivision point, redirect to Lot 1
+    let targetPropertyId = property.id;
+    if (hasBeenSubdivided && subdivisionPosition !== null && position > subdivisionPosition) {
+      const lot1 = childLots.find(c => c.isMainLotContinuation);
+      if (lot1) {
+        targetPropertyId = lot1.id;
+      }
+    }
+
+    onBranchClick(targetPropertyId, position, e.clientX, e.clientY);
+  };
+
+  // Wrapper for status band clicks - redirect to Lot 1 if clicking after subdivision
+  const handleStatusBandClick = (propId: string, position: number, clientX: number, clientY: number) => {
+    let targetPropertyId = propId;
+    if (hasBeenSubdivided && subdivisionPosition !== null && position > subdivisionPosition) {
+      const lot1 = childLots.find(c => c.isMainLotContinuation);
+      if (lot1) {
+        targetPropertyId = lot1.id;
+      }
+    }
+    onBranchClick(targetPropertyId, position, clientX, clientY);
   };
 
   // Get gaps that apply to this property
   const propertyGaps = positionedGaps.filter(gap =>
     gap.propertyIds.includes(property.id)
   );
-
-  // Debug logging to help troubleshoot gap display
-  console.log('🏠 PropertyBranch rendering:', {
-    propertyName: property.name,
-    propertyId: property.id,
-    totalGapsInStore: positionedGaps.length,
-    gapsForThisProperty: propertyGaps.length,
-    propertyGaps: propertyGaps.map(g => ({
-      id: g.id,
-      start_date: g.start_date,
-      end_date: g.end_date,
-      duration_days: g.duration_days,
-      propertyIds: g.propertyIds,
-    })),
-  });
 
   // Get validation issues for this property
   const propertyIssues = getIssuesForProperty(property.name) || getIssuesForProperty(property.address);
@@ -122,10 +119,15 @@ export default function PropertyBranch({
     calculatedPosition: dateToPosition(event.date, timelineStart, timelineEnd)
   }));
 
-  // Sort events by DATE (chronological order)
-  const sortedEvents = [...eventsWithPositions].sort((a, b) =>
-    a.date.getTime() - b.date.getTime()
-  );
+  // Sort events by DATE (chronological order), with purchase events first when same date
+  const sortedEvents = [...eventsWithPositions].sort((a, b) => {
+    const dateDiff = a.date.getTime() - b.date.getTime();
+    if (dateDiff !== 0) return dateDiff;
+    // When same date, put purchase events first so mixed-use indicator ends at the next event
+    if (a.type === 'purchase' && b.type !== 'purchase') return -1;
+    if (b.type === 'purchase' && a.type !== 'purchase') return 1;
+    return 0;
+  });
 
   // Find purchase events with mixed use percentages
   const purchaseEventsWithMixedUse = sortedEvents.filter(event =>
@@ -136,25 +138,29 @@ export default function PropertyBranch({
     )
   );
 
-  // Calculate mixed use indicator positions and durations
-  const mixedUseIndicators = purchaseEventsWithMixedUse.map(purchaseEvent => {
-    const startPos = purchaseEvent.calculatedPosition;
+  // Calculate mixed use indicator positions - simple badge at purchase position
+  const mixedUseIndicators = purchaseEventsWithMixedUse.map(purchaseEvent => ({
+    x: purchaseEvent.calculatedPosition,
+    y: branchY + 4, // Position 4px below the branch line
+    livingPercentage: purchaseEvent.livingUsePercentage || 0,
+    rentalPercentage: purchaseEvent.rentalUsePercentage || 0,
+    businessPercentage: purchaseEvent.businessUsePercentage || 0,
+  }));
 
-    // Find the sale event to determine end position
-    const saleEvent = sortedEvents.find(e => e.type === 'sale');
-    const endPos = saleEvent
-      ? dateToPosition(saleEvent.date, timelineStart, timelineEnd)
-      : 100; // If no sale, extend to end of timeline
+  // Find purchase events with land characteristics (isLandOnly or overTwoHectares)
+  const purchaseEventsWithLandFlags = sortedEvents.filter(event =>
+    event.type === 'purchase' && (event.isLandOnly || event.overTwoHectares)
+  );
 
-    const width = endPos - startPos;
-
+  // Calculate land indicator positions - badge at purchase position (offset from mixed use)
+  const landIndicators = purchaseEventsWithLandFlags.map(purchaseEvent => {
+    // Check if this event also has mixed use indicators - if so, offset the land indicator
+    const hasMixedUse = purchaseEventsWithMixedUse.some(e => e.id === purchaseEvent.id);
     return {
-      x: startPos,
-      y: branchY - 60, // Position above the branch line
-      width: width,
-      livingPercentage: purchaseEvent.livingUsePercentage || 0,
-      rentalPercentage: purchaseEvent.rentalUsePercentage || 0,
-      businessPercentage: purchaseEvent.businessUsePercentage || 0,
+      x: purchaseEvent.calculatedPosition,
+      y: branchY + (hasMixedUse ? 28 : 4), // Position below mixed use indicator if present
+      isLandOnly: purchaseEvent.isLandOnly || false,
+      overTwoHectares: purchaseEvent.overTwoHectares || false,
     };
   });
 
@@ -268,9 +274,48 @@ export default function PropertyBranch({
 
   // Add synthetic status marker for unsold properties at today's date
   const addStatusMarkerIfNeeded = () => {
-    // If property has been subdivided, don't show any status marker
-    // The property ceased to exist as a whole when subdivided
-    if (hasBeenSubdivided) return eventsWithOffsetsAndTiers;
+    // For subdivided properties, check if Lot 1 (main continuation) is sold
+    // If not sold, show status marker based on Lot 1's status
+    if (hasBeenSubdivided) {
+      const lot1 = childLots.find(c => c.isMainLotContinuation);
+      if (!lot1) return eventsWithOffsetsAndTiers;
+
+      // Check if Lot 1 is sold
+      const lot1Events = allEvents.filter(e => e.propertyId === lot1.id);
+      const lot1HasSaleEvent = lot1Events.some(e => e.type === 'sale');
+      const lot1IsSold = lot1.currentStatus === 'sold' || lot1.saleDate || lot1HasSaleEvent;
+
+      if (lot1IsSold) return eventsWithOffsetsAndTiers;
+
+      // Calculate today's position
+      const todayPosition = getTodayPosition(timelineStart, timelineEnd);
+      if (todayPosition < 0 || todayPosition > 100) return eventsWithOffsetsAndTiers;
+
+      const today = new Date();
+      const statusPeriods = calculateStatusPeriods(lot1Events);
+      const currentStatusPeriod = statusPeriods.find(p => p.endDate === null);
+      const currentStatus = currentStatusPeriod?.status || 'vacant';
+      const statusColor = statusColors[currentStatus] || '#94a3b8';
+      const clampedPosition = Math.max(0, Math.min(todayPosition, 100));
+
+      const statusMarker: any = {
+        id: `status-marker-${lot1.id}`,
+        propertyId: lot1.id,
+        type: 'status_change' as any,
+        title: 'Not Sold',
+        description: currentStatus.replace('_', ' ').toUpperCase(),
+        date: today,
+        color: statusColor,
+        position: clampedPosition,
+        calculatedPosition: clampedPosition,
+        isSyntheticStatusMarker: true,
+        verticalOffset: 0,
+        tier: 0,
+        zIndex: 999,
+      };
+
+      return [...eventsWithOffsetsAndTiers, statusMarker];
+    }
 
     // Check all possible indicators that property is sold
     const hasSaleEvent = events.some(e => e.type === 'sale');
@@ -325,6 +370,9 @@ export default function PropertyBranch({
     // For child lots, calculate the minimum start position based on subdivision date
     const isChildLot = Boolean(property.parentPropertyId);
 
+    // Check if this is Lot 1 that continues the main property timeline
+    const isMainLotContinuation = property.isMainLotContinuation === true;
+
     // Find subdivision event to get authoritative date (matches subdivision-helpers logic)
     // This ensures lot circles align perfectly with subdivision connector lines
     const subdivisionEvent = isChildLot && property.parentPropertyId
@@ -334,9 +382,13 @@ export default function PropertyBranch({
         )
       : null;
 
-    const subdivisionStartPos = isChildLot && (subdivisionEvent || property.subdivisionDate)
+    const subdivisionDateValue = subdivisionEvent?.date || property.subdivisionDate;
+
+    // For Lot 1 (main continuation), start from first event position (like parent properties)
+    // For other child lots, start from subdivision date
+    const subdivisionStartPos = isChildLot && subdivisionDateValue && !isMainLotContinuation
       ? dateToPosition(
-          subdivisionEvent?.date || property.subdivisionDate,
+          subdivisionDateValue,
           timelineStart,
           timelineEnd
         )
@@ -404,7 +456,8 @@ export default function PropertyBranch({
           property={property}
           isHovered={isHovered}
           onHoverChange={onHoverChange}
-          onBandClick={onBranchClick}
+          onBandClick={handleStatusBandClick}
+          subdivisionDate={subdivisionDate || undefined}
         />
 
       {/* Mixed Use Indicators - Show split percentages for properties with mixed use */}
@@ -413,10 +466,20 @@ export default function PropertyBranch({
           key={`mixed-use-${index}`}
           x={indicator.x}
           y={indicator.y}
-          width={indicator.width}
           livingPercentage={indicator.livingPercentage}
           rentalPercentage={indicator.rentalPercentage}
           businessPercentage={indicator.businessPercentage}
+        />
+      ))}
+
+      {/* Land Indicators - Show land only and/or over 2 hectares flags */}
+      {landIndicators.map((indicator, index) => (
+        <LandIndicator
+          key={`land-${index}`}
+          x={indicator.x}
+          y={indicator.y}
+          isLandOnly={indicator.isLandOnly}
+          overTwoHectares={indicator.overTwoHectares}
         />
       ))}
 
@@ -538,7 +601,9 @@ export default function PropertyBranch({
           {/* Main line - split into solid/dashed segments if subdivided */}
           {(() => {
             // Find subdivision event to get authoritative date
-            const subdivisionEvent = events.find(e =>
+            // Use allEvents instead of events prop because Timeline.tsx filters out the subdivision event
+            // from parent property events (it filters events < subdivisionDate, excluding the event itself)
+            const subdivisionEvent = allEvents.find(e =>
               e.propertyId === property.id &&
               e.type === 'subdivision'
             );
@@ -574,17 +639,16 @@ export default function PropertyBranch({
                       pointerEvents: 'none'
                     }}
                   />
-                  {/* Segment after subdivision - dashed line */}
+                  {/* Segment after subdivision - Lot 1's line (solid) */}
                   <motion.line
                     x1={`${splitPos}%`}
                     y1={branchY}
                     x2={`${linePositions.end}%`}
                     y2={branchY}
-                    stroke={hasIssues ? '#EF4444' : property.color}
+                    stroke={hasIssues ? '#EF4444' : (childLots.find(c => c.isMainLotContinuation)?.color || property.color)}
                     strokeWidth={isHovered ? 6 : (isSelected ? 4 : 3)}
                     strokeLinecap="round"
-                    strokeDasharray="12,8"
-                    opacity={0.9}
+                    opacity={isHovered ? 1 : (isSelected ? 1 : 0.7)}
                     initial={{ pathLength: 0 }}
                     animate={{ pathLength: 1 }}
                     transition={{ duration: 1, ease: "easeInOut", delay: 0.2 }}
@@ -607,6 +671,28 @@ export default function PropertyBranch({
                     transition={{ duration: 0.3, delay: 0.4 }}
                     style={{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))' }}
                   />
+                  {/* Lot 1 label after subdivision point - on parent line */}
+                  {(() => {
+                    const lot1 = childLots.find(c => c.isMainLotContinuation);
+                    if (!lot1) return null;
+                    return (
+                      <foreignObject
+                        x={`${splitPos}%`}
+                        y={branchY - 50}
+                        width="140"
+                        height="30"
+                        style={{ overflow: 'visible', transform: 'translateX(15px)' }}
+                      >
+                        <div
+                          className="flex items-center justify-center px-2.5 py-1 rounded-md text-white text-xs font-semibold shadow-lg whitespace-nowrap"
+                          style={{ backgroundColor: `${lot1.color}E6` }}
+                        >
+                          {lot1.lotNumber}
+                          {lot1.lotSize && ` • ${lot1.lotSize.toFixed(0)} sqm`}
+                        </div>
+                      </foreignObject>
+                    );
+                  })()}
                 </>
               );
             } else {
@@ -637,43 +723,48 @@ export default function PropertyBranch({
         </>
       )}
 
-      {/* Lot Start Label - Show for child properties at subdivision point */}
+      {/* Lot Start Label - Show for child properties */}
       {property.parentPropertyId && property.subdivisionDate && property.lotNumber && (
         <g>
-          {/* Visual marker at subdivision start point */}
-          <motion.circle
-            cx={`${linePositions.start}%`}
-            cy={branchY}
-            r="6"
-            fill={property.color}
-            stroke="#FFF"
-            strokeWidth="2"
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ duration: 0.3, delay: 0.2 }}
-            style={{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))' }}
-          />
+          {/* For Lot 1 (main continuation), show circle at first event position */}
+          {/* For other lots, show circle at subdivision start position */}
+          {!property.isMainLotContinuation && (
+            <motion.circle
+              cx={`${dateToPosition(property.subdivisionDate, timelineStart, timelineEnd)}%`}
+              cy={branchY}
+              r="6"
+              fill={property.color}
+              stroke="#FFF"
+              strokeWidth="2"
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ duration: 0.3, delay: 0.2 }}
+              style={{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))' }}
+            />
+          )}
 
-          {/* Lot label above the timeline */}
-          <foreignObject
-            x={`${linePositions.start}%`}
-            y={branchY - 50}
-            width="140"
-            height="30"
-            style={{ overflow: 'visible', transform: 'translateX(-70px)' }}
-          >
-            <div
-              className="flex items-center justify-center px-2.5 py-1 rounded-md text-white text-xs font-semibold shadow-lg whitespace-nowrap"
-              style={{ backgroundColor: `${property.color}E6` }}
+          {/* Lot label - only show for non-main-continuation child lots (Lot 2, etc.) */}
+          {!property.isMainLotContinuation && (
+            <foreignObject
+              x={`${dateToPosition(property.subdivisionDate, timelineStart, timelineEnd)}%`}
+              y={branchY - 50}
+              width="140"
+              height="30"
+              style={{ overflow: 'visible', transform: 'translateX(-70px)' }}
             >
-              {property.lotNumber}
-              {property.lotSize && ` • ${property.lotSize.toFixed(0)} sqm`}
-            </div>
-          </foreignObject>
+              <div
+                className="flex items-center justify-center px-2.5 py-1 rounded-md text-white text-xs font-semibold shadow-lg whitespace-nowrap"
+                style={{ backgroundColor: `${property.color}E6` }}
+              >
+                {property.lotNumber}
+                {property.lotSize && ` • ${property.lotSize.toFixed(0)} sqm`}
+              </div>
+            </foreignObject>
+          )}
         </g>
       )}
 
-      {/* Branch Label - Hide for child lots */}
+      {/* Branch Label - Show for parent properties only (child lots show lot number labels) */}
       {!property.parentPropertyId && (
         <foreignObject x="10" y={branchY - 30} width="300" height="60" style={{ pointerEvents: 'none' }}>
           <div className="flex items-center gap-2 group select-none">

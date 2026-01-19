@@ -4,12 +4,14 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Home } from 'lucide-react';
 
-export default function LandingPageButton() {
+interface LandingPageButtonProps {
+  onOpenLanding: () => void;
+}
+
+export default function LandingPageButton({ onOpenLanding }: LandingPageButtonProps) {
   return (
-    <motion.a
-      href="/landing"
-      target="_blank"
-      rel="noopener noreferrer"
+    <motion.button
+      onClick={onOpenLanding}
       initial={{ scale: 0, opacity: 0 }}
       animate={{ scale: 1, opacity: 1 }}
       exit={{ scale: 0, opacity: 0 }}
@@ -19,6 +21,6 @@ export default function LandingPageButton() {
       title="Open Landing Page"
     >
       <Home className="w-5 h-5 text-white" />
-    </motion.a>
+    </motion.button>
   );
 }

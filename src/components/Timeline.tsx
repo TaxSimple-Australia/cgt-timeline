@@ -13,6 +13,7 @@ import EventDetailsModal from './EventDetailsModal';
 import TimelineSnapshot from './TimelineSnapshot';
 import TimelineVisualizationsModal from './TimelineVisualizationsModal';
 import LandingPageButton from './LandingPageButton';
+import LandingPageModal from './LandingPageModal';
 import { StickyNotesLayer, ShareLinkButton, AddStickyNoteButton } from './sticky-notes';
 import SubdivisionSplitVisual from './SubdivisionSplitVisual';
 import { calculateBranchPositions, calculateSubdivisionConnections } from '@/lib/subdivision-helpers';
@@ -47,6 +48,7 @@ export default function Timeline({ className, onAlertClick, onOpenAIBuilder }: T
   const [grabbedDateTimestamp, setGrabbedDateTimestamp] = useState<number>(0);
   const [grabbedViewDuration, setGrabbedViewDuration] = useState<number>(0);
   const [showVisualizationsModal, setShowVisualizationsModal] = useState(false);
+  const [showLandingModal, setShowLandingModal] = useState(false);
 
   const {
     properties,
@@ -510,7 +512,10 @@ export default function Timeline({ className, onAlertClick, onOpenAIBuilder }: T
       <TimelineSnapshot />
 
       {/* Landing Page Button */}
-      <LandingPageButton />
+      <LandingPageButton onOpenLanding={() => setShowLandingModal(true)} />
+
+      {/* Landing Page Modal */}
+      <LandingPageModal isOpen={showLandingModal} onClose={() => setShowLandingModal(false)} />
 
       {/* Timeline Visualizations Button */}
       <button

@@ -10,6 +10,7 @@ import EventCardView from './EventCardView';
 import PropertyStatusBands from './PropertyStatusBands';
 import TimelineGap from './TimelineGap';
 import VerificationAlertBar from './VerificationAlertBar';
+import MixedUseIndicator from './MixedUseIndicator';
 import { cn, dateToPosition } from '@/lib/utils';
 import { isSubdivided, getSubdivisionDate, getChildProperties } from '@/lib/subdivision-helpers';
 import type { PositionedGap } from '@/types/ai-feedback';
@@ -125,6 +126,37 @@ export default function PropertyBranch({
   const sortedEvents = [...eventsWithPositions].sort((a, b) =>
     a.date.getTime() - b.date.getTime()
   );
+
+  // Find purchase events with mixed use percentages
+  const purchaseEventsWithMixedUse = sortedEvents.filter(event =>
+    event.type === 'purchase' && (
+      (event.livingUsePercentage && event.livingUsePercentage > 0) ||
+      (event.rentalUsePercentage && event.rentalUsePercentage > 0) ||
+      (event.businessUsePercentage && event.businessUsePercentage > 0)
+    )
+  );
+
+  // Calculate mixed use indicator positions and durations
+  const mixedUseIndicators = purchaseEventsWithMixedUse.map(purchaseEvent => {
+    const startPos = purchaseEvent.calculatedPosition;
+
+    // Find the sale event to determine end position
+    const saleEvent = sortedEvents.find(e => e.type === 'sale');
+    const endPos = saleEvent
+      ? dateToPosition(saleEvent.date, timelineStart, timelineEnd)
+      : 100; // If no sale, extend to end of timeline
+
+    const width = endPos - startPos;
+
+    return {
+      x: startPos,
+      y: branchY - 60, // Position above the branch line
+      width: width,
+      livingPercentage: purchaseEvent.livingUsePercentage || 0,
+      rentalPercentage: purchaseEvent.rentalUsePercentage || 0,
+      businessPercentage: purchaseEvent.businessUsePercentage || 0,
+    };
+  });
 
   // Assign tiers to avoid label overlap
   const assignLabelTiers = () => {
@@ -374,6 +406,19 @@ export default function PropertyBranch({
           onHoverChange={onHoverChange}
           onBandClick={onBranchClick}
         />
+
+      {/* Mixed Use Indicators - Show split percentages for properties with mixed use */}
+      {mixedUseIndicators.map((indicator, index) => (
+        <MixedUseIndicator
+          key={`mixed-use-${index}`}
+          x={indicator.x}
+          y={indicator.y}
+          width={indicator.width}
+          livingPercentage={indicator.livingPercentage}
+          rentalPercentage={indicator.rentalPercentage}
+          businessPercentage={indicator.businessPercentage}
+        />
+      ))}
 
       {/* Timeline Gaps for this Property */}
       {propertyGaps.map((gap) => (

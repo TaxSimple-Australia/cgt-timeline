@@ -1001,7 +1001,7 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
   }, [isSaving, title, date, onClose]);
 
   return (
-    <AnimatePresence>
+    <>
       <div
         className="fixed inset-0 bg-black/50 flex items-center justify-center z-[9999]"
         onClick={(e) => {
@@ -1282,7 +1282,6 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
                           setMoveInOnSameDay(e.target.checked);
                           if (e.target.checked) {
                             setPurchaseAsVacant(false);
-                            setPurchaseAsRent(false);
                             setPurchaseAsMixedUse(false);
                           }
                         }}
@@ -1299,61 +1298,6 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
 
                   </div>
 
-                  {/* Business use section - separate indented box */}
-                  <AnimatePresence>
-                    {moveInOnSameDay && (
-                      <motion.div
-                        initial={{ opacity: 0, height: 0 }}
-                        animate={{ opacity: 1, height: "auto" }}
-                        exit={{ opacity: 0, height: 0 }}
-                        transition={{ duration: 0.2 }}
-                        className="overflow-hidden"
-                      >
-                        <div className="ml-8">
-                          <div className="space-y-3 p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200 dark:border-purple-800">
-                            <div className="flex items-center gap-3">
-                              <input
-                                type="checkbox"
-                                id="hasBusinessUse"
-                                checked={hasBusinessUse}
-                                onChange={(e) => setHasBusinessUse(e.target.checked)}
-                                className="w-4 h-4 text-blue-600 bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 rounded focus:ring-2 focus:ring-blue-500 cursor-pointer"
-                              />
-                              <label
-                                htmlFor="hasBusinessUse"
-                                className="text-sm font-medium text-slate-700 dark:text-slate-300 cursor-pointer"
-                              >
-                                Using part for business or rental?
-                              </label>
-                            </div>
-
-                            {hasBusinessUse && (
-                              <div>
-                                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                                  Business use percentage (0-100%)
-                                </label>
-                                <input
-                                  type="number"
-                                  min="0"
-                                  max="100"
-                                  step="0.1"
-                                  value={businessUsePercentage}
-                                  onChange={(e) => setBusinessUsePercentage(e.target.value)}
-                                  onWheel={(e) => e.currentTarget.blur()}
-                                  className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                  placeholder="e.g., 25"
-                                />
-                                <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-                                  Enter the percentage of the property used for business or rental purposes
-                                </p>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-
                   {/* Purchase as vacant checkbox */}
                   <div className="flex items-center gap-3 p-4 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800">
                     <input
@@ -1364,7 +1308,6 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
                         setPurchaseAsVacant(e.target.checked);
                         if (e.target.checked) {
                           setMoveInOnSameDay(false);
-                          setPurchaseAsRent(false);
                           setPurchaseAsMixedUse(false);
                         }
                       }}
@@ -1376,31 +1319,6 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
                     >
                       <Building2 className="w-4 h-4" />
                       Purchase as vacant
-                    </label>
-                  </div>
-
-                  {/* Purchase as rent checkbox */}
-                  <div className="flex items-center gap-3 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
-                    <input
-                      type="checkbox"
-                      id="purchaseAsRent"
-                      checked={purchaseAsRent}
-                      onChange={(e) => {
-                        setPurchaseAsRent(e.target.checked);
-                        if (e.target.checked) {
-                          setMoveInOnSameDay(false);
-                          setPurchaseAsVacant(false);
-                          setPurchaseAsMixedUse(false);
-                        }
-                      }}
-                      className="w-4 h-4 text-blue-600 bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 rounded focus:ring-2 focus:ring-blue-500 cursor-pointer"
-                    />
-                    <label
-                      htmlFor="purchaseAsRent"
-                      className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300 cursor-pointer"
-                    >
-                      <Key className="w-4 h-4" />
-                      Purchase as rental/investment
                     </label>
                   </div>
 
@@ -1416,7 +1334,6 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
                           if (e.target.checked) {
                             setMoveInOnSameDay(false);
                             setPurchaseAsVacant(false);
-                            setPurchaseAsRent(false);
                           }
                         }}
                         className="w-4 h-4 text-blue-600 bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 rounded focus:ring-2 focus:ring-blue-500 cursor-pointer"
@@ -2564,6 +2481,6 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
         isOpen={showSummary}
         onClose={() => setShowSummary(false)}
       />
-    </AnimatePresence>
+    </>
   );
 }

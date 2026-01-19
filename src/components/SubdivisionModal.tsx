@@ -6,6 +6,7 @@ import { X, Plus, Trash2, DollarSign, FileText, Split, AlertCircle } from 'lucid
 import { useTimelineStore } from '@/store/timeline';
 import { cn, formatCurrency } from '@/lib/utils';
 import { Property } from '@/store/timeline';
+import { showWarning } from '@/lib/toast-helpers';
 
 interface SubdivisionModalProps {
   property: Property;
@@ -67,12 +68,12 @@ export default function SubdivisionModal({ property, isOpen, onClose, clickedDat
   const handleSubmit = () => {
     // Validation
     if (totalLotSize === 0) {
-      alert('Please enter lot sizes for all lots.');
+      showWarning('Missing information', 'Please enter lot sizes for all lots.');
       return;
     }
 
     if (lots.some((lot) => !lot.name || lot.lotSize <= 0)) {
-      alert('Please provide a name and valid lot size for all lots.');
+      showWarning('Missing information', 'Please provide a name and valid lot size for all lots.');
       return;
     }
 

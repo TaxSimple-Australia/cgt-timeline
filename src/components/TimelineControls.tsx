@@ -26,6 +26,7 @@ import {
   Share2,
   Plus
 } from 'lucide-react';
+import { showSuccess, showError } from '@/lib/toast-helpers';
 
 interface TimelineControlsProps {
   /** Reference to the timeline container for sticky note positioning */
@@ -252,10 +253,13 @@ export default function TimelineControls({ timelineContainerRef }: TimelineContr
         console.log('📥 Importing timeline data:', data);
         importTimelineData(data);
         console.log('✅ Timeline data imported successfully!');
-        alert(`Successfully imported ${data.properties?.length || 0} properties and ${data.events?.length || 0} events!`);
+        showSuccess(
+          'Import successful',
+          `Successfully imported ${data.properties?.length || 0} properties and ${data.events?.length || 0} events!`
+        );
       } catch (error) {
         console.error('❌ Failed to import data:', error);
-        alert('Failed to import timeline data. Please check the file format.');
+        showError('Import failed', 'Failed to import timeline data. Please check the file format.');
       }
     };
     reader.readAsText(file);

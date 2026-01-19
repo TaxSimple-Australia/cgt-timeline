@@ -11,6 +11,7 @@ import type {
   ShareableTimelineData,
 } from '../types/sticky-note';
 import { generateStickyNoteId, DEFAULT_STICKY_NOTE_COLOR } from '../types/sticky-note';
+import { showValidationError, showError } from '../lib/toast-helpers';
 
 export type EventType =
   | 'purchase'
@@ -33,7 +34,9 @@ export type PropertyStatus =
   | 'rental'           // Rented to tenants
   | 'vacant'           // Empty/not used
   | 'construction'     // Being built/renovated
-  | 'sold';            // Sold
+  | 'sold'             // Sold
+  | 'subdivided'       // Subdivided into child lots (property no longer exists as originally held)
+  | 'living_in_rental'; // Owner is living in a rental property (renting from someone else)
 
 export type OwnershipChangeReason =
   | 'divorce'          // Divorce settlement
@@ -79,6 +82,23 @@ export interface TimelineEvent {
 
   // Custom event fields
   affectsStatus?: boolean;  // For custom events: does this event change property status?
+
+  // Persistent checkbox states from EventDetailsModal
+  checkboxState?: {
+    moveInOnSameDay?: boolean;        // Purchase: Move in on same day
+    purchaseAsVacant?: boolean;       // Purchase: Purchase as vacant
+    purchaseAsRent?: boolean;         // Purchase: Purchase as rental/investment
+    purchaseAsMixedUse?: boolean;     // Purchase: Mixed-use property
+    moveOutAsVacant?: boolean;        // Move Out: Move out as vacant
+    moveOutAsRent?: boolean;          // Move Out: Move out as rent start
+    rentEndAsVacant?: boolean;        // Rent End: Rent end as vacant
+    rentEndAsMoveIn?: boolean;        // Rent End: Rent end as move in
+    vacantEndAsMoveIn?: boolean;      // Vacant End: Owner move back in
+    vacantEndAsRent?: boolean;        // Vacant End: Vacant end as rental
+    hasBusinessUse?: boolean;         // Purchase: Has business use percentage
+    hasPartialRental?: boolean;       // Purchase: Has partial rental percentage
+    isNonResident?: boolean;          // Sale: Non-resident status
+  };
 
   // NEW: Dynamic Cost Base Items
   costBases?: CostBaseItem[];  // Array of cost base items for this event
@@ -250,6 +270,9 @@ interface TimelineState {
   timelineNotes: string; // User notes/feedback for the timeline
   isNotesModalOpen: boolean; // Whether the notes modal is open
 
+  // Marginal Tax Rate State (Global for all properties)
+  marginalTaxRate: number; // User's marginal tax rate (default: 37%)
+
   // Actions
   addProperty: (property: Omit<Property, 'id' | 'branch'>) => void;
   updateProperty: (id: string, property: Partial<Property>) => void;
@@ -326,6 +349,10 @@ interface TimelineState {
   openNotesModal: () => void;
   closeNotesModal: () => void;
 
+  // Marginal Tax Rate Actions
+  setMarginalTaxRate: (rate: number) => void;
+  initializeMarginalTaxRate: () => void; // Extract rate from existing sale events
+
   // Sticky Notes State
   timelineStickyNotes: StickyNote[];
   analysisStickyNotes: StickyNote[];
@@ -391,6 +418,8 @@ export const statusColors: Record<PropertyStatus, string> = {
   vacant: '#9CA3AF',      // Gray - Vacant/Unoccupied
   construction: '#F59E0B', // Orange - Under construction
   sold: '#8B5CF6',        // Purple - Sold
+  subdivided: '#6B7280',  // Dark Gray - Subdivided (property retired/no longer exists)
+  living_in_rental: '#F472B6', // Pink - Living in rental property (renting from someone else)
 };
 
 // Zoom level definitions with their time spans in days
@@ -473,29 +502,50 @@ export const calculateStatusPeriods = (events: TimelineEvent[]): StatusPeriod[] 
   const periods: StatusPeriod[] = [];
 
   // Event priority for same-date events (higher number = processed later = takes precedence)
+  // Restructured into logical hierarchy to prevent status conflicts
   const eventPriority: Record<string, number> = {
-    'purchase': 1,              // Establishes baseline (vacant)
-    'move_in': 2,               // Status-changing events
-    'move_out': 2,
-    'rent_start': 2,
-    'rent_end': 2,
-    'vacant_start': 2,
-    'vacant_end': 2,
-    'status_change': 2,
-    'living_in_rental_start': 2,
-    'living_in_rental_end': 2,
-    'sale': 3,                  // Final status (highest priority)
-    'improvement': 0,           // Non-status events (lowest)
+    // Priority 0 - Non-status events (lowest)
+    'improvement': 0,
     'refinance': 0,
     'custom': 0,
+
+    // Priority 1 - Initial acquisition
+    'purchase': 1,
+
+    // Priority 2 - Ending events (remove/end a status)
+    'move_out': 2,
+    'rent_end': 2,
+    'vacant_start': 2,
+    'living_in_rental_end': 2,
+
+    // Priority 3 - Transitional events
+    'vacant_end': 3,
+
+    // Priority 4 - Active use events (establish new status)
+    'move_in': 4,
+    'rent_start': 4,
+    'living_in_rental_start': 4,
+
+    // Priority 5 - Explicit user overrides
+    'status_change': 5,
+    'ownership_change': 5,
+
+    // Priority 6 - Terminal states (highest priority)
+    'sale': 6,
+    'subdivision': 6,
   };
 
   // Sort events by date, then by priority for same-date events
   const sortedEvents = [...events].sort((a, b) => {
     const timeDiff = a.date.getTime() - b.date.getTime();
     if (timeDiff !== 0) return timeDiff;
+
     // Same date - sort by priority (lower priority processed first)
-    return (eventPriority[a.type] || 0) - (eventPriority[b.type] || 0);
+    const priorityDiff = (eventPriority[a.type] || 0) - (eventPriority[b.type] || 0);
+    if (priorityDiff !== 0) return priorityDiff;
+
+    // Same date and priority - sort by ID for deterministic ordering
+    return a.id.localeCompare(b.id);
   });
 
   let currentStatus: PropertyStatus | null = null;
@@ -532,8 +582,20 @@ export const calculateStatusPeriods = (events: TimelineEvent[]): StatusPeriod[] 
         // Property is no longer vacant - default to ppr, subsequent events will override
         newStatus = 'ppr';
         break;
+      case 'living_in_rental_start':
+        // Living in a rental property (renting from someone else while owning this property)
+        newStatus = 'living_in_rental';
+        break;
+      case 'living_in_rental_end':
+        // No longer living in rental - property becomes vacant
+        newStatus = 'vacant';
+        break;
       case 'sale':
         newStatus = 'sold';
+        break;
+      case 'subdivision':
+        // Subdivision means property no longer exists as originally held
+        newStatus = 'subdivided';
         break;
       case 'status_change':
         newStatus = event.newStatus || null;
@@ -622,6 +684,9 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
     // Timeline Notes initial state
     timelineNotes: '',
     isNotesModalOpen: false,
+
+    // Marginal Tax Rate initial state
+    marginalTaxRate: 37,
 
     // Sticky Notes initial state
     timelineStickyNotes: [],
@@ -782,8 +847,16 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
     };
 
     // Update state - child lots start with clean timeline from subdivision date
+    // Also update parent property with subdivisionDate for proper timeline rendering
     set({
-      properties: [...state.properties, ...childProperties],
+      properties: [
+        ...state.properties.map(p =>
+          p.id === parentPropertyId
+            ? { ...p, subdivisionDate }
+            : p
+        ),
+        ...childProperties
+      ],
       events: [...state.events, subdivisionEvent],
     });
 
@@ -791,6 +864,64 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
   },
 
   addEvent: (event) => {
+    const state = get();
+
+    // Validate: Prevent adding events to subdivided parent properties
+    if (event.propertyId) {
+      const property = state.properties.find(p => p.id === event.propertyId);
+      if (property) {
+        // Check if property has been subdivided
+        const subdivisionEvent = state.events.find(e =>
+          e.propertyId === property.id && e.type === 'subdivision'
+        );
+
+        if (subdivisionEvent && event.date >= subdivisionEvent.date) {
+          console.warn('❌ Cannot add events to parent property after subdivision date');
+          showError(
+            'Cannot add events after subdivision',
+            'This property was subdivided. Please add events to the individual subdivided lots instead.'
+          );
+          return; // Block the event from being added
+        }
+      }
+
+      // NEW: Validate event against business logic (purchase prerequisites, etc.)
+      const { validateEvent } = require('@/lib/event-validation');
+      const propertyEvents = state.events.filter(e => e.propertyId === event.propertyId);
+      const validation = validateEvent(event, propertyEvents);
+
+      if (!validation.valid) {
+        console.warn('❌ Event validation failed:', validation.error);
+
+        // Show error with optional guidance
+        if (validation.suggestion) {
+          showValidationError(validation.error, {
+            suggestion: {
+              label: validation.suggestion.message.includes('Would you like')
+                ? 'Yes, create it'
+                : 'Create prerequisite',
+              action: () => {
+                // User wants to create prerequisite event - dispatch custom event
+                window.dispatchEvent(new CustomEvent('create-prerequisite-event', {
+                  detail: {
+                    type: validation.suggestion.type,
+                    propertyId: event.propertyId,
+                    suggestedDate: validation.suggestion.suggestedDate,
+                    followUpEvent: event, // Save the original event to create after prerequisite
+                  }
+                }));
+              }
+            },
+            description: validation.suggestion.message,
+          });
+        } else {
+          showError('Validation Error', validation.error);
+        }
+
+        return; // Block the event from being added
+      }
+    }
+
     const newEvent: TimelineEvent = {
       ...event,
       id: `event-${Date.now()}`,
@@ -804,6 +935,42 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
   },
   
   updateEvent: (id, updates) => {
+    const state = get();
+    const event = state.events.find(e => e.id === id);
+
+    if (!event) return;
+
+    // Validate: Prevent updating event date past subdivision date
+    if (updates.date && event.propertyId) {
+      const property = state.properties.find(p => p.id === event.propertyId);
+      if (property) {
+        const subdivisionEvent = state.events.find(e =>
+          e.propertyId === property.id && e.type === 'subdivision'
+        );
+
+        if (subdivisionEvent && updates.date >= subdivisionEvent.date) {
+          console.warn('❌ Cannot update event date past subdivision date');
+          showError(
+            'Cannot set event date past subdivision',
+            'This property was subdivided and no longer exists after that date.'
+          );
+          return; // Block the update
+        }
+      }
+
+      // NEW: Validate event updates against business logic
+      const { validateEvent } = require('@/lib/event-validation');
+      const propertyEvents = state.events.filter(e => e.propertyId === event.propertyId && e.id !== id);
+      const updatedEvent = { ...event, ...updates };
+      const validation = validateEvent(updatedEvent, propertyEvents);
+
+      if (!validation.valid) {
+        console.warn('❌ Event update validation failed:', validation.error);
+        showError('Validation Error', validation.error);
+        return; // Block the update
+      }
+    }
+
     set((state) => {
       const updatedEvents = state.events.map((e) => {
         if (e.id !== id) return e;
@@ -869,6 +1036,37 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
     const timelineRange = state.timelineEnd.getTime() - state.timelineStart.getTime();
     const newTime = state.timelineStart.getTime() + (newPosition / 100) * timelineRange;
     const newDate = new Date(newTime);
+
+    // Validate: Prevent moving events on subdivided parent properties past subdivision date
+    if (event.propertyId) {
+      const property = state.properties.find(p => p.id === event.propertyId);
+      if (property) {
+        const subdivisionEvent = state.events.find(e =>
+          e.propertyId === property.id && e.type === 'subdivision'
+        );
+
+        if (subdivisionEvent && newDate >= subdivisionEvent.date) {
+          console.warn('❌ Cannot move event past subdivision date');
+          showError(
+            'Cannot move event past subdivision',
+            'This property was subdivided and no longer exists after that date.'
+          );
+          return; // Block the move
+        }
+      }
+
+      // NEW: Validate dragged event position against business logic
+      const { validateEvent } = require('@/lib/event-validation');
+      const propertyEvents = state.events.filter(e => e.propertyId === event.propertyId && e.id !== id);
+      const movedEvent = { ...event, date: newDate };
+      const validation = validateEvent(movedEvent, propertyEvents);
+
+      if (!validation.valid) {
+        console.warn('❌ Event drag validation failed:', validation.error);
+        showError('Validation Error', validation.error);
+        return; // Block the move
+      }
+    }
 
     // Debug logging
     console.log('🔄 moveEvent called:', {
@@ -1659,6 +1857,9 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
         selectedEvent: null,
         lastInteractedEventId: null,
       });
+
+      // Initialize marginal tax rate from imported events
+      get().initializeMarginalTaxRate();
     } catch (error) {
       console.error('Error importing timeline data:', error);
       throw error;
@@ -2163,6 +2364,60 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
     set({ isNotesModalOpen: false });
   },
 
+  // Marginal Tax Rate Actions
+  setMarginalTaxRate: (rate: number) => {
+    set({ marginalTaxRate: rate });
+
+    // Update all sale events to reflect the new global tax rate
+    const state = get();
+    const updatedEvents = state.events.map(event => {
+      if (event.type === 'sale') {
+        let updatedDescription = event.description || '';
+        const taxRateNote = `\n\nMarginal tax rate: ${rate}%`;
+
+        // Update or add tax rate to description
+        if (updatedDescription.includes('Marginal tax rate:')) {
+          updatedDescription = updatedDescription.replace(
+            /Marginal tax rate: [\d.]+%/g,
+            `Marginal tax rate: ${rate}%`
+          );
+        } else {
+          updatedDescription += taxRateNote;
+        }
+
+        return { ...event, description: updatedDescription };
+      }
+      return event;
+    });
+
+    set({ events: updatedEvents });
+  },
+
+  initializeMarginalTaxRate: () => {
+    const state = get();
+
+    // Scan all sale events for existing marginal tax rates
+    const saleEvents = state.events.filter(e => e.type === 'sale');
+
+    for (const event of saleEvents) {
+      if (event.description) {
+        const match = event.description.match(/Marginal tax rate: ([\d.]+)%/);
+        if (match && match[1]) {
+          const extractedRate = parseFloat(match[1]);
+          // If any non-37% rate is found, use it as the global rate
+          if (!isNaN(extractedRate) && extractedRate !== 37) {
+            set({ marginalTaxRate: extractedRate });
+            console.log(`📊 Initialized marginal tax rate from sale event: ${extractedRate}%`);
+            return;
+          }
+        }
+      }
+    }
+
+    // If no non-37% rate found, keep the default of 37%
+    console.log('📊 Using default marginal tax rate: 37%');
+  },
+
   // ========================================================================
   // STICKY NOTES - Timeline
   // ========================================================================
@@ -2408,6 +2663,9 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
         selectedEvent: null,
         lastInteractedEventId: null,
       });
+
+      // Initialize marginal tax rate from imported events
+      get().initializeMarginalTaxRate();
 
       console.log('✅ Successfully imported shareable data');
     } catch (error) {

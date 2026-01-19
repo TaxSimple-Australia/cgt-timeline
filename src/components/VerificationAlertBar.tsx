@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { VerificationAlert } from '@/types/verification-alert';
+import type { Property } from '@/store/timeline';
 import { dateToPosition } from '@/lib/utils';
 
 interface VerificationAlertBarProps {
@@ -10,6 +11,7 @@ interface VerificationAlertBarProps {
   branchY: number;
   timelineStart: Date;
   timelineEnd: Date;
+  property?: Property; // For subdivision date awareness
   onResolveAlert: (alertId: string, userResponse: string) => void;
   onAlertClick?: (alertId: string) => void;
 }
@@ -19,6 +21,7 @@ export default function VerificationAlertBar({
   branchY,
   timelineStart,
   timelineEnd,
+  property,
   onResolveAlert,
   onAlertClick,
 }: VerificationAlertBarProps) {
@@ -45,8 +48,26 @@ export default function VerificationAlertBar({
   }
 
   // Calculate positions
-  const startPos = dateToPosition(startDate, timelineStart, timelineEnd);
+  let startPos = dateToPosition(startDate, timelineStart, timelineEnd);
   const endPos = dateToPosition(endDate, timelineStart, timelineEnd);
+
+  // For subdivided child properties, handle alerts that occur before subdivision
+  const isChildLot = Boolean(property?.parentPropertyId);
+  const subdivisionStartPos = isChildLot && property?.subdivisionDate
+    ? dateToPosition(property.subdivisionDate, timelineStart, timelineEnd)
+    : null;
+
+  // If alert ends before subdivision, don't render it at all
+  if (subdivisionStartPos !== null && endPos < subdivisionStartPos) {
+    console.log('⏭️ AlertBar skipped (before subdivision):', alert.id);
+    return null;
+  }
+
+  // If alert starts before subdivision but extends past it, clamp start position
+  if (subdivisionStartPos !== null && startPos < subdivisionStartPos) {
+    startPos = subdivisionStartPos;
+  }
+
   const width = endPos - startPos;
 
   console.log('📍 AlertBar position:', {

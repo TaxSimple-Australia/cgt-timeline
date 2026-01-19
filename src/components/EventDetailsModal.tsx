@@ -10,6 +10,8 @@ import { getCostBaseDefinition } from '@/lib/cost-base-definitions';
 import CostBaseSummaryModal from './CostBaseSummaryModal';
 import { parseDateFlexible, formatDateDisplay, isValidDateRange, DATE_FORMAT_PLACEHOLDER } from '@/lib/date-utils';
 import { cn } from '@/lib/utils';
+import { showWarning, showError } from '@/lib/toast-helpers';
+import ConfirmDialog from './ConfirmDialog';
 
 // Color palette for custom events
 const customEventColors = [
@@ -50,7 +52,7 @@ interface EventDetailsModalProps {
 }
 
 export default function EventDetailsModal({ event, onClose, propertyName }: EventDetailsModalProps) {
-  const { updateEvent, deleteEvent, addEvent, events, properties, updateProperty } = useTimelineStore();
+  const { updateEvent, deleteEvent, addEvent, events, properties, updateProperty, marginalTaxRate, setMarginalTaxRate } = useTimelineStore();
 
   // Check if this is a synthetic "Not Sold" status marker
   const isSyntheticNotSold = (event as any).isSyntheticStatusMarker === true;
@@ -70,6 +72,10 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
   });
   const [newStatus, setNewStatus] = useState<PropertyStatus | ''>(event.newStatus || '');
   const [eventType, setEventType] = useState(event.type);
+
+  // Refs for date pickers
+  const dateInputRef = React.useRef<HTMLInputElement>(null);
+  const appreciationDateInputRef = React.useRef<HTMLInputElement>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [showSummary, setShowSummary] = useState(false);
   const [showDateTooltip, setShowDateTooltip] = useState(false);
@@ -81,7 +87,11 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
 
   // Move in on same day checkbox (for purchase events)
   const [moveInOnSameDay, setMoveInOnSameDay] = useState(() => {
-    // Check if a move_in event already exists on the same date as this purchase
+    // First check if checkbox state is persisted
+    if (event.checkboxState?.moveInOnSameDay !== undefined) {
+      return event.checkboxState.moveInOnSameDay;
+    }
+    // Fallback: Check if a move_in event already exists on the same date as this purchase
     if (event.type === 'purchase') {
       const purchaseDate = event.date.getTime();
       const existingMoveIn = events.find(
@@ -95,7 +105,11 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
     return false;
   });
   const [purchaseAsVacant, setPurchaseAsVacant] = useState(() => {
-    // Check if a vacant_start event exists on the same date as this purchase
+    // First check if checkbox state is persisted
+    if (event.checkboxState?.purchaseAsVacant !== undefined) {
+      return event.checkboxState.purchaseAsVacant;
+    }
+    // Fallback: Check if a vacant_start event exists on the same date as this purchase
     if (event.type === 'purchase') {
       const purchaseDate = event.date.getTime();
       const existingVacant = events.find(
@@ -109,7 +123,11 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
     return false;
   });
   const [purchaseAsRent, setPurchaseAsRent] = useState(() => {
-    // Check if a rent_start event exists on the same date as this purchase
+    // First check if checkbox state is persisted
+    if (event.checkboxState?.purchaseAsRent !== undefined) {
+      return event.checkboxState.purchaseAsRent;
+    }
+    // Fallback: Check if a rent_start event exists on the same date as this purchase
     if (event.type === 'purchase') {
       const purchaseDate = event.date.getTime();
       const existingRent = events.find(
@@ -130,9 +148,16 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
     event.isLandOnly || event.overTwoHectares || false
   );
 
+  // Delete confirmation dialog
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
   // Move out status checkboxes (for move_out events)
   const [moveOutAsVacant, setMoveOutAsVacant] = useState(() => {
-    // Check if a vacant_start event exists on the same date as this move_out
+    // First check if checkbox state is persisted
+    if (event.checkboxState?.moveOutAsVacant !== undefined) {
+      return event.checkboxState.moveOutAsVacant;
+    }
+    // Fallback: Check if a vacant_start event exists on the same date as this move_out
     if (event.type === 'move_out') {
       const moveOutDate = event.date.getTime();
       const existingVacant = events.find(
@@ -146,7 +171,11 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
     return false;
   });
   const [moveOutAsRent, setMoveOutAsRent] = useState(() => {
-    // Check if a rent_start event exists on the same date as this move_out
+    // First check if checkbox state is persisted
+    if (event.checkboxState?.moveOutAsRent !== undefined) {
+      return event.checkboxState.moveOutAsRent;
+    }
+    // Fallback: Check if a rent_start event exists on the same date as this move_out
     if (event.type === 'move_out') {
       const moveOutDate = event.date.getTime();
       const existingRent = events.find(
@@ -162,7 +191,11 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
 
   // Rent end status checkboxes (for rent_end events)
   const [rentEndAsVacant, setRentEndAsVacant] = useState(() => {
-    // Check if a vacant_start event exists on the same date as this rent_end
+    // First check if checkbox state is persisted
+    if (event.checkboxState?.rentEndAsVacant !== undefined) {
+      return event.checkboxState.rentEndAsVacant;
+    }
+    // Fallback: Check if a vacant_start event exists on the same date as this rent_end
     if (event.type === 'rent_end') {
       const rentEndDate = event.date.getTime();
       const existingVacant = events.find(
@@ -176,7 +209,11 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
     return false;
   });
   const [rentEndAsMoveIn, setRentEndAsMoveIn] = useState(() => {
-    // Check if a move_in event exists on the same date as this rent_end
+    // First check if checkbox state is persisted
+    if (event.checkboxState?.rentEndAsMoveIn !== undefined) {
+      return event.checkboxState.rentEndAsMoveIn;
+    }
+    // Fallback: Check if a move_in event exists on the same date as this rent_end
     if (event.type === 'rent_end') {
       const rentEndDate = event.date.getTime();
       const existingMoveIn = events.find(
@@ -192,12 +229,22 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
 
   // Vacant end status checkboxes (for vacant_end events - extract from notes if present)
   const [vacantEndAsMoveIn, setVacantEndAsMoveIn] = useState(() => {
+    // First check if checkbox state is persisted
+    if (event.checkboxState?.vacantEndAsMoveIn !== undefined) {
+      return event.checkboxState.vacantEndAsMoveIn;
+    }
+    // Fallback: extract from description
     if (event.type === 'vacant_end' && event.description) {
       return event.description.includes('Next status: Owner Move back in');
     }
     return false;
   });
   const [vacantEndAsRent, setVacantEndAsRent] = useState(() => {
+    // First check if checkbox state is persisted
+    if (event.checkboxState?.vacantEndAsRent !== undefined) {
+      return event.checkboxState.vacantEndAsRent;
+    }
+    // Fallback: extract from description
     if (event.type === 'vacant_end' && event.description) {
       return event.description.includes('Next status: Rental');
     }
@@ -205,34 +252,56 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
   });
 
   // Sale event - Non-resident status (unchecked = resident by default)
-  const [isNonResident, setIsNonResident] = useState(event.isResident === false);
+  const [isNonResident, setIsNonResident] = useState(() => {
+    // First check if checkbox state is persisted
+    if (event.checkboxState?.isNonResident !== undefined) {
+      return event.checkboxState.isNonResident;
+    }
+    // Fallback: check isResident field
+    return event.isResident === false;
+  });
 
   // Sale event - Previous year capital losses
   const [previousYearLosses, setPreviousYearLosses] = useState(event.previousYearLosses?.toString() || '');
 
-  // Sale event - Marginal tax rate (extract from notes if present)
-  const [marginalTaxRate, setMarginalTaxRate] = useState(() => {
-    if (event.type === 'sale' && event.description) {
-      const match = event.description.match(/Marginal tax rate: ([\d.]+)%/);
-      if (match && match[1]) {
-        return match[1];
-      }
-    }
-    return '37'; // Default to 37%
-  });
+  // Sale event - Marginal tax rate (local string state for input, synced with global state)
+  const [marginalTaxRateInput, setMarginalTaxRateInput] = useState(marginalTaxRate.toString());
+
+  // Sync local input with global marginal tax rate when it changes
+  useEffect(() => {
+    setMarginalTaxRateInput(marginalTaxRate.toString());
+  }, [marginalTaxRate]);
 
   // NEW: Business use / usage splits (Gilbert's contextual approach)
-  const [hasBusinessUse, setHasBusinessUse] = useState(!!event.businessUsePercentage);
+  const [hasBusinessUse, setHasBusinessUse] = useState(() => {
+    // First check if checkbox state is persisted
+    if (event.checkboxState?.hasBusinessUse !== undefined) {
+      return event.checkboxState.hasBusinessUse;
+    }
+    // Fallback: check if businessUsePercentage exists
+    return !!event.businessUsePercentage;
+  });
   const [businessUsePercentage, setBusinessUsePercentage] = useState(event.businessUsePercentage?.toString() || '');
 
-  const [hasPartialRental, setHasPartialRental] = useState(!!event.floorAreaData);
+  const [hasPartialRental, setHasPartialRental] = useState(() => {
+    // First check if checkbox state is persisted
+    if (event.checkboxState?.hasPartialRental !== undefined) {
+      return event.checkboxState.hasPartialRental;
+    }
+    // Fallback: check if floorAreaData exists
+    return !!event.floorAreaData;
+  });
   const [totalFloorArea, setTotalFloorArea] = useState(event.floorAreaData?.total?.toString() || '');
   const [exclusiveRentalArea, setExclusiveRentalArea] = useState(event.floorAreaData?.exclusive?.toString() || '');
   const [sharedArea, setSharedArea] = useState(event.floorAreaData?.shared?.toString() || '');
 
   // NEW: Mixed-Use checkbox and percentages
   const [purchaseAsMixedUse, setPurchaseAsMixedUse] = useState(() => {
-    // Initialize as true if any split-use percentages exist
+    // First check if checkbox state is persisted
+    if (event.checkboxState?.purchaseAsMixedUse !== undefined) {
+      return event.checkboxState.purchaseAsMixedUse;
+    }
+    // Fallback: Initialize as true if any split-use percentages exist
     return !!(event.rentalUsePercentage || event.livingUsePercentage || (event.businessUsePercentage && event.type === 'purchase'));
   });
   const [livingUsePercentage, setLivingUsePercentage] = useState(event.livingUsePercentage?.toString() || '');
@@ -383,7 +452,16 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
     try {
       // Validate date before saving
       if (dateError || !parsedDate) {
-        alert('Please fix the date error before saving');
+        showWarning('Invalid Date', 'Please fix the date error before saving');
+        return;
+      }
+
+      // Validate improvement events require at least one cost base
+      if (eventType === 'improvement' && costBases.length === 0) {
+        showWarning(
+          'Cost base required',
+          'Please add at least one cost base item for this improvement. Click "+ Add Cost Base" below to specify the improvement costs.'
+        );
         return;
       }
 
@@ -416,9 +494,10 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
 
       // Handle price/amount calculation
       if (event.type === 'purchase') {
-        // For purchase events, calculate amount from cost bases
-        const totalCostBases = costBases.reduce((sum, cb) => sum + cb.amount, 0);
-        updates.amount = totalCostBases > 0 ? totalCostBases : undefined;
+        // For purchase events, extract purchase price from costBases (not sum of all cost bases)
+        // This prevents double-counting of stamp duty, legal fees, etc. which are sent separately
+        const purchasePriceItem = costBases.find(cb => cb.definitionId === 'purchase_price');
+        updates.amount = purchasePriceItem?.amount || undefined;
 
         // Clear legacy land/building prices
         updates.landPrice = undefined;
@@ -455,15 +534,9 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
           updates.previousYearLosses = undefined;
         }
       } else if (event.type === 'improvement') {
-        // For improvement events, use cost bases if available, otherwise fall back to amount field
+        // For improvement events, always calculate from cost bases (validation ensures at least one exists)
         const totalCostBases = costBases.reduce((sum, cb) => sum + cb.amount, 0);
-        if (totalCostBases > 0) {
-          updates.amount = totalCostBases;
-        } else if (amount && !isNaN(parseFloat(amount))) {
-          updates.amount = parseFloat(amount);
-        } else {
-          updates.amount = undefined;
-        }
+        updates.amount = totalCostBases;
       } else {
         // For other events, use the single amount field
         if (amount && !isNaN(parseFloat(amount))) {
@@ -479,9 +552,9 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
       // Handle description with marginal tax rate for sale events
       let finalDescription = description.trim();
 
-      // For sale events, append marginal tax rate to notes
-      if (event.type === 'sale' && marginalTaxRate && !isNaN(parseFloat(marginalTaxRate))) {
-        const taxRateNote = `\n\nMarginal tax rate: ${parseFloat(marginalTaxRate)}%`;
+      // For sale events, append marginal tax rate to notes (global rate from store)
+      if (event.type === 'sale' && marginalTaxRate) {
+        const taxRateNote = `\n\nMarginal tax rate: ${marginalTaxRate}%`;
 
         // Check if tax rate already in description to avoid duplicates
         if (!finalDescription.includes('Marginal tax rate:')) {
@@ -490,7 +563,7 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
           // Update existing tax rate in notes
           finalDescription = finalDescription.replace(
             /Marginal tax rate: [\d.]+%/g,
-            `Marginal tax rate: ${parseFloat(marginalTaxRate)}%`
+            `Marginal tax rate: ${marginalTaxRate}%`
           );
         }
       }
@@ -562,7 +635,10 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
 
         // Validate that total equals 100% before saving
         if (total !== 100) {
-          alert(`Mixed-Use percentages must total 100%. Current total: ${total.toFixed(1)}%`);
+          showWarning(
+            'Invalid percentages',
+            `Mixed-Use percentages must total 100%. Current total: ${total.toFixed(1)}%`
+          );
           setIsSaving(false);
           return;
         }
@@ -585,14 +661,14 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
       if (eventType === 'ownership_change') {
         // Validate that at least one leaving owner is selected
         if (!leavingOwners || leavingOwners.length === 0) {
-          alert('Please select at least one leaving owner.');
+          showWarning('Missing information', 'Please select at least one leaving owner.');
           setIsSaving(false);
           return;
         }
 
         // Validate that at least one new owner is added
         if (!newOwners || newOwners.length === 0) {
-          alert('Please add at least one new owner.');
+          showWarning('Missing information', 'Please add at least one new owner.');
           setIsSaving(false);
           return;
         }
@@ -600,7 +676,7 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
         // Validate that all new owners have names
         const hasEmptyNames = newOwners.some(owner => !owner.name.trim());
         if (hasEmptyNames) {
-          alert('Please enter names for all new owners.');
+          showWarning('Missing information', 'Please enter names for all new owners.');
           setIsSaving(false);
           return;
         }
@@ -608,14 +684,17 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
         // Validate that new owners' percentages total 100%
         const totalPercentage = newOwners.reduce((sum, owner) => sum + (owner.percentage || 0), 0);
         if (totalPercentage !== 100) {
-          alert(`New owners' percentages must total 100%. Current total: ${totalPercentage.toFixed(1)}%`);
+          showWarning(
+            'Invalid percentages',
+            `New owners' percentages must total 100%. Current total: ${totalPercentage.toFixed(1)}%`
+          );
           setIsSaving(false);
           return;
         }
 
         // Validate that if reason is "other", reasonOther is provided
         if (ownershipChangeReason === 'other' && !ownershipChangeReasonOther.trim()) {
-          alert('Please specify the reason for ownership change.');
+          showWarning('Missing information', 'Please specify the reason for ownership change.');
           setIsSaving(false);
           return;
         }
@@ -655,6 +734,23 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
           updates.appreciationDate = undefined;
         }
       }
+
+      // NEW: Persist checkbox states
+      updates.checkboxState = {
+        moveInOnSameDay,
+        purchaseAsVacant,
+        purchaseAsRent,
+        purchaseAsMixedUse,
+        moveOutAsVacant,
+        moveOutAsRent,
+        rentEndAsVacant,
+        rentEndAsMoveIn,
+        vacantEndAsMoveIn,
+        vacantEndAsRent,
+        hasBusinessUse,
+        hasPartialRental,
+        isNonResident,
+      };
 
       updateEvent(event.id, updates);
 
@@ -866,16 +962,8 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
         }
       }
 
-      // Reset checkbox states to prevent duplicate creation on next save
-      setMoveInOnSameDay(false);
-      setPurchaseAsVacant(false);
-      setPurchaseAsRent(false);
-      setMoveOutAsVacant(false);
-      setMoveOutAsRent(false);
-      setRentEndAsVacant(false);
-      setRentEndAsMoveIn(false);
-      setVacantEndAsMoveIn(false);
-      setVacantEndAsRent(false);
+      // NOTE: Checkbox states are now persisted in checkboxState field
+      // No need to reset them after save
 
       // Small delay for visual feedback
       setTimeout(() => {
@@ -885,15 +973,14 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
     } catch (error) {
       console.error('Error saving event:', error);
       setIsSaving(false);
-      alert('Failed to save changes. Please try again.');
+      showError('Save Failed', 'Failed to save changes. Please try again.');
     }
   };
 
   const handleDelete = () => {
-    if (confirm('Are you sure you want to delete this event?')) {
-      deleteEvent(event.id);
-      onClose();
-    }
+    deleteEvent(event.id);
+    setShowDeleteConfirm(false);
+    onClose();
   };
 
   // Keyboard shortcuts
@@ -917,7 +1004,12 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
     <AnimatePresence>
       <div
         className="fixed inset-0 bg-black/50 flex items-center justify-center z-[9999]"
-        onClick={onClose}
+        onClick={(e) => {
+          // Only close if clicking directly on backdrop, not on children
+          if (e.target === e.currentTarget) {
+            onClose();
+          }
+        }}
       >
         <motion.div
           initial={{ scale: 0.9, opacity: 0 }}
@@ -1133,8 +1225,12 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
                     } bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100`}
                     required
                   />
-                  <div className="relative">
+                  <div
+                    className="inline-block cursor-pointer"
+                    onClick={() => dateInputRef.current?.showPicker?.()}
+                  >
                     <input
+                      ref={dateInputRef}
                       type="date"
                       value={date}
                       onChange={(e) => {
@@ -1147,18 +1243,11 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
                           setDateError('');
                         }
                       }}
-                      className="absolute inset-0 opacity-0 cursor-pointer"
+                      className="sr-only"
                     />
-                    <button
-                      type="button"
-                      className="px-3 py-2.5 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 hover:bg-slate-50 dark:hover:bg-slate-600 rounded-lg transition-colors"
-                      onClick={(e) => {
-                        const input = e.currentTarget.previousElementSibling as HTMLInputElement;
-                        input?.showPicker?.();
-                      }}
-                    >
-                      <Calendar className="w-5 h-5 text-slate-600 dark:text-slate-400" />
-                    </button>
+                    <div className="px-4 py-3 min-w-[44px] border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 hover:bg-slate-50 dark:hover:bg-slate-600 rounded-lg transition-colors">
+                      <Calendar className="w-5 h-5 text-slate-600 dark:text-slate-400 pointer-events-none" />
+                    </div>
                   </div>
                 </div>
                 {dateError && (
@@ -1540,7 +1629,7 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
               )}
             </div>
 
-            {/* Financial Details Section - Only for specific event types (not purchase, sale, or Not Sold markers) */}
+            {/* Financial Details Section - Only for specific event types (not purchase, sale, improvements, or Not Sold markers) */}
             {!isSyntheticNotSold &&
              eventType !== 'purchase' &&
              eventType !== 'move_in' &&
@@ -1550,7 +1639,8 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
              eventType !== 'sale' &&
              eventType !== 'vacant_start' &&
              eventType !== 'vacant_end' &&
-             eventType !== 'ownership_change' && (
+             eventType !== 'ownership_change' &&
+             eventType !== 'improvement' && (
               <div className="space-y-4 pt-2">
                 {/* Single Amount Input */}
                 <div>
@@ -1666,8 +1756,14 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
                   <div className="relative">
                     <input
                       type="number"
-                      value={marginalTaxRate}
-                      onChange={(e) => setMarginalTaxRate(e.target.value)}
+                      value={marginalTaxRateInput}
+                      onChange={(e) => {
+                        setMarginalTaxRateInput(e.target.value);
+                        const value = parseFloat(e.target.value);
+                        if (!isNaN(value)) {
+                          setMarginalTaxRate(value);
+                        }
+                      }}
                       onWheel={(e) => e.currentTarget.blur()}
                       placeholder="37.00"
                       min="0"
@@ -2061,8 +2157,12 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
                       } bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100`}
                       required
                     />
-                    <div className="relative">
+                    <div
+                      className="inline-block cursor-pointer"
+                      onClick={() => appreciationDateInputRef.current?.showPicker?.()}
+                    >
                       <input
+                        ref={appreciationDateInputRef}
                         type="date"
                         value={appreciationDate}
                         onChange={(e) => {
@@ -2075,18 +2175,11 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
                             setAppreciationDateError('');
                           }
                         }}
-                        className="absolute inset-0 opacity-0 cursor-pointer"
+                        className="sr-only"
                       />
-                      <button
-                        type="button"
-                        className="px-3 py-2.5 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 hover:bg-slate-50 dark:hover:bg-slate-600 rounded-lg transition-colors"
-                        onClick={(e) => {
-                          const input = e.currentTarget.previousElementSibling as HTMLInputElement;
-                          input?.showPicker?.();
-                        }}
-                      >
-                        <Calendar className="w-5 h-5 text-slate-600 dark:text-slate-400" />
-                      </button>
+                      <div className="px-4 py-3 min-w-[44px] border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 hover:bg-slate-50 dark:hover:bg-slate-600 rounded-lg transition-colors">
+                        <Calendar className="w-5 h-5 text-slate-600 dark:text-slate-400 pointer-events-none" />
+                      </div>
                     </div>
                   </div>
                   {appreciationDateError && (
@@ -2413,7 +2506,7 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
 
             <div className="flex items-center justify-between">
               <button
-                onClick={handleDelete}
+                onClick={() => setShowDeleteConfirm(true)}
                 disabled={isSaving}
                 className="px-4 py-2 text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
@@ -2452,6 +2545,17 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
           </div>
         </motion.div>
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={showDeleteConfirm}
+        onClose={() => setShowDeleteConfirm(false)}
+        onConfirm={handleDelete}
+        title="Delete Event?"
+        message="Are you sure you want to delete this event? This action cannot be undone."
+        confirmLabel="Delete"
+        variant="danger"
+      />
 
       {/* Cost Base Summary Modal */}
       <CostBaseSummaryModal

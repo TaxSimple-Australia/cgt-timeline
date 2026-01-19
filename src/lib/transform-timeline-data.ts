@@ -46,7 +46,8 @@ export function transformTimelineToAPIFormat(
   properties: TimelineProperty[],
   events: TimelineEvent[],
   customQuery?: string,
-  verificationAlerts?: VerificationAlert[]
+  verificationAlerts?: VerificationAlert[],
+  marginalTaxRate: number = 37
 ) {
   const apiProperties: Property[] = properties.map((property) => {
     // Get all events for this property
@@ -575,7 +576,7 @@ export function transformTimelineToAPIFormat(
       australian_resident: true,
       other_property_owned: properties.length > 1,
       land_size_hectares: 0,
-      marginal_tax_rate: 37, // Default, should be configurable
+      marginal_tax_rate: marginalTaxRate, // Global tax rate from store
     },
   };
 

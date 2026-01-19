@@ -12,6 +12,7 @@ import QuickAddMenu from './QuickAddMenu';
 import EventDetailsModal from './EventDetailsModal';
 import TimelineSnapshot from './TimelineSnapshot';
 import TimelineVisualizationsModal from './TimelineVisualizationsModal';
+import LandingPageButton from './LandingPageButton';
 import { StickyNotesLayer, ShareLinkButton, AddStickyNoteButton } from './sticky-notes';
 import SubdivisionSplitVisual from './SubdivisionSplitVisual';
 import { calculateBranchPositions, calculateSubdivisionConnections } from '@/lib/subdivision-helpers';
@@ -74,8 +75,8 @@ export default function Timeline({ className, onAlertClick, onOpenAIBuilder }: T
   // Calculate subdivision connections for visual rendering
   const subdivisionConnections = useMemo(() => {
     const dateToPos = (date: Date) => dateToPosition(date, timelineStart, timelineEnd);
-    return calculateSubdivisionConnections(properties, branchPositions, dateToPos);
-  }, [properties, branchPositions, timelineStart, timelineEnd]);
+    return calculateSubdivisionConnections(properties, branchPositions, events, dateToPos);
+  }, [properties, branchPositions, events, timelineStart, timelineEnd]);
 
   // Handle timeline click to add events
   const handleTimelineClick = (e: MouseEvent<HTMLDivElement>) => {
@@ -386,8 +387,22 @@ export default function Timeline({ className, onAlertClick, onOpenAIBuilder }: T
               className="absolute top-12 left-0 w-full"
               style={{ height: `${minContentHeight - 48}px` }}
             >
+              {/* SVG Definitions */}
+              <defs>
+                {/* Gradient for subdivision lines */}
+                <linearGradient id="subdivisionGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stopColor="#EC4899" stopOpacity="0.8" />
+                  <stop offset="100%" stopColor="#EC4899" stopOpacity="0.4" />
+                </linearGradient>
+              </defs>
+
               {/* REMOVED: ResidenceGapOverlay - Duplicate of GilbertBranch VerificationAlertBar */}
               {/* Gap questions now handled exclusively by VerificationAlertBar → PropertyIssueOverlay */}
+
+              {/* Subdivision Visual Connections - Render FIRST (behind property branches) */}
+              {subdivisionConnections.length > 0 && (
+                <SubdivisionSplitVisual connections={subdivisionConnections} />
+              )}
 
               {properties.map((property, index) => {
                 // Use calculated branch position if property is part of subdivision hierarchy
@@ -412,23 +427,6 @@ export default function Timeline({ className, onAlertClick, onOpenAIBuilder }: T
                   />
                 );
               })}
-
-              {/* Subdivision Visual Connections */}
-              {subdivisionConnections.length > 0 && timelineRef.current && (
-                <foreignObject
-                  x="0"
-                  y="0"
-                  width="100%"
-                  height="100%"
-                  style={{ pointerEvents: 'none' }}
-                >
-                  <SubdivisionSplitVisual
-                    connections={subdivisionConnections}
-                    containerHeight={minContentHeight - 48}
-                    containerWidth={timelineRef.current.offsetWidth}
-                  />
-                </foreignObject>
-              )}
             </svg>
 
             {/* Sticky Notes Layer */}
@@ -510,6 +508,9 @@ export default function Timeline({ className, onAlertClick, onOpenAIBuilder }: T
 
       {/* Timeline Snapshot Widget */}
       <TimelineSnapshot />
+
+      {/* Landing Page Button */}
+      <LandingPageButton />
 
       {/* Timeline Visualizations Button */}
       <button

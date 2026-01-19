@@ -37,12 +37,22 @@ export default function AlertResolutionModal({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            onClick={onClose}
+            onClick={(e) => {
+              // Only close if clicking directly on backdrop, not on children
+              if (e.target === e.currentTarget) {
+                onClose();
+              }
+            }}
             className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[10000]"
           />
 
           {/* Modal */}
-          <div className="fixed inset-0 flex items-center justify-center z-[10001] p-4" onClick={onClose}>
+          <div className="fixed inset-0 flex items-center justify-center z-[10001] p-4" onClick={(e) => {
+            // Only close if clicking directly on backdrop, not on children
+            if (e.target === e.currentTarget) {
+              onClose();
+            }
+          }}>
             <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}

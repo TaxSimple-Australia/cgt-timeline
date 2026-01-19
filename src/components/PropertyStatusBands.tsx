@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { TimelineEvent, calculateStatusPeriods, statusColors, PropertyStatus } from '@/store/timeline';
+import { TimelineEvent, calculateStatusPeriods, statusColors, PropertyStatus, Property } from '@/store/timeline';
 import { dateToPosition } from '@/lib/utils';
 
 interface PropertyStatusBandsProps {
@@ -11,6 +11,7 @@ interface PropertyStatusBandsProps {
   timelineEnd: Date;
   propertyColor: string;
   propertyId: string;
+  property: Property;
   isHovered?: boolean;
   onHoverChange: (isHovered: boolean) => void;
   onBandClick: (propertyId: string, position: number, clientX: number, clientY: number) => void;
@@ -23,12 +24,19 @@ export default function PropertyStatusBands({
   timelineEnd,
   propertyColor,
   propertyId,
+  property,
   isHovered = false,
   onHoverChange,
   onBandClick,
 }: PropertyStatusBandsProps) {
   const statusPeriods = calculateStatusPeriods(events);
   const today = new Date();
+
+  // For subdivided child properties, calculate minimum start position
+  const isChildLot = Boolean(property.parentPropertyId);
+  const subdivisionStartPos = isChildLot && property.subdivisionDate
+    ? dateToPosition(property.subdivisionDate, timelineStart, timelineEnd)
+    : null;
 
   // Find the last position - for sold properties it's the sale, for unsold it's today
   const getLastPosition = () => {
@@ -54,12 +62,19 @@ export default function PropertyStatusBands({
     vacant: 'Vacant',
     construction: 'Construction',
     sold: 'Sold',
+    subdivided: 'Subdivided',
   };
 
   return (
     <g className="status-bands">
       {statusPeriods.map((period, index) => {
-        const startPos = dateToPosition(period.startDate, timelineStart, timelineEnd);
+        let startPos = dateToPosition(period.startDate, timelineStart, timelineEnd);
+
+        // For child lots, never render status bands before subdivision date
+        if (subdivisionStartPos !== null && startPos < subdivisionStartPos) {
+          startPos = subdivisionStartPos;
+        }
+
         // If no end date, cap at last position (sale or today) instead of extending to 100%
         const rawEndPos = period.endDate
           ? dateToPosition(period.endDate, timelineStart, timelineEnd)
@@ -123,7 +138,7 @@ export default function PropertyStatusBands({
             />
 
             {/* Status label (show if band is wide enough) */}
-            {width > 5 && (
+            {width > 2 && (
               <text
                 x={`${startPos + width / 2}%`}
                 y={hoveredBandY - 12}

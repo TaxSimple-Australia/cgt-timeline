@@ -118,6 +118,7 @@ export interface SubdivisionConnection {
 export function calculateSubdivisionConnections(
   properties: Property[],
   branchPositions: Map<string, BranchPosition>,
+  events: any[], // TimelineEvent[] - events array to find subdivision event
   dateToPosition: (date: Date) => number
 ): SubdivisionConnection[] {
   const connections: SubdivisionConnection[] = [];
@@ -133,11 +134,23 @@ export function calculateSubdivisionConnections(
 
     if (!parentPos || !childPos) return;
 
+    // Find subdivision event on parent to get authoritative date
+    // This ensures pink lines align with the SPLIT event badge position
+    const subdivisionEvent = events.find(e =>
+      e.propertyId === parent.id &&
+      e.type === 'subdivision' &&
+      e.subdivisionDetails?.childProperties?.some((cp: any) => cp.id === child.id)
+    );
+
+    // Use subdivision event date as authoritative source, fallback to child.subdivisionDate
+    const splitDate = subdivisionEvent?.date || child.subdivisionDate;
+    const splitPosition = dateToPosition(splitDate);
+
     connections.push({
       parentId: parent.id!,
       childId: child.id!,
-      splitDate: child.subdivisionDate,
-      splitPosition: dateToPosition(child.subdivisionDate),
+      splitDate: splitDate,
+      splitPosition: splitPosition,
       parentY: parentPos.yOffset,
       childY: childPos.yOffset,
     });

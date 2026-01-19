@@ -43,15 +43,18 @@ export default function PropertyBranch({
   onHoverChange,
   onAlertClick,
 }: PropertyBranchProps) {
-  const { eventDisplayMode, positionedGaps, selectIssue, selectProperty, enableDragEvents, updateEvent, verificationAlerts, resolveVerificationAlert, properties } = useTimelineStore();
+  const { eventDisplayMode, positionedGaps, selectIssue, selectProperty, enableDragEvents, updateEvent, verificationAlerts, resolveVerificationAlert, properties, events: allEvents } = useTimelineStore();
   const { getIssuesForProperty } = useValidationStore();
   const branchY = 100 + branchIndex * 120; // Vertical spacing between branches
 
   // Check if this property has been subdivided
   const hasBeenSubdivided = isSubdivided(property, properties);
-  const subdivisionDate = hasBeenSubdivided ? getSubdivisionDate(property) : null;
-  const subdivisionPosition = subdivisionDate ? dateToPosition(subdivisionDate, timelineStart, timelineEnd) : null;
   const childLots = hasBeenSubdivided ? getChildProperties(property.id!, properties) : [];
+  // Get subdivision date from property OR from first child property (parent doesn't have subdivisionDate)
+  const subdivisionDate = hasBeenSubdivided
+    ? (getSubdivisionDate(property) || childLots[0]?.subdivisionDate || null)
+    : null;
+  const subdivisionPosition = subdivisionDate ? dateToPosition(subdivisionDate, timelineStart, timelineEnd) : null;
 
   // Get verification alerts for this property
   const propertyAlerts = verificationAlerts.filter(alert => alert.propertyId === property.id);
@@ -233,6 +236,10 @@ export default function PropertyBranch({
 
   // Add synthetic status marker for unsold properties at today's date
   const addStatusMarkerIfNeeded = () => {
+    // If property has been subdivided, don't show any status marker
+    // The property ceased to exist as a whole when subdivided
+    if (hasBeenSubdivided) return eventsWithOffsetsAndTiers;
+
     // Check all possible indicators that property is sold
     const hasSaleEvent = events.some(e => e.type === 'sale');
     const isSold = property.currentStatus === 'sold' || property.saleDate || hasSaleEvent;
@@ -285,8 +292,22 @@ export default function PropertyBranch({
   const getLinePositions = () => {
     // For child lots, calculate the minimum start position based on subdivision date
     const isChildLot = Boolean(property.parentPropertyId);
-    const subdivisionStartPos = isChildLot && property.subdivisionDate
-      ? dateToPosition(property.subdivisionDate, timelineStart, timelineEnd)
+
+    // Find subdivision event to get authoritative date (matches subdivision-helpers logic)
+    // This ensures lot circles align perfectly with subdivision connector lines
+    const subdivisionEvent = isChildLot && property.parentPropertyId
+      ? allEvents.find(e =>
+          e.propertyId === property.parentPropertyId &&
+          e.type === 'subdivision'
+        )
+      : null;
+
+    const subdivisionStartPos = isChildLot && (subdivisionEvent || property.subdivisionDate)
+      ? dateToPosition(
+          subdivisionEvent?.date || property.subdivisionDate,
+          timelineStart,
+          timelineEnd
+        )
       : 0;
 
     if (eventsWithTiers.length === 0) {
@@ -295,7 +316,7 @@ export default function PropertyBranch({
       // Clamp to visible range for rendering
       const clampedTodayPos = Math.max(0, Math.min(todayPos, 100));
       return {
-        start: Math.max(0, subdivisionStartPos), // Child lots start from subdivision date
+        start: subdivisionStartPos, // Use actual subdivision position (may be negative)
         end: clampedTodayPos,
         isEmpty: true
       };
@@ -305,8 +326,8 @@ export default function PropertyBranch({
     const firstEventPos = Math.min(...positions);
     const lastEventPos = Math.max(...positions);
 
-    // For child lots, ensure line doesn't start before subdivision date
-    const actualStartPos = Math.max(firstEventPos, subdivisionStartPos);
+    // For child lots, use subdivision date; for parent properties, use first event
+    const actualStartPos = isChildLot ? subdivisionStartPos : firstEventPos;
 
     // For unsold properties, extend to today's position (the "Not Sold" marker)
     if (!isSold) {
@@ -348,6 +369,7 @@ export default function PropertyBranch({
           timelineEnd={timelineEnd}
           propertyColor={property.color}
           propertyId={property.id}
+          property={property}
           isHovered={isHovered}
           onHoverChange={onHoverChange}
           onBandClick={onBranchClick}
@@ -362,6 +384,7 @@ export default function PropertyBranch({
           branchY={branchY}
           timelineStart={timelineStart}
           timelineEnd={timelineEnd}
+          property={property}
           onClick={() => {
             // Find and select the related issue
             const gapIssue = useTimelineStore.getState().timelineIssues.find(
@@ -467,77 +490,187 @@ export default function PropertyBranch({
               />
             </>
           )}
-          {/* Main line - continuous regardless of subdivision */}
-          <motion.line
-            x1={`${linePositions.start}%`}
-            y1={branchY}
-            x2={`${linePositions.end}%`}
-            y2={branchY}
-            stroke={hasIssues ? '#EF4444' : property.color}
-            strokeWidth={isHovered ? 6 : (isSelected ? 4 : 3)}
-            strokeLinecap="round"
-            opacity={linePositions.isEmpty ? (isHovered ? 0.8 : 0.4) : (isHovered ? 1 : (isSelected ? 1 : 0.7))}
-            strokeDasharray={linePositions.isEmpty ? "4,4" : undefined}
-            initial={{ pathLength: 0 }}
-            animate={{ pathLength: 1 }}
-            transition={{ duration: 1, ease: "easeInOut" }}
-            className="drop-shadow-sm"
-            style={{
-              transition: 'stroke-width 0.2s ease, opacity 0.2s ease',
-              pointerEvents: 'none'
-            }}
-          />
+          {/* Main line - split into solid/dashed segments if subdivided */}
+          {(() => {
+            // Find subdivision event to get authoritative date
+            const subdivisionEvent = events.find(e =>
+              e.propertyId === property.id &&
+              e.type === 'subdivision'
+            );
+
+            // Calculate split position from subdivision event OR from subdivisionDate
+            // This ensures parent line is dashed after split even without explicit subdivision event
+            const splitPos = subdivisionEvent
+              ? dateToPosition(subdivisionEvent.date, timelineStart, timelineEnd)
+              : (hasBeenSubdivided && subdivisionDate)
+                ? dateToPosition(subdivisionDate, timelineStart, timelineEnd)
+                : null;
+
+            // If property has been subdivided and split is within line range
+            if (hasBeenSubdivided && splitPos !== null && splitPos >= linePositions.start && splitPos <= linePositions.end) {
+              return (
+                <>
+                  {/* Segment before subdivision - solid line */}
+                  <motion.line
+                    x1={`${linePositions.start}%`}
+                    y1={branchY}
+                    x2={`${splitPos}%`}
+                    y2={branchY}
+                    stroke={hasIssues ? '#EF4444' : property.color}
+                    strokeWidth={isHovered ? 6 : (isSelected ? 4 : 3)}
+                    strokeLinecap="round"
+                    opacity={linePositions.isEmpty ? (isHovered ? 0.8 : 0.4) : (isHovered ? 1 : (isSelected ? 1 : 0.7))}
+                    initial={{ pathLength: 0 }}
+                    animate={{ pathLength: 1 }}
+                    transition={{ duration: 1, ease: "easeInOut" }}
+                    className="drop-shadow-sm"
+                    style={{
+                      transition: 'stroke-width 0.2s ease, opacity 0.2s ease',
+                      pointerEvents: 'none'
+                    }}
+                  />
+                  {/* Segment after subdivision - dashed line */}
+                  <motion.line
+                    x1={`${splitPos}%`}
+                    y1={branchY}
+                    x2={`${linePositions.end}%`}
+                    y2={branchY}
+                    stroke={hasIssues ? '#EF4444' : property.color}
+                    strokeWidth={isHovered ? 6 : (isSelected ? 4 : 3)}
+                    strokeLinecap="round"
+                    strokeDasharray="12,8"
+                    opacity={0.9}
+                    initial={{ pathLength: 0 }}
+                    animate={{ pathLength: 1 }}
+                    transition={{ duration: 1, ease: "easeInOut", delay: 0.2 }}
+                    className="drop-shadow-sm"
+                    style={{
+                      transition: 'stroke-width 0.2s ease, opacity 0.2s ease',
+                      pointerEvents: 'none'
+                    }}
+                  />
+                  {/* Visual marker at subdivision point */}
+                  <motion.circle
+                    cx={`${splitPos}%`}
+                    cy={branchY}
+                    r="8"
+                    fill="#9333EA"
+                    stroke="#FFF"
+                    strokeWidth="2"
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ duration: 0.3, delay: 0.4 }}
+                    style={{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))' }}
+                  />
+                </>
+              );
+            } else {
+              // Normal solid line for non-subdivided or when split is outside range
+              return (
+                <motion.line
+                  x1={`${linePositions.start}%`}
+                  y1={branchY}
+                  x2={`${linePositions.end}%`}
+                  y2={branchY}
+                  stroke={hasIssues ? '#EF4444' : property.color}
+                  strokeWidth={isHovered ? 6 : (isSelected ? 4 : 3)}
+                  strokeLinecap="round"
+                  opacity={linePositions.isEmpty ? (isHovered ? 0.8 : 0.4) : (isHovered ? 1 : (isSelected ? 1 : 0.7))}
+                  strokeDasharray={linePositions.isEmpty ? "4,4" : undefined}
+                  initial={{ pathLength: 0 }}
+                  animate={{ pathLength: 1 }}
+                  transition={{ duration: 1, ease: "easeInOut" }}
+                  className="drop-shadow-sm"
+                  style={{
+                    transition: 'stroke-width 0.2s ease, opacity 0.2s ease',
+                    pointerEvents: 'none'
+                  }}
+                />
+              );
+            }
+          })()}
         </>
       )}
 
-      {/* Branch Label */}
-      <foreignObject x="10" y={branchY - 30} width="300" height="60" style={{ pointerEvents: 'none' }}>
-        <div className="flex items-center gap-2 group select-none">
-          <div
-            className={cn(
-              "w-5 h-5 rounded-full transition-all cursor-pointer flex-shrink-0",
-              isSelected && "ring-2 ring-offset-2 ring-slate-400 dark:ring-slate-500",
-              "hover:ring-2 hover:ring-offset-1 hover:ring-slate-300 dark:hover:ring-slate-500",
-              "hover:scale-110"
-            )}
-            style={{ backgroundColor: property.color, pointerEvents: 'auto' }}
-            onClick={handlePropertyClick}
-            title={`Click to view ${property.name} details`}
+      {/* Lot Start Label - Show for child properties at subdivision point */}
+      {property.parentPropertyId && property.subdivisionDate && property.lotNumber && (
+        <g>
+          {/* Visual marker at subdivision start point */}
+          <motion.circle
+            cx={`${linePositions.start}%`}
+            cy={branchY}
+            r="6"
+            fill={property.color}
+            stroke="#FFF"
+            strokeWidth="2"
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ duration: 0.3, delay: 0.2 }}
+            style={{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))' }}
           />
-          <div className="flex flex-col gap-0.5 pointer-events-none">
-            <div className="flex items-center gap-1.5">
-              <span className={cn(
-                "font-semibold text-sm transition-all truncate",
-                isSelected
-                  ? "text-slate-900 dark:text-slate-100"
-                  : "text-slate-600 dark:text-slate-400"
-              )}>
-                {property.name}
-              </span>
-              {/* Show "Subdivided" badge for parent properties */}
-              {hasBeenSubdivided && childLots.length > 0 && (
-                <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium bg-pink-500/10 text-pink-600 dark:text-pink-400 border border-pink-500/20">
-                  <Split className="w-3 h-3" />
-                  {childLots.length} lots
+
+          {/* Lot label above the timeline */}
+          <foreignObject
+            x={`${linePositions.start}%`}
+            y={branchY - 50}
+            width="140"
+            height="30"
+            style={{ overflow: 'visible', transform: 'translateX(-70px)' }}
+          >
+            <div
+              className="flex items-center justify-center px-2.5 py-1 rounded-md text-white text-xs font-semibold shadow-lg whitespace-nowrap"
+              style={{ backgroundColor: `${property.color}E6` }}
+            >
+              {property.lotNumber}
+              {property.lotSize && ` • ${property.lotSize.toFixed(0)} sqm`}
+            </div>
+          </foreignObject>
+        </g>
+      )}
+
+      {/* Branch Label - Hide for child lots */}
+      {!property.parentPropertyId && (
+        <foreignObject x="10" y={branchY - 30} width="300" height="60" style={{ pointerEvents: 'none' }}>
+          <div className="flex items-center gap-2 group select-none">
+            <div
+              className={cn(
+                "w-5 h-5 rounded-full transition-all cursor-pointer flex-shrink-0",
+                isSelected && "ring-2 ring-offset-2 ring-slate-400 dark:ring-slate-500",
+                "hover:ring-2 hover:ring-offset-1 hover:ring-slate-300 dark:hover:ring-slate-500",
+                "hover:scale-110"
+              )}
+              style={{ backgroundColor: property.color, pointerEvents: 'auto' }}
+              onClick={handlePropertyClick}
+              title={`Click to view ${property.name} details`}
+            />
+            <div className="flex flex-col gap-0.5 pointer-events-none">
+              <div className="flex items-center gap-1.5">
+                <span className={cn(
+                  "font-semibold text-sm transition-all truncate",
+                  isSelected
+                    ? "text-slate-900 dark:text-slate-100"
+                    : "text-slate-600 dark:text-slate-400"
+                )}>
+                  {property.name}
+                </span>
+                {/* Show "Subdivided" badge for parent properties */}
+                {hasBeenSubdivided && childLots.length > 0 && (
+                  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium bg-pink-500/10 text-pink-600 dark:text-pink-400 border border-pink-500/20">
+                    <Split className="w-3 h-3" />
+                    {childLots.length} lots
+                  </span>
+                )}
+              </div>
+              {/* Show owner information if available */}
+              {property.owners && property.owners.length > 0 && (
+                <span className="text-xs text-slate-500 dark:text-slate-400">
+                  Owned by: {property.owners.map(o => `${o.name} (${o.percentage}%)`).join(', ')}
                 </span>
               )}
             </div>
-            {/* Show lot number and size for subdivided child properties */}
-            {property.lotNumber && (
-              <span className="text-xs text-slate-500 dark:text-slate-400">
-                {property.lotNumber}
-                {property.lotSize && ` • ${property.lotSize.toFixed(0)} sqm`}
-              </span>
-            )}
-            {/* Show owner information if available */}
-            {property.owners && property.owners.length > 0 && (
-              <span className="text-xs text-slate-500 dark:text-slate-400">
-                Owned by: {property.owners.map(o => `${o.name} (${o.percentage}%)`).join(', ')}
-              </span>
-            )}
           </div>
-        </div>
-      </foreignObject>
+        </foreignObject>
+      )}
 
       {/* Event Display - Circles or Cards based on mode */}
       {eventsToRender.map((event) => (
@@ -598,6 +731,7 @@ export default function PropertyBranch({
           branchY={branchY}
           timelineStart={timelineStart}
           timelineEnd={timelineEnd}
+          property={property}
           onResolveAlert={resolveVerificationAlert}
           onAlertClick={onAlertClick}
         />

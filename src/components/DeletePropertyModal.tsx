@@ -40,7 +40,12 @@ export default function DeletePropertyModal({
     <AnimatePresence>
       <div
         className="fixed inset-0 bg-black/60 flex items-center justify-center z-[10000] p-3 sm:p-4"
-        onClick={onCancel}
+        onClick={(e) => {
+          // Only close if clicking directly on backdrop, not on children
+          if (e.target === e.currentTarget) {
+            onCancel();
+          }
+        }}
       >
         <motion.div
           initial={{ scale: 0.95, opacity: 0 }}

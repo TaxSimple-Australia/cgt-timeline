@@ -25,6 +25,7 @@ import {
   Split
 } from 'lucide-react';
 import DeletePropertyModal from './DeletePropertyModal';
+import { showWarning } from '@/lib/toast-helpers';
 
 export default function PropertyPanel() {
   const {
@@ -453,12 +454,15 @@ export default function PropertyPanel() {
                             const validOwners = editedOwners.filter(o => o.name.trim() !== '' && o.percentage > 0);
 
                             if (validOwners.length === 0) {
-                              alert('Please add at least one owner with a name and percentage');
+                              showWarning('Missing information', 'Please add at least one owner with a name and percentage');
                               return;
                             }
 
                             if (Math.abs(totalPercentage - 100) > 0.01) {
-                              alert(`Ownership percentages must equal 100% (currently ${totalPercentage.toFixed(2)}%)`);
+                              showWarning(
+                                'Invalid percentages',
+                                `Ownership percentages must equal 100% (currently ${totalPercentage.toFixed(2)}%)`
+                              );
                               return;
                             }
 

@@ -292,17 +292,32 @@ export default function GanttChartView({
   };
 
   // Group events by property and calculate duration bars
-  const propertyRows = properties.map((property) => {
+  // First, separate parent and child properties
+  const parentProperties = properties.filter(p => !p.parentPropertyId);
+  const childProperties = properties.filter(p => p.parentPropertyId);
+
+  // Build property rows with parent-child ordering
+  const propertyRows: Array<{
+    property: Property;
+    propertyStart: Date;
+    propertyEnd: Date;
+    events: TimelineEvent[];
+    labelTiers: Map<string, number>;
+    isChildLot: boolean;
+    parentProperty?: Property;
+  }> = [];
+
+  parentProperties.forEach((parentProp) => {
     const propertyEvents = events
-      .filter((e) => e.propertyId === property.id)
+      .filter((e) => e.propertyId === parentProp.id)
       .sort((a, b) => a.date.getTime() - b.date.getTime());
 
     // Determine property start and end dates
-    const propertyStart = property.purchaseDate || propertyEvents[0]?.date || chartStartDate;
-    const isSold = property.currentStatus === 'sold' || property.saleDate;
+    const propertyStart = parentProp.purchaseDate || propertyEvents[0]?.date || chartStartDate;
+    const isSold = parentProp.currentStatus === 'sold' || parentProp.saleDate;
     const saleEvent = propertyEvents.find((e) => e.type === 'sale');
     const propertyEnd = isSold
-      ? (property.saleDate || saleEvent?.date || chartEndDate)
+      ? (parentProp.saleDate || saleEvent?.date || chartEndDate)
       : (propertyEvents.length > 0
           ? new Date(Math.max(...propertyEvents.map(e => e.date.getTime())))
           : chartEndDate);
@@ -310,13 +325,45 @@ export default function GanttChartView({
     // Calculate label tiers for this property's events
     const labelTiers = calculateLabelTiers(propertyEvents);
 
-    return {
-      property,
+    // Add parent row
+    propertyRows.push({
+      property: parentProp,
       propertyStart,
       propertyEnd,
       events: propertyEvents,
       labelTiers,
-    };
+      isChildLot: false,
+    });
+
+    // Add child lot rows immediately after parent
+    const children = childProperties.filter(c => c.parentPropertyId === parentProp.id);
+    children.forEach((childProp) => {
+      const childEvents = events
+        .filter((e) => e.propertyId === childProp.id)
+        .sort((a, b) => a.date.getTime() - b.date.getTime());
+
+      // Child lots start at subdivisionDate (which equals purchaseDate)
+      const childStart = childProp.subdivisionDate || childProp.purchaseDate || chartStartDate;
+      const childIsSold = childProp.currentStatus === 'sold' || childProp.saleDate;
+      const childSaleEvent = childEvents.find((e) => e.type === 'sale');
+      const childEnd = childIsSold
+        ? (childProp.saleDate || childSaleEvent?.date || chartEndDate)
+        : (childEvents.length > 0
+            ? new Date(Math.max(...childEvents.map(e => e.date.getTime())))
+            : chartEndDate);
+
+      const childLabelTiers = calculateLabelTiers(childEvents);
+
+      propertyRows.push({
+        property: childProp,
+        propertyStart: childStart,
+        propertyEnd: childEnd,
+        events: childEvents,
+        labelTiers: childLabelTiers,
+        isChildLot: true,
+        parentProperty: parentProp,
+      });
+    });
   });
 
   // Format date based on compression mode
@@ -377,10 +424,13 @@ export default function GanttChartView({
 
           {/* Property Rows */}
           <div className="space-y-0">
-            {propertyRows.map(({ property, propertyStart, propertyEnd, events: propertyEvents, labelTiers }, index) => {
+            {propertyRows.map(({ property, propertyStart, propertyEnd, events: propertyEvents, labelTiers, isChildLot, parentProperty }, index) => {
               const startPos = getDatePosition(propertyStart);
               const endPos = getDatePosition(propertyEnd);
               const barWidth = endPos - startPos;
+
+              // Calculate indentation for child lots
+              const indentAmount = isChildLot ? 24 : 0;
 
               return (
                 <div
@@ -391,37 +441,87 @@ export default function GanttChartView({
                   {/* Task Label (Left side) */}
                   <div
                     className="absolute left-0 flex flex-col justify-center pr-4"
-                    style={{ width: config.labelMargin }}
+                    style={{
+                      width: config.labelMargin,
+                      paddingLeft: `${indentAmount}px`
+                    }}
                   >
-                    <div
-                      className={`font-semibold ${config.propertyNameSize} truncate`}
-                      style={{ color: property.color }}
-                    >
-                      {property.name}
-                    </div>
-                    {property.address && config.mode !== 'maximum' && (
-                      <div className={`${config.addressSize} text-slate-500 dark:text-slate-400 truncate`}>
-                        {property.address}
-                      </div>
+                    {isChildLot ? (
+                      // Child lot label: show lot number + size
+                      <>
+                        <div
+                          className={`font-semibold ${config.propertyNameSize} truncate`}
+                          style={{ color: property.color }}
+                        >
+                          {property.lotNumber || property.name}
+                        </div>
+                        {property.lotSize && config.mode !== 'maximum' && (
+                          <div className={`${config.addressSize} text-slate-500 dark:text-slate-400 truncate`}>
+                            {property.lotSize.toFixed(0)} sqm
+                          </div>
+                        )}
+                      </>
+                    ) : (
+                      // Parent property label: show name + address
+                      <>
+                        <div
+                          className={`font-semibold ${config.propertyNameSize} truncate`}
+                          style={{ color: property.color }}
+                        >
+                          {property.name}
+                        </div>
+                        {property.address && config.mode !== 'maximum' && (
+                          <div className={`${config.addressSize} text-slate-500 dark:text-slate-400 truncate`}>
+                            {property.address}
+                          </div>
+                        )}
+                      </>
                     )}
                   </div>
 
                   {/* Timeline area */}
                   <div className="relative flex-1" style={{ marginLeft: config.labelMargin }}>
+                    {/* Connector line for child lots */}
+                    {isChildLot && parentProperty && (
+                      <svg
+                        className="absolute pointer-events-none"
+                        style={{
+                          left: `${startPos}%`,
+                          top: `-${config.rowHeight / 2}px`,
+                          width: '2px',
+                          height: `${config.rowHeight}px`,
+                          transform: 'translateX(-1px)',
+                          zIndex: 5,
+                        }}
+                      >
+                        <line
+                          x1="1"
+                          y1="0"
+                          x2="1"
+                          y2={config.rowHeight}
+                          stroke={property.color}
+                          strokeWidth="2"
+                          strokeDasharray="4,4"
+                          opacity="0.5"
+                        />
+                      </svg>
+                    )}
+
                     {/* Property duration bar */}
                     <div
                       className="absolute shadow-md transition-all hover:shadow-lg cursor-pointer"
                       style={{
-                        backgroundColor: property.color,
+                        backgroundColor: isChildLot ? `${property.color}CC` : property.color,
                         left: `${startPos}%`,
                         width: `${barWidth}%`,
                         height: `${config.barHeight}px`,
                         top: '50%',
                         transform: 'translateY(-50%)',
-                        opacity: 0.8,
+                        opacity: isChildLot ? 0.9 : 0.8,
                         borderRadius: config.mode === 'maximum' ? '6px' : '10px',
+                        borderLeft: isChildLot ? `4px solid ${property.color}` : 'none',
                       }}
-                      title={`${property.name}: ${formatDateForMode(propertyStart)} - ${formatDateForMode(propertyEnd)}`}
+                      title={`${property.lotNumber || property.name}: ${formatDateForMode(propertyStart)} - ${formatDateForMode(propertyEnd)}`}
                     >
                       {/* Duration label inside bar if wide enough and mode allows */}
                       {config.showDurationLabels && barWidth > 15 && (

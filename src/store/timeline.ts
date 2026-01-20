@@ -76,6 +76,8 @@ export interface TimelineEvent {
   isPPR?: boolean;          // Is this event related to Main Residence?
   isResident?: boolean;     // For sale events - Australian resident status for CGT
   previousYearLosses?: number;  // For sale events - previous year capital losses to offset CGT
+  capitalProceedsType?: 'standard' | 'insurance' | 'compulsory_acquisition' | 'gift' | 'inheritance';  // For sale events - type of capital proceeds
+  exemptionType?: 'main_residence' | 'partial_main_residence' | '6_year_rule' | 'none';  // For sale events - CGT exemption type claimed
   // Price breakdown for purchases (land + building)
   landPrice?: number;       // Price of land component
   buildingPrice?: number;   // Price of building component

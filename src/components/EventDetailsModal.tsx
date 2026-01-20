@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { TimelineEvent, PropertyStatus, useTimelineStore, CostBaseItem } from '@/store/timeline';
 import { format } from 'date-fns';
@@ -320,6 +320,31 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
   );
   const [ownershipChangeReason, setOwnershipChangeReason] = useState(event.ownershipChangeReason || 'sale_transfer');
   const [ownershipChangeReasonOther, setOwnershipChangeReasonOther] = useState(event.ownershipChangeReasonOther || '');
+
+  // Track original checkbox states to detect changes (fixes duplicate companion event bug)
+  // This captures the checkbox state when modal OPENS, not when it re-renders
+  const originalCheckboxState = useMemo(() => {
+    if (event?.checkboxState) {
+      return { ...event.checkboxState };
+    }
+    // Return the derived initial states for events without persisted checkboxState
+    return {
+      moveInOnSameDay,
+      purchaseAsVacant,
+      purchaseAsRent,
+      purchaseAsMixedUse,
+      moveOutAsVacant,
+      moveOutAsRent,
+      rentEndAsVacant,
+      rentEndAsMoveIn,
+      vacantEndAsMoveIn,
+      vacantEndAsRent,
+      hasBusinessUse,
+      hasPartialRental,
+      isNonResident,
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [event?.id]); // Only recalculate when event ID changes (new modal)
 
   // Get current property (used for partial rental floor area)
   const currentProperty = properties.find(p => p.id === event.propertyId);
@@ -813,165 +838,187 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
         }
       }
 
-      // Create status_change event for "purchase as vacant"
-      if (event.type === 'purchase' && purchaseAsVacant) {
-        const statusDate = new Date(date);
-        const existingStatusChange = events.find(
+      // Helper to detect if a checkbox changed from false/undefined to true
+      // This prevents creating duplicate companion events on notes-only edits
+      const checkboxBecameTrue = (key: keyof typeof originalCheckboxState) => {
+        const wasTrue = originalCheckboxState?.[key] === true;
+        return !wasTrue;
+      };
+
+      // Helper to find companion events using date-only comparison (ignores time precision issues)
+      const findCompanion = (type: string, newStatus?: string) => {
+        return events.find(
           (e) =>
             e.propertyId === event.propertyId &&
-            e.type === 'status_change' &&
-            e.newStatus === 'vacant' &&
-            e.date.getTime() === statusDate.getTime()
+            e.type === type &&
+            (newStatus === undefined || e.newStatus === newStatus) &&
+            new Date(e.date).toDateString() === parsedDate.toDateString()
         );
+      };
 
-        if (!existingStatusChange) {
-          addEvent({
-            propertyId: event.propertyId,
-            type: 'status_change',
-            date: statusDate,
-            title: 'Status: Vacant',
-            newStatus: 'vacant',
-            position: event.position,
-            color: '#A855F7', // Purple color for status_change events
-          });
+      // Handle "purchase as vacant" companion event
+      if (event.type === 'purchase') {
+        const existingVacant = findCompanion('status_change', 'vacant');
+
+        if (purchaseAsVacant) {
+          // Only create if checkbox JUST became true AND no existing companion
+          if (checkboxBecameTrue('purchaseAsVacant') && !existingVacant) {
+            addEvent({
+              propertyId: event.propertyId,
+              type: 'status_change',
+              date: parsedDate,
+              title: 'Status: Vacant',
+              newStatus: 'vacant',
+              position: event.position,
+              color: '#A855F7',
+            });
+          }
+        } else if (originalCheckboxState?.purchaseAsVacant && existingVacant) {
+          // Checkbox was unchecked - delete companion
+          deleteEvent(existingVacant.id);
         }
       }
 
-      // Create status_change event for "purchase as rent"
-      if (event.type === 'purchase' && purchaseAsRent) {
-        const statusDate = new Date(date);
-        const existingStatusChange = events.find(
-          (e) =>
-            e.propertyId === event.propertyId &&
-            e.type === 'status_change' &&
-            e.newStatus === 'rental' &&
-            e.date.getTime() === statusDate.getTime()
-        );
+      // Handle "purchase as rent" companion event
+      if (event.type === 'purchase') {
+        const existingRental = findCompanion('status_change', 'rental');
 
-        if (!existingStatusChange) {
-          addEvent({
-            propertyId: event.propertyId,
-            type: 'status_change',
-            date: statusDate,
-            title: 'Status: Rental',
-            newStatus: 'rental',
-            position: event.position,
-            color: '#A855F7', // Purple color for status_change events
-          });
+        if (purchaseAsRent) {
+          if (checkboxBecameTrue('purchaseAsRent') && !existingRental) {
+            addEvent({
+              propertyId: event.propertyId,
+              type: 'status_change',
+              date: parsedDate,
+              title: 'Status: Rental',
+              newStatus: 'rental',
+              position: event.position,
+              color: '#A855F7',
+            });
+          }
+        } else if (originalCheckboxState?.purchaseAsRent && existingRental) {
+          deleteEvent(existingRental.id);
         }
       }
 
-      // Create status_change event for "move out as vacant"
-      if (event.type === 'move_out' && moveOutAsVacant) {
-        const statusDate = new Date(date);
-        const existingStatusChange = events.find(
-          (e) =>
-            e.propertyId === event.propertyId &&
-            e.type === 'status_change' &&
-            e.newStatus === 'vacant' &&
-            e.date.getTime() === statusDate.getTime()
-        );
+      // Handle "move out as vacant" companion event
+      if (event.type === 'move_out') {
+        const existingVacant = findCompanion('status_change', 'vacant');
 
-        if (!existingStatusChange) {
-          addEvent({
-            propertyId: event.propertyId,
-            type: 'status_change',
-            date: statusDate,
-            title: 'Status: Vacant',
-            newStatus: 'vacant',
-            position: event.position,
-            color: '#A855F7', // Purple color for status_change events
-          });
+        if (moveOutAsVacant) {
+          if (checkboxBecameTrue('moveOutAsVacant') && !existingVacant) {
+            addEvent({
+              propertyId: event.propertyId,
+              type: 'status_change',
+              date: parsedDate,
+              title: 'Status: Vacant',
+              newStatus: 'vacant',
+              position: event.position,
+              color: '#A855F7',
+            });
+          }
+        } else if (originalCheckboxState?.moveOutAsVacant && existingVacant) {
+          deleteEvent(existingVacant.id);
         }
       }
 
-      // Create rent_start event for "move out as rent"
-      if (event.type === 'move_out' && moveOutAsRent) {
-        const rentDate = new Date(date);
-        const existingRentStart = events.find(
-          (e) =>
-            e.propertyId === event.propertyId &&
-            e.type === 'rent_start' &&
-            e.date.getTime() === rentDate.getTime()
-        );
+      // Handle "move out as rent" companion event
+      if (event.type === 'move_out') {
+        const existingRent = findCompanion('rent_start');
 
-        if (!existingRentStart) {
-          addEvent({
-            propertyId: event.propertyId,
-            type: 'rent_start',
-            date: rentDate,
-            title: 'Start Rent',
-            position: event.position,
-            color: '#F59E0B', // Amber color for rent_start events
-          });
+        if (moveOutAsRent) {
+          if (checkboxBecameTrue('moveOutAsRent') && !existingRent) {
+            addEvent({
+              propertyId: event.propertyId,
+              type: 'rent_start',
+              date: parsedDate,
+              title: 'Start Rent',
+              position: event.position,
+              color: '#F59E0B',
+            });
+          }
+        } else if (originalCheckboxState?.moveOutAsRent && existingRent) {
+          deleteEvent(existingRent.id);
         }
       }
 
-      // Create status_change event for "rent end as vacant"
-      if (event.type === 'rent_end' && rentEndAsVacant) {
-        const statusDate = new Date(date);
-        const existingStatusChange = events.find(
-          (e) =>
-            e.propertyId === event.propertyId &&
-            e.type === 'status_change' &&
-            e.newStatus === 'vacant' &&
-            e.date.getTime() === statusDate.getTime()
-        );
+      // Handle "rent end as vacant" companion event
+      if (event.type === 'rent_end') {
+        const existingVacant = findCompanion('status_change', 'vacant');
 
-        if (!existingStatusChange) {
-          addEvent({
-            propertyId: event.propertyId,
-            type: 'status_change',
-            date: statusDate,
-            title: 'Status: Vacant',
-            newStatus: 'vacant',
-            position: event.position,
-            color: '#A855F7', // Purple color for status_change events
-          });
+        if (rentEndAsVacant) {
+          if (checkboxBecameTrue('rentEndAsVacant') && !existingVacant) {
+            addEvent({
+              propertyId: event.propertyId,
+              type: 'status_change',
+              date: parsedDate,
+              title: 'Status: Vacant',
+              newStatus: 'vacant',
+              position: event.position,
+              color: '#A855F7',
+            });
+          }
+        } else if (originalCheckboxState?.rentEndAsVacant && existingVacant) {
+          deleteEvent(existingVacant.id);
         }
       }
 
-      // Create move_in event for "rent end as move in"
-      if (event.type === 'rent_end' && rentEndAsMoveIn) {
-        const moveInDate = new Date(date);
-        const existingMoveIn = events.find(
-          (e) =>
-            e.propertyId === event.propertyId &&
-            e.type === 'move_in' &&
-            e.date.getTime() === moveInDate.getTime()
-        );
+      // Handle "rent end as move in" companion event
+      if (event.type === 'rent_end') {
+        const existingMoveIn = findCompanion('move_in');
 
-        if (!existingMoveIn) {
-          addEvent({
-            propertyId: event.propertyId,
-            type: 'move_in',
-            date: moveInDate,
-            title: 'Move In',
-            position: event.position,
-            color: '#10B981', // Green color for move_in events
-          });
+        if (rentEndAsMoveIn) {
+          if (checkboxBecameTrue('rentEndAsMoveIn') && !existingMoveIn) {
+            addEvent({
+              propertyId: event.propertyId,
+              type: 'move_in',
+              date: parsedDate,
+              title: 'Move In',
+              position: event.position,
+              color: '#10B981',
+            });
+          }
+        } else if (originalCheckboxState?.rentEndAsMoveIn && existingMoveIn) {
+          deleteEvent(existingMoveIn.id);
         }
       }
 
-      // Create move_in event for "vacant end as move in"
-      if (event.type === 'vacant_end' && vacantEndAsMoveIn) {
-        const moveInDate = new Date(date);
-        const existingMoveIn = events.find(
-          (e) =>
-            e.propertyId === event.propertyId &&
-            e.type === 'move_in' &&
-            e.date.getTime() === moveInDate.getTime()
-        );
+      // Handle "vacant end as move in" companion event
+      if (event.type === 'vacant_end') {
+        const existingMoveIn = findCompanion('move_in');
 
-        if (!existingMoveIn) {
-          addEvent({
-            propertyId: event.propertyId,
-            type: 'move_in',
-            date: moveInDate,
-            title: 'Move In',
-            position: event.position,
-            color: '#10B981', // Green color for move_in events
-          });
+        if (vacantEndAsMoveIn) {
+          if (checkboxBecameTrue('vacantEndAsMoveIn') && !existingMoveIn) {
+            addEvent({
+              propertyId: event.propertyId,
+              type: 'move_in',
+              date: parsedDate,
+              title: 'Move In',
+              position: event.position,
+              color: '#10B981',
+            });
+          }
+        } else if (originalCheckboxState?.vacantEndAsMoveIn && existingMoveIn) {
+          deleteEvent(existingMoveIn.id);
+        }
+      }
+
+      // Handle "vacant end as rent" companion event
+      if (event.type === 'vacant_end') {
+        const existingRent = findCompanion('rent_start');
+
+        if (vacantEndAsRent) {
+          if (checkboxBecameTrue('vacantEndAsRent') && !existingRent) {
+            addEvent({
+              propertyId: event.propertyId,
+              type: 'rent_start',
+              date: parsedDate,
+              title: 'Start Rent',
+              position: event.position,
+              color: '#F59E0B',
+            });
+          }
+        } else if (originalCheckboxState?.vacantEndAsRent && existingRent) {
+          deleteEvent(existingRent.id);
         }
       }
 

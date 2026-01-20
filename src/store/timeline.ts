@@ -504,6 +504,7 @@ export interface StatusPeriod {
 }
 
 export const calculateStatusPeriods = (events: TimelineEvent[]): StatusPeriod[] => {
+  console.log('🔍 calculateStatusPeriods called with events:', events.map(e => ({ type: e.type, date: e.date, title: e.title })));
   const periods: StatusPeriod[] = [];
 
   // Event priority for same-date events (higher number = processed later = takes precedence)
@@ -609,6 +610,7 @@ export const calculateStatusPeriods = (events: TimelineEvent[]): StatusPeriod[] 
 
     // If status changed, close previous period and start new one
     if (newStatus && newStatus !== currentStatus) {
+      console.log(`  📊 Status change: ${currentStatus} → ${newStatus} at ${event.date.toISOString().split('T')[0]} (${event.type})`);
       if (currentStatus && currentStartDate) {
         periods.push({
           status: currentStatus,
@@ -631,6 +633,7 @@ export const calculateStatusPeriods = (events: TimelineEvent[]): StatusPeriod[] 
     });
   }
 
+  console.log('✅ Calculated status periods:', periods.map(p => ({ status: p.status, start: p.startDate.toISOString().split('T')[0], end: p.endDate ? p.endDate.toISOString().split('T')[0] : 'ongoing' })));
   return periods;
 };
 
@@ -838,13 +841,17 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
     );
 
     // Create copies of parent events for Lot 1 (main lot continuation)
+    // Remove amount and costBases from inherited events
     const lot1Id = childProperties[0]?.id;
     const copiedEventsForLot1: TimelineEvent[] = lot1Id
-      ? parentEventsBeforeSubdivision.map((event) => ({
-          ...event,
-          id: `event-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
-          propertyId: lot1Id,
-        }))
+      ? parentEventsBeforeSubdivision.map((event) => {
+          const { amount, costBases, ...eventWithoutFinancials } = event;
+          return {
+            ...eventWithoutFinancials,
+            id: `event-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
+            propertyId: lot1Id,
+          };
+        })
       : [];
 
     // Create subdivision event on parent
@@ -893,26 +900,8 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
   addEvent: (event) => {
     const state = get();
 
-    // Validate: Prevent adding events to subdivided parent properties
+    // Validate event against business logic (only critical rules now)
     if (event.propertyId) {
-      const property = state.properties.find(p => p.id === event.propertyId);
-      if (property) {
-        // Check if property has been subdivided
-        const subdivisionEvent = state.events.find(e =>
-          e.propertyId === property.id && e.type === 'subdivision'
-        );
-
-        if (subdivisionEvent && event.date >= subdivisionEvent.date) {
-          console.warn('❌ Cannot add events to parent property after subdivision date');
-          showError(
-            'Cannot add events after subdivision',
-            'This property was subdivided. Please add events to the individual subdivided lots instead.'
-          );
-          return; // Block the event from being added
-        }
-      }
-
-      // NEW: Validate event against business logic (purchase prerequisites, etc.)
       const { validateEvent } = require('@/lib/event-validation');
       const propertyEvents = state.events.filter(e => e.propertyId === event.propertyId);
       const validation = validateEvent(event, propertyEvents);

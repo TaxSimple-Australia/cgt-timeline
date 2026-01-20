@@ -534,7 +534,7 @@ export default function Timeline({ className, onAlertClick, onOpenAIBuilder }: T
       <TimelineSnapshot />
 
       {/* Landing Page Button */}
-      <LandingPageButton onOpenLanding={() => setShowLandingModal(true)} />
+      <LandingPageButton />
 
       {/* Landing Page Modal */}
       <LandingPageModal isOpen={showLandingModal} onClose={() => setShowLandingModal(false)} />

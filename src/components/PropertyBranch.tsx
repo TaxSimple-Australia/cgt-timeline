@@ -399,6 +399,26 @@ export default function PropertyBranch({
       const todayPos = getTodayPosition(timelineStart, timelineEnd);
       // Clamp to visible range for rendering
       const clampedTodayPos = Math.max(0, Math.min(todayPos, 100));
+
+      // For subdivided parent properties, ensure line extends past subdivision to show Lot 1 badge
+      if (hasBeenSubdivided && subdivisionPosition !== null && !isChildLot) {
+        const lot1 = childLots.find(c => c.isMainLotContinuation);
+        if (lot1) {
+          const lot1Events = allEvents.filter(e => e.propertyId === lot1.id);
+          const lot1IsSold = lot1.currentStatus === 'sold' || lot1.saleDate || lot1Events.some(e => e.type === 'sale');
+
+          // If Lot 1 has no events and is not sold, extend line past subdivision so badge is visible
+          if (lot1Events.length === 0 && !lot1IsSold) {
+            // Extend to max of today or subdivision point + spacing for badge
+            return {
+              start: subdivisionStartPos,
+              end: Math.max(subdivisionPosition + 5, clampedTodayPos),
+              isEmpty: true
+            };
+          }
+        }
+      }
+
       return {
         start: subdivisionStartPos, // Use actual subdivision position (may be negative)
         end: clampedTodayPos,
@@ -412,6 +432,28 @@ export default function PropertyBranch({
 
     // For child lots, use subdivision date; for parent properties, use first event
     const actualStartPos = isChildLot ? subdivisionStartPos : firstEventPos;
+
+    // For subdivided parent properties, ensure line extends past subdivision to show Lot 1 badge
+    if (hasBeenSubdivided && subdivisionPosition !== null && !isChildLot) {
+      const lot1 = childLots.find(c => c.isMainLotContinuation);
+      if (lot1) {
+        const lot1Events = allEvents.filter(e => e.propertyId === lot1.id);
+        const lot1IsSold = lot1.currentStatus === 'sold' || lot1.saleDate || lot1Events.some(e => e.type === 'sale');
+
+        // If Lot 1 has no events and is not sold, extend line to today so badge is visible
+        if (lot1Events.length === 0 && !lot1IsSold) {
+          const todayPos = getTodayPosition(timelineStart, timelineEnd);
+          const clampedTodayPos = Math.max(0, Math.min(todayPos, 100));
+
+          // Extend to max of last event or today (minimum past subdivision point + spacing for badge)
+          return {
+            start: actualStartPos,
+            end: Math.max(lastEventPos, subdivisionPosition + 5, clampedTodayPos),
+            isEmpty: false
+          };
+        }
+      }
+    }
 
     // For unsold properties, extend to today's position (the "Not Sold" marker)
     if (!isSold) {
@@ -671,6 +713,25 @@ export default function PropertyBranch({
                     transition={{ duration: 0.3, delay: 0.4 }}
                     style={{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))' }}
                   />
+                  {/* Lot 1 circle marker - positioned slightly to the right of subdivision circle */}
+                  {(() => {
+                    const lot1 = childLots.find(c => c.isMainLotContinuation);
+                    if (!lot1) return null;
+                    return (
+                      <motion.circle
+                        cx={`${splitPos + 0.5}%`}
+                        cy={branchY}
+                        r="6"
+                        fill={lot1.color}
+                        stroke="#FFF"
+                        strokeWidth="2"
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        transition={{ duration: 0.3, delay: 0.5 }}
+                        style={{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))' }}
+                      />
+                    );
+                  })()}
                   {/* Lot 1 label after subdivision point - on parent line */}
                   {(() => {
                     const lot1 = childLots.find(c => c.isMainLotContinuation);

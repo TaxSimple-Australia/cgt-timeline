@@ -86,6 +86,9 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
   const [affectsStatus, setAffectsStatus] = useState(event.affectsStatus || false);
 
   // Move in on same day checkbox (for purchase events)
+  // Track original purchase date to handle date changes properly
+  const [originalPurchaseDate] = useState(event.date);
+
   const [moveInOnSameDay, setMoveInOnSameDay] = useState(() => {
     // First check if checkbox state is persisted
     if (event.checkboxState?.moveInOnSameDay !== undefined) {
@@ -456,14 +459,8 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
         return;
       }
 
-      // Validate improvement events require at least one cost base
-      if (eventType === 'improvement' && costBases.length === 0) {
-        showWarning(
-          'Cost base required',
-          'Please add at least one cost base item for this improvement. Click "+ Add Cost Base" below to specify the improvement costs.'
-        );
-        return;
-      }
+      // Cost base is optional - users can add it later if needed
+      // Removed validation block that was preventing improvement events without cost base
 
       setIsSaving(true);
 
@@ -657,8 +654,8 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
         updates.rentalUsePercentage = undefined;
       }
 
-      // NEW: Ownership Change validation and data
-      if (eventType === 'ownership_change') {
+      // NEW: Ownership Change validation and data (including Inherit events)
+      if (eventType === 'ownership_change' || eventType === 'refinance') {
         // Validate that at least one leaving owner is selected
         if (!leavingOwners || leavingOwners.length === 0) {
           showWarning('Missing information', 'Please select at least one leaving owner.');
@@ -759,27 +756,60 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
 
       updateEvent(event.id, updates);
 
-      // Create move_in event if checkbox is checked (for purchase events)
-      if (event.type === 'purchase' && moveInOnSameDay) {
-        // Check if a move_in event already exists for this property on the same date
-        const moveInDate = new Date(date);
-        const existingMoveIn = events.find(
+      // Handle "move in on same day" checkbox logic (for purchase events)
+      if (event.type === 'purchase') {
+        const newPurchaseDate = parsedDate;
+        const originalDateTimestamp = originalPurchaseDate.getTime();
+        const newDateTimestamp = newPurchaseDate.getTime();
+        const dateChanged = originalDateTimestamp !== newDateTimestamp;
+
+        // Find move_in event on the ORIGINAL purchase date (if it exists)
+        const oldMoveIn = events.find(
           (e) =>
             e.propertyId === event.propertyId &&
             e.type === 'move_in' &&
-            e.date.getTime() === moveInDate.getTime()
+            e.date.getTime() === originalDateTimestamp
         );
 
-        // Only create if no duplicate exists
-        if (!existingMoveIn) {
-          addEvent({
-            propertyId: event.propertyId,
-            type: 'move_in',
-            date: moveInDate,
-            title: 'Move In',
-            position: event.position, // Use same position as purchase event
-            color: '#10B981', // Green color for move_in events
-          });
+        // Find move_in event on the NEW purchase date (if date was changed)
+        const newMoveIn = dateChanged ? events.find(
+          (e) =>
+            e.propertyId === event.propertyId &&
+            e.type === 'move_in' &&
+            e.date.getTime() === newDateTimestamp
+        ) : null;
+
+        if (moveInOnSameDay) {
+          // Checkbox is CHECKED - ensure move_in event exists on new date
+
+          // If date changed and there was an old move_in, delete it
+          if (dateChanged && oldMoveIn) {
+            deleteEvent(oldMoveIn.id);
+          }
+
+          // Create move_in on new date if it doesn't exist
+          if (!newMoveIn) {
+            addEvent({
+              propertyId: event.propertyId,
+              type: 'move_in',
+              date: newPurchaseDate,
+              title: 'Move In',
+              position: event.position,
+              color: '#10B981',
+            });
+          }
+        } else {
+          // Checkbox is UNCHECKED - remove any move_in events
+
+          // Delete old move_in if it exists
+          if (oldMoveIn) {
+            deleteEvent(oldMoveIn.id);
+          }
+
+          // If date changed, also delete move_in on new date (in case it was auto-created)
+          if (dateChanged && newMoveIn) {
+            deleteEvent(newMoveIn.id);
+          }
         }
       }
 
@@ -945,8 +975,8 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
         }
       }
 
-      // Auto-update property owners for ownership_change events
-      if (eventType === 'ownership_change' && event.propertyId) {
+      // Auto-update property owners for ownership_change and refinance (inherit) events
+      if ((eventType === 'ownership_change' || eventType === 'refinance') && event.propertyId) {
         const currentProperty = properties.find(p => p.id === event.propertyId);
         if (currentProperty) {
           // Create new owners array by filtering out leaving owners and adding new owners
@@ -1490,7 +1520,7 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
               )}
             </div>
 
-            {/* Financial Details Section - Only for specific event types (not purchase, sale, improvements, or Not Sold markers) */}
+            {/* Financial Details Section - Only for specific event types (not purchase, sale, improvements, inherit, or Not Sold markers) */}
             {!isSyntheticNotSold &&
              eventType !== 'purchase' &&
              eventType !== 'move_in' &&
@@ -1501,7 +1531,8 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
              eventType !== 'vacant_start' &&
              eventType !== 'vacant_end' &&
              eventType !== 'ownership_change' &&
-             eventType !== 'improvement' && (
+             eventType !== 'improvement' &&
+             eventType !== 'refinance' && (
               <div className="space-y-4 pt-2">
                 {/* Single Amount Input */}
                 <div>
@@ -1526,8 +1557,8 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
             )}
 
             {/* Cost Base Section (for CGT calculation) - NEW COMPONENT */}
-            {/* Hide for synthetic "Not Sold" markers */}
-            {!isSyntheticNotSold && (eventType === 'purchase' || eventType === 'sale' || eventType === 'improvement' || eventType === 'status_change' || eventType === 'refinance' || eventType === 'custom') && (
+            {/* Hide for synthetic "Not Sold" markers and inherit events */}
+            {!isSyntheticNotSold && (eventType === 'purchase' || eventType === 'sale' || eventType === 'improvement' || eventType === 'status_change' || eventType === 'custom') && (
               <div className="space-y-4 pt-2 border-t border-slate-200 dark:border-slate-700">
                 <CostBaseSelector
                   eventType={event.type}
@@ -2147,8 +2178,8 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
               </div>
             )}
 
-            {/* Ownership Change Event */}
-            {eventType === 'ownership_change' && (
+            {/* Ownership Change Event (including Inherit events) */}
+            {(eventType === 'ownership_change' || eventType === 'refinance') && (
               <div className="space-y-4 pt-2 border-t border-slate-200 dark:border-slate-700">
                 <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide">
                   Ownership Transfer Details

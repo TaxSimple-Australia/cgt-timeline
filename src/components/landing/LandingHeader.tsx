@@ -1,15 +1,22 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, ChevronDown, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { LANDING_VARIANTS, getCurrentVariant } from '@/lib/landing-variants';
 
 export default function LandingHeader() {
+  const pathname = usePathname();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isVariantDropdownOpen, setIsVariantDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  const currentVariant = getCurrentVariant(pathname);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -18,6 +25,18 @@ export default function LandingHeader() {
 
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsVariantDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
   const scrollToSection = (sectionId: string) => {
@@ -63,6 +82,57 @@ export default function LandingHeader() {
               </button>
             ))}
 
+            {/* Variant Dropdown */}
+            <div className="relative" ref={dropdownRef}>
+              <button
+                onClick={() => setIsVariantDropdownOpen(!isVariantDropdownOpen)}
+                className={cn(
+                  "flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-all",
+                  "text-slate-400 hover:text-slate-200 hover:bg-slate-800/50",
+                  isVariantDropdownOpen && "text-slate-200 bg-slate-800/50"
+                )}
+              >
+                <span>{currentVariant?.name || 'Variants'}</span>
+                <ChevronDown className={cn(
+                  "w-4 h-4 transition-transform",
+                  isVariantDropdownOpen && "rotate-180"
+                )} />
+              </button>
+
+              <AnimatePresence>
+                {isVariantDropdownOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.15 }}
+                    className="absolute right-0 mt-2 w-48 bg-slate-800 rounded-lg shadow-xl shadow-black/30 border border-slate-700 overflow-hidden z-50"
+                  >
+                    <div className="py-1">
+                      {LANDING_VARIANTS.map((variant) => (
+                        <Link
+                          key={variant.path}
+                          href={variant.path}
+                          onClick={() => setIsVariantDropdownOpen(false)}
+                          className={cn(
+                            "flex items-center justify-between px-4 py-2.5 text-sm transition-colors",
+                            currentVariant?.path === variant.path
+                              ? "text-cyan-400 bg-slate-700/50"
+                              : "text-slate-300 hover:text-white hover:bg-slate-700/30"
+                          )}
+                        >
+                          <span>{variant.name}</span>
+                          {currentVariant?.path === variant.path && (
+                            <Check className="w-4 h-4" />
+                          )}
+                        </Link>
+                      ))}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
             {/* Desktop CTA */}
             <Link href="/">
               <Button
@@ -104,6 +174,31 @@ export default function LandingHeader() {
                   {link.label}
                 </button>
               ))}
+
+              {/* Mobile Variant Switcher */}
+              <div className="border-t border-slate-700 pt-3 mt-3">
+                <p className="px-4 text-xs font-medium text-slate-500 uppercase tracking-wider mb-2">
+                  Page Variants
+                </p>
+                {LANDING_VARIANTS.map((variant) => (
+                  <Link
+                    key={variant.path}
+                    href={variant.path}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className={cn(
+                      "flex items-center justify-between px-4 py-3 rounded-lg text-sm font-medium transition-colors",
+                      currentVariant?.path === variant.path
+                        ? "text-cyan-400 bg-slate-800/50"
+                        : "text-slate-300 hover:text-cyan-400 hover:bg-slate-800/50"
+                    )}
+                  >
+                    <span>{variant.name}</span>
+                    {currentVariant?.path === variant.path && (
+                      <Check className="w-4 h-4" />
+                    )}
+                  </Link>
+                ))}
+              </div>
 
               {/* Mobile CTA */}
               <Link href="/" className="block pt-2">

@@ -4,6 +4,86 @@ import type { VerificationAlert } from '@/types/verification-alert';
 import { sanitizeDateForAPI } from '@/lib/date-utils';
 
 /**
+ * Generate comprehensive CGT context notes from event data
+ * This ensures all checkbox states and CGT-critical flags are sent to the API
+ * in a structured, AI-readable format
+ */
+function generateCGTContextNotes(event: TimelineEvent): string {
+  const notes: string[] = [];
+
+  // Checkbox states that indicate user intent
+  if (event.checkboxState) {
+    const cs = event.checkboxState;
+    if (cs.moveInOnSameDay) notes.push("Owner moved in on purchase day");
+    if (cs.purchaseAsVacant) notes.push("Property was vacant at purchase");
+    if (cs.purchaseAsRent) notes.push("Property was rented at purchase (inherited tenants)");
+    if (cs.purchaseAsMixedUse) notes.push("Property has mixed-use (partial investment)");
+    if (cs.moveOutAsVacant) notes.push("Property became vacant after move-out");
+    if (cs.moveOutAsRent) notes.push("Property became rental after move-out");
+    if (cs.rentEndAsVacant) notes.push("Property became vacant after rental ended");
+    if (cs.rentEndAsMoveIn) notes.push("Owner moved in after rental ended");
+    if (cs.vacantEndAsMoveIn) notes.push("Owner moved in after vacancy");
+    if (cs.vacantEndAsRent) notes.push("Property became rental after vacancy");
+    if (cs.hasBusinessUse) notes.push("Property has business/home office use");
+    if (cs.hasPartialRental) notes.push("Property has partial rental arrangement");
+    if (cs.isNonResident) notes.push("Owner is non-resident for tax purposes (no CGT discount)");
+  }
+
+  // CGT-critical flags (these significantly affect exemptions)
+  if (event.overTwoHectares) {
+    notes.push("LAND EXCEEDS 2 HECTARES - main residence exemption limited to dwelling + 2 hectares per ATO Section 118-120");
+  }
+  if (event.isLandOnly) {
+    notes.push("LAND ONLY (no dwelling) - different CGT rules apply, no building depreciation available");
+  }
+  if (event.isPPR) {
+    notes.push("Principal Place of Residence");
+  }
+
+  // Price breakdown (useful for land/building apportionment)
+  if (event.landPrice !== undefined && event.landPrice > 0) {
+    if (event.buildingPrice !== undefined && event.buildingPrice > 0) {
+      notes.push(`Price breakdown: Land $${event.landPrice.toLocaleString()}, Building $${event.buildingPrice.toLocaleString()}`);
+    } else {
+      notes.push(`Land price: $${event.landPrice.toLocaleString()}`);
+    }
+  } else if (event.buildingPrice !== undefined && event.buildingPrice > 0) {
+    notes.push(`Building price: $${event.buildingPrice.toLocaleString()}`);
+  }
+
+  // Capital proceeds type for sale events
+  if (event.capitalProceedsType) {
+    const proceedsTypeLabels: Record<string, string> = {
+      'standard': 'Standard sale proceeds',
+      'insurance': 'Insurance payout',
+      'compulsory_acquisition': 'Compulsory acquisition by government',
+      'gift': 'Gift (market value applies)',
+      'related_party': 'Related party transaction (market value may apply)'
+    };
+    const label = proceedsTypeLabels[event.capitalProceedsType] || event.capitalProceedsType;
+    notes.push(`Capital proceeds type: ${label}`);
+  }
+
+  // Exemption type if specified
+  if (event.exemptionType) {
+    const exemptionLabels: Record<string, string> = {
+      'main_residence': 'Main residence exemption claimed',
+      'partial_main_residence': 'Partial main residence exemption',
+      '6_year_rule': '6-year absence rule claimed',
+      'none': 'No exemption claimed'
+    };
+    const label = exemptionLabels[event.exemptionType] || event.exemptionType;
+    notes.push(`Exemption: ${label}`);
+  }
+
+  // Build the CGT context string
+  if (notes.length > 0) {
+    return `\n[CGT Context: ${notes.join('; ')}]`;
+  }
+  return '';
+}
+
+/**
  * Verification response format for the API
  */
 export interface VerificationResponse {
@@ -559,12 +639,33 @@ export function transformTimelineToAPIFormat(
       return historyEvent;
     }).filter((event): event is PropertyHistoryEvent => event !== null); // Filter out null entries from invalid dates
 
+    // Aggregate CGT context from all events for this property
+    const allCGTContext: string[] = [];
+    propertyEvents.forEach((event) => {
+      const cgtContext = generateCGTContextNotes(event);
+      if (cgtContext) {
+        const dateStr = sanitizeDateForAPI(event.date) || 'Unknown date';
+        const eventLabel = event.type.replace(/_/g, ' ');
+        // Remove the wrapper and format nicely
+        const cleanContext = cgtContext.replace('\n[CGT Context: ', '').replace(']', '');
+        allCGTContext.push(`${dateStr} (${eventLabel}): ${cleanContext}`);
+      }
+    });
+
+    // Build notes field with owners + CGT context
+    const notesParts: string[] = [];
+    if (property.owners && property.owners.length > 0) {
+      notesParts.push(`Owners: ${property.owners.map(o => `${o.name} (${o.percentage}%)`).join(', ')}`);
+    }
+    if (allCGTContext.length > 0) {
+      notesParts.push(`\n[CGT Context by Event]\n${allCGTContext.join('\n')}`);
+      console.log('📝 Transform: CGT context notes aggregated for', property.name, ':', allCGTContext.length, 'entries');
+    }
+
     return {
       address: `${property.name}, ${property.address}`,
       property_history,
-      notes: property.owners && property.owners.length > 0
-        ? `Owners: ${property.owners.map(o => `${o.name} (${o.percentage}%)`).join(', ')}`
-        : '', // Multi-owner data serialized to notes field for API
+      notes: notesParts.join(''),
     };
   });
 

@@ -103,26 +103,58 @@ export default function Voice2Controls({
     };
   }, [isMuted]);
 
-  // Initialize tool executor
+  // Initialize tool executor with comprehensive context
   useEffect(() => {
+    const store = useTimelineStore.getState();
+
     const context = {
+      // Dynamic getters for current state
       get properties() {
         return useTimelineStore.getState().properties;
       },
       get events() {
         return useTimelineStore.getState().events;
       },
-      addProperty: useTimelineStore.getState().addProperty,
-      updateProperty: useTimelineStore.getState().updateProperty,
-      deleteProperty: useTimelineStore.getState().deleteProperty,
-      addEvent: useTimelineStore.getState().addEvent,
-      updateEvent: useTimelineStore.getState().updateEvent,
-      deleteEvent: useTimelineStore.getState().deleteEvent,
-      clearAllData: useTimelineStore.getState().clearAllData,
-      loadDemoData: useTimelineStore.getState().loadDemoData,
-      setSelectedPropertyId: (id: string | null) => useTimelineStore.getState().selectProperty(id),
-      zoomIn: useTimelineStore.getState().zoomIn,
-      zoomOut: useTimelineStore.getState().zoomOut,
+
+      // Property Operations
+      addProperty: store.addProperty,
+      updateProperty: store.updateProperty,
+      deleteProperty: store.deleteProperty,
+
+      // Event Operations
+      addEvent: store.addEvent,
+      updateEvent: store.updateEvent,
+      deleteEvent: store.deleteEvent,
+
+      // Bulk Operations
+      clearAllData: store.clearAllData,
+      loadDemoData: store.loadDemoData,
+
+      // Selection & Navigation
+      selectProperty: store.selectProperty,
+      setSelectedPropertyId: (id: string | null) => store.selectProperty(id),
+
+      // Zoom & Pan Controls
+      zoomIn: store.zoomIn,
+      zoomOut: store.zoomOut,
+      setZoomByIndex: store.setZoomByIndex,
+      panToDate: store.panToDate,
+
+      // Global Settings
+      setMarginalTaxRate: store.setMarginalTaxRate,
+
+      // Analysis - wrap in async function
+      analyzePortfolio: async () => {
+        // This triggers analysis via the store
+        // The actual API call happens in the main app
+        console.log('🔍 Portfolio analysis requested via voice');
+        // For now, just log - the actual analysis is triggered via UI
+        return Promise.resolve();
+      },
+
+      // Undo/Redo (if available in store)
+      undo: (store as unknown as { undo?: () => void }).undo,
+      redo: (store as unknown as { redo?: () => void }).redo,
     };
 
     toolExecutorRef.current = new RealtimeToolExecutor(context);

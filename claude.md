@@ -36,6 +36,11 @@ This file serves as the project's memory and workflow guide. All instructions he
     - Multi-LLM support (Deepseek, Claude, GPT-4, Gemini)
     - Document upload & extraction
     - Full undo/redo support
+12. **Admin Dashboard** - Review AI outputs and track accuracy
+    - CGT Analysis testing with multiple LLM providers
+    - Tax Agent Review (annotation queue, correctness rating)
+    - Accuracy Dashboard (metrics by scenario/LLM, training data export)
+    - Accessible via Settings with admin credentials
 
 ---
 
@@ -108,12 +113,16 @@ GOOGLE_AI_API_KEY=your_google_ai_key      # Gemini 2.0 Flash
 # AI Timeline Builder - Voice Services (optional, enables voice features)
 DEEPGRAM_API_KEY=your_deepgram_key        # Speech-to-Text (Nova-2)
 ELEVENLABS_API_KEY=your_elevenlabs_key    # Text-to-Speech
+
+# Admin Dashboard (optional, connects to CGT Brain RAG backend)
+# NEXT_PUBLIC_ADMIN_API_URL=https://cgtbrain.com.au  # Default
 ```
 
 **Notes**:
 - If `NEXT_PUBLIC_CGT_MODEL_API_URL` is not set, app uses mock responses.
 - For AI Timeline Builder, at least one LLM API key is required (Deepseek is default).
 - Voice features require both DEEPGRAM_API_KEY and ELEVENLABS_API_KEY.
+- Admin Dashboard defaults to https://cgtbrain.com.au for the RAG backend.
 
 ---
 
@@ -148,6 +157,12 @@ src/
 │   │   ├── CalculationBreakdownSection.tsx
 │   │   ├── DetailedReportSection.tsx
 │   │   └── CGTReportPDF.tsx
+│   ├── admin/                    # Admin dashboard components
+│   │   ├── AdminLoginModal.tsx   # Login with credentials
+│   │   ├── AdminPage.tsx         # Main admin page with tabs
+│   │   ├── ChatPanel.tsx         # Follow-up questions chat
+│   │   ├── AnnotationPanel.tsx   # Tax agent review
+│   │   └── AccuracyDashboard.tsx # AI engineer dashboard
 │   ├── timeline-viz/             # Visualization modes
 │   └── ui/                       # Reusable UI primitives
 ├── store/                        # Zustand state

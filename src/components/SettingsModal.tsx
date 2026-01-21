@@ -3,9 +3,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Calendar, Eye, Copy, Check, Sparkles, Settings, Share2, Link, ExternalLink, Bot, ChevronDown, Loader2 } from 'lucide-react';
+import { X, Calendar, Eye, Copy, Check, Sparkles, Settings, Share2, Link, ExternalLink, Bot, ChevronDown, Loader2, Shield } from 'lucide-react';
 import { useTimelineStore } from '@/store/timeline';
 import { serializeTimeline } from '@/lib/timeline-serialization';
+import AdminLoginModal from './admin/AdminLoginModal';
+import AdminPage from './admin/AdminPage';
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -39,6 +41,9 @@ function Toggle({
   );
 }
 
+// Admin API URL - defaults to cgtbrain.com.au
+const ADMIN_API_URL = process.env.NEXT_PUBLIC_ADMIN_API_URL || 'https://cgtbrain.com.au';
+
 export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
   const {
     lockFutureDates, toggleLockFutureDates,
@@ -58,6 +63,10 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
   const [clipboardCopySuccess, setClipboardCopySuccess] = useState(false);
   const [mounted, setMounted] = useState(false);
   const linkInputRef = useRef<HTMLInputElement>(null);
+
+  // Admin state
+  const [showAdminLogin, setShowAdminLogin] = useState(false);
+  const [showAdminPage, setShowAdminPage] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -151,7 +160,47 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
     }
   }
 
+  // Admin handlers
+  function handleAdminLoginSuccess() {
+    setShowAdminLogin(false);
+    setShowAdminPage(true);
+    onClose(); // Close settings modal when entering admin
+  }
+
+  function handleAdminLogout() {
+    sessionStorage.removeItem('cgt_admin_auth');
+    sessionStorage.removeItem('cgt_admin_user');
+    setShowAdminPage(false);
+  }
+
+  function handleAdminBack() {
+    setShowAdminPage(false);
+  }
+
+  // Check if already authenticated
+  function handleAdminClick() {
+    const isAuthenticated = sessionStorage.getItem('cgt_admin_auth') === 'true';
+    if (isAuthenticated) {
+      setShowAdminPage(true);
+      onClose();
+    } else {
+      setShowAdminLogin(true);
+    }
+  }
+
   if (!mounted) return null;
+
+  // Show admin page if authenticated
+  if (showAdminPage) {
+    return createPortal(
+      <AdminPage
+        apiUrl={ADMIN_API_URL}
+        onLogout={handleAdminLogout}
+        onBack={handleAdminBack}
+      />,
+      document.body
+    );
+  }
 
   const modalContent = (
     <AnimatePresence>
@@ -462,6 +511,28 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                           )}
                         </div>
                       </div>
+
+                      {/* Admin Section */}
+                      <div>
+                        <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2 sm:mb-3 flex items-center gap-2">
+                          <Shield className="w-4 h-4" />
+                          Administration
+                        </h3>
+
+                        <div className="p-3 rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700">
+                          <p className="text-xs text-slate-500 dark:text-slate-400 mb-3">
+                            Access the admin dashboard to review AI analyses, annotate responses, and monitor accuracy metrics.
+                          </p>
+
+                          <button
+                            onClick={handleAdminClick}
+                            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-medium rounded-lg transition-all text-sm"
+                          >
+                            <Shield className="w-4 h-4" />
+                            Open Admin Dashboard
+                          </button>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -485,5 +556,14 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
     </AnimatePresence>
   );
 
-  return createPortal(modalContent, document.body);
+  return (
+    <>
+      {createPortal(modalContent, document.body)}
+      <AdminLoginModal
+        isOpen={showAdminLogin}
+        onClose={() => setShowAdminLogin(false)}
+        onSuccess={handleAdminLoginSuccess}
+      />
+    </>
+  );
 }

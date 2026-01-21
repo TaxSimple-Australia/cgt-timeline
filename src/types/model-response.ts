@@ -150,7 +150,7 @@ export interface CGTModelResponse {
 }
 
 // ============================================================================
-// NEW API RESPONSE TYPES (from /api/v1/analyze-portfolio-json)
+// NEW API RESPONSE TYPES (from https://cgtbrain.com.au/calculate-cgt-json/)
 // ============================================================================
 
 export interface TimelineEvent {

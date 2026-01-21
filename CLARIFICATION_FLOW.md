@@ -214,7 +214,7 @@ When user submits answers, they are transformed to:
   - If needs clarification: `verification_failed` with questions
   - If successful: Success with analysis data
 
-The same endpoint handles both initial analysis and retry with clarification answers. The external API (`/api/v1/analyze-portfolio-json`) receives the `clarification_answers` field and processes accordingly.
+The same endpoint handles both initial analysis and retry with clarification answers. The external API (`https://cgtbrain.com.au/calculate-cgt/` or `/calculate-cgt-json/`) receives the `clarification_answers` field and processes accordingly.
 
 ## Testing
 

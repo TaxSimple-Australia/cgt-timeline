@@ -8,8 +8,8 @@ import AccuracyDashboard from './AccuracyDashboard';
 
 // LLM Providers for CGT Analysis
 const LLM_PROVIDERS = [
-  { value: 'claude', label: 'Claude Sonnet 4' },
   { value: 'deepseek', label: 'DeepSeek Chat' },
+  { value: 'claude', label: 'Claude Sonnet 4' },
   { value: 'olmo', label: 'Olmo 3.1 32B (Free)' },
   { value: 'openai', label: 'GPT-4o' },
   { value: 'gemini', label: 'Gemini 2.0 Flash' },
@@ -82,7 +82,7 @@ const SAMPLE_PAYLOAD = {
     australian_resident: true,
     other_property_owned: false
   },
-  llm_provider: 'claude'
+  llm_provider: 'deepseek'
 };
 
 type TabType = 'analysis' | 'annotation' | 'dashboard';
@@ -98,7 +98,7 @@ export default function AdminPage({ apiUrl, onLogout, onBack }: AdminPageProps) 
 
   // CGT Analysis state
   const [jsonInput, setJsonInput] = useState(JSON.stringify(SAMPLE_PAYLOAD, null, 2));
-  const [llmProvider, setLlmProvider] = useState('claude');
+  const [llmProvider, setLlmProvider] = useState('deepseek');
   const [analysis, setAnalysis] = useState<string | null>(null);
   const [sources, setSources] = useState<Sources | null>(null);
   const [llmUsed, setLlmUsed] = useState<string | null>(null);
@@ -200,7 +200,7 @@ export default function AdminPage({ apiUrl, onLogout, onBack }: AdminPageProps) 
   const adminUser = typeof window !== 'undefined' ? sessionStorage.getItem('cgt_admin_user') : null;
 
   return (
-    <div className="min-h-screen bg-slate-100 dark:bg-slate-950">
+    <div className="fixed inset-0 z-[100000] overflow-auto bg-slate-100 dark:bg-slate-950">
       {/* Header */}
       <header className="bg-white dark:bg-slate-800 shadow-sm border-b border-slate-200 dark:border-slate-700">
         <div className="max-w-7xl mx-auto px-4 py-3 sm:py-4">

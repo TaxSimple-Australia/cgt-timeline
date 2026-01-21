@@ -164,7 +164,7 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
   function handleAdminLoginSuccess() {
     setShowAdminLogin(false);
     setShowAdminPage(true);
-    onClose(); // Close settings modal when entering admin
+    // Don't call onClose() - we need the component to stay mounted to show AdminPage
   }
 
   function handleAdminLogout() {
@@ -182,7 +182,7 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
     const isAuthenticated = sessionStorage.getItem('cgt_admin_auth') === 'true';
     if (isAuthenticated) {
       setShowAdminPage(true);
-      onClose();
+      // Don't call onClose() - we need the component to stay mounted to show AdminPage
     } else {
       setShowAdminLogin(true);
     }
@@ -302,6 +302,28 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                             </div>
                             <Toggle enabled={eventDisplayMode === 'card'} onChange={toggleEventDisplayMode} id="display-mode" />
                           </div>
+                        </div>
+                      </div>
+
+                      {/* Admin Section */}
+                      <div>
+                        <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2 sm:mb-3 flex items-center gap-2">
+                          <Shield className="w-4 h-4" />
+                          Administration
+                        </h3>
+
+                        <div className="p-3 rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700">
+                          <p className="text-xs text-slate-500 dark:text-slate-400 mb-3">
+                            Access the admin dashboard to review AI analyses, annotate responses, and monitor accuracy metrics.
+                          </p>
+
+                          <button
+                            onClick={handleAdminClick}
+                            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-medium rounded-lg transition-all text-sm"
+                          >
+                            <Shield className="w-4 h-4" />
+                            Open Admin Dashboard
+                          </button>
                         </div>
                       </div>
                     </div>
@@ -509,28 +531,6 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                               Add at least one property to enable sharing
                             </p>
                           )}
-                        </div>
-                      </div>
-
-                      {/* Admin Section */}
-                      <div>
-                        <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2 sm:mb-3 flex items-center gap-2">
-                          <Shield className="w-4 h-4" />
-                          Administration
-                        </h3>
-
-                        <div className="p-3 rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700">
-                          <p className="text-xs text-slate-500 dark:text-slate-400 mb-3">
-                            Access the admin dashboard to review AI analyses, annotate responses, and monitor accuracy metrics.
-                          </p>
-
-                          <button
-                            onClick={handleAdminClick}
-                            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-medium rounded-lg transition-all text-sm"
-                          >
-                            <Shield className="w-4 h-4" />
-                            Open Admin Dashboard
-                          </button>
                         </div>
                       </div>
                     </div>

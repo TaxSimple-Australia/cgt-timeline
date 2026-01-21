@@ -749,7 +749,7 @@ export default function PropertyBranch({
                           style={{ backgroundColor: `${lot1.color}E6` }}
                         >
                           {lot1.lotNumber}
-                          {lot1.lotSize && ` • ${lot1.lotSize.toFixed(0)} sqm`}
+                          {lot1.lotSize && ` • ${(lot1.lotSize / 10000).toFixed(4)} ha`}
                         </div>
                       </foreignObject>
                     );
@@ -818,7 +818,7 @@ export default function PropertyBranch({
                 style={{ backgroundColor: `${property.color}E6` }}
               >
                 {property.lotNumber}
-                {property.lotSize && ` • ${property.lotSize.toFixed(0)} sqm`}
+                {property.lotSize && ` • ${(property.lotSize / 10000).toFixed(4)} ha`}
               </div>
             </foreignObject>
           )}

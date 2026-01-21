@@ -253,7 +253,7 @@ export default function EventCard({
               {event.subdivisionDetails.childProperties.map((child, idx) => (
                 <div key={child.id} className="text-xs opacity-90">
                   <span className="font-semibold">{child.name}:</span>{' '}
-                  {child.lotSize ? `${child.lotSize.toFixed(0)} sqm` : 'Size N/A'}
+                  {child.lotSize ? `${(child.lotSize / 10000).toFixed(4)} ha` : 'Size N/A'}
                   {child.allocatedCostBase && (
                     <span className="opacity-75"> • {formatCurrency(child.allocatedCostBase)}</span>
                   )}

@@ -520,7 +520,7 @@ export default function PropertyPanel() {
                         </div>
                         {child.lotSize && (
                           <div className="text-pink-600 dark:text-pink-400 mt-0.5">
-                            {child.lotSize.toFixed(0)} sqm
+                            {(child.lotSize / 10000).toFixed(4)} ha
                           </div>
                         )}
                         {child.initialCostBase && (
@@ -604,7 +604,7 @@ export default function PropertyPanel() {
                       <div className="bg-white dark:bg-slate-700/50 p-2 rounded border border-pink-200 dark:border-pink-700">
                         <div className="text-xs text-pink-600 dark:text-pink-400">Lot Size</div>
                         <div className="font-semibold text-sm text-pink-900 dark:text-pink-100">
-                          {property.lotSize.toFixed(0)} sqm
+                          {(property.lotSize / 10000).toFixed(4)} ha
                         </div>
                       </div>
                     )}

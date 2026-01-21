@@ -326,7 +326,7 @@ export function transformTimelineToAPIFormat(
             .map((child, idx) => {
               const parts = [`Lot ${idx + 1}: ${child.name}`];
               if (child.lotNumber) parts.push(`(${child.lotNumber})`);
-              if (child.lotSize) parts.push(`${child.lotSize.toFixed(0)} sqm`);
+              if (child.lotSize) parts.push(`${(child.lotSize / 10000).toFixed(4)} ha`);
               if (child.allocatedCostBase) parts.push(`Cost base: $${child.allocatedCostBase.toLocaleString('en-AU')}`);
               return parts.join(' ');
             })

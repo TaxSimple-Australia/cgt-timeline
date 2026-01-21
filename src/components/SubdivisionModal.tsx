@@ -232,17 +232,19 @@ export default function SubdivisionModal({ property, isOpen, onClose, clickedDat
                           {/* Lot Size */}
                           <div>
                             <label className="text-xs font-medium text-slate-600 dark:text-slate-400 mb-1 block">
-                              Lot Size (sqm) *
+                              Lot Size (hectares) *
                             </label>
                             <input
                               type="number"
-                              value={lot.lotSize || ''}
-                              onChange={(e) =>
-                                updateLot(lot.id, 'lotSize', parseFloat(e.target.value) || 0)
-                              }
+                              value={lot.lotSize ? (lot.lotSize / 10000).toString() : ''}
+                              onChange={(e) => {
+                                const hectares = parseFloat(e.target.value) || 0;
+                                const sqm = hectares * 10000;
+                                updateLot(lot.id, 'lotSize', sqm);
+                              }}
                               placeholder="0"
                               min="0"
-                              step="0.01"
+                              step="0.0001"
                               className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 text-sm"
                             />
                           </div>
@@ -292,7 +294,7 @@ export default function SubdivisionModal({ property, isOpen, onClose, clickedDat
                       Total Lot Size:
                     </span>
                     <span className="font-semibold text-blue-700 dark:text-blue-300">
-                      {totalLotSize.toFixed(2)} sqm
+                      {(totalLotSize / 10000).toFixed(4)} ha
                     </span>
                   </div>
                 </div>

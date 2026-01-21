@@ -2221,7 +2221,7 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
       };
 
       // Call the API
-      const response = await fetch('/api/analyze-cgt', {
+      const response = await fetch('/api/calculate-cgt', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

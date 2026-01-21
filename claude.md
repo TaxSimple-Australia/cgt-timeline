@@ -93,7 +93,7 @@ npm run lint     # Run ESLint
 Create `.env.local` with:
 ```env
 # API Configuration
-# The actual endpoints are hardcoded in src/app/api/analyze-cgt/route.ts:
+# The actual endpoints are hardcoded in src/app/api/calculate-cgt/route.ts:
 # - https://cgtbrain.com.au/calculate-cgt/      (Markdown response)
 # - https://cgtbrain.com.au/calculate-cgt-json/ (JSON response)
 # This env variable is used to check if API is enabled
@@ -138,7 +138,7 @@ ELEVENLABS_API_KEY=your_elevenlabs_key    # Text-to-Speech
 src/
 ├── app/                           # Next.js App Router
 │   ├── api/                       # API routes
-│   │   ├── analyze-cgt/          # Main CGT analysis endpoint
+│   │   ├── calculate-cgt/          # Main CGT analysis endpoint
 │   │   ├── analyze-with-resolution/ # With verification
 │   │   ├── suggest-questions/    # AI question suggestions
 │   │   ├── send-email/           # Email functionality
@@ -388,7 +388,7 @@ interface CostBaseItem {
 
 ### 5. AI API Integration
 
-**Endpoint**: `/api/analyze-cgt`
+**Endpoint**: `/api/calculate-cgt`
 **Flow**:
 1. Transform timeline data: `transformTimelineToAPIFormat()`
 2. POST to API with properties + history
@@ -523,7 +523,7 @@ console.log('📥 Received:', response);
 
 ### Browser DevTools
 1. **Console**: Check for errors, use emoji logs
-2. **Network**: Inspect API calls (analyze-cgt, timeline/save)
+2. **Network**: Inspect API calls (calculate-cgt, timeline/save)
 3. **React DevTools**: Inspect component props/state
 4. **Zustand DevTools**: Install and inspect store state
 

@@ -24,7 +24,7 @@ When the external API encounters an error, it returns a response like this:
 
 ## How Errors Are Handled
 
-### 1. API Route (`/api/analyze-cgt`)
+### 1. API Route (`/api/calculate-cgt`)
 
 The API route now detects error responses and converts them to a standard format:
 
@@ -167,7 +167,7 @@ To test error handling:
 
 ## Files Modified
 
-1. `src/app/api/analyze-cgt/route.ts` - Detects error responses
+1. `src/app/api/calculate-cgt/route.ts` - Detects error responses
 2. `src/app/page.tsx` - Enhanced error handling and display
 3. `public/NewRequestsAndResponses/example_error_response.json` - Example error response
 

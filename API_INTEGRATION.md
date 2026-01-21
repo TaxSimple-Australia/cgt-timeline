@@ -121,7 +121,7 @@ cp .env.local.example .env.local
 
 2. Edit `.env.local` and add your API URL:
 ```env
-# The actual endpoints are hardcoded in src/app/api/analyze-cgt/route.ts:
+# The actual endpoints are hardcoded in src/app/api/calculate-cgt/route.ts:
 # - https://cgtbrain.com.au/calculate-cgt/      (Markdown response)
 # - https://cgtbrain.com.au/calculate-cgt-json/ (JSON response)
 NEXT_PUBLIC_CGT_MODEL_API_URL=https://cgtbrain.com.au/calculate-cgt/
@@ -136,7 +136,7 @@ CGT_MODEL_API_KEY=your_api_key_here
 
 ### Step 2: Update API Route (if needed)
 
-Edit `src/app/api/analyze-cgt/route.ts` if you need to:
+Edit `src/app/api/calculate-cgt/route.ts` if you need to:
 - Add authentication headers
 - Transform the request format
 - Handle specific error cases
@@ -177,7 +177,7 @@ If you haven't configured the API URL, the system automatically uses **mock data
 src/
 ├── app/
 │   ├── api/
-│   │   └── analyze-cgt/
+│   │   └── calculate-cgt/
 │   │       └── route.ts          # API endpoint handler
 │   └── page.tsx                  # Main page with API integration
 ├── lib/

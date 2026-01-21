@@ -295,7 +295,7 @@ function HomeContent() {
       console.log(`🤖 Using LLM Provider: ${selectedLLMProvider}`);
 
       // Call the API with the response mode and LLM provider settings
-      const response = await fetch('/api/analyze-cgt', {
+      const response = await fetch('/api/calculate-cgt', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -328,7 +328,7 @@ function HomeContent() {
         setAPIResponseMode('markdown');
 
         // Retry the API call with markdown mode
-        const retryResponse = await fetch('/api/analyze-cgt', {
+        const retryResponse = await fetch('/api/calculate-cgt', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -534,7 +534,7 @@ function HomeContent() {
         console.log(`🔗 Using API Response Mode: ${apiResponseMode}`);
         console.log(`🤖 Using LLM Provider: ${selectedLLMProvider}`);
         // Call the same API endpoint with verification responses
-        const response = await fetch('/api/analyze-cgt', {
+        const response = await fetch('/api/calculate-cgt', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -567,7 +567,7 @@ function HomeContent() {
           setAPIResponseMode('markdown');
 
           // Retry the API call with markdown mode
-          const retryResponse = await fetch('/api/analyze-cgt', {
+          const retryResponse = await fetch('/api/calculate-cgt', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -699,7 +699,7 @@ function HomeContent() {
       console.log(`🤖 Using LLM Provider: ${selectedLLMProvider}`);
 
       // Call the same API endpoint with clarification answers included
-      const response = await fetch('/api/analyze-cgt', {
+      const response = await fetch('/api/calculate-cgt', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -731,7 +731,7 @@ function HomeContent() {
         setAPIResponseMode('markdown');
 
         // Retry the API call with markdown mode
-        const retryResponse = await fetch('/api/analyze-cgt', {
+        const retryResponse = await fetch('/api/calculate-cgt', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

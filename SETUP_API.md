@@ -21,13 +21,13 @@ type nul > .env.local
 Open `.env.local` and add:
 
 ```env
-# The actual endpoints are hardcoded in src/app/api/analyze-cgt/route.ts:
+# The actual endpoints are hardcoded in src/app/api/calculate-cgt/route.ts:
 # - https://cgtbrain.com.au/calculate-cgt/      (Markdown response)
 # - https://cgtbrain.com.au/calculate-cgt-json/ (JSON response)
 NEXT_PUBLIC_CGT_MODEL_API_URL=https://cgtbrain.com.au/calculate-cgt/
 ```
 
-Note: The API endpoints are hardcoded in `src/app/api/analyze-cgt/route.ts`. This env variable is used to check if the API is enabled.
+Note: The API endpoints are hardcoded in `src/app/api/calculate-cgt/route.ts`. This env variable is used to check if the API is enabled.
 
 ### Step 3: Restart the Development Server
 
@@ -137,7 +137,7 @@ Your API should return:
 
 ## Authentication (Optional)
 
-If your API requires authentication, edit `src/app/api/analyze-cgt/route.ts`:
+If your API requires authentication, edit `src/app/api/calculate-cgt/route.ts`:
 
 ```typescript
 // Add to .env.local:

@@ -21,7 +21,7 @@ This document explains how the CGT (Capital Gains Tax) analysis flow handles cla
          ▼
 ┌──────────────────┐
 │ POST to          │
-│ /api/analyze-cgt │
+│ /api/calculate-cgt │
 └────────┬─────────┘
          │
          ▼
@@ -180,7 +180,7 @@ When user submits answers, they are transformed to:
    - ClarificationAnswer interface
    - CGTAnalysisResponse union type
 
-2. **`src/app/api/analyze-cgt/route.ts`** (UPDATED)
+2. **`src/app/api/calculate-cgt/route.ts`** (UPDATED)
    - Lines 47-81: Added detection of `needs_clarification` response
    - Transforms API format to GapQuestionsPanel format
    - Converts to `verification_failed` status for UI compatibility
@@ -207,7 +207,7 @@ When user submits answers, they are transformed to:
 ## API Endpoints
 
 ### Initial Analysis & Retry (Same Endpoint)
-- **Endpoint**: `POST /api/analyze-cgt`
+- **Endpoint**: `POST /api/calculate-cgt`
 - **Initial Request**: Timeline data without clarification_answers
 - **Retry Request**: Timeline data WITH clarification_answers
 - **Response**:

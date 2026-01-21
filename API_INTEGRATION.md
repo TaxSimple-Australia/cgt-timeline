@@ -121,8 +121,13 @@ cp .env.local.example .env.local
 
 2. Edit `.env.local` and add your API URL:
 ```env
-NEXT_PUBLIC_CGT_MODEL_API_URL=https://your-api-url.com/analyze
+# The actual endpoints are hardcoded in src/app/api/analyze-cgt/route.ts:
+# - https://cgtbrain.com.au/calculate-cgt/      (Markdown response)
+# - https://cgtbrain.com.au/calculate-cgt-json/ (JSON response)
+NEXT_PUBLIC_CGT_MODEL_API_URL=https://cgtbrain.com.au/calculate-cgt/
 ```
+
+Note: The API endpoints are hardcoded in the route file. This env variable is used to check if the API is enabled.
 
 3. If your API requires authentication, add:
 ```env

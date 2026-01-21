@@ -93,7 +93,11 @@ npm run lint     # Run ESLint
 Create `.env.local` with:
 ```env
 # API Configuration
-NEXT_PUBLIC_CGT_MODEL_API_URL=https://cgtbrain.com.au/api/v1/analyze-portfolio
+# The actual endpoints are hardcoded in src/app/api/analyze-cgt/route.ts:
+# - https://cgtbrain.com.au/calculate-cgt/      (Markdown response)
+# - https://cgtbrain.com.au/calculate-cgt-json/ (JSON response)
+# This env variable is used to check if API is enabled
+NEXT_PUBLIC_CGT_MODEL_API_URL=https://cgtbrain.com.au/calculate-cgt/
 
 # Vercel KV (for shareable links)
 KV_URL=your_vercel_kv_url
@@ -120,6 +124,7 @@ ELEVENLABS_API_KEY=your_elevenlabs_key    # Text-to-Speech
 
 **Notes**:
 - If `NEXT_PUBLIC_CGT_MODEL_API_URL` is not set, app uses mock responses.
+- CGT analysis calls `https://cgtbrain.com.au/calculate-cgt/` (hardcoded in route.ts).
 - For AI Timeline Builder, at least one LLM API key is required (Deepseek is default).
 - Voice features require both DEEPGRAM_API_KEY and ELEVENLABS_API_KEY.
 - Admin Dashboard defaults to https://cgtbrain.com.au for the RAG backend.

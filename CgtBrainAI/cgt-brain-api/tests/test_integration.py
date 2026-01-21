@@ -376,12 +376,12 @@ class TestCORSConfiguration:
         response = client.options(
             "/health",
             headers={
-                "Origin": "https://ai.cgtbrain.com.au",
+                "Origin": "https://cgtbrain.com.au",
                 "Access-Control-Request-Method": "GET",
             },
         )
 
-        assert response.headers.get("access-control-allow-origin") == "https://ai.cgtbrain.com.au"
+        assert response.headers.get("access-control-allow-origin") == "https://cgtbrain.com.au"
 
     def test_cors_allows_localhost(self, client):
         """Test CORS allows localhost for development."""

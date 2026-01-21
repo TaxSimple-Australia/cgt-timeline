@@ -39,7 +39,7 @@ class Settings(BaseSettings):
 
     # CORS Settings
     cors_origins: list[str] = [
-        "https://ai.cgtbrain.com.au",
+        "https://cgtbrain.com.au",
         "http://localhost:3000",
         "http://localhost:5173",
     ]

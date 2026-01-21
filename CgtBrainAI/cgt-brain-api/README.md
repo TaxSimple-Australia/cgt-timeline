@@ -166,7 +166,7 @@ The API uses Anthropic's prompt caching feature to reduce costs:
 ## CORS Configuration
 
 Allowed origins:
-- `https://ai.cgtbrain.com.au` (production)
+- `https://cgtbrain.com.au` (production)
 - `http://localhost:3000` (development)
 - `http://localhost:5173` (Vite development)
 

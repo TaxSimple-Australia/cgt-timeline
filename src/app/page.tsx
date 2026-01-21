@@ -24,12 +24,6 @@ import { ChevronDown, ChevronUp, Sparkles, AlertTriangle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AITimelineBuilder, AIBuilderButton } from '@/components/ai-builder';
 
-// Direct API endpoints - bypass Next.js API routes
-const CGT_API_BASE_URL = 'https://cgtbrain.com.au';
-const CGT_CALCULATE_ENDPOINT = `${CGT_API_BASE_URL}/calculate-cgt/`;
-const CGT_CALCULATE_JSON_ENDPOINT = `${CGT_API_BASE_URL}/calculate-cgt-json/`;
-const CGT_SUGGEST_QUESTIONS_ENDPOINT = `${CGT_API_BASE_URL}/suggest-questions/`;
-
 // Loading screen component for Suspense fallback
 function ShareLoadingScreen() {
   return (
@@ -300,19 +294,13 @@ function HomeContent() {
       console.log(`🔗 Using API Response Mode: ${apiResponseMode}`);
       console.log(`🤖 Using LLM Provider: ${selectedLLMProvider}`);
 
-      // Call the external API directly based on response mode
-      const apiEndpoint = apiResponseMode === 'json' ? CGT_CALCULATE_JSON_ENDPOINT : CGT_CALCULATE_ENDPOINT;
-      const apiPayload = { ...apiData, llm_provider: selectedLLMProvider };
-
-      console.log(`🔗 Calling external API: ${apiEndpoint}`);
-
-      const response = await fetch(apiEndpoint, {
+      // Call the Next.js API route
+      const response = await fetch('/api/calculate-cgt', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Accept': 'application/json',
         },
-        body: JSON.stringify(apiPayload),
+        body: JSON.stringify({ ...apiData, responseMode: apiResponseMode, llmProvider: selectedLLMProvider }),
       });
 
       if (!response.ok) {
@@ -322,25 +310,29 @@ function HomeContent() {
       let result = await response.json();
       console.log('📥 Received from API:', result);
 
-      // Check for error status in response
-      if (result.status === 'error') {
+      if (!result.success) {
         const errorMessage = result.error || 'API request failed';
-        throw new Error(`Analysis Error: ${errorMessage}`);
+        const displayError = `Analysis Error: ${errorMessage}`;
+
+        if (result.errorDetails) {
+          console.error('📋 Error details:', result.errorDetails);
+        }
+
+        throw new Error(displayError);
       }
 
       // Check if response format is valid - if not and we're in JSON mode, auto-fallback to markdown
-      if (!isValidResponseFormat(result) && apiResponseMode === 'json') {
+      if (!isValidResponseFormat(result.data) && apiResponseMode === 'json') {
         console.log('⚠️ Unknown response format detected in JSON mode - auto-switching to markdown mode');
         setAPIResponseMode('markdown');
 
         // Retry the API call with markdown mode
-        const retryResponse = await fetch(CGT_CALCULATE_ENDPOINT, {
+        const retryResponse = await fetch('/api/calculate-cgt', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Accept': 'application/json',
           },
-          body: JSON.stringify(apiPayload),
+          body: JSON.stringify({ ...apiData, responseMode: 'markdown', llmProvider: selectedLLMProvider }),
         });
 
         if (!retryResponse.ok) {
@@ -350,19 +342,19 @@ function HomeContent() {
         result = await retryResponse.json();
         console.log('📥 Received from API (markdown fallback):', result);
 
-        if (result.status === 'error') {
+        if (!result.success) {
           const errorMessage = result.error || 'API request failed';
           throw new Error(`Analysis Error: ${errorMessage}`);
         }
       }
 
-      // Use raw API response data directly (no wrapper)
-      console.log('✅ Using raw API data:', result);
+      // Use raw API response data
+      console.log('✅ Using raw API data:', result.data);
 
-      // The external API returns the response directly (not wrapped in { success, data })
-      const fullResponse = result;
+      // IMPORTANT: Keep the FULL response structure including sources, query, etc.
+      const fullResponse = result.data;
       // For backwards compatibility, also get the inner data for checks
-      const innerData = result.data || result;
+      const innerData = result.data.data || result.data;
 
       // Debug: Log the full structure to verify sources are present
       console.log('📊 Full response structure keys:', Object.keys(fullResponse || {}));
@@ -442,26 +434,24 @@ function HomeContent() {
 
       console.log('📤 Fetching suggested questions:', apiData);
       console.log(`🤖 Using LLM Provider: ${selectedLLMProvider}`);
-      console.log(`🔗 Calling external API: ${CGT_SUGGEST_QUESTIONS_ENDPOINT}`);
 
-      const response = await fetch(CGT_SUGGEST_QUESTIONS_ENDPOINT, {
+      const response = await fetch('/api/suggest-questions', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Accept': 'application/json',
         },
-        body: JSON.stringify({ ...apiData, llm_provider: selectedLLMProvider }),
+        body: JSON.stringify({ ...apiData, llmProvider: selectedLLMProvider }),
       });
 
       const result = await response.json();
       console.log('📥 Suggested questions response:', result);
 
-      if (result.status === 'error') {
+      if (!result.success) {
         throw new Error(result.error || 'Failed to fetch suggested questions');
       }
 
-      setSuggestedQuestions(result.suggested_questions || []);
-      setSuggestedQuestionsContext(result.context_summary || '');
+      setSuggestedQuestions(result.data.suggested_questions || []);
+      setSuggestedQuestionsContext(result.data.context_summary || '');
     } catch (err) {
       console.error('❌ Error fetching suggested questions:', err);
       setSuggestionsError(
@@ -540,19 +530,13 @@ function HomeContent() {
         console.log(`🔗 Using API Response Mode: ${apiResponseMode}`);
         console.log(`🤖 Using LLM Provider: ${selectedLLMProvider}`);
 
-        // Call the external API directly based on response mode
-        const apiEndpoint = apiResponseMode === 'json' ? CGT_CALCULATE_JSON_ENDPOINT : CGT_CALCULATE_ENDPOINT;
-        const apiPayload = { ...requestData, llm_provider: selectedLLMProvider };
-
-        console.log(`🔗 Calling external API: ${apiEndpoint}`);
-
-        const response = await fetch(apiEndpoint, {
+        // Call the Next.js API route with verification responses
+        const response = await fetch('/api/calculate-cgt', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Accept': 'application/json',
           },
-          body: JSON.stringify(apiPayload),
+          body: JSON.stringify({ ...requestData, responseMode: apiResponseMode, llmProvider: selectedLLMProvider }),
         });
 
         if (!response.ok) {
@@ -562,24 +546,29 @@ function HomeContent() {
         result = await response.json();
         console.log('📥 Received from API after resolution:', result);
 
-        if (result.status === 'error') {
+        if (!result.success) {
           const errorMessage = result.error || 'API request failed';
-          throw new Error(`Analysis Error: ${errorMessage}`);
+          const displayError = `Analysis Error: ${errorMessage}`;
+
+          if (result.errorDetails) {
+            console.error('📋 Error details:', result.errorDetails);
+          }
+
+          throw new Error(displayError);
         }
 
         // Check if response format is valid - if not and we're in JSON mode, auto-fallback to markdown
-        if (!isValidResponseFormat(result) && apiResponseMode === 'json') {
+        if (!isValidResponseFormat(result.data) && apiResponseMode === 'json') {
           console.log('⚠️ Unknown response format detected in JSON mode - auto-switching to markdown mode');
           setAPIResponseMode('markdown');
 
           // Retry the API call with markdown mode
-          const retryResponse = await fetch(CGT_CALCULATE_ENDPOINT, {
+          const retryResponse = await fetch('/api/calculate-cgt', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
-              'Accept': 'application/json',
             },
-            body: JSON.stringify(apiPayload),
+            body: JSON.stringify({ ...requestData, responseMode: 'markdown', llmProvider: selectedLLMProvider }),
           });
 
           if (!retryResponse.ok) {
@@ -589,7 +578,7 @@ function HomeContent() {
           result = await retryResponse.json();
           console.log('📥 Received from API after resolution (markdown fallback):', result);
 
-          if (result.status === 'error') {
+          if (!result.success) {
             const errorMessage = result.error || 'API request failed';
             throw new Error(`Analysis Error: ${errorMessage}`);
           }
@@ -616,13 +605,13 @@ function HomeContent() {
       // setShowAllResolvedPopup(false); // Not needed - already closed
 
       // Store the FULL response including sources, query, etc.
-      // result is the raw API response (not wrapped)
-      const fullResponse = result;
+      // result.data contains the complete external API response
+      const fullResponse = result.data;
       console.log('📊 Re-submit: Full response keys:', Object.keys(fullResponse || {}));
       console.log('📊 Re-submit: Has sources?:', !!fullResponse?.sources);
 
       // Set validation issues in store if present
-      const innerData = result.data || result;
+      const innerData = result.data.data || result.data;
       if (innerData.verification?.issues) {
         setValidationIssues(innerData.verification.issues, properties);
       }
@@ -705,19 +694,13 @@ function HomeContent() {
       console.log(`🔗 Using API Response Mode: ${apiResponseMode}`);
       console.log(`🤖 Using LLM Provider: ${selectedLLMProvider}`);
 
-      // Call the external API directly based on response mode
-      const apiEndpoint = apiResponseMode === 'json' ? CGT_CALCULATE_JSON_ENDPOINT : CGT_CALCULATE_ENDPOINT;
-      const apiPayload = { ...requestData, llm_provider: selectedLLMProvider };
-
-      console.log(`🔗 Calling external API: ${apiEndpoint}`);
-
-      const response = await fetch(apiEndpoint, {
+      // Call the Next.js API route with clarification answers included
+      const response = await fetch('/api/calculate-cgt', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Accept': 'application/json',
         },
-        body: JSON.stringify(apiPayload),
+        body: JSON.stringify({ ...requestData, responseMode: apiResponseMode, llmProvider: selectedLLMProvider }),
       });
 
       if (!response.ok) {
@@ -727,24 +710,29 @@ function HomeContent() {
       let result = await response.json();
       console.log('📥 Received from API after gap clarifications:', result);
 
-      if (result.status === 'error') {
+      if (!result.success) {
         const errorMessage = result.error || 'API request failed';
-        throw new Error(`Analysis Error: ${errorMessage}`);
+        const displayError = `Analysis Error: ${errorMessage}`;
+
+        if (result.errorDetails) {
+          console.error('📋 Error details:', result.errorDetails);
+        }
+
+        throw new Error(displayError);
       }
 
       // Check if response format is valid - if not and we're in JSON mode, auto-fallback to markdown
-      if (!isValidResponseFormat(result) && apiResponseMode === 'json') {
+      if (!isValidResponseFormat(result.data) && apiResponseMode === 'json') {
         console.log('⚠️ Unknown response format detected in JSON mode - auto-switching to markdown mode');
         setAPIResponseMode('markdown');
 
         // Retry the API call with markdown mode
-        const retryResponse = await fetch(CGT_CALCULATE_ENDPOINT, {
+        const retryResponse = await fetch('/api/calculate-cgt', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Accept': 'application/json',
           },
-          body: JSON.stringify(apiPayload),
+          body: JSON.stringify({ ...requestData, responseMode: 'markdown', llmProvider: selectedLLMProvider }),
         });
 
         if (!retryResponse.ok) {
@@ -754,7 +742,7 @@ function HomeContent() {
         result = await retryResponse.json();
         console.log('📥 Received from API after gap clarifications (markdown fallback):', result);
 
-        if (result.status === 'error') {
+        if (!result.success) {
           const errorMessage = result.error || 'API request failed';
           throw new Error(`Analysis Error: ${errorMessage}`);
         }
@@ -762,13 +750,13 @@ function HomeContent() {
 
       // Check if API still needs clarification - handle multiple response formats
       const stillNeedsClarification =
-        result.needs_clarification === true ||
-        result.summary?.requires_clarification === true ||
-        result.status === "verification_failed";
+        result.data?.needs_clarification === true ||
+        result.data?.summary?.requires_clarification === true ||
+        result.data?.status === "verification_failed";
 
       // Store the FULL response including sources, query, etc.
-      const fullResponse = result;
-      const innerData = result.data || result;
+      const fullResponse = result.data;
+      const innerData = result.data.data || result.data;
       console.log('📊 Gap retry: Full response keys:', Object.keys(fullResponse || {}));
       console.log('📊 Gap retry: Has sources?:', !!fullResponse?.sources);
 

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   X,
   Minimize2,
@@ -11,25 +11,21 @@ import {
   FileText,
   Undo2,
   Redo2,
-  Volume2,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { useTimelineStore } from '@/store/timeline';
-import VoiceControls from './VoiceControls';
+import Voice2Controls from './Voice2Controls';
 import ConversationView from './ConversationView';
 import TextInput from './TextInput';
 import DocumentUploader from './DocumentUploader';
 import LLMSelector from './LLMSelector';
-import { VoiceManager } from '@/lib/ai-builder/voice';
 import { ConversationManager } from '@/lib/ai-builder/conversation';
 import { ActionExecutor } from '@/lib/ai-builder/actions';
 import type {
-  VoiceState,
   ConversationMessage,
   TimelineAction,
   ProcessedDocument,
-  TranscriptEvent,
 } from '@/types/ai-builder';
 
 interface AITimelineBuilderProps {
@@ -39,67 +35,27 @@ interface AITimelineBuilderProps {
 
 type TabType = 'chat' | 'voice' | 'documents';
 
-// Strip markdown formatting for TTS (text-to-speech)
-function stripMarkdownForTTS(text: string): string {
-  return text
-    // Remove bold/italic markers
-    .replace(/\*\*([^*]+)\*\*/g, '$1')
-    .replace(/\*([^*]+)\*/g, '$1')
-    .replace(/__([^_]+)__/g, '$1')
-    .replace(/_([^_]+)_/g, '$1')
-    // Remove code blocks
-    .replace(/```[\s\S]*?```/g, '')
-    .replace(/`([^`]+)`/g, '$1')
-    // Remove headers
-    .replace(/^#{1,6}\s+/gm, '')
-    // Remove links, keep text
-    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
-    // Remove images
-    .replace(/!\[([^\]]*)\]\([^)]+\)/g, '')
-    // Remove blockquotes
-    .replace(/^>\s+/gm, '')
-    // Convert numbered lists to spoken format
-    .replace(/^\d+\.\s+/gm, '')
-    // Remove bullet points
-    .replace(/^[-*+]\s+/gm, '')
-    // Remove horizontal rules
-    .replace(/^[-*_]{3,}\s*$/gm, '')
-    // Clean up multiple newlines
-    .replace(/\n{3,}/g, '\n\n')
-    // Remove HTML tags if any
-    .replace(/<[^>]+>/g, '')
-    // Trim whitespace
-    .trim();
-}
-
 interface VoiceCapabilities {
-  sttAvailable: boolean;
-  ttsAvailable: boolean;
+  available: boolean;
   checked: boolean;
 }
 
 export default function AITimelineBuilder({ isOpen, onClose }: AITimelineBuilderProps) {
   const [activeTab, setActiveTab] = useState<TabType>('chat'); // Default to chat
   const [isMinimized, setIsMinimized] = useState(false);
-  const [voiceState, setVoiceState] = useState<VoiceState>('idle');
-  const [isSpeaking, setIsSpeaking] = useState(false);
-  const [isPushToTalk, setIsPushToTalk] = useState(false);
   const [messages, setMessages] = useState<ConversationMessage[]>([]);
-  const [currentTranscript, setCurrentTranscript] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [processedDocuments, setProcessedDocuments] = useState<ProcessedDocument[]>([]);
   const [isDocProcessing, setIsDocProcessing] = useState(false);
   const [voiceCapabilities, setVoiceCapabilities] = useState<VoiceCapabilities>({
-    sttAvailable: false,
-    ttsAvailable: false,
+    available: false,
     checked: false,
   });
   const [aiBuilderProviders, setAiBuilderProviders] = useState<Record<string, string>>({});
   const [aiBuilderSelectedProvider, setAiBuilderSelectedProvider] = useState<string>('deepseek');
 
   // Refs
-  const voiceManagerRef = useRef<VoiceManager | null>(null);
   const conversationManagerRef = useRef<ConversationManager | null>(null);
   const actionExecutorRef = useRef<ActionExecutor | null>(null);
 
@@ -187,83 +143,27 @@ export default function AITimelineBuilder({ isOpen, onClose }: AITimelineBuilder
       },
     });
 
-    return () => {
-      voiceManagerRef.current?.disconnect();
-    };
   }, [isOpen, aiBuilderSelectedProvider]);
 
-  // Initialize voice manager when API keys are available
-  const initializeVoice = useCallback(async () => {
-    try {
-      // Fetch API keys from server
-      const response = await fetch('/api/ai-builder/voice-token');
-      const data = await response.json();
-
-      // Update capabilities
-      const capabilities = {
-        sttAvailable: data.sttAvailable || false,
-        ttsAvailable: data.ttsAvailable || false,
-        checked: true,
-      };
-      setVoiceCapabilities(capabilities);
-
-      // If neither service is available, stay on chat tab
-      if (!capabilities.sttAvailable && !capabilities.ttsAvailable) {
-        console.log('Voice services not available - using chat mode');
-        if (activeTab === 'voice') {
-          setActiveTab('chat');
-        }
-        return;
-      }
-
-      // If only TTS is available (no STT), switch to chat but enable TTS for responses
-      if (!capabilities.sttAvailable && capabilities.ttsAvailable) {
-        console.log('Only TTS available - voice input disabled, voice output enabled');
-      }
-
-      // Create voice manager with available services
-      voiceManagerRef.current = new VoiceManager(
-        {
-          deepgramApiKey: data.deepgramKey,
-          elevenlabsApiKey: data.elevenlabsKey,
-        },
-        {
-          onTranscript: (transcript: TranscriptEvent) => {
-            setCurrentTranscript(transcript.text);
-            if (transcript.isFinal) {
-              handleSendMessage(transcript.text, true);
-              setCurrentTranscript('');
-            }
-          },
-          onAudio: () => {},
-          onStateChange: setVoiceState,
-          onError: (err) => {
-            console.error('Voice error:', err);
-            // Don't show error for expected "not available" messages
-            if (!err.message.includes('not available')) {
-              setError(err.message);
-            }
-          },
-          onInterrupt: () => {
-            voiceManagerRef.current?.stopSpeaking();
-            setIsSpeaking(false);
-          },
-        }
-      );
-
-      await voiceManagerRef.current.connect();
-    } catch (error) {
-      console.error('Failed to initialize voice:', error);
-      setVoiceCapabilities({ sttAvailable: false, ttsAvailable: false, checked: true });
-    }
-  }, []);
-
-  // Check voice capabilities on open
+  // Check Voice (OpenAI Realtime) availability
   useEffect(() => {
-    if (isOpen && !voiceCapabilities.checked) {
-      initializeVoice();
-    }
-  }, [isOpen, voiceCapabilities.checked, initializeVoice]);
+    const checkVoice = async () => {
+      if (!isOpen || voiceCapabilities.checked) return;
+
+      try {
+        const response = await fetch('/api/ai-builder/realtime-token');
+        const data = await response.json();
+        setVoiceCapabilities({
+          available: data.available === true,
+          checked: true,
+        });
+      } catch {
+        setVoiceCapabilities({ available: false, checked: true });
+      }
+    };
+
+    checkVoice();
+  }, [isOpen, voiceCapabilities.checked]);
 
   /**
    * Convert a File to a MessageAttachment
@@ -305,11 +205,7 @@ export default function AITimelineBuilder({ isOpen, onClose }: AITimelineBuilder
   };
 
   // Send message handler - now supports file attachments
-  const handleSendMessage = async (text: string, filesOrIsVoice?: File[] | boolean) => {
-    // Handle both old signature (text, isVoice) and new signature (text, files)
-    const isVoice = typeof filesOrIsVoice === 'boolean' ? filesOrIsVoice : false;
-    const files = Array.isArray(filesOrIsVoice) ? filesOrIsVoice : undefined;
-
+  const handleSendMessage = async (text: string, files?: File[]) => {
     if (!text.trim() && (!files || files.length === 0)) return;
     if (!conversationManagerRef.current) return;
 
@@ -337,37 +233,7 @@ export default function AITimelineBuilder({ isOpen, onClose }: AITimelineBuilder
       }
     }
 
-    const response = await conversationManagerRef.current.processUserInput(text, isVoice, attachments);
-
-    // Speak response if voice is active OR if TTS is available and user is in voice tab
-    const shouldSpeak = (isVoice || activeTab === 'voice') &&
-                        response &&
-                        voiceManagerRef.current?.hasTTS();
-
-    if (shouldSpeak && response) {
-      setIsSpeaking(true);
-      try {
-        // Strip markdown formatting for cleaner TTS
-        const cleanText = stripMarkdownForTTS(response);
-        await voiceManagerRef.current!.speak(cleanText);
-      } finally {
-        setIsSpeaking(false);
-      }
-    }
-  };
-
-  // Voice control handlers
-  const handleStartListening = () => {
-    voiceManagerRef.current?.startListening();
-  };
-
-  const handleStopListening = () => {
-    voiceManagerRef.current?.stopListening();
-  };
-
-  const handleStopSpeaking = () => {
-    voiceManagerRef.current?.stopSpeaking();
-    setIsSpeaking(false);
+    await conversationManagerRef.current.processUserInput(text, false, attachments);
   };
 
   // Document processing
@@ -456,11 +322,7 @@ export default function AITimelineBuilder({ isOpen, onClose }: AITimelineBuilder
               </h3>
               {!isMinimized && (
                 <p className="text-xs text-white/70">
-                  {voiceState === 'listening'
-                    ? 'Listening...'
-                    : isProcessing
-                    ? 'Thinking...'
-                    : 'Ready to help'}
+                  {isProcessing ? 'Thinking...' : 'Ready to help'}
                 </p>
               )}
             </div>
@@ -529,28 +391,22 @@ export default function AITimelineBuilder({ isOpen, onClose }: AITimelineBuilder
                 >
                   <MessageSquare className="w-4 h-4" />
                   Chat
-                  {/* Show TTS indicator if available */}
-                  {voiceCapabilities.ttsAvailable && !voiceCapabilities.sttAvailable && (
-                    <span title="Voice responses enabled">
-                      <Volume2 className="w-3 h-3 text-green-500" />
-                    </span>
-                  )}
                 </button>
 
-                {/* Voice Tab - disabled if STT not available */}
+                {/* Voice Tab - OpenAI Realtime */}
                 <button
-                  onClick={() => voiceCapabilities.sttAvailable && setActiveTab('voice')}
-                  disabled={!voiceCapabilities.sttAvailable}
+                  onClick={() => voiceCapabilities.available && setActiveTab('voice')}
+                  disabled={!voiceCapabilities.available}
                   className={cn(
                     'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors',
                     activeTab === 'voice'
-                      ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300'
+                      ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300'
                       : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200',
-                    !voiceCapabilities.sttAvailable && 'opacity-50 cursor-not-allowed'
+                    !voiceCapabilities.available && 'opacity-50 cursor-not-allowed'
                   )}
-                  title={voiceCapabilities.sttAvailable ? 'Voice input' : 'Voice input not available (Deepgram API key required)'}
+                  title={voiceCapabilities.available ? 'OpenAI Realtime voice (speech-to-speech)' : 'Voice not available (OpenAI API key required)'}
                 >
-                  {voiceCapabilities.sttAvailable ? (
+                  {voiceCapabilities.available ? (
                     <Mic className="w-4 h-4" />
                   ) : (
                     <MicOff className="w-4 h-4" />
@@ -581,8 +437,8 @@ export default function AITimelineBuilder({ isOpen, onClose }: AITimelineBuilder
               />
             </div>
 
-            {/* Deepseek media attachment warning */}
-            {aiBuilderSelectedProvider === 'deepseek' && (
+            {/* Deepseek media attachment warning - hide on Voice tab (uses OpenAI Realtime) */}
+            {aiBuilderSelectedProvider === 'deepseek' && activeTab !== 'voice' && (
               <div className="px-4 py-2 bg-amber-50 dark:bg-amber-900/20 border-b border-amber-200 dark:border-amber-800">
                 <p className="text-xs text-amber-700 dark:text-amber-300">
                   Note: Deepseek doesn&apos;t support image/media analysis. For attachments, use Claude, GPT-4, or Gemini.
@@ -592,8 +448,29 @@ export default function AITimelineBuilder({ isOpen, onClose }: AITimelineBuilder
 
             {/* Tab Content */}
             <div className="flex-1 flex flex-col overflow-hidden">
-              {/* Conversation View (for voice and chat) */}
-              {(activeTab === 'voice' || activeTab === 'chat') && (
+              {/* Voice Tab - OpenAI Realtime */}
+              {activeTab === 'voice' && (
+                <Voice2Controls
+                  onTranscript={(text, role, isFinal) => {
+                    if (isFinal) {
+                      setMessages((prev) => [
+                        ...prev,
+                        {
+                          id: Date.now().toString(),
+                          role: role === 'user' ? 'user' : 'assistant',
+                          content: text,
+                          timestamp: new Date(),
+                          isVoice: true,
+                        },
+                      ]);
+                    }
+                  }}
+                  onError={(err) => setError(err)}
+                />
+              )}
+
+              {/* Conversation View (for chat) */}
+              {activeTab === 'chat' && (
                 <>
                   <ConversationView
                     messages={messages}
@@ -601,25 +478,11 @@ export default function AITimelineBuilder({ isOpen, onClose }: AITimelineBuilder
                     error={error}
                   />
 
-                  {/* Voice Controls */}
-                  {activeTab === 'voice' && (
-                    <VoiceControls
-                      voiceState={voiceState}
-                      isSpeaking={isSpeaking}
-                      isPushToTalk={isPushToTalk}
-                      onStartListening={handleStartListening}
-                      onStopListening={handleStopListening}
-                      onStopSpeaking={handleStopSpeaking}
-                      onTogglePushToTalk={() => setIsPushToTalk(!isPushToTalk)}
-                    />
-                  )}
-
                   {/* Text Input */}
                   <TextInput
                     onSend={(msg, files) => handleSendMessage(msg, files)}
                     onFileUpload={handleFileUpload}
                     disabled={isProcessing}
-                    currentTranscript={activeTab === 'voice' ? currentTranscript : ''}
                   />
                 </>
               )}

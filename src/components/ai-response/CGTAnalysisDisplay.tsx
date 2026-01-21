@@ -284,16 +284,6 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
             <AddStickyNoteButton context="analysis" />
 
             <button
-              onClick={openNotesModal}
-              className={`flex items-center gap-2 px-4 py-2 ${timelineNotes ? 'bg-amber-600 hover:bg-amber-700' : 'bg-amber-500 hover:bg-amber-600'} text-white rounded-lg transition-colors shadow-md text-sm relative`}
-            >
-              <StickyNote className="w-4 h-4" />
-              Notes
-              {timelineNotes && (
-                <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-white rounded-full border-2 border-amber-600"></span>
-              )}
-            </button>
-            <button
               onClick={() => setShowRawJSON(true)}
               className="flex items-center justify-center w-8 h-8 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors shadow-sm"
               title="Show Raw JSON"
@@ -441,16 +431,6 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
             {/* Add Sticky Note Button */}
             <AddStickyNoteButton context="analysis" />
 
-            <button
-              onClick={openNotesModal}
-              className={`flex items-center gap-2 px-4 py-2 ${timelineNotes ? 'bg-amber-600 hover:bg-amber-700' : 'bg-amber-500 hover:bg-amber-600'} text-white rounded-lg transition-colors shadow-md text-sm relative`}
-            >
-              <StickyNote className="w-4 h-4" />
-              Notes
-              {timelineNotes && (
-                <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-white rounded-full border-2 border-amber-600"></span>
-              )}
-            </button>
             <button
               onClick={() => setShowRawJSON(true)}
               className="flex items-center justify-center w-8 h-8 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors shadow-sm"
@@ -759,16 +739,6 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
             {/* Add Sticky Note Button */}
             <AddStickyNoteButton context="analysis" />
 
-            <button
-              onClick={openNotesModal}
-              className={`flex items-center gap-2 px-4 py-2 ${timelineNotes ? 'bg-amber-600 hover:bg-amber-700' : 'bg-amber-500 hover:bg-amber-600'} text-white rounded-lg transition-colors shadow-md text-sm relative`}
-            >
-              <StickyNote className="w-4 h-4" />
-              Notes
-              {timelineNotes && (
-                <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-white rounded-full border-2 border-amber-600"></span>
-              )}
-            </button>
             <button
               onClick={() => setShowRawJSON(true)}
               className="flex items-center justify-center w-8 h-8 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors shadow-sm"
@@ -1586,16 +1556,6 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
             <AddStickyNoteButton context="analysis" />
 
             <button
-              onClick={openNotesModal}
-              className={`flex items-center gap-2 px-4 py-2 ${timelineNotes ? 'bg-amber-600 hover:bg-amber-700' : 'bg-amber-500 hover:bg-amber-600'} text-white rounded-lg transition-colors shadow-md text-sm relative`}
-            >
-              <StickyNote className="w-4 h-4" />
-              Notes
-              {timelineNotes && (
-                <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-white rounded-full border-2 border-amber-600"></span>
-              )}
-            </button>
-            <button
               onClick={() => setShowRawJSON(true)}
               className="flex items-center justify-center w-8 h-8 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors shadow-sm"
               title="Show Raw JSON"
@@ -1792,16 +1752,6 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
           {/* Add Sticky Note Button */}
           <AddStickyNoteButton context="analysis" />
 
-          <button
-            onClick={openNotesModal}
-            className={`flex items-center gap-2 px-4 py-2 ${timelineNotes ? 'bg-amber-600 hover:bg-amber-700' : 'bg-amber-500 hover:bg-amber-600'} text-white rounded-lg transition-colors shadow-md text-sm relative`}
-          >
-            <StickyNote className="w-4 h-4" />
-            Notes
-            {timelineNotes && (
-              <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-white rounded-full border-2 border-amber-600"></span>
-            )}
-          </button>
           <button
             onClick={() => setShowRawJSON(true)}
             className="flex items-center gap-2 px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors shadow-md text-sm"

@@ -51,6 +51,7 @@ This file serves as the project's memory and workflow guide. All instructions he
 2. Never push directly to master
 3. Merge to master via pull requests or explicit merges
 4. Commit regularly with descriptive messages
+5. **NEVER push code to remote unless explicitly told to do so by the user** - Always wait for user confirmation before pushing
 
 ### Commit Message Format
 ```

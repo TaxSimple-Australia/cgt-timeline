@@ -1,6 +1,5 @@
-// Voice Module Exports
+// Voice Module Exports - OpenAI Realtime API
 
-export * from './types';
-export { DeepgramClient } from './DeepgramClient';
-export { ElevenLabsClient } from './ElevenLabsClient';
-export { VoiceManager } from './VoiceManager';
+export { OpenAIRealtimeClient } from './OpenAIRealtimeClient';
+export type { RealtimeConfig, RealtimeTool, RealtimeEventHandlers, RealtimeState } from './OpenAIRealtimeClient';
+export { REALTIME_TIMELINE_TOOLS, TIMELINE_SYSTEM_INSTRUCTIONS, RealtimeToolExecutor } from './realtimeTools';

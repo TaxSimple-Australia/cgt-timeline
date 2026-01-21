@@ -128,7 +128,6 @@ export default function Voice2Controls({
 
       // Bulk Operations
       clearAllData: store.clearAllData,
-      loadDemoData: store.loadDemoData,
 
       // Selection & Navigation
       selectProperty: store.selectProperty,

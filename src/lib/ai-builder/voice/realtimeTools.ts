@@ -1163,21 +1163,6 @@ export const REALTIME_TIMELINE_TOOLS: RealtimeTool[] = [
   },
   {
     type: 'function',
-    name: 'load_demo_data',
-    description: 'Load demo data to show example properties and events.',
-    parameters: {
-      type: 'object',
-      properties: {
-        confirmed: {
-          type: 'boolean',
-          description: 'Must be true to confirm loading demo data',
-        },
-      },
-      required: ['confirmed'],
-    },
-  },
-  {
-    type: 'function',
     name: 'analyze_portfolio',
     description: 'Trigger AI analysis of the entire property portfolio for CGT obligations.',
     parameters: {
@@ -1397,6 +1382,26 @@ When adding events, you can automatically create related events:
 5. Ask if there's anything else to help with
 6. If something seems incorrect, ask for clarification first
 
+## Creating Sample Data
+
+When a user asks you to create a property or event but doesn't provide all the details:
+- **DO NOT** load or use pre-existing demo data
+- **CREATE YOUR OWN** realistic Australian property data
+- Generate realistic Australian addresses (e.g., "42 Smith Street, Parramatta NSW 2150")
+- Use realistic prices for the Australian market (typically $400,000 - $2,000,000)
+- Create realistic dates within reasonable timeframes
+- Add appropriate cost base items (stamp duty ~4% of purchase price, legal fees ~$2,000-$5,000)
+- Make up sensible details that would be typical for Australian property transactions
+
+For example, if a user says "add a property", create one with:
+- A realistic Sydney/Melbourne/Brisbane suburban address
+- A purchase date a few years ago
+- A realistic purchase price for that area
+- Typical stamp duty and legal fees
+- An appropriate initial status (PPR if they moved in, rental if they rented it out)
+
+Always tell the user what details you've created so they can correct any that don't match their actual situation.
+
 ## Important Notes
 
 - For purchases, record the SETTLEMENT DATE (when ownership transferred)
@@ -1422,7 +1427,6 @@ export interface ToolExecutorContext {
   updateEvent: (id: string, updates: Partial<TimelineEvent>) => void;
   deleteEvent: (id: string) => void;
   clearAllData: () => void;
-  loadDemoData?: () => Promise<void>;
   setSelectedPropertyId?: (id: string | null) => void;
   selectProperty?: (id: string | null) => void;
   zoomIn?: () => void;
@@ -1595,8 +1599,6 @@ export class RealtimeToolExecutor {
         // Bulk Operations
         case 'clear_all_data':
           return this.clearAllData(args);
-        case 'load_demo_data':
-          return this.loadDemoData(args);
         case 'analyze_portfolio':
           return this.analyzePortfolio(args);
 
@@ -2670,19 +2672,6 @@ export class RealtimeToolExecutor {
 
     this.context.clearAllData();
     return { success: true, message: 'All data cleared' };
-  }
-
-  private async loadDemoData(args: Record<string, unknown>): Promise<unknown> {
-    if (!args.confirmed) {
-      return { success: false, error: 'Please confirm you want to load demo data' };
-    }
-
-    if (this.context.loadDemoData) {
-      await this.context.loadDemoData();
-      return { success: true, message: 'Demo data loaded successfully' };
-    }
-
-    return { success: false, error: 'Demo data loading not available' };
   }
 
   private async analyzePortfolio(args: Record<string, unknown>): Promise<unknown> {

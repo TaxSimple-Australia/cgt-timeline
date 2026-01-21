@@ -23,6 +23,10 @@ import {
 } from '../types/drawing-annotation';
 import { showValidationError, showError } from '../lib/toast-helpers';
 
+// Direct API endpoints - bypass Next.js API routes
+const CGT_API_BASE_URL = 'https://cgtbrain.com.au';
+const CGT_CALCULATE_ENDPOINT = `${CGT_API_BASE_URL}/calculate-cgt/`;
+
 export type EventType =
   | 'purchase'
   | 'move_in'
@@ -2220,11 +2224,14 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
         },
       };
 
-      // Call the API
-      const response = await fetch('/api/calculate-cgt', {
+      // Call the external API directly
+      console.log(`🔗 Calling external API: ${CGT_CALCULATE_ENDPOINT}`);
+
+      const response = await fetch(CGT_CALCULATE_ENDPOINT, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Accept': 'application/json',
         },
         body: JSON.stringify(requestData),
       });
@@ -2235,13 +2242,13 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
 
       const result = await response.json();
 
-      if (result.success && result.data) {
-        // Store the AI response and process it
-        get().setAIResponse(result.data);
-      } else {
+      if (result.status === 'error') {
         console.error('API returned error:', result.error);
         throw new Error(result.error || 'Unknown API error');
       }
+
+      // Store the AI response directly (no wrapper)
+      get().setAIResponse(result);
     } catch (error) {
       console.error('Error analyzing portfolio:', error);
       // You might want to add error state here

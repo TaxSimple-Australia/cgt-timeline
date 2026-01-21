@@ -111,6 +111,8 @@ export interface TimelineEvent {
   businessUsePercentage?: number;  // Percentage of property used for business (0-100)
   rentalUsePercentage?: number;    // Percentage of property used for rental/investment (0-100)
   livingUsePercentage?: number;    // Percentage of property used as owner-occupied/main residence (0-100)
+  rentalUseStartDate?: Date;       // Date when rental use started
+  businessUseStartDate?: Date;     // Date when business use started
   floorAreaData?: {
     total: number;      // Total floor area in sqm
     exclusive: number;  // Exclusive rental area in sqm (e.g., bedroom)

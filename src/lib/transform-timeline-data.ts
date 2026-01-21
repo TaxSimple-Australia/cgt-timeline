@@ -2,6 +2,7 @@ import type { Property as TimelineProperty, TimelineEvent } from '@/store/timeli
 import type { CGTModelResponse, Property, PropertyHistoryEvent } from '@/types/model-response';
 import type { VerificationAlert } from '@/types/verification-alert';
 import { sanitizeDateForAPI } from '@/lib/date-utils';
+import { format } from 'date-fns';
 
 /**
  * Generate comprehensive CGT context notes from event data
@@ -257,8 +258,22 @@ export function transformTimelineToAPIFormat(
         if (rental > 0) parts.push(`${rental}% rental`);
         if (business > 0) parts.push(`${business}% business`);
 
-        additionalInfo.push(`Mixed-Use property: ${parts.join(', ')}`);
-        console.log('📊 Transform: Mixed-Use percentages:', { living, rental, business }, '(added to description)');
+        let mixedUseText = `Mixed-Use property: ${parts.join(', ')}`;
+
+        // Add start dates if available
+        const dateParts: string[] = [];
+        if (rental > 0 && event.rentalUseStartDate) {
+          dateParts.push(`rental use started ${format(event.rentalUseStartDate, 'dd MMM yyyy')}`);
+        }
+        if (business > 0 && event.businessUseStartDate) {
+          dateParts.push(`business use started ${format(event.businessUseStartDate, 'dd MMM yyyy')}`);
+        }
+        if (dateParts.length > 0) {
+          mixedUseText += ` (${dateParts.join(', ')})`;
+        }
+
+        additionalInfo.push(mixedUseText);
+        console.log('📊 Transform: Mixed-Use percentages:', { living, rental, business, rentalStart: event.rentalUseStartDate, businessStart: event.businessUseStartDate }, '(added to description)');
       } else if (event.businessUsePercentage !== undefined && event.businessUsePercentage > 0) {
         // Fallback to old business use approach if no living/rental percentages
         additionalInfo.push(`Business use: ${event.businessUsePercentage}% of property used for business/rental purposes`);

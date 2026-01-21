@@ -313,6 +313,23 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
     event.type === 'purchase' && event.businessUsePercentage ? event.businessUsePercentage.toString() : ''
   );
 
+  // Mixed-use start dates
+  const [rentalUseStartDateInput, setRentalUseStartDateInput] = useState(
+    event.rentalUseStartDate ? format(event.rentalUseStartDate, 'dd/MM/yyyy') : ''
+  );
+  const [parsedRentalUseStartDate, setParsedRentalUseStartDate] = useState<Date | null>(
+    event.rentalUseStartDate || null
+  );
+  const [rentalUseDateError, setRentalUseDateError] = useState('');
+
+  const [businessUseStartDateInput, setBusinessUseStartDateInput] = useState(
+    event.businessUseStartDate ? format(event.businessUseStartDate, 'dd/MM/yyyy') : ''
+  );
+  const [parsedBusinessUseStartDate, setParsedBusinessUseStartDate] = useState<Date | null>(
+    event.businessUseStartDate || null
+  );
+  const [businessUseDateError, setBusinessUseDateError] = useState('');
+
   // NEW: Ownership change state variables
   const [leavingOwners, setLeavingOwners] = useState<string[]>(event.leavingOwners || []);
   const [newOwners, setNewOwners] = useState<Array<{name: string; percentage: number}>>(
@@ -669,6 +686,10 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
         updates.livingUsePercentage = living > 0 ? living : undefined;
         updates.rentalUsePercentage = rental > 0 ? rental : undefined;
         updates.businessUsePercentage = business > 0 ? business : undefined;
+
+        // Save the start dates
+        updates.rentalUseStartDate = rental > 0 ? parsedRentalUseStartDate || undefined : undefined;
+        updates.businessUseStartDate = business > 0 ? parsedBusinessUseStartDate || undefined : undefined;
       } else {
         // Clear mixed-use percentages if checkbox is not checked
         // Only clear if not set via the other business use checkbox
@@ -677,6 +698,8 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
         }
         updates.livingUsePercentage = undefined;
         updates.rentalUsePercentage = undefined;
+        updates.rentalUseStartDate = undefined;
+        updates.businessUseStartDate = undefined;
       }
 
       // NEW: Ownership Change validation and data (including Inherit events)
@@ -796,13 +819,13 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
             e.date.getTime() === originalDateTimestamp
         );
 
-        // Find move_in event on the NEW purchase date (if date was changed)
-        const newMoveIn = dateChanged ? events.find(
+        // Find move_in event on the NEW purchase date
+        const newMoveIn = events.find(
           (e) =>
             e.propertyId === event.propertyId &&
             e.type === 'move_in' &&
             e.date.getTime() === newDateTimestamp
-        ) : null;
+        );
 
         if (moveInOnSameDay) {
           // Checkbox is CHECKED - ensure move_in event exists on new date
@@ -1388,7 +1411,6 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
                           setMoveInOnSameDay(e.target.checked);
                           if (e.target.checked) {
                             setPurchaseAsVacant(false);
-                            setPurchaseAsMixedUse(false);
                           }
                         }}
                         className="w-4 h-4 text-blue-600 bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 rounded focus:ring-2 focus:ring-blue-500 cursor-pointer"
@@ -1438,7 +1460,6 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
                         onChange={(e) => {
                           setPurchaseAsMixedUse(e.target.checked);
                           if (e.target.checked) {
-                            setMoveInOnSameDay(false);
                             setPurchaseAsVacant(false);
                           }
                         }}
@@ -1501,6 +1522,51 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
                               className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                               placeholder="e.g., 50"
                             />
+
+                            {/* Rental use start date - only shown if rental % > 0 */}
+                            {parseFloat(rentalUsePercentage) > 0 && (
+                              <div className="mt-3">
+                                <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1.5">
+                                  Date rental use started
+                                </label>
+                                <input
+                                  type="text"
+                                  value={rentalUseStartDateInput}
+                                  onChange={(e) => {
+                                    const input = e.target.value;
+                                    setRentalUseStartDateInput(input);
+
+                                    const parsed = parseDateFlexible(input);
+                                    if (parsed) {
+                                      setParsedRentalUseStartDate(parsed);
+                                      setRentalUseDateError('');
+                                    } else if (input.trim()) {
+                                      setRentalUseDateError('Invalid date format');
+                                      setParsedRentalUseStartDate(null);
+                                    } else {
+                                      setRentalUseDateError('');
+                                      setParsedRentalUseStartDate(null);
+                                    }
+                                  }}
+                                  className={cn(
+                                    "w-full px-3 py-2 text-sm border rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100",
+                                    rentalUseDateError
+                                      ? "border-red-500 focus:ring-red-500"
+                                      : "border-slate-300 dark:border-slate-600 focus:ring-blue-500"
+                                  )}
+                                  placeholder={DATE_FORMAT_PLACEHOLDER}
+                                />
+                                {rentalUseDateError && (
+                                  <p className="mt-1 text-xs text-red-500">{rentalUseDateError}</p>
+                                )}
+                                {parsedRentalUseStartDate && !rentalUseDateError && (
+                                  <div className="flex items-center gap-2 text-xs text-green-600 dark:text-green-400 mt-1">
+                                    <CheckCircle className="w-3 h-3 flex-shrink-0" />
+                                    <span>{formatDateDisplay(parsedRentalUseStartDate)}</span>
+                                  </div>
+                                )}
+                              </div>
+                            )}
                           </div>
 
                           {/* Business percentage */}
@@ -1519,6 +1585,51 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
                               className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                               placeholder="e.g., 10"
                             />
+
+                            {/* Business use start date - only shown if business % > 0 */}
+                            {parseFloat(mixedBusinessUsePercentage) > 0 && (
+                              <div className="mt-3">
+                                <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1.5">
+                                  Date business use started
+                                </label>
+                                <input
+                                  type="text"
+                                  value={businessUseStartDateInput}
+                                  onChange={(e) => {
+                                    const input = e.target.value;
+                                    setBusinessUseStartDateInput(input);
+
+                                    const parsed = parseDateFlexible(input);
+                                    if (parsed) {
+                                      setParsedBusinessUseStartDate(parsed);
+                                      setBusinessUseDateError('');
+                                    } else if (input.trim()) {
+                                      setBusinessUseDateError('Invalid date format');
+                                      setParsedBusinessUseStartDate(null);
+                                    } else {
+                                      setBusinessUseDateError('');
+                                      setParsedBusinessUseStartDate(null);
+                                    }
+                                  }}
+                                  className={cn(
+                                    "w-full px-3 py-2 text-sm border rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100",
+                                    businessUseDateError
+                                      ? "border-red-500 focus:ring-red-500"
+                                      : "border-slate-300 dark:border-slate-600 focus:ring-blue-500"
+                                  )}
+                                  placeholder={DATE_FORMAT_PLACEHOLDER}
+                                />
+                                {businessUseDateError && (
+                                  <p className="mt-1 text-xs text-red-500">{businessUseDateError}</p>
+                                )}
+                                {parsedBusinessUseStartDate && !businessUseDateError && (
+                                  <div className="flex items-center gap-2 text-xs text-green-600 dark:text-green-400 mt-1">
+                                    <CheckCircle className="w-3 h-3 flex-shrink-0" />
+                                    <span>{formatDateDisplay(parsedBusinessUseStartDate)}</span>
+                                  </div>
+                                )}
+                              </div>
+                            )}
                           </div>
 
                           {/* Total validation display */}

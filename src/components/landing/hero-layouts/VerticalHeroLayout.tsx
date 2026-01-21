@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { ArrowRight, Calendar } from 'lucide-react';
+import { ArrowRight, Calendar, Sparkles, Calculator, FileText, ShieldCheck, BarChart3 } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
@@ -15,20 +15,30 @@ export default function VerticalHeroLayout() {
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(6,182,212,0.1),transparent_50%)]" />
       </div>
 
-      {/* Animated grid pattern */}
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,#1e293b_1px,transparent_1px),linear-gradient(to_bottom,#1e293b_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_50%,#000_70%,transparent_100%)] opacity-20" />
+      {/* Enhanced grid pattern with glow */}
+      <div className="absolute inset-0">
+        {/* Main grid */}
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(6,182,212,0.15)_1px,transparent_1px),linear-gradient(to_bottom,rgba(6,182,212,0.15)_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_50%,#000_70%,transparent_100%)]" />
+
+        {/* Grid glow intersections */}
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_0%_0%,rgba(6,182,212,0.3)_0.5px,transparent_1px),radial-gradient(circle_at_4rem_0%,rgba(6,182,212,0.3)_0.5px,transparent_1px),radial-gradient(circle_at_0%_4rem,rgba(6,182,212,0.3)_0.5px,transparent_1px),radial-gradient(circle_at_4rem_4rem,rgba(6,182,212,0.3)_0.5px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_50%,#000_70%,transparent_100%)] animate-grid-glow" />
+
+        {/* Center radial glow */}
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_40%_at_50%_40%,rgba(6,182,212,0.15),transparent_70%)]" />
+      </div>
 
       {/* Content */}
       <div className="relative z-10 max-w-5xl mx-auto text-center">
-        {/* Badge */}
+        {/* Brand bar above headline */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-cyan-500/10 border border-cyan-500/20 mb-10"
+          className="flex items-center justify-center gap-4 mb-8"
         >
-          <Calendar className="w-4 h-4 text-cyan-400" />
-          <span className="text-sm text-cyan-400 font-medium">Australian Property CGT Calculator</span>
+          <div className="h-px w-12 bg-gradient-to-r from-transparent to-slate-600" />
+          <span className="text-[10px] tracking-[0.3em] text-slate-400 font-light uppercase">CGT Brain AI Timeline</span>
+          <div className="h-px w-12 bg-gradient-to-l from-transparent to-slate-600" />
         </motion.div>
 
         {/* Headline */}
@@ -36,7 +46,7 @@ export default function VerticalHeroLayout() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.1 }}
-          className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight"
+          className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-6 leading-tight"
         >
           Calculate Your Capital Gains Tax
           <br />
@@ -50,7 +60,7 @@ export default function VerticalHeroLayout() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.2 }}
-          className="text-xl md:text-2xl text-slate-300 mb-12 max-w-3xl mx-auto leading-relaxed"
+          className="text-base md:text-lg lg:text-xl text-slate-300 mb-12 max-w-3xl mx-auto leading-relaxed"
         >
           Visualize your property timeline, track every cost, and get AI-powered CGT analysis—all in one intuitive platform.
         </motion.p>
@@ -125,6 +135,49 @@ export default function VerticalHeroLayout() {
       {/* Decorative elements */}
       <div className="absolute top-1/4 left-10 w-72 h-72 bg-cyan-500/10 rounded-full blur-3xl" />
       <div className="absolute bottom-1/4 right-10 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl" />
+
+      {/* Floating Feature Cards */}
+      {/* Card 1 - AI-Powered Analysis (Top Right) */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.8 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5, delay: 0.8 }}
+        className="absolute right-8 md:right-16 lg:right-24 hidden lg:block animate-gentle-float z-40"
+        style={{ top: 'calc(16rem + 240px)' }}
+      >
+        <div className="bg-slate-800/40 backdrop-blur-xl border border-cyan-500/30 rounded-2xl p-4 shadow-lg shadow-cyan-500/20 hover:shadow-cyan-500/40 transition-shadow">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-gradient-to-br from-cyan-500/20 to-blue-500/20 rounded-lg">
+              <Sparkles className="w-5 h-5 text-cyan-400" />
+            </div>
+            <div>
+              <p className="text-white font-semibold text-sm">AI-Powered Analysis</p>
+              <p className="text-cyan-400 text-xs">Smart CGT calculations</p>
+            </div>
+          </div>
+        </div>
+      </motion.div>
+
+      {/* Card 2 - PDF Export (Bottom Left) */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.8 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5, delay: 1.2 }}
+        className="absolute bottom-40 left-8 md:left-16 lg:left-24 hidden md:block animate-gentle-float-alt z-40"
+        style={{ animationDelay: '2s' }}
+      >
+        <div className="bg-slate-800/40 backdrop-blur-xl border border-purple-500/30 rounded-2xl p-4 shadow-lg shadow-purple-500/20 hover:shadow-purple-500/40 transition-shadow">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-lg">
+              <FileText className="w-5 h-5 text-purple-400" />
+            </div>
+            <div>
+              <p className="text-white font-semibold text-sm">PDF Export</p>
+              <p className="text-purple-400 text-xs">Professional reports</p>
+            </div>
+          </div>
+        </div>
+      </motion.div>
     </>
   );
 }

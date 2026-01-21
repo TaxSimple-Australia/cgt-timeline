@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { ArrowRight, Check, Zap } from 'lucide-react';
+import { ArrowRight, Check } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 
@@ -36,12 +36,6 @@ export default function FinalCTA() {
           transition={{ duration: 0.6 }}
           className="text-center"
         >
-          {/* Badge */}
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-cyan-500/20 to-blue-500/20 border border-cyan-500/30 mb-8">
-            <Zap className="w-4 h-4 text-cyan-400" />
-            <span className="text-sm text-cyan-400 font-medium">Start in Under 60 Seconds</span>
-          </div>
-
           {/* Headline */}
           <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight">
             Ready to Stop Guessing

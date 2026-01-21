@@ -21,9 +21,9 @@ export const LANDING_VARIANTS: LandingVariant[] = [
     description: 'Alternative layout and messaging'
   },
   {
-    name: 'Minimal',
-    path: '/landing/minimal',
-    description: 'Simplified, focused design'
+    name: 'Version 3',
+    path: '/landing/v3',
+    description: 'Premium luxury design with interactive filters'
   },
 ];
 

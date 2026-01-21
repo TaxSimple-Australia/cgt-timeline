@@ -85,7 +85,7 @@ export default function HorizontalHeroLayout() {
   };
 
   return (
-    <div className="relative w-full h-screen flex items-center overflow-hidden">
+    <div className="relative w-full h-screen flex items-center overflow-hidden pt-20">
       {/* Dark base background */}
       <div className="absolute inset-0 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950" />
 
@@ -129,7 +129,7 @@ export default function HorizontalHeroLayout() {
           initial="hidden"
           animate="visible"
           variants={containerVariants}
-          className="flex-shrink-0 pl-8 sm:pl-16 lg:pl-24 xl:pl-32 pr-4 w-[50%]"
+          className="flex-shrink-0 pl-6 sm:pl-8 md:pl-12 lg:pl-16 xl:pl-24 2xl:pl-32 pr-8 md:pr-12 lg:pr-16 w-[52%] md:w-[48%] lg:w-[45%] xl:w-[48%] 2xl:w-[50%]"
         >
           {/* Badge */}
           <motion.div variants={slideInLeft} className="inline-flex items-center gap-2 mb-6">
@@ -146,7 +146,7 @@ export default function HorizontalHeroLayout() {
           </motion.div>
 
           {/* Headline */}
-          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-[1.2] mb-8">
+          <h1 className="text-xl sm:text-2xl md:text-2xl lg:text-3xl xl:text-4xl 2xl:text-5xl font-bold text-white leading-[1.2] mb-4 md:mb-6">
             <motion.span variants={slideInLeft} className="block">
               Calculate Your
             </motion.span>
@@ -164,7 +164,7 @@ export default function HorizontalHeroLayout() {
           {/* Subheading */}
           <motion.p
             variants={fadeInUp}
-            className="text-base sm:text-lg md:text-xl text-slate-300 leading-relaxed mb-8"
+            className="text-xs sm:text-sm md:text-sm lg:text-base xl:text-lg 2xl:text-xl text-slate-300 leading-relaxed mb-4 md:mb-6"
           >
             Visualize your property timeline, track every cost,
             <br />
@@ -176,9 +176,9 @@ export default function HorizontalHeroLayout() {
           {/* CTA */}
           <motion.div variants={scaleIn}>
             <Link href="/">
-              <Button size="lg" className="group bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white px-8 py-6 text-lg shadow-lg shadow-cyan-500/25 hover:shadow-xl hover:shadow-cyan-500/40 transition-all">
+              <Button size="lg" className="group bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white px-5 py-4 md:px-6 md:py-5 lg:px-8 lg:py-6 text-xs md:text-sm lg:text-base shadow-lg shadow-cyan-500/25 hover:shadow-xl hover:shadow-cyan-500/40 transition-all">
                 Start Building Your Timeline
-                <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+                <ArrowRight className="w-3.5 h-3.5 md:w-4 md:h-4 lg:w-5 lg:h-5 ml-2 group-hover:translate-x-1 transition-transform" />
               </Button>
             </Link>
           </motion.div>
@@ -197,22 +197,22 @@ export default function HorizontalHeroLayout() {
           initial="hidden"
           animate="visible"
           variants={slideInRight}
-          className="hidden md:block flex-1 relative pr-0 my-20 lg:my-16 xl:my-12"
+          className="hidden md:block flex-1 relative pr-0 mt-16 md:mt-20 lg:mt-24 mb-8 lg:mb-10 xl:mb-12"
         >
           {/* Floating welcome badge above dashboard */}
           <motion.div
             initial={{ opacity: 0, y: 20, scale: 0.9 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             transition={{ delay: 0.8, duration: 0.5, type: 'spring', damping: 20 }}
-            className="absolute top-[32px] -left-[18px] px-4 py-2.5 bg-slate-800/80 backdrop-blur-sm border border-cyan-500/40 rounded-xl shadow-lg shadow-cyan-500/20 z-20"
+            className="absolute top-[24px] md:top-[28px] lg:top-[32px] -left-[12px] md:-left-[16px] lg:-left-[18px] px-3 py-2 md:px-4 md:py-2.5 bg-slate-800/80 backdrop-blur-sm border border-cyan-500/40 rounded-xl shadow-lg shadow-cyan-500/20 z-20"
           >
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-cyan-400 to-blue-500 flex items-center justify-center">
-                <User className="w-4 h-4 text-white" />
+            <div className="flex items-center gap-2 md:gap-3">
+              <div className="w-7 h-7 md:w-8 md:h-8 rounded-full bg-gradient-to-br from-cyan-400 to-blue-500 flex items-center justify-center">
+                <User className="w-3.5 h-3.5 md:w-4 md:h-4 text-white" />
               </div>
               <div>
-                <p className="text-xs text-slate-400">Welcome back</p>
-                <p className="text-sm text-white font-medium">Property Investor</p>
+                <p className="text-[10px] md:text-xs text-slate-400">Welcome back</p>
+                <p className="text-xs md:text-sm text-white font-medium">Property Investor</p>
               </div>
             </div>
           </motion.div>
@@ -222,18 +222,18 @@ export default function HorizontalHeroLayout() {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.4, duration: 0.7, type: 'spring', damping: 25 }}
-            className="relative rounded-l-2xl overflow-hidden border border-cyan-500/30 border-r-0 bg-slate-900/90 backdrop-blur-xl translate-x-4"
+            className="relative rounded-2xl overflow-visible border border-cyan-500/50 bg-slate-900/90 backdrop-blur-xl my-auto h-full flex items-center"
             style={{
-              boxShadow: '-4px 0 20px rgba(6, 182, 212, 0.3), 0 -4px 20px rgba(6, 182, 212, 0.3), 0 4px 20px rgba(6, 182, 212, 0.3)'
+              boxShadow: '-8px 0 40px rgba(6, 182, 212, 0.5), 0 -8px 40px rgba(6, 182, 212, 0.5), 0 8px 40px rgba(6, 182, 212, 0.5), 8px 0 40px rgba(6, 182, 212, 0.5), 0 0 60px rgba(6, 182, 212, 0.3)'
             }}
           >
-            <div className="relative overflow-hidden">
+            <div className="relative overflow-hidden w-full max-h-[400px] md:max-h-[450px] lg:max-h-[500px] xl:max-h-[550px]">
               <Image
                 src="/landing half .png"
                 alt="CGT Timeline Interface Preview"
                 width={1200}
                 height={600}
-                className="w-full h-auto"
+                className="w-full h-auto object-cover object-top"
                 priority
               />
               {/* Overlay gradient for depth */}
@@ -244,7 +244,7 @@ export default function HorizontalHeroLayout() {
             <div className="absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-transparent pointer-events-none" />
 
             {/* Inner glow border effect */}
-            <div className="absolute inset-0 rounded-l-2xl border border-cyan-400/10 border-r-0 pointer-events-none" />
+            <div className="absolute inset-0 rounded-2xl border border-cyan-400/20 pointer-events-none" />
           </motion.div>
 
           {/* Floating indicator below dashboard */}
@@ -252,11 +252,11 @@ export default function HorizontalHeroLayout() {
             initial={{ opacity: 0, y: 20, scale: 0.9 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             transition={{ delay: 1, duration: 0.5, type: 'spring', damping: 20 }}
-            className="absolute -bottom-6 left-8 px-4 py-2 bg-slate-800/90 backdrop-blur-sm border border-cyan-500/40 rounded-lg shadow-lg shadow-cyan-500/20"
+            className="absolute -bottom-4 md:-bottom-5 lg:-bottom-6 left-4 md:left-6 lg:left-8 px-3 py-1.5 md:px-4 md:py-2 bg-slate-800/90 backdrop-blur-sm border border-cyan-500/40 rounded-lg shadow-lg shadow-cyan-500/20"
           >
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
-              <span className="text-xs text-slate-300 font-medium">Live CGT Calculation</span>
+            <div className="flex items-center gap-1.5 md:gap-2">
+              <div className="w-1.5 h-1.5 md:w-2 md:h-2 bg-green-400 rounded-full animate-pulse" />
+              <span className="text-[10px] md:text-xs text-slate-300 font-medium">Live CGT Calculation</span>
             </div>
           </motion.div>
         </motion.div>

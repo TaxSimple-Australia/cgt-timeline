@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef, useEffect, MouseEvent } from 'react';
+import React, { useState, useRef, useEffect, MouseEvent, useMemo } from 'react';
 import { format } from 'date-fns';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTimelineStore, EventType, TimelineEvent } from '@/store/timeline';
@@ -12,8 +12,12 @@ import QuickAddMenu from './QuickAddMenu';
 import EventDetailsModal from './EventDetailsModal';
 import TimelineSnapshot from './TimelineSnapshot';
 import TimelineVisualizationsModal from './TimelineVisualizationsModal';
+import LandingPageButton from './LandingPageButton';
+import LandingPageModal from './LandingPageModal';
 import { StickyNotesLayer, ShareLinkButton, AddStickyNoteButton } from './sticky-notes';
 import { DrawingAnnotationsLayer } from './annotations';
+import SubdivisionSplitVisual from './SubdivisionSplitVisual';
+import { calculateBranchPositions, calculateSubdivisionConnections } from '@/lib/subdivision-helpers';
 // import ResidenceGapOverlay from './ResidenceGapOverlay'; // REMOVED: Duplicate of GilbertBranch VerificationAlertBar
 
 // Extend Window interface for global sticky note and drawing drag flags
@@ -46,6 +50,7 @@ export default function Timeline({ className, onAlertClick, onOpenAIBuilder }: T
   const [grabbedDateTimestamp, setGrabbedDateTimestamp] = useState<number>(0);
   const [grabbedViewDuration, setGrabbedViewDuration] = useState<number>(0);
   const [showVisualizationsModal, setShowVisualizationsModal] = useState(false);
+  const [showLandingModal, setShowLandingModal] = useState(false);
 
   const {
     properties,
@@ -78,6 +83,25 @@ export default function Timeline({ className, onAlertClick, onOpenAIBuilder }: T
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isDrawingMode, setDrawingMode]);
+
+  // Calculate branch positions for subdivision hierarchy
+  const branchPositions = useMemo(() => {
+    return calculateBranchPositions(properties);
+  }, [properties]);
+
+  // Calculate subdivision connections for visual rendering
+  const subdivisionConnections = useMemo(() => {
+    const dateToPos = (date: Date) => dateToPosition(date, timelineStart, timelineEnd);
+    return calculateSubdivisionConnections(properties, branchPositions, events, dateToPos);
+  }, [properties, branchPositions, events, timelineStart, timelineEnd]);
+
+  // Filter properties for rendering:
+  // - Show parent properties (even if subdivided - they keep their original name)
+  // - Show child lots EXCEPT Lot 1 (main continuation) since Lot 1 continues on the parent line
+  // - Lot 2, Lot 3, etc. render as separate child branches below the parent
+  const visibleProperties = useMemo(() => {
+    return properties.filter(property => !property.isMainLotContinuation);
+  }, [properties]);
 
   // Handle timeline click to add events
   const handleTimelineClick = (e: MouseEvent<HTMLDivElement>) => {
@@ -388,26 +412,60 @@ export default function Timeline({ className, onAlertClick, onOpenAIBuilder }: T
               className="absolute top-12 left-0 w-full"
               style={{ height: `${minContentHeight - 48}px` }}
             >
+              {/* SVG Definitions */}
+              <defs>
+                {/* Gradient for subdivision lines */}
+                <linearGradient id="subdivisionGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stopColor="#EC4899" stopOpacity="0.8" />
+                  <stop offset="100%" stopColor="#EC4899" stopOpacity="0.4" />
+                </linearGradient>
+              </defs>
+
               {/* REMOVED: ResidenceGapOverlay - Duplicate of GilbertBranch VerificationAlertBar */}
               {/* Gap questions now handled exclusively by VerificationAlertBar → PropertyIssueOverlay */}
 
-              {properties.map((property, index) => (
-                <PropertyBranch
-                  key={property.id}
-                  property={property}
-                  events={events.filter(e => e.propertyId === property.id)}
-                  branchIndex={index}
-                  onDragStart={handleDragStart}
-                  isSelected={selectedProperty === property.id}
-                  isHovered={hoveredPropertyId === property.id}
-                  timelineStart={timelineStart}
-                  timelineEnd={timelineEnd}
-                  onEventClick={(event) => handleEventClick(event, property.name)}
-                  onBranchClick={handleBranchClick}
-                  onHoverChange={(isHovered) => setHoveredPropertyId(isHovered ? property.id : null)}
-                  onAlertClick={onAlertClick}
-                />
-              ))}
+              {/* Subdivision Visual Connections - Render FIRST (behind property branches) */}
+              {subdivisionConnections.length > 0 && (
+                <SubdivisionSplitVisual connections={subdivisionConnections} />
+              )}
+
+              {properties.filter(p => !p.isMainLotContinuation).map((property, index) => {
+                // Use calculated branch position if property is part of subdivision hierarchy
+                const branchPos = branchPositions.get(property.id!);
+                const effectiveBranchIndex = branchPos ? branchPos.yOffset / 80 : index;
+
+                // For subdivided parent properties, also include Lot 1's events (main continuation)
+                // This allows the parent line to show events that happened after subdivision on Lot 1
+                const lot1 = properties.find(p => p.parentPropertyId === property.id && p.isMainLotContinuation);
+                // Get subdivision date from Lot 1 to filter events properly and avoid duplicates
+                const subdivisionDate = lot1?.subdivisionDate;
+                const eventsToShow = lot1 && subdivisionDate
+                  ? [
+                      // Parent's events BEFORE subdivision
+                      ...events.filter(e => e.propertyId === property.id && e.date < subdivisionDate),
+                      // Lot 1's events ON or AFTER subdivision
+                      ...events.filter(e => e.propertyId === lot1.id && e.date >= subdivisionDate)
+                    ]
+                  : events.filter(e => e.propertyId === property.id);
+
+                return (
+                  <PropertyBranch
+                    key={property.id}
+                    property={property}
+                    events={eventsToShow}
+                    branchIndex={effectiveBranchIndex}
+                    onDragStart={handleDragStart}
+                    isSelected={selectedProperty === property.id}
+                    isHovered={hoveredPropertyId === property.id}
+                    timelineStart={timelineStart}
+                    timelineEnd={timelineEnd}
+                    onEventClick={(event) => handleEventClick(event, property.name)}
+                    onBranchClick={handleBranchClick}
+                    onHoverChange={(isHovered) => setHoveredPropertyId(isHovered ? property.id : null)}
+                    onAlertClick={onAlertClick}
+                  />
+                );
+              })}
             </svg>
 
             {/* Drawing Annotations Layer */}
@@ -492,6 +550,12 @@ export default function Timeline({ className, onAlertClick, onOpenAIBuilder }: T
 
       {/* Timeline Snapshot Widget */}
       <TimelineSnapshot />
+
+      {/* Landing Page Button */}
+      <LandingPageButton />
+
+      {/* Landing Page Modal */}
+      <LandingPageModal isOpen={showLandingModal} onClose={() => setShowLandingModal(false)} />
 
       {/* Timeline Visualizations Button */}
       <button

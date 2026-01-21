@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import { format, differenceInMonths, addMonths } from 'date-fns';
 import { Property, TimelineEvent } from '@/store/timeline';

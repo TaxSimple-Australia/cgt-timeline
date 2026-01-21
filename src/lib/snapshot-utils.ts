@@ -35,6 +35,10 @@ export const calculatePortfolioStats = (
     status_change: 0,
     vacant_start: 0,
     vacant_end: 0,
+    ownership_change: 0,
+    subdivision: 0,
+    living_in_rental_start: 0,
+    living_in_rental_end: 0,
     custom: 0,
   };
 
@@ -167,6 +171,10 @@ export const getEventIcon = (type: EventType): string => {
     status_change: '📋',
     vacant_start: '🏚️',
     vacant_end: '🏢',
+    ownership_change: '👥',
+    subdivision: '✂️',
+    living_in_rental_start: '🏡',
+    living_in_rental_end: '🚪',
     custom: '⭐',
   };
 
@@ -189,6 +197,10 @@ export const getShortEventName = (type: EventType): string => {
     status_change: 'Status',
     vacant_start: 'Vacant',
     vacant_end: 'End Vacant',
+    ownership_change: 'Ownership',
+    subdivision: 'Subdivision',
+    living_in_rental_start: 'Living Start',
+    living_in_rental_end: 'Living End',
     custom: 'Custom',
   };
 
@@ -211,6 +223,10 @@ export const getFullEventName = (type: EventType): string => {
     status_change: 'Status Change',
     vacant_start: 'Vacancy Started',
     vacant_end: 'Vacancy Ended',
+    ownership_change: 'Change of Ownership',
+    subdivision: 'Property Subdivision',
+    living_in_rental_start: 'Living in Rental Started',
+    living_in_rental_end: 'Living in Rental Ended',
     custom: 'Custom Event',
   };
 

@@ -49,6 +49,21 @@ export default function EventCardView({
   const svgRef = useRef<SVGGElement>(null);
   const dragStartPosRef = useRef<number | null>(null);
 
+  // Helper function to get display title for sale events
+  const getDisplayTitle = (event: TimelineEvent): string => {
+    if (event.type === 'sale') {
+      // Handle case where title is exactly "sale" (case-insensitive)
+      if (event.title.toLowerCase() === 'sale') {
+        return 'sold';
+      }
+      // Handle case where title contains "Marginal tax rate:" (data needs migration)
+      if (event.title.includes('Marginal tax rate:')) {
+        return 'Sold';
+      }
+    }
+    return event.title;
+  };
+
   // Get AI feedback issues for this event
   const { timelineIssues, selectIssue } = useTimelineStore();
   const eventIssues = timelineIssues.filter(issue => issue.eventId === event.id);
@@ -439,7 +454,7 @@ export default function EventCardView({
             <div className="flex-1 px-2.5 py-2 flex flex-col">
               {/* Title */}
               <div className="font-bold text-[13px] text-slate-900 dark:text-slate-100 truncate mb-1.5">
-                {event.title}
+                {getDisplayTitle(event)}
               </div>
 
               {/* Date */}

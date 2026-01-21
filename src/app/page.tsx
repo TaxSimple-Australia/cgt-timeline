@@ -44,6 +44,7 @@ function HomeContent() {
   const {
     selectedProperty,
     loadDemoData,
+    migrateSaleEventTitles,
     importTimelineData,
     importShareableData,
     properties,
@@ -68,6 +69,7 @@ function HomeContent() {
     savedAnalysis,
     aiResponse,
     setAIResponse,
+    marginalTaxRate,
   } = useTimelineStore();
   const { setValidationIssues, clearValidationIssues, setApiConnected } = useValidationStore();
   const [showAnalysis, setShowAnalysis] = useState(false);
@@ -198,6 +200,11 @@ function HomeContent() {
     setApiConnected(!!apiUrl && apiUrl !== 'YOUR_MODEL_API_URL_HERE');
   }, []);
 
+  // Run data migration on mount (one-time fix for sale event titles)
+  useEffect(() => {
+    migrateSaleEventTitles();
+  }, [migrateSaleEventTitles]);
+
   // Watch for all verification alerts being resolved
   useEffect(() => {
     if (getAllVerificationAlertsResolved()) {
@@ -281,7 +288,7 @@ function HomeContent() {
       })));
 
       // Transform timeline data to API format
-      const apiData = transformTimelineToAPIFormat(properties, events, customQuery);
+      const apiData = transformTimelineToAPIFormat(properties, events, customQuery, undefined, marginalTaxRate);
 
       console.log('📤 Sending data to API:', JSON.stringify(apiData, null, 2));
       console.log(`🔗 Using API Response Mode: ${apiResponseMode}`);
@@ -427,7 +434,7 @@ function HomeContent() {
 
     try {
       // Transform timeline data to API format
-      const apiData = transformTimelineToAPIFormat(properties, events);
+      const apiData = transformTimelineToAPIFormat(properties, events, undefined, undefined, marginalTaxRate);
 
       console.log('📤 Fetching suggested questions:', apiData);
       console.log(`🤖 Using LLM Provider: ${selectedLLMProvider}`);
@@ -478,7 +485,7 @@ function HomeContent() {
 
     try {
       // Transform timeline data to API format
-      const apiData = transformTimelineToAPIFormat(properties, events);
+      const apiData = transformTimelineToAPIFormat(properties, events, undefined, undefined, marginalTaxRate);
 
       // Add verification responses to API data
       const verificationsData = verificationAlerts.map((alert) => {
@@ -655,7 +662,7 @@ function HomeContent() {
 
     try {
       // Transform timeline data to API format
-      const apiData = transformTimelineToAPIFormat(properties, events);
+      const apiData = transformTimelineToAPIFormat(properties, events, undefined, undefined, marginalTaxRate);
 
       // Transform gap answers to verification_responses format expected by API
       const verificationsData = answers.map((answer) => {

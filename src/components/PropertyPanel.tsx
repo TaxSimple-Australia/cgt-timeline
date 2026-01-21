@@ -20,9 +20,12 @@ import {
   Users,
   Plus,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  Info,
+  Split
 } from 'lucide-react';
 import DeletePropertyModal from './DeletePropertyModal';
+import { showWarning } from '@/lib/toast-helpers';
 
 export default function PropertyPanel() {
   const {
@@ -42,6 +45,7 @@ export default function PropertyPanel() {
   const [owners, setOwners] = useState<{name: string; percentage: number}[]>([]);
   const [editedOwners, setEditedOwners] = useState<{name: string; percentage: number}[]>([{ name: '', percentage: 100 }]);
   const [showOwnershipSection, setShowOwnershipSection] = useState(false);
+  const [showOwnershipPeriodTooltip, setShowOwnershipPeriodTooltip] = useState(false);
 
   const property = properties.find(p => p.id === selectedProperty);
 
@@ -53,11 +57,21 @@ export default function PropertyPanel() {
       setOwners([{ name: '', percentage: 100 }]);
     }
   }, [property?.id, property?.owners]);
+
   if (!property) return null;
-  
+
   const propertyEvents = events
     .filter(e => e.propertyId === property.id)
     .sort((a, b) => a.date.getTime() - b.date.getTime());
+
+  // Subdivision information
+  const childProperties = properties.filter(p => p.parentPropertyId === property.id);
+  const parentProperty = property.parentPropertyId
+    ? properties.find(p => p.id === property.parentPropertyId)
+    : null;
+  const subdivisionEvent = propertyEvents.find(e => e.type === 'subdivision');
+  const isSubdivided = childProperties.length > 0;
+  const isChildProperty = !!parentProperty;
   
   // Calculate key metrics
   const purchaseEvent = propertyEvents.find(e => e.type === 'purchase');
@@ -333,6 +347,16 @@ export default function PropertyPanel() {
                           ✓ Total: {property.owners?.reduce((sum, o) => sum + o.percentage, 0).toFixed(1)}%
                         </p>
                       </div>
+
+                      <button
+                        onClick={() => {
+                          setEditedOwners(property.owners || [{ name: '', percentage: 100 }]);
+                          setIsEditingOwners(true);
+                        }}
+                        className="mt-3 w-full px-3 py-2 text-sm font-medium text-orange-600 dark:text-orange-400 hover:bg-orange-100 dark:hover:bg-orange-800 rounded-lg border border-orange-300 dark:border-orange-700 transition-colors"
+                      >
+                        Edit Owners
+                      </button>
                     </>
                   ) : (
                     // Edit mode
@@ -430,12 +454,15 @@ export default function PropertyPanel() {
                             const validOwners = editedOwners.filter(o => o.name.trim() !== '' && o.percentage > 0);
 
                             if (validOwners.length === 0) {
-                              alert('Please add at least one owner with a name and percentage');
+                              showWarning('Missing information', 'Please add at least one owner with a name and percentage');
                               return;
                             }
 
                             if (Math.abs(totalPercentage - 100) > 0.01) {
-                              alert(`Ownership percentages must equal 100% (currently ${totalPercentage.toFixed(2)}%)`);
+                              showWarning(
+                                'Invalid percentages',
+                                `Ownership percentages must equal 100% (currently ${totalPercentage.toFixed(2)}%)`
+                              );
                               return;
                             }
 
@@ -459,10 +486,150 @@ export default function PropertyPanel() {
               )}
             </AnimatePresence>
           </div>
-          </div>
+
+          {/* Subdivision Information */}
+          {(isSubdivided || isChildProperty) && (
+            <div className="bg-pink-50 dark:bg-pink-900/20 p-4 rounded-lg border border-pink-200 dark:border-pink-800">
+              <div className="flex items-center gap-2 text-pink-700 dark:text-pink-300 mb-3">
+                <Split className="w-4 h-4" />
+                <span className="text-sm font-semibold">
+                  {isSubdivided ? 'Subdivided Property' : 'Subdivision Lot'}
+                </span>
+              </div>
+
+              {/* Parent Property - Show Children */}
+              {isSubdivided && (
+                <div className="space-y-2">
+                  <div className="text-xs text-pink-600 dark:text-pink-400">
+                    This property was subdivided into {childProperties.length} lots
+                    {subdivisionEvent && ` on ${format(subdivisionEvent.date, 'dd MMM yyyy')}`}
+                  </div>
+
+                  <div className="space-y-1.5 mt-3">
+                    <div className="text-xs font-semibold text-pink-700 dark:text-pink-300 mb-2">Child Properties:</div>
+                    {childProperties.map((child, idx) => (
+                      <div
+                        key={child.id}
+                        className="bg-white dark:bg-slate-700/50 p-2 rounded border border-pink-200 dark:border-pink-700 text-xs"
+                      >
+                        <div className="flex justify-between items-center">
+                          <span className="font-medium text-pink-900 dark:text-pink-100">{child.name}</span>
+                          {child.lotNumber && (
+                            <span className="text-pink-600 dark:text-pink-400">{child.lotNumber}</span>
+                          )}
+                        </div>
+                        {child.lotSize && (
+                          <div className="text-pink-600 dark:text-pink-400 mt-0.5">
+                            {(child.lotSize / 10000).toFixed(4)} ha
+                          </div>
+                        )}
+                        {child.initialCostBase && (
+                          <div className="text-pink-700 dark:text-pink-300 mt-0.5">
+                            Cost base: {formatCurrency(child.initialCostBase)}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Subdivision Fees */}
+                  {subdivisionEvent?.subdivisionDetails && (
+                    <div className="mt-3 pt-3 border-t border-pink-200 dark:border-pink-700">
+                      <div className="text-xs font-semibold text-pink-700 dark:text-pink-300 mb-2">Subdivision Costs:</div>
+                      <div className="space-y-1 text-xs">
+                        {subdivisionEvent.subdivisionDetails.surveyorFees && (
+                          <div className="flex justify-between">
+                            <span className="text-pink-600 dark:text-pink-400">Surveyor Fees:</span>
+                            <span className="font-semibold text-pink-900 dark:text-pink-100">
+                              {formatCurrency(subdivisionEvent.subdivisionDetails.surveyorFees)}
+                            </span>
+                          </div>
+                        )}
+                        {subdivisionEvent.subdivisionDetails.planningFees && (
+                          <div className="flex justify-between">
+                            <span className="text-pink-600 dark:text-pink-400">Planning Fees:</span>
+                            <span className="font-semibold text-pink-900 dark:text-pink-100">
+                              {formatCurrency(subdivisionEvent.subdivisionDetails.planningFees)}
+                            </span>
+                          </div>
+                        )}
+                        {subdivisionEvent.subdivisionDetails.legalFees && (
+                          <div className="flex justify-between">
+                            <span className="text-pink-600 dark:text-pink-400">Legal Fees:</span>
+                            <span className="font-semibold text-pink-900 dark:text-pink-100">
+                              {formatCurrency(subdivisionEvent.subdivisionDetails.legalFees)}
+                            </span>
+                          </div>
+                        )}
+                        {subdivisionEvent.subdivisionDetails.titleFees && (
+                          <div className="flex justify-between">
+                            <span className="text-pink-600 dark:text-pink-400">Title Fees:</span>
+                            <span className="font-semibold text-pink-900 dark:text-pink-100">
+                              {formatCurrency(subdivisionEvent.subdivisionDetails.titleFees)}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Child Property - Show Parent */}
+              {isChildProperty && parentProperty && (
+                <div className="space-y-2">
+                  <div className="text-xs text-pink-600 dark:text-pink-400">
+                    This lot was created from the subdivision of:
+                  </div>
+                  <div className="bg-white dark:bg-slate-700/50 p-3 rounded border border-pink-200 dark:border-pink-700">
+                    <div className="font-medium text-sm text-pink-900 dark:text-pink-100 mb-2">
+                      {parentProperty.name}
+                    </div>
+                    {parentProperty.address && (
+                      <div className="text-xs text-pink-600 dark:text-pink-400">
+                        {parentProperty.address}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Lot Details */}
+                  <div className="grid grid-cols-2 gap-2 mt-2">
+                    {property.lotNumber && (
+                      <div className="bg-white dark:bg-slate-700/50 p-2 rounded border border-pink-200 dark:border-pink-700">
+                        <div className="text-xs text-pink-600 dark:text-pink-400">Lot Number</div>
+                        <div className="font-semibold text-sm text-pink-900 dark:text-pink-100">{property.lotNumber}</div>
+                      </div>
+                    )}
+                    {property.lotSize && (
+                      <div className="bg-white dark:bg-slate-700/50 p-2 rounded border border-pink-200 dark:border-pink-700">
+                        <div className="text-xs text-pink-600 dark:text-pink-400">Lot Size</div>
+                        <div className="font-semibold text-sm text-pink-900 dark:text-pink-100">
+                          {(property.lotSize / 10000).toFixed(4)} ha
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Allocated Cost Base */}
+                  {property.initialCostBase && (
+                    <div className="mt-2 bg-white dark:bg-slate-700/50 p-3 rounded border border-pink-200 dark:border-pink-700">
+                      <div className="text-xs text-pink-600 dark:text-pink-400 mb-1">Allocated Cost Base</div>
+                      <div className="font-bold text-lg text-pink-900 dark:text-pink-100">
+                        {formatCurrency(property.initialCostBase)}
+                      </div>
+                      {property.subdivisionDate && (
+                        <div className="text-xs text-pink-500 dark:text-pink-400 mt-1">
+                          Subdivision date: {format(property.subdivisionDate, 'dd MMM yyyy')}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Key Metrics */}
-          <div className="p-4 space-y-4">
           <div className="grid grid-cols-2 gap-3">
             <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg border border-blue-100 dark:border-blue-800">
               <div className="flex items-center gap-2 text-blue-600 dark:text-blue-400 mb-1">
@@ -523,115 +690,6 @@ export default function PropertyPanel() {
             </div>
           </div>
 
-          {/* Ownership Section */}
-          <div className="bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-700 overflow-hidden">
-            <button
-              onClick={() => setShowOwnershipSection(!showOwnershipSection)}
-              className="w-full p-3 flex items-center justify-between hover:bg-amber-100 dark:hover:bg-amber-900/30 transition-colors"
-            >
-              <div className="flex items-center gap-2 text-amber-700 dark:text-amber-300">
-                <Users className="w-4 h-4" />
-                <span className="text-sm font-medium">
-                  Ownership {hasMultipleOwners && `(${property.owners?.length} owners)`}
-                </span>
-              </div>
-              {showOwnershipSection ? (
-                <ChevronUp className="w-4 h-4 text-amber-600 dark:text-amber-400" />
-              ) : (
-                <ChevronDown className="w-4 h-4 text-amber-600 dark:text-amber-400" />
-              )}
-            </button>
-
-            {showOwnershipSection && (
-              <div className="px-4 py-3 border-t border-amber-200 dark:border-amber-700">
-                {!isEditingOwners ? (
-                  <div className="space-y-3">
-                    {property.owners && property.owners.length > 0 ? (
-                      property.owners.map((owner, idx) => (
-                        <div key={idx} className="flex justify-between items-center text-sm py-1">
-                          <span className="text-amber-800 dark:text-amber-200">{owner.name || 'Owner ' + (idx + 1)}</span>
-                          <span className="font-semibold text-amber-900 dark:text-amber-100">{owner.percentage}%</span>
-                        </div>
-                      ))
-                    ) : (
-                      <p className="text-sm text-amber-600 dark:text-amber-400 py-1">Single owner (100%)</p>
-                    )}
-                    <button
-                      onClick={() => setIsEditingOwners(true)}
-                      className="mt-3 flex items-center gap-2 px-3 py-2 text-sm font-medium text-amber-700 dark:text-amber-200 bg-amber-100 dark:bg-amber-800/40 hover:bg-amber-200 dark:hover:bg-amber-800/60 border border-amber-300 dark:border-amber-600 rounded-lg transition-colors"
-                    >
-                      <Edit2 className="w-4 h-4" />
-                      Edit ownership
-                    </button>
-                  </div>
-                ) : (
-                  <div className="space-y-4">
-                    {owners.map((owner, idx) => (
-                      <div key={idx} className="flex items-center gap-3">
-                        <input
-                          type="text"
-                          value={owner.name}
-                          onChange={(e) => handleOwnerChange(idx, 'name', e.target.value)}
-                          placeholder="Owner name"
-                          className="flex-1 px-3 py-2 text-sm border border-amber-300 dark:border-amber-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100"
-                        />
-                        <input
-                          type="number"
-                          value={owner.percentage}
-                          onChange={(e) => handleOwnerChange(idx, 'percentage', e.target.value)}
-                          onWheel={(e) => e.currentTarget.blur()}
-                          placeholder="%"
-                          min="0"
-                          max="100"
-                          className="w-24 px-3 py-2 text-sm border border-amber-300 dark:border-amber-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100"
-                        />
-                        <span className="text-sm text-amber-700 dark:text-amber-300">%</span>
-                        {owners.length > 1 && (
-                          <button
-                            onClick={() => handleRemoveOwner(idx)}
-                            className="p-1.5 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 rounded"
-                          >
-                            <X className="w-4 h-4" />
-                          </button>
-                        )}
-                      </div>
-                    ))}
-
-                    <button
-                      onClick={handleAddOwner}
-                      className="flex items-center gap-2 text-sm text-amber-700 dark:text-amber-300 hover:text-amber-900 dark:hover:text-amber-100 py-1"
-                    >
-                      <Plus className="w-4 h-4" />
-                      Add owner
-                    </button>
-
-                    <div className={`text-sm font-medium py-2 ${isOwnershipValid ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
-                      Total: {totalOwnershipPercentage}% {!isOwnershipValid && '(must equal 100%)'}
-                    </div>
-
-                    <div className="flex gap-3 pt-2">
-                      <button
-                        onClick={handleSaveOwners}
-                        disabled={!isOwnershipValid}
-                        className="px-4 py-2 text-sm bg-amber-600 text-white rounded-lg hover:bg-amber-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
-                        Save
-                      </button>
-                      <button
-                        onClick={() => {
-                          setOwners(property.owners || [{ name: '', percentage: 100 }]);
-                          setIsEditingOwners(false);
-                        }}
-                        className="px-4 py-2 text-sm border border-amber-300 dark:border-amber-600 text-amber-700 dark:text-amber-300 rounded-lg hover:bg-amber-100 dark:hover:bg-amber-900/30"
-                      >
-                        Cancel
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
 
           {/* Cost Base Breakdown for CGT - NEW: Using dynamic costBases array */}
           {(purchaseEvent || totalCostBase > 0) && (
@@ -737,6 +795,27 @@ export default function PropertyPanel() {
             <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400 mb-2">
               <Calendar className="w-4 h-4" />
               <span className="text-sm font-medium">Ownership Period</span>
+              <div
+                className="relative"
+                onMouseEnter={() => setShowOwnershipPeriodTooltip(true)}
+                onMouseLeave={() => setShowOwnershipPeriodTooltip(false)}
+              >
+                <Info className="w-4 h-4 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 cursor-help" />
+
+                {showOwnershipPeriodTooltip && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -5 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -5 }}
+                    transition={{ duration: 0.15 }}
+                    className="absolute left-1/2 -translate-x-1/2 top-full mt-2 bg-slate-900 dark:bg-slate-800 text-white px-4 py-3 rounded-lg shadow-2xl text-sm min-w-[280px] max-w-[360px] z-50 pointer-events-none border-2 border-blue-500/30"
+                  >
+                    <p className="text-slate-200 leading-relaxed">
+                      If an asset was acquired before 21 September 1999, you may be eligible to use the indexation method.
+                    </p>
+                  </motion.div>
+                )}
+              </div>
             </div>
             <div className="text-slate-800 dark:text-slate-200">
               {ownershipYears > 0 && <span className="font-bold">{ownershipYears} years </span>}

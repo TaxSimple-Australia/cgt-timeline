@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { format } from 'date-fns';
 import { dateToPosition } from '@/lib/utils';
 import type { TimelineGap } from '../types/ai-feedback';
+import type { Property } from '@/store/timeline';
 
 interface TimelineGapProps {
   gap: TimelineGap;
@@ -12,10 +13,11 @@ interface TimelineGapProps {
   branchY?: number; // Y position of the property branch
   timelineStart: Date;
   timelineEnd: Date;
+  property?: Property; // For subdivision date awareness
   onClick?: () => void;
 }
 
-export default function TimelineGap({ gap, timelineHeight, branchY = 0, timelineStart, timelineEnd, onClick }: TimelineGapProps) {
+export default function TimelineGap({ gap, timelineHeight, branchY = 0, timelineStart, timelineEnd, property, onClick }: TimelineGapProps) {
   const [isHovered, setIsHovered] = useState(false);
 
   const startDate = new Date(gap.start_date);
@@ -23,6 +25,17 @@ export default function TimelineGap({ gap, timelineHeight, branchY = 0, timeline
 
   // Calculate position from date using same logic as events
   const calculatedPosition = dateToPosition(startDate, timelineStart, timelineEnd);
+
+  // For subdivided child properties, don't render gaps before subdivision date
+  const isChildLot = Boolean(property?.parentPropertyId);
+  const subdivisionStartPos = isChildLot && property?.subdivisionDate
+    ? dateToPosition(property.subdivisionDate, timelineStart, timelineEnd)
+    : null;
+
+  // If gap is before subdivision date, don't render it
+  if (subdivisionStartPos !== null && calculatedPosition < subdivisionStartPos) {
+    return null;
+  }
 
   // Only show if gap is within visible range
   if (calculatedPosition < -10 || calculatedPosition > 110) return null;

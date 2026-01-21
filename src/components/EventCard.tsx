@@ -16,7 +16,9 @@ import {
   X,
   Edit2,
   Star,
-  Gift
+  Gift,
+  Users,
+  Split
 } from 'lucide-react';
 
 interface EventCardProps {
@@ -35,6 +37,8 @@ const eventIcons: Record<string, React.ReactNode> = {
   sale: <TrendingUp className="w-4 h-4" />,
   improvement: <Hammer className="w-4 h-4" />,
   refinance: <Gift className="w-4 h-4" />,
+  ownership_change: <Users className="w-4 h-4" />,
+  subdivision: <Split className="w-4 h-4" />,
   custom: <Star className="w-4 h-4" />,
 };
 
@@ -207,6 +211,65 @@ export default function EventCard({
           {/* Description */}
           {event.description && (
             <div className="text-xs opacity-75 mb-2">{event.description}</div>
+          )}
+
+          {/* Ownership Change Details */}
+          {event.type === 'ownership_change' && (event.leavingOwners || event.newOwners) && (
+            <div className="space-y-1 mb-2 border-b border-white/20 dark:border-slate-900/20 pb-2">
+              <div className="text-xs font-semibold opacity-75">Ownership Transfer:</div>
+              {event.leavingOwners && event.leavingOwners.length > 0 && (
+                <div className="text-xs opacity-90">
+                  <span className="font-semibold">Leaving: </span>
+                  {event.leavingOwners.join(', ')}
+                </div>
+              )}
+              {event.newOwners && event.newOwners.length > 0 && (
+                <div className="text-xs opacity-90">
+                  <span className="font-semibold">New Owners: </span>
+                  {event.newOwners.map((owner, idx) => (
+                    <span key={idx}>
+                      {owner.name} ({owner.percentage}%)
+                      {idx < event.newOwners!.length - 1 ? ', ' : ''}
+                    </span>
+                  ))}
+                </div>
+              )}
+              {event.ownershipChangeReason && (
+                <div className="text-xs opacity-75">
+                  <span className="font-semibold">Reason: </span>
+                  {event.ownershipChangeReason === 'divorce' && 'Divorce'}
+                  {event.ownershipChangeReason === 'sale_transfer' && 'Sale / Transfer'}
+                  {event.ownershipChangeReason === 'gift' && 'Gift'}
+                  {event.ownershipChangeReason === 'other' && (event.ownershipChangeReasonOther || 'Other')}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Subdivision Details */}
+          {event.type === 'subdivision' && event.subdivisionDetails && (
+            <div className="space-y-1 mb-2 border-b border-white/20 dark:border-slate-900/20 pb-2">
+              <div className="text-xs font-semibold opacity-75">Subdivided into {event.subdivisionDetails.totalLots} lots:</div>
+              {event.subdivisionDetails.childProperties.map((child, idx) => (
+                <div key={child.id} className="text-xs opacity-90">
+                  <span className="font-semibold">{child.name}:</span>{' '}
+                  {child.lotSize ? `${(child.lotSize / 10000).toFixed(4)} ha` : 'Size N/A'}
+                  {child.allocatedCostBase && (
+                    <span className="opacity-75"> • {formatCurrency(child.allocatedCostBase)}</span>
+                  )}
+                </div>
+              ))}
+              {(event.subdivisionDetails.surveyorFees || event.subdivisionDetails.planningFees ||
+                event.subdivisionDetails.legalFees || event.subdivisionDetails.titleFees) && (
+                <div className="text-xs opacity-75 mt-1 pt-1 border-t border-white/10">
+                  <span className="font-semibold">Fees:</span>
+                  {event.subdivisionDetails.surveyorFees && ` Surveyor: ${formatCurrency(event.subdivisionDetails.surveyorFees)}`}
+                  {event.subdivisionDetails.planningFees && ` • Planning: ${formatCurrency(event.subdivisionDetails.planningFees)}`}
+                  {event.subdivisionDetails.legalFees && ` • Legal: ${formatCurrency(event.subdivisionDetails.legalFees)}`}
+                  {event.subdivisionDetails.titleFees && ` • Title: ${formatCurrency(event.subdivisionDetails.titleFees)}`}
+                </div>
+              )}
+            </div>
           )}
 
           {/* Main Residence Status */}

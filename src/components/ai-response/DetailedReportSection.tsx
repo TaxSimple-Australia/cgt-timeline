@@ -13,6 +13,7 @@ import PropertyAnalysisCard from './PropertyAnalysisCard';
 import CostBaseItemizedTable from './CostBaseItemizedTable';
 import TimelinePeriodBreakdownTable from './TimelinePeriodBreakdownTable';
 import GapOverlapDetailsTable from './GapOverlapDetailsTable';
+import { showSuccess, showError } from '@/lib/toast-helpers';
 import TimelineBarView from '../timeline-viz/TimelineBarView';
 import TwoColumnLayout from '../timeline-viz/TwoColumnLayout';
 import RecommendationsSection from './RecommendationsSection';
@@ -120,7 +121,10 @@ export default function DetailedReportSection({ properties, analysis, calculatio
         message: error instanceof Error ? error.message : 'Unknown error',
         stack: error instanceof Error ? error.stack : undefined
       });
-      alert(`Failed to export PDF. Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      showError(
+        'PDF export failed',
+        error instanceof Error ? error.message : 'Unknown error'
+      );
     } finally {
       setIsExporting(false);
     }
@@ -161,14 +165,14 @@ export default function DetailedReportSection({ properties, analysis, calculatio
 
       const result = await res.json();
       if (result.success) {
-        alert('✅ Report sent to your email successfully!');
+        showSuccess('Email sent', 'Report sent to your email successfully!');
         setShowEmailModal(false);
       } else {
         throw new Error(result.error || 'Failed to send email');
       }
     } catch (error) {
       console.error('Error sending email:', error);
-      alert('❌ Failed to send email. Please try again or download the PDF instead.');
+      showError('Email failed', 'Failed to send email. Please try again or download the PDF instead.');
     } finally {
       setIsSendingEmail(false);
     }
@@ -205,7 +209,7 @@ export default function DetailedReportSection({ properties, analysis, calculatio
       setTimeout(() => setJsonCopied(false), 2000);
     } catch (error) {
       console.error('Error copying JSON:', error);
-      alert('Failed to copy JSON to clipboard');
+      showError('Copy failed', 'Failed to copy JSON to clipboard');
     }
   };
 
@@ -224,7 +228,7 @@ export default function DetailedReportSection({ properties, analysis, calculatio
       URL.revokeObjectURL(url);
     } catch (error) {
       console.error('Error downloading JSON:', error);
-      alert('Failed to download JSON file');
+      showError('Download failed', 'Failed to download JSON file');
     }
   };
 

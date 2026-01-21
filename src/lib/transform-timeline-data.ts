@@ -2,6 +2,87 @@ import type { Property as TimelineProperty, TimelineEvent } from '@/store/timeli
 import type { CGTModelResponse, Property, PropertyHistoryEvent } from '@/types/model-response';
 import type { VerificationAlert } from '@/types/verification-alert';
 import { sanitizeDateForAPI } from '@/lib/date-utils';
+import { format } from 'date-fns';
+
+/**
+ * Generate comprehensive CGT context notes from event data
+ * This ensures all checkbox states and CGT-critical flags are sent to the API
+ * in a structured, AI-readable format
+ */
+function generateCGTContextNotes(event: TimelineEvent): string {
+  const notes: string[] = [];
+
+  // Checkbox states that indicate user intent
+  if (event.checkboxState) {
+    const cs = event.checkboxState;
+    if (cs.moveInOnSameDay) notes.push("Owner moved in on purchase day");
+    if (cs.purchaseAsVacant) notes.push("Property was vacant at purchase");
+    if (cs.purchaseAsRent) notes.push("Property was rented at purchase (inherited tenants)");
+    if (cs.purchaseAsMixedUse) notes.push("Property has mixed-use (partial investment)");
+    if (cs.moveOutAsVacant) notes.push("Property became vacant after move-out");
+    if (cs.moveOutAsRent) notes.push("Property became rental after move-out");
+    if (cs.rentEndAsVacant) notes.push("Property became vacant after rental ended");
+    if (cs.rentEndAsMoveIn) notes.push("Owner moved in after rental ended");
+    if (cs.vacantEndAsMoveIn) notes.push("Owner moved in after vacancy");
+    if (cs.vacantEndAsRent) notes.push("Property became rental after vacancy");
+    if (cs.hasBusinessUse) notes.push("Property has business/home office use");
+    if (cs.hasPartialRental) notes.push("Property has partial rental arrangement");
+    if (cs.isNonResident) notes.push("Owner is non-resident for tax purposes (no CGT discount)");
+  }
+
+  // CGT-critical flags (these significantly affect exemptions)
+  if (event.overTwoHectares) {
+    notes.push("LAND EXCEEDS 2 HECTARES - main residence exemption limited to dwelling + 2 hectares per ATO Section 118-120");
+  }
+  if (event.isLandOnly) {
+    notes.push("LAND ONLY (no dwelling) - different CGT rules apply, no building depreciation available");
+  }
+  if (event.isPPR) {
+    notes.push("Principal Place of Residence");
+  }
+
+  // Price breakdown (useful for land/building apportionment)
+  if (event.landPrice !== undefined && event.landPrice > 0) {
+    if (event.buildingPrice !== undefined && event.buildingPrice > 0) {
+      notes.push(`Price breakdown: Land $${event.landPrice.toLocaleString()}, Building $${event.buildingPrice.toLocaleString()}`);
+    } else {
+      notes.push(`Land price: $${event.landPrice.toLocaleString()}`);
+    }
+  } else if (event.buildingPrice !== undefined && event.buildingPrice > 0) {
+    notes.push(`Building price: $${event.buildingPrice.toLocaleString()}`);
+  }
+
+  // Capital proceeds type for sale events
+  if (event.capitalProceedsType) {
+    const proceedsTypeLabels: Record<string, string> = {
+      'standard': 'Standard sale proceeds',
+      'insurance': 'Insurance payout',
+      'compulsory_acquisition': 'Compulsory acquisition by government',
+      'gift': 'Gift (market value applies)',
+      'related_party': 'Related party transaction (market value may apply)'
+    };
+    const label = proceedsTypeLabels[event.capitalProceedsType] || event.capitalProceedsType;
+    notes.push(`Capital proceeds type: ${label}`);
+  }
+
+  // Exemption type if specified
+  if (event.exemptionType) {
+    const exemptionLabels: Record<string, string> = {
+      'main_residence': 'Main residence exemption claimed',
+      'partial_main_residence': 'Partial main residence exemption',
+      '6_year_rule': '6-year absence rule claimed',
+      'none': 'No exemption claimed'
+    };
+    const label = exemptionLabels[event.exemptionType] || event.exemptionType;
+    notes.push(`Exemption: ${label}`);
+  }
+
+  // Build the CGT context string
+  if (notes.length > 0) {
+    return `\n[CGT Context: ${notes.join('; ')}]`;
+  }
+  return '';
+}
 
 /**
  * Verification response format for the API
@@ -46,7 +127,8 @@ export function transformTimelineToAPIFormat(
   properties: TimelineProperty[],
   events: TimelineEvent[],
   customQuery?: string,
-  verificationAlerts?: VerificationAlert[]
+  verificationAlerts?: VerificationAlert[],
+  marginalTaxRate: number = 37
 ) {
   const apiProperties: Property[] = properties.map((property) => {
     // Get all events for this property
@@ -165,9 +247,107 @@ export function transformTimelineToAPIFormat(
       // NEW: Add split data to description so AI can read it (Gilbert's contextual approach)
       const additionalInfo: string[] = [];
 
-      if (event.businessUsePercentage !== undefined && event.businessUsePercentage > 0) {
+      // Check for Mixed-Use split percentages (new approach)
+      if (event.livingUsePercentage !== undefined || event.rentalUsePercentage !== undefined) {
+        const living = event.livingUsePercentage || 0;
+        const rental = event.rentalUsePercentage || 0;
+        const business = event.businessUsePercentage || 0;
+
+        const parts: string[] = [];
+        if (living > 0) parts.push(`${living}% owner-occupied`);
+        if (rental > 0) parts.push(`${rental}% rental`);
+        if (business > 0) parts.push(`${business}% business`);
+
+        let mixedUseText = `Mixed-Use property: ${parts.join(', ')}`;
+
+        // Add start dates if available
+        const dateParts: string[] = [];
+        if (rental > 0 && event.rentalUseStartDate) {
+          dateParts.push(`rental use started ${format(event.rentalUseStartDate, 'dd MMM yyyy')}`);
+        }
+        if (business > 0 && event.businessUseStartDate) {
+          dateParts.push(`business use started ${format(event.businessUseStartDate, 'dd MMM yyyy')}`);
+        }
+        if (dateParts.length > 0) {
+          mixedUseText += ` (${dateParts.join(', ')})`;
+        }
+
+        additionalInfo.push(mixedUseText);
+        console.log('📊 Transform: Mixed-Use percentages:', { living, rental, business, rentalStart: event.rentalUseStartDate, businessStart: event.businessUseStartDate }, '(added to description)');
+      } else if (event.businessUsePercentage !== undefined && event.businessUsePercentage > 0) {
+        // Fallback to old business use approach if no living/rental percentages
         additionalInfo.push(`Business use: ${event.businessUsePercentage}% of property used for business/rental purposes`);
         console.log('📊 Transform: Business use percentage:', event.businessUsePercentage, '(added to description)');
+      }
+
+      // NEW: Add ownership change information (contextual approach for AI)
+      if (event.type === 'ownership_change') {
+        const ownershipParts: string[] = [];
+
+        // Add reason
+        if (event.ownershipChangeReason) {
+          const reasonLabels = {
+            divorce: 'Divorce',
+            sale_transfer: 'Sale/Transfer',
+            gift: 'Gift',
+            other: event.ownershipChangeReasonOther || 'Other'
+          };
+          ownershipParts.push(`Reason: ${reasonLabels[event.ownershipChangeReason]}`);
+        }
+
+        // Add leaving owners
+        if (event.leavingOwners && event.leavingOwners.length > 0) {
+          ownershipParts.push(`Leaving owner(s): ${event.leavingOwners.join(', ')}`);
+        }
+
+        // Add new owners with percentages
+        if (event.newOwners && event.newOwners.length > 0) {
+          const newOwnersList = event.newOwners
+            .map(owner => `${owner.name} (${owner.percentage}%)`)
+            .join(', ');
+          ownershipParts.push(`New owner(s): ${newOwnersList}`);
+        }
+
+        if (ownershipParts.length > 0) {
+          additionalInfo.push(`Ownership Change - ${ownershipParts.join('. ')}`);
+          console.log('👥 Transform: Ownership change details added to description');
+        }
+      }
+
+      // NEW: Add subdivision information (contextual approach for AI)
+      if (event.type === 'subdivision' && event.subdivisionDetails) {
+        const subdivisionParts: string[] = [];
+
+        subdivisionParts.push(`Property subdivided into ${event.subdivisionDetails.totalLots} lots`);
+
+        // Add child property details
+        if (event.subdivisionDetails.childProperties && event.subdivisionDetails.childProperties.length > 0) {
+          const childDetails = event.subdivisionDetails.childProperties
+            .map((child, idx) => {
+              const parts = [`Lot ${idx + 1}: ${child.name}`];
+              if (child.lotNumber) parts.push(`(${child.lotNumber})`);
+              if (child.lotSize) parts.push(`${(child.lotSize / 10000).toFixed(4)} ha`);
+              if (child.allocatedCostBase) parts.push(`Cost base: $${child.allocatedCostBase.toLocaleString('en-AU')}`);
+              return parts.join(' ');
+            })
+            .join('; ');
+          subdivisionParts.push(childDetails);
+        }
+
+        // Add allocation method
+        if (event.subdivisionDetails.allocationMethod) {
+          const methodLabels = {
+            by_lot_size: 'by lot size',
+            equal: 'equally',
+            manual: 'manually',
+          };
+          subdivisionParts.push(`Cost base allocated ${methodLabels[event.subdivisionDetails.allocationMethod] || 'proportionally'}`);
+        }
+
+        if (subdivisionParts.length > 0) {
+          additionalInfo.push(`Subdivision - ${subdivisionParts.join('. ')}`);
+          console.log('🏘️ Transform: Subdivision details added to description');
+        }
       }
 
       if (event.floorAreaData) {
@@ -425,15 +605,82 @@ export function transformTimelineToAPIFormat(
         });
       }
 
+      // Add improvement amount to description for AI context (for improvement events)
+      if (event.type === 'improvement' && historyEvent.improvement_cost && historyEvent.improvement_cost > 0) {
+        const amountInfo = `Improvement cost: $${historyEvent.improvement_cost.toLocaleString('en-AU', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+        historyEvent.description = historyEvent.description
+          ? `${historyEvent.description}. ${amountInfo}`
+          : amountInfo;
+        console.log('💰 Transform: Added improvement amount to description:', historyEvent.improvement_cost);
+      }
+
+      // Handle subdivision fees (stored in subdivisionDetails, not costBases)
+      if (event.type === 'subdivision' && event.subdivisionDetails) {
+        const fees = event.subdivisionDetails;
+
+        // Map subdivision fees to appropriate API fields
+        if (fees.surveyorFees && fees.surveyorFees > 0) {
+          historyEvent.survey_fees = (historyEvent.survey_fees || 0) + fees.surveyorFees;
+          console.log('📐 Transform: Added subdivision surveyor fees:', fees.surveyorFees);
+        }
+
+        if (fees.planningFees && fees.planningFees > 0) {
+          // Planning fees can be added to legal fees or search fees
+          historyEvent.search_fees = (historyEvent.search_fees || 0) + fees.planningFees;
+          console.log('📋 Transform: Added subdivision planning fees:', fees.planningFees);
+        }
+
+        if (fees.legalFees && fees.legalFees > 0) {
+          historyEvent.legal_fees = (historyEvent.legal_fees || 0) + fees.legalFees;
+          console.log('⚖️ Transform: Added subdivision legal fees:', fees.legalFees);
+        }
+
+        if (fees.titleFees && fees.titleFees > 0) {
+          historyEvent.title_legal_fees = (historyEvent.title_legal_fees || 0) + fees.titleFees;
+          console.log('📜 Transform: Added subdivision title fees:', fees.titleFees);
+        }
+
+        // Add total subdivision costs to description for AI context
+        const totalFees = (fees.surveyorFees || 0) + (fees.planningFees || 0) + (fees.legalFees || 0) + (fees.titleFees || 0);
+        if (totalFees > 0) {
+          const feesInfo = `Total subdivision costs: $${totalFees.toLocaleString('en-AU', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+          historyEvent.description = historyEvent.description
+            ? `${historyEvent.description}. ${feesInfo}`
+            : feesInfo;
+          console.log('💰 Transform: Added total subdivision costs to description:', totalFees);
+        }
+      }
+
       return historyEvent;
     }).filter((event): event is PropertyHistoryEvent => event !== null); // Filter out null entries from invalid dates
+
+    // Aggregate CGT context from all events for this property
+    const allCGTContext: string[] = [];
+    propertyEvents.forEach((event) => {
+      const cgtContext = generateCGTContextNotes(event);
+      if (cgtContext) {
+        const dateStr = sanitizeDateForAPI(event.date) || 'Unknown date';
+        const eventLabel = event.type.replace(/_/g, ' ');
+        // Remove the wrapper and format nicely
+        const cleanContext = cgtContext.replace('\n[CGT Context: ', '').replace(']', '');
+        allCGTContext.push(`${dateStr} (${eventLabel}): ${cleanContext}`);
+      }
+    });
+
+    // Build notes field with owners + CGT context
+    const notesParts: string[] = [];
+    if (property.owners && property.owners.length > 0) {
+      notesParts.push(`Owners: ${property.owners.map(o => `${o.name} (${o.percentage}%)`).join(', ')}`);
+    }
+    if (allCGTContext.length > 0) {
+      notesParts.push(`\n[CGT Context by Event]\n${allCGTContext.join('\n')}`);
+      console.log('📝 Transform: CGT context notes aggregated for', property.name, ':', allCGTContext.length, 'entries');
+    }
 
     return {
       address: `${property.name}, ${property.address}`,
       property_history,
-      notes: property.owners && property.owners.length > 0
-        ? `Owners: ${property.owners.map(o => `${o.name} (${o.percentage}%)`).join(', ')}`
-        : '', // Multi-owner data serialized to notes field for API
+      notes: notesParts.join(''),
     };
   });
 
@@ -445,7 +692,7 @@ export function transformTimelineToAPIFormat(
       australian_resident: true,
       other_property_owned: properties.length > 1,
       land_size_hectares: 0,
-      marginal_tax_rate: 37, // Default, should be configurable
+      marginal_tax_rate: marginalTaxRate, // Global tax rate from store
     },
   };
 

@@ -21,6 +21,7 @@ import {
   generateDrawingAnnotationId,
   DEFAULT_DRAWING_STROKE,
 } from '../types/drawing-annotation';
+import { showValidationError, showError } from '../lib/toast-helpers';
 
 export type EventType =
   | 'purchase'
@@ -34,6 +35,10 @@ export type EventType =
   | 'status_change'
   | 'vacant_start'  // Property becomes vacant/unoccupied
   | 'vacant_end'    // Property is no longer vacant
+  | 'ownership_change'  // Change of ownership event
+  | 'subdivision'   // Property subdivision into multiple lots
+  | 'living_in_rental_start'  // Start living in rental property
+  | 'living_in_rental_end'    // Stop living in rental property
   | 'custom';       // User-defined custom event for any situation
 
 export type PropertyStatus =
@@ -41,7 +46,15 @@ export type PropertyStatus =
   | 'rental'           // Rented to tenants
   | 'vacant'           // Empty/not used
   | 'construction'     // Being built/renovated
-  | 'sold';            // Sold
+  | 'sold'             // Sold
+  | 'subdivided'       // Subdivided into child lots (property no longer exists as originally held)
+  | 'living_in_rental'; // Owner is living in a rental property (renting from someone else)
+
+export type OwnershipChangeReason =
+  | 'divorce'          // Divorce settlement
+  | 'sale_transfer'    // Sale or transfer
+  | 'gift'             // Gift to family member or other
+  | 'other';           // Other reason
 
 /**
  * Dynamic cost base item for CGT calculations
@@ -73,6 +86,8 @@ export interface TimelineEvent {
   isPPR?: boolean;          // Is this event related to Main Residence?
   isResident?: boolean;     // For sale events - Australian resident status for CGT
   previousYearLosses?: number;  // For sale events - previous year capital losses to offset CGT
+  capitalProceedsType?: 'standard' | 'insurance' | 'compulsory_acquisition' | 'gift' | 'inheritance';  // For sale events - type of capital proceeds
+  exemptionType?: 'main_residence' | 'partial_main_residence' | '6_year_rule' | 'none';  // For sale events - CGT exemption type claimed
   // Price breakdown for purchases (land + building)
   landPrice?: number;       // Price of land component
   buildingPrice?: number;   // Price of building component
@@ -82,15 +97,60 @@ export interface TimelineEvent {
   // Custom event fields
   affectsStatus?: boolean;  // For custom events: does this event change property status?
 
+  // Persistent checkbox states from EventDetailsModal
+  checkboxState?: {
+    moveInOnSameDay?: boolean;        // Purchase: Move in on same day
+    purchaseAsVacant?: boolean;       // Purchase: Purchase as vacant
+    purchaseAsRent?: boolean;         // Purchase: Purchase as rental/investment
+    purchaseAsMixedUse?: boolean;     // Purchase: Mixed-use property
+    moveOutAsVacant?: boolean;        // Move Out: Move out as vacant
+    moveOutAsRent?: boolean;          // Move Out: Move out as rent start
+    rentEndAsVacant?: boolean;        // Rent End: Rent end as vacant
+    rentEndAsMoveIn?: boolean;        // Rent End: Rent end as move in
+    vacantEndAsMoveIn?: boolean;      // Vacant End: Owner move back in
+    vacantEndAsRent?: boolean;        // Vacant End: Vacant end as rental
+    hasBusinessUse?: boolean;         // Purchase: Has business use percentage
+    hasPartialRental?: boolean;       // Purchase: Has partial rental percentage
+    isNonResident?: boolean;          // Sale: Non-resident status
+  };
+
   // NEW: Dynamic Cost Base Items
   costBases?: CostBaseItem[];  // Array of cost base items for this event
 
   // NEW: Ownership and Usage Splits
-  businessUsePercentage?: number;  // Percentage of property used for business/rental (0-100)
+  businessUsePercentage?: number;  // Percentage of property used for business (0-100)
+  rentalUsePercentage?: number;    // Percentage of property used for rental/investment (0-100)
+  livingUsePercentage?: number;    // Percentage of property used as owner-occupied/main residence (0-100)
+  rentalUseStartDate?: Date;       // Date when rental use started
+  businessUseStartDate?: Date;     // Date when business use started
   floorAreaData?: {
     total: number;      // Total floor area in sqm
     exclusive: number;  // Exclusive rental area in sqm (e.g., bedroom)
     shared: number;     // Shared area in sqm (e.g., kitchen, bathroom)
+  };
+
+  // NEW: Ownership Change fields
+  leavingOwners?: string[];  // Array of owner names who are leaving
+  newOwners?: Array<{name: string; percentage: number}>;  // New owners being added
+  ownershipChangeReason?: OwnershipChangeReason;  // Reason for ownership change
+  ownershipChangeReasonOther?: string;  // Custom reason if "other" selected
+
+  // NEW: Subdivision fields
+  subdivisionDetails?: {
+    parentPropertyId: string;              // Original property being subdivided
+    childProperties: Array<{
+      id: string;                          // New property ID
+      name: string;                        // e.g., "Lot 1", "Lot 2"
+      lotNumber?: string;                  // Lot/parcel number
+      lotSize?: number;                    // Size in sqm for cost base allocation
+      allocatedCostBase?: number;          // Portion of parent cost base
+    }>;
+    totalLots: number;                     // Total number of lots created
+    surveyorFees?: number;                 // Surveyor costs
+    planningFees?: number;                 // Planning/council fees
+    legalFees?: number;                    // Legal fees
+    titleFees?: number;                    // Title registration fees
+    allocationMethod: 'equal' | 'by_lot_size' | 'manual';  // How cost base was split
   };
 
   // DEPRECATED: Legacy cost base fields (kept for backward compatibility during migration)
@@ -141,6 +201,15 @@ export interface Property {
     name: string;
     percentage: number;  // Ownership percentage (must total 100%)
   }>;
+
+  // NEW: Subdivision tracking
+  parentPropertyId?: string;      // Links back to parent if this is a subdivided lot
+  subdivisionDate?: Date;         // Date this property was created via subdivision
+  subdivisionGroup?: string;      // UUID linking all lots from same subdivision
+  lotNumber?: string;             // e.g., "Lot 1", "Lot 2"
+  lotSize?: number;               // Size in sqm or hectares
+  initialCostBase?: number;       // Allocated cost base for subdivided lots
+  isMainLotContinuation?: boolean; // True if this lot continues parent's CGT history (typically Lot 1)
 }
 
 export type ZoomLevel =
@@ -218,10 +287,28 @@ interface TimelineState {
   timelineNotes: string; // User notes/feedback for the timeline
   isNotesModalOpen: boolean; // Whether the notes modal is open
 
+  // Marginal Tax Rate State (Global for all properties)
+  marginalTaxRate: number; // User's marginal tax rate (default: 37%)
+
   // Actions
   addProperty: (property: Omit<Property, 'id' | 'branch'>) => void;
   updateProperty: (id: string, property: Partial<Property>) => void;
   deleteProperty: (id: string) => void;
+  subdivideProperty: (config: {
+    parentPropertyId: string;
+    subdivisionDate: Date;
+    lots: Array<{
+      name: string;
+      address?: string;
+      lotSize: number;  // Required for proportional allocation
+    }>;
+    fees: {
+      surveyorFees?: number;
+      planningFees?: number;
+      legalFees?: number;
+      titleFees?: number;
+    };
+  }) => void;
 
   addEvent: (event: Omit<TimelineEvent, 'id'>) => void;
   updateEvent: (id: string, event: Partial<TimelineEvent>) => void;
@@ -240,6 +327,7 @@ interface TimelineState {
   setCenterDate: (date: Date) => void;
   panToPosition: (position: number) => void; // Position 0-100 on absolute timeline
   loadDemoData: () => Promise<void>; // Load demo data from JSON file
+  migrateSaleEventTitles: () => void; // Migrate sale events with marginal tax rate in title
   clearAllData: () => void; // Clear all properties and events
   importTimelineData: (data: any) => void; // Import timeline data from JSON
   toggleTheme: () => void; // Cycle through themes: light -> dark -> golden -> light
@@ -277,6 +365,10 @@ interface TimelineState {
   setTimelineNotes: (notes: string) => void;
   openNotesModal: () => void;
   closeNotesModal: () => void;
+
+  // Marginal Tax Rate Actions
+  setMarginalTaxRate: (rate: number) => void;
+  initializeMarginalTaxRate: () => void; // Extract rate from existing sale events
 
   // Sticky Notes State
   timelineStickyNotes: StickyNote[];
@@ -358,6 +450,10 @@ const eventColors: Record<EventType, string> = {
   status_change: '#A855F7',
   vacant_start: '#9CA3AF',   // Gray-400 - Property becomes vacant
   vacant_end: '#6B7280',     // Gray-500 - Property no longer vacant
+  ownership_change: '#A855F7',  // Purple - Change of ownership
+  subdivision: '#EC4899',    // Pink - Property subdivision
+  living_in_rental_start: '#EC4899',  // Pink - Start living in rental
+  living_in_rental_end: '#DB2777',    // Darker pink - Stop living in rental
   custom: '#6B7280',         // Gray - Custom event (user can change)
 };
 
@@ -368,6 +464,8 @@ export const statusColors: Record<PropertyStatus, string> = {
   vacant: '#9CA3AF',      // Gray - Vacant/Unoccupied
   construction: '#F59E0B', // Orange - Under construction
   sold: '#8B5CF6',        // Purple - Sold
+  subdivided: '#6B7280',  // Dark Gray - Subdivided (property retired/no longer exists)
+  living_in_rental: '#F472B6', // Pink - Living in rental property (renting from someone else)
 };
 
 // Zoom level definitions with their time spans in days
@@ -447,32 +545,54 @@ export interface StatusPeriod {
 }
 
 export const calculateStatusPeriods = (events: TimelineEvent[]): StatusPeriod[] => {
+  console.log('🔍 calculateStatusPeriods called with events:', events.map(e => ({ type: e.type, date: e.date, title: e.title })));
   const periods: StatusPeriod[] = [];
 
   // Event priority for same-date events (higher number = processed later = takes precedence)
+  // Restructured into logical hierarchy to prevent status conflicts
   const eventPriority: Record<string, number> = {
-    'purchase': 1,              // Establishes baseline (vacant)
-    'move_in': 2,               // Status-changing events
-    'move_out': 2,
-    'rent_start': 2,
-    'rent_end': 2,
-    'vacant_start': 2,
-    'vacant_end': 2,
-    'status_change': 2,
-    'living_in_rental_start': 2,
-    'living_in_rental_end': 2,
-    'sale': 3,                  // Final status (highest priority)
-    'improvement': 0,           // Non-status events (lowest)
+    // Priority 0 - Non-status events (lowest)
+    'improvement': 0,
     'refinance': 0,
     'custom': 0,
+
+    // Priority 1 - Initial acquisition
+    'purchase': 1,
+
+    // Priority 2 - Ending events (remove/end a status)
+    'move_out': 2,
+    'rent_end': 2,
+    'vacant_start': 2,
+    'living_in_rental_end': 2,
+
+    // Priority 3 - Transitional events
+    'vacant_end': 3,
+
+    // Priority 4 - Active use events (establish new status)
+    'move_in': 4,
+    'rent_start': 4,
+    'living_in_rental_start': 4,
+
+    // Priority 5 - Explicit user overrides
+    'status_change': 5,
+    'ownership_change': 5,
+
+    // Priority 6 - Terminal states (highest priority)
+    'sale': 6,
+    'subdivision': 6,
   };
 
   // Sort events by date, then by priority for same-date events
   const sortedEvents = [...events].sort((a, b) => {
     const timeDiff = a.date.getTime() - b.date.getTime();
     if (timeDiff !== 0) return timeDiff;
+
     // Same date - sort by priority (lower priority processed first)
-    return (eventPriority[a.type] || 0) - (eventPriority[b.type] || 0);
+    const priorityDiff = (eventPriority[a.type] || 0) - (eventPriority[b.type] || 0);
+    if (priorityDiff !== 0) return priorityDiff;
+
+    // Same date and priority - sort by ID for deterministic ordering
+    return a.id.localeCompare(b.id);
   });
 
   let currentStatus: PropertyStatus | null = null;
@@ -509,8 +629,20 @@ export const calculateStatusPeriods = (events: TimelineEvent[]): StatusPeriod[] 
         // Property is no longer vacant - default to ppr, subsequent events will override
         newStatus = 'ppr';
         break;
+      case 'living_in_rental_start':
+        // Living in a rental property (renting from someone else while owning this property)
+        newStatus = 'living_in_rental';
+        break;
+      case 'living_in_rental_end':
+        // No longer living in rental - property becomes vacant
+        newStatus = 'vacant';
+        break;
       case 'sale':
         newStatus = 'sold';
+        break;
+      case 'subdivision':
+        // Subdivision means property no longer exists as originally held
+        newStatus = 'subdivided';
         break;
       case 'status_change':
         newStatus = event.newStatus || null;
@@ -519,6 +651,7 @@ export const calculateStatusPeriods = (events: TimelineEvent[]): StatusPeriod[] 
 
     // If status changed, close previous period and start new one
     if (newStatus && newStatus !== currentStatus) {
+      console.log(`  📊 Status change: ${currentStatus} → ${newStatus} at ${event.date.toISOString().split('T')[0]} (${event.type})`);
       if (currentStatus && currentStartDate) {
         periods.push({
           status: currentStatus,
@@ -541,6 +674,7 @@ export const calculateStatusPeriods = (events: TimelineEvent[]): StatusPeriod[] 
     });
   }
 
+  console.log('✅ Calculated status periods:', periods.map(p => ({ status: p.status, start: p.startDate.toISOString().split('T')[0], end: p.endDate ? p.endDate.toISOString().split('T')[0] : 'ongoing' })));
   return periods;
 };
 
@@ -600,6 +734,9 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
     timelineNotes: '',
     isNotesModalOpen: false,
 
+    // Marginal Tax Rate initial state
+    marginalTaxRate: 37,
+
     // Sticky Notes initial state
     timelineStickyNotes: [],
     analysisStickyNotes: [],
@@ -613,10 +750,32 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
 
   addProperty: (property) => {
     const properties = get().properties;
+
+    // Determine color: use provided color or find first unused color from palette
+    let selectedColor = property.color;
+    if (!selectedColor) {
+      // Get colors currently in use
+      const usedColors = new Set(properties.map(p => p.color.toUpperCase()));
+
+      // Find first unused color from palette
+      selectedColor = propertyColors[0];
+      for (const color of propertyColors) {
+        if (!usedColors.has(color.toUpperCase())) {
+          selectedColor = color;
+          break;
+        }
+      }
+
+      // If all colors are used, cycle through them
+      if (usedColors.size >= propertyColors.length) {
+        selectedColor = propertyColors[properties.length % propertyColors.length];
+      }
+    }
+
     const newProperty: Property = {
       ...property,
       id: `prop-${Date.now()}`,
-      color: property.color || propertyColors[properties.length % propertyColors.length],
+      color: selectedColor,
       branch: properties.length,
     };
     set({ properties: [...properties, newProperty] });
@@ -631,21 +790,201 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
   },
   
   deleteProperty: (id) => {
-    set((state) => ({
-      properties: state.properties.filter((p) => p.id !== id),
-      events: state.events.filter((e) => e.propertyId !== id),
-      // Clear AI analysis and verification alerts when property is deleted
-      aiResponse: null,
-      timelineIssues: [],
-      positionedGaps: [],
-      residenceGapIssues: [],
-      selectedIssue: null,
-      verificationAlerts: [],
-      currentAlertIndex: -1,
-    }));
+    set((state) => {
+      const property = state.properties.find((p) => p.id === id);
+
+      // If deleting a parent property, also delete all children
+      if (property && !property.parentPropertyId) {
+        const children = state.properties.filter((p) => p.parentPropertyId === id);
+        const allIdsToDelete = [id, ...children.map((c) => c.id)];
+
+        return {
+          properties: state.properties.filter((p) => !allIdsToDelete.includes(p.id!)),
+          events: state.events.filter((e) => !allIdsToDelete.includes(e.propertyId)),
+          // Clear AI analysis and verification alerts when property is deleted
+          aiResponse: null,
+          timelineIssues: [],
+          positionedGaps: [],
+          residenceGapIssues: [],
+          selectedIssue: null,
+          verificationAlerts: [],
+          currentAlertIndex: -1,
+        };
+      } else {
+        // Regular delete for child or non-subdivided property
+        return {
+          properties: state.properties.filter((p) => p.id !== id),
+          events: state.events.filter((e) => e.propertyId !== id),
+          // Clear AI analysis and verification alerts when property is deleted
+          aiResponse: null,
+          timelineIssues: [],
+          positionedGaps: [],
+          residenceGapIssues: [],
+          selectedIssue: null,
+          verificationAlerts: [],
+          currentAlertIndex: -1,
+        };
+      }
+    });
   },
-  
+
+  subdivideProperty: (config) => {
+    const { parentPropertyId, subdivisionDate, lots, fees } = config;
+    const state = get();
+    const parentProperty = state.properties.find((p) => p.id === parentPropertyId);
+
+    if (!parentProperty) {
+      console.error('Parent property not found:', parentPropertyId);
+      return;
+    }
+
+    // Generate subdivision group ID
+    const subdivisionGroup = `subdiv-${Date.now()}`;
+
+    // Calculate total lot size for proportional allocation
+    const totalLotSize = lots.reduce((sum, lot) => sum + lot.lotSize, 0);
+
+    // Calculate parent's cost base (purchase price + improvements before subdivision)
+    const parentPurchasePrice = parentProperty.purchasePrice || 0;
+    const parentImprovements = state.events
+      .filter((e) => e.propertyId === parentPropertyId && e.type === 'improvement' && e.date < subdivisionDate)
+      .reduce((sum, e) => sum + (e.amount || 0), 0);
+    const parentCostBase = parentPurchasePrice + parentImprovements;
+
+    // Calculate total subdivision fees
+    const totalFees = (fees.surveyorFees || 0) + (fees.planningFees || 0) + (fees.legalFees || 0) + (fees.titleFees || 0);
+    const feePerLot = totalFees / lots.length;
+
+    // Create child properties with allocated cost bases
+    const childProperties: Property[] = lots.map((lot, index) => {
+      // Proportional allocation based on lot size
+      const proportion = lot.lotSize / totalLotSize;
+      const allocatedCostBase = parentCostBase * proportion + feePerLot;
+
+      // Lot 1 (index 0) continues the main property's CGT timeline
+      const isMainLot = index === 0;
+
+      return {
+        id: `prop-${Date.now()}-${index}`,
+        name: lot.name,
+        address: lot.address || parentProperty.address,
+        color: propertyColors[(state.properties.length + index) % propertyColors.length],
+        branch: state.properties.length + index, // Will be recalculated by layout
+        parentPropertyId,
+        subdivisionDate,
+        subdivisionGroup,
+        lotNumber: `Lot ${index + 1}`,
+        lotSize: lot.lotSize,
+        purchasePrice: allocatedCostBase,
+        purchaseDate: isMainLot ? parentProperty.purchaseDate : subdivisionDate, // Main lot inherits original purchase date
+        owners: parentProperty.owners, // Inherit ownership
+        isMainLotContinuation: isMainLot, // Mark Lot 1 as main timeline continuation
+      };
+    });
+
+    // Get parent events before subdivision date to copy to Lot 1
+    const parentEventsBeforeSubdivision = state.events.filter(
+      (e) => e.propertyId === parentPropertyId && e.date < subdivisionDate
+    );
+
+    // Create copies of parent events for Lot 1 (main lot continuation)
+    // Remove amount and costBases from inherited events
+    const lot1Id = childProperties[0]?.id;
+    const copiedEventsForLot1: TimelineEvent[] = lot1Id
+      ? parentEventsBeforeSubdivision.map((event) => {
+          const { amount, costBases, ...eventWithoutFinancials } = event;
+          return {
+            ...eventWithoutFinancials,
+            id: `event-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
+            propertyId: lot1Id,
+          };
+        })
+      : [];
+
+    // Create subdivision event on parent
+    const subdivisionEvent: TimelineEvent = {
+      id: `event-${Date.now()}`,
+      propertyId: parentPropertyId,
+      type: 'subdivision',
+      date: subdivisionDate,
+      title: `Subdivided into ${lots.length} lots`,
+      position: 0, // Position will be calculated
+      color: '#EC4899',
+      subdivisionDetails: {
+        parentPropertyId,
+        childProperties: childProperties.map((cp, i) => ({
+          id: cp.id,
+          name: cp.name,
+          lotSize: lots[i].lotSize,
+          allocatedCostBase: cp.purchasePrice,
+        })),
+        totalLots: lots.length,
+        ...fees,
+        allocationMethod: 'by_lot_size',
+      },
+    };
+
+    // Update state
+    // - Lot 1 inherits parent's events before subdivision (continues CGT timeline)
+    // - Lot 2+ start fresh from subdivision date
+    // - Parent property is marked with subdivisionDate
+    set({
+      properties: [
+        ...state.properties.map(p =>
+          p.id === parentPropertyId
+            ? { ...p, subdivisionDate }
+            : p
+        ),
+        ...childProperties
+      ],
+      events: [...state.events, subdivisionEvent, ...copiedEventsForLot1],
+    });
+
+    console.log(`✅ Subdivided ${parentProperty.name} into ${lots.length} lots`);
+    console.log(`📋 Lot 1 inherited ${copiedEventsForLot1.length} events from parent timeline`);
+  },
+
   addEvent: (event) => {
+    const state = get();
+
+    // Validate event against business logic (only critical rules now)
+    if (event.propertyId) {
+      const { validateEvent } = require('@/lib/event-validation');
+      const propertyEvents = state.events.filter(e => e.propertyId === event.propertyId);
+      const validation = validateEvent(event, propertyEvents);
+
+      if (!validation.valid) {
+        console.warn('❌ Event validation failed:', validation.error);
+
+        // Show error with optional guidance
+        if (validation.suggestion) {
+          showValidationError(validation.error, {
+            suggestion: {
+              label: validation.suggestion.message.includes('Would you like')
+                ? 'Yes, create it'
+                : 'Create prerequisite',
+              action: () => {
+                // User wants to create prerequisite event - dispatch custom event
+                window.dispatchEvent(new CustomEvent('create-prerequisite-event', {
+                  detail: {
+                    type: validation.suggestion.type,
+                    propertyId: event.propertyId,
+                    suggestedDate: validation.suggestion.suggestedDate,
+                    followUpEvent: event, // Save the original event to create after prerequisite
+                  }
+                }));
+              }
+            },
+            description: validation.suggestion.message,
+          });
+        } else {
+          showError('Validation Error', validation.error);
+        }
+
+        return; // Block the event from being added
+      }
+    }
+
     const newEvent: TimelineEvent = {
       ...event,
       id: `event-${Date.now()}`,
@@ -659,6 +998,42 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
   },
   
   updateEvent: (id, updates) => {
+    const state = get();
+    const event = state.events.find(e => e.id === id);
+
+    if (!event) return;
+
+    // Validate: Prevent updating event date past subdivision date
+    if (updates.date && event.propertyId) {
+      const property = state.properties.find(p => p.id === event.propertyId);
+      if (property) {
+        const subdivisionEvent = state.events.find(e =>
+          e.propertyId === property.id && e.type === 'subdivision'
+        );
+
+        if (subdivisionEvent && updates.date >= subdivisionEvent.date) {
+          console.warn('❌ Cannot update event date past subdivision date');
+          showError(
+            'Cannot set event date past subdivision',
+            'This property was subdivided and no longer exists after that date.'
+          );
+          return; // Block the update
+        }
+      }
+
+      // NEW: Validate event updates against business logic
+      const { validateEvent } = require('@/lib/event-validation');
+      const propertyEvents = state.events.filter(e => e.propertyId === event.propertyId && e.id !== id);
+      const updatedEvent = { ...event, ...updates };
+      const validation = validateEvent(updatedEvent, propertyEvents);
+
+      if (!validation.valid) {
+        console.warn('❌ Event update validation failed:', validation.error);
+        showError('Validation Error', validation.error);
+        return; // Block the update
+      }
+    }
+
     set((state) => {
       const updatedEvents = state.events.map((e) => {
         if (e.id !== id) return e;
@@ -724,6 +1099,37 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
     const timelineRange = state.timelineEnd.getTime() - state.timelineStart.getTime();
     const newTime = state.timelineStart.getTime() + (newPosition / 100) * timelineRange;
     const newDate = new Date(newTime);
+
+    // Validate: Prevent moving events on subdivided parent properties past subdivision date
+    if (event.propertyId) {
+      const property = state.properties.find(p => p.id === event.propertyId);
+      if (property) {
+        const subdivisionEvent = state.events.find(e =>
+          e.propertyId === property.id && e.type === 'subdivision'
+        );
+
+        if (subdivisionEvent && newDate >= subdivisionEvent.date) {
+          console.warn('❌ Cannot move event past subdivision date');
+          showError(
+            'Cannot move event past subdivision',
+            'This property was subdivided and no longer exists after that date.'
+          );
+          return; // Block the move
+        }
+      }
+
+      // NEW: Validate dragged event position against business logic
+      const { validateEvent } = require('@/lib/event-validation');
+      const propertyEvents = state.events.filter(e => e.propertyId === event.propertyId && e.id !== id);
+      const movedEvent = { ...event, date: newDate };
+      const validation = validateEvent(movedEvent, propertyEvents);
+
+      if (!validation.valid) {
+        console.warn('❌ Event drag validation failed:', validation.error);
+        showError('Validation Error', validation.error);
+        return; // Block the move
+      }
+    }
 
     // Debug logging
     console.log('🔄 moveEvent called:', {
@@ -1127,6 +1533,54 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
     }
   },
 
+  // Migrate sale events with marginal tax rate in title to description
+  migrateSaleEventTitles: () => {
+    const events = get().events;
+    let migratedCount = 0;
+
+    const migratedEvents = events.map((event) => {
+      // Only migrate sale events with "Marginal tax rate" in the title
+      if (event.type === 'sale' && event.title && event.title.includes('Marginal tax rate:')) {
+        migratedCount++;
+
+        // Extract the marginal tax rate from title
+        const match = event.title.match(/Marginal tax rate: ([\d.]+)%/);
+        const taxRateValue = match ? match[1] : null;
+
+        // Build the new description
+        let newDescription = event.description || '';
+
+        // Add marginal tax rate to description if we extracted it and it's not already there
+        if (taxRateValue && !newDescription.includes('Marginal tax rate:')) {
+          const taxRateNote = `Marginal tax rate: ${taxRateValue}%`;
+          newDescription = newDescription
+            ? `${newDescription}. ${taxRateNote}`
+            : taxRateNote;
+        }
+
+        console.log(`📝 Migration: Fixed sale event title from "${event.title}" to "Sold"`, {
+          eventId: event.id,
+          oldTitle: event.title,
+          newTitle: 'Sold',
+          extractedTaxRate: taxRateValue,
+          newDescription
+        });
+
+        return {
+          ...event,
+          title: 'Sold',
+          description: newDescription
+        };
+      }
+      return event;
+    });
+
+    if (migratedCount > 0) {
+      console.log(`✅ Migration complete: Fixed ${migratedCount} sale event title(s)`);
+      set({ events: migratedEvents });
+    }
+  },
+
   clearAllData: () => {
     set({
       properties: [],
@@ -1473,6 +1927,9 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
         selectedEvent: null,
         lastInteractedEventId: null,
       });
+
+      // Initialize marginal tax rate from imported events
+      get().initializeMarginalTaxRate();
     } catch (error) {
       console.error('Error importing timeline data:', error);
       throw error;
@@ -1977,6 +2434,60 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
     set({ isNotesModalOpen: false });
   },
 
+  // Marginal Tax Rate Actions
+  setMarginalTaxRate: (rate: number) => {
+    set({ marginalTaxRate: rate });
+
+    // Update all sale events to reflect the new global tax rate
+    const state = get();
+    const updatedEvents = state.events.map(event => {
+      if (event.type === 'sale') {
+        let updatedDescription = event.description || '';
+        const taxRateNote = `\n\nMarginal tax rate: ${rate}%`;
+
+        // Update or add tax rate to description
+        if (updatedDescription.includes('Marginal tax rate:')) {
+          updatedDescription = updatedDescription.replace(
+            /Marginal tax rate: [\d.]+%/g,
+            `Marginal tax rate: ${rate}%`
+          );
+        } else {
+          updatedDescription += taxRateNote;
+        }
+
+        return { ...event, description: updatedDescription };
+      }
+      return event;
+    });
+
+    set({ events: updatedEvents });
+  },
+
+  initializeMarginalTaxRate: () => {
+    const state = get();
+
+    // Scan all sale events for existing marginal tax rates
+    const saleEvents = state.events.filter(e => e.type === 'sale');
+
+    for (const event of saleEvents) {
+      if (event.description) {
+        const match = event.description.match(/Marginal tax rate: ([\d.]+)%/);
+        if (match && match[1]) {
+          const extractedRate = parseFloat(match[1]);
+          // If any non-37% rate is found, use it as the global rate
+          if (!isNaN(extractedRate) && extractedRate !== 37) {
+            set({ marginalTaxRate: extractedRate });
+            console.log(`📊 Initialized marginal tax rate from sale event: ${extractedRate}%`);
+            return;
+          }
+        }
+      }
+    }
+
+    // If no non-37% rate found, keep the default of 37%
+    console.log('📊 Using default marginal tax rate: 37%');
+  },
+
   // ========================================================================
   // STICKY NOTES - Timeline
   // ========================================================================
@@ -2390,6 +2901,9 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
         lastInteractedEventId: null,
         isDrawingMode: false, // Reset drawing mode on import
       });
+
+      // Initialize marginal tax rate from imported events
+      get().initializeMarginalTaxRate();
 
       console.log('✅ Successfully imported shareable data with', {
         timelineDrawingAnnotations: data.timelineDrawingAnnotations?.length || 0,

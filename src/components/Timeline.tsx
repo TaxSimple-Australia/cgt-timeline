@@ -15,16 +15,14 @@ import TimelineVisualizationsModal from './TimelineVisualizationsModal';
 import LandingPageButton from './LandingPageButton';
 import LandingPageModal from './LandingPageModal';
 import { StickyNotesLayer, ShareLinkButton, AddStickyNoteButton } from './sticky-notes';
-import { DrawingAnnotationsLayer } from './annotations';
 import SubdivisionSplitVisual from './SubdivisionSplitVisual';
 import { calculateBranchPositions, calculateSubdivisionConnections } from '@/lib/subdivision-helpers';
 // import ResidenceGapOverlay from './ResidenceGapOverlay'; // REMOVED: Duplicate of GilbertBranch VerificationAlertBar
 
-// Extend Window interface for global sticky note and drawing drag flags
+// Extend Window interface for global sticky note drag flag
 declare global {
   interface Window {
     __stickyNoteDragging?: boolean;
-    __drawingAnnotationDragging?: boolean;
   }
 }
 
@@ -68,21 +66,8 @@ export default function Timeline({ className, onAlertClick, onOpenAIBuilder }: T
     lockFutureDates,
     selectIssue,
     timelineIssues,
-    isDrawingMode,
-    setDrawingMode,
     // residenceGapIssues, // REMOVED: Not needed - using GilbertBranch VerificationAlertBar instead
   } = useTimelineStore();
-
-  // Handle ESC key to exit drawing mode
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && isDrawingMode) {
-        setDrawingMode(false);
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isDrawingMode, setDrawingMode]);
 
   // Calculate branch positions for subdivision hierarchy
   const branchPositions = useMemo(() => {
@@ -105,8 +90,8 @@ export default function Timeline({ className, onAlertClick, onOpenAIBuilder }: T
 
   // Handle timeline click to add events
   const handleTimelineClick = (e: MouseEvent<HTMLDivElement>) => {
-    // Check if drawing mode is active or a sticky note/drawing is being dragged
-    if (isDragging || isDraggingTimebar || window.__stickyNoteDragging || window.__drawingAnnotationDragging || isDrawingMode) return;
+    // Check if a sticky note is being dragged
+    if (isDragging || isDraggingTimebar || window.__stickyNoteDragging) return;
 
     const rect = timelineRef.current?.getBoundingClientRect();
     if (!rect) return;
@@ -122,8 +107,8 @@ export default function Timeline({ className, onAlertClick, onOpenAIBuilder }: T
 
   // Handle branch line click to add events for a specific property
   const handleBranchClick = (propertyId: string, position: number, clientX: number, clientY: number) => {
-    // Check if drawing mode is active or a sticky note/drawing is being dragged
-    if (window.__stickyNoteDragging || window.__drawingAnnotationDragging || isDrawingMode) return;
+    // Check if a sticky note is being dragged
+    if (window.__stickyNoteDragging) return;
 
     setClickPosition(position);
     setQuickAddPosition({ x: clientX, y: clientY });
@@ -467,9 +452,6 @@ export default function Timeline({ className, onAlertClick, onOpenAIBuilder }: T
                 );
               })}
             </svg>
-
-            {/* Drawing Annotations Layer */}
-            <DrawingAnnotationsLayer containerRef={timelineRef} />
 
             {/* Sticky Notes Layer */}
             <StickyNotesLayer containerRef={timelineRef} />

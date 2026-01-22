@@ -1,12 +1,12 @@
 'use client';
 
 import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { format } from 'date-fns';
 import { useTimelineStore } from '@/store/timeline';
 import SettingsModal from './SettingsModal';
 import ScenarioSelectorModal from './ScenarioSelectorModal';
 import { ShareLinkButton, AddStickyNoteButton } from './sticky-notes';
-import { DrawingToolButton } from './annotations';
 import {
   ZoomIn,
   ZoomOut,
@@ -35,6 +35,7 @@ interface TimelineControlsProps {
 }
 
 export default function TimelineControls({ timelineContainerRef }: TimelineControlsProps) {
+  const router = useRouter();
   const [showSettings, setShowSettings] = useState(false);
   const [showScenarioSelector, setShowScenarioSelector] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
@@ -327,8 +328,12 @@ export default function TimelineControls({ timelineContainerRef }: TimelineContr
       <div className="absolute top-0 left-0 right-0 h-12 sm:h-14 lg:h-16 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 px-2 sm:px-4 lg:px-6 xl:px-8 flex items-center justify-between z-30">
         {/* Left Section - Logo & Stats */}
         <div className="flex items-center gap-2 sm:gap-3 lg:gap-4 min-w-0 flex-shrink-0">
-          {/* Title - Responsive */}
-          <h1 className="text-sm sm:text-base lg:text-lg xl:text-xl font-bold text-slate-800 dark:text-slate-100 whitespace-nowrap">
+          {/* Title - Responsive, Clickable to go to Landing Page */}
+          <h1
+            onClick={() => router.push('/landing')}
+            className="text-sm sm:text-base lg:text-lg xl:text-xl font-bold text-slate-800 dark:text-slate-100 whitespace-nowrap cursor-pointer hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+            title="Go to Landing Page"
+          >
             <span className="hidden sm:inline">CGT Brain AI</span>
             <span className="sm:hidden">CGT</span>
           </h1>
@@ -426,9 +431,6 @@ export default function TimelineControls({ timelineContainerRef }: TimelineContr
 
             {/* Add Sticky Note Button */}
             <AddStickyNoteButton context="timeline" containerRef={timelineContainerRef} />
-
-            {/* Drawing Tool Button */}
-            <DrawingToolButton />
 
             <IconButton onClick={() => setShowScenarioSelector(true)} title="Load Scenario" variant="gradient">
               <FolderOpen className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-purple-600 dark:text-purple-400" />
@@ -539,11 +541,6 @@ export default function TimelineControls({ timelineContainerRef }: TimelineContr
             <div onClick={() => setShowMobileMenu(false)} className="flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-amber-50 dark:hover:bg-amber-900/20">
               <AddStickyNoteButton context="timeline" containerRef={timelineContainerRef} className="!p-0 !bg-transparent !border-0 !shadow-none" />
               <span className="text-[10px] text-amber-600 dark:text-amber-400">Add Note</span>
-            </div>
-
-            {/* Draw - Mobile */}
-            <div onClick={() => setShowMobileMenu(false)} className="flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
-              <DrawingToolButton className="!shadow-none" />
             </div>
 
             <button

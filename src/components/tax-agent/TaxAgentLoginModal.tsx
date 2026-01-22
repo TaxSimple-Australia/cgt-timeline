@@ -3,20 +3,17 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Lock, User, AlertCircle, Shield } from 'lucide-react';
+import { X, Lock, Mail, AlertCircle, Briefcase } from 'lucide-react';
+import type { TaxAgentPublic } from '@/types/tax-agent';
 
-interface AdminLoginModalProps {
+interface TaxAgentLoginModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSuccess: () => void;
+  onSuccess: (agent: TaxAgentPublic, token: string) => void;
 }
 
-// Hardcoded credentials as specified
-const ADMIN_USERNAME = 'AdminAnil';
-const ADMIN_PASSWORD = 'Admin@123';
-
-export default function AdminLoginModal({ isOpen, onClose, onSuccess }: AdminLoginModalProps) {
-  const [username, setUsername] = useState('');
+export default function TaxAgentLoginModal({ isOpen, onClose, onSuccess }: TaxAgentLoginModalProps) {
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -30,7 +27,7 @@ export default function AdminLoginModal({ isOpen, onClose, onSuccess }: AdminLog
   // Reset form when modal closes
   useEffect(() => {
     if (!isOpen) {
-      setUsername('');
+      setEmail('');
       setPassword('');
       setError(null);
       setIsLoading(false);
@@ -42,20 +39,31 @@ export default function AdminLoginModal({ isOpen, onClose, onSuccess }: AdminLog
     setError(null);
     setIsLoading(true);
 
-    // Simulate a small delay for better UX
-    await new Promise(resolve => setTimeout(resolve, 500));
+    try {
+      const response = await fetch('/api/tax-agents/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
 
-    if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
-      // Store auth in session storage
-      sessionStorage.setItem('cgt_admin_auth', 'true');
-      sessionStorage.setItem('cgt_admin_user', username);
-      sessionStorage.setItem('cgt_admin_pass', password);
-      onSuccess();
-    } else {
-      setError('Invalid username or password');
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Login failed');
+      }
+
+      // Store session in localStorage for persistence
+      localStorage.setItem('tax_agent_token', data.token);
+      localStorage.setItem('tax_agent_data', JSON.stringify(data.agent));
+
+      onSuccess(data.agent, data.token);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Login failed');
+    } finally {
+      setIsLoading(false);
     }
-
-    setIsLoading(false);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -91,14 +99,14 @@ export default function AdminLoginModal({ isOpen, onClose, onSuccess }: AdminLog
             >
               <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 overflow-hidden">
                 {/* Header */}
-                <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200 dark:border-slate-700 bg-gradient-to-r from-blue-600 to-indigo-600">
+                <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200 dark:border-slate-700 bg-gradient-to-r from-emerald-600 to-teal-600">
                   <div className="flex items-center gap-3">
                     <div className="p-2 bg-white/20 rounded-lg">
-                      <Shield className="w-5 h-5 text-white" />
+                      <Briefcase className="w-5 h-5 text-white" />
                     </div>
                     <div>
-                      <h2 className="text-lg font-bold text-white">Admin Login</h2>
-                      <p className="text-xs text-blue-100">CGT Brain Admin Dashboard</p>
+                      <h2 className="text-lg font-bold text-white">Tax Agent Login</h2>
+                      <p className="text-xs text-emerald-100">Access your client submissions</p>
                     </div>
                   </div>
                   <button
@@ -122,31 +130,31 @@ export default function AdminLoginModal({ isOpen, onClose, onSuccess }: AdminLog
                     </motion.div>
                   )}
 
-                  {/* Username Input */}
+                  {/* Email Input */}
                   <div>
-                    <label htmlFor="admin-username" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
-                      Username
+                    <label htmlFor="agent-email" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                      Email Address
                     </label>
                     <div className="relative">
                       <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
-                        <User className="w-5 h-5" />
+                        <Mail className="w-5 h-5" />
                       </div>
                       <input
-                        id="admin-username"
-                        type="text"
-                        value={username}
-                        onChange={(e) => setUsername(e.target.value)}
-                        placeholder="Enter admin username"
-                        autoComplete="username"
+                        id="agent-email"
+                        type="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        placeholder="your@email.com"
+                        autoComplete="email"
                         autoFocus
-                        className="w-full pl-11 pr-4 py-2.5 text-sm bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                        className="w-full pl-11 pr-4 py-2.5 text-sm bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors"
                       />
                     </div>
                   </div>
 
                   {/* Password Input */}
                   <div>
-                    <label htmlFor="admin-password" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                    <label htmlFor="agent-password" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
                       Password
                     </label>
                     <div className="relative">
@@ -154,13 +162,13 @@ export default function AdminLoginModal({ isOpen, onClose, onSuccess }: AdminLog
                         <Lock className="w-5 h-5" />
                       </div>
                       <input
-                        id="admin-password"
+                        id="agent-password"
                         type="password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        placeholder="Enter admin password"
+                        placeholder="Enter your password"
                         autoComplete="current-password"
-                        className="w-full pl-11 pr-4 py-2.5 text-sm bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                        className="w-full pl-11 pr-4 py-2.5 text-sm bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors"
                       />
                     </div>
                   </div>
@@ -168,8 +176,8 @@ export default function AdminLoginModal({ isOpen, onClose, onSuccess }: AdminLog
                   {/* Submit Button */}
                   <button
                     type="submit"
-                    disabled={isLoading || !username || !password}
-                    className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-medium rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:from-blue-600 disabled:hover:to-indigo-600"
+                    disabled={isLoading || !email || !password}
+                    className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-medium rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:from-emerald-600 disabled:hover:to-teal-600"
                   >
                     {isLoading ? (
                       <>
@@ -188,7 +196,7 @@ export default function AdminLoginModal({ isOpen, onClose, onSuccess }: AdminLog
                 {/* Footer */}
                 <div className="px-6 py-3 bg-slate-50 dark:bg-slate-900 border-t border-slate-200 dark:border-slate-700">
                   <p className="text-xs text-slate-500 dark:text-slate-400 text-center">
-                    Access restricted to authorized administrators only
+                    Contact your administrator if you need account assistance
                   </p>
                 </div>
               </div>

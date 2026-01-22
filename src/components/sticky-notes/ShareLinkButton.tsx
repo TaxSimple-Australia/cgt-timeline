@@ -449,7 +449,7 @@ export default function ShareLinkButton({
               </p>
               <ul className="text-xs text-gray-400 dark:text-gray-500 space-y-0.5">
                 <li>• Timeline with all properties and events</li>
-                <li>• All sticky notes and drawing annotations</li>
+                <li>• All sticky notes and annotations</li>
                 {hasAnalysis && <li>• CGT analysis results</li>}
                 {hasAnalysis && <li>• Analysis sticky notes</li>}
               </ul>

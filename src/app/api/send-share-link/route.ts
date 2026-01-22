@@ -148,7 +148,7 @@ export async function POST(request: NextRequest) {
                         <tr>
                           <td style="padding: 8px 0;">
                             <span style="color: #22C55E; font-size: 16px;">&#10003;</span>
-                            <span style="color: #374151; margin-left: 8px;">Sticky notes and drawing annotations</span>
+                            <span style="color: #374151; margin-left: 8px;">Sticky notes and annotations</span>
                           </td>
                         </tr>
                         ${analysisSection}
@@ -223,7 +223,7 @@ View your timeline here: ${shareLink}
 What's Included:
 - Complete property portfolio timeline
 - All property events and milestones
-- Sticky notes and drawing annotations
+- Sticky notes and annotations
 ${includesAnalysis ? '- Complete CGT analysis results\n- Analysis notes and annotations' : ''}
 
 This link provides read-only access to the shared timeline.

@@ -22,24 +22,21 @@ export async function POST(request: NextRequest) {
     // Generate unique short ID (10 characters)
     const shareId = nanoid(10);
 
-    // Store in Vercel KV with metadata - v2.1.0 format includes sticky notes, drawing annotations, and analysis
+    // Store in Vercel KV with metadata - v2.2.0 format includes sticky notes and analysis
     const timelineData = {
-      version: data.version || '2.1.0',
+      version: data.version || '2.2.0',
       createdAt: data.createdAt || new Date().toISOString(),
       updatedAt: new Date().toISOString(),
       properties: data.properties,
       events: data.events,
       notes: data.notes || undefined,
-      // v2.0.0 fields for sticky notes
+      // Sticky notes
       timelineStickyNotes: data.timelineStickyNotes || [],
-      // v2.1.0 fields for drawing annotations
-      timelineDrawingAnnotations: data.timelineDrawingAnnotations || [],
-      // Saved analysis with analysis sticky notes and drawing annotations
+      // Saved analysis with analysis sticky notes
       savedAnalysis: data.savedAnalysis ? {
         response: data.savedAnalysis.response,
         analyzedAt: data.savedAnalysis.analyzedAt,
         analysisStickyNotes: data.savedAnalysis.analysisStickyNotes || [],
-        analysisDrawingAnnotations: data.savedAnalysis.analysisDrawingAnnotations || [],
         provider: data.savedAnalysis.provider,
       } : undefined,
       // Optional metadata
@@ -56,10 +53,8 @@ export async function POST(request: NextRequest) {
       properties: timelineData.properties.length,
       events: timelineData.events.length,
       timelineStickyNotes: timelineData.timelineStickyNotes.length,
-      timelineDrawingAnnotations: timelineData.timelineDrawingAnnotations.length,
       hasAnalysis: !!timelineData.savedAnalysis,
       analysisStickyNotes: timelineData.savedAnalysis?.analysisStickyNotes?.length || 0,
-      analysisDrawingAnnotations: timelineData.savedAnalysis?.analysisDrawingAnnotations?.length || 0,
     });
 
     return NextResponse.json({ success: true, shareId });

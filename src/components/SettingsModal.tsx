@@ -3,11 +3,14 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Calendar, Eye, Copy, Check, Sparkles, Settings, Share2, Link, ExternalLink, Bot, ChevronDown, Loader2, Shield } from 'lucide-react';
+import { X, Calendar, Eye, Copy, Check, Sparkles, Settings, Share2, Link, ExternalLink, Bot, ChevronDown, Loader2, Shield, Briefcase } from 'lucide-react';
 import { useTimelineStore } from '@/store/timeline';
 import { serializeTimeline } from '@/lib/timeline-serialization';
 import AdminLoginModal from './admin/AdminLoginModal';
 import AdminPage from './admin/AdminPage';
+import TaxAgentLoginModal from './tax-agent/TaxAgentLoginModal';
+import TaxAgentDashboard from './tax-agent/TaxAgentDashboard';
+import type { TaxAgentPublic } from '@/types/tax-agent';
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -67,6 +70,12 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
   // Admin state
   const [showAdminLogin, setShowAdminLogin] = useState(false);
   const [showAdminPage, setShowAdminPage] = useState(false);
+
+  // Tax Agent state
+  const [showTaxAgentLogin, setShowTaxAgentLogin] = useState(false);
+  const [showTaxAgentDashboard, setShowTaxAgentDashboard] = useState(false);
+  const [taxAgentData, setTaxAgentData] = useState<TaxAgentPublic | null>(null);
+  const [taxAgentToken, setTaxAgentToken] = useState<string | null>(null);
 
   useEffect(() => {
     setMounted(true);
@@ -188,6 +197,46 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
     }
   }
 
+  // Tax Agent handlers
+  function handleTaxAgentLoginSuccess(agent: TaxAgentPublic, token: string) {
+    setTaxAgentData(agent);
+    setTaxAgentToken(token);
+    setShowTaxAgentLogin(false);
+    setShowTaxAgentDashboard(true);
+  }
+
+  function handleTaxAgentLogout() {
+    localStorage.removeItem('tax_agent_token');
+    localStorage.removeItem('tax_agent_data');
+    setTaxAgentData(null);
+    setTaxAgentToken(null);
+    setShowTaxAgentDashboard(false);
+  }
+
+  function handleTaxAgentBack() {
+    setShowTaxAgentDashboard(false);
+  }
+
+  function handleTaxAgentClick() {
+    // Check if already authenticated
+    const storedToken = localStorage.getItem('tax_agent_token');
+    const storedData = localStorage.getItem('tax_agent_data');
+
+    if (storedToken && storedData) {
+      try {
+        const agent = JSON.parse(storedData) as TaxAgentPublic;
+        setTaxAgentToken(storedToken);
+        setTaxAgentData(agent);
+        setShowTaxAgentDashboard(true);
+      } catch {
+        // Invalid data, show login
+        setShowTaxAgentLogin(true);
+      }
+    } else {
+      setShowTaxAgentLogin(true);
+    }
+  }
+
   if (!mounted) return null;
 
   // Show admin page if authenticated
@@ -197,6 +246,19 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
         apiUrl={ADMIN_API_URL}
         onLogout={handleAdminLogout}
         onBack={handleAdminBack}
+      />,
+      document.body
+    );
+  }
+
+  // Show Tax Agent Dashboard if authenticated
+  if (showTaxAgentDashboard && taxAgentData && taxAgentToken) {
+    return createPortal(
+      <TaxAgentDashboard
+        agent={taxAgentData}
+        token={taxAgentToken}
+        onLogout={handleTaxAgentLogout}
+        onBack={handleTaxAgentBack}
       />,
       document.body
     );
@@ -323,6 +385,28 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                           >
                             <Shield className="w-4 h-4" />
                             Open Admin Dashboard
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Tax Agent Section */}
+                      <div>
+                        <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2 sm:mb-3 flex items-center gap-2">
+                          <Briefcase className="w-4 h-4" />
+                          Tax Agent Portal
+                        </h3>
+
+                        <div className="p-3 rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700">
+                          <p className="text-xs text-slate-500 dark:text-slate-400 mb-3">
+                            Tax Agent login to view and manage client submissions, update your profile, and send feedback.
+                          </p>
+
+                          <button
+                            onClick={handleTaxAgentClick}
+                            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-medium rounded-lg transition-all text-sm"
+                          >
+                            <Briefcase className="w-4 h-4" />
+                            Tax Agent Login
                           </button>
                         </div>
                       </div>
@@ -563,6 +647,11 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
         isOpen={showAdminLogin}
         onClose={() => setShowAdminLogin(false)}
         onSuccess={handleAdminLoginSuccess}
+      />
+      <TaxAgentLoginModal
+        isOpen={showTaxAgentLogin}
+        onClose={() => setShowTaxAgentLogin(false)}
+        onSuccess={handleTaxAgentLoginSuccess}
       />
     </>
   );

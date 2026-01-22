@@ -1,10 +1,11 @@
 'use client';
 
-import { useState } from 'react';
-import { ArrowLeft, BarChart3, ClipboardList, Calculator, LogOut, Shield } from 'lucide-react';
+import { useState, useMemo } from 'react';
+import { ArrowLeft, BarChart3, ClipboardList, Calculator, LogOut, Shield, Users } from 'lucide-react';
 import ChatPanel from './ChatPanel';
 import AnnotationPanel from './AnnotationPanel';
 import AccuracyDashboard from './AccuracyDashboard';
+import TaxAgentManagement from './TaxAgentManagement';
 
 // LLM Providers for CGT Analysis
 const LLM_PROVIDERS = [
@@ -85,7 +86,7 @@ const SAMPLE_PAYLOAD = {
   llm_provider: 'deepseek'
 };
 
-type TabType = 'analysis' | 'annotation' | 'dashboard';
+type TabType = 'analysis' | 'annotation' | 'dashboard' | 'agents';
 
 interface AdminPageProps {
   apiUrl: string;
@@ -94,7 +95,7 @@ interface AdminPageProps {
 }
 
 export default function AdminPage({ apiUrl, onLogout, onBack }: AdminPageProps) {
-  const [activeTab, setActiveTab] = useState<TabType>('analysis');
+  const [activeTab, setActiveTab] = useState<TabType>('annotation');
 
   // CGT Analysis state
   const [jsonInput, setJsonInput] = useState(JSON.stringify(SAMPLE_PAYLOAD, null, 2));
@@ -199,6 +200,18 @@ export default function AdminPage({ apiUrl, onLogout, onBack }: AdminPageProps) 
 
   const adminUser = typeof window !== 'undefined' ? sessionStorage.getItem('cgt_admin_user') : null;
 
+  // Generate Base64 credentials for Tax Agent Management API calls
+  const adminCredentials = useMemo(() => {
+    if (typeof window !== 'undefined') {
+      const user = sessionStorage.getItem('cgt_admin_user');
+      const pass = sessionStorage.getItem('cgt_admin_pass');
+      if (user && pass) {
+        return btoa(`${user}:${pass}`);
+      }
+    }
+    return '';
+  }, []);
+
   return (
     <div className="fixed inset-0 z-[100000] overflow-auto bg-slate-100 dark:bg-slate-950">
       {/* Header */}
@@ -242,17 +255,6 @@ export default function AdminPage({ apiUrl, onLogout, onBack }: AdminPageProps) 
           {/* Tab Navigation */}
           <div className="mt-4 flex gap-2 overflow-x-auto">
             <button
-              onClick={() => setActiveTab('analysis')}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm transition-colors whitespace-nowrap ${
-                activeTab === 'analysis'
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-300 dark:hover:bg-slate-600'
-              }`}
-            >
-              <Calculator className="w-4 h-4" />
-              CGT Analysis
-            </button>
-            <button
               onClick={() => setActiveTab('annotation')}
               className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm transition-colors whitespace-nowrap ${
                 activeTab === 'annotation'
@@ -273,6 +275,28 @@ export default function AdminPage({ apiUrl, onLogout, onBack }: AdminPageProps) 
             >
               <BarChart3 className="w-4 h-4" />
               Accuracy Dashboard
+            </button>
+            <button
+              onClick={() => setActiveTab('agents')}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm transition-colors whitespace-nowrap ${
+                activeTab === 'agents'
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-300 dark:hover:bg-slate-600'
+              }`}
+            >
+              <Users className="w-4 h-4" />
+              Tax Agent Management
+            </button>
+            <button
+              onClick={() => setActiveTab('analysis')}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm transition-colors whitespace-nowrap ${
+                activeTab === 'analysis'
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-300 dark:hover:bg-slate-600'
+              }`}
+            >
+              <Calculator className="w-4 h-4" />
+              CGT Analysis
             </button>
           </div>
         </div>
@@ -497,6 +521,11 @@ export default function AdminPage({ apiUrl, onLogout, onBack }: AdminPageProps) 
         {/* Dashboard Tab */}
         {activeTab === 'dashboard' && (
           <AccuracyDashboard apiUrl={apiUrl} />
+        )}
+
+        {/* Tax Agent Management Tab */}
+        {activeTab === 'agents' && (
+          <TaxAgentManagement adminCredentials={adminCredentials} />
         )}
       </main>
     </div>

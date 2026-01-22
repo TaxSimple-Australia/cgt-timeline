@@ -134,7 +134,7 @@ export const STICKY_NOTE_COLORS: Record<StickyNoteColor, StickyNoteColorConfig> 
 export const DEFAULT_STICKY_NOTE_COLOR: StickyNoteColor = 'yellow';
 
 /**
- * Extended shareable data structure that includes sticky notes, drawing annotations, and analysis
+ * Extended shareable data structure that includes sticky notes and analysis
  */
 export interface ShareableTimelineData {
   /** Schema version for backwards compatibility */
@@ -147,8 +147,6 @@ export interface ShareableTimelineData {
   notes?: string;
   /** Sticky notes on the timeline */
   timelineStickyNotes: StickyNote[];
-  /** Drawing annotations on the timeline (circles, freehand drawings with notes) */
-  timelineDrawingAnnotations?: any[]; // DrawingAnnotation[] - using any for backwards compatibility
   /** Saved analysis data (if analysis has been run) */
   savedAnalysis?: {
     /** The full AI response */
@@ -157,8 +155,6 @@ export interface ShareableTimelineData {
     analyzedAt: string;
     /** Sticky notes on the analysis */
     analysisStickyNotes: StickyNote[];
-    /** Drawing annotations on the analysis */
-    analysisDrawingAnnotations?: any[]; // DrawingAnnotation[]
     /** Which LLM provider was used */
     provider?: string;
   };

@@ -56,10 +56,14 @@ function getFeedbackEmailHtml(agent: TaxAgent, message: string, timelineLink: st
                           Tax Agent Feedback
                         </p>
                       </td>
-                      <td align="right">
-                        <div style="width: 60px; height: 60px; background: rgba(255,255,255,0.15); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
-                          <span style="font-size: 32px;">💬</span>
-                        </div>
+                      <td align="right" style="vertical-align: middle;">
+                        <table cellpadding="0" cellspacing="0" border="0">
+                          <tr>
+                            <td style="width: 60px; height: 60px; background: rgba(255,255,255,0.15); border-radius: 12px; text-align: center; vertical-align: middle;">
+                              <span style="font-size: 28px; line-height: 60px;">&#128172;</span>
+                            </td>
+                          </tr>
+                        </table>
                       </td>
                     </tr>
                   </table>
@@ -80,15 +84,19 @@ function getFeedbackEmailHtml(agent: TaxAgent, message: string, timelineLink: st
                   <div style="background: #F5F3FF; border: 1px solid #DDD6FE; border-radius: 12px; padding: 20px; margin: 24px 0;">
                     <table cellpadding="0" cellspacing="0" width="100%">
                       <tr>
-                        <td style="vertical-align: top; width: 50px;">
-                          <div style="width: 44px; height: 44px; background: linear-gradient(135deg, #8B5CF6 0%, #6D28D9 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-                            <span style="font-size: 20px; color: white; font-weight: bold;">${agent.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}</span>
-                          </div>
+                        <td style="vertical-align: middle; width: 56px;">
+                          <table cellpadding="0" cellspacing="0" border="0">
+                            <tr>
+                              <td style="width: 44px; height: 44px; background: linear-gradient(135deg, #8B5CF6 0%, #6D28D9 100%); border-radius: 22px; text-align: center; vertical-align: middle; mso-line-height-rule: exactly; line-height: 44px;">
+                                <span style="font-size: 16px; color: white; font-weight: bold; font-family: Arial, sans-serif;">${agent.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}</span>
+                              </td>
+                            </tr>
+                          </table>
                         </td>
                         <td style="padding-left: 12px; vertical-align: middle;">
                           <p style="margin: 0; font-size: 16px; font-weight: 600; color: #1F2937;">${agent.name}</p>
                           <p style="margin: 4px 0 0; font-size: 13px; color: ${agent.role === 'senior_tax_agent' ? '#7C3AED' : '#6B7280'};">
-                            ${agent.role === 'senior_tax_agent' ? '⭐ Senior Tax Agent' : 'Tax Agent'}
+                            ${agent.role === 'senior_tax_agent' ? '&#11088; Senior Tax Agent' : 'Tax Agent'}
                           </p>
                         </td>
                       </tr>

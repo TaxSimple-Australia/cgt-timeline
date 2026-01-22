@@ -51,10 +51,14 @@ function getTaxAgentEmailHtml(agent: TaxAgent, userEmail: string, userPhone: str
                           Tax Agent Portal
                         </p>
                       </td>
-                      <td align="right">
-                        <div style="width: 60px; height: 60px; background: rgba(255,255,255,0.15); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
-                          <span style="font-size: 32px;">📋</span>
-                        </div>
+                      <td align="right" style="vertical-align: middle;">
+                        <table cellpadding="0" cellspacing="0" border="0">
+                          <tr>
+                            <td style="width: 60px; height: 60px; background: rgba(255,255,255,0.15); border-radius: 12px; text-align: center; vertical-align: middle;">
+                              <span style="font-size: 28px; line-height: 60px;">&#128203;</span>
+                            </td>
+                          </tr>
+                        </table>
                       </td>
                     </tr>
                   </table>
@@ -79,15 +83,31 @@ function getTaxAgentEmailHtml(agent: TaxAgent, userEmail: string, userPhone: str
                     <table cellpadding="0" cellspacing="0">
                       <tr>
                         <td style="padding: 8px 0;">
-                          <span style="color: #166534; font-size: 16px;">📧</span>
-                          <span style="color: #374151; margin-left: 8px;"><strong>Email:</strong> ${userEmail}</span>
+                          <table cellpadding="0" cellspacing="0" border="0" style="display: inline-table; vertical-align: middle;">
+                            <tr>
+                              <td style="width: 24px; text-align: center; vertical-align: middle;">
+                                <span style="color: #166534; font-size: 16px;">&#128231;</span>
+                              </td>
+                              <td style="padding-left: 8px; vertical-align: middle;">
+                                <span style="color: #374151;"><strong>Email:</strong> ${userEmail}</span>
+                              </td>
+                            </tr>
+                          </table>
                         </td>
                       </tr>
                       ${userPhone ? `
                       <tr>
                         <td style="padding: 8px 0;">
-                          <span style="color: #166534; font-size: 16px;">📱</span>
-                          <span style="color: #374151; margin-left: 8px;"><strong>Phone:</strong> ${userPhone}</span>
+                          <table cellpadding="0" cellspacing="0" border="0" style="display: inline-table; vertical-align: middle;">
+                            <tr>
+                              <td style="width: 24px; text-align: center; vertical-align: middle;">
+                                <span style="color: #166534; font-size: 16px;">&#128241;</span>
+                              </td>
+                              <td style="padding-left: 8px; vertical-align: middle;">
+                                <span style="color: #374151;"><strong>Phone:</strong> ${userPhone}</span>
+                              </td>
+                            </tr>
+                          </table>
                         </td>
                       </tr>
                       ` : ''}
@@ -220,10 +240,14 @@ function getUserConfirmationEmailHtml(agentName: string, userEmail: string, prop
                           Your Capital Gains Tax Analysis Platform
                         </p>
                       </td>
-                      <td align="right">
-                        <div style="width: 60px; height: 60px; background: rgba(255,255,255,0.15); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
-                          <span style="font-size: 32px;">✅</span>
-                        </div>
+                      <td align="right" style="vertical-align: middle;">
+                        <table cellpadding="0" cellspacing="0" border="0">
+                          <tr>
+                            <td style="width: 60px; height: 60px; background: rgba(255,255,255,0.15); border-radius: 12px; text-align: center; vertical-align: middle;">
+                              <span style="font-size: 28px; line-height: 60px;">&#9989;</span>
+                            </td>
+                          </tr>
+                        </table>
                       </td>
                     </tr>
                   </table>

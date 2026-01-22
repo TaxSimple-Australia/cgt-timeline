@@ -95,10 +95,14 @@ export async function POST(request: NextRequest) {
                             Your Capital Gains Tax Analysis Platform
                           </p>
                         </td>
-                        <td align="right">
-                          <div style="width: 60px; height: 60px; background: rgba(255,255,255,0.15); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
-                            <span style="font-size: 32px;">🧠</span>
-                          </div>
+                        <td align="right" style="vertical-align: middle;">
+                          <table cellpadding="0" cellspacing="0" border="0">
+                            <tr>
+                              <td style="width: 60px; height: 60px; background: rgba(255,255,255,0.15); border-radius: 12px; text-align: center; vertical-align: middle;">
+                                <span style="font-size: 28px; line-height: 60px;">&#129504;</span>
+                              </td>
+                            </tr>
+                          </table>
                         </td>
                       </tr>
                     </table>

@@ -99,6 +99,140 @@ const SCENARIO_CONFIG = [
 
 const publicDir = path.join(__dirname, '..', 'public');
 
+// Helper function to format currency
+function formatCurrency(amount) {
+  if (amount === undefined || amount === null) return null;
+  return `$${amount.toLocaleString()}`;
+}
+
+// Helper function to format date
+function formatDate(dateStr) {
+  if (!dateStr) return null;
+  const date = new Date(dateStr);
+  return date.toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' });
+}
+
+// Helper function to get event display name
+function getEventDisplayName(event) {
+  const eventNames = {
+    'purchase': 'Purchased',
+    'sale': 'Sold',
+    'move_in': 'Moved In',
+    'move_out': 'Moved Out',
+    'rent_start': 'Started Renting',
+    'rent_end': 'Stopped Renting',
+    'improvement': 'Improvement',
+    'refinance': 'Refinanced',
+    'status_change': 'Status Change',
+    'move_to_aged_care': 'Moved to Aged Care',
+    'living_in_rental_start': 'Living in Rental',
+    'living_in_rental_end': 'Left Rental'
+  };
+  return eventNames[event] || event;
+}
+
+// Helper function to calculate holding period in years
+function calculateHoldingPeriod(startDate, endDate) {
+  if (!startDate || !endDate) return null;
+  const start = new Date(startDate);
+  const end = new Date(endDate);
+  const diffTime = Math.abs(end - start);
+  const diffYears = diffTime / (1000 * 60 * 60 * 24 * 365.25);
+  return Math.round(diffYears * 10) / 10; // Round to 1 decimal
+}
+
+// Extract detailed property info from scenario data
+function extractPropertyDetails(properties) {
+  if (!properties || !Array.isArray(properties) || properties.length === 0) {
+    return null;
+  }
+
+  const propertySummaries = [];
+  let totalPurchaseValue = 0;
+  let totalSaleValue = 0;
+  let earliestDate = null;
+  let latestDate = null;
+  const allEvents = [];
+
+  for (const property of properties) {
+    const history = property.property_history || [];
+
+    // Find purchase and sale events
+    const purchaseEvent = history.find(e => e.event === 'purchase');
+    const saleEvent = history.find(e => e.event === 'sale');
+
+    // Build event timeline for this property
+    const keyEvents = [];
+    for (const event of history) {
+      // Track date range
+      if (event.date) {
+        const eventDate = new Date(event.date);
+        if (!earliestDate || eventDate < earliestDate) earliestDate = eventDate;
+        if (!latestDate || eventDate > latestDate) latestDate = eventDate;
+      }
+
+      // Add to key events (skip minor events for summary)
+      const importantEvents = ['purchase', 'sale', 'move_in', 'move_out', 'rent_start', 'rent_end', 'move_to_aged_care', 'improvement'];
+      if (importantEvents.includes(event.event)) {
+        keyEvents.push({
+          date: formatDate(event.date),
+          event: getEventDisplayName(event.event),
+          price: event.price ? formatCurrency(event.price) : null
+        });
+
+        // Add to all events for timeline
+        allEvents.push({
+          date: event.date,
+          displayDate: formatDate(event.date),
+          event: getEventDisplayName(event.event),
+          property: property.address?.split(',')[0] || 'Property', // Short address
+          price: event.price ? formatCurrency(event.price) : null
+        });
+      }
+    }
+
+    // Calculate totals
+    if (purchaseEvent?.price) totalPurchaseValue += purchaseEvent.price;
+    if (saleEvent?.price) totalSaleValue += saleEvent.price;
+
+    // Create property summary
+    const summary = {
+      address: property.address || 'Unknown Address',
+      shortAddress: property.address?.split(',')[0] || 'Property',
+      purchasePrice: purchaseEvent?.price ? formatCurrency(purchaseEvent.price) : null,
+      purchaseDate: purchaseEvent?.date ? formatDate(purchaseEvent.date) : null,
+      salePrice: saleEvent?.price ? formatCurrency(saleEvent.price) : null,
+      saleDate: saleEvent?.date ? formatDate(saleEvent.date) : null,
+      keyEvents: keyEvents.slice(0, 6), // Limit to 6 key events
+      notes: property.notes || null
+    };
+
+    // Add holding period if we have purchase date
+    if (purchaseEvent?.date) {
+      const endDate = saleEvent?.date || new Date().toISOString().split('T')[0];
+      summary.holdingYears = calculateHoldingPeriod(purchaseEvent.date, endDate);
+    }
+
+    propertySummaries.push(summary);
+  }
+
+  // Sort all events by date
+  allEvents.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+  return {
+    properties: propertySummaries,
+    financialSummary: {
+      totalPurchaseValue: totalPurchaseValue > 0 ? formatCurrency(totalPurchaseValue) : null,
+      totalSaleValue: totalSaleValue > 0 ? formatCurrency(totalSaleValue) : null,
+      totalGain: totalSaleValue > 0 && totalPurchaseValue > 0
+        ? formatCurrency(totalSaleValue - totalPurchaseValue)
+        : null,
+      holdingPeriodYears: calculateHoldingPeriod(earliestDate, latestDate)
+    },
+    timeline: allEvents.slice(0, 10) // Limit to 10 events for the combined timeline
+  };
+}
+
 async function generateManifest() {
   console.log('🔄 Generating scenarios manifest...');
 
@@ -121,6 +255,9 @@ async function generateManifest() {
       const data = JSON.parse(content);
       const scenarioInfo = data.scenario_info;
 
+      // Extract detailed property information
+      const propertyDetails = extractPropertyDetails(data.properties);
+
       scenarios.push({
         id: `${basePath}/${config.filename}`,
         filename: config.filename,
@@ -135,6 +272,13 @@ async function generateManifest() {
           expected_result: scenarioInfo.expected_result,
           applicable_rules: scenarioInfo.applicable_rules,
         } : undefined,
+        // NEW: Include detailed property info
+        propertyDetails: propertyDetails,
+        // NEW: Include user query for context
+        userQuery: data.user_query || null,
+        // NEW: Include residency status if available
+        australianResident: data.additional_info?.australian_resident,
+        marginalTaxRate: data.additional_info?.marginal_tax_rate,
       });
 
       successCount++;

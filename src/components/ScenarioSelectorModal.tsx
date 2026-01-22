@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, FolderOpen, FileJson, Loader2, Info, ChevronLeft, Home, Building2, TrendingUp, Search, Filter, FlaskConical } from 'lucide-react';
+import { X, FolderOpen, FileJson, Loader2, Info, ChevronLeft, Home, Building2, TrendingUp, Search, Filter, FlaskConical, DollarSign, Calendar, MapPin, Clock, HelpCircle, ArrowRight, User, Percent } from 'lucide-react';
 import { useTimelineStore } from '@/store/timeline';
 import { cn } from '@/lib/utils';
 
@@ -19,6 +19,37 @@ interface ScenarioInfo {
   applicable_rules?: string[];
 }
 
+interface PropertyEvent {
+  date: string;
+  displayDate?: string;
+  event: string;
+  property?: string;
+  price?: string | null;
+}
+
+interface PropertySummary {
+  address: string;
+  shortAddress: string;
+  purchasePrice?: string | null;
+  purchaseDate?: string | null;
+  salePrice?: string | null;
+  saleDate?: string | null;
+  holdingYears?: number | null;
+  keyEvents?: PropertyEvent[];
+  notes?: string | null;
+}
+
+interface PropertyDetails {
+  properties: PropertySummary[];
+  financialSummary: {
+    totalPurchaseValue?: string | null;
+    totalSaleValue?: string | null;
+    totalGain?: string | null;
+    holdingPeriodYears?: number | null;
+  };
+  timeline: PropertyEvent[];
+}
+
 interface Scenario {
   id: string;
   filename: string;
@@ -28,6 +59,11 @@ interface Scenario {
   scenario_info?: ScenarioInfo;
   propertyCount?: number;
   path?: string;
+  // Enhanced fields
+  propertyDetails?: PropertyDetails | null;
+  userQuery?: string | null;
+  australianResident?: boolean;
+  marginalTaxRate?: number;
 }
 
 interface ScenarioManifest {
@@ -299,11 +335,11 @@ export default function ScenarioSelectorModal({ isOpen, onClose }: ScenarioSelec
                       </button>
                     </div>
                   ) : viewingScenario ? (
-                    /* Scenario Detail View */
+                    /* Scenario Detail View - Enhanced */
                     <motion.div
                       initial={{ opacity: 0, x: 20 }}
                       animate={{ opacity: 1, x: 0 }}
-                      className="max-w-3xl mx-auto space-y-4"
+                      className="max-w-4xl mx-auto space-y-4"
                     >
                       {/* Back button */}
                       <button
@@ -314,100 +350,290 @@ export default function ScenarioSelectorModal({ isOpen, onClose }: ScenarioSelec
                         Back to scenarios
                       </button>
 
-                      {/* Scenario title and description */}
-                      <div className="bg-slate-50 dark:bg-slate-700/50 rounded-xl p-5">
+                      {/* Header with title and category */}
+                      <div className="bg-gradient-to-r from-purple-500/10 via-blue-500/10 to-teal-500/10 dark:from-purple-500/20 dark:via-blue-500/20 dark:to-teal-500/20 rounded-xl p-5 border border-slate-200 dark:border-slate-700">
                         <div className="flex items-start justify-between mb-3">
-                          <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100">
+                          <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100">
                             {viewingScenario.title}
                           </h3>
-                          <span className={cn('px-2 py-1 rounded-full text-xs font-medium', getCategoryColor(viewingScenario.category))}>
+                          <span className={cn('px-3 py-1 rounded-full text-xs font-medium', getCategoryColor(viewingScenario.category))}>
                             {viewingScenario.category}
                           </span>
                         </div>
-                        <p className="text-sm text-slate-600 dark:text-slate-300 mb-4">
+                        <p className="text-sm text-slate-600 dark:text-slate-300">
                           {viewingScenario.description}
                         </p>
+                      </div>
 
-                        {/* Expected Results */}
-                        {viewingScenario.scenario_info?.expected_result && (
-                          <div className="mb-4">
-                            <h4 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
-                              Expected Results
-                            </h4>
-                            <div className="grid grid-cols-2 gap-2 text-sm">
-                              {viewingScenario.scenario_info.expected_result.exemption_type && (
-                                <div className="bg-white dark:bg-slate-800 rounded-lg p-2">
-                                  <span className="text-slate-500 dark:text-slate-400">Exemption:</span>{' '}
-                                  <span className="font-medium text-slate-900 dark:text-slate-100 capitalize">
-                                    {viewingScenario.scenario_info.expected_result.exemption_type}
-                                  </span>
-                                </div>
-                              )}
-                              {viewingScenario.scenario_info.expected_result.exemption_percentage !== undefined && (
-                                <div className="bg-white dark:bg-slate-800 rounded-lg p-2">
-                                  <span className="text-slate-500 dark:text-slate-400">Exemption %:</span>{' '}
-                                  <span className="font-medium text-slate-900 dark:text-slate-100">
-                                    {viewingScenario.scenario_info.expected_result.exemption_percentage}%
-                                  </span>
-                                </div>
-                              )}
-                              {viewingScenario.scenario_info.expected_result.capital_gain !== undefined && (
-                                <div className="bg-white dark:bg-slate-800 rounded-lg p-2">
-                                  <span className="text-slate-500 dark:text-slate-400">Capital Gain:</span>{' '}
-                                  <span className="font-medium text-slate-900 dark:text-slate-100">
-                                    ${viewingScenario.scenario_info.expected_result.capital_gain.toLocaleString()}
-                                  </span>
-                                </div>
-                              )}
-                              {viewingScenario.scenario_info.expected_result.taxable_gain !== undefined && (
-                                <div className="bg-white dark:bg-slate-800 rounded-lg p-2">
-                                  <span className="text-slate-500 dark:text-slate-400">Taxable Gain:</span>{' '}
-                                  <span className="font-medium text-slate-900 dark:text-slate-100">
-                                    ${viewingScenario.scenario_info.expected_result.taxable_gain.toLocaleString()}
-                                  </span>
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        )}
-
-                        {/* Applicable Rules */}
-                        {viewingScenario.scenario_info?.applicable_rules && viewingScenario.scenario_info.applicable_rules.length > 0 && (
-                          <div className="mb-4">
-                            <h4 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
-                              Applicable Rules
-                            </h4>
-                            <ul className="space-y-1">
-                              {viewingScenario.scenario_info.applicable_rules.map((rule, idx) => (
-                                <li key={idx} className="text-sm text-slate-600 dark:text-slate-400 flex items-start gap-2">
-                                  <span className="text-blue-500 mt-1">•</span>
-                                  {rule}
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-                        )}
-
-                        {/* Properties count */}
-                        {viewingScenario.propertyCount !== undefined && (
-                          <div>
-                            <h4 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
-                              Properties
-                            </h4>
-                            <div className="bg-white dark:bg-slate-800 rounded-lg p-3">
-                              <p className="text-sm text-slate-600 dark:text-slate-400">
-                                {viewingScenario.propertyCount} {viewingScenario.propertyCount === 1 ? 'property' : 'properties'} in this scenario
+                      {/* User Query / Scenario Question */}
+                      {viewingScenario.userQuery && viewingScenario.userQuery !== viewingScenario.description && (
+                        <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/50 rounded-xl p-4">
+                          <div className="flex items-start gap-3">
+                            <HelpCircle className="w-5 h-5 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
+                            <div>
+                              <h4 className="text-sm font-semibold text-amber-800 dark:text-amber-300 mb-1">
+                                Scenario Question
+                              </h4>
+                              <p className="text-sm text-amber-700 dark:text-amber-400 italic">
+                                "{viewingScenario.userQuery}"
                               </p>
                             </div>
                           </div>
-                        )}
-                      </div>
+                        </div>
+                      )}
+
+                      {/* Financial Summary */}
+                      {viewingScenario.propertyDetails?.financialSummary && (
+                        <div className="bg-slate-50 dark:bg-slate-700/50 rounded-xl p-4">
+                          <h4 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3 flex items-center gap-2">
+                            <DollarSign className="w-4 h-4 text-green-500" />
+                            Financial Summary
+                          </h4>
+                          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                            {viewingScenario.propertyDetails.financialSummary.totalPurchaseValue && (
+                              <div className="bg-white dark:bg-slate-800 rounded-lg p-3 text-center">
+                                <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Purchase</p>
+                                <p className="text-sm font-bold text-slate-900 dark:text-slate-100">
+                                  {viewingScenario.propertyDetails.financialSummary.totalPurchaseValue}
+                                </p>
+                              </div>
+                            )}
+                            {viewingScenario.propertyDetails.financialSummary.totalSaleValue && (
+                              <div className="bg-white dark:bg-slate-800 rounded-lg p-3 text-center">
+                                <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Sale</p>
+                                <p className="text-sm font-bold text-slate-900 dark:text-slate-100">
+                                  {viewingScenario.propertyDetails.financialSummary.totalSaleValue}
+                                </p>
+                              </div>
+                            )}
+                            {viewingScenario.propertyDetails.financialSummary.totalGain && (
+                              <div className="bg-white dark:bg-slate-800 rounded-lg p-3 text-center">
+                                <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Gain</p>
+                                <p className="text-sm font-bold text-green-600 dark:text-green-400">
+                                  {viewingScenario.propertyDetails.financialSummary.totalGain}
+                                </p>
+                              </div>
+                            )}
+                            {viewingScenario.propertyDetails.financialSummary.holdingPeriodYears && (
+                              <div className="bg-white dark:bg-slate-800 rounded-lg p-3 text-center">
+                                <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Held</p>
+                                <p className="text-sm font-bold text-slate-900 dark:text-slate-100">
+                                  {viewingScenario.propertyDetails.financialSummary.holdingPeriodYears} years
+                                </p>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Properties Detail */}
+                      {viewingScenario.propertyDetails?.properties && viewingScenario.propertyDetails.properties.length > 0 && (
+                        <div className="bg-slate-50 dark:bg-slate-700/50 rounded-xl p-4">
+                          <h4 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3 flex items-center gap-2">
+                            <Building2 className="w-4 h-4 text-blue-500" />
+                            Properties ({viewingScenario.propertyDetails.properties.length})
+                          </h4>
+                          <div className="space-y-3">
+                            {viewingScenario.propertyDetails.properties.map((property, idx) => (
+                              <div key={idx} className="bg-white dark:bg-slate-800 rounded-lg p-4 border border-slate-200 dark:border-slate-600">
+                                <div className="flex items-start justify-between mb-3">
+                                  <div className="flex items-start gap-2">
+                                    <MapPin className="w-4 h-4 text-red-500 flex-shrink-0 mt-0.5" />
+                                    <div>
+                                      <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">
+                                        {property.address}
+                                      </p>
+                                      {property.holdingYears && (
+                                        <p className="text-xs text-slate-500 dark:text-slate-400">
+                                          Held for {property.holdingYears} years
+                                        </p>
+                                      )}
+                                    </div>
+                                  </div>
+                                </div>
+
+                                {/* Purchase/Sale Info */}
+                                <div className="grid grid-cols-2 gap-2 mb-3">
+                                  {property.purchasePrice && (
+                                    <div className="flex items-center gap-2 text-xs">
+                                      <span className="text-slate-500 dark:text-slate-400">Purchased:</span>
+                                      <span className="font-medium text-slate-700 dark:text-slate-300">
+                                        {property.purchasePrice}
+                                      </span>
+                                      {property.purchaseDate && (
+                                        <span className="text-slate-400 dark:text-slate-500">({property.purchaseDate})</span>
+                                      )}
+                                    </div>
+                                  )}
+                                  {property.salePrice && (
+                                    <div className="flex items-center gap-2 text-xs">
+                                      <span className="text-slate-500 dark:text-slate-400">Sold:</span>
+                                      <span className="font-medium text-slate-700 dark:text-slate-300">
+                                        {property.salePrice}
+                                      </span>
+                                      {property.saleDate && (
+                                        <span className="text-slate-400 dark:text-slate-500">({property.saleDate})</span>
+                                      )}
+                                    </div>
+                                  )}
+                                </div>
+
+                                {/* Key Events Timeline */}
+                                {property.keyEvents && property.keyEvents.length > 0 && (
+                                  <div className="mt-3 pt-3 border-t border-slate-100 dark:border-slate-700">
+                                    <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mb-2">Key Events:</p>
+                                    <div className="flex flex-wrap gap-1">
+                                      {property.keyEvents.map((event, eventIdx) => (
+                                        <span
+                                          key={eventIdx}
+                                          className={cn(
+                                            'inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs',
+                                            event.event === 'Purchased' && 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300',
+                                            event.event === 'Sold' && 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300',
+                                            event.event === 'Moved In' && 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300',
+                                            event.event === 'Moved Out' && 'bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300',
+                                            event.event === 'Started Renting' && 'bg-cyan-100 dark:bg-cyan-900/30 text-cyan-700 dark:text-cyan-300',
+                                            event.event === 'Stopped Renting' && 'bg-teal-100 dark:bg-teal-900/30 text-teal-700 dark:text-teal-300',
+                                            event.event === 'Improvement' && 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300',
+                                            event.event === 'Moved to Aged Care' && 'bg-pink-100 dark:bg-pink-900/30 text-pink-700 dark:text-pink-300',
+                                            !['Purchased', 'Sold', 'Moved In', 'Moved Out', 'Started Renting', 'Stopped Renting', 'Improvement', 'Moved to Aged Care'].includes(event.event) && 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300'
+                                          )}
+                                        >
+                                          {event.event}
+                                          {event.price && <span className="font-medium">{event.price}</span>}
+                                        </span>
+                                      ))}
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Expected Results */}
+                      {viewingScenario.scenario_info?.expected_result && (
+                        <div className="bg-slate-50 dark:bg-slate-700/50 rounded-xl p-4">
+                          <h4 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3 flex items-center gap-2">
+                            <Percent className="w-4 h-4 text-purple-500" />
+                            Expected CGT Results
+                          </h4>
+                          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-sm">
+                            {viewingScenario.scenario_info.expected_result.exemption_type && (
+                              <div className="bg-white dark:bg-slate-800 rounded-lg p-3">
+                                <span className="text-xs text-slate-500 dark:text-slate-400 block mb-1">Exemption</span>
+                                <span className={cn(
+                                  'font-bold capitalize',
+                                  viewingScenario.scenario_info.expected_result.exemption_type === 'full' && 'text-green-600 dark:text-green-400',
+                                  viewingScenario.scenario_info.expected_result.exemption_type === 'partial' && 'text-amber-600 dark:text-amber-400',
+                                  viewingScenario.scenario_info.expected_result.exemption_type === 'none' && 'text-red-600 dark:text-red-400'
+                                )}>
+                                  {viewingScenario.scenario_info.expected_result.exemption_type}
+                                </span>
+                              </div>
+                            )}
+                            {viewingScenario.scenario_info.expected_result.exemption_percentage !== undefined && (
+                              <div className="bg-white dark:bg-slate-800 rounded-lg p-3">
+                                <span className="text-xs text-slate-500 dark:text-slate-400 block mb-1">Exemption %</span>
+                                <span className={cn(
+                                  'font-bold',
+                                  viewingScenario.scenario_info.expected_result.exemption_percentage === 100 && 'text-green-600 dark:text-green-400',
+                                  viewingScenario.scenario_info.expected_result.exemption_percentage > 0 && viewingScenario.scenario_info.expected_result.exemption_percentage < 100 && 'text-amber-600 dark:text-amber-400',
+                                  viewingScenario.scenario_info.expected_result.exemption_percentage === 0 && 'text-red-600 dark:text-red-400'
+                                )}>
+                                  {viewingScenario.scenario_info.expected_result.exemption_percentage}%
+                                </span>
+                              </div>
+                            )}
+                            {viewingScenario.scenario_info.expected_result.capital_gain !== undefined && (
+                              <div className="bg-white dark:bg-slate-800 rounded-lg p-3">
+                                <span className="text-xs text-slate-500 dark:text-slate-400 block mb-1">Capital Gain</span>
+                                <span className="font-bold text-slate-900 dark:text-slate-100">
+                                  ${viewingScenario.scenario_info.expected_result.capital_gain.toLocaleString()}
+                                </span>
+                              </div>
+                            )}
+                            {viewingScenario.scenario_info.expected_result.taxable_gain !== undefined && (
+                              <div className="bg-white dark:bg-slate-800 rounded-lg p-3">
+                                <span className="text-xs text-slate-500 dark:text-slate-400 block mb-1">Taxable Gain</span>
+                                <span className={cn(
+                                  'font-bold',
+                                  viewingScenario.scenario_info.expected_result.taxable_gain === 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
+                                )}>
+                                  ${viewingScenario.scenario_info.expected_result.taxable_gain.toLocaleString()}
+                                </span>
+                              </div>
+                            )}
+                            {viewingScenario.scenario_info.expected_result.cgt_payable !== undefined && (
+                              <div className="bg-white dark:bg-slate-800 rounded-lg p-3">
+                                <span className="text-xs text-slate-500 dark:text-slate-400 block mb-1">CGT Payable</span>
+                                <span className={cn(
+                                  'font-bold',
+                                  viewingScenario.scenario_info.expected_result.cgt_payable === 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
+                                )}>
+                                  ${viewingScenario.scenario_info.expected_result.cgt_payable.toLocaleString()}
+                                </span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Applicable Rules */}
+                      {viewingScenario.scenario_info?.applicable_rules && viewingScenario.scenario_info.applicable_rules.length > 0 && (
+                        <div className="bg-slate-50 dark:bg-slate-700/50 rounded-xl p-4">
+                          <h4 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2 flex items-center gap-2">
+                            <FileJson className="w-4 h-4 text-indigo-500" />
+                            Applicable Tax Rules
+                          </h4>
+                          <div className="flex flex-wrap gap-2">
+                            {viewingScenario.scenario_info.applicable_rules.map((rule, idx) => (
+                              <span key={idx} className="inline-flex items-center gap-1.5 px-2.5 py-1.5 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 rounded-lg text-xs font-medium">
+                                <span className="text-indigo-400">§</span>
+                                {rule}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Additional Info */}
+                      {(viewingScenario.australianResident !== undefined || viewingScenario.marginalTaxRate !== undefined) && (
+                        <div className="bg-slate-50 dark:bg-slate-700/50 rounded-xl p-4">
+                          <h4 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2 flex items-center gap-2">
+                            <User className="w-4 h-4 text-slate-500" />
+                            Taxpayer Profile
+                          </h4>
+                          <div className="flex gap-4 text-xs">
+                            {viewingScenario.australianResident !== undefined && (
+                              <div className="flex items-center gap-2">
+                                <span className="text-slate-500 dark:text-slate-400">Residency:</span>
+                                <span className={cn(
+                                  'font-medium',
+                                  viewingScenario.australianResident ? 'text-green-600 dark:text-green-400' : 'text-amber-600 dark:text-amber-400'
+                                )}>
+                                  {viewingScenario.australianResident ? 'Australian Resident' : 'Non-Resident'}
+                                </span>
+                              </div>
+                            )}
+                            {viewingScenario.marginalTaxRate !== undefined && (
+                              <div className="flex items-center gap-2">
+                                <span className="text-slate-500 dark:text-slate-400">Tax Rate:</span>
+                                <span className="font-medium text-slate-700 dark:text-slate-300">
+                                  {(viewingScenario.marginalTaxRate * 100).toFixed(0)}%
+                                </span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )}
 
                       {/* Load button */}
                       <button
                         onClick={() => handleSelectScenario(viewingScenario)}
                         disabled={loadingScenario !== null}
-                        className="w-full py-3 px-4 bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white font-semibold rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                        className="w-full py-3 px-4 bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white font-semibold rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg shadow-purple-500/20 hover:shadow-purple-500/40"
                       >
                         {loadingScenario === viewingScenario.id ? (
                           <>

@@ -25,6 +25,11 @@ export const LANDING_VARIANTS: LandingVariant[] = [
     path: '/landing/v3',
     description: 'Premium luxury design with interactive filters'
   },
+  {
+    name: 'Version 4',
+    path: '/landing/v4',
+    description: 'Copy of V3 - customizable variant'
+  },
 ];
 
 /**

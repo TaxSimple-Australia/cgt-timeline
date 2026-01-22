@@ -203,7 +203,7 @@ export default function QualityPolicyPage() {
       <footer className="relative z-10 bg-slate-900/90 backdrop-blur-sm border-t border-slate-800 mt-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="text-center text-sm text-slate-400">
-            <p>&copy; {new Date().getFullYear()} Tax Simple Australia. All rights reserved.</p>
+            <p>&copy; {new Date().getFullYear()} CGT Brain. All rights reserved.</p>
             <p className="mt-2">CGT Brain AI Timeline - Capital Gains Tax Analysis Tool</p>
           </div>
         </div>

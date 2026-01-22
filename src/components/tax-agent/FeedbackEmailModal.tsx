@@ -173,7 +173,7 @@ export default function FeedbackEmailModal({ submission, token, onClose, onSent 
 
           {/* Preview Info */}
           <div className="p-3 bg-slate-50 dark:bg-slate-900 rounded-lg text-xs text-slate-500 dark:text-slate-400">
-            <strong>Email will be sent from:</strong> Tax Simple Australia
+            <strong>Email will be sent from:</strong> CGT Brain
             <br />
             <strong>Include:</strong> Your feedback message + link to their timeline
           </div>

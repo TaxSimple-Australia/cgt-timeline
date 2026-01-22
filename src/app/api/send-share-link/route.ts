@@ -200,7 +200,7 @@ export async function POST(request: NextRequest) {
                     <p style="margin: 0; color: #9CA3AF; font-size: 11px; line-height: 1.6;">
                       This email was sent from CGT Brain AI. If you didn't expect this email, you can safely ignore it.
                       <br>
-                      © ${new Date().getFullYear()} Tax Simple Australia. All rights reserved.
+                      © ${new Date().getFullYear()} CGT Brain. All rights reserved.
                     </p>
                   </td>
                 </tr>
@@ -233,7 +233,7 @@ Sent on ${currentDate}
 ${phoneNumber ? `Contact: ${phoneNumber}` : ''}
 
 Powered by CGT Brain AI
-© ${new Date().getFullYear()} Tax Simple Australia. All rights reserved.
+© ${new Date().getFullYear()} CGT Brain. All rights reserved.
     `;
 
     // Send email using Resend

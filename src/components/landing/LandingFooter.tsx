@@ -129,7 +129,7 @@ export default function LandingFooter() {
         <div className="pt-8 border-t border-slate-800">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-6">
             <p className="text-slate-500 text-xs">
-              &copy; 2026 Tax Simple Pty Ltd. All rights reserved.
+              &copy; 2026 CGT Brain Pty Ltd. All rights reserved.
             </p>
             <div className="flex items-center gap-3 text-xs text-slate-500">
               <span>ABN: 64686297398</span>

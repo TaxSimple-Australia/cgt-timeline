@@ -124,7 +124,7 @@ ${message}
             </p>
 
             <p style="color: #6b7280; font-size: 12px; margin-top: 32px;">
-              This feedback was sent via CGT Timeline by Tax Simple Australia.
+              This feedback was sent via CGT Timeline by CGT Brain.
             </p>
           </div>
         `,

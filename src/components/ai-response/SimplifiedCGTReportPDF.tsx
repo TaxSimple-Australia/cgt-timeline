@@ -279,7 +279,7 @@ export const SimplifiedCGTReportPDF: React.FC<SimplifiedCGTReportPDFProps> = ({ 
         </View>
 
         <View style={styles.footer}>
-          <Text>Generated with CGT Timeline | Tax Simple Australia</Text>
+          <Text>Generated with CGT Timeline | CGT Brain</Text>
         </View>
       </Page>
 
@@ -370,7 +370,7 @@ export const SimplifiedCGTReportPDF: React.FC<SimplifiedCGTReportPDFProps> = ({ 
             )}
 
             <View style={styles.footer}>
-              <Text>Generated with CGT Timeline | Tax Simple Australia</Text>
+              <Text>Generated with CGT Timeline | CGT Brain</Text>
               <Text style={styles.pageNumber}>Page {propIndex + 2}</Text>
             </View>
           </Page>

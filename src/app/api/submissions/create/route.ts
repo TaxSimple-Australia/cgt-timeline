@@ -167,7 +167,7 @@ export async function POST(request: NextRequest) {
               <p>The Tax Agent will contact you at this email address (${userEmail}) with their review and feedback.</p>
 
               <p style="color: #6b7280; font-size: 12px; margin-top: 32px;">
-                Thank you for using CGT Timeline by Tax Simple Australia.
+                Thank you for using CGT Timeline by CGT Brain.
               </p>
             </div>
           `,

@@ -109,7 +109,7 @@ export async function POST(request: NextRequest) {
     if (resend && agent.email) {
       try {
         await resend.emails.send({
-          from: 'CGT Timeline <noreply@taxsimple.com.au>',
+          from: 'CGT Brain AI <info@cgtbrain.com.au>',
           to: agent.email,
           subject: 'New CGT Timeline Submission',
           html: `
@@ -148,7 +148,7 @@ export async function POST(request: NextRequest) {
     if (resend) {
       try {
         await resend.emails.send({
-          from: 'CGT Timeline <noreply@taxsimple.com.au>',
+          from: 'CGT Brain AI <info@cgtbrain.com.au>',
           to: userEmail,
           subject: 'Your CGT Timeline Has Been Sent',
           html: `

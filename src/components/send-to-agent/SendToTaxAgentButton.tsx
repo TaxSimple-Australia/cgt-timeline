@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Briefcase, Loader2 } from 'lucide-react';
+import { Briefcase, Loader2, Send } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTimelineStore } from '@/store/timeline';
 import SendToTaxAgentModal from './SendToTaxAgentModal';
@@ -75,25 +75,29 @@ export default function SendToTaxAgentButton({
       <motion.button
         onClick={handleClick}
         disabled={isGeneratingLink || propertiesCount === 0}
-        whileHover={{ scale: propertiesCount > 0 ? 1.03 : 1 }}
-        whileTap={{ scale: propertiesCount > 0 ? 0.97 : 1 }}
+        whileHover={{ scale: propertiesCount > 0 ? 1.05 : 1 }}
+        whileTap={{ scale: propertiesCount > 0 ? 0.95 : 1 }}
         className={cn(
-          'flex items-center gap-1.5 px-2 py-1.5 rounded-md',
-          'bg-emerald-100 hover:bg-emerald-200 dark:bg-emerald-900/30 dark:hover:bg-emerald-900/50',
-          'text-emerald-700 dark:text-emerald-300',
-          'border border-emerald-300 dark:border-emerald-700',
-          'transition-colors shadow-sm',
-          (isGeneratingLink || propertiesCount === 0) && 'opacity-50 cursor-not-allowed',
+          'flex items-center gap-2 px-4 py-2.5 rounded-lg ml-3',
+          'bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600',
+          'text-white font-semibold',
+          'shadow-lg shadow-emerald-500/30 hover:shadow-emerald-500/50',
+          'border-0',
+          'transition-all duration-200',
+          (isGeneratingLink || propertiesCount === 0) && 'opacity-50 cursor-not-allowed shadow-none',
           className
         )}
-        title={propertiesCount === 0 ? 'Add properties first' : 'Send timeline to a Tax Agent for review'}
+        title={propertiesCount === 0 ? 'Add properties first' : 'Send timeline to a Tax Agent for professional review'}
       >
         {isGeneratingLink ? (
-          <Loader2 className="w-3.5 h-3.5 animate-spin" />
+          <Loader2 className="w-5 h-5 animate-spin" />
         ) : (
-          <Briefcase className="w-3.5 h-3.5" />
+          <Send className="w-5 h-5" />
         )}
-        <span className="text-xs font-medium hidden sm:inline">Tax Agent</span>
+        <span className="text-sm whitespace-nowrap">
+          <span className="hidden lg:inline">Send to Tax Agent for Review</span>
+          <span className="lg:hidden">Tax Agent Review</span>
+        </span>
       </motion.button>
 
       <SendToTaxAgentModal

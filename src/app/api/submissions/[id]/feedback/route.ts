@@ -100,7 +100,7 @@ export async function POST(
 
     try {
       await resend.emails.send({
-        from: 'CGT Timeline <noreply@taxsimple.com.au>',
+        from: 'CGT Brain AI <info@cgtbrain.com.au>',
         to: submission.userEmail,
         subject: `Feedback on Your CGT Timeline from ${agent.name}`,
         html: `

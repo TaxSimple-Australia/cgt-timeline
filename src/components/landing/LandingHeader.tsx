@@ -48,8 +48,8 @@ export default function LandingHeader() {
   };
 
   const navLinks = [
-    { label: 'Features', id: 'features' },
-    { label: 'How It Works', id: 'how-it-works' },
+    { label: 'Features', id: 'features', type: 'scroll' as const },
+    { label: 'How It Works', id: 'how-it-works', type: 'scroll' as const },
   ];
 
   return (
@@ -73,13 +73,23 @@ export default function LandingHeader() {
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-8">
             {navLinks.map((link) => (
-              <button
-                key={link.id}
-                onClick={() => scrollToSection(link.id)}
-                className="text-slate-300 hover:text-cyan-400 transition-colors text-sm font-medium"
-              >
-                {link.label}
-              </button>
+              link.type === 'link' ? (
+                <Link
+                  key={link.id}
+                  href={`/${link.id}`}
+                  className="text-slate-300 hover:text-cyan-400 transition-colors text-sm font-medium"
+                >
+                  {link.label}
+                </Link>
+              ) : (
+                <button
+                  key={link.id}
+                  onClick={() => scrollToSection(link.id)}
+                  className="text-slate-300 hover:text-cyan-400 transition-colors text-sm font-medium"
+                >
+                  {link.label}
+                </button>
+              )
             ))}
 
             {/* Variant Dropdown */}
@@ -166,13 +176,24 @@ export default function LandingHeader() {
           >
             <div className="px-4 py-4 space-y-3">
               {navLinks.map((link) => (
-                <button
-                  key={link.id}
-                  onClick={() => scrollToSection(link.id)}
-                  className="block w-full text-left px-4 py-3 text-slate-300 hover:text-cyan-400 hover:bg-slate-800/50 rounded-lg transition-colors text-sm font-medium"
-                >
-                  {link.label}
-                </button>
+                link.type === 'link' ? (
+                  <Link
+                    key={link.id}
+                    href={`/${link.id}`}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="block w-full text-left px-4 py-3 text-slate-300 hover:text-cyan-400 hover:bg-slate-800/50 rounded-lg transition-colors text-sm font-medium"
+                  >
+                    {link.label}
+                  </Link>
+                ) : (
+                  <button
+                    key={link.id}
+                    onClick={() => scrollToSection(link.id)}
+                    className="block w-full text-left px-4 py-3 text-slate-300 hover:text-cyan-400 hover:bg-slate-800/50 rounded-lg transition-colors text-sm font-medium"
+                  >
+                    {link.label}
+                  </button>
+                )
               ))}
 
               {/* Mobile Variant Switcher */}

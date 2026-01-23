@@ -223,7 +223,7 @@ export const getFullEventName = (type: EventType): string => {
     status_change: 'Status Change',
     vacant_start: 'Vacancy Started',
     vacant_end: 'Vacancy Ended',
-    ownership_change: 'Change of Ownership',
+    ownership_change: 'Ownership Change',
     subdivision: 'Property Subdivision',
     living_in_rental_start: 'Living in Rental Started',
     living_in_rental_end: 'Living in Rental Ended',

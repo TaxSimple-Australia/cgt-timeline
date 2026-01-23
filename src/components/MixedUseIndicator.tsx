@@ -24,16 +24,16 @@ export default function MixedUseIndicator({
     return null;
   }
 
-  // Build the label text showing only non-zero percentages
+  // Build the label text showing only non-zero percentages (abbreviated)
   const parts: string[] = [];
   if (livingPercentage > 0) {
-    parts.push(`Living: ${livingPercentage.toFixed(0)}%`);
+    parts.push(`L: ${livingPercentage.toFixed(0)}%`);
   }
   if (rentalPercentage > 0) {
-    parts.push(`Rental: ${rentalPercentage.toFixed(0)}%`);
+    parts.push(`R: ${rentalPercentage.toFixed(0)}%`);
   }
   if (businessPercentage > 0) {
-    parts.push(`Business: ${businessPercentage.toFixed(0)}%`);
+    parts.push(`B: ${businessPercentage.toFixed(0)}%`);
   }
 
   const labelText = parts.join(' | ');
@@ -48,7 +48,7 @@ export default function MixedUseIndicator({
     >
       <div
         className="flex items-center justify-center h-full"
-        style={{ transform: 'translateX(200px)' }}
+        style={{ transform: 'translateX(100px)' }}
       >
         <div
           className="px-2 py-0.5 rounded-full text-[10px] font-medium whitespace-nowrap

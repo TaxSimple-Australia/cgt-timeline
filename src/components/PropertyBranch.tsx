@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { AlertTriangle, Split } from 'lucide-react';
+import { AlertTriangle, Split, ChevronDown, ChevronRight } from 'lucide-react';
 import { Property, TimelineEvent, useTimelineStore, statusColors, calculateStatusPeriods } from '@/store/timeline';
 import { useValidationStore } from '@/store/validation';
 import EventCircle from './EventCircle';
@@ -12,6 +12,7 @@ import TimelineGap from './TimelineGap';
 import VerificationAlertBar from './VerificationAlertBar';
 import MixedUseIndicator from './MixedUseIndicator';
 import LandIndicator from './LandIndicator';
+import LotDetailsModal from './LotDetailsModal';
 import { cn, dateToPosition } from '@/lib/utils';
 import { isSubdivided, getSubdivisionDate, getChildProperties } from '@/lib/subdivision-helpers';
 import type { PositionedGap } from '@/types/ai-feedback';
@@ -45,9 +46,17 @@ export default function PropertyBranch({
   onHoverChange,
   onAlertClick,
 }: PropertyBranchProps) {
-  const { eventDisplayMode, positionedGaps, selectIssue, selectProperty, enableDragEvents, updateEvent, verificationAlerts, resolveVerificationAlert, properties, events: allEvents } = useTimelineStore();
+  const { eventDisplayMode, positionedGaps, selectIssue, selectProperty, enableDragEvents, updateEvent, verificationAlerts, resolveVerificationAlert, properties, events: allEvents, collapsedSubdivisions, toggleSubdivisionCollapse } = useTimelineStore();
   const { getIssuesForProperty } = useValidationStore();
   const branchY = 100 + branchIndex * 120; // Vertical spacing between branches
+
+  // State for lot editing modal
+  const [editingLotId, setEditingLotId] = useState<string | null>(null);
+
+  // Debug log when editingLotId changes
+  useEffect(() => {
+    console.log('📝 editingLotId changed:', editingLotId);
+  }, [editingLotId]);
 
   // Check if this property has been subdivided
   const hasBeenSubdivided = isSubdivided(property, properties);
@@ -58,6 +67,10 @@ export default function PropertyBranch({
     : null;
   const subdivisionPosition = subdivisionDate ? dateToPosition(subdivisionDate, timelineStart, timelineEnd) : null;
 
+  // Check if this subdivision is collapsed
+  const subdivisionGroup = property.subdivisionGroup || '';
+  const isCollapsed = hasBeenSubdivided && subdivisionGroup && collapsedSubdivisions.includes(subdivisionGroup);
+
   // Get verification alerts for this property
   const propertyAlerts = verificationAlerts.filter(alert => alert.propertyId === property.id);
 
@@ -65,6 +78,14 @@ export default function PropertyBranch({
   const handlePropertyClick = (e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent triggering timeline click (QuickAddMenu)
     selectProperty(property.id);
+  };
+
+  // Handle toggle collapse/expand for subdivision
+  const handleToggleCollapse = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (subdivisionGroup) {
+      toggleSubdivisionCollapse(subdivisionGroup);
+    }
   };
 
   // Handle branch line click to add event
@@ -739,14 +760,19 @@ export default function PropertyBranch({
                     return (
                       <foreignObject
                         x={`${splitPos}%`}
-                        y={branchY - 50}
+                        y={branchY - 25}
                         width="140"
-                        height="30"
-                        style={{ overflow: 'visible', transform: 'translateX(15px)' }}
+                        height="20"
+                        style={{ overflow: 'visible', transform: 'translateX(15px)', pointerEvents: 'auto' }}
                       >
                         <div
-                          className="flex items-center justify-center px-2.5 py-1 rounded-md text-white text-xs font-semibold shadow-lg whitespace-nowrap"
-                          style={{ backgroundColor: `${lot1.color}E6` }}
+                          className="flex items-center justify-center px-1.5 py-0.5 rounded text-white text-[10px] font-semibold shadow-sm whitespace-nowrap cursor-pointer hover:ring-2 hover:ring-white/50 transition-all"
+                          style={{ backgroundColor: `${lot1.color}E6`, pointerEvents: 'auto' }}
+                          onClick={(e) => {
+                            console.log('🎯 Lot 1 badge clicked!', lot1.id);
+                            e.stopPropagation();
+                            setEditingLotId(lot1.id!);
+                          }}
                         >
                           {lot1.lotNumber}
                           {lot1.lotSize && ` • ${(lot1.lotSize / 10000).toFixed(4)} ha`}
@@ -808,14 +834,19 @@ export default function PropertyBranch({
           {!property.isMainLotContinuation && (
             <foreignObject
               x={`${dateToPosition(property.subdivisionDate, timelineStart, timelineEnd)}%`}
-              y={branchY - 50}
+              y={branchY - 25}
               width="140"
-              height="30"
-              style={{ overflow: 'visible', transform: 'translateX(-70px)' }}
+              height="20"
+              style={{ overflow: 'visible', transform: 'translateX(-70px)', pointerEvents: 'auto' }}
             >
               <div
-                className="flex items-center justify-center px-2.5 py-1 rounded-md text-white text-xs font-semibold shadow-lg whitespace-nowrap"
-                style={{ backgroundColor: `${property.color}E6` }}
+                className="flex items-center justify-center px-1.5 py-0.5 rounded text-white text-[10px] font-semibold shadow-sm whitespace-nowrap cursor-pointer hover:ring-2 hover:ring-white/50 transition-all"
+                style={{ backgroundColor: `${property.color}E6`, pointerEvents: 'auto' }}
+                onClick={(e) => {
+                  console.log('🎯 Lot badge clicked!', property.id, property.lotNumber);
+                  e.stopPropagation();
+                  setEditingLotId(property.id!);
+                }}
               >
                 {property.lotNumber}
                 {property.lotSize && ` • ${(property.lotSize / 10000).toFixed(4)} ha`}
@@ -934,7 +965,39 @@ export default function PropertyBranch({
         />
       ))}
 
+      {/* Collapse/Expand Toggle Button - for subdivided parent properties */}
+      {hasBeenSubdivided && childLots.length > 0 && !property.parentPropertyId && (
+        <foreignObject
+          x="95%"
+          y={branchY - 15}
+          width="30"
+          height="30"
+          style={{ overflow: 'visible', pointerEvents: 'auto' }}
+        >
+          <button
+            onClick={handleToggleCollapse}
+            className="w-7 h-7 rounded-full flex items-center justify-center bg-white dark:bg-slate-800 border-2 border-slate-300 dark:border-slate-600 hover:border-pink-500 dark:hover:border-pink-400 hover:bg-pink-50 dark:hover:bg-pink-900/20 transition-all shadow-sm"
+            title={isCollapsed ? `Expand ${childLots.length} lots` : `Collapse ${childLots.length} lots`}
+          >
+            {isCollapsed ? (
+              <ChevronRight className="w-4 h-4 text-slate-600 dark:text-slate-300" />
+            ) : (
+              <ChevronDown className="w-4 h-4 text-slate-600 dark:text-slate-300" />
+            )}
+          </button>
+        </foreignObject>
+      )}
+
       </g>
+
+      {/* Lot Details Modal */}
+      {editingLotId && (
+        <LotDetailsModal
+          property={properties.find(p => p.id === editingLotId)!}
+          isOpen={true}
+          onClose={() => setEditingLotId(null)}
+        />
+      )}
     </>
   );
 }

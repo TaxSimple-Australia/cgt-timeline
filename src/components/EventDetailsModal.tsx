@@ -145,6 +145,7 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
   });
   const [overTwoHectares, setOverTwoHectares] = useState(event.overTwoHectares || false);
   const [isLandOnly, setIsLandOnly] = useState(event.isLandOnly || false);
+  const [hectares, setHectares] = useState<number | ''>(event.hectares || '');
 
   // Property details section (collapsible) - auto-expand if any options are set
   const [showPropertyDetails, setShowPropertyDetails] = useState(
@@ -545,6 +546,9 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
         // Over 2 hectares flag (for main residence exemption calculation)
         updates.overTwoHectares = overTwoHectares || undefined;
 
+        // Exact hectares value (when over 2 hectares is checked)
+        updates.hectares = overTwoHectares && hectares ? hectares : undefined;
+
         // Land only flag (affects depreciation calculations)
         updates.isLandOnly = isLandOnly || undefined;
       } else if (event.type === 'sale') {
@@ -742,18 +746,23 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
           return;
         }
 
-        // Validate that if reason is "other", reasonOther is provided
-        if (ownershipChangeReason === 'other' && !ownershipChangeReasonOther.trim()) {
-          showWarning('Missing information', 'Please specify the reason for ownership change.');
-          setIsSaving(false);
-          return;
+        // Validate that if reason is "other", reasonOther is provided (only for ownership_change, not inherit)
+        if (eventType === 'ownership_change') {
+          if (ownershipChangeReason === 'other' && !ownershipChangeReasonOther.trim()) {
+            showWarning('Missing information', 'Please specify the reason for ownership change.');
+            setIsSaving(false);
+            return;
+          }
         }
 
         // Save ownership change data
         updates.leavingOwners = leavingOwners;
         updates.newOwners = newOwners;
-        updates.ownershipChangeReason = ownershipChangeReason;
-        updates.ownershipChangeReasonOther = ownershipChangeReason === 'other' ? ownershipChangeReasonOther.trim() : undefined;
+        // Only save reason for ownership_change events, not inherit (refinance)
+        if (eventType === 'ownership_change') {
+          updates.ownershipChangeReason = ownershipChangeReason;
+          updates.ownershipChangeReasonOther = ownershipChangeReason === 'other' ? ownershipChangeReasonOther.trim() : undefined;
+        }
       }
 
       // DEPRECATED: Clear legacy cost base fields (they're now in costBases array)
@@ -1220,25 +1229,52 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
 
               {/* Land Options - Compact checkboxes for Purchase events */}
               {eventType === 'purchase' && (
-                <div className="flex items-center gap-4 mt-2">
-                  <label className="flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-400 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={isLandOnly}
-                      onChange={(e) => setIsLandOnly(e.target.checked)}
-                      className="w-3 h-3 text-blue-600 rounded focus:ring-1 focus:ring-blue-500"
-                    />
-                    Land only
-                  </label>
-                  <label className="flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-400 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={overTwoHectares}
-                      onChange={(e) => setOverTwoHectares(e.target.checked)}
-                      className="w-3 h-3 text-blue-600 rounded focus:ring-1 focus:ring-blue-500"
-                    />
-                    Over 2 hectares
-                  </label>
+                <div className="mt-2 space-y-3">
+                  <div className="flex items-center gap-4">
+                    <label className="flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-400 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={isLandOnly}
+                        onChange={(e) => setIsLandOnly(e.target.checked)}
+                        className="w-3 h-3 text-blue-600 rounded focus:ring-1 focus:ring-blue-500"
+                      />
+                      Land only
+                    </label>
+                    <label className="flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-400 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={overTwoHectares}
+                        onChange={(e) => {
+                          setOverTwoHectares(e.target.checked);
+                          if (!e.target.checked) {
+                            setHectares('');
+                          }
+                        }}
+                        className="w-3 h-3 text-blue-600 rounded focus:ring-1 focus:ring-blue-500"
+                      />
+                      Over 2 hectares
+                    </label>
+                  </div>
+
+                  {/* Hectares input field - shows when "Over 2 hectares" is checked */}
+                  {overTwoHectares && (
+                    <div className="ml-4 flex items-center gap-2">
+                      <label htmlFor="hectares-input" className="text-xs text-slate-600 dark:text-slate-400">
+                        Exact hectares:
+                      </label>
+                      <input
+                        id="hectares-input"
+                        type="number"
+                        min="2.01"
+                        step="0.01"
+                        value={hectares}
+                        onChange={(e) => setHectares(e.target.value === '' ? '' : parseFloat(e.target.value))}
+                        placeholder="e.g., 2.5"
+                        className="w-24 px-2 py-1 text-xs border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+                      />
+                      <span className="text-xs text-slate-500 dark:text-slate-400">ha</span>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -2343,37 +2379,85 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
                   Ownership Transfer Details
                 </h3>
 
-                {/* Reason Dropdown */}
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                    Reason for Ownership Change *
-                  </label>
-                  <select
-                    value={ownershipChangeReason}
-                    onChange={(e) => setOwnershipChangeReason(e.target.value as any)}
-                    className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="divorce">Divorce</option>
-                    <option value="sale_transfer">Sale / Transfer</option>
-                    <option value="gift">Gift</option>
-                    <option value="other">Other</option>
-                  </select>
-                </div>
+                {/* Ownership Summary - Shows for existing events */}
+                {(leavingOwners.length > 0 || newOwners.length > 0) && (
+                  <div className="p-4 bg-slate-50 dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 space-y-3">
+                    <h4 className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+                      Ownership Transfer Summary
+                    </h4>
 
-                {/* Other Reason Text Input (conditional) */}
-                {ownershipChangeReason === 'other' && (
+                    {/* Previous Owners */}
+                    {leavingOwners.length > 0 && (
+                      <div>
+                        <p className="text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">
+                          Previous Owner(s):
+                        </p>
+                        <div className="flex flex-wrap gap-2">
+                          {leavingOwners.map((ownerName, idx) => {
+                            const ownerData = currentProperty?.owners?.find(o => o.name === ownerName);
+                            return (
+                              <span key={idx} className="text-xs px-2 py-1 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 rounded">
+                                {ownerName} {ownerData && `(${ownerData.percentage}%)`}
+                              </span>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* New Owners */}
+                    {newOwners.length > 0 && (
+                      <div>
+                        <p className="text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">
+                          New Owner(s):
+                        </p>
+                        <div className="flex flex-wrap gap-2">
+                          {newOwners.map((owner, idx) => (
+                            <span key={idx} className="text-xs px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded">
+                              {owner.name} ({owner.percentage}%)
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Reason Dropdown - Only for ownership_change events, not inherit (refinance) */}
+                {eventType === 'ownership_change' && (
+                  <>
                   <div>
                     <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                      Please specify reason
+                      Reason for Ownership Change *
                     </label>
-                    <input
-                      type="text"
-                      value={ownershipChangeReasonOther}
-                      onChange={(e) => setOwnershipChangeReasonOther(e.target.value)}
+                    <select
+                      value={ownershipChangeReason}
+                      onChange={(e) => setOwnershipChangeReason(e.target.value as any)}
                       className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      placeholder="e.g., Estate transfer, Corporate restructure..."
-                    />
+                    >
+                      <option value="divorce">Divorce</option>
+                      <option value="sale_transfer">Sale / Transfer</option>
+                      <option value="gift">Gift</option>
+                      <option value="other">Other</option>
+                    </select>
                   </div>
+
+                  {/* Other Reason Text Input (conditional) */}
+                  {ownershipChangeReason === 'other' && (
+                    <div>
+                      <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                        Please specify reason
+                      </label>
+                      <input
+                        type="text"
+                        value={ownershipChangeReasonOther}
+                        onChange={(e) => setOwnershipChangeReasonOther(e.target.value)}
+                        className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder="e.g., Estate transfer, Corporate restructure..."
+                      />
+                    </div>
+                  )}
+                  </>
                 )}
 
                 {/* Leaving Owners */}

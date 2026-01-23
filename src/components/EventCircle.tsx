@@ -348,30 +348,36 @@ export default function EventCircle({ event, cx, cy, color, onClick, tier = 0, z
         />
       )}
 
-      {/* Label below circle (positioned based on tier) - Truncated with CSS */}
+      {/* Label below circle (positioned based on tier) - Intelligent wrapping for long text */}
       <foreignObject
         x={displayCx}
         y={labelY - 10}
-        width="100"
-        height="20"
+        width="150"
+        height="60"
         style={{
           overflow: 'visible',
           pointerEvents: 'none',
-          transform: 'translateX(-50px)'
+          transform: 'translateX(-75px)'
         }}
       >
         <div
-          className="text-xs font-semibold text-slate-900 dark:text-slate-100 text-center truncate px-1"
+          className="text-xs font-semibold text-slate-900 dark:text-slate-100 text-center px-1"
           style={{
             userSelect: 'none',
-            maxWidth: '100px',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            whiteSpace: 'nowrap'
+            maxWidth: '150px',
+            wordBreak: 'break-word',
+            lineHeight: '1.2',
+            overflowWrap: 'break-word',
+            hyphens: 'auto'
           }}
           title={getDisplayTitle(event)}
         >
-          {getDisplayTitle(event)}
+          {getDisplayTitle(event).split('|').map((part, idx, arr) => (
+            <React.Fragment key={idx}>
+              {part.trim()}
+              {idx < arr.length - 1 && <br />}
+            </React.Fragment>
+          ))}
         </div>
       </foreignObject>
     </g>

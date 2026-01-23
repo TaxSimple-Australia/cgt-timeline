@@ -598,8 +598,19 @@ export function transformTimelineToAPIFormat(
                     console.warn(`  ⚠️ Unknown category "${costBase.category}" for custom cost base "${costBase.name}" (${costBase.amount})`);
                 }
               } else {
-                // For non-custom unrecognized cost bases, log a warning
-                console.warn(`⚠️ Cost base '${costBase.definitionId}' not mapped to API field (amount: ${costBase.amount}). This is preserved in timeline data but won't be sent to the API.`, costBase);
+                // For non-custom unrecognized cost bases, collect them for notes
+                console.warn(`⚠️ Cost base '${costBase.definitionId}' not mapped to API field (amount: ${costBase.amount}). Adding to property notes.`, costBase);
+                // Store unmapped cost base info for later addition to notes
+                if (!(historyEvent as any).__unmappedCostBases) {
+                  (historyEvent as any).__unmappedCostBases = [];
+                }
+                (historyEvent as any).__unmappedCostBases.push({
+                  id: costBase.definitionId,
+                  name: costBase.name,
+                  amount: costBase.amount,
+                  category: costBase.category,
+                  description: costBase.description
+                });
               }
           }
         });
@@ -667,21 +678,138 @@ export function transformTimelineToAPIFormat(
       }
     });
 
-    // Build notes field with owners + CGT context
+    // Collect unmapped cost bases from all events
+    const unmappedCostBases: any[] = [];
+    property_history.forEach((histEvent: any) => {
+      if (histEvent.__unmappedCostBases) {
+        unmappedCostBases.push(...histEvent.__unmappedCostBases);
+        delete histEvent.__unmappedCostBases; // Remove temp field before sending to API
+      }
+    });
+
+    // Build structured notes field with owners + CGT context + unmapped cost bases + structured complex data
     const notesParts: string[] = [];
+    
+    // Section 1: Owners
     if (property.owners && property.owners.length > 0) {
-      notesParts.push(`Owners: ${property.owners.map(o => `${o.name} (${o.percentage}%)`).join(', ')}`);
+      notesParts.push(`=== OWNERSHIP ===\nOwners: ${property.owners.map(o => `${o.name} (${o.percentage}%)`).join(', ')}`);
     }
+    
+    // Section 2: CGT Context
     if (allCGTContext.length > 0) {
-      notesParts.push(`\n[CGT Context by Event]\n${allCGTContext.join('\n')}`);
+      notesParts.push(`\n=== CGT CONTEXT BY EVENT ===\n${allCGTContext.join('\n')}`);
       console.log('📝 Transform: CGT context notes aggregated for', property.name, ':', allCGTContext.length, 'entries');
+    }
+    
+    // Section 3: Unmapped Cost Bases
+    if (unmappedCostBases.length > 0) {
+      const costBaseLines = unmappedCostBases.map(cb => 
+        `- ${cb.name || cb.id}: $${cb.amount.toLocaleString('en-AU')} (Category: ${cb.category || 'Unknown'}${cb.description ? ', ' + cb.description : ''})`
+      );
+      notesParts.push(`\n=== UNMAPPED COST BASES ===\n${costBaseLines.join('\n')}`);
+      console.log('💰 Transform: Added', unmappedCostBases.length, 'unmapped cost bases to notes for', property.name);
+    }
+
+    // Section 4: Structured Complex Data (extract from property events)
+    const structuredData: string[] = [];
+    propertyEvents.forEach((event) => {
+      const eventDate = sanitizeDateForAPI(event.date) || 'Unknown';
+      
+      // Mixed-use data
+      if (event.livingUsePercentage !== undefined || event.rentalUsePercentage !== undefined) {
+        const living = event.livingUsePercentage || 0;
+        const rental = event.rentalUsePercentage || 0;
+        const business = event.businessUsePercentage || 0;
+        structuredData.push(`${eventDate} - MIXED USE: Living=${living}%, Rental=${rental}%, Business=${business}%${event.rentalUseStartDate ? ' | Rental Start=' + sanitizeDateForAPI(event.rentalUseStartDate) : ''}${event.businessUseStartDate ? ' | Business Start=' + sanitizeDateForAPI(event.businessUseStartDate) : ''}`);
+      }
+      
+      // Ownership changes
+      if (event.type === 'ownership_change' || event.type === 'refinance') {
+        const parts: string[] = [`${eventDate} - ${event.type === 'refinance' ? 'INHERIT' : 'OWNERSHIP CHANGE'}`];
+
+        // Add reason if available (only for ownership_change, not refinance/inherit)
+        if (event.type === 'ownership_change' && event.ownershipChangeReason) {
+          const reasonMap: any = { divorce: 'Divorce', sale_transfer: 'Sale/Transfer', gift: 'Gift', other: event.ownershipChangeReasonOther || 'Other' };
+          parts.push(`Reason: ${reasonMap[event.ownershipChangeReason]}`);
+        }
+
+        // Add leaving owners with percentage information
+        if (event.leavingOwners && event.leavingOwners.length > 0) {
+          // Try to find percentages for leaving owners from current property state
+          const leavingWithPercentages = event.leavingOwners.map((leavingName: string) => {
+            // Look in property.owners (current state) - these are already updated
+            // So we can't get previous percentages from there directly
+            // Instead, just show the names for "leaving"
+            return leavingName;
+          });
+          parts.push(`Leaving: ${leavingWithPercentages.join(', ')}`);
+        }
+
+        // Add new owners (these come with percentages from the event)
+        if (event.newOwners && event.newOwners.length > 0) {
+          const newOwnerStr = event.newOwners.map((o: any) => `${o.name} (${o.percentage}%)`).join(', ');
+          parts.push(`New Owners: ${newOwnerStr}`);
+        }
+
+        // Add a summary of the transfer context
+        if (event.leavingOwners && event.newOwners) {
+          const summary = `Transfer: ${event.leavingOwners.length} leaving, ${event.newOwners.length} joining`;
+          parts.push(summary);
+        }
+
+        structuredData.push(parts.join(' | '));
+      }
+      
+      // Subdivision details
+      if (event.type === 'subdivision' && event.subdivisionDetails) {
+        const details = event.subdivisionDetails;
+        const parts: string[] = [`${eventDate} - SUBDIVISION: ${details.totalLots} lots`];
+        if (details.allocationMethod) {
+          const methodMap: any = { by_lot_size: 'By Lot Size', equal: 'Equally', manual: 'Manual' };
+          parts.push(`Method: ${methodMap[details.allocationMethod] || 'Proportional'}`);
+        }
+        if (details.childProperties && details.childProperties.length > 0) {
+          details.childProperties.forEach((child: any, idx: number) => {
+            parts.push(`Lot${idx + 1}: ${child.name}${child.lotNumber ? ' (' + child.lotNumber + ')' : ''}${child.lotSize ? ' ' + (child.lotSize / 10000).toFixed(4) + 'ha' : ''}${child.allocatedCostBase ? ' $' + child.allocatedCostBase.toLocaleString('en-AU') : ''}`);
+          });
+        }
+        structuredData.push(parts.join(' | '));
+      }
+      
+      // Floor area (partial rental)
+      if (event.floorAreaData) {
+        const { total, exclusive, shared } = event.floorAreaData;
+        const exclusivePercent = (exclusive / total) * 100;
+        const sharedPercent = (shared / total) * 50;
+        const totalPercent = exclusivePercent + sharedPercent;
+        structuredData.push(`${eventDate} - PARTIAL RENTAL: Total=${total}sqm, Exclusive=${exclusive}sqm (${exclusivePercent.toFixed(2)}%), Shared=${shared}sqm (${sharedPercent.toFixed(2)}%), Income%=${totalPercent.toFixed(2)}%`);
+      }
+    });
+    
+    if (structuredData.length > 0) {
+      notesParts.push(`\n=== STRUCTURED COMPLEX DATA ===\n${structuredData.join('\n')}`);
+      console.log('📊 Transform: Added', structuredData.length, 'structured data entries to notes for', property.name);
     }
 
     return {
       address: `${property.name}, ${property.address}`,
       property_history,
-      notes: notesParts.join(''),
+      notes: notesParts.join('\n'),
     };
+  });
+
+  // Calculate land size from purchase events
+  let landSizeHectares = 0;
+  events.forEach((event) => {
+    if (event.type === 'purchase') {
+      if (event.hectares && event.hectares > 0) {
+        // Use specific hectares value if provided
+        landSizeHectares = Math.max(landSizeHectares, event.hectares);
+      } else if (event.overTwoHectares) {
+        // If overTwoHectares flag is set but no specific value, use 2.1 as indicator
+        landSizeHectares = Math.max(landSizeHectares, 2.1);
+      }
+    }
   });
 
   // Build the base request object
@@ -691,7 +819,7 @@ export function transformTimelineToAPIFormat(
     additional_info: {
       australian_resident: true,
       other_property_owned: properties.length > 1,
-      land_size_hectares: 0,
+      land_size_hectares: landSizeHectares,
       marginal_tax_rate: marginalTaxRate, // Global tax rate from store
     },
   };

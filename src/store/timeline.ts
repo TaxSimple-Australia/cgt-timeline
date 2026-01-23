@@ -280,6 +280,9 @@ interface TimelineState {
   // Marginal Tax Rate State (Global for all properties)
   marginalTaxRate: number; // User's marginal tax rate (default: 37%)
 
+  // Subdivision Collapse State
+  collapsedSubdivisions: string[]; // Array of subdivision group IDs that are collapsed
+
   // Actions
   addProperty: (property: Omit<Property, 'id' | 'branch'>) => void;
   updateProperty: (id: string, property: Partial<Property>) => void;
@@ -359,6 +362,9 @@ interface TimelineState {
   // Marginal Tax Rate Actions
   setMarginalTaxRate: (rate: number) => void;
   initializeMarginalTaxRate: () => void; // Extract rate from existing sale events
+
+  // Subdivision Collapse Actions
+  toggleSubdivisionCollapse: (subdivisionGroup: string) => void;
 
   // Sticky Notes State
   timelineStickyNotes: StickyNote[];
@@ -700,6 +706,9 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
     // Marginal Tax Rate initial state
     marginalTaxRate: 37,
 
+    // Subdivision Collapse initial state
+    collapsedSubdivisions: [],
+
     // Sticky Notes initial state
     timelineStickyNotes: [],
     analysisStickyNotes: [],
@@ -750,8 +759,13 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
     set((state) => {
       const property = state.properties.find((p) => p.id === id);
 
-      // If deleting a parent property, also delete all children
-      if (property && !property.parentPropertyId) {
+      if (!property) {
+        console.error('Property not found:', id);
+        return state;
+      }
+
+      // Case 1: Deleting a parent property - delete all children too
+      if (!property.parentPropertyId) {
         const children = state.properties.filter((p) => p.parentPropertyId === id);
         const allIdsToDelete = [id, ...children.map((c) => c.id)];
 
@@ -767,21 +781,128 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
           verificationAlerts: [],
           currentAlertIndex: -1,
         };
-      } else {
-        // Regular delete for child or non-subdivided property
-        return {
-          properties: state.properties.filter((p) => p.id !== id),
-          events: state.events.filter((e) => e.propertyId !== id),
-          // Clear AI analysis and verification alerts when property is deleted
-          aiResponse: null,
-          timelineIssues: [],
-          positionedGaps: [],
-          residenceGapIssues: [],
-          selectedIssue: null,
-          verificationAlerts: [],
-          currentAlertIndex: -1,
-        };
       }
+
+      // Case 2: Deleting a child lot from a subdivision
+      if (property.parentPropertyId && property.subdivisionGroup) {
+        const parent = state.properties.find((p) => p.id === property.parentPropertyId);
+
+        if (!parent) {
+          // Orphaned child, just delete it
+          console.warn('Orphaned child property found, deleting:', id);
+          return {
+            properties: state.properties.filter((p) => p.id !== id),
+            events: state.events.filter((e) => e.propertyId !== id),
+            aiResponse: null,
+            timelineIssues: [],
+            positionedGaps: [],
+            residenceGapIssues: [],
+            selectedIssue: null,
+            verificationAlerts: [],
+            currentAlertIndex: -1,
+          };
+        }
+
+        // Count sibling lots (excluding Lot 1 - main continuation)
+        const nonLot1Siblings = state.properties.filter(
+          (p) =>
+            p.parentPropertyId === parent.id &&
+            p.subdivisionGroup === property.subdivisionGroup &&
+            !p.isMainLotContinuation
+        );
+
+        // If this is the LAST non-Lot-1 lot, UNDO the entire subdivision
+        if (nonLot1Siblings.length === 1 && nonLot1Siblings[0].id === id) {
+          console.log('🔄 Undoing subdivision - last non-Lot-1 lot being deleted');
+
+          // Find Lot 1 (main continuation)
+          const lot1 = state.properties.find(
+            (p) => p.parentPropertyId === parent.id && p.isMainLotContinuation
+          );
+
+          // Restore parent property - remove subdivision markers
+          const restoredParent = {
+            ...parent,
+            subdivisionDate: undefined,
+            subdivisionGroup: undefined,
+          };
+
+          // Merge Lot 1's events back to parent (only events AFTER subdivision)
+          let mergedEvents: TimelineEvent[] = [];
+          if (lot1 && lot1.subdivisionDate) {
+            const lot1EventsAfterSubdivision = state.events.filter(
+              (e) => e.propertyId === lot1.id && e.date >= lot1.subdivisionDate!
+            );
+            mergedEvents = lot1EventsAfterSubdivision.map((e) => ({
+              ...e,
+              propertyId: parent.id,
+            }));
+          }
+
+          // Find all lots to delete (including Lot 1)
+          const allLotsToDelete = state.properties.filter(
+            (p) =>
+              p.parentPropertyId === parent.id &&
+              p.subdivisionGroup === property.subdivisionGroup
+          );
+          const lotIdsToDelete = allLotsToDelete.map((l) => l.id!);
+
+          // Find subdivision event to remove
+          const subdivisionEvent = state.events.find(
+            (e) =>
+              e.propertyId === parent.id &&
+              e.type === 'subdivision' &&
+              e.subdivisionDetails?.parentPropertyId === parent.id
+          );
+
+          return {
+            properties: state.properties
+              .filter((p) => !lotIdsToDelete.includes(p.id!))
+              .map((p) => (p.id === parent.id ? restoredParent : p)),
+
+            events: state.events
+              .filter((e) => !lotIdsToDelete.includes(e.propertyId))
+              .filter((e) => e.id !== subdivisionEvent?.id)
+              .concat(mergedEvents),
+
+            // Clear AI analysis and verification alerts
+            aiResponse: null,
+            timelineIssues: [],
+            positionedGaps: [],
+            residenceGapIssues: [],
+            selectedIssue: null,
+            verificationAlerts: [],
+            currentAlertIndex: -1,
+          };
+        } else {
+          // Not the last lot, just delete this one lot normally
+          console.log('🗑️ Deleting single lot (subdivision remains)');
+          return {
+            properties: state.properties.filter((p) => p.id !== id),
+            events: state.events.filter((e) => e.propertyId !== id),
+            aiResponse: null,
+            timelineIssues: [],
+            positionedGaps: [],
+            residenceGapIssues: [],
+            selectedIssue: null,
+            verificationAlerts: [],
+            currentAlertIndex: -1,
+          };
+        }
+      }
+
+      // Case 3: Regular non-subdivided property (fallback)
+      return {
+        properties: state.properties.filter((p) => p.id !== id),
+        events: state.events.filter((e) => e.propertyId !== id),
+        aiResponse: null,
+        timelineIssues: [],
+        positionedGaps: [],
+        residenceGapIssues: [],
+        selectedIssue: null,
+        verificationAlerts: [],
+        currentAlertIndex: -1,
+      };
     });
   },
 
@@ -889,7 +1010,7 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
       properties: [
         ...state.properties.map(p =>
           p.id === parentPropertyId
-            ? { ...p, subdivisionDate }
+            ? { ...p, subdivisionDate, subdivisionGroup }
             : p
         ),
         ...childProperties
@@ -2440,6 +2561,25 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
 
     // If no non-37% rate found, keep the default of 37%
     console.log('📊 Using default marginal tax rate: 37%');
+  },
+
+  // Subdivision Collapse Actions
+  toggleSubdivisionCollapse: (subdivisionGroup: string) => {
+    set((state) => {
+      const isCollapsed = state.collapsedSubdivisions.includes(subdivisionGroup);
+
+      if (isCollapsed) {
+        // Remove from collapsed list (expand)
+        return {
+          collapsedSubdivisions: state.collapsedSubdivisions.filter(id => id !== subdivisionGroup)
+        };
+      } else {
+        // Add to collapsed list (collapse)
+        return {
+          collapsedSubdivisions: [...state.collapsedSubdivisions, subdivisionGroup]
+        };
+      }
+    });
   },
 
   // ========================================================================

@@ -66,27 +66,54 @@ export default function Timeline({ className, onAlertClick, onOpenAIBuilder }: T
     lockFutureDates,
     selectIssue,
     timelineIssues,
+    collapsedSubdivisions,
     // residenceGapIssues, // REMOVED: Not needed - using GilbertBranch VerificationAlertBar instead
   } = useTimelineStore();
 
-  // Calculate branch positions for subdivision hierarchy
-  const branchPositions = useMemo(() => {
-    return calculateBranchPositions(properties);
-  }, [properties]);
-
-  // Calculate subdivision connections for visual rendering
-  const subdivisionConnections = useMemo(() => {
-    const dateToPos = (date: Date) => dateToPosition(date, timelineStart, timelineEnd);
-    return calculateSubdivisionConnections(properties, branchPositions, events, dateToPos);
-  }, [properties, branchPositions, events, timelineStart, timelineEnd]);
-
-  // Filter properties for rendering:
+  // Filter properties for rendering FIRST:
   // - Show parent properties (even if subdivided - they keep their original name)
   // - Show child lots EXCEPT Lot 1 (main continuation) since Lot 1 continues on the parent line
   // - Lot 2, Lot 3, etc. render as separate child branches below the parent
+  // - Hide child lots when their parent subdivision is collapsed
   const visibleProperties = useMemo(() => {
-    return properties.filter(property => !property.isMainLotContinuation);
-  }, [properties]);
+    return properties.filter(property => {
+      // Always hide Lot 1 (main continuation)
+      if (property.isMainLotContinuation) return false;
+
+      // If this is a child lot (has parentPropertyId), check if its subdivision is collapsed
+      if (property.parentPropertyId && property.subdivisionGroup) {
+        const isCollapsed = collapsedSubdivisions.includes(property.subdivisionGroup);
+        if (isCollapsed) return false; // Hide this child lot
+      }
+
+      return true; // Show this property
+    });
+  }, [properties, collapsedSubdivisions]);
+
+  // Calculate branch positions based on VISIBLE properties only
+  // This ensures properties move up to fill space when lots are collapsed
+  const branchPositions = useMemo(() => {
+    return calculateBranchPositions(visibleProperties);
+  }, [visibleProperties]);
+
+  // Calculate subdivision connections and filter out connections to collapsed child lots
+  const subdivisionConnections = useMemo(() => {
+    const dateToPos = (date: Date) => dateToPosition(date, timelineStart, timelineEnd);
+    const allConnections = calculateSubdivisionConnections(properties, branchPositions, events, dateToPos);
+
+    // Filter out connections to collapsed child lots (removes pink lines)
+    return allConnections.filter(connection => {
+      const childProperty = properties.find(p => p.id === connection.childId);
+      if (!childProperty) return false;
+
+      // If child has subdivisionGroup and it's collapsed, hide the connection
+      if (childProperty.subdivisionGroup && collapsedSubdivisions.includes(childProperty.subdivisionGroup)) {
+        return false;
+      }
+
+      return true;
+    });
+  }, [properties, branchPositions, events, timelineStart, timelineEnd, collapsedSubdivisions]);
 
   // Handle timeline click to add events
   const handleTimelineClick = (e: MouseEvent<HTMLDivElement>) => {
@@ -414,7 +441,7 @@ export default function Timeline({ className, onAlertClick, onOpenAIBuilder }: T
                 <SubdivisionSplitVisual connections={subdivisionConnections} />
               )}
 
-              {properties.filter(p => !p.isMainLotContinuation).map((property, index) => {
+              {visibleProperties.map((property, index) => {
                 // Use calculated branch position if property is part of subdivision hierarchy
                 const branchPos = branchPositions.get(property.id!);
                 const effectiveBranchIndex = branchPos ? branchPos.yOffset / 80 : index;

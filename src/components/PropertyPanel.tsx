@@ -281,7 +281,86 @@ export default function PropertyPanel() {
         {/* Scrollable Content */}
         <div className="overflow-y-auto max-h-[calc(90vh-80px)]">
           <div className="p-4 space-y-4">
-          {/* Owner Percentage Section - Collapsible */}
+          {/* Ownership History Section - Read-only Timeline */}
+          {property && (() => {
+            // Get ownership-related events for this property (only changes, not purchase)
+            const ownershipEvents = events
+              .filter(e => e.propertyId === property.id && (
+                e.type === 'ownership_change' ||
+                e.type === 'refinance'
+              ))
+              .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+
+            // Only show this section if there are ownership events
+            if (ownershipEvents.length === 0) return null;
+
+            return (
+              <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-800 mb-4">
+                <div className="flex items-center gap-2 text-blue-700 dark:text-blue-300 mb-3">
+                  <FileText className="w-4 h-4" />
+                  <span className="text-sm font-semibold">Ownership History</span>
+                  <span className="ml-auto text-xs bg-blue-100 dark:bg-blue-800 px-2 py-0.5 rounded-full font-semibold">
+                    {ownershipEvents.length} {ownershipEvents.length === 1 ? 'event' : 'events'}
+                  </span>
+                </div>
+
+                <div className="space-y-3 max-h-48 overflow-y-auto">
+                  {ownershipEvents.map((event, idx) => (
+                    <div key={event.id} className="p-2.5 bg-white dark:bg-slate-800 rounded border border-blue-200 dark:border-blue-700">
+                      {/* Event Date and Type */}
+                      <div className="flex items-center justify-between mb-1.5">
+                        <span className="text-xs font-semibold text-blue-700 dark:text-blue-300">
+                          {format(event.date, 'dd MMM yyyy')}
+                        </span>
+                        <span className="text-xs px-1.5 py-0.5 rounded bg-blue-100 dark:bg-blue-800 text-blue-800 dark:text-blue-200">
+                          {event.type === 'refinance' ? 'Inherit' : 'Ownership Change'}
+                        </span>
+                      </div>
+
+                      {/* Ownership Change Event - Show transfer details */}
+                        <div className="text-xs space-y-1">
+                          {/* Reason (only for ownership_change, not inherit) */}
+                          {event.type === 'ownership_change' && event.ownershipChangeReason && (
+                            <div className="text-slate-600 dark:text-slate-400">
+                              <span className="font-medium">Reason:</span> {
+                                event.ownershipChangeReason === 'divorce' ? 'Divorce' :
+                                event.ownershipChangeReason === 'sale_transfer' ? 'Sale/Transfer' :
+                                event.ownershipChangeReason === 'gift' ? 'Gift' :
+                                event.ownershipChangeReasonOther || 'Other'
+                              }
+                            </div>
+                          )}
+
+                          {/* Leaving owners */}
+                          {event.leavingOwners && event.leavingOwners.length > 0 && (
+                            <div className="text-red-600 dark:text-red-400">
+                              <span className="font-medium">Leaving:</span> {event.leavingOwners.join(', ')}
+                            </div>
+                          )}
+
+                          {/* New owners */}
+                          {event.newOwners && event.newOwners.length > 0 && (
+                            <div className="text-green-600 dark:text-green-400">
+                              <span className="font-medium">New owners:</span>
+                              <div className="mt-0.5 space-y-0.5 ml-2">
+                                {event.newOwners.map((owner: any, oidx: number) => (
+                                  <div key={oidx} className="flex justify-between">
+                                    <span>{owner.name}</span>
+                                    <span className="font-semibold">{owner.percentage}%</span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            );
+          })()}
+
+          {/* Current Owners Section - Collapsible */}
           <div className="bg-orange-50 dark:bg-orange-900/20 p-4 rounded-lg border border-orange-200 dark:border-orange-800">
             <button
               type="button"
@@ -293,7 +372,7 @@ export default function PropertyPanel() {
                 showOwnershipSection && "rotate-180"
               )} />
               <Users className="w-4 h-4" />
-              <span className="text-sm font-semibold">Owner Percentage</span>
+              <span className="text-sm font-semibold">Current Owners</span>
               {property.owners && property.owners.length > 0 && !showOwnershipSection && (
                 <span className="ml-auto text-xs bg-orange-100 dark:bg-orange-800 px-2 py-0.5 rounded-full font-semibold">
                   {property.owners.length}

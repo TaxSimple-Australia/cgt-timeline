@@ -1,7 +1,6 @@
 import LandingHeader from '@/components/landing/LandingHeader';
 import V4Hero from '@/components/landing/variants/v4/V4Hero';
 import HowItWorksSection from '@/components/landing/HowItWorksSection';
-import FAQSection from '@/components/landing/FAQSection';
 import LandingFooter from '@/components/landing/LandingFooter';
 
 export default function LandingV4Page() {
@@ -10,7 +9,6 @@ export default function LandingV4Page() {
       <LandingHeader />
       <V4Hero />
       <HowItWorksSection />
-      <FAQSection />
       <LandingFooter />
     </main>
   );

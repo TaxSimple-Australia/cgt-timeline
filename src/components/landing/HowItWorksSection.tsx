@@ -2,38 +2,17 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Plus, Sparkles, FileCheck, ArrowRight } from 'lucide-react';
-import ProcessStep from './ProcessStep';
+import { ArrowRight } from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 
 export default function HowItWorksSection() {
-  const steps = [
-    {
-      stepNumber: 1,
-      title: 'Add Your Properties',
-      description: 'Create a visual timeline by adding key events—purchases, sales, moves, and improvements.',
-      icon: <Plus className="w-10 h-10" />,
-    },
-    {
-      stepNumber: 2,
-      title: 'AI Analyzes Your Data',
-      description: 'Our AI engine calculates your CGT obligations, verifies timelines, and identifies potential issues.',
-      icon: <Sparkles className="w-10 h-10" />,
-    },
-    {
-      stepNumber: 3,
-      title: 'Get Your Report',
-      description: 'Export detailed PDF reports with complete calculations and cost base breakdowns for your accountant.',
-      icon: <FileCheck className="w-10 h-10" />,
-    },
-  ];
-
   return (
-    <section id="how-it-works" className="relative py-24 px-4 bg-slate-900">
+    <section id="how-it-works" className="relative py-24 px-4 overflow-hidden bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950">
       {/* Decorative gradient orbs */}
-      <div className="absolute top-20 left-1/4 w-96 h-96 bg-cyan-500/5 rounded-full blur-3xl" />
-      <div className="absolute bottom-20 right-1/4 w-96 h-96 bg-blue-500/5 rounded-full blur-3xl" />
+      <div className="absolute top-20 left-1/4 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl" />
+      <div className="absolute bottom-20 right-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl" />
 
       <div className="relative z-10 max-w-7xl mx-auto">
         {/* Section header */}
@@ -42,29 +21,39 @@ export default function HowItWorksSection() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
-          className="text-center mb-20"
+          className="text-center mb-10"
         >
-          <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
-            How It Works
-          </h2>
+          <div className="flex items-center justify-center gap-6 mb-4">
+            <div className="h-px w-16 bg-gradient-to-r from-transparent via-cyan-500 to-cyan-500" />
+            <h2 className="text-4xl md:text-5xl font-bold text-white">
+              How It Works
+            </h2>
+            <div className="h-px w-16 bg-gradient-to-l from-transparent via-cyan-500 to-cyan-500" />
+          </div>
           <p className="text-xl text-slate-400 max-w-2xl mx-auto">
             From timeline to tax report in three simple steps
           </p>
         </motion.div>
 
-        {/* Process steps */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-8 mb-16">
-          {steps.map((step) => (
-            <ProcessStep
-              key={step.stepNumber}
-              stepNumber={step.stepNumber}
-              title={step.title}
-              description={step.description}
-              icon={step.icon}
-              isLast={step.stepNumber === steps.length}
+        {/* Screenshot */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+          className="mb-16 flex flex-col items-center"
+        >
+          <div className="relative w-full max-w-3xl rounded-xl overflow-hidden shadow-2xl border border-cyan-500/50 shadow-cyan-500/50">
+            <Image
+              src="/landing.png"
+              alt="CGT Timeline Application Screenshot"
+              width={960}
+              height={540}
+              className="w-full h-auto"
+              priority
             />
-          ))}
-        </div>
+          </div>
+        </motion.div>
 
         {/* CTA */}
         <motion.div

@@ -42,7 +42,7 @@ const eventTypes: { type: EventType; label: string; icon: React.ReactNode; color
   { type: 'vacant_end', label: 'Vacant (End)', icon: <Building className="w-4 h-4" />, color: '#6B7280' },
   { type: 'improvement', label: 'Improvement', icon: <Hammer className="w-4 h-4" />, color: '#06B6D4' },
   { type: 'refinance', label: 'Inherit', icon: <Gift className="w-4 h-4" />, color: '#6366F1' },
-  { type: 'ownership_change', label: 'Change of Ownership', icon: <Users className="w-4 h-4" />, color: '#A855F7' },
+  { type: 'ownership_change', label: 'Ownership Change', icon: <Users className="w-4 h-4" />, color: '#A855F7' },
   { type: 'subdivision', label: 'Subdivision', icon: <Split className="w-4 h-4" />, color: '#EC4899' },
   { type: 'custom', label: 'Custom Event', icon: <Star className="w-4 h-4" />, color: '#6B7280' },
 ];

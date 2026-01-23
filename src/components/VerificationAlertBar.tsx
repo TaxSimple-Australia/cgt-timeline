@@ -106,7 +106,7 @@ export default function VerificationAlertBar({
   const centerPos = startPos + width / 2;
 
   return (
-    <g className="verification-alert-bar" style={{ isolation: 'isolate', zIndex: showTooltip ? 10000 : 1000 }}>
+    <g className="verification-alert-bar" style={{ isolation: 'isolate', zIndex: showTooltip ? 10000 : 1000, pointerEvents: 'none' }}>
       {/* Pulsing glow effect - only when not resolved */}
       {!isResolved && (
         <motion.rect
@@ -139,6 +139,7 @@ export default function VerificationAlertBar({
         style={{
           cursor: isResolved ? 'default' : 'pointer',
           filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.2))',
+          pointerEvents: 'auto',
         }}
         onMouseEnter={() => !isResolved && setShowTooltip(true)}
         onMouseLeave={() => setShowTooltip(false)}
@@ -239,7 +240,7 @@ export default function VerificationAlertBar({
       {/* Always show the icon, even for tiny gaps */}
       <g
         className="alert-icon"
-        style={{ cursor: isResolved ? 'default' : 'pointer' }}
+        style={{ cursor: isResolved ? 'default' : 'pointer', pointerEvents: 'auto' }}
         onMouseEnter={() => setShowTooltip(true)}
         onMouseLeave={() => setShowTooltip(false)}
         onClick={(e) => {

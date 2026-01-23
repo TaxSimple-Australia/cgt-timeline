@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Plus, Trash2, DollarSign, FileText, Split, AlertCircle } from 'lucide-react';
+import { X, Plus, Trash2, FileText, Split, AlertCircle } from 'lucide-react';
 import { useTimelineStore } from '@/store/timeline';
 import { cn, formatCurrency } from '@/lib/utils';
 import { Property } from '@/store/timeline';
@@ -22,6 +22,8 @@ interface Lot {
   lotSize: number;
 }
 
+type SizeUnit = 'ha' | 'sqm' | 'hectares';
+
 export default function SubdivisionModal({ property, isOpen, onClose, clickedDate }: SubdivisionModalProps) {
   const { subdivideProperty } = useTimelineStore();
 
@@ -31,27 +33,46 @@ export default function SubdivisionModal({ property, isOpen, onClose, clickedDat
     { id: '1', name: 'Lot 1', address: property.address || '', lotSize: 0 },
     { id: '2', name: 'Lot 2', address: property.address || '', lotSize: 0 },
   ]);
-  const [surveyorFees, setSurveyorFees] = useState<number>(0);
-  const [planningFees, setPlanningFees] = useState<number>(0);
-  const [legalFees, setLegalFees] = useState<number>(0);
-  const [titleFees, setTitleFees] = useState<number>(0);
+  const [sizeUnit, setSizeUnit] = useState<SizeUnit>('hectares');
+
+  // Unit conversion helpers
+  const convertToSqm = (value: number, unit: SizeUnit): number => {
+    if (unit === 'sqm') return value;
+    if (unit === 'ha' || unit === 'hectares') return value * 10000;
+    return value;
+  };
+
+  const convertFromSqm = (sqm: number, unit: SizeUnit): number => {
+    if (unit === 'sqm') return sqm;
+    if (unit === 'ha' || unit === 'hectares') return sqm / 10000;
+    return sqm;
+  };
+
+  const getUnitLabel = (unit: SizeUnit): string => {
+    if (unit === 'sqm') return 'sqm';
+    return 'ha';
+  };
+
+  const getUnitStep = (unit: SizeUnit): string => {
+    if (unit === 'sqm') return '1';
+    return '0.0001';
+  };
 
   // Calculated values
   const totalLotSize = lots.reduce((sum, lot) => sum + (lot.lotSize || 0), 0);
-  const totalFees = surveyorFees + planningFees + legalFees + titleFees;
   const parentCostBase = property.purchasePrice || 0;
 
   // Handlers
   const handleAddLot = () => {
     const newLotNumber = lots.length + 1;
     setLots([
-      ...lots,
       {
         id: Date.now().toString(),
         name: `Lot ${newLotNumber}`,
         address: property.address || '',
         lotSize: 0,
       },
+      ...lots,
     ]);
   };
 
@@ -86,12 +107,7 @@ export default function SubdivisionModal({ property, isOpen, onClose, clickedDat
         address: lot.address,
         lotSize: lot.lotSize,
       })),
-      fees: {
-        surveyorFees: surveyorFees || undefined,
-        planningFees: planningFees || undefined,
-        legalFees: legalFees || undefined,
-        titleFees: titleFees || undefined,
-      },
+      fees: {},
     });
 
     onClose();
@@ -100,24 +116,23 @@ export default function SubdivisionModal({ property, isOpen, onClose, clickedDat
   const calculateAllocatedCostBase = (lotSize: number) => {
     if (totalLotSize === 0) return 0;
     const proportion = lotSize / totalLotSize;
-    const feePerLot = totalFees / lots.length;
-    return parentCostBase * proportion + feePerLot;
+    return parentCostBase * proportion;
   };
 
+  if (!isOpen) return null;
+
   return (
-    <AnimatePresence>
-      {isOpen && (
-        <div
-          className="fixed inset-0 bg-black/50 flex items-center justify-center z-[9999] p-4"
-          onClick={(e) => {
-            // Only close if clicking directly on the backdrop, not on children
-            if (e.target === e.currentTarget) {
-              onClose();
-            }
-          }}
-        >
-          {/* Modal */}
-          <motion.div
+    <div
+      className="fixed inset-0 bg-black/50 flex items-center justify-center z-[9999] p-4"
+      onClick={(e) => {
+        // Only close if clicking directly on the backdrop, not on children
+        if (e.target === e.currentTarget) {
+          onClose();
+        }
+      }}
+    >
+      {/* Modal */}
+      <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.95 }}
@@ -183,13 +198,13 @@ export default function SubdivisionModal({ property, isOpen, onClose, clickedDat
                       key={lot.id}
                       className={cn(
                         "p-4 border rounded-lg",
-                        index === 0
+                        lot.id === '1'
                           ? "border-green-300 dark:border-green-600 bg-green-50 dark:bg-green-900/20"
                           : "border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50"
                       )}
                     >
                       {/* Main timeline continuation badge for Lot 1 */}
-                      {index === 0 && (
+                      {lot.id === '1' && (
                         <div className="mb-3 flex items-center gap-2 text-xs text-green-700 dark:text-green-400">
                           <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-green-100 dark:bg-green-800/30 font-medium">
                             Continues Main Timeline
@@ -231,22 +246,48 @@ export default function SubdivisionModal({ property, isOpen, onClose, clickedDat
 
                           {/* Lot Size */}
                           <div>
-                            <label className="text-xs font-medium text-slate-600 dark:text-slate-400 mb-1 block">
-                              Lot Size (hectares) *
+                            <label className="text-xs font-medium text-slate-600 dark:text-slate-400 mb-2 block">
+                              Lot Size *
                             </label>
-                            <input
-                              type="number"
-                              value={lot.lotSize ? (lot.lotSize / 10000).toString() : ''}
-                              onChange={(e) => {
-                                const hectares = parseFloat(e.target.value) || 0;
-                                const sqm = hectares * 10000;
-                                updateLot(lot.id, 'lotSize', sqm);
-                              }}
-                              placeholder="0"
-                              min="0"
-                              step="0.0001"
-                              className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 text-sm"
-                            />
+
+                            {/* Segmented Control for Unit Selection */}
+                            <div className="flex items-center gap-2 mb-2">
+                              {(['ha', 'sqm', 'hectares'] as SizeUnit[]).map((unit) => (
+                                <button
+                                  key={unit}
+                                  type="button"
+                                  onClick={() => setSizeUnit(unit)}
+                                  className={cn(
+                                    'flex-1 px-4 py-2 text-sm font-semibold rounded-lg border-2 transition-all',
+                                    sizeUnit === unit
+                                      ? 'bg-cyan-500 border-cyan-500 text-white shadow-md'
+                                      : 'bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:border-cyan-400 dark:hover:border-cyan-500 hover:bg-cyan-50 dark:hover:bg-cyan-900/20'
+                                  )}
+                                >
+                                  {unit === 'ha' ? 'ha' : unit === 'sqm' ? 'sqm' : 'hectares'}
+                                </button>
+                              ))}
+                            </div>
+
+                            {/* Input Field */}
+                            <div className="relative">
+                              <input
+                                type="number"
+                                value={lot.lotSize ? convertFromSqm(lot.lotSize, sizeUnit).toString() : ''}
+                                onChange={(e) => {
+                                  const value = parseFloat(e.target.value) || 0;
+                                  const sqm = convertToSqm(value, sizeUnit);
+                                  updateLot(lot.id, 'lotSize', sqm);
+                                }}
+                                placeholder="0"
+                                min="0"
+                                step={getUnitStep(sizeUnit)}
+                                className="w-full px-3 py-2 pr-12 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 text-sm"
+                              />
+                              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-500 dark:text-slate-400">
+                                {getUnitLabel(sizeUnit)}
+                              </span>
+                            </div>
                           </div>
 
                           {/* Allocated Cost Base Preview */}
@@ -294,122 +335,10 @@ export default function SubdivisionModal({ property, isOpen, onClose, clickedDat
                       Total Lot Size:
                     </span>
                     <span className="font-semibold text-blue-700 dark:text-blue-300">
-                      {(totalLotSize / 10000).toFixed(4)} ha
+                      {convertFromSqm(totalLotSize, sizeUnit).toFixed(sizeUnit === 'sqm' ? 0 : 4)} {getUnitLabel(sizeUnit)}
                     </span>
                   </div>
                 </div>
-              </div>
-
-              {/* Subdivision Fees */}
-              <div>
-                <label className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300 mb-3">
-                  <DollarSign className="w-4 h-4" />
-                  Subdivision Fees (Optional)
-                </label>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {/* Surveyor Fees */}
-                  <div>
-                    <label className="text-xs font-medium text-slate-600 dark:text-slate-400 mb-1 block">
-                      Surveyor Fees
-                    </label>
-                    <div className="relative">
-                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400">
-                        $
-                      </span>
-                      <input
-                        type="number"
-                        value={surveyorFees || ''}
-                        onChange={(e) => setSurveyorFees(parseFloat(e.target.value) || 0)}
-                        placeholder="0"
-                        min="0"
-                        step="0.01"
-                        className="w-full pl-7 pr-3 py-2 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 text-sm"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Planning Fees */}
-                  <div>
-                    <label className="text-xs font-medium text-slate-600 dark:text-slate-400 mb-1 block">
-                      Planning/Council Fees
-                    </label>
-                    <div className="relative">
-                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400">
-                        $
-                      </span>
-                      <input
-                        type="number"
-                        value={planningFees || ''}
-                        onChange={(e) => setPlanningFees(parseFloat(e.target.value) || 0)}
-                        placeholder="0"
-                        min="0"
-                        step="0.01"
-                        className="w-full pl-7 pr-3 py-2 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 text-sm"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Legal Fees */}
-                  <div>
-                    <label className="text-xs font-medium text-slate-600 dark:text-slate-400 mb-1 block">
-                      Legal Fees
-                    </label>
-                    <div className="relative">
-                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400">
-                        $
-                      </span>
-                      <input
-                        type="number"
-                        value={legalFees || ''}
-                        onChange={(e) => setLegalFees(parseFloat(e.target.value) || 0)}
-                        placeholder="0"
-                        min="0"
-                        step="0.01"
-                        className="w-full pl-7 pr-3 py-2 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 text-sm"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Title Fees */}
-                  <div>
-                    <label className="text-xs font-medium text-slate-600 dark:text-slate-400 mb-1 block">
-                      Title Registration Fees
-                    </label>
-                    <div className="relative">
-                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400">
-                        $
-                      </span>
-                      <input
-                        type="number"
-                        value={titleFees || ''}
-                        onChange={(e) => setTitleFees(parseFloat(e.target.value) || 0)}
-                        placeholder="0"
-                        min="0"
-                        step="0.01"
-                        className="w-full pl-7 pr-3 py-2 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 text-sm"
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Total Fees */}
-                {totalFees > 0 && (
-                  <div className="mt-3 p-3 bg-slate-100 dark:bg-slate-900 rounded-lg">
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="font-medium text-slate-700 dark:text-slate-300">
-                        Total Fees:
-                      </span>
-                      <span className="font-semibold text-slate-900 dark:text-slate-100">
-                        {formatCurrency(totalFees)}
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between text-xs mt-1 text-slate-600 dark:text-slate-400">
-                      <span>Per Lot:</span>
-                      <span>{formatCurrency(totalFees / lots.length)}</span>
-                    </div>
-                  </div>
-                )}
               </div>
 
               {/* Info Note */}
@@ -429,8 +358,7 @@ export default function SubdivisionModal({ property, isOpen, onClose, clickedDat
                       <p className="font-medium">Cost Base Allocation</p>
                       <p className="text-xs text-blue-600 dark:text-blue-400">
                         The parent property's cost base will be allocated proportionally to each lot
-                        based on lot size. Subdivision fees will be distributed equally across all
-                        lots.
+                        based on lot size.
                       </p>
                     </div>
                   </div>
@@ -460,8 +388,6 @@ export default function SubdivisionModal({ property, isOpen, onClose, clickedDat
               </button>
             </div>
           </motion.div>
-        </div>
-      )}
-    </AnimatePresence>
+    </div>
   );
 }

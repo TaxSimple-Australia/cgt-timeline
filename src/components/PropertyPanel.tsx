@@ -117,6 +117,12 @@ export default function PropertyPanel() {
           // Skip items that are shown separately (purchase/sale prices)
           if (excludeFromDisplay.includes(cb.definitionId)) return;
 
+          // Safety check: ensure category exists before pushing
+          if (!grouped[cb.category]) {
+            console.warn('Unknown cost base category:', cb.category, 'for item:', cb.name);
+            return;
+          }
+
           grouped[cb.category].push({
             name: cb.name,
             amount: cb.amount,

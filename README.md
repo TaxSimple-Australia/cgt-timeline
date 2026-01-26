@@ -1,4 +1,4 @@
-# CGT Timeline - Capital Gains Tax Property Timeline
+# CGT Brain - Capital Gains Tax Property Timeline
 
 A modern, interactive timeline application for managing property events and capital gains tax calculations. Built with Next.js, TypeScript, and Tailwind CSS.
 

@@ -14,6 +14,7 @@ import TimelineSnapshot from './TimelineSnapshot';
 import TimelineVisualizationsModal from './TimelineVisualizationsModal';
 import LandingPageButton from './LandingPageButton';
 import LandingPageModal from './LandingPageModal';
+import LotDetailsModal from './LotDetailsModal';
 import { StickyNotesLayer, ShareLinkButton, AddStickyNoteButton } from './sticky-notes';
 import SubdivisionSplitVisual from './SubdivisionSplitVisual';
 import { calculateBranchPositions, calculateSubdivisionConnections } from '@/lib/subdivision-helpers';
@@ -49,6 +50,7 @@ export default function Timeline({ className, onAlertClick, onOpenAIBuilder }: T
   const [grabbedViewDuration, setGrabbedViewDuration] = useState<number>(0);
   const [showVisualizationsModal, setShowVisualizationsModal] = useState(false);
   const [showLandingModal, setShowLandingModal] = useState(false);
+  const [editingLotId, setEditingLotId] = useState<string | null>(null);
 
   const {
     properties,
@@ -462,7 +464,7 @@ export default function Timeline({ className, onAlertClick, onOpenAIBuilder }: T
 
                 return (
                   <PropertyBranch
-                    key={property.id}
+                    key={`${property.id}-${properties.length}`}
                     property={property}
                     events={eventsToShow}
                     branchIndex={effectiveBranchIndex}
@@ -475,6 +477,7 @@ export default function Timeline({ className, onAlertClick, onOpenAIBuilder }: T
                     onBranchClick={handleBranchClick}
                     onHoverChange={(isHovered) => setHoveredPropertyId(isHovered ? property.id : null)}
                     onAlertClick={onAlertClick}
+                    onLotBadgeClick={setEditingLotId}
                   />
                 );
               })}
@@ -488,7 +491,7 @@ export default function Timeline({ className, onAlertClick, onOpenAIBuilder }: T
               <div className="absolute inset-0 flex items-center justify-center" style={{ top: '48px' }}>
                 <div className="flex flex-col items-center justify-center text-center max-w-md px-4">
                   <h3 className="text-2xl font-bold text-slate-700 dark:text-slate-300 mb-3">
-                    Welcome to CGT Timeline
+                    Welcome to CGT Brain
                   </h3>
                   <p className="text-slate-500 dark:text-slate-400 mb-4">
                     Click anywhere on the timeline to add your first property
@@ -602,6 +605,26 @@ export default function Timeline({ className, onAlertClick, onOpenAIBuilder }: T
         isOpen={showVisualizationsModal}
         onClose={() => setShowVisualizationsModal(false)}
       />
+
+      {/* Lot Details Modal - Global */}
+      {editingLotId && (() => {
+        console.log('🎨 Timeline: Rendering LotDetailsModal for:', editingLotId);
+        const editingProperty = properties.find(p => p.id === editingLotId);
+        if (!editingProperty) {
+          console.log('⚠️ Timeline: Property not found for editingLotId:', editingLotId);
+          return null;
+        }
+        return (
+          <LotDetailsModal
+            property={editingProperty}
+            isOpen={true}
+            onClose={() => {
+              console.log('🚪 Closing LotDetailsModal');
+              setEditingLotId(null);
+            }}
+          />
+        );
+      })()}
     </div>
   );
 }

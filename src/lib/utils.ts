@@ -23,7 +23,62 @@ export function dateToPosition(date: Date, startDate: Date, endDate: Date): numb
 export function positionToDate(position: number, startDate: Date, endDate: Date): Date {
   const total = endDate.getTime() - startDate.getTime();
   const offset = (position / 100) * total;
-  return new Date(startDate.getTime() + offset);
+  const date = new Date(startDate.getTime() + offset);
+
+  // Set time to noon to avoid timezone boundary issues
+  date.setHours(12, 0, 0, 0);
+
+  return date;
+}
+
+/**
+ * Calculate a zoom-aware position threshold for event overlap detection.
+ * Returns a percentage threshold that adapts based on the timeline range.
+ *
+ * @param startDate - Timeline start date
+ * @param endDate - Timeline end date
+ * @param minPixelSeparation - Minimum pixel separation desired (default: 40px)
+ * @param viewportWidth - Viewport width in pixels (default: 1200px)
+ * @returns Position threshold as a percentage (0-100)
+ */
+export function calculateOverlapThreshold(
+  startDate: Date,
+  endDate: Date,
+  minPixelSeparation: number = 40,
+  viewportWidth: number = 1200
+): number {
+  // Calculate the total timeline range in milliseconds
+  const totalRange = endDate.getTime() - startDate.getTime();
+  const daysDiff = totalRange / (1000 * 60 * 60 * 24);
+
+  // Convert minimum pixel separation to percentage of viewport
+  const pixelPercentage = (minPixelSeparation / viewportWidth) * 100;
+
+  // Adaptive threshold based on zoom level
+  // At very zoomed out levels (10+ years), use a larger threshold
+  // At zoomed in levels (days/weeks), use pixel-based threshold
+  if (daysDiff >= 3650) {
+    // 10+ years: Use 3% threshold (roughly 4 months at 10 year span)
+    return Math.max(3, pixelPercentage);
+  } else if (daysDiff >= 1825) {
+    // 5-10 years: Use 2.5% threshold
+    return Math.max(2.5, pixelPercentage);
+  } else if (daysDiff >= 730) {
+    // 2-5 years: Use 2% threshold
+    return Math.max(2, pixelPercentage);
+  } else if (daysDiff >= 365) {
+    // 1-2 years: Use 1.5% threshold
+    return Math.max(1.5, pixelPercentage);
+  } else if (daysDiff >= 180) {
+    // 6-12 months: Use 1% threshold
+    return Math.max(1, pixelPercentage);
+  } else if (daysDiff >= 90) {
+    // 3-6 months: Use pixel-based threshold
+    return pixelPercentage;
+  } else {
+    // < 3 months: Use pixel-based threshold with minimum of 0.5%
+    return Math.max(0.5, pixelPercentage);
+  }
 }
 
 export interface TimelineMarker {

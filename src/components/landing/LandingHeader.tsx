@@ -8,6 +8,9 @@ import { Menu, X, ChevronDown, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { LANDING_VARIANTS, getCurrentVariant } from '@/lib/landing-variants';
+import { useTimelineStore } from '@/store/timeline';
+import CGTBrainLogo from '@/components/branding/CGTBrainLogo';
+import LogoSwitcher from '@/components/branding/LogoSwitcher';
 
 export default function LandingHeader() {
   const pathname = usePathname();
@@ -17,6 +20,9 @@ export default function LandingHeader() {
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const currentVariant = getCurrentVariant(pathname);
+
+  // Logo state from Zustand
+  const { currentLogoVariant, setLogoVariant } = useTimelineStore();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -65,13 +71,29 @@ export default function LandingHeader() {
         <div className="flex items-center justify-between h-16 md:h-20">
           {/* Logo */}
           <Link href="/landing" className="flex-shrink-0">
-            <h1 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent hover:from-cyan-300 hover:to-blue-400 transition-all">
-              CGT Brain AI Timeline
-            </h1>
+            <div className="flex items-center gap-3">
+              <CGTBrainLogo size="xl" variant={currentLogoVariant} />
+              {/* Hide text for logo-4 since it has text built in */}
+              {currentLogoVariant !== 'logo-4' && (
+                <h1 className="font-bold text-xl md:text-2xl">
+                  <span className="bg-gradient-to-r from-cyan-400 to-cyan-500 bg-clip-text text-transparent">
+                    CGT
+                  </span>
+                  <span className="text-slate-900 dark:text-slate-100 ml-1">
+                    Brain
+                  </span>
+                </h1>
+              )}
+            </div>
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center gap-8">
+          <div className="hidden md:flex items-center gap-6">
+            {/* Logo Switcher (hidden by default, press Ctrl+L to show) */}
+            <LogoSwitcher
+              currentLogo={currentLogoVariant}
+              onLogoChange={setLogoVariant}
+            />
             {navLinks.map((link) => (
               link.type === 'link' ? (
                 <Link

@@ -22,7 +22,7 @@ interface Lot {
   lotSize: number;
 }
 
-type SizeUnit = 'ha' | 'sqm' | 'hectares';
+type SizeUnit = 'acres' | 'hectares' | 'sqms';
 
 export default function SubdivisionModal({ property, isOpen, onClose, clickedDate }: SubdivisionModalProps) {
   const { subdivideProperty } = useTimelineStore();
@@ -37,25 +37,29 @@ export default function SubdivisionModal({ property, isOpen, onClose, clickedDat
 
   // Unit conversion helpers
   const convertToSqm = (value: number, unit: SizeUnit): number => {
-    if (unit === 'sqm') return value;
-    if (unit === 'ha' || unit === 'hectares') return value * 10000;
+    if (unit === 'sqms') return value;
+    if (unit === 'hectares') return value * 10000;
+    if (unit === 'acres') return value * 4046.86;
     return value;
   };
 
   const convertFromSqm = (sqm: number, unit: SizeUnit): number => {
-    if (unit === 'sqm') return sqm;
-    if (unit === 'ha' || unit === 'hectares') return sqm / 10000;
+    if (unit === 'sqms') return sqm;
+    if (unit === 'hectares') return sqm / 10000;
+    if (unit === 'acres') return sqm / 4046.86;
     return sqm;
   };
 
   const getUnitLabel = (unit: SizeUnit): string => {
-    if (unit === 'sqm') return 'sqm';
-    return 'ha';
+    if (unit === 'sqms') return 'sqms';
+    if (unit === 'hectares') return 'ha';
+    return 'acres';
   };
 
   const getUnitStep = (unit: SizeUnit): string => {
-    if (unit === 'sqm') return '1';
-    return '0.0001';
+    if (unit === 'sqms') return '1';
+    if (unit === 'hectares') return '0.0001';
+    return '0.001'; // acres
   };
 
   // Calculated values
@@ -252,7 +256,7 @@ export default function SubdivisionModal({ property, isOpen, onClose, clickedDat
 
                             {/* Segmented Control for Unit Selection */}
                             <div className="flex items-center gap-2 mb-2">
-                              {(['ha', 'sqm', 'hectares'] as SizeUnit[]).map((unit) => (
+                              {(['acres', 'hectares', 'sqms'] as SizeUnit[]).map((unit) => (
                                 <button
                                   key={unit}
                                   type="button"
@@ -264,7 +268,7 @@ export default function SubdivisionModal({ property, isOpen, onClose, clickedDat
                                       : 'bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:border-cyan-400 dark:hover:border-cyan-500 hover:bg-cyan-50 dark:hover:bg-cyan-900/20'
                                   )}
                                 >
-                                  {unit === 'ha' ? 'ha' : unit === 'sqm' ? 'sqm' : 'hectares'}
+                                  {unit === 'acres' ? 'Acres' : unit === 'hectares' ? 'Hectares' : 'sqms'}
                                 </button>
                               ))}
                             </div>

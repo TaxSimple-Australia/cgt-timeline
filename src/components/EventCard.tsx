@@ -104,7 +104,7 @@ export default function EventCard({
             {eventIcons[event.type]}
           </div>
           {!isEditing ? (
-            <h4 className="font-semibold text-sm text-slate-800 dark:text-slate-200">{event.title}</h4>
+            <h4 className="font-semibold text-sm text-slate-800 dark:text-slate-200 truncate">{event.title}</h4>
           ) : (
             <input
               className="font-semibold text-sm text-slate-800 dark:text-slate-200 border-b border-slate-300 outline-none bg-transparent"

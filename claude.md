@@ -1,4 +1,4 @@
-# CGT Timeline - Project Memory
+# CGT Brain - Project Memory
 
 This file serves as the project's memory and workflow guide. All instructions here should be followed automatically when working on this codebase.
 
@@ -6,7 +6,7 @@ This file serves as the project's memory and workflow guide. All instructions he
 
 ## Project Overview
 
-**CGT Timeline** is an interactive web application for visualizing and calculating Capital Gains Tax (CGT) obligations for Australian property portfolios. Built for Tax Simple Australia.
+**CGT Brain** is an interactive web application for visualizing and calculating Capital Gains Tax (CGT) obligations for Australian property portfolios. Built for Tax Simple Australia.
 
 ### Tech Stack
 - **Framework**: Next.js 14 (App Router)

@@ -50,7 +50,7 @@ export default function EventCircle({ event, cx, cy, color, onClick, tier = 0, z
 
   // Calculate label Y position based on tier
   // Each tier adds vertical space to avoid overlap
-  const TIER_SPACING = 18; // Pixels between tiers
+  const TIER_SPACING = 24; // Increased from 18px to 24px for better visual separation
   const BASE_LABEL_OFFSET = 28; // Base offset from circle center
   const labelY = cy + BASE_LABEL_OFFSET + (tier * TIER_SPACING);
 
@@ -361,14 +361,12 @@ export default function EventCircle({ event, cx, cy, color, onClick, tier = 0, z
         }}
       >
         <div
-          className="text-xs font-semibold text-slate-900 dark:text-slate-100 text-center px-1"
+          className="text-xs font-semibold text-slate-900 dark:text-slate-100 text-center px-1 line-clamp-2"
           style={{
             userSelect: 'none',
             maxWidth: '150px',
-            wordBreak: 'break-word',
             lineHeight: '1.2',
-            overflowWrap: 'break-word',
-            hyphens: 'auto'
+            wordBreak: 'break-word'
           }}
           title={getDisplayTitle(event)}
         >

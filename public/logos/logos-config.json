@@ -1,0 +1,36 @@
+{
+  "logos": [
+    {
+      "id": "logo-1",
+      "name": "Logo Option 1",
+      "description": "First logo design option",
+      "type": "image",
+      "file": "/logos/logo-1-light.jpeg",
+      "darkFile": "/logos/logo-1-dark.png"
+    },
+    {
+      "id": "logo-2",
+      "name": "Logo Option 2",
+      "description": "Second logo design option",
+      "type": "image",
+      "file": "/logos/logo-2-light.jpeg",
+      "darkFile": "/logos/logo-2-dark.jpeg"
+    },
+    {
+      "id": "logo-3",
+      "name": "Logo Option 3",
+      "description": "Third logo design option",
+      "type": "image",
+      "file": "/logos/logo-3-light.jpeg",
+      "darkFile": "/logos/logo-3-dark.jpeg"
+    },
+    {
+      "id": "logo-4",
+      "name": "Logo Option 4",
+      "description": "Fourth logo design option (transparent PNG)",
+      "type": "image",
+      "file": "/logos/logo-4-light.jpeg",
+      "darkFile": "/logos/logo-4-dark.png"
+    }
+  ]
+}

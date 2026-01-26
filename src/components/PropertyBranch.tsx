@@ -12,8 +12,7 @@ import TimelineGap from './TimelineGap';
 import VerificationAlertBar from './VerificationAlertBar';
 import MixedUseIndicator from './MixedUseIndicator';
 import LandIndicator from './LandIndicator';
-import LotDetailsModal from './LotDetailsModal';
-import { cn, dateToPosition } from '@/lib/utils';
+import { cn, dateToPosition, calculateOverlapThreshold } from '@/lib/utils';
 import { isSubdivided, getSubdivisionDate, getChildProperties } from '@/lib/subdivision-helpers';
 import type { PositionedGap } from '@/types/ai-feedback';
 
@@ -30,6 +29,7 @@ interface PropertyBranchProps {
   onBranchClick: (propertyId: string, position: number, clientX: number, clientY: number) => void;
   onHoverChange: (isHovered: boolean) => void;
   onAlertClick?: (alertId: string) => void;
+  onLotBadgeClick?: (lotId: string) => void;
 }
 
 export default function PropertyBranch({
@@ -45,18 +45,11 @@ export default function PropertyBranch({
   onBranchClick,
   onHoverChange,
   onAlertClick,
+  onLotBadgeClick,
 }: PropertyBranchProps) {
   const { eventDisplayMode, positionedGaps, selectIssue, selectProperty, enableDragEvents, updateEvent, verificationAlerts, resolveVerificationAlert, properties, events: allEvents, collapsedSubdivisions, toggleSubdivisionCollapse } = useTimelineStore();
   const { getIssuesForProperty } = useValidationStore();
   const branchY = 100 + branchIndex * 120; // Vertical spacing between branches
-
-  // State for lot editing modal
-  const [editingLotId, setEditingLotId] = useState<string | null>(null);
-
-  // Debug log when editingLotId changes
-  useEffect(() => {
-    console.log('📝 editingLotId changed:', editingLotId);
-  }, [editingLotId]);
 
   // Check if this property has been subdivided
   const hasBeenSubdivided = isSubdivided(property, properties);
@@ -236,8 +229,10 @@ export default function PropertyBranch({
 
   // Assign vertical offsets for overlapping circles
   const assignCircleVerticalOffsets = () => {
-    const POSITION_THRESHOLD = 2; // Events within 2% position are considered overlapping
-    const VERTICAL_OFFSET = 50; // Pixels to offset each overlapping circle
+    // Calculate zoom-aware threshold based on timeline range
+    // This adapts the overlap detection to the current zoom level
+    const POSITION_THRESHOLD = calculateOverlapThreshold(timelineStart, timelineEnd, 40, 1200);
+    const VERTICAL_OFFSET = 60; // Increased from 50px to 60px for better visual separation
 
     interface PositionGroup {
       position: number;
@@ -246,7 +241,7 @@ export default function PropertyBranch({
 
     const positionGroups: PositionGroup[] = [];
 
-    // Group events by position (with threshold)
+    // Group events by position (with zoom-aware threshold)
     eventsWithTiers.forEach(event => {
       const existingGroup = positionGroups.find(group =>
         Math.abs(group.position - event.calculatedPosition) < POSITION_THRESHOLD
@@ -274,9 +269,11 @@ export default function PropertyBranch({
 
         // Assign offsets with upper events positioned higher
         // Also assign z-index: upper events (lower index) get higher z-index for proper layering
+        // IMPORTANT: For vertically stacked events, reset tier to 0 so labels appear centered below
         group.events.forEach((event, index) => {
           event.verticalOffset = startOffset + (index * VERTICAL_OFFSET);
           event.zIndex = group.events.length - index; // Top event gets highest z-index
+          event.tier = 0; // Force labels to appear centered below for stacked events
         });
       }
     });
@@ -671,16 +668,44 @@ export default function PropertyBranch({
               e.type === 'subdivision'
             );
 
-            // Calculate split position from subdivision event OR from subdivisionDate
-            // This ensures parent line is dashed after split even without explicit subdivision event
-            const splitPos = subdivisionEvent
-              ? dateToPosition(subdivisionEvent.date, timelineStart, timelineEnd)
-              : (hasBeenSubdivided && subdivisionDate)
-                ? dateToPosition(subdivisionDate, timelineStart, timelineEnd)
-                : null;
+            // Calculate split position with multiple fallbacks and better date parsing
+            let splitPos: number | null = null;
 
-            // If property has been subdivided and split is within line range
-            if (hasBeenSubdivided && splitPos !== null && splitPos >= linePositions.start && splitPos <= linePositions.end) {
+            if (subdivisionEvent) {
+              splitPos = dateToPosition(subdivisionEvent.date, timelineStart, timelineEnd);
+              console.log('📍 Subdivision via event:', { date: subdivisionEvent.date, splitPos });
+            } else if (hasBeenSubdivided && subdivisionDate) {
+              // Ensure subdivisionDate is a Date object (might be string when loaded)
+              const parsedDate = subdivisionDate instanceof Date ? subdivisionDate : new Date(subdivisionDate);
+              splitPos = dateToPosition(parsedDate, timelineStart, timelineEnd);
+              console.log('📍 Subdivision via subdivisionDate:', { date: parsedDate, splitPos });
+            } else if (hasBeenSubdivided && childLots.length > 0 && childLots[0]?.subdivisionDate) {
+              // Final fallback to first child lot's subdivisionDate
+              const childDate = childLots[0].subdivisionDate;
+              const parsedDate = childDate instanceof Date ? childDate : new Date(childDate);
+              splitPos = dateToPosition(parsedDate, timelineStart, timelineEnd);
+              console.log('📍 Subdivision via childLot date:', { date: parsedDate, splitPos });
+            }
+
+            // Debug logging for subdivision state
+            if (hasBeenSubdivided) {
+              console.log('🔍 Subdivision debug:', {
+                propertyId: property.id,
+                propertyName: property.name,
+                hasBeenSubdivided,
+                splitPos,
+                lineStart: linePositions.start,
+                lineEnd: linePositions.end,
+                childLotsCount: childLots.length,
+                subdivisionDateExists: !!subdivisionDate,
+                subdivisionEventExists: !!subdivisionEvent
+              });
+            }
+
+            // If property has been subdivided - render circles regardless of line range
+            // Removed position check (splitPos >= linePositions.start && splitPos <= linePositions.end)
+            // to ensure circles always appear when subdivision exists
+            if (hasBeenSubdivided && splitPos !== null) {
               return (
                 <>
                   {/* Segment before subdivision - solid line */}
@@ -721,7 +746,38 @@ export default function PropertyBranch({
                       pointerEvents: 'none'
                     }}
                   />
-                  {/* Visual marker at subdivision point */}
+                  {/* Lot 1 circle marker - positioned clearly to the right of SPLIT badge */}
+                  {(() => {
+                    const lot1 = childLots.find(c => c.isMainLotContinuation);
+
+                    // Debug warning if subdivision detected but Lot 1 not found
+                    if (!lot1 && hasBeenSubdivided) {
+                      console.warn('⚠️ Subdivision detected but Lot 1 not found. childLots:', childLots.length, 'splitPos:', splitPos);
+                    }
+
+                    if (!lot1) return null;
+                    return (
+                      <motion.circle
+                        cx={`${splitPos + 3}%`}
+                        cy={branchY}
+                        r="6"
+                        fill={lot1.color}
+                        stroke="#FFF"
+                        strokeWidth="2"
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        transition={{ duration: 0.3, delay: 0.5 }}
+                        style={{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))', cursor: 'pointer' }}
+                        className="hover:opacity-80 transition-opacity"
+                        onClick={(e) => {
+                          console.log('🎯 Lot 1 circle clicked!', lot1.id);
+                          e.stopPropagation();
+                          if (onLotBadgeClick) onLotBadgeClick(lot1.id!);
+                        }}
+                      />
+                    );
+                  })()}
+                  {/* Visual marker at subdivision point - rendered AFTER Lot 1 so it appears on top */}
                   <motion.circle
                     cx={`${splitPos}%`}
                     cy={branchY}
@@ -734,25 +790,6 @@ export default function PropertyBranch({
                     transition={{ duration: 0.3, delay: 0.4 }}
                     style={{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))' }}
                   />
-                  {/* Lot 1 circle marker - positioned slightly to the right of subdivision circle */}
-                  {(() => {
-                    const lot1 = childLots.find(c => c.isMainLotContinuation);
-                    if (!lot1) return null;
-                    return (
-                      <motion.circle
-                        cx={`${splitPos + 0.5}%`}
-                        cy={branchY}
-                        r="6"
-                        fill={lot1.color}
-                        stroke="#FFF"
-                        strokeWidth="2"
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        transition={{ duration: 0.3, delay: 0.5 }}
-                        style={{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))' }}
-                      />
-                    );
-                  })()}
                   {/* Lot 1 label after subdivision point - on parent line */}
                   {(() => {
                     const lot1 = childLots.find(c => c.isMainLotContinuation);
@@ -763,7 +800,7 @@ export default function PropertyBranch({
                         y={branchY - 25}
                         width="140"
                         height="20"
-                        style={{ overflow: 'visible', transform: 'translateX(15px)', pointerEvents: 'auto' }}
+                        style={{ overflow: 'visible', transform: 'translateX(50px)', pointerEvents: 'none' }}
                       >
                         <div
                           className="flex items-center justify-center px-1.5 py-0.5 rounded text-white text-[10px] font-semibold shadow-sm whitespace-nowrap cursor-pointer hover:ring-2 hover:ring-white/50 transition-all"
@@ -771,11 +808,11 @@ export default function PropertyBranch({
                           onClick={(e) => {
                             console.log('🎯 Lot 1 badge clicked!', lot1.id);
                             e.stopPropagation();
-                            setEditingLotId(lot1.id!);
+                            if (onLotBadgeClick) onLotBadgeClick(lot1.id!);
                           }}
                         >
                           {lot1.lotNumber}
-                          {lot1.lotSize && ` • ${(lot1.lotSize / 10000).toFixed(4)} ha`}
+                          {lot1.lotSize && ` • ${parseFloat((lot1.lotSize / 10000).toFixed(4))} ha`}
                         </div>
                       </foreignObject>
                     );
@@ -826,7 +863,13 @@ export default function PropertyBranch({
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               transition={{ duration: 0.3, delay: 0.2 }}
-              style={{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))' }}
+              style={{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))', cursor: 'pointer' }}
+              className="hover:opacity-80 transition-opacity"
+              onClick={(e) => {
+                console.log('🎯 Lot circle clicked!', property.id, property.lotNumber);
+                e.stopPropagation();
+                if (onLotBadgeClick) onLotBadgeClick(property.id!);
+              }}
             />
           )}
 
@@ -837,7 +880,7 @@ export default function PropertyBranch({
               y={branchY - 25}
               width="140"
               height="20"
-              style={{ overflow: 'visible', transform: 'translateX(-70px)', pointerEvents: 'auto' }}
+              style={{ overflow: 'visible', transform: 'translateX(-70px)', pointerEvents: 'none' }}
             >
               <div
                 className="flex items-center justify-center px-1.5 py-0.5 rounded text-white text-[10px] font-semibold shadow-sm whitespace-nowrap cursor-pointer hover:ring-2 hover:ring-white/50 transition-all"
@@ -845,11 +888,11 @@ export default function PropertyBranch({
                 onClick={(e) => {
                   console.log('🎯 Lot badge clicked!', property.id, property.lotNumber);
                   e.stopPropagation();
-                  setEditingLotId(property.id!);
+                  if (onLotBadgeClick) onLotBadgeClick(property.id!);
                 }}
               >
                 {property.lotNumber}
-                {property.lotSize && ` • ${(property.lotSize / 10000).toFixed(4)} ha`}
+                {property.lotSize && ` • ${parseFloat((property.lotSize / 10000).toFixed(4))} ha`}
               </div>
             </foreignObject>
           )}
@@ -909,7 +952,7 @@ export default function PropertyBranch({
               x1={`${event.calculatedPosition}%`}
               y1={branchY}
               x2={`${event.calculatedPosition}%`}
-              y2={branchY + event.verticalOffset}
+              y2={branchY + event.verticalOffset + (event.verticalOffset < 0 ? 14 : -14)}
               stroke={event.color}
               strokeWidth="2"
               strokeDasharray="4,3"
@@ -989,15 +1032,6 @@ export default function PropertyBranch({
       )}
 
       </g>
-
-      {/* Lot Details Modal */}
-      {editingLotId && (
-        <LotDetailsModal
-          property={properties.find(p => p.id === editingLotId)!}
-          isOpen={true}
-          onClose={() => setEditingLotId(null)}
-        />
-      )}
     </>
   );
 }

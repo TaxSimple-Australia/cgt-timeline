@@ -18,8 +18,8 @@ export default function LandingFooter() {
   return (
     <footer className="bg-slate-900 border-t border-slate-800">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        {/* Main Footer Content - 3 Columns */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-12">
+        {/* Main Footer Content - 4 Columns */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
 
           {/* Column 1: Company & Product */}
           <div>
@@ -31,7 +31,7 @@ export default function LandingFooter() {
             </p>
 
             {/* Trust Indicators */}
-            <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500">
+            <div className="flex flex-wrap items-center gap-3 text-xs text-slate-400">
               <div className="flex items-center gap-2">
                 <Server className="w-4 h-4 text-green-500" />
                 <span>Australian Hosted</span>
@@ -123,16 +123,77 @@ export default function LandingFooter() {
               </li>
             </ul>
           </div>
+
+          {/* Column 4: Connect */}
+          <div>
+            <h3 className="text-white font-semibold mb-6 flex items-center gap-2">
+              <MessageCircle className="w-5 h-5 text-blue-400" />
+              Connect
+            </h3>
+            <ul className="space-y-3">
+              <li>
+                <a
+                  href="mailto:support@cgtbrain.com.au"
+                  className="text-slate-400 hover:text-white transition-colors text-sm"
+                >
+                  support@cgtbrain.com.au
+                </a>
+              </li>
+              <li>
+                <a
+                  href="https://linkedin.com/company/cgtbrain"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-slate-400 hover:text-white transition-colors text-sm"
+                >
+                  LinkedIn
+                </a>
+              </li>
+              <li>
+                <a
+                  href="https://twitter.com/cgtbrain"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-slate-400 hover:text-white transition-colors text-sm"
+                >
+                  Twitter / X
+                </a>
+              </li>
+            </ul>
+          </div>
         </div>
 
         {/* Bottom Bar */}
         <div className="pt-8 border-t border-slate-800">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-6">
-            <p className="text-slate-500 text-xs">
-              &copy; 2026 CGT Brain Pty Ltd. All rights reserved.
+          {/* Acknowledgment of Country */}
+          <div className="mb-4">
+            <p className="text-xs text-slate-400 text-center leading-relaxed max-w-3xl mx-auto">
+              <span className="text-amber-600/70 mr-2">🌿</span>
+              We acknowledge the Traditional Owners and Custodians of Country throughout Australia
+              and their continuing connection to land, waters and community. We pay our respects
+              to them, their cultures, and Elders past and present.
             </p>
-            <div className="flex items-center gap-3 text-xs text-slate-500">
-              <span>ABN: 64686297398</span>
+          </div>
+
+          {/* Disclaimer */}
+          <div className="p-3 bg-amber-900/5 border border-amber-700/10 rounded-lg">
+            <p className="text-xs text-slate-400 text-center leading-relaxed">
+              <strong className="text-amber-500/70">Disclaimer:</strong> CGT Brain provides general information only and is not a substitute for professional tax advice.
+              This tool does not create a tax agent-client relationship. Always verify results with a qualified tax professional or the ATO.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Slim Footer Bar - Copyright & Business Info */}
+      <div className="bg-slate-950 border-t border-slate-800">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-3">
+            <p className="text-slate-400 text-xs">
+              &copy; 2026 CGT Brain AI Pty Ltd. All rights reserved.
+            </p>
+            <div className="flex flex-wrap justify-center items-center gap-2 text-xs text-slate-500">
+              <span>ABN: 79 684 289 843</span>
               <span>•</span>
               <span>Registered Tax Agent: 26205217</span>
               <span>•</span>
@@ -140,14 +201,6 @@ export default function LandingFooter() {
               <span>•</span>
               <span>ISO 27001</span>
             </div>
-          </div>
-
-          {/* Disclaimer */}
-          <div className="p-3 bg-amber-900/5 border border-amber-700/10 rounded-lg">
-            <p className="text-[10px] text-slate-500 opacity-60 text-center leading-relaxed">
-              <strong className="text-amber-500/70">Disclaimer:</strong> CGT Brain provides general information only and is not a substitute for professional tax advice.
-              This tool does not create a tax agent-client relationship. Always verify results with a qualified tax professional or the ATO.
-            </p>
           </div>
         </div>
       </div>

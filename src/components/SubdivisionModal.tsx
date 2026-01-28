@@ -339,7 +339,7 @@ export default function SubdivisionModal({ property, isOpen, onClose, clickedDat
                       Total Lot Size:
                     </span>
                     <span className="font-semibold text-blue-700 dark:text-blue-300">
-                      {convertFromSqm(totalLotSize, sizeUnit).toFixed(sizeUnit === 'sqm' ? 0 : 4)} {getUnitLabel(sizeUnit)}
+                      {convertFromSqm(totalLotSize, sizeUnit).toFixed(sizeUnit === 'sqms' ? 0 : 4)} {getUnitLabel(sizeUnit)}
                     </span>
                   </div>
                 </div>

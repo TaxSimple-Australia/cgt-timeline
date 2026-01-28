@@ -83,6 +83,7 @@ export interface TimelineEvent {
   buildingPrice?: number;   // Price of building component
   overTwoHectares?: boolean; // For purchase events - property land exceeds 2 hectares (affects main residence exemption per ATO Section 118-120)
   isLandOnly?: boolean;     // For purchase events - property is land only (no building), affects depreciation calculations
+  hectares?: number;        // For purchase events - land size in hectares (used when overTwoHectares is true)
 
   // Custom event fields
   affectsStatus?: boolean;  // For custom events: does this event change property status?
@@ -113,6 +114,7 @@ export interface TimelineEvent {
   livingUsePercentage?: number;    // Percentage of property used as owner-occupied/main residence (0-100)
   rentalUseStartDate?: Date;       // Date when rental use started
   businessUseStartDate?: Date;     // Date when business use started
+  mixedUseMoveInDate?: Date;       // For mixed-use properties: date when owner moved in (if different from purchase)
   floorAreaData?: {
     total: number;      // Total floor area in sqm
     exclusive: number;  // Exclusive rental area in sqm (e.g., bedroom)
@@ -1792,6 +1794,31 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
             costBases,
             // DEPRECATED: Keep legacy fields undefined (migration happens to costBases)
             marketValuation: event.marketValuation || event.market_valuation,
+            // Mixed-use percentages and dates
+            checkboxState: event.checkboxState,
+            livingUsePercentage: event.livingUsePercentage,
+            rentalUsePercentage: event.rentalUsePercentage,
+            businessUsePercentage: event.businessUsePercentage,
+            mixedUseMoveInDate: event.mixedUseMoveInDate ? new Date(event.mixedUseMoveInDate) : undefined,
+            rentalUseStartDate: event.rentalUseStartDate ? new Date(event.rentalUseStartDate) : undefined,
+            businessUseStartDate: event.businessUseStartDate ? new Date(event.businessUseStartDate) : undefined,
+            floorAreaData: event.floorAreaData,
+            // CGT flags and property details
+            overTwoHectares: event.overTwoHectares,
+            isLandOnly: event.isLandOnly,
+            hectares: event.hectares,
+            capitalProceedsType: event.capitalProceedsType,
+            exemptionType: event.exemptionType,
+            isResident: event.isResident,
+            previousYearLosses: event.previousYearLosses,
+            affectsStatus: event.affectsStatus,
+            // Ownership change data
+            leavingOwners: event.leavingOwners,
+            newOwners: event.newOwners,
+            ownershipChangeReason: event.ownershipChangeReason,
+            ownershipChangeReasonOther: event.ownershipChangeReasonOther,
+            // Subdivision details
+            subdivisionDetails: event.subdivisionDetails,
           };
         });
       } else if (data.properties && Array.isArray(data.properties)) {
@@ -1933,6 +1960,31 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
                 costBases,
                 // Market valuation for move_out events (supports both field names for backwards compatibility)
                 marketValuation: historyItem.market_value || historyItem.market_valuation || historyItem.market_value_at_first_income,
+                // Mixed-use percentages and dates
+                checkboxState: historyItem.checkboxState,
+                livingUsePercentage: historyItem.livingUsePercentage,
+                rentalUsePercentage: historyItem.rentalUsePercentage,
+                businessUsePercentage: historyItem.businessUsePercentage,
+                mixedUseMoveInDate: historyItem.mixedUseMoveInDate ? new Date(historyItem.mixedUseMoveInDate) : undefined,
+                rentalUseStartDate: historyItem.rentalUseStartDate ? new Date(historyItem.rentalUseStartDate) : undefined,
+                businessUseStartDate: historyItem.businessUseStartDate ? new Date(historyItem.businessUseStartDate) : undefined,
+                floorAreaData: historyItem.floorAreaData,
+                // CGT flags and property details
+                overTwoHectares: historyItem.overTwoHectares,
+                isLandOnly: historyItem.isLandOnly,
+                hectares: historyItem.hectares,
+                capitalProceedsType: historyItem.capitalProceedsType,
+                exemptionType: historyItem.exemptionType,
+                isResident: historyItem.isResident,
+                previousYearLosses: historyItem.previousYearLosses,
+                affectsStatus: historyItem.affectsStatus,
+                // Ownership change data
+                leavingOwners: historyItem.leavingOwners,
+                newOwners: historyItem.newOwners,
+                ownershipChangeReason: historyItem.ownershipChangeReason,
+                ownershipChangeReasonOther: historyItem.ownershipChangeReasonOther,
+                // Subdivision details
+                subdivisionDetails: historyItem.subdivisionDetails,
               };
 
               propertyEvents.push(event);

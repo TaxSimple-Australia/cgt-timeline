@@ -217,6 +217,35 @@ export default function TimelineControls({ timelineContainerRef }: TimelineContr
           if (event.newStatus) historyItem.new_status = event.newStatus;
           if (event.marketValuation !== undefined) historyItem.market_value = event.marketValuation;
 
+          // Mixed-use percentages and dates
+          if (event.checkboxState) historyItem.checkboxState = event.checkboxState;
+          if (event.livingUsePercentage !== undefined) historyItem.livingUsePercentage = event.livingUsePercentage;
+          if (event.rentalUsePercentage !== undefined) historyItem.rentalUsePercentage = event.rentalUsePercentage;
+          if (event.businessUsePercentage !== undefined) historyItem.businessUsePercentage = event.businessUsePercentage;
+          if (event.mixedUseMoveInDate) historyItem.mixedUseMoveInDate = format(event.mixedUseMoveInDate, 'yyyy-MM-dd');
+          if (event.rentalUseStartDate) historyItem.rentalUseStartDate = format(event.rentalUseStartDate, 'yyyy-MM-dd');
+          if (event.businessUseStartDate) historyItem.businessUseStartDate = format(event.businessUseStartDate, 'yyyy-MM-dd');
+          if (event.floorAreaData) historyItem.floorAreaData = event.floorAreaData;
+
+          // CGT flags and property details
+          if (event.overTwoHectares) historyItem.overTwoHectares = event.overTwoHectares;
+          if (event.isLandOnly) historyItem.isLandOnly = event.isLandOnly;
+          if (event.hectares !== undefined) historyItem.hectares = event.hectares;
+          if (event.capitalProceedsType) historyItem.capitalProceedsType = event.capitalProceedsType;
+          if (event.exemptionType) historyItem.exemptionType = event.exemptionType;
+          if (event.isResident !== undefined) historyItem.isResident = event.isResident;
+          if (event.previousYearLosses) historyItem.previousYearLosses = event.previousYearLosses;
+          if (event.affectsStatus) historyItem.affectsStatus = event.affectsStatus;
+
+          // Ownership change data
+          if (event.leavingOwners) historyItem.leavingOwners = event.leavingOwners;
+          if (event.newOwners) historyItem.newOwners = event.newOwners;
+          if (event.ownershipChangeReason) historyItem.ownershipChangeReason = event.ownershipChangeReason;
+          if (event.ownershipChangeReasonOther) historyItem.ownershipChangeReasonOther = event.ownershipChangeReasonOther;
+
+          // Subdivision details
+          if (event.subdivisionDetails) historyItem.subdivisionDetails = event.subdivisionDetails;
+
           return historyItem;
         });
 

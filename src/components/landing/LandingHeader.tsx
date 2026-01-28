@@ -134,7 +134,7 @@ export default function LandingHeader() {
               link.type === 'link' ? (
                 <Link
                   key={link.id}
-                  href={'href' in link ? link.href : `/${link.id}`}
+                  href={'href' in link && link.href ? link.href : `/${link.id}`}
                   className="text-slate-300 hover:text-cyan-400 transition-colors text-sm font-medium"
                 >
                   {link.label}
@@ -270,7 +270,7 @@ export default function LandingHeader() {
                 link.type === 'link' ? (
                   <Link
                     key={link.id}
-                    href={'href' in link ? link.href : `/${link.id}`}
+                    href={'href' in link && link.href ? link.href : `/${link.id}`}
                     onClick={() => setIsMobileMenuOpen(false)}
                     className="block w-full text-left px-4 py-3 text-slate-300 hover:text-cyan-400 hover:bg-slate-800/50 rounded-lg transition-colors text-sm font-medium"
                   >
@@ -358,7 +358,7 @@ export default function LandingHeader() {
       <AdminLoginModal
         isOpen={showAdminLogin}
         onClose={() => setShowAdminLogin(false)}
-        onLoginSuccess={() => handleLoginSuccess('admin')}
+        onSuccess={() => handleLoginSuccess('admin')}
       />
       <AdviserLoginModal
         isOpen={showAdviserLogin}

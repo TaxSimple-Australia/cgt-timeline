@@ -331,6 +331,15 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
   );
   const [businessUseDateError, setBusinessUseDateError] = useState('');
 
+  // Mixed-Use move-in date (for when user has living percentage but doesn't move in on purchase day)
+  const [mixedUseMoveInDateInput, setMixedUseMoveInDateInput] = useState(
+    event.mixedUseMoveInDate ? format(event.mixedUseMoveInDate, 'dd/MM/yyyy') : ''
+  );
+  const [parsedMixedUseMoveInDate, setParsedMixedUseMoveInDate] = useState<Date | null>(
+    event.mixedUseMoveInDate || null
+  );
+  const [mixedUseMoveInDateError, setMixedUseMoveInDateError] = useState('');
+
   // NEW: Ownership change state variables
   const [leavingOwners, setLeavingOwners] = useState<string[]>(event.leavingOwners || []);
   const [newOwners, setNewOwners] = useState<Array<{name: string; percentage: number}>>(
@@ -694,6 +703,13 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
         // Save the start dates
         updates.rentalUseStartDate = rental > 0 ? parsedRentalUseStartDate || undefined : undefined;
         updates.businessUseStartDate = business > 0 ? parsedBusinessUseStartDate || undefined : undefined;
+
+        // Save the mixed-use move-in date (only if living % > 0 and NOT moving in same day)
+        if (living > 0 && !moveInOnSameDay && parsedMixedUseMoveInDate) {
+          updates.mixedUseMoveInDate = parsedMixedUseMoveInDate;
+        } else {
+          updates.mixedUseMoveInDate = undefined;
+        }
       } else {
         // Clear mixed-use percentages if checkbox is not checked
         // Only clear if not set via the other business use checkbox
@@ -704,6 +720,7 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
         updates.rentalUsePercentage = undefined;
         updates.rentalUseStartDate = undefined;
         updates.businessUseStartDate = undefined;
+        updates.mixedUseMoveInDate = undefined;
       }
 
       // NEW: Ownership Change validation and data (including Inherit events)
@@ -928,6 +945,98 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
           }
         } else if (originalCheckboxState?.purchaseAsRent && existingRental) {
           deleteEvent(existingRental.id);
+        }
+      }
+
+      // Handle Mixed-Use companion events for purchase
+      // This creates appropriate move_in or rent_start events based on living/rental percentages
+      if (event.type === 'purchase' && purchaseAsMixedUse) {
+        const living = parseFloat(livingUsePercentage) || 0;
+        const rental = parseFloat(rentalUsePercentage) || 0;
+
+        // Scenario A: Mixed-Use + Move in on same day - already handled by moveInOnSameDay logic above
+
+        // Scenario B: Mixed-Use + Living % + NOT same day + has move-in date
+        // Create move_in event on the specified mixedUseMoveInDate
+        if (living > 0 && !moveInOnSameDay && parsedMixedUseMoveInDate) {
+          const mixedUseMoveInTimestamp = parsedMixedUseMoveInDate.getTime();
+
+          // Find existing move_in on the mixed-use move-in date
+          const existingMixedUseMoveIn = events.find(
+            (e) =>
+              e.propertyId === event.propertyId &&
+              e.type === 'move_in' &&
+              e.date.getTime() === mixedUseMoveInTimestamp
+          );
+
+          // Check if this is a new condition (wasn't set before)
+          const wasMixedUseWithMoveInDate = originalCheckboxState?.purchaseAsMixedUse &&
+            event.mixedUseMoveInDate &&
+            event.mixedUseMoveInDate.getTime() === mixedUseMoveInTimestamp;
+
+          if (!existingMixedUseMoveIn && !wasMixedUseWithMoveInDate) {
+            // Delete any old move_in on a different date that was created by mixed-use
+            const oldMoveInDate = event.mixedUseMoveInDate;
+            if (oldMoveInDate) {
+              const oldMixedUseMoveIn = events.find(
+                (e) =>
+                  e.propertyId === event.propertyId &&
+                  e.type === 'move_in' &&
+                  e.date.getTime() === oldMoveInDate.getTime()
+              );
+              if (oldMixedUseMoveIn) {
+                deleteEvent(oldMixedUseMoveIn.id);
+              }
+            }
+
+            addEvent({
+              propertyId: event.propertyId,
+              type: 'move_in',
+              date: parsedMixedUseMoveInDate,
+              title: 'Move In',
+              position: event.position,
+              color: '#10B981',
+            });
+          }
+        }
+
+        // Scenario C: Mixed-Use with only rental % (0% living) and rental % > 0
+        // Create rent_start event on purchase date
+        if (living === 0 && rental > 0) {
+          const existingRentOnPurchase = findCompanion('rent_start');
+
+          // Only create if didn't already exist via purchaseAsRent
+          if (!existingRentOnPurchase && checkboxBecameTrue('purchaseAsMixedUse')) {
+            addEvent({
+              propertyId: event.propertyId,
+              type: 'rent_start',
+              date: parsedDate,
+              title: 'Start Rent',
+              position: event.position,
+              color: '#F59E0B',
+            });
+          }
+        }
+      }
+
+      // Clean up mixed-use move_in companion if Mixed-Use is unchecked or living % becomes 0
+      const previousMixedUseMoveInDate = event.mixedUseMoveInDate;
+      if (event.type === 'purchase' && originalCheckboxState?.purchaseAsMixedUse && previousMixedUseMoveInDate) {
+        const shouldRemoveMixedUseMoveIn =
+          !purchaseAsMixedUse || // Mixed-Use was unchecked
+          (parseFloat(livingUsePercentage) || 0) === 0 || // Living % is now 0
+          moveInOnSameDay; // User now wants to move in same day (handled elsewhere)
+
+        if (shouldRemoveMixedUseMoveIn) {
+          const oldMixedUseMoveIn = events.find(
+            (e) =>
+              e.propertyId === event.propertyId &&
+              e.type === 'move_in' &&
+              e.date.getTime() === previousMixedUseMoveInDate.getTime()
+          );
+          if (oldMixedUseMoveIn) {
+            deleteEvent(oldMixedUseMoveIn.id);
+          }
         }
       }
 
@@ -1445,9 +1554,10 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
                         onChange={(e) => {
                           setMoveInOnSameDay(e.target.checked);
                           if (e.target.checked) {
+                            // Only clear mutually exclusive options (not Mixed-Use)
                             setPurchaseAsVacant(false);
                             setPurchaseAsRent(false);
-                            setPurchaseAsMixedUse(false);
+                            // Mixed-Use can be combined with Move-In - don't clear it
                           }
                         }}
                         className="w-4 h-4 text-blue-600 bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 rounded focus:ring-2 focus:ring-blue-500 cursor-pointer"
@@ -1523,9 +1633,10 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
                         onChange={(e) => {
                           setPurchaseAsMixedUse(e.target.checked);
                           if (e.target.checked) {
-                            setMoveInOnSameDay(false);
+                            // Only clear mutually exclusive options (not Move-In)
                             setPurchaseAsVacant(false);
                             setPurchaseAsRent(false);
+                            // Move-In can be combined with Mixed-Use - don't clear it
                           }
                         }}
                         className="w-4 h-4 text-blue-600 bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 rounded focus:ring-2 focus:ring-blue-500 cursor-pointer"
@@ -1569,6 +1680,54 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
                               className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                               placeholder="e.g., 40"
                             />
+
+                            {/* Move-in date for Mixed-Use - only shown if living % > 0 AND "Move in on same day" is NOT checked */}
+                            {parseFloat(livingUsePercentage) > 0 && !moveInOnSameDay && (
+                              <div className="mt-3 p-3 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
+                                <label className="block text-xs font-medium text-green-700 dark:text-green-400 mb-1.5">
+                                  When did you move in?
+                                </label>
+                                <input
+                                  type="text"
+                                  value={mixedUseMoveInDateInput}
+                                  onChange={(e) => {
+                                    const input = e.target.value;
+                                    setMixedUseMoveInDateInput(input);
+
+                                    const parsed = parseDateFlexible(input);
+                                    if (parsed) {
+                                      setParsedMixedUseMoveInDate(parsed);
+                                      setMixedUseMoveInDateError('');
+                                    } else if (input.trim()) {
+                                      setMixedUseMoveInDateError('Invalid date format');
+                                      setParsedMixedUseMoveInDate(null);
+                                    } else {
+                                      setMixedUseMoveInDateError('');
+                                      setParsedMixedUseMoveInDate(null);
+                                    }
+                                  }}
+                                  className={cn(
+                                    "w-full px-3 py-2 text-sm border rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100",
+                                    mixedUseMoveInDateError
+                                      ? "border-red-500 focus:ring-red-500"
+                                      : "border-slate-300 dark:border-slate-600 focus:ring-blue-500"
+                                  )}
+                                  placeholder={DATE_FORMAT_PLACEHOLDER}
+                                />
+                                {mixedUseMoveInDateError && (
+                                  <p className="mt-1 text-xs text-red-500">{mixedUseMoveInDateError}</p>
+                                )}
+                                {parsedMixedUseMoveInDate && !mixedUseMoveInDateError && (
+                                  <div className="flex items-center gap-2 text-xs text-green-600 dark:text-green-400 mt-1">
+                                    <CheckCircle className="w-3 h-3 flex-shrink-0" />
+                                    <span>{formatDateDisplay(parsedMixedUseMoveInDate)}</span>
+                                  </div>
+                                )}
+                                <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
+                                  Enter the date you started living in the property (if different from purchase date)
+                                </p>
+                              </div>
+                            )}
                           </div>
 
                           {/* Rental percentage */}

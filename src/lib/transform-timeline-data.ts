@@ -262,6 +262,9 @@ export function transformTimelineToAPIFormat(
 
         // Add start dates if available
         const dateParts: string[] = [];
+        if (living > 0 && event.mixedUseMoveInDate) {
+          dateParts.push(`owner moved in ${format(event.mixedUseMoveInDate, 'dd MMM yyyy')}`);
+        }
         if (rental > 0 && event.rentalUseStartDate) {
           dateParts.push(`rental use started ${format(event.rentalUseStartDate, 'dd MMM yyyy')}`);
         }
@@ -273,7 +276,7 @@ export function transformTimelineToAPIFormat(
         }
 
         additionalInfo.push(mixedUseText);
-        console.log('📊 Transform: Mixed-Use percentages:', { living, rental, business, rentalStart: event.rentalUseStartDate, businessStart: event.businessUseStartDate }, '(added to description)');
+        console.log('📊 Transform: Mixed-Use percentages:', { living, rental, business, moveIn: event.mixedUseMoveInDate, rentalStart: event.rentalUseStartDate, businessStart: event.businessUseStartDate }, '(added to description)');
       } else if (event.businessUsePercentage !== undefined && event.businessUsePercentage > 0) {
         // Fallback to old business use approach if no living/rental percentages
         additionalInfo.push(`Business use: ${event.businessUsePercentage}% of property used for business/rental purposes`);
@@ -720,7 +723,7 @@ export function transformTimelineToAPIFormat(
         const living = event.livingUsePercentage || 0;
         const rental = event.rentalUsePercentage || 0;
         const business = event.businessUsePercentage || 0;
-        structuredData.push(`${eventDate} - MIXED USE: Living=${living}%, Rental=${rental}%, Business=${business}%${event.rentalUseStartDate ? ' | Rental Start=' + sanitizeDateForAPI(event.rentalUseStartDate) : ''}${event.businessUseStartDate ? ' | Business Start=' + sanitizeDateForAPI(event.businessUseStartDate) : ''}`);
+        structuredData.push(`${eventDate} - MIXED USE: Living=${living}%, Rental=${rental}%, Business=${business}%${event.mixedUseMoveInDate ? ' | Move In=' + sanitizeDateForAPI(event.mixedUseMoveInDate) : ''}${event.rentalUseStartDate ? ' | Rental Start=' + sanitizeDateForAPI(event.rentalUseStartDate) : ''}${event.businessUseStartDate ? ' | Business Start=' + sanitizeDateForAPI(event.businessUseStartDate) : ''}`);
       }
       
       // Ownership changes

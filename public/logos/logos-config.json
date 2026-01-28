@@ -31,6 +31,46 @@
       "type": "image",
       "file": "/logos/logo-4-light.jpeg",
       "darkFile": "/logos/logo-4-dark.png"
+    },
+    {
+      "id": "logo-5",
+      "name": "Logo Option 5",
+      "description": "Fifth logo design option",
+      "type": "image",
+      "file": "/logos/logo-5-dark.png",
+      "darkFile": "/logos/logo-5-dark.png"
+    },
+    {
+      "id": "logo-6",
+      "name": "Logo Option 6",
+      "description": "Sixth logo design option",
+      "type": "image",
+      "file": "/logos/logo-6-dark.png",
+      "darkFile": "/logos/logo-6-dark.png"
+    },
+    {
+      "id": "logo-7",
+      "name": "Logo Option 7",
+      "description": "Seventh logo design option",
+      "type": "image",
+      "file": "/logos/logo-7-dark.png",
+      "darkFile": "/logos/logo-7-dark.png"
+    },
+    {
+      "id": "logo-8",
+      "name": "Logo Option 8",
+      "description": "Eighth logo design option",
+      "type": "image",
+      "file": "/logos/logo-8-dark.png",
+      "darkFile": "/logos/logo-8-dark.png"
+    },
+    {
+      "id": "logo-9",
+      "name": "Logo Option 9",
+      "description": "Ninth logo design option",
+      "type": "image",
+      "file": "/logos/logo-9-dark.png",
+      "darkFile": "/logos/logo-9-dark.png"
     }
   ]
 }

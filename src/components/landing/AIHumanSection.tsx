@@ -24,7 +24,7 @@ export default function AIHumanSection() {
           {/* Badge */}
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-purple-500/10 border border-purple-500/20 mb-6">
             <Sparkles className="w-4 h-4 text-purple-400" />
-            <span className="text-purple-300 text-sm font-medium">AI + Human Expertise</span>
+            <span className="text-purple-300 text-sm font-medium">About Us</span>
           </div>
 
           {/* Heading with decorative lines */}

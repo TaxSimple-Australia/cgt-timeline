@@ -18,7 +18,7 @@ type SnapshotView = 'timeline' | 'roadmap' | 'gantt' | 'horizontal' | 'phase';
 
 export default function TimelineSnapshot() {
   const [isOpen, setIsOpen] = useState(false);
-  const [selectedView, setSelectedView] = useState<SnapshotView>('timeline');
+  const [selectedView, setSelectedView] = useState<SnapshotView>('gantt');
   const [clickedEvent, setClickedEvent] = useState<{ event: TimelineEvent; property: Property; clientX: number; clientY: number } | null>(null);
   const [hoveredProperty, setHoveredProperty] = useState<Property | null>(null);
   const [hoveredPropertyElement, setHoveredPropertyElement] = useState<{ property: Property; rect: DOMRect } | null>(null);

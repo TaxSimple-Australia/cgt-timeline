@@ -11,20 +11,21 @@ import {
   ExternalLink,
   CheckCircle,
   Server,
-  Lock
+  Lock,
+  Building2
 } from 'lucide-react';
 
 export default function LandingFooter() {
   return (
     <footer className="bg-slate-900 border-t border-slate-800">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        {/* Main Footer Content - 4 Columns */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
+        {/* Main Footer Content - 5 Columns */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 mb-12">
 
           {/* Column 1: Company & Product */}
-          <div>
+          <div className="lg:col-span-1">
             <h3 className="text-2xl font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent mb-6">
-              CGT Brain AI Timeline
+              CGT Brain
             </h3>
             <p className="text-slate-400 text-sm mb-6 leading-relaxed">
               Professional Capital Gains Tax analysis tool for Australian property investors and taxpayers.
@@ -34,19 +35,49 @@ export default function LandingFooter() {
             <div className="flex flex-wrap items-center gap-3 text-xs text-slate-400">
               <div className="flex items-center gap-2">
                 <Server className="w-4 h-4 text-green-500" />
-                <span>Australian Hosted</span>
+                <span>AU Hosted</span>
               </div>
               <span>|</span>
               <div className="flex items-center gap-2">
                 <Lock className="w-4 h-4 text-green-500" />
-                <span>SSL Encrypted</span>
+                <span>SSL</span>
               </div>
               <span>|</span>
               <div className="flex items-center gap-2">
                 <CheckCircle className="w-4 h-4 text-green-500" />
-                <span>Privacy Act 1988 Compliant</span>
+                <span>Privacy Act</span>
               </div>
             </div>
+          </div>
+
+          {/* Column 2: Company */}
+          <div>
+            <h3 className="text-white font-semibold mb-6 flex items-center gap-2">
+              <Building2 className="w-5 h-5 text-blue-400" />
+              Company
+            </h3>
+            <ul className="space-y-3">
+              <li>
+                <Link href="/about-us" className="text-slate-400 hover:text-white transition-colors text-sm">
+                  About Us
+                </Link>
+              </li>
+              <li>
+                <Link href="/pricing" className="text-slate-400 hover:text-white transition-colors text-sm">
+                  Pricing
+                </Link>
+              </li>
+              <li>
+                <Link href="/contact" className="text-slate-400 hover:text-white transition-colors text-sm">
+                  Contact
+                </Link>
+              </li>
+              <li>
+                <Link href="/book-demo" className="text-slate-400 hover:text-white transition-colors text-sm">
+                  Book a Demo
+                </Link>
+              </li>
+            </ul>
           </div>
 
           {/* Column 2: Help & Resources */}
@@ -57,8 +88,13 @@ export default function LandingFooter() {
             </h3>
             <ul className="space-y-3">
               <li>
-                <Link href="/support" className="text-slate-400 hover:text-white transition-colors text-sm">
-                  Support Center
+                <Link href="/training-videos" className="text-slate-400 hover:text-white transition-colors text-sm">
+                  Training Videos
+                </Link>
+              </li>
+              <li>
+                <Link href="/book-demo" className="text-slate-400 hover:text-white transition-colors text-sm">
+                  Book a Demo
                 </Link>
               </li>
               <li>

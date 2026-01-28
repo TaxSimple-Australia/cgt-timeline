@@ -23,7 +23,7 @@ interface LogoSwitcherProps {
 export default function LogoSwitcher({ currentLogo, onLogoChange, className }: LogoSwitcherProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [logos, setLogos] = useState<LogoOption[]>([]);
-  const [isVisible, setIsVisible] = useState(true);
+  const [isVisible, setIsVisible] = useState(false);
 
   // Load logo options from config
   useEffect(() => {

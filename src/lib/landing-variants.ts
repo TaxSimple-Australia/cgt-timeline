@@ -11,24 +11,9 @@ export interface LandingVariant {
 
 export const LANDING_VARIANTS: LandingVariant[] = [
   {
-    name: 'Default',
+    name: 'Main',
     path: '/landing',
-    description: 'Full-featured landing page'
-  },
-  {
-    name: 'Version 2',
-    path: '/landing/v2',
-    description: 'Alternative layout and messaging'
-  },
-  {
-    name: 'Version 3',
-    path: '/landing/v3',
-    description: 'Premium luxury design with interactive filters'
-  },
-  {
-    name: 'Version 4',
-    path: '/landing/v4',
-    description: 'Copy of V3 - customizable variant'
+    description: 'Main landing page'
   },
 ];
 

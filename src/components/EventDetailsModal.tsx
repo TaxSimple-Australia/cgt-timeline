@@ -913,18 +913,17 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
 
       // Handle "purchase as rent" companion event
       if (event.type === 'purchase') {
-        const existingRental = findCompanion('status_change', 'rental');
+        const existingRental = findCompanion('rent_start');
 
         if (purchaseAsRent) {
           if (checkboxBecameTrue('purchaseAsRent') && !existingRental) {
             addEvent({
               propertyId: event.propertyId,
-              type: 'status_change',
+              type: 'rent_start',
               date: parsedDate,
-              title: 'Status: Rental',
-              newStatus: 'rental',
+              title: 'Start Rent',
               position: event.position,
-              color: '#A855F7',
+              color: '#F59E0B',
             });
           }
         } else if (originalCheckboxState?.purchaseAsRent && existingRental) {
@@ -1447,6 +1446,8 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
                           setMoveInOnSameDay(e.target.checked);
                           if (e.target.checked) {
                             setPurchaseAsVacant(false);
+                            setPurchaseAsRent(false);
+                            setPurchaseAsMixedUse(false);
                           }
                         }}
                         className="w-4 h-4 text-blue-600 bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 rounded focus:ring-2 focus:ring-blue-500 cursor-pointer"
@@ -1472,6 +1473,7 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
                         setPurchaseAsVacant(e.target.checked);
                         if (e.target.checked) {
                           setMoveInOnSameDay(false);
+                          setPurchaseAsRent(false);
                           setPurchaseAsMixedUse(false);
                         }
                       }}
@@ -1486,6 +1488,31 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
                     </label>
                   </div>
 
+                  {/* Purchase and rent out checkbox */}
+                  <div className="flex items-center gap-3 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                    <input
+                      type="checkbox"
+                      id="purchaseAsRent"
+                      checked={purchaseAsRent}
+                      onChange={(e) => {
+                        setPurchaseAsRent(e.target.checked);
+                        if (e.target.checked) {
+                          setMoveInOnSameDay(false);
+                          setPurchaseAsVacant(false);
+                          setPurchaseAsMixedUse(false);
+                        }
+                      }}
+                      className="w-4 h-4 text-blue-600 bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 rounded focus:ring-2 focus:ring-blue-500 cursor-pointer"
+                    />
+                    <label
+                      htmlFor="purchaseAsRent"
+                      className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300 cursor-pointer"
+                    >
+                      <Key className="w-4 h-4" />
+                      Purchase and rent out (Investment Property)
+                    </label>
+                  </div>
+
                   {/* Mixed-Use checkbox */}
                   <div className="bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200 dark:border-purple-800 overflow-hidden">
                     <div className="flex items-center gap-3 p-4">
@@ -1496,7 +1523,9 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
                         onChange={(e) => {
                           setPurchaseAsMixedUse(e.target.checked);
                           if (e.target.checked) {
+                            setMoveInOnSameDay(false);
                             setPurchaseAsVacant(false);
+                            setPurchaseAsRent(false);
                           }
                         }}
                         className="w-4 h-4 text-blue-600 bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 rounded focus:ring-2 focus:ring-blue-500 cursor-pointer"

@@ -63,6 +63,7 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
   const [parsedDate, setParsedDate] = useState<Date | null>(event.date);
   const [dateError, setDateError] = useState('');
   const [amount, setAmount] = useState(event.amount?.toString() || '');
+  const [depreciatingAssetsValue, setDepreciatingAssetsValue] = useState(event.depreciatingAssetsValue?.toString() || '');
   // Don't prefill description for synthetic "Not Sold" markers
   const [description, setDescription] = useState(() => {
     if (isSyntheticNotSold) {
@@ -657,6 +658,8 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
 
       // NEW: Dynamic Cost Bases
       updates.costBases = costBases.length > 0 ? costBases : undefined;
+      // NEW: Depreciating Assets
+      updates.depreciatingAssetsValue = depreciatingAssetsValue && !isNaN(parseFloat(depreciatingAssetsValue)) ? parseFloat(depreciatingAssetsValue) : undefined;
 
       // NEW: Business use / usage splits (Gilbert's contextual approach)
       if (hasBusinessUse && businessUsePercentage && !isNaN(parseFloat(businessUsePercentage))) {
@@ -1947,6 +1950,40 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
                   costBases={costBases}
                   onChange={setCostBases}
                 />
+              </div>
+            )}
+
+            {/* Depreciating Assets Field (for Purchase, Improvement, and Sale events) */}
+            {(eventType === 'purchase' || eventType === 'improvement' || eventType === 'sale') && (
+              <div className="space-y-2 pt-2 border-t border-slate-200 dark:border-slate-700">
+                <div className="flex items-center gap-2">
+                  <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                    Depreciating Assets
+                  </label>
+                  <div className="relative group">
+                    <Info className="w-4 h-4 text-slate-400 cursor-help" />
+                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-80 p-3 bg-slate-800 dark:bg-slate-700 text-white text-xs rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                      Depreciating assets (e.g., appliances, carpets, blinds, HVAC) are NOT included in CGT cost base. They are claimed under Division 40 depreciation rules. This value will be sent to the AI model for context but excluded from CGT calculations.
+                      <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-800 dark:border-t-slate-700"></div>
+                    </div>
+                  </div>
+                </div>
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400">$</span>
+                  <input
+                    type="text"
+                    value={depreciatingAssetsValue}
+                    onChange={(e) => {
+                      const value = e.target.value.replace(/[^0-9.]/g, '');
+                      setDepreciatingAssetsValue(value);
+                    }}
+                    placeholder="0"
+                    className="w-full pl-7 pr-3 py-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+                <p className="text-xs text-slate-500 dark:text-slate-400">
+                  Examples: Dishwasher, oven, carpet, blinds, split AC system, hot water system
+                </p>
               </div>
             )}
 

@@ -108,7 +108,7 @@ export default function LandingHeader() {
           {/* Logo */}
           <Link href="/landing" className="flex-shrink-0">
             <div className="flex items-center gap-3">
-              <CGTBrainLogo size="xl" variant={currentLogoVariant} />
+              <CGTBrainLogo size="2xl" variant={currentLogoVariant} />
               {/* Hide text for logo-4 since it has text built in */}
               {currentLogoVariant !== 'logo-4' && (
                 <h1 className="font-bold text-xl md:text-2xl">

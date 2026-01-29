@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { cn } from '@/lib/utils';
 
 interface CGTBrainLogoProps {
-  size?: 'sm' | 'md' | 'lg' | 'xl';
+  size?: 'sm' | 'md' | 'lg' | 'xl' | '2xl';
   className?: string;
   showTagline?: boolean;
   variant?: 'text' | string; // 'text' or logo ID like 'logo-1'
@@ -26,6 +26,7 @@ const sizeClasses = {
   md: 'text-xl md:text-2xl',
   lg: 'text-2xl md:text-3xl',
   xl: 'text-3xl md:text-4xl',
+  '2xl': 'text-4xl md:text-5xl',
 };
 
 const imageSizeClasses = {
@@ -33,6 +34,7 @@ const imageSizeClasses = {
   md: 'h-8 md:h-10',
   lg: 'h-10 md:h-12',
   xl: 'h-12 md:h-16',
+  '2xl': 'h-16 md:h-20',
 };
 
 export default function CGTBrainLogo({

@@ -246,6 +246,16 @@ export default function TimelineControls({ timelineContainerRef }: TimelineContr
           // Subdivision details
           if (event.subdivisionDetails) historyItem.subdivisionDetails = event.subdivisionDetails;
 
+          // Preserve costBases array structure (includes custom cost bases, descriptions, IDs)
+          if (event.costBases && event.costBases.length > 0) {
+            historyItem.costBases = event.costBases;
+          }
+
+          // Depreciating assets value (Division 40 - not included in CGT cost base)
+          if (event.depreciatingAssetsValue !== undefined) {
+            historyItem.depreciatingAssetsValue = event.depreciatingAssetsValue;
+          }
+
           return historyItem;
         });
 

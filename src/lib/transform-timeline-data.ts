@@ -200,6 +200,9 @@ export function transformTimelineToAPIFormat(
         console.log('📍 Transform: Land-only flag detected for purchase event');
       }
 
+      // NOTE: depreciatingAssetsValue is now added to property notes section instead of description
+      // This allows the model to process it as structured data rather than parsing it from text
+
       // Add contract date for sale events
       // For sale events, always include contract_date (use event date if not set)
       if (event.type === 'sale') {
@@ -792,6 +795,21 @@ export function transformTimelineToAPIFormat(
     if (structuredData.length > 0) {
       notesParts.push(`\n=== STRUCTURED COMPLEX DATA ===\n${structuredData.join('\n')}`);
       console.log('📊 Transform: Added', structuredData.length, 'structured data entries to notes for', property.name);
+    }
+
+    // Section 5: Depreciating Assets (Division 40)
+    const depreciatingAssets: string[] = [];
+    propertyEvents.forEach((event) => {
+      if (event.depreciatingAssetsValue && event.depreciatingAssetsValue > 0) {
+        const eventDate = sanitizeDateForAPI(event.date) || 'Unknown';
+        const eventType = event.type.replace(/_/g, ' ');
+        depreciatingAssets.push(`${eventDate} (${eventType}): $${event.depreciatingAssetsValue.toLocaleString('en-AU')} - Division 40 assets (NOT in CGT cost base)`);
+      }
+    });
+
+    if (depreciatingAssets.length > 0) {
+      notesParts.push(`\n=== DEPRECIATING ASSETS (DIVISION 40) ===\n${depreciatingAssets.join('\n')}`);
+      console.log('💰 Transform: Added', depreciatingAssets.length, 'depreciating assets entries to notes for', property.name);
     }
 
     return {

@@ -108,6 +108,9 @@ export interface TimelineEvent {
   // NEW: Dynamic Cost Base Items
   costBases?: CostBaseItem[];  // Array of cost base items for this event
 
+  // NEW: Depreciating Assets (Division 40 - NOT included in CGT cost base)
+  depreciatingAssetsValue?: number;  // Total value of depreciating assets (appliances, carpets, blinds, etc.)
+
   // NEW: Ownership and Usage Splits
   businessUsePercentage?: number;  // Percentage of property used for business (0-100)
   rentalUsePercentage?: number;    // Percentage of property used for rental/investment (0-100)
@@ -1819,6 +1822,8 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
             ownershipChangeReasonOther: event.ownershipChangeReasonOther,
             // Subdivision details
             subdivisionDetails: event.subdivisionDetails,
+            // Depreciating assets value
+            depreciatingAssetsValue: event.depreciatingAssetsValue,
           };
         });
       } else if (data.properties && Array.isArray(data.properties)) {
@@ -1985,6 +1990,8 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
                 ownershipChangeReasonOther: historyItem.ownershipChangeReasonOther,
                 // Subdivision details
                 subdivisionDetails: historyItem.subdivisionDetails,
+                // Depreciating assets value
+                depreciatingAssetsValue: historyItem.depreciatingAssetsValue,
               };
 
               propertyEvents.push(event);

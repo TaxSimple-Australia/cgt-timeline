@@ -71,6 +71,86 @@
       "type": "image",
       "file": "/logos/logo-9-dark.png",
       "darkFile": "/logos/logo-9-dark.png"
+    },
+    {
+      "id": "logo-10",
+      "name": "Logo Option 10",
+      "description": "Tenth logo design option",
+      "type": "image",
+      "file": "/logos/logo-10-dark.png",
+      "darkFile": "/logos/logo-10-dark.png"
+    },
+    {
+      "id": "logo-11",
+      "name": "Logo Option 11",
+      "description": "Eleventh logo design option",
+      "type": "image",
+      "file": "/logos/logo-11-dark.png",
+      "darkFile": "/logos/logo-11-dark.png"
+    },
+    {
+      "id": "logo-12",
+      "name": "Logo Option 12",
+      "description": "Twelfth logo design option",
+      "type": "image",
+      "file": "/logos/logo-12-dark.png",
+      "darkFile": "/logos/logo-12-dark.png"
+    },
+    {
+      "id": "logo-13",
+      "name": "Logo Option 13",
+      "description": "Thirteenth logo design option",
+      "type": "image",
+      "file": "/logos/logo-13-dark.png",
+      "darkFile": "/logos/logo-13-dark.png"
+    },
+    {
+      "id": "logo-14",
+      "name": "Logo Option 14",
+      "description": "Fourteenth logo design option",
+      "type": "image",
+      "file": "/logos/logo-14-dark.png",
+      "darkFile": "/logos/logo-14-dark.png"
+    },
+    {
+      "id": "logo-15",
+      "name": "Logo Option 15",
+      "description": "Fifteenth logo design option",
+      "type": "image",
+      "file": "/logos/logo-15-dark.png",
+      "darkFile": "/logos/logo-15-dark.png"
+    },
+    {
+      "id": "logo-16",
+      "name": "Logo Option 16",
+      "description": "Sixteenth logo design option",
+      "type": "image",
+      "file": "/logos/logo-16-dark.png",
+      "darkFile": "/logos/logo-16-dark.png"
+    },
+    {
+      "id": "logo-17",
+      "name": "Logo Option 17",
+      "description": "Seventeenth logo design option",
+      "type": "image",
+      "file": "/logos/logo-17-dark.png",
+      "darkFile": "/logos/logo-17-dark.png"
+    },
+    {
+      "id": "logo-18",
+      "name": "Logo Option 18",
+      "description": "Eighteenth logo design option",
+      "type": "image",
+      "file": "/logos/logo-18-dark.png",
+      "darkFile": "/logos/logo-18-dark.png"
+    },
+    {
+      "id": "logo-19",
+      "name": "Logo Option 19",
+      "description": "Nineteenth logo design option",
+      "type": "image",
+      "file": "/logos/logo-19-dark.png",
+      "darkFile": "/logos/logo-19-dark.png"
     }
   ]
 }

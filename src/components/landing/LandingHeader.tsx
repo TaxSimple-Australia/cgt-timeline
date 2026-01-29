@@ -116,7 +116,7 @@ export default function LandingHeader() {
                     CGT
                   </span>
                   <span className="text-slate-900 dark:text-slate-100 ml-1">
-                    Brain
+                    Brain AI
                   </span>
                 </h1>
               )}

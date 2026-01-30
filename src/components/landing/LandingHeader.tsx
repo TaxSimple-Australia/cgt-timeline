@@ -12,8 +12,11 @@ import CGTBrainLogo from '@/components/branding/CGTBrainLogo';
 import LogoSwitcher from '@/components/branding/LogoSwitcher';
 import AdminLoginModal from '@/components/admin/AdminLoginModal';
 import AdviserLoginModal from '@/components/AdviserLoginModal';
+import TermsAndConditionsModal from '@/components/TermsAndConditionsModal';
+import { useTermsAcceptance } from '@/hooks/useTermsAcceptance';
 
 export default function LandingHeader() {
+  const { showModal, handleNavigateToTimeline, handleAccept, handleClose } = useTermsAcceptance();
   const pathname = usePathname();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -88,10 +91,9 @@ export default function LandingHeader() {
 
   const navLinks = [
     { label: 'How It Works', id: 'how-it-works', type: 'link' as const, href: '/landing#how-it-works' },
-    { label: 'About Us', id: 'about-us', type: 'link' as const },
-    { label: 'Pricing', id: 'pricing', type: 'link' as const },
-    { label: 'Training', id: 'training-videos', type: 'link' as const },
-    { label: 'Contact', id: 'contact', type: 'link' as const },
+    { label: 'Pricing', id: 'pricing', type: 'link' as const, href: '/pricing' },
+    { label: 'FAQ', id: 'faq', type: 'link' as const, href: '/faqs' },
+    { label: 'Contact', id: 'contact', type: 'link' as const, href: '/contact' },
   ];
 
   return (
@@ -108,7 +110,7 @@ export default function LandingHeader() {
           {/* Logo */}
           <Link href="/landing" className="flex-shrink-0">
             <div className="flex items-center gap-3">
-              <CGTBrainLogo size="xl" variant={currentLogoVariant} />
+              <CGTBrainLogo size="2xl" variant={currentLogoVariant} />
               {/* Hide text for logo-4 since it has text built in */}
               {currentLogoVariant !== 'logo-4' && (
                 <h1 className="font-bold text-xl md:text-2xl">
@@ -225,24 +227,14 @@ export default function LandingHeader() {
               </AnimatePresence>
             </div>
 
-            {/* Desktop CTAs */}
-            <Link href="/book-demo">
-              <Button
-                size="sm"
-                variant="outline"
-                className="h-9 px-4 font-medium border-cyan-500/30 text-cyan-400 hover:bg-cyan-500/10 hover:border-cyan-500/50 transition-all"
-              >
-                Book a Demo
-              </Button>
-            </Link>
-            <Link href="/">
-              <Button
-                size="sm"
-                className="h-9 px-4 font-medium bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white shadow-lg shadow-cyan-500/30 hover:shadow-cyan-500/50 transition-all"
-              >
-                Get Started
-              </Button>
-            </Link>
+            {/* Desktop CTA */}
+            <Button
+              onClick={handleNavigateToTimeline}
+              size="sm"
+              className="h-9 px-4 font-medium bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white shadow-lg shadow-cyan-500/30 hover:shadow-cyan-500/50 transition-all"
+            >
+              Get Started
+            </Button>
           </div>
 
           {/* Mobile Menu Button */}
@@ -331,24 +323,14 @@ export default function LandingHeader() {
                 )}
               </div>
 
-              {/* Mobile CTAs */}
-              <Link href="/book-demo" className="block pt-3">
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="w-full border-cyan-500/30 text-cyan-400 hover:bg-cyan-500/10 hover:border-cyan-500/50 transition-all"
-                >
-                  Book a Demo
-                </Button>
-              </Link>
-              <Link href="/" className="block pt-2">
-                <Button
-                  size="sm"
-                  className="w-full bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white shadow-lg shadow-cyan-500/30 transition-all"
-                >
-                  Get Started
-                </Button>
-              </Link>
+              {/* Mobile CTA */}
+              <Button
+                onClick={handleNavigateToTimeline}
+                size="sm"
+                className="w-full bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white shadow-lg shadow-cyan-500/30 transition-all mt-3"
+              >
+                Get Started
+              </Button>
             </div>
           </motion.div>
         )}
@@ -364,6 +346,11 @@ export default function LandingHeader() {
         isOpen={showAdviserLogin}
         onClose={() => setShowAdviserLogin(false)}
         onLoginSuccess={() => handleLoginSuccess('adviser')}
+      />
+      <TermsAndConditionsModal
+        isOpen={showModal}
+        onAccept={handleAccept}
+        onClose={handleClose}
       />
     </header>
   );

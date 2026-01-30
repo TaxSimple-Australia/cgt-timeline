@@ -227,6 +227,16 @@ export default function PropertyBranch({
 
   const eventsWithTiers = assignLabelTiers();
 
+  // Filter out status_change events with newStatus="vacant" BEFORE calculating offsets
+  // This ensures remaining events don't get stacking offsets from hidden events
+  // (data remains intact for backend purposes - status bands still show "Vacant" label)
+  const eventsForRendering = eventsWithTiers.filter(event => {
+    if (event.type === 'status_change' && (event as any).newStatus === 'vacant') {
+      return false;
+    }
+    return true;
+  });
+
   // Assign vertical offsets for overlapping circles
   const assignCircleVerticalOffsets = () => {
     // Calculate zoom-aware threshold based on timeline range
@@ -236,13 +246,13 @@ export default function PropertyBranch({
 
     interface PositionGroup {
       position: number;
-      events: Array<typeof eventsWithTiers[0] & { verticalOffset: number; zIndex: number }>;
+      events: Array<typeof eventsForRendering[0] & { verticalOffset: number; zIndex: number }>;
     }
 
     const positionGroups: PositionGroup[] = [];
 
     // Group events by position (with zoom-aware threshold)
-    eventsWithTiers.forEach(event => {
+    eventsForRendering.forEach(event => {
       const existingGroup = positionGroups.find(group =>
         Math.abs(group.position - event.calculatedPosition) < POSITION_THRESHOLD
       );
@@ -291,30 +301,49 @@ export default function PropertyBranch({
   };
 
   // Add synthetic status marker for unsold properties at today's date
-  const addStatusMarkerIfNeeded = () => {
+  const addStatusMarkerIfNeeded = (baseEvents: typeof eventsWithOffsetsAndTiers) => {
     // For subdivided properties, check if Lot 1 (main continuation) is sold
     // If not sold, show status marker based on Lot 1's status
     if (hasBeenSubdivided) {
       const lot1 = childLots.find(c => c.isMainLotContinuation);
-      if (!lot1) return eventsWithOffsetsAndTiers;
+      if (!lot1) return baseEvents;
 
       // Check if Lot 1 is sold
       const lot1Events = allEvents.filter(e => e.propertyId === lot1.id);
       const lot1HasSaleEvent = lot1Events.some(e => e.type === 'sale');
       const lot1IsSold = lot1.currentStatus === 'sold' || lot1.saleDate || lot1HasSaleEvent;
 
-      if (lot1IsSold) return eventsWithOffsetsAndTiers;
+      if (lot1IsSold) return baseEvents;
 
       // Calculate today's position
       const todayPosition = getTodayPosition(timelineStart, timelineEnd);
-      if (todayPosition < 0 || todayPosition > 100) return eventsWithOffsetsAndTiers;
+
+      // Find the last event date - position marker 1 year after it
+      const lastEvent = baseEvents.length > 0
+        ? baseEvents.reduce((latest, e) => e.date > latest.date ? e : latest)
+        : null;
+      const lastEventDate = lastEvent ? new Date(lastEvent.date) : new Date();
+
+      // Add 1 year to the last event date for marker position
+      const markerDate = new Date(lastEventDate);
+      markerDate.setFullYear(markerDate.getFullYear() + 1);
+
+      // Use the later of: today's position OR marker date position
+      const markerPosition = Math.max(
+        todayPosition,
+        dateToPosition(markerDate, timelineStart, timelineEnd)
+      );
+
+      // Only add if marker position is visible in timeline
+      if (markerPosition < 0 || markerPosition > 100) return baseEvents;
 
       const today = new Date();
       const statusPeriods = calculateStatusPeriods(lot1Events);
       const currentStatusPeriod = statusPeriods.find(p => p.endDate === null);
       const currentStatus = currentStatusPeriod?.status || 'vacant';
-      const statusColor = statusColors[currentStatus] || '#94a3b8';
-      const clampedPosition = Math.max(0, Math.min(todayPosition, 100));
+      // Always use grey for "Not Sold" marker
+      const statusColor = '#94a3b8';
+      const clampedPosition = Math.max(0, Math.min(markerPosition, 100));
 
       const statusMarker: any = {
         id: `status-marker-${lot1.id}`,
@@ -332,29 +361,46 @@ export default function PropertyBranch({
         zIndex: 999,
       };
 
-      return [...eventsWithOffsetsAndTiers, statusMarker];
+      return [...baseEvents, statusMarker];
     }
 
     // Check all possible indicators that property is sold
     const hasSaleEvent = events.some(e => e.type === 'sale');
     const isSold = property.currentStatus === 'sold' || property.saleDate || hasSaleEvent;
-    if (isSold) return eventsWithOffsetsAndTiers;
+    if (isSold) return baseEvents;
 
     // Calculate today's position relative to current timeline bounds (unclamped)
     const todayPosition = getTodayPosition(timelineStart, timelineEnd);
 
-    // Only add if today is visible in timeline
-    if (todayPosition < 0 || todayPosition > 100) return eventsWithOffsetsAndTiers;
+    // Find the last event date - position marker 1 year after it
+    const lastEvent = baseEvents.length > 0
+      ? baseEvents.reduce((latest, e) => e.date > latest.date ? e : latest)
+      : null;
+    const lastEventDate = lastEvent ? new Date(lastEvent.date) : new Date();
+
+    // Add 1 year to the last event date for marker position
+    const markerDate = new Date(lastEventDate);
+    markerDate.setFullYear(markerDate.getFullYear() + 1);
+
+    // Use the later of: today's position OR marker date position
+    const markerPosition = Math.max(
+      todayPosition,
+      dateToPosition(markerDate, timelineStart, timelineEnd)
+    );
+
+    // Only add if marker position is visible in timeline
+    if (markerPosition < 0 || markerPosition > 100) return baseEvents;
 
     const today = new Date();
 
     const statusPeriods = calculateStatusPeriods(events);
     const currentStatusPeriod = statusPeriods.find(p => p.endDate === null);
     const currentStatus = currentStatusPeriod?.status || 'vacant';
-    const statusColor = statusColors[currentStatus] || '#94a3b8';
+    // Always use grey for "Not Sold" marker
+    const statusColor = '#94a3b8';
 
     // Clamp position for rendering (marker must be within 0-100%)
-    const clampedPosition = Math.max(0, Math.min(todayPosition, 100));
+    const clampedPosition = Math.max(0, Math.min(markerPosition, 100));
 
     const statusMarker: any = {
       id: `status-marker-${property.id}`,
@@ -372,10 +418,10 @@ export default function PropertyBranch({
       zIndex: 999,
     };
 
-    return [...eventsWithOffsetsAndTiers, statusMarker];
+    return [...baseEvents, statusMarker];
   };
 
-  const eventsToRender = addStatusMarkerIfNeeded();
+  const eventsToRender = addStatusMarkerIfNeeded(eventsWithOffsetsAndTiers);
 
   // Check if property has any events
   const hasEvents = events.length > 0;

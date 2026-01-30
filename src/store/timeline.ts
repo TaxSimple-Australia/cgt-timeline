@@ -291,6 +291,9 @@ interface TimelineState {
   // Logo/Branding State
   currentLogoVariant: string; // Currently selected logo variant ID (e.g., 'text-current', 'logo-1')
 
+  // Terms & Conditions State
+  hasAcceptedTerms: boolean; // Whether user has accepted T&C
+
   // Actions
   addProperty: (property: Omit<Property, 'id' | 'branch'>) => void;
   updateProperty: (id: string, property: Partial<Property>) => void;
@@ -371,6 +374,9 @@ interface TimelineState {
   // Marginal Tax Rate Actions
   setMarginalTaxRate: (rate: number) => void;
   initializeMarginalTaxRate: () => void; // Extract rate from existing sale events
+
+  // Terms & Conditions Actions
+  setTermsAccepted: (accepted: boolean) => void;
 
   // Subdivision Collapse Actions
   toggleSubdivisionCollapse: (subdivisionGroup: string) => void;
@@ -720,6 +726,9 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
 
     // Logo/Branding initial state
     currentLogoVariant: typeof window !== 'undefined' && localStorage.getItem('logoVariant') || 'logo-1',
+
+    // Terms & Conditions initial state
+    hasAcceptedTerms: (typeof window !== 'undefined' && localStorage.getItem('cgtBrain_termsAccepted') === 'true') || false,
 
     // Sticky Notes initial state
     timelineStickyNotes: [],
@@ -2635,6 +2644,19 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
 
     // If no non-37% rate found, keep the default of 37%
     console.log('📊 Using default marginal tax rate: 37%');
+  },
+
+  // Terms & Conditions Actions
+  setTermsAccepted: (accepted: boolean) => {
+    set({ hasAcceptedTerms: accepted });
+    // Persist to localStorage
+    if (typeof window !== 'undefined') {
+      if (accepted) {
+        localStorage.setItem('cgtBrain_termsAccepted', 'true');
+      } else {
+        localStorage.removeItem('cgtBrain_termsAccepted');
+      }
+    }
   },
 
   // Subdivision Collapse Actions

@@ -5,8 +5,11 @@ import { motion } from 'framer-motion';
 import { ArrowRight, Check } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
+import TermsAndConditionsModal from '@/components/TermsAndConditionsModal';
+import { useTermsAcceptance } from '@/hooks/useTermsAcceptance';
 
 export default function FinalCTA() {
+  const { showModal, handleNavigateToTimeline, handleAccept, handleClose } = useTermsAcceptance();
   const benefits = [
     'No credit card required',
     'Free forever for core features',
@@ -52,15 +55,14 @@ export default function FinalCTA() {
           </p>
 
           {/* CTA Button */}
-          <Link href="/">
-            <Button
-              size="lg"
-              className="group bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white px-12 py-8 text-xl font-semibold shadow-2xl shadow-cyan-500/50 hover:shadow-cyan-500/70 transition-all duration-300 hover:scale-105"
-            >
-              Calculate My CGT (Free Forever)
-              <ArrowRight className="w-6 h-6 ml-3 group-hover:translate-x-2 transition-transform duration-300" />
-            </Button>
-          </Link>
+          <Button
+            onClick={handleNavigateToTimeline}
+            size="lg"
+            className="group bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white px-12 py-8 text-xl font-semibold shadow-2xl shadow-cyan-500/50 hover:shadow-cyan-500/70 transition-all duration-300 hover:scale-105"
+          >
+            Calculate My CGT (Free Forever)
+            <ArrowRight className="w-6 h-6 ml-3 group-hover:translate-x-2 transition-transform duration-300" />
+          </Button>
 
           {/* Benefits list */}
           <div className="flex flex-wrap justify-center items-center gap-6 mt-8">
@@ -124,6 +126,13 @@ export default function FinalCTA() {
           ))}
         </motion.div>
       </div>
+
+      {/* Terms & Conditions Modal */}
+      <TermsAndConditionsModal
+        isOpen={showModal}
+        onAccept={handleAccept}
+        onClose={handleClose}
+      />
     </section>
   );
 }

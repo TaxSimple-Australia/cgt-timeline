@@ -25,10 +25,12 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { AITimelineBuilder, AIBuilderButton } from '@/components/ai-builder';
 import SessionRestoreModal from '@/components/SessionRestoreModal';
 import SaveIndicator from '@/components/SaveIndicator';
-import TermsAcceptanceModal, { hasAcceptedTerms } from '@/components/TermsAcceptanceModal';
+import TermsAcceptanceModal, { hasAcceptedTerms as checkTermsAccepted } from '@/components/TermsAcceptanceModal';
 import { useEnhancedStore, initializeEnhancer } from '@/store/storeEnhancer';
 import { useUndoRedoShortcuts } from '@/hooks/useUndoRedoShortcuts';
 import { useBeforeUnload } from '@/hooks/useBeforeUnload';
+import TermsAndConditionsModal from '@/components/TermsAndConditionsModal';
+import { useTermsAcceptance } from '@/hooks/useTermsAcceptance';
 
 // Loading screen component for Suspense fallback
 function ShareLoadingScreen() {
@@ -47,6 +49,7 @@ function ShareLoadingScreen() {
 function HomeContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const { showModal, handleAccept, handleClose, hasAcceptedTerms } = useTermsAcceptance();
   const {
     selectedProperty,
     loadDemoData,
@@ -101,7 +104,7 @@ function HomeContent() {
   const [termsAccepted, setTermsAccepted] = useState(() => {
     // Check on initial render if terms are already accepted
     if (typeof window !== 'undefined') {
-      return hasAcceptedTerms();
+      return checkTermsAccepted();
     }
     return false;
   });
@@ -110,7 +113,7 @@ function HomeContent() {
   // Initialize to true if terms are already accepted
   const [showSessionRestore, setShowSessionRestore] = useState(() => {
     if (typeof window !== 'undefined') {
-      return hasAcceptedTerms();
+      return checkTermsAccepted();
     }
     return false;
   });
@@ -1054,6 +1057,13 @@ function HomeContent() {
       <AITimelineBuilder
         isOpen={isAIBuilderOpen}
         onClose={() => setIsAIBuilderOpen(false)}
+      />
+
+      {/* Terms & Conditions Modal - Safety check for direct access */}
+      <TermsAndConditionsModal
+        isOpen={showModal}
+        onAccept={handleAccept}
+        onClose={handleClose}
       />
     </main>
   );

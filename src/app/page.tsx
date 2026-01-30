@@ -23,6 +23,12 @@ import '@/lib/test-verification-alerts'; // Load test utilities for browser cons
 import { ChevronDown, ChevronUp, Sparkles, AlertTriangle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AITimelineBuilder, AIBuilderButton } from '@/components/ai-builder';
+import SessionRestoreModal from '@/components/SessionRestoreModal';
+import SaveIndicator from '@/components/SaveIndicator';
+import TermsAcceptanceModal, { hasAcceptedTerms } from '@/components/TermsAcceptanceModal';
+import { useEnhancedStore, initializeEnhancer } from '@/store/storeEnhancer';
+import { useUndoRedoShortcuts } from '@/hooks/useUndoRedoShortcuts';
+import { useBeforeUnload } from '@/hooks/useBeforeUnload';
 
 // Loading screen component for Suspense fallback
 function ShareLoadingScreen() {
@@ -90,6 +96,34 @@ function HomeContent() {
 
   // AI Timeline Builder state
   const [isAIBuilderOpen, setIsAIBuilderOpen] = useState(false);
+
+  // Terms Acceptance state - shows first before anything else
+  const [termsAccepted, setTermsAccepted] = useState(() => {
+    // Check on initial render if terms are already accepted
+    if (typeof window !== 'undefined') {
+      return hasAcceptedTerms();
+    }
+    return false;
+  });
+
+  // Session Restore state - only shows after terms are accepted
+  // Initialize to true if terms are already accepted
+  const [showSessionRestore, setShowSessionRestore] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return hasAcceptedTerms();
+    }
+    return false;
+  });
+  const [sessionRestoreComplete, setSessionRestoreComplete] = useState(false);
+
+  // Enhanced store hooks (auto-save, undo/redo)
+  const enhancedStore = useEnhancedStore();
+
+  // Keyboard shortcuts for undo/redo (Ctrl+Z, Ctrl+Y)
+  useUndoRedoShortcuts({ enabled: sessionRestoreComplete });
+
+  // Warn before leaving with unsaved changes
+  useBeforeUnload({ enabled: sessionRestoreComplete });
 
   // Ref to track if we've loaded demo alerts (prevent re-loading on resolution)
   const demoAlertsLoadedRef = useRef(false);
@@ -807,6 +841,35 @@ function HomeContent() {
           <p className="font-medium">Failed to load shared timeline</p>
           <p className="text-sm text-red-100">{shareError}</p>
         </div>
+      )}
+
+      {/* Terms Acceptance Modal - Shows first before anything else */}
+      {!termsAccepted && (
+        <TermsAcceptanceModal
+          onAccept={() => {
+            setTermsAccepted(true);
+            setShowSessionRestore(true);
+          }}
+        />
+      )}
+
+      {/* Session Restore Modal - Only shows after terms are accepted */}
+      {termsAccepted && showSessionRestore && (
+        <SessionRestoreModal
+          onRestoreComplete={() => {
+            setShowSessionRestore(false);
+            setSessionRestoreComplete(true);
+          }}
+          onStartFresh={() => {
+            setShowSessionRestore(false);
+            setSessionRestoreComplete(true);
+          }}
+        />
+      )}
+
+      {/* Save Indicator */}
+      {sessionRestoreComplete && (
+        <SaveIndicator position="bottom-right" showAlways={false} />
       )}
 
       {/* Main Content Area */}

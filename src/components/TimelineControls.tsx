@@ -25,9 +25,12 @@ import {
   ChevronDown,
   StickyNote,
   Share2,
-  Plus
+  Plus,
+  Undo2,
+  Redo2
 } from 'lucide-react';
 import { showSuccess, showError } from '@/lib/toast-helpers';
+import { useEnhancedStore } from '@/store/storeEnhancer';
 
 interface TimelineControlsProps {
   /** Reference to the timeline container for sticky note positioning */
@@ -65,6 +68,16 @@ export default function TimelineControls({ timelineContainerRef }: TimelineContr
     openNotesModal,
     timelineNotes
   } = useTimelineStore();
+
+  // Undo/Redo state from enhanced store
+  const {
+    undoManager,
+    undo: performUndo,
+    redo: performRedo,
+  } = useEnhancedStore();
+
+  const canUndo = undoManager.canUndo;
+  const canRedo = undoManager.canRedo;
 
   // Shorter zoom level labels for smaller screens
   const zoomLevelLabels: Record<string, { full: string; short: string }> = {
@@ -456,6 +469,27 @@ export default function TimelineControls({ timelineContainerRef }: TimelineContr
 
           {/* Desktop Action Buttons */}
           <div className="hidden sm:flex items-center gap-0.5 sm:gap-1">
+            {/* Undo/Redo Buttons */}
+            <IconButton
+              onClick={performUndo}
+              title="Undo (Ctrl+Z)"
+              disabled={!canUndo}
+              className={!canUndo ? 'opacity-40 cursor-not-allowed' : ''}
+            >
+              <Undo2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-600 dark:text-slate-300" />
+            </IconButton>
+
+            <IconButton
+              onClick={performRedo}
+              title="Redo (Ctrl+Y)"
+              disabled={!canRedo}
+              className={!canRedo ? 'opacity-40 cursor-not-allowed' : ''}
+            >
+              <Redo2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-600 dark:text-slate-300" />
+            </IconButton>
+
+            <div className="w-px h-5 bg-slate-200 dark:bg-slate-700 mx-0.5" />
+
             <IconButton onClick={handleExport} title="Export Timeline">
               <Download className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-600 dark:text-slate-300" />
             </IconButton>
@@ -556,6 +590,25 @@ export default function TimelineControls({ timelineContainerRef }: TimelineContr
 
           {/* Action Buttons Grid */}
           <div className="grid grid-cols-4 gap-1 p-2">
+            {/* Undo/Redo in mobile */}
+            <button
+              onClick={() => { if (canUndo) { performUndo(); setShowMobileMenu(false); } }}
+              className={`flex flex-col items-center gap-1 p-2 rounded-lg ${canUndo ? 'hover:bg-slate-100 dark:hover:bg-slate-800' : 'opacity-40'}`}
+              disabled={!canUndo}
+            >
+              <Undo2 className="w-5 h-5 text-slate-600 dark:text-slate-400" />
+              <span className="text-[10px] text-slate-600 dark:text-slate-400">Undo</span>
+            </button>
+
+            <button
+              onClick={() => { if (canRedo) { performRedo(); setShowMobileMenu(false); } }}
+              className={`flex flex-col items-center gap-1 p-2 rounded-lg ${canRedo ? 'hover:bg-slate-100 dark:hover:bg-slate-800' : 'opacity-40'}`}
+              disabled={!canRedo}
+            >
+              <Redo2 className="w-5 h-5 text-slate-600 dark:text-slate-400" />
+              <span className="text-[10px] text-slate-600 dark:text-slate-400">Redo</span>
+            </button>
+
             <button
               onClick={() => { handleExport(); setShowMobileMenu(false); }}
               className="flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"

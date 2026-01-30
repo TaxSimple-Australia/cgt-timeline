@@ -32,8 +32,8 @@ export default function ContactPage() {
     },
     {
       icon: MapPin,
-      label: 'Location',
-      value: 'Sydney, Australia',
+      label: 'Address',
+      value: 'PO Box 1234, Sydney NSW 2000',
       href: null,
     },
   ];
@@ -89,7 +89,7 @@ export default function ContactPage() {
                   </div>
                   <div>
                     <p className="text-sm font-medium text-slate-400 mb-1">{info.label}</p>
-                    <p className="text-sm md:text-base text-white break-words">{info.value}</p>
+                    <p className="text-xs md:text-sm text-white break-words">{info.value}</p>
                   </div>
                 </motion.div>
               );

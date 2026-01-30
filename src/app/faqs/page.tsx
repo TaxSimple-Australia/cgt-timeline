@@ -4,6 +4,8 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { HelpCircle, ChevronUp, ChevronDown } from 'lucide-react';
+import LandingHeader from '@/components/landing/LandingHeader';
+import LandingFooter from '@/components/landing/LandingFooter';
 
 export default function FAQsPage() {
   const [scrollProgress, setScrollProgress] = useState(0);
@@ -88,23 +90,7 @@ export default function FAQsPage() {
       </div>
 
       {/* Header */}
-      <header className="fixed top-0 left-0 right-0 bg-slate-900/95 backdrop-blur-md border-b border-slate-800 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between">
-            <Link href="/landing" className="flex-shrink-0">
-              <h1 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent hover:from-cyan-300 hover:to-blue-400 transition-all">
-                CGT Brain AI Timeline
-              </h1>
-            </Link>
-            <Link
-              href="/landing"
-              className="text-sm text-slate-400 hover:text-cyan-400 transition-colors flex items-center gap-2"
-            >
-              ← Back to Home
-            </Link>
-          </div>
-        </div>
-      </header>
+      <LandingHeader />
 
       {/* Main Content */}
       <main className="relative z-10 pt-24 pb-16">
@@ -247,14 +233,7 @@ export default function FAQsPage() {
       </AnimatePresence>
 
       {/* Footer */}
-      <footer className="relative z-10 bg-slate-900/90 backdrop-blur-sm border-t border-slate-800 mt-24">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="text-center text-sm text-slate-400">
-            <p>&copy; {new Date().getFullYear()} CGT Brain. All rights reserved.</p>
-            <p className="mt-2">CGT Brain AI Timeline - Capital Gains Tax Analysis Tool</p>
-          </div>
-        </div>
-      </footer>
+      <LandingFooter />
     </div>
   );
 }

@@ -56,7 +56,7 @@ export default function AIHumanSection() {
             </h3>
 
             <p className="text-slate-400 leading-relaxed">
-              There is widespread discussion about AI and its potential impact on professional services, with many assuming it will replace traditional roles such as accountants. At CGT BRAIN, we see it very differently. We believe CGT BRAIN AI will enhance, not replace the way accountants conduct property research and prepare advice, making the process faster, more comprehensive, and more accessible, while still relying on expert human judgment at its core.
+              The conversation around AI often focuses on replacement. However, at CGT BRAIN AI, we focus on amplification. We have redesigned the workflow of property tax advice to be more agile and data-rich, yet our core remains unchanged; human-led and specialist-verified.
             </p>
           </motion.div>
 
@@ -77,7 +77,7 @@ export default function AIHumanSection() {
             </h3>
 
             <p className="text-slate-400 leading-relaxed">
-              Every AI-generated response used in a professional setting must be reviewed, verified, and validated by a specialist tax expert who carries the responsibility, indemnities, and liabilities associated with client advice. This is where CGT BRAIN truly excels. Our established review process, supported by specialist tax advisers, is designed to validate CGT BRAIN AI generated outputs as well as traditional case work, ensuring accuracy, compliance, and confidence in every outcome.
+              We operate under a strict mandate that no AI response is final until it has been vetted by a tax specialist who assumes full responsibility and indemnity. By combining the efficiency of CGT BRAIN AI with our established, specialist-led review process, we provide a level of accuracy and security that technology alone cannot achieve.
             </p>
           </motion.div>
         </div>

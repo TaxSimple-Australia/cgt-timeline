@@ -23,6 +23,8 @@ import '@/lib/test-verification-alerts'; // Load test utilities for browser cons
 import { ChevronDown, ChevronUp, Sparkles, AlertTriangle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AITimelineBuilder, AIBuilderButton } from '@/components/ai-builder';
+import TermsAndConditionsModal from '@/components/TermsAndConditionsModal';
+import { useTermsAcceptance } from '@/hooks/useTermsAcceptance';
 
 // Loading screen component for Suspense fallback
 function ShareLoadingScreen() {
@@ -41,6 +43,7 @@ function ShareLoadingScreen() {
 function HomeContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const { showModal, handleAccept, handleClose, hasAcceptedTerms } = useTermsAcceptance();
   const {
     selectedProperty,
     loadDemoData,
@@ -991,6 +994,13 @@ function HomeContent() {
       <AITimelineBuilder
         isOpen={isAIBuilderOpen}
         onClose={() => setIsAIBuilderOpen(false)}
+      />
+
+      {/* Terms & Conditions Modal - Safety check for direct access */}
+      <TermsAndConditionsModal
+        isOpen={showModal}
+        onAccept={handleAccept}
+        onClose={handleClose}
       />
     </main>
   );

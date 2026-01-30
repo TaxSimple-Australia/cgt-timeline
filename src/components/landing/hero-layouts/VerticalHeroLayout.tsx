@@ -6,8 +6,11 @@ import { ArrowRight, Calendar, Sparkles, Calculator, FileText, ShieldCheck, BarC
 import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
+import TermsAndConditionsModal from '@/components/TermsAndConditionsModal';
+import { useTermsAcceptance } from '@/hooks/useTermsAcceptance';
 
 export default function VerticalHeroLayout() {
+  const { showModal, handleNavigateToTimeline, handleAccept, handleClose } = useTermsAcceptance();
   return (
     <>
       {/* Animated gradient background */}
@@ -72,12 +75,14 @@ export default function VerticalHeroLayout() {
           transition={{ duration: 0.5, delay: 0.3 }}
           className="flex flex-col sm:flex-row gap-4 justify-center items-center"
         >
-          <Link href="/">
-            <Button size="lg" className="group bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white px-8 py-6 text-lg shadow-lg shadow-cyan-500/50 hover:shadow-xl hover:shadow-cyan-500/60 transition-all">
-              Start Building Your Timeline
-              <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
-            </Button>
-          </Link>
+          <Button
+            onClick={handleNavigateToTimeline}
+            size="lg"
+            className="group bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white px-8 py-6 text-lg shadow-lg shadow-cyan-500/50 hover:shadow-xl hover:shadow-cyan-500/60 transition-all"
+          >
+            Start Building Your Timeline
+            <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+          </Button>
 
           <Link href="#how-it-works">
             <Button variant="outline" size="lg" className="border-slate-600 text-slate-300 hover:bg-slate-800 hover:text-white px-8 py-6 text-lg">
@@ -178,6 +183,13 @@ export default function VerticalHeroLayout() {
           </div>
         </div>
       </motion.div>
+
+      {/* Terms & Conditions Modal */}
+      <TermsAndConditionsModal
+        isOpen={showModal}
+        onAccept={handleAccept}
+        onClose={handleClose}
+      />
     </>
   );
 }

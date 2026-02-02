@@ -1108,9 +1108,6 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
 
     if (!event) return;
 
-    // Store original date for linked event detection
-    const originalDate = event.date;
-
     // Validate: Prevent updating event date past subdivision date
     if (updates.date && event.propertyId) {
       const property = state.properties.find(p => p.id === event.propertyId);
@@ -1141,16 +1138,6 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
         return; // Block the update
       }
     }
-
-    // Debug logging for drag
-    console.log('🔄 updateEvent called:', {
-      id,
-      eventType: event.type,
-      oldDate: event.date,
-      newDate: updates.date,
-      checkboxState: event.checkboxState,
-      moveInOnSameDay: event.checkboxState?.moveInOnSameDay,
-    });
 
     set((state) => {
       const updatedEvents = state.events.map((e) => {
@@ -1185,93 +1172,6 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
         centerDate: updatedEvent?.date || state.centerDate
       };
     });
-
-    // Handle all linked events - Move secondary events when primary event is dragged
-    if (updates.date && event.checkboxState) {
-      const currentState = get();
-      const newDate = updates.date;
-      const checkboxState = event.checkboxState;
-
-      // Helper function to find and move a linked event
-      const findAndMoveLinkedEvent = (linkedEventType: EventType, checkboxName: string, additionalFilter?: (e: TimelineEvent) => boolean) => {
-        const linkedEvent = currentState.events.find(
-          (e) =>
-            e.propertyId === event.propertyId &&
-            e.type === linkedEventType &&
-            e.date.getTime() === originalDate.getTime() && // Same as old primary event date
-            (additionalFilter ? additionalFilter(e) : true)
-        );
-
-        if (linkedEvent) {
-          console.log(`🔗 Moving linked ${linkedEventType} event:`, {
-            primaryEventId: event.id,
-            primaryEventType: event.type,
-            linkedEventId: linkedEvent.id,
-            checkboxName,
-            oldDate: originalDate,
-            newDate,
-          });
-
-          // Update the linked event to the new date
-          set((state) => ({
-            events: state.events.map((e) => {
-              if (e.id !== linkedEvent.id) return e;
-              return { ...e, date: newDate };
-            }),
-          }));
-        }
-      };
-
-      // GROUP 1: Events that create move_in
-      if (event.type === 'purchase' && checkboxState.moveInOnSameDay) {
-        findAndMoveLinkedEvent('move_in', 'moveInOnSameDay');
-      }
-      if (event.type === 'rent_end' && checkboxState.rentEndAsMoveIn) {
-        findAndMoveLinkedEvent('move_in', 'rentEndAsMoveIn');
-      }
-      if (event.type === 'vacant_end' && checkboxState.vacantEndAsMoveIn) {
-        findAndMoveLinkedEvent('move_in', 'vacantEndAsMoveIn');
-      }
-
-      // GROUP 2: Events that create rent_start
-      if (event.type === 'purchase' && checkboxState.purchaseAsRent) {
-        findAndMoveLinkedEvent('rent_start', 'purchaseAsRent');
-      }
-      if (event.type === 'move_out' && checkboxState.moveOutAsRent) {
-        findAndMoveLinkedEvent('rent_start', 'moveOutAsRent');
-      }
-      if (event.type === 'vacant_end' && checkboxState.vacantEndAsRent) {
-        findAndMoveLinkedEvent('rent_start', 'vacantEndAsRent');
-      }
-
-      // GROUP 3: Events that create status_change (vacant)
-      // Use additionalFilter to match status_change with newStatus: 'vacant'
-      if (event.type === 'purchase' && checkboxState.purchaseAsVacant) {
-        findAndMoveLinkedEvent('status_change', 'purchaseAsVacant', (e) => e.newStatus === 'vacant');
-      }
-      if (event.type === 'move_out' && checkboxState.moveOutAsVacant) {
-        findAndMoveLinkedEvent('status_change', 'moveOutAsVacant', (e) => e.newStatus === 'vacant');
-      }
-      if (event.type === 'rent_end' && checkboxState.rentEndAsVacant) {
-        findAndMoveLinkedEvent('status_change', 'rentEndAsVacant', (e) => e.newStatus === 'vacant');
-      }
-
-      // GROUP 4: Mixed-use (special case - purchase only)
-      // Creates move_in OR rent_start depending on living/rental percentages
-      if (event.type === 'purchase' && checkboxState.purchaseAsMixedUse) {
-        // Check if living % > 0 (creates move_in) or rental % > 0 with living % = 0 (creates rent_start)
-        const hasLivingPercentage = event.livingPercentage && event.livingPercentage > 0;
-        const hasOnlyRentalPercentage = event.rentalPercentage && event.rentalPercentage > 0 && (!event.livingPercentage || event.livingPercentage === 0);
-
-        if (hasLivingPercentage && !checkboxState.moveInOnSameDay) {
-          // Mixed-use with living creates move_in on a different date (if moveInOnSameDay not checked)
-          findAndMoveLinkedEvent('move_in', 'purchaseAsMixedUse (living)');
-        } else if (hasOnlyRentalPercentage) {
-          // Mixed-use with only rental creates rent_start
-          findAndMoveLinkedEvent('rent_start', 'purchaseAsMixedUse (rental only)');
-        }
-      }
-    }
   },
   
   deleteEvent: (id) => {
@@ -1347,8 +1247,6 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
       newDate,
       hasContractDate: !!event.contractDate,
       oldContractDate: event.contractDate,
-      checkboxState: event.checkboxState,
-      moveInOnSameDay: event.checkboxState?.moveInOnSameDay,
     });
 
     set((state) => ({
@@ -1379,7 +1277,6 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
 
     // NEW: Handle linked events - Move Move In event when Purchase is dragged (if created via "move in on same date")
     if (event.type === 'purchase' && event.checkboxState?.moveInOnSameDay) {
-      console.log('🔗 Purchase event has moveInOnSameDay checkbox checked, looking for linked move_in...');
       const currentState = get();
 
       // Find the linked move_in event on the ORIGINAL purchase date (before drag)
@@ -1389,17 +1286,6 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
           e.type === 'move_in' &&
           e.date.getTime() === originalDate.getTime() // Same as old purchase date
       );
-
-      console.log('🔍 Searching for linked move_in:', {
-        propertyId: event.propertyId,
-        originalDateTimestamp: originalDate.getTime(),
-        allMoveInEvents: currentState.events.filter(e => e.type === 'move_in' && e.propertyId === event.propertyId).map(e => ({
-          id: e.id,
-          date: e.date,
-          timestamp: e.date.getTime()
-        })),
-        foundLinkedMoveIn: !!linkedMoveIn,
-      });
 
       if (linkedMoveIn) {
         console.log('🔗 Moving linked Move In event with Purchase:', {

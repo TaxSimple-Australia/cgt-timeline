@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 
 export default function V4Hero() {
   return (
-    <section className="relative h-screen bg-slate-950 flex items-center justify-center overflow-hidden pt-20">
+    <section className="relative h-screen bg-slate-950 flex items-center justify-center overflow-hidden pt-28">
       {/* Subtle grid pattern */}
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#0f172a_1px,transparent_1px),linear-gradient(to_bottom,#0f172a_1px,transparent_1px)] bg-[size:4rem_4rem] opacity-20" />
 
@@ -23,19 +23,6 @@ export default function V4Hero() {
             transition={{ duration: 0.7, ease: 'easeOut' }}
             className="space-y-8"
           >
-            {/* Tag */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              className="inline-block"
-            >
-              <div className="inline-flex items-center gap-2 px-4 py-2 bg-cyan-500/10 border border-cyan-500/30 rounded-full">
-                <Calendar className="w-4 h-4 text-cyan-400" />
-                <span className="text-sm text-cyan-400 font-medium">Australian AI Property CGT Calc</span>
-              </div>
-            </motion.div>
-
             {/* Headline */}
             <motion.h1
               initial={{ opacity: 0, y: 20 }}
@@ -69,24 +56,14 @@ export default function V4Hero() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.5 }}
-              className="flex flex-col sm:flex-row gap-4"
             >
               <Link href="/">
                 <Button
                   size="lg"
                   className="group bg-gradient-to-r from-cyan-500 via-blue-500 to-cyan-500 hover:from-cyan-600 hover:via-blue-600 hover:to-cyan-600 text-white px-8 py-6 text-base font-semibold shadow-lg shadow-cyan-500/30 hover:shadow-xl hover:shadow-cyan-500/50 transition-all rounded-full"
                 >
-                  Calculate My CGT
+                  Get Started
                   <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
-                </Button>
-              </Link>
-              <Link href="#how-it-works">
-                <Button
-                  variant="outline"
-                  size="lg"
-                  className="border-slate-700 text-slate-300 hover:bg-slate-800 hover:text-white hover:border-cyan-500/50 px-8 py-6 text-base rounded-full transition-all"
-                >
-                  See How It Works
                 </Button>
               </Link>
             </motion.div>

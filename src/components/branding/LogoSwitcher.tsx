@@ -33,10 +33,10 @@ export default function LogoSwitcher({ currentLogo, onLogoChange, className }: L
       .catch(err => console.error('Failed to load logo options:', err));
   }, []);
 
-  // Toggle visibility with Ctrl+L or Cmd+L
+  // Toggle visibility with Ctrl key alone
   useEffect(() => {
     const handleKeyPress = (e: KeyboardEvent) => {
-      if ((e.ctrlKey || e.metaKey) && e.key === 'l') {
+      if (e.key === 'Control' || e.key === 'Meta') {
         e.preventDefault();
         setIsVisible(prev => !prev);
       }
@@ -61,7 +61,7 @@ export default function LogoSwitcher({ currentLogo, onLogoChange, className }: L
           'transition-all duration-200',
           'text-sm font-medium'
         )}
-        title="Logo Switcher (Ctrl+L to toggle visibility)"
+        title="Logo Switcher (Ctrl to toggle visibility)"
       >
         <Palette className="w-4 h-4" />
         <span>Logo Options</span>
@@ -140,7 +140,7 @@ export default function LogoSwitcher({ currentLogo, onLogoChange, className }: L
 
             <div className="p-3 border-t border-slate-700 bg-slate-900/50">
               <p className="text-xs text-slate-400">
-                💡 Press <kbd className="px-1.5 py-0.5 bg-slate-800 rounded text-slate-300">Ctrl+L</kbd> to hide/show this switcher
+                💡 Press <kbd className="px-1.5 py-0.5 bg-slate-800 rounded text-slate-300">Ctrl</kbd> to hide/show this switcher
               </p>
             </div>
           </div>

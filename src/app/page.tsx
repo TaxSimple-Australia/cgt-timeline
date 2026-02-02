@@ -291,7 +291,7 @@ function HomeContent() {
       })));
 
       // Transform timeline data to API format
-      const apiData = transformTimelineToAPIFormat(properties, events, customQuery, undefined, marginalTaxRate);
+      const apiData = transformTimelineToAPIFormat(properties, events, customQuery, undefined);
 
       console.log('📤 Sending data to API:', JSON.stringify(apiData, null, 2));
       console.log(`🔗 Using API Response Mode: ${apiResponseMode}`);
@@ -433,7 +433,7 @@ function HomeContent() {
 
     try {
       // Transform timeline data to API format
-      const apiData = transformTimelineToAPIFormat(properties, events, undefined, undefined, marginalTaxRate);
+      const apiData = transformTimelineToAPIFormat(properties, events, undefined, undefined);
 
       console.log('📤 Fetching suggested questions:', apiData);
       console.log(`🤖 Using LLM Provider: ${selectedLLMProvider}`);
@@ -484,7 +484,7 @@ function HomeContent() {
 
     try {
       // Transform timeline data to API format
-      const apiData = transformTimelineToAPIFormat(properties, events, undefined, undefined, marginalTaxRate);
+      const apiData = transformTimelineToAPIFormat(properties, events, undefined, undefined);
 
       // Add verification responses to API data
       const verificationsData = verificationAlerts.map((alert) => {
@@ -661,7 +661,7 @@ function HomeContent() {
 
     try {
       // Transform timeline data to API format
-      const apiData = transformTimelineToAPIFormat(properties, events, undefined, undefined, marginalTaxRate);
+      const apiData = transformTimelineToAPIFormat(properties, events, undefined, undefined);
 
       // Transform gap answers to verification_responses format expected by API
       const verificationsData = answers.map((answer) => {

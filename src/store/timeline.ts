@@ -1260,8 +1260,8 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
       // Creates move_in OR rent_start depending on living/rental percentages
       if (event.type === 'purchase' && checkboxState.purchaseAsMixedUse) {
         // Check if living % > 0 (creates move_in) or rental % > 0 with living % = 0 (creates rent_start)
-        const hasLivingPercentage = event.livingPercentage && event.livingPercentage > 0;
-        const hasOnlyRentalPercentage = event.rentalPercentage && event.rentalPercentage > 0 && (!event.livingPercentage || event.livingPercentage === 0);
+        const hasLivingPercentage = event.livingUsePercentage && event.livingUsePercentage > 0;
+        const hasOnlyRentalPercentage = event.rentalUsePercentage && event.rentalUsePercentage > 0 && (!event.livingUsePercentage || event.livingUsePercentage === 0);
 
         if (hasLivingPercentage && !checkboxState.moveInOnSameDay) {
           // Mixed-use with living creates move_in on a different date (if moveInOnSameDay not checked)

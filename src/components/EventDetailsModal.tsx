@@ -629,24 +629,8 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
         updates.buildingPrice = undefined;
       }
 
-      // Handle description with marginal tax rate for sale events
+      // Handle description for sale events
       let finalDescription = description.trim();
-
-      // For sale events, append marginal tax rate to notes (global rate from store)
-      if (event.type === 'sale' && marginalTaxRate) {
-        const taxRateNote = `\n\nMarginal tax rate: ${marginalTaxRate}%`;
-
-        // Check if tax rate already in description to avoid duplicates
-        if (!finalDescription.includes('Marginal tax rate:')) {
-          finalDescription += taxRateNote;
-        } else {
-          // Update existing tax rate in notes
-          finalDescription = finalDescription.replace(
-            /Marginal tax rate: [\d.]+%/g,
-            `Marginal tax rate: ${marginalTaxRate}%`
-          );
-        }
-      }
 
       // For sale events, append Division 40 and Division 43 information to notes
       if (event.type === 'sale') {
@@ -1059,20 +1043,71 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
         }
 
         // Scenario C: Mixed-Use with only rental % (0% living) and rental % > 0
-        // Create rent_start event on purchase date
+        // Create rent_start event on purchase date ONLY when no rental start date OR it equals purchase date
         if (living === 0 && rental > 0) {
-          const existingRentOnPurchase = findCompanion('rent_start');
+          const rentalStartOnPurchaseDate = !parsedRentalUseStartDate ||
+            parsedRentalUseStartDate.getTime() === parsedDate.getTime();
 
-          // Only create if didn't already exist via purchaseAsRent
-          if (!existingRentOnPurchase && checkboxBecameTrue('purchaseAsMixedUse')) {
-            addEvent({
-              propertyId: event.propertyId,
-              type: 'rent_start',
-              date: parsedDate,
-              title: 'Start Rent',
-              position: event.position,
-              color: '#F59E0B',
-            });
+          if (rentalStartOnPurchaseDate) {
+            const existingRentOnPurchase = findCompanion('rent_start');
+
+            // Only create if didn't already exist via purchaseAsRent
+            if (!existingRentOnPurchase && checkboxBecameTrue('purchaseAsMixedUse')) {
+              addEvent({
+                propertyId: event.propertyId,
+                type: 'rent_start',
+                date: parsedDate,
+                title: 'Start Rent',
+                position: event.position,
+                color: '#F59E0B',
+              });
+            }
+          }
+        }
+
+        // Scenario D: Mixed-Use with rental % > 0 AND a specific rental start date different from purchase date
+        // Create rent_start event on the specified rentalUseStartDate
+        if (rental > 0 && parsedRentalUseStartDate) {
+          const rentalUseStartTimestamp = parsedRentalUseStartDate.getTime();
+          const purchaseTimestamp = parsedDate.getTime();
+
+          // Only if rental start date is DIFFERENT from purchase date
+          if (rentalUseStartTimestamp !== purchaseTimestamp) {
+            const existingRentalUseRentStart = events.find(
+              (e) =>
+                e.propertyId === event.propertyId &&
+                e.type === 'rent_start' &&
+                e.date.getTime() === rentalUseStartTimestamp
+            );
+
+            const wasRentalWithStartDate = originalCheckboxState?.purchaseAsMixedUse &&
+              event.rentalUseStartDate &&
+              event.rentalUseStartDate.getTime() === rentalUseStartTimestamp;
+
+            if (!existingRentalUseRentStart && !wasRentalWithStartDate) {
+              // Delete any old rent_start on a different date that was created by mixed-use
+              const oldRentalStartDate = event.rentalUseStartDate;
+              if (oldRentalStartDate && oldRentalStartDate.getTime() !== purchaseTimestamp) {
+                const oldMixedUseRentStart = events.find(
+                  (e) =>
+                    e.propertyId === event.propertyId &&
+                    e.type === 'rent_start' &&
+                    e.date.getTime() === oldRentalStartDate.getTime()
+                );
+                if (oldMixedUseRentStart) {
+                  deleteEvent(oldMixedUseRentStart.id);
+                }
+              }
+
+              addEvent({
+                propertyId: event.propertyId,
+                type: 'rent_start',
+                date: parsedRentalUseStartDate,
+                title: 'Start Rent',
+                position: event.position,
+                color: '#F59E0B',
+              });
+            }
           }
         }
       }
@@ -1094,6 +1129,32 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
           );
           if (oldMixedUseMoveIn) {
             deleteEvent(oldMixedUseMoveIn.id);
+          }
+        }
+      }
+
+      // Clean up mixed-use rent_start companion if Mixed-Use is unchecked or rental % becomes 0
+      const previousRentalUseStartDate = event.rentalUseStartDate;
+      if (event.type === 'purchase' && originalCheckboxState?.purchaseAsMixedUse && previousRentalUseStartDate) {
+        const purchaseTimestamp = parsedDate.getTime();
+
+        // Only clean up if the rental start date was different from purchase date
+        // (rent_start on purchase date is handled by purchaseAsRent logic)
+        if (previousRentalUseStartDate.getTime() !== purchaseTimestamp) {
+          const shouldRemoveMixedUseRentStart =
+            !purchaseAsMixedUse || // Mixed-Use was unchecked
+            (parseFloat(rentalUsePercentage) || 0) === 0; // Rental % is now 0
+
+          if (shouldRemoveMixedUseRentStart) {
+            const oldMixedUseRentStart = events.find(
+              (e) =>
+                e.propertyId === event.propertyId &&
+                e.type === 'rent_start' &&
+                e.date.getTime() === previousRentalUseStartDate.getTime()
+            );
+            if (oldMixedUseRentStart) {
+              deleteEvent(oldMixedUseRentStart.id);
+            }
           }
         }
       }

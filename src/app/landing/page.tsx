@@ -1,15 +1,5 @@
-import LandingHeader from '@/components/landing/LandingHeader';
-import V4Hero from '@/components/landing/variants/v4/V4Hero';
-import HowItWorksSection from '@/components/landing/HowItWorksSection';
-import LandingFooter from '@/components/landing/LandingFooter';
+import { redirect } from 'next/navigation';
 
-export default function LandingPage() {
-  return (
-    <main className="min-h-screen bg-slate-950">
-      <LandingHeader />
-      <V4Hero />
-      <HowItWorksSection />
-      <LandingFooter />
-    </main>
-  );
+export default function LandingRedirect() {
+  redirect('/');
 }

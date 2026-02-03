@@ -51,13 +51,13 @@ export default function DataRetentionPage() {
       <header className="fixed top-0 left-0 right-0 bg-slate-900/95 backdrop-blur-md border-b border-slate-800 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
-            <Link href="/landing" className="flex-shrink-0">
+            <Link href="/" className="flex-shrink-0">
               <h1 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent hover:from-cyan-300 hover:to-blue-400 transition-all">
                 CGT Brain AI Timeline
               </h1>
             </Link>
             <Link
-              href="/landing"
+              href="/"
               className="text-sm text-slate-400 hover:text-cyan-400 transition-colors flex items-center gap-2"
             >
               ← Back to Home
@@ -201,7 +201,7 @@ export default function DataRetentionPage() {
             className="text-center mt-12"
           >
             <Link
-              href="/landing"
+              href="/"
               className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white font-semibold rounded-xl shadow-lg shadow-cyan-500/30 hover:shadow-cyan-500/50 transition-all"
             >
               Return to CGT Brain AI Timeline

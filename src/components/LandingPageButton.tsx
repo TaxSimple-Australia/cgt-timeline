@@ -9,7 +9,7 @@ export default function LandingPageButton() {
   const router = useRouter();
 
   const handleClick = () => {
-    router.push('/landing');
+    router.push('/');
   };
 
   return (

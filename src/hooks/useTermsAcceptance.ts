@@ -28,7 +28,7 @@ export function useTermsAcceptance() {
 
     if (hasAcceptedTerms) {
       console.log('✅ Terms already accepted, navigating to timeline');
-      router.push('/');
+      router.push('/app');
     } else {
       console.log('❌ Terms not accepted, showing modal');
       setShowModal(true);
@@ -48,7 +48,7 @@ export function useTermsAcceptance() {
     setShowModal(false);
 
     // Navigate to timeline
-    router.push('/');
+    router.push('/app');
   };
 
   const handleClose = () => {

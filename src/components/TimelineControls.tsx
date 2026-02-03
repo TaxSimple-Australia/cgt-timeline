@@ -382,7 +382,7 @@ export default function TimelineControls({ timelineContainerRef }: TimelineContr
         <div className="flex items-center gap-2 sm:gap-3 lg:gap-4 min-w-0 flex-shrink-0">
           {/* Title - Responsive, Clickable to go to Landing Page */}
           <h1
-            onClick={() => router.push('/landing')}
+            onClick={() => router.push('/')}
             className="text-sm sm:text-base lg:text-lg xl:text-xl font-bold text-slate-800 dark:text-slate-100 whitespace-nowrap cursor-pointer hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
             title="Go to Landing Page"
           >

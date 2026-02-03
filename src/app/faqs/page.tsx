@@ -207,7 +207,7 @@ export default function FAQsPage() {
             className="text-center mt-12"
           >
             <Link
-              href="/landing"
+              href="/"
               className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white font-semibold rounded-xl shadow-lg shadow-cyan-500/30 hover:shadow-cyan-500/50 transition-all"
             >
               Return to CGT Brain AI Timeline

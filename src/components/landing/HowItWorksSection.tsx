@@ -63,7 +63,7 @@ export default function HowItWorksSection() {
           transition={{ duration: 0.5, delay: 0.6 }}
           className="text-center"
         >
-          <Link href="/">
+          <Link href="/app">
             <Button size="lg" className="group bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white px-8 py-6 text-lg shadow-lg shadow-cyan-500/50 hover:shadow-xl hover:shadow-cyan-500/60 transition-all">
               Get Started Now
               <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />

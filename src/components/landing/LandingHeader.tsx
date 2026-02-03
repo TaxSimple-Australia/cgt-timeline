@@ -62,7 +62,7 @@ export default function LandingHeader() {
   };
 
   const navLinks = [
-    { label: 'How It Works', id: 'how-it-works', type: 'link' as const, href: '/landing#how-it-works' },
+    { label: 'How It Works', id: 'how-it-works', type: 'link' as const, href: '/#how-it-works' },
     { label: 'Pricing', id: 'pricing', type: 'link' as const, href: '/pricing' },
     { label: 'FAQ', id: 'faq', type: 'link' as const, href: '/faqs' },
     { label: 'Contact', id: 'contact', type: 'link' as const, href: '/contact' },
@@ -117,7 +117,7 @@ export default function LandingHeader() {
         <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16 md:h-20">
             {/* Logo */}
-            <Link href="/landing" className="flex-shrink-0">
+            <Link href="/" className="flex-shrink-0">
               <div className="flex items-center gap-3">
                 <CGTBrainLogo size="2xl" variant={currentLogoVariant} />
                 {currentLogoVariant !== 'logo-4' && (

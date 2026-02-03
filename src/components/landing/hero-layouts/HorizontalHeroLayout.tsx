@@ -175,7 +175,7 @@ export default function HorizontalHeroLayout() {
 
           {/* CTA */}
           <motion.div variants={scaleIn}>
-            <Link href="/">
+            <Link href="/app">
               <Button size="lg" className="group bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white px-5 py-4 md:px-6 md:py-5 lg:px-8 lg:py-6 text-xs md:text-sm lg:text-base shadow-lg shadow-cyan-500/25 hover:shadow-xl hover:shadow-cyan-500/40 transition-all">
                 Start Building Your Timeline
                 <ArrowRight className="w-3.5 h-3.5 md:w-4 md:h-4 lg:w-5 lg:h-5 ml-2 group-hover:translate-x-1 transition-transform" />

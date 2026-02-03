@@ -33,7 +33,7 @@ export default function MinimalHero() {
         </p>
 
         {/* Single CTA */}
-        <Link href="/">
+        <Link href="/app">
           <Button
             size="lg"
             className="group bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white px-10 py-7 text-xl shadow-lg shadow-cyan-500/40 hover:shadow-xl hover:shadow-cyan-500/50 transition-all"

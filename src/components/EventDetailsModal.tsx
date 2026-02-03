@@ -52,7 +52,7 @@ interface EventDetailsModalProps {
 }
 
 export default function EventDetailsModal({ event, onClose, propertyName }: EventDetailsModalProps) {
-  const { updateEvent, deleteEvent, addEvent, events, properties, updateProperty, marginalTaxRate, setMarginalTaxRate } = useTimelineStore();
+  const { updateEvent, deleteEvent, addEvent, events, properties, updateProperty } = useTimelineStore();
 
   // Check if this is a synthetic "Not Sold" status marker
   const isSyntheticNotSold = (event as any).isSyntheticStatusMarker === true;
@@ -268,13 +268,27 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
   // Sale event - Previous year capital losses
   const [previousYearLosses, setPreviousYearLosses] = useState(event.previousYearLosses?.toString() || '');
 
-  // Sale event - Marginal tax rate (local string state for input, synced with global state)
-  const [marginalTaxRateInput, setMarginalTaxRateInput] = useState(marginalTaxRate.toString());
+  // Sale event - Division 40 (Depreciating Assets)
+  const [division40Claimed, setDivision40Claimed] = useState(() => {
+    // First check if checkbox state is persisted
+    if (event.checkboxState?.division40Claimed !== undefined) {
+      return event.checkboxState.division40Claimed;
+    }
+    // Fallback: check if division40Assets exists
+    return !!event.division40Assets;
+  });
+  const [division40Assets, setDivision40Assets] = useState(event.division40Assets?.toString() || '');
 
-  // Sync local input with global marginal tax rate when it changes
-  useEffect(() => {
-    setMarginalTaxRateInput(marginalTaxRate.toString());
-  }, [marginalTaxRate]);
+  // Sale event - Division 43 (Capital Works)
+  const [division43Claimed, setDivision43Claimed] = useState(() => {
+    // First check if checkbox state is persisted
+    if (event.checkboxState?.division43Claimed !== undefined) {
+      return event.checkboxState.division43Claimed;
+    }
+    // Fallback: check if division43Deductions exists
+    return !!event.division43Deductions;
+  });
+  const [division43Deductions, setDivision43Deductions] = useState(event.division43Deductions?.toString() || '');
 
   // NEW: Business use / usage splits (Gilbert's contextual approach)
   const [hasBusinessUse, setHasBusinessUse] = useState(() => {
@@ -585,6 +599,20 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
         } else {
           updates.previousYearLosses = undefined;
         }
+
+        // Division 40 - Depreciating Assets
+        if (division40Assets && !isNaN(parseFloat(division40Assets))) {
+          updates.division40Assets = parseFloat(division40Assets);
+        } else {
+          updates.division40Assets = undefined;
+        }
+
+        // Division 43 - Capital Works
+        if (division43Deductions && !isNaN(parseFloat(division43Deductions))) {
+          updates.division43Deductions = parseFloat(division43Deductions);
+        } else {
+          updates.division43Deductions = undefined;
+        }
       } else if (event.type === 'improvement') {
         // For improvement events, always calculate from cost bases (validation ensures at least one exists)
         const totalCostBases = costBases.reduce((sum, cb) => sum + cb.amount, 0);
@@ -601,22 +629,27 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
         updates.buildingPrice = undefined;
       }
 
-      // Handle description with marginal tax rate for sale events
+      // Handle description for sale events
       let finalDescription = description.trim();
 
-      // For sale events, append marginal tax rate to notes (global rate from store)
-      if (event.type === 'sale' && marginalTaxRate) {
-        const taxRateNote = `\n\nMarginal tax rate: ${marginalTaxRate}%`;
+      // For sale events, append Division 40 and Division 43 information to notes
+      if (event.type === 'sale') {
+        // Remove existing Division 40/43 notes first to avoid duplicates
+        finalDescription = finalDescription.replace(/\n*Division 40 Depreciating Assets: \$[\d,.]+/g, '');
+        finalDescription = finalDescription.replace(/\n*Division 43 Capital Works Deductions: \$[\d,.]+/g, '');
 
-        // Check if tax rate already in description to avoid duplicates
-        if (!finalDescription.includes('Marginal tax rate:')) {
-          finalDescription += taxRateNote;
-        } else {
-          // Update existing tax rate in notes
-          finalDescription = finalDescription.replace(
-            /Marginal tax rate: [\d.]+%/g,
-            `Marginal tax rate: ${marginalTaxRate}%`
-          );
+        // Add Division 40 note if claimed and has value
+        if (division40Claimed && division40Assets && !isNaN(parseFloat(division40Assets))) {
+          const div40Amount = parseFloat(division40Assets);
+          const div40Note = `\n\nDivision 40 Depreciating Assets: $${div40Amount.toLocaleString('en-AU', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+          finalDescription = finalDescription.trim() + div40Note;
+        }
+
+        // Add Division 43 note if claimed and has value
+        if (division43Claimed && division43Deductions && !isNaN(parseFloat(division43Deductions))) {
+          const div43Amount = parseFloat(division43Deductions);
+          const div43Note = `\n\nDivision 43 Capital Works Deductions: $${div43Amount.toLocaleString('en-AU', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+          finalDescription = finalDescription.trim() + div43Note;
         }
       }
 
@@ -826,7 +859,16 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
         hasBusinessUse,
         hasPartialRental,
         isNonResident,
+        division40Claimed,
+        division43Claimed,
       };
+
+      console.log('💾 Saving event with checkbox state:', {
+        eventId: event.id,
+        eventType: event.type,
+        moveInOnSameDay,
+        checkboxState: updates.checkboxState,
+      });
 
       updateEvent(event.id, updates);
 
@@ -1001,20 +1043,71 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
         }
 
         // Scenario C: Mixed-Use with only rental % (0% living) and rental % > 0
-        // Create rent_start event on purchase date
+        // Create rent_start event on purchase date ONLY when no rental start date OR it equals purchase date
         if (living === 0 && rental > 0) {
-          const existingRentOnPurchase = findCompanion('rent_start');
+          const rentalStartOnPurchaseDate = !parsedRentalUseStartDate ||
+            parsedRentalUseStartDate.getTime() === parsedDate.getTime();
 
-          // Only create if didn't already exist via purchaseAsRent
-          if (!existingRentOnPurchase && checkboxBecameTrue('purchaseAsMixedUse')) {
-            addEvent({
-              propertyId: event.propertyId,
-              type: 'rent_start',
-              date: parsedDate,
-              title: 'Start Rent',
-              position: event.position,
-              color: '#F59E0B',
-            });
+          if (rentalStartOnPurchaseDate) {
+            const existingRentOnPurchase = findCompanion('rent_start');
+
+            // Only create if didn't already exist via purchaseAsRent
+            if (!existingRentOnPurchase && checkboxBecameTrue('purchaseAsMixedUse')) {
+              addEvent({
+                propertyId: event.propertyId,
+                type: 'rent_start',
+                date: parsedDate,
+                title: 'Start Rent',
+                position: event.position,
+                color: '#F59E0B',
+              });
+            }
+          }
+        }
+
+        // Scenario D: Mixed-Use with rental % > 0 AND a specific rental start date different from purchase date
+        // Create rent_start event on the specified rentalUseStartDate
+        if (rental > 0 && parsedRentalUseStartDate) {
+          const rentalUseStartTimestamp = parsedRentalUseStartDate.getTime();
+          const purchaseTimestamp = parsedDate.getTime();
+
+          // Only if rental start date is DIFFERENT from purchase date
+          if (rentalUseStartTimestamp !== purchaseTimestamp) {
+            const existingRentalUseRentStart = events.find(
+              (e) =>
+                e.propertyId === event.propertyId &&
+                e.type === 'rent_start' &&
+                e.date.getTime() === rentalUseStartTimestamp
+            );
+
+            const wasRentalWithStartDate = originalCheckboxState?.purchaseAsMixedUse &&
+              event.rentalUseStartDate &&
+              event.rentalUseStartDate.getTime() === rentalUseStartTimestamp;
+
+            if (!existingRentalUseRentStart && !wasRentalWithStartDate) {
+              // Delete any old rent_start on a different date that was created by mixed-use
+              const oldRentalStartDate = event.rentalUseStartDate;
+              if (oldRentalStartDate && oldRentalStartDate.getTime() !== purchaseTimestamp) {
+                const oldMixedUseRentStart = events.find(
+                  (e) =>
+                    e.propertyId === event.propertyId &&
+                    e.type === 'rent_start' &&
+                    e.date.getTime() === oldRentalStartDate.getTime()
+                );
+                if (oldMixedUseRentStart) {
+                  deleteEvent(oldMixedUseRentStart.id);
+                }
+              }
+
+              addEvent({
+                propertyId: event.propertyId,
+                type: 'rent_start',
+                date: parsedRentalUseStartDate,
+                title: 'Start Rent',
+                position: event.position,
+                color: '#F59E0B',
+              });
+            }
           }
         }
       }
@@ -1036,6 +1129,32 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
           );
           if (oldMixedUseMoveIn) {
             deleteEvent(oldMixedUseMoveIn.id);
+          }
+        }
+      }
+
+      // Clean up mixed-use rent_start companion if Mixed-Use is unchecked or rental % becomes 0
+      const previousRentalUseStartDate = event.rentalUseStartDate;
+      if (event.type === 'purchase' && originalCheckboxState?.purchaseAsMixedUse && previousRentalUseStartDate) {
+        const purchaseTimestamp = parsedDate.getTime();
+
+        // Only clean up if the rental start date was different from purchase date
+        // (rent_start on purchase date is handled by purchaseAsRent logic)
+        if (previousRentalUseStartDate.getTime() !== purchaseTimestamp) {
+          const shouldRemoveMixedUseRentStart =
+            !purchaseAsMixedUse || // Mixed-Use was unchecked
+            (parseFloat(rentalUsePercentage) || 0) === 0; // Rental % is now 0
+
+          if (shouldRemoveMixedUseRentStart) {
+            const oldMixedUseRentStart = events.find(
+              (e) =>
+                e.propertyId === event.propertyId &&
+                e.type === 'rent_start' &&
+                e.date.getTime() === previousRentalUseStartDate.getTime()
+            );
+            if (oldMixedUseRentStart) {
+              deleteEvent(oldMixedUseRentStart.id);
+            }
           }
         }
       }
@@ -2013,39 +2132,116 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
                   </p>
                 </div>
 
-                {/* Marginal Tax Rate Input */}
-                <div className="mt-4">
-                  <div className="flex items-center gap-2 mb-2">
-                    <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                      Marginal Tax Rate (%)
-                    </label>
-                    <div className="relative group">
-                      <Info className="w-4 h-4 text-blue-500 cursor-help" />
-                      <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-72 p-3 bg-slate-800 dark:bg-slate-700 text-white text-xs rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-                        Your marginal tax rate (personal tax bracket). Common rates: 32.5%, 37%, 45% (incl. Medicare levy). This will be included in the notes for AI analysis.
-                        <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-800 dark:border-t-slate-700"></div>
+                {/* Tax Deductions Section - Division 40 & 43 */}
+                <div className="mt-4 p-4 bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg space-y-4">
+                  <h4 className="text-sm font-semibold text-purple-900 dark:text-purple-200 mb-3">
+                    Tax Deductions
+                  </h4>
+
+                  {/* Division 40 - Depreciating Assets */}
+                  <div className="space-y-2">
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="division40Claimed"
+                        checked={division40Claimed}
+                        onChange={(e) => setDivision40Claimed(e.target.checked)}
+                        className="mt-0.5 w-4 h-4 text-purple-600 bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 rounded focus:ring-purple-500 focus:ring-2"
+                      />
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2">
+                          <label
+                            htmlFor="division40Claimed"
+                            className="text-sm font-medium text-slate-700 dark:text-slate-300 cursor-pointer"
+                          >
+                            Division 40 - Depreciating Assets claimed
+                          </label>
+                          <div className="relative group">
+                            <Info className="w-4 h-4 text-purple-500 cursor-help" />
+                            <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-80 p-3 bg-slate-800 dark:bg-slate-700 text-white text-xs rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                              <strong>Division 40:</strong> Plant and equipment (appliances, carpets, air conditioning) that were depreciated over their effective life. These are treated as separate CGT assets and NOT included in the property's cost base. At sale, a balancing adjustment is made between sale value and written-down value.
+                              <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-800 dark:border-t-slate-700"></div>
+                            </div>
+                          </div>
+                        </div>
+                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                          Plant & equipment depreciation (appliances, carpets, etc.)
+                        </p>
                       </div>
                     </div>
+
+                    {/* Conditional Division 40 Input Field */}
+                    {division40Claimed && (
+                      <div className="ml-7 mt-2">
+                        <div className="relative">
+                          <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400">$</span>
+                          <input
+                            type="number"
+                            value={division40Assets}
+                            onChange={(e) => setDivision40Assets(e.target.value)}
+                            onWheel={(e) => e.currentTarget.blur()}
+                            placeholder="0.00"
+                            className="w-full pl-8 pr-4 py-2.5 border border-purple-300 dark:border-purple-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                          />
+                        </div>
+                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                          Total value of depreciating assets
+                        </p>
+                      </div>
+                    )}
                   </div>
-                  <div className="relative">
-                    <input
-                      type="number"
-                      value={marginalTaxRateInput}
-                      onChange={(e) => {
-                        setMarginalTaxRateInput(e.target.value);
-                        const value = parseFloat(e.target.value);
-                        if (!isNaN(value)) {
-                          setMarginalTaxRate(value);
-                        }
-                      }}
-                      onWheel={(e) => e.currentTarget.blur()}
-                      placeholder="37.00"
-                      min="0"
-                      max="100"
-                      step="0.01"
-                      className="w-full pl-4 pr-8 py-2.5 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    />
-                    <span className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400">%</span>
+
+                  {/* Division 43 - Capital Works */}
+                  <div className="space-y-2">
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="division43Claimed"
+                        checked={division43Claimed}
+                        onChange={(e) => setDivision43Claimed(e.target.checked)}
+                        className="mt-0.5 w-4 h-4 text-purple-600 bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 rounded focus:ring-purple-500 focus:ring-2"
+                      />
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2">
+                          <label
+                            htmlFor="division43Claimed"
+                            className="text-sm font-medium text-slate-700 dark:text-slate-300 cursor-pointer"
+                          >
+                            Division 43 - Capital Works claimed
+                          </label>
+                          <div className="relative group">
+                            <Info className="w-4 h-4 text-purple-500 cursor-help" />
+                            <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-80 p-3 bg-slate-800 dark:bg-slate-700 text-white text-xs rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                              <strong>Division 43:</strong> Construction expenditure deductions for income-producing buildings. Any Division 43 deductions claimed (or claimable) REDUCE the property's cost base for CGT purposes. This increases your capital gain on sale, ensuring you don't receive double tax benefits.
+                              <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-800 dark:border-t-slate-700"></div>
+                            </div>
+                          </div>
+                        </div>
+                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                          Construction expenditure deductions (reduces cost base)
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Conditional Division 43 Input Field */}
+                    {division43Claimed && (
+                      <div className="ml-7 mt-2">
+                        <div className="relative">
+                          <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400">$</span>
+                          <input
+                            type="number"
+                            value={division43Deductions}
+                            onChange={(e) => setDivision43Deductions(e.target.value)}
+                            onWheel={(e) => e.currentTarget.blur()}
+                            placeholder="0.00"
+                            className="w-full pl-8 pr-4 py-2.5 border border-purple-300 dark:border-purple-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                          />
+                        </div>
+                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                          Total Division 43 deductions claimed
+                        </p>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>

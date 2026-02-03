@@ -1,0 +1,43 @@
+---  a/src/store/timeline.ts
++++ b/src/store/timeline.ts
+@@ -1276,6 +1276,15 @@
+     }));
+
++    // DEBUG: Check for linked events
++    console.log('🔍 Checking for linked events:', {
++      eventType: event.type,
++      hasCheckboxState: !!event.checkboxState,
++      moveInOnSameDay: event.checkboxState?.moveInOnSameDay,
++    });
++
+     // NEW: Handle linked events - Move Move In event when Purchase is dragged (if created via "move in on same date")
+     if (event.type === 'purchase' && event.checkboxState?.moveInOnSameDay) {
+       const currentState = get();
++
++      console.log('✅ Purchase event has moveInOnSameDay flag - searching for linked move_in event');
++
++      // Find all move_in events for this property for debugging
++      const allMoveIns = currentState.events.filter(
++        (e) => e.propertyId === event.propertyId && e.type === 'move_in'
++      );
++
++      console.log('📍 All move_in events for this property:', allMoveIns.map(e => ({
++        id: e.id,
++        date: e.date,
++        timestamp: e.date.getTime(),
++      })));
++
++      console.log('📍 Original purchase date:', {
++        date: originalDate,
++        timestamp: originalDate.getTime(),
++      });
+
+       // Find the linked move_in event on the ORIGINAL purchase date (before drag)
+@@ -1310,6 +1333,8 @@
+           }),
+         }));
++      } else {
++        console.warn('⚠️ No linked move_in event found on original date');
+       }
+     }
+   },

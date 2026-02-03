@@ -538,33 +538,50 @@ function serializeProperty(property: Property): unknown {
   };
 }
 
+// Helper to safely parse dates - returns undefined for invalid dates
+function safeParseDate(dateValue: unknown): Date | undefined {
+  if (!dateValue) return undefined;
+  const parsed = new Date(dateValue as string);
+  // Check if date is valid (Invalid Date returns NaN for getTime())
+  return isNaN(parsed.getTime()) ? undefined : parsed;
+}
+
 function deserializeProperty(property: Property): Property {
   return {
     ...property,
-    purchaseDate: property.purchaseDate ? new Date(property.purchaseDate as unknown as string) : undefined,
-    saleDate: property.saleDate ? new Date(property.saleDate as unknown as string) : undefined,
+    purchaseDate: safeParseDate(property.purchaseDate),
+    saleDate: safeParseDate(property.saleDate),
   } as Property;
 }
 
 function serializeEvent(event: TimelineEvent): unknown {
+  // Safely serialize date - handle both Date objects and already-serialized strings
+  const serializeDate = (d: Date | string | undefined | null): string | undefined => {
+    if (!d) return undefined;
+    if (d instanceof Date) {
+      return isNaN(d.getTime()) ? undefined : d.toISOString();
+    }
+    // Already a string, validate it
+    const parsed = new Date(d);
+    return isNaN(parsed.getTime()) ? undefined : d;
+  };
+
   return {
     ...event,
-    date: event.date instanceof Date ? event.date.toISOString() : event.date,
-    contractDate: event.contractDate instanceof Date
-      ? event.contractDate.toISOString()
-      : event.contractDate,
-    settlementDate: event.settlementDate instanceof Date
-      ? event.settlementDate.toISOString()
-      : event.settlementDate,
+    date: serializeDate(event.date as Date | string),
+    contractDate: serializeDate(event.contractDate as Date | string | undefined),
+    settlementDate: serializeDate(event.settlementDate as Date | string | undefined),
   };
 }
 
 function deserializeEvent(event: TimelineEvent): TimelineEvent {
+  const parsedDate = safeParseDate(event.date);
   return {
     ...event,
-    date: event.date ? new Date(event.date as unknown as string) : new Date(),
-    contractDate: event.contractDate ? new Date(event.contractDate as unknown as string) : undefined,
-    settlementDate: event.settlementDate ? new Date(event.settlementDate as unknown as string) : undefined,
+    // Use current date as fallback if date is invalid
+    date: parsedDate || new Date(),
+    contractDate: safeParseDate(event.contractDate),
+    settlementDate: safeParseDate(event.settlementDate),
   } as TimelineEvent;
 }
 

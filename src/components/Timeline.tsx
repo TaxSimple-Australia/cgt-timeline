@@ -57,9 +57,9 @@ export default function Timeline({ className, onAlertClick, onOpenAIBuilder }: T
     events,
     selectedProperty,
     selectedEvent,
-    timelineStart,
-    timelineEnd,
-    absoluteEnd,
+    timelineStart: rawTimelineStart,
+    timelineEnd: rawTimelineEnd,
+    absoluteEnd: rawAbsoluteEnd,
     zoom,
     addEvent,
     moveEvent,
@@ -71,6 +71,32 @@ export default function Timeline({ className, onAlertClick, onOpenAIBuilder }: T
     collapsedSubdivisions,
     // residenceGapIssues, // REMOVED: Not needed - using GilbertBranch VerificationAlertBar instead
   } = useTimelineStore();
+
+  // Validate dates to prevent crashes from invalid Date objects
+  // Default to sensible values if dates are corrupted
+  const timelineStart = useMemo(() => {
+    if (rawTimelineStart instanceof Date && !isNaN(rawTimelineStart.getTime())) {
+      return rawTimelineStart;
+    }
+    console.warn('⚠️ Invalid timelineStart, using fallback');
+    return new Date(Date.now() - 30 * 365 * 24 * 60 * 60 * 1000); // 30 years ago
+  }, [rawTimelineStart]);
+
+  const timelineEnd = useMemo(() => {
+    if (rawTimelineEnd instanceof Date && !isNaN(rawTimelineEnd.getTime())) {
+      return rawTimelineEnd;
+    }
+    console.warn('⚠️ Invalid timelineEnd, using fallback');
+    return new Date(Date.now() + 3 * 365 * 24 * 60 * 60 * 1000); // 3 years from now
+  }, [rawTimelineEnd]);
+
+  const absoluteEnd = useMemo(() => {
+    if (rawAbsoluteEnd instanceof Date && !isNaN(rawAbsoluteEnd.getTime())) {
+      return rawAbsoluteEnd;
+    }
+    console.warn('⚠️ Invalid absoluteEnd, using fallback');
+    return new Date(Date.now() + 3 * 365 * 24 * 60 * 60 * 1000); // 3 years from now
+  }, [rawAbsoluteEnd]);
 
   // Filter properties for rendering FIRST:
   // - Show parent properties (even if subdivided - they keep their original name)

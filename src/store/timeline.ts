@@ -1865,6 +1865,14 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
       let importedProperties: Property[] = [];
       let importedEvents: TimelineEvent[] = [];
 
+      // Helper function to safely parse dates
+      const safeParseDate = (dateValue: any): Date | undefined => {
+        if (!dateValue) return undefined;
+        const parsed = new Date(dateValue);
+        // Check if date is valid (Invalid Date returns NaN for getTime())
+        return isNaN(parsed.getTime()) ? undefined : parsed;
+      };
+
       // Check if it's the simple format (properties and events arrays)
       if (data.properties && data.events) {
         // Simple format with direct properties and events arrays
@@ -1874,10 +1882,10 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
           address: prop.address || '',
           color: prop.color || propertyColors[index % propertyColors.length],
           purchasePrice: prop.purchasePrice,
-          purchaseDate: prop.purchaseDate ? new Date(prop.purchaseDate) : undefined,
+          purchaseDate: safeParseDate(prop.purchaseDate),
           currentValue: prop.currentValue,
           salePrice: prop.salePrice,
-          saleDate: prop.saleDate ? new Date(prop.saleDate) : undefined,
+          saleDate: safeParseDate(prop.saleDate),
           currentStatus: prop.currentStatus || 'ppr',
           branch: prop.branch !== undefined ? prop.branch : index,
           isRental: prop.isRental,
@@ -1944,18 +1952,25 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
             }
           }
 
+          // Skip events with invalid dates
+          const parsedDate = safeParseDate(event.date);
+          if (!parsedDate) {
+            console.warn('⚠️ Skipping event with invalid date:', event);
+            return null;
+          }
+
           return {
             id: event.id || `import-event-${Date.now()}-${index}`,
             propertyId: event.propertyId,
             type: event.type as EventType,
-            date: new Date(event.date),
+            date: parsedDate,
             title: event.title || event.type,
             amount: calculatedAmount,
             description: event.description,
             position: event.position !== undefined ? event.position : 0,
             color: event.color || eventColors[event.type as EventType] || '#3B82F6',
-            contractDate: event.contractDate ? new Date(event.contractDate) : undefined,
-            settlementDate: event.settlementDate ? new Date(event.settlementDate) : undefined,
+            contractDate: safeParseDate(event.contractDate),
+            settlementDate: safeParseDate(event.settlementDate),
             newStatus: event.newStatus,
             isPPR: event.isPPR,
             landPrice: event.landPrice,
@@ -1969,9 +1984,9 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
             livingUsePercentage: event.livingUsePercentage,
             rentalUsePercentage: event.rentalUsePercentage,
             businessUsePercentage: event.businessUsePercentage,
-            mixedUseMoveInDate: event.mixedUseMoveInDate ? new Date(event.mixedUseMoveInDate) : undefined,
-            rentalUseStartDate: event.rentalUseStartDate ? new Date(event.rentalUseStartDate) : undefined,
-            businessUseStartDate: event.businessUseStartDate ? new Date(event.businessUseStartDate) : undefined,
+            mixedUseMoveInDate: safeParseDate(event.mixedUseMoveInDate),
+            rentalUseStartDate: safeParseDate(event.rentalUseStartDate),
+            businessUseStartDate: safeParseDate(event.businessUseStartDate),
             floorAreaData: event.floorAreaData,
             // CGT flags and property details
             overTwoHectares: event.overTwoHectares,
@@ -1992,7 +2007,7 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
             // Depreciating assets value
             depreciatingAssetsValue: event.depreciatingAssetsValue,
           };
-        });
+        }).filter((event: any) => event !== null);
       } else if (data.properties && Array.isArray(data.properties)) {
         // Export format with property_history inside properties
         data.properties.forEach((prop: any, propIndex: number) => {
@@ -2215,9 +2230,11 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
         });
       });
 
-      // Calculate timeline boundaries
-      const allDates = importedEvents.map(e => e.date.getTime());
-      const minDate = allDates.length > 0 ? new Date(Math.min(...allDates)) : new Date(2000, 0, 1);
+      // Calculate timeline boundaries - filter out any remaining NaN values
+      const validDates = importedEvents
+        .map(e => e.date.getTime())
+        .filter(t => !isNaN(t));
+      const minDate = validDates.length > 0 ? new Date(Math.min(...validDates)) : new Date(2000, 0, 1);
       const maxDate = new Date();
       maxDate.setFullYear(maxDate.getFullYear() + 3); // Default to 3 years from now
 

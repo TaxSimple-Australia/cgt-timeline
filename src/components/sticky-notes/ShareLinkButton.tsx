@@ -89,7 +89,7 @@ export default function ShareLinkButton({
         throw new Error(result.error || 'Failed to generate share link');
       }
 
-      const link = `${window.location.origin}?share=${result.shareId}`;
+      const link = `${window.location.origin}/app?share=${result.shareId}`;
       setShareLink(link);
       console.log('✅ Share link generated:', link);
     } catch (err) {

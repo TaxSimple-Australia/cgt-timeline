@@ -123,7 +123,7 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
         throw new Error(result.error || 'Failed to generate link');
       }
 
-      const shareUrl = `${window.location.origin}?share=${result.shareId}`;
+      const shareUrl = `${window.location.origin}/app?share=${result.shareId}`;
       setGeneratedShareUrl(shareUrl);
       setShareSuccess(true);
 

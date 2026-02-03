@@ -3036,25 +3036,44 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
         hasAnalysis: !!data.savedAnalysis,
       });
 
+      // Helper function to safely parse dates
+      const safeParseDate = (dateValue: any): Date | undefined => {
+        if (!dateValue) return undefined;
+        const parsed = new Date(dateValue);
+        // Check if date is valid (Invalid Date returns NaN for getTime())
+        return isNaN(parsed.getTime()) ? undefined : parsed;
+      };
+
       // Deserialize properties
       const properties = (data.properties || []).map((p: any) => ({
         ...p,
-        purchaseDate: p.purchaseDate ? new Date(p.purchaseDate) : undefined,
-        saleDate: p.saleDate ? new Date(p.saleDate) : undefined,
+        purchaseDate: safeParseDate(p.purchaseDate),
+        saleDate: safeParseDate(p.saleDate),
       }));
 
-      // Deserialize events
-      const events = (data.events || []).map((e: any) => ({
-        ...e,
-        date: new Date(e.date),
-        contractDate: e.contractDate ? new Date(e.contractDate) : undefined,
-        settlementDate: e.settlementDate ? new Date(e.settlementDate) : undefined,
-        appreciationDate: e.appreciationDate ? new Date(e.appreciationDate) : undefined,
-      }));
+      // Deserialize events - filter out events with invalid dates
+      const events = (data.events || [])
+        .map((e: any) => {
+          const parsedDate = safeParseDate(e.date);
+          if (!parsedDate) {
+            console.warn('⚠️ Skipping event with invalid date:', e);
+            return null;
+          }
+          return {
+            ...e,
+            date: parsedDate,
+            contractDate: safeParseDate(e.contractDate),
+            settlementDate: safeParseDate(e.settlementDate),
+            appreciationDate: safeParseDate(e.appreciationDate),
+          };
+        })
+        .filter((e: any) => e !== null);
 
-      // Calculate timeline boundaries
-      const allDates = events.map((e: any) => e.date.getTime());
-      const minDate = allDates.length > 0 ? new Date(Math.min(...allDates)) : new Date(2000, 0, 1);
+      // Calculate timeline boundaries - only use valid dates
+      const validDates = events
+        .map((e: any) => e.date.getTime())
+        .filter((t: number) => !isNaN(t));
+      const minDate = validDates.length > 0 ? new Date(Math.min(...validDates)) : new Date(2000, 0, 1);
       const maxDate = new Date();
       maxDate.setFullYear(maxDate.getFullYear() + 3);
 

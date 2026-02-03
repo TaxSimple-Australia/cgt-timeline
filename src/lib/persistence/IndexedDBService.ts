@@ -527,6 +527,7 @@ export async function getStorageEstimate(): Promise<{
 // ============================================================================
 
 function serializeProperty(property: Property): unknown {
+  const propAny = property as any;
   return {
     ...property,
     purchaseDate: property.purchaseDate instanceof Date
@@ -535,6 +536,9 @@ function serializeProperty(property: Property): unknown {
     saleDate: property.saleDate instanceof Date
       ? property.saleDate.toISOString()
       : property.saleDate,
+    subdivisionDate: propAny.subdivisionDate instanceof Date
+      ? propAny.subdivisionDate.toISOString()
+      : propAny.subdivisionDate,
   };
 }
 
@@ -551,6 +555,7 @@ function deserializeProperty(property: Property): Property {
     ...property,
     purchaseDate: safeParseDate(property.purchaseDate),
     saleDate: safeParseDate(property.saleDate),
+    subdivisionDate: safeParseDate((property as any).subdivisionDate),
   } as Property;
 }
 

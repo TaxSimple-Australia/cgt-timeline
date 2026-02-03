@@ -1889,6 +1889,14 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
           currentStatus: prop.currentStatus || 'ppr',
           branch: prop.branch !== undefined ? prop.branch : index,
           isRental: prop.isRental,
+          // Subdivision fields
+          parentPropertyId: prop.parentPropertyId,
+          subdivisionDate: safeParseDate(prop.subdivisionDate),
+          subdivisionGroup: prop.subdivisionGroup,
+          lotNumber: prop.lotNumber,
+          lotSize: prop.lotSize,
+          initialCostBase: prop.initialCostBase,
+          isMainLotContinuation: prop.isMainLotContinuation,
         }));
 
         importedEvents = data.events.map((event: any, index: number) => {
@@ -3061,11 +3069,12 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
         return isNaN(parsed.getTime()) ? undefined : parsed;
       };
 
-      // Deserialize properties
+      // Deserialize properties - include subdivision dates
       const properties = (data.properties || []).map((p: any) => ({
         ...p,
         purchaseDate: safeParseDate(p.purchaseDate),
         saleDate: safeParseDate(p.saleDate),
+        subdivisionDate: safeParseDate(p.subdivisionDate),
       }));
 
       // Deserialize events - filter out events with invalid dates

@@ -15,6 +15,7 @@ interface MilestoneRoadmapViewProps {
 const getEventAbbreviation = (eventType: EventType): string => {
   const abbreviations: Record<EventType, string> = {
     purchase: 'PU',
+    building: 'BU',
     sale: 'SA',
     improvement: 'IM',
     move_in: 'MI',
@@ -37,6 +38,7 @@ const getEventAbbreviation = (eventType: EventType): string => {
 const getEventTypeLabel = (eventType: EventType): string => {
   const labels: Record<EventType, string> = {
     purchase: 'Purchase',
+    building: 'Building',
     sale: 'Sale',
     improvement: 'Improvement',
     move_in: 'Move In',

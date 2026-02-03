@@ -13,8 +13,8 @@ export interface BranchPosition {
   totalSiblings: number;
 }
 
-const BRANCH_VERTICAL_SPACING = 80; // Pixels between sibling branches
-const PARENT_CHILD_VERTICAL_GAP = 30; // Pixels from parent to first child (reduced from 120)
+const BRANCH_VERTICAL_SPACING = 130; // Pixels between sibling branches (increased from 100 for better readability)
+const PARENT_CHILD_VERTICAL_GAP = 60; // Pixels from parent to first child (increased from 40 for better gap)
 
 /**
  * Calculate branch positions for all properties including subdivisions

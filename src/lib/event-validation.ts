@@ -69,6 +69,7 @@ function validateEventAgainstSale(
 function getEventLabel(type: EventType): string {
   const labels: Record<EventType, string> = {
     purchase: 'Purchase',
+    building: 'Building',
     sale: 'Sale',
     move_in: 'Move In',
     move_out: 'Move Out',

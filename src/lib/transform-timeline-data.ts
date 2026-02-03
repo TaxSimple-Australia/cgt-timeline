@@ -325,12 +325,30 @@ export function transformTimelineToAPIFormat(
 
         subdivisionParts.push(`Property subdivided into ${event.subdivisionDetails.totalLots} lots`);
 
-        // Add child property details
+        // Add cost breakdown if specified (land/building split)
+        const costBreakdown = event.subdivisionDetails.costBreakdown;
+        if (costBreakdown) {
+          const breakdownParts: string[] = [];
+          if (costBreakdown.landValue !== undefined) {
+            breakdownParts.push(`Land value: $${costBreakdown.landValue.toLocaleString('en-AU')}`);
+          }
+          if (costBreakdown.buildingValue !== undefined) {
+            breakdownParts.push(`Building value: $${costBreakdown.buildingValue.toLocaleString('en-AU')} (stays with Lot 1)`);
+          }
+          if (breakdownParts.length > 0) {
+            subdivisionParts.push(`Cost base breakdown: ${breakdownParts.join(', ')}`);
+          }
+        }
+
+        // Add child property details with allocation percentages
         if (event.subdivisionDetails.childProperties && event.subdivisionDetails.childProperties.length > 0) {
           const childDetails = event.subdivisionDetails.childProperties
             .map((child, idx) => {
               const parts = [`Lot ${idx + 1}: ${child.name}`];
               if (child.lotNumber) parts.push(`(${child.lotNumber})`);
+              if (child.allocationPercentage !== undefined) {
+                parts.push(`${child.allocationPercentage.toFixed(1)}% allocation`);
+              }
               if (child.lotSize) parts.push(`${(child.lotSize / 10000).toFixed(4)} ha`);
               if (child.allocatedCostBase) parts.push(`Cost base: $${child.allocatedCostBase.toLocaleString('en-AU')}`);
               return parts.join(' ');
@@ -341,10 +359,10 @@ export function transformTimelineToAPIFormat(
 
         // Add allocation method
         if (event.subdivisionDetails.allocationMethod) {
-          const methodLabels = {
+          const methodLabels: Record<string, string> = {
             by_lot_size: 'by lot size',
             equal: 'equally',
-            manual: 'manually',
+            manual: 'manually (custom percentages)',
           };
           subdivisionParts.push(`Cost base allocated ${methodLabels[event.subdivisionDetails.allocationMethod] || 'proportionally'}`);
         }
@@ -515,6 +533,12 @@ export function transformTimelineToAPIFormat(
             case 'adverse_possession_defense':
               historyEvent.adverse_possession_defense = costBase.amount;
               break;
+            // Building/Construction costs
+            case 'construction_cost':
+            case 'builder_fees':
+            case 'architect_fees':
+            case 'council_permits':
+            case 'engineering_fees':
             // Improvement costs
             case 'renovation_whole_house':
             case 'renovation_kitchen':
@@ -536,11 +560,11 @@ export function transformTimelineToAPIFormat(
             case 'structural_changes':
             case 'disability_modifications':
             case 'water_tank':
-              // For improvements, use the price field or improvement_cost
+              // For building/improvements, use the price field or improvement_cost
               if (!historyEvent.price) {
                 historyEvent.price = costBase.amount;
               }
-              historyEvent.improvement_cost = costBase.amount;
+              historyEvent.improvement_cost = (historyEvent.improvement_cost || 0) + costBase.amount;
               break;
             // Element 4: Capital Costs (Non-improvement)
             case 'zoning_change_costs':
@@ -628,6 +652,36 @@ export function transformTimelineToAPIFormat(
           ? `${historyEvent.description}. ${amountInfo}`
           : amountInfo;
         console.log('💰 Transform: Added improvement amount to description:', historyEvent.improvement_cost);
+      }
+
+      // Handle building events - construction costs add to cost base (similar to improvement)
+      if (event.type === 'building') {
+        // Calculate building cost from cost bases or amount
+        const buildingCost = event.costBases?.reduce((sum, cb) => sum + cb.amount, 0) || event.amount || 0;
+        if (buildingCost > 0) {
+          historyEvent.improvement_cost = (historyEvent.improvement_cost || 0) + buildingCost;
+          const amountInfo = `Building/Construction cost: $${buildingCost.toLocaleString('en-AU', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+          historyEvent.description = historyEvent.description
+            ? `${historyEvent.description}. ${amountInfo}`
+            : amountInfo;
+          console.log('🏗️ Transform: Added building cost to improvement_cost:', buildingCost);
+        }
+
+        // Add construction dates to description if available
+        if (event.constructionStartDate || event.constructionEndDate) {
+          const datesParts: string[] = [];
+          if (event.constructionStartDate) {
+            datesParts.push(`Started: ${format(event.constructionStartDate, 'dd/MM/yyyy')}`);
+          }
+          if (event.constructionEndDate) {
+            datesParts.push(`Completed: ${format(event.constructionEndDate, 'dd/MM/yyyy')}`);
+          }
+          const datesInfo = `Construction ${datesParts.join(', ')}`;
+          historyEvent.description = historyEvent.description
+            ? `${historyEvent.description}. ${datesInfo}`
+            : datesInfo;
+          console.log('🏗️ Transform: Added building construction dates:', event.constructionStartDate, event.constructionEndDate);
+        }
       }
 
       // Handle subdivision fees (stored in subdivisionDetails, not costBases)
@@ -770,12 +824,27 @@ export function transformTimelineToAPIFormat(
         const details = event.subdivisionDetails;
         const parts: string[] = [`${eventDate} - SUBDIVISION: ${details.totalLots} lots`];
         if (details.allocationMethod) {
-          const methodMap: any = { by_lot_size: 'By Lot Size', equal: 'Equally', manual: 'Manual' };
+          const methodMap: Record<string, string> = { by_lot_size: 'By Lot Size', equal: 'Equally', manual: 'Manual Percentages' };
           parts.push(`Method: ${methodMap[details.allocationMethod] || 'Proportional'}`);
+        }
+        // Add cost breakdown if present
+        if (details.costBreakdown) {
+          const breakdown = details.costBreakdown;
+          if (breakdown.landValue !== undefined) {
+            parts.push(`Land: $${breakdown.landValue.toLocaleString('en-AU')}`);
+          }
+          if (breakdown.buildingValue !== undefined) {
+            parts.push(`Building: $${breakdown.buildingValue.toLocaleString('en-AU')} (Lot 1 only)`);
+          }
         }
         if (details.childProperties && details.childProperties.length > 0) {
           details.childProperties.forEach((child: any, idx: number) => {
-            parts.push(`Lot${idx + 1}: ${child.name}${child.lotNumber ? ' (' + child.lotNumber + ')' : ''}${child.lotSize ? ' ' + (child.lotSize / 10000).toFixed(4) + 'ha' : ''}${child.allocatedCostBase ? ' $' + child.allocatedCostBase.toLocaleString('en-AU') : ''}`);
+            const lotParts = [`Lot${idx + 1}: ${child.name}`];
+            if (child.lotNumber) lotParts.push(`(${child.lotNumber})`);
+            if (child.allocationPercentage !== undefined) lotParts.push(`${child.allocationPercentage.toFixed(1)}%`);
+            if (child.lotSize) lotParts.push(`${(child.lotSize / 10000).toFixed(4)}ha`);
+            if (child.allocatedCostBase) lotParts.push(`$${child.allocatedCostBase.toLocaleString('en-AU')}`);
+            parts.push(lotParts.join(' '));
           });
         }
         structuredData.push(parts.join(' | '));

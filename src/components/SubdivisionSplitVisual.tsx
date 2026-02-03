@@ -28,8 +28,9 @@ export default function SubdivisionSplitVisual({
 
         // Convert yOffset to actual rendered position
         // PropertyBranch uses: branchY = 100 + branchIndex * 120
-        const parentBranchY = 100 + (parentY / 80) * 120;
-        const childBranchY = 100 + (childY / 80) * 120;
+        // subdivision-helpers uses BRANCH_VERTICAL_SPACING = 100, so yOffset/100 gives branchIndex
+        const parentBranchY = 100 + (parentY / 100) * 120;
+        const childBranchY = 100 + (childY / 100) * 120;
 
         return (
           <motion.g
@@ -68,27 +69,8 @@ export default function SubdivisionSplitVisual({
               transition={{ duration: 0.6, delay: index * 0.1 }}
             />
 
-            {/* SPLIT badge label */}
-            {connection.splitDate && (
-              <motion.g
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4, delay: index * 0.1 + 0.5 }}
-              >
-                {/* Use foreignObject to position badge at percentage coordinate */}
-                <foreignObject
-                  x={xPercent}
-                  y={parentBranchY - 30}
-                  width="60"
-                  height="20"
-                  style={{ overflow: 'visible', transform: 'translateX(-30px)' }}
-                >
-                  <div className="flex items-center justify-center px-2 py-0.5 rounded bg-pink-500 text-white text-[10px] font-semibold">
-                    SPLIT
-                  </div>
-                </foreignObject>
-              </motion.g>
-            )}
+            {/* SPLIT badge removed - subdivision event circle is now interactive and clickable */}
+            {/* The subdivision event is rendered via EventCircle in PropertyBranch */}
           </motion.g>
         );
       })}

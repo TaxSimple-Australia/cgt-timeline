@@ -4,12 +4,12 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { TimelineEvent, PropertyStatus, useTimelineStore, CostBaseItem } from '@/store/timeline';
 import { format } from 'date-fns';
-import { X, Calendar, DollarSign, Home, Tag, FileText, CheckCircle, CheckCircle2, Receipt, Info, Star, Palette, Building2, Key, AlertCircle, Briefcase, TrendingUp, Package, Hammer, Gift, MapPin, ChevronDown, Square, Maximize2, Percent, Plus } from 'lucide-react';
+import { X, Calendar, DollarSign, Home, Tag, FileText, CheckCircle, CheckCircle2, Receipt, Info, Star, Palette, Building2, Key, AlertCircle, Briefcase, TrendingUp, Package, Hammer, Gift, MapPin, ChevronDown, Square, Maximize2, Percent, Plus, Layers, Lock, Unlock } from 'lucide-react';
 import CostBaseSelector from './CostBaseSelector';
 import { getCostBaseDefinition } from '@/lib/cost-base-definitions';
 import CostBaseSummaryModal from './CostBaseSummaryModal';
 import { parseDateFlexible, formatDateDisplay, isValidDateRange, DATE_FORMAT_PLACEHOLDER } from '@/lib/date-utils';
-import { cn } from '@/lib/utils';
+import { cn, formatCurrency } from '@/lib/utils';
 import { showWarning, showError } from '@/lib/toast-helpers';
 import ConfirmDialog from './ConfirmDialog';
 
@@ -40,8 +40,10 @@ const eventTypeOptions = [
   { type: 'vacant_start' as const, label: 'Vacant (Start)', color: '#9CA3AF' },
   { type: 'vacant_end' as const, label: 'Vacant (End)', color: '#6B7280' },
   { type: 'improvement' as const, label: 'Improvement', color: '#06B6D4' },
+  { type: 'building' as const, label: 'Building', color: '#F97316' },
   { type: 'refinance' as const, label: 'Inherit', color: '#6366F1' },
   { type: 'status_change' as const, label: 'Status Change', color: '#A855F7' },
+  { type: 'subdivision' as const, label: 'Subdivision', color: '#EC4899' },
   { type: 'custom' as const, label: 'Custom Event', color: '#6B7280' },
 ];
 
@@ -76,6 +78,8 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
   // Refs for date pickers
   const dateInputRef = React.useRef<HTMLInputElement>(null);
   const appreciationDateInputRef = React.useRef<HTMLInputElement>(null);
+  const constructionStartDateInputRef = React.useRef<HTMLInputElement>(null);
+  const constructionEndDateInputRef = React.useRef<HTMLInputElement>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [showSummary, setShowSummary] = useState(false);
   const [showDateTooltip, setShowDateTooltip] = useState(false);
@@ -146,6 +150,19 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
   const [overTwoHectares, setOverTwoHectares] = useState(event.overTwoHectares || false);
   const [isLandOnly, setIsLandOnly] = useState(event.isLandOnly || false);
   const [hectares, setHectares] = useState<number | ''>(event.hectares || '');
+
+  // Building event - construction start and end dates
+  const [constructionStartDate, setConstructionStartDate] = useState<Date | null>(event.constructionStartDate || null);
+  const [constructionStartDateInput, setConstructionStartDateInput] = useState(
+    event.constructionStartDate ? format(event.constructionStartDate, 'dd/MM/yyyy') : ''
+  );
+  const [constructionStartDateError, setConstructionStartDateError] = useState('');
+
+  const [constructionEndDate, setConstructionEndDate] = useState<Date | null>(event.constructionEndDate || null);
+  const [constructionEndDateInput, setConstructionEndDateInput] = useState(
+    event.constructionEndDate ? format(event.constructionEndDate, 'dd/MM/yyyy') : ''
+  );
+  const [constructionEndDateError, setConstructionEndDateError] = useState('');
 
   // Property details section (collapsible) - auto-expand if any options are set
   const [showPropertyDetails, setShowPropertyDetails] = useState(
@@ -454,6 +471,114 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
 
   const [marketValuation, setMarketValuation] = useState(event.marketValuation?.toString() || '');
 
+  // Subdivision lot editing state
+  type SizeUnit = 'acres' | 'hectares' | 'sqms';
+  interface LotEditState {
+    lotNumber: string;
+    lotSize: number; // stored in sqm
+    sizeUnit: SizeUnit;
+    address: string;
+    allocationPercentage: number; // editable percentage
+    isPercentageLocked: boolean; // true when manually edited (prevents auto-recalculation)
+  }
+
+  // Get lot properties from subdivision event
+  const subdivisionLots = useMemo(() => {
+    if (event.type !== 'subdivision' || !event.subdivisionDetails?.parentPropertyId) {
+      return [];
+    }
+    // Find all child properties of this subdivision
+    return properties.filter(
+      p => p.parentPropertyId === event.subdivisionDetails?.parentPropertyId &&
+           p.subdivisionGroup
+    ).sort((a, b) => {
+      // Sort by lot number, with Lot 1 (main continuation) first
+      if (a.isMainLotContinuation) return -1;
+      if (b.isMainLotContinuation) return 1;
+      return (a.lotNumber || '').localeCompare(b.lotNumber || '');
+    });
+  }, [event, properties]);
+
+  // Initialize lot edits from existing property data
+  const [lotEdits, setLotEdits] = useState<Record<string, LotEditState>>(() => {
+    const initial: Record<string, LotEditState> = {};
+    subdivisionLots.forEach(lot => {
+      initial[lot.id] = {
+        lotNumber: lot.lotNumber || '',
+        lotSize: lot.lotSize || 0,
+        sizeUnit: 'hectares' as SizeUnit, // Default to hectares for display
+        address: lot.address || '',
+        allocationPercentage: lot.allocationPercentage || 0,
+        isPercentageLocked: lot.allocationPercentage !== undefined && lot.allocationPercentage > 0, // Lock if already has a percentage
+      };
+    });
+    return initial;
+  });
+
+  // Unit conversion helpers for lot size
+  const convertToSqm = (value: number, unit: SizeUnit): number => {
+    if (unit === 'sqms') return value;
+    if (unit === 'hectares') return value * 10000;
+    if (unit === 'acres') return value * 4046.86;
+    return value;
+  };
+
+  const convertFromSqm = (sqm: number, unit: SizeUnit): number => {
+    if (unit === 'sqms') return sqm;
+    if (unit === 'hectares') return sqm / 10000;
+    if (unit === 'acres') return sqm / 4046.86;
+    return sqm;
+  };
+
+  const getUnitLabel = (unit: SizeUnit): string => {
+    if (unit === 'sqms') return 'sqm';
+    if (unit === 'hectares') return 'ha';
+    return 'acres';
+  };
+
+  const getUnitStep = (unit: SizeUnit): string => {
+    if (unit === 'sqms') return '1';
+    if (unit === 'hectares') return '0.0001';
+    return '0.001';
+  };
+
+  // Calculate allocated cost base for a lot
+  const calculateLotCostBase = (lotId: string): number => {
+    const lot = subdivisionLots.find(l => l.id === lotId);
+    if (!lot || !lot.parentPropertyId) return 0;
+
+    const parent = properties.find(p => p.id === lot.parentPropertyId);
+    if (!parent || !parent.purchasePrice) return 0;
+
+    const edited = lotEdits[lotId];
+    let proportion: number;
+
+    // Use manually entered percentage if locked, otherwise calculate from lot sizes
+    if (edited?.isPercentageLocked && edited.allocationPercentage > 0) {
+      proportion = edited.allocationPercentage / 100;
+    } else {
+      // Get lot sizes from either edited state or original property
+      const getLotSize = (l: typeof lot): number => {
+        const ed = lotEdits[l.id];
+        return ed?.lotSize || l.lotSize || 0;
+      };
+
+      const totalLotSize = subdivisionLots.reduce((sum, l) => sum + getLotSize(l), 0);
+      if (totalLotSize === 0) return 0;
+
+      const currentLotSize = getLotSize(lot);
+      proportion = currentLotSize / totalLotSize;
+    }
+
+    // Include subdivision fees if available
+    const fees = event.subdivisionDetails;
+    const totalFees = (fees?.surveyorFees || 0) + (fees?.planningFees || 0) +
+                     (fees?.legalFees || 0) + (fees?.titleFees || 0);
+    const feePerLot = subdivisionLots.length > 0 ? totalFees / subdivisionLots.length : 0;
+
+    return parent.purchasePrice * proportion + feePerLot;
+  };
+
   // Date input handler with flexible parsing
   const handleDateChange = (value: string) => {
     setDateInput(value);
@@ -617,6 +742,34 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
         // For improvement events, always calculate from cost bases (validation ensures at least one exists)
         const totalCostBases = costBases.reduce((sum, cb) => sum + cb.amount, 0);
         updates.amount = totalCostBases;
+      } else if (event.type === 'building') {
+        // For building events, calculate amount from cost bases if available, otherwise use manual amount
+        if (costBases.length > 0) {
+          const totalCostBases = costBases.reduce((sum, cb) => sum + cb.amount, 0);
+          updates.amount = totalCostBases;
+        } else if (amount && !isNaN(parseFloat(amount))) {
+          updates.amount = parseFloat(amount);
+        } else {
+          updates.amount = undefined;
+        }
+
+        // Validate construction dates
+        if (constructionStartDate && constructionEndDate) {
+          if (constructionEndDate < constructionStartDate) {
+            showWarning('Invalid Dates', 'Construction end date must be after start date');
+            setIsSaving(false);
+            return;
+          }
+        }
+
+        // Save construction dates
+        updates.constructionStartDate = constructionStartDate || undefined;
+        updates.constructionEndDate = constructionEndDate || undefined;
+
+        // Use construction start date as the event date for timeline positioning
+        if (constructionStartDate) {
+          updates.date = constructionStartDate;
+        }
       } else {
         // For other events, use the single amount field
         if (amount && !isNaN(parseFloat(amount))) {
@@ -1306,6 +1459,58 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
       // NOTE: Checkbox states are now persisted in checkboxState field
       // No need to reset them after save
 
+      // Save subdivision lot edits
+      if (event.type === 'subdivision' && Object.keys(lotEdits).length > 0) {
+        subdivisionLots.forEach(lot => {
+          const edited = lotEdits[lot.id];
+          if (edited) {
+            // Only update if values have changed
+            const hasChanged =
+              edited.lotNumber !== (lot.lotNumber || '') ||
+              edited.lotSize !== (lot.lotSize || 0) ||
+              edited.address !== (lot.address || '') ||
+              (edited.isPercentageLocked && edited.allocationPercentage !== (lot.allocationPercentage || 0));
+
+            if (hasChanged) {
+              updateProperty(lot.id, {
+                lotNumber: edited.lotNumber.trim() || undefined,
+                lotSize: edited.lotSize || undefined,
+                address: edited.address.trim() || undefined,
+                // Only save allocationPercentage if manually set (locked)
+                allocationPercentage: edited.isPercentageLocked ? edited.allocationPercentage : undefined,
+              });
+            }
+          }
+        });
+
+        // Also update the subdivisionDetails.childProperties in the event
+        const updatedChildProperties = event.subdivisionDetails?.childProperties?.map(child => {
+          const edited = lotEdits[child.id];
+          if (edited) {
+            return {
+              ...child,
+              lotNumber: edited.lotNumber.trim() || child.lotNumber,
+              lotSize: edited.lotSize || child.lotSize,
+              allocationPercentage: edited.isPercentageLocked ? edited.allocationPercentage : undefined,
+              allocatedCostBase: calculateLotCostBase(child.id),
+            };
+          }
+          return child;
+        });
+
+        if (updatedChildProperties) {
+          // Determine allocation method based on whether any percentages are locked
+          const hasManualPercentages = Object.values(lotEdits).some(l => l.isPercentageLocked);
+          updateEvent(event.id, {
+            subdivisionDetails: {
+              ...event.subdivisionDetails!,
+              childProperties: updatedChildProperties,
+              allocationMethod: hasManualPercentages ? 'manual' : 'by_lot_size',
+            },
+          });
+        }
+      }
+
       // Small delay for visual feedback
       setTimeout(() => {
         setIsSaving(false);
@@ -1382,7 +1587,7 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
               </div>
               <div className="flex items-center gap-2">
                 {/* Cost Base Summary Button - Only show for events with cost bases */}
-                {(eventType === 'purchase' || eventType === 'sale' || eventType === 'improvement') &&
+                {(eventType === 'purchase' || eventType === 'sale' || eventType === 'improvement' || eventType === 'building') &&
                  costBases && costBases.length > 0 && (
                   <button
                     onClick={() => setShowSummary(true)}
@@ -1551,7 +1756,8 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
                 />
               </div>
 
-              {/* Date Input */}
+              {/* Date Input - Hidden for building events (they use construction dates) */}
+              {eventType !== 'building' && (
               <div>
                 <label className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                   <Calendar className="w-4 h-4" />
@@ -1655,6 +1861,7 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
                   </div>
                 )}
               </div>
+              )}
 
               {/* Purchase status checkboxes (for purchase events only) */}
               {eventType === 'purchase' && (
@@ -2021,7 +2228,7 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
               )}
             </div>
 
-            {/* Financial Details Section - Only for specific event types (not purchase, sale, improvements, inherit, or Not Sold markers) */}
+            {/* Financial Details Section - Only for specific event types (not purchase, sale, improvements, building, inherit, subdivision, or Not Sold markers) */}
             {!isSyntheticNotSold &&
              eventType !== 'purchase' &&
              eventType !== 'move_in' &&
@@ -2033,7 +2240,9 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
              eventType !== 'vacant_end' &&
              eventType !== 'ownership_change' &&
              eventType !== 'improvement' &&
-             eventType !== 'refinance' && (
+             eventType !== 'building' &&
+             eventType !== 'refinance' &&
+             eventType !== 'subdivision' && (
               <div className="space-y-4 pt-2">
                 {/* Single Amount Input */}
                 <div>
@@ -2057,9 +2266,179 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
               </div>
             )}
 
+            {/* Building Event - Construction Start and End Dates */}
+            {eventType === 'building' && (
+              <div className="space-y-4 pt-2 border-t border-slate-200 dark:border-slate-700">
+                {/* Construction Start Date */}
+                <div>
+                  <label className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                    <Calendar className="w-4 h-4" />
+                    Construction Start Date *
+                  </label>
+                  <div className="relative flex gap-2">
+                    <input
+                      type="text"
+                      value={constructionStartDateInput}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        setConstructionStartDateInput(value);
+
+                        if (!value.trim()) {
+                          setConstructionStartDate(null);
+                          setConstructionStartDateError('');
+                          return;
+                        }
+
+                        const parsed = parseDateFlexible(value);
+                        if (parsed) {
+                          setConstructionStartDate(parsed);
+                          setConstructionStartDateError('');
+                        } else {
+                          setConstructionStartDate(null);
+                          setConstructionStartDateError('Invalid date format');
+                        }
+                      }}
+                      placeholder={DATE_FORMAT_PLACEHOLDER}
+                      className={cn(
+                        "flex-1 px-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 focus:border-transparent",
+                        "bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100",
+                        constructionStartDateError
+                          ? "border-red-500 focus:ring-red-500"
+                          : constructionStartDate
+                          ? "border-green-500 focus:ring-green-500"
+                          : "border-slate-300 dark:border-slate-600 focus:ring-blue-500"
+                      )}
+                      required
+                    />
+                    <div
+                      className="inline-block cursor-pointer"
+                      onClick={() => constructionStartDateInputRef.current?.showPicker?.()}
+                    >
+                      <input
+                        ref={constructionStartDateInputRef}
+                        type="date"
+                        value={constructionStartDate ? format(constructionStartDate, 'yyyy-MM-dd') : ''}
+                        onChange={(e) => {
+                          const newDate = e.target.value;
+                          if (newDate) {
+                            const parsed = new Date(newDate);
+                            setConstructionStartDate(parsed);
+                            setConstructionStartDateInput(format(parsed, 'dd/MM/yyyy'));
+                            setConstructionStartDateError('');
+                          }
+                        }}
+                        className="sr-only"
+                      />
+                      <div className="px-4 py-3 min-w-[44px] border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 hover:bg-slate-50 dark:hover:bg-slate-600 rounded-lg transition-colors">
+                        <Calendar className="w-5 h-5 text-slate-600 dark:text-slate-400 pointer-events-none" />
+                      </div>
+                    </div>
+                  </div>
+                  {constructionStartDateError && (
+                    <p className="mt-1 text-xs text-red-500">{constructionStartDateError}</p>
+                  )}
+                  {constructionStartDate && !constructionStartDateError && (
+                    <div className="flex items-center gap-2 text-xs text-green-600 dark:text-green-400 mt-1">
+                      <CheckCircle className="w-3 h-3 flex-shrink-0" />
+                      <span>{formatDateDisplay(constructionStartDate)}</span>
+                    </div>
+                  )}
+                  {!constructionStartDate && !constructionStartDateError && (
+                    <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                      When the construction started
+                    </p>
+                  )}
+                </div>
+
+                {/* Construction End Date */}
+                <div>
+                  <label className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                    <Calendar className="w-4 h-4" />
+                    Construction End Date
+                  </label>
+                  <div className="relative flex gap-2">
+                    <input
+                      type="text"
+                      value={constructionEndDateInput}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        setConstructionEndDateInput(value);
+
+                        if (!value.trim()) {
+                          setConstructionEndDate(null);
+                          setConstructionEndDateError('');
+                          return;
+                        }
+
+                        const parsed = parseDateFlexible(value);
+                        if (parsed) {
+                          setConstructionEndDate(parsed);
+                          setConstructionEndDateError('');
+                        } else {
+                          setConstructionEndDate(null);
+                          setConstructionEndDateError('Invalid date format');
+                        }
+                      }}
+                      placeholder={DATE_FORMAT_PLACEHOLDER}
+                      className={cn(
+                        "flex-1 px-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 focus:border-transparent",
+                        "bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100",
+                        constructionEndDateError
+                          ? "border-red-500 focus:ring-red-500"
+                          : constructionEndDate
+                          ? "border-green-500 focus:ring-green-500"
+                          : "border-slate-300 dark:border-slate-600 focus:ring-blue-500"
+                      )}
+                    />
+                    <div
+                      className="inline-block cursor-pointer"
+                      onClick={() => constructionEndDateInputRef.current?.showPicker?.()}
+                    >
+                      <input
+                        ref={constructionEndDateInputRef}
+                        type="date"
+                        value={constructionEndDate ? format(constructionEndDate, 'yyyy-MM-dd') : ''}
+                        onChange={(e) => {
+                          const newDate = e.target.value;
+                          if (newDate) {
+                            const parsed = new Date(newDate);
+                            setConstructionEndDate(parsed);
+                            setConstructionEndDateInput(format(parsed, 'dd/MM/yyyy'));
+                            setConstructionEndDateError('');
+                          }
+                        }}
+                        className="sr-only"
+                      />
+                      <div className="px-4 py-3 min-w-[44px] border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 hover:bg-slate-50 dark:hover:bg-slate-600 rounded-lg transition-colors">
+                        <Calendar className="w-5 h-5 text-slate-600 dark:text-slate-400 pointer-events-none" />
+                      </div>
+                    </div>
+                  </div>
+                  {constructionEndDateError && (
+                    <p className="mt-1 text-xs text-red-500">{constructionEndDateError}</p>
+                  )}
+                  {constructionEndDate && !constructionEndDateError && (
+                    <div className="flex items-center gap-2 text-xs text-green-600 dark:text-green-400 mt-1">
+                      <CheckCircle className="w-3 h-3 flex-shrink-0" />
+                      <span>{formatDateDisplay(constructionEndDate)}</span>
+                    </div>
+                  )}
+                  {!constructionEndDate && !constructionEndDateError && (
+                    <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                      When the construction was completed
+                    </p>
+                  )}
+                </div>
+
+                <p className="text-sm text-slate-500 dark:text-slate-400">
+                  Add construction costs below using Cost Base Items
+                </p>
+              </div>
+            )}
+
             {/* Cost Base Section (for CGT calculation) - NEW COMPONENT */}
             {/* Hide for synthetic "Not Sold" markers and inherit events */}
-            {!isSyntheticNotSold && (eventType === 'purchase' || eventType === 'sale' || eventType === 'improvement' || eventType === 'status_change' || eventType === 'custom') && (
+            {!isSyntheticNotSold && (eventType === 'purchase' || eventType === 'sale' || eventType === 'improvement' || eventType === 'building' || eventType === 'status_change' || eventType === 'custom') && (
               <div className="space-y-4 pt-2 border-t border-slate-200 dark:border-slate-700">
                 <CostBaseSelector
                   eventType={event.type}
@@ -2669,7 +3048,7 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
             )}
 
             {/* Additional Information Section */}
-            {eventType !== 'ownership_change' && (
+            {eventType !== 'ownership_change' && eventType !== 'subdivision' && (
               <div className="space-y-4 pt-2">
                 <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide">Additional Information</h3>
 
@@ -3049,6 +3428,286 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
                     rows={3}
                     className="w-full px-4 py-2.5 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
                     placeholder="Add notes about this ownership change..."
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* Subdivision Event - Lot Editing Section */}
+            {eventType === 'subdivision' && subdivisionLots.length > 0 && (
+              <div className="space-y-4 pt-2 border-t border-slate-200 dark:border-slate-700">
+                <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide flex items-center gap-2">
+                  <Layers className="w-4 h-4 text-pink-500" />
+                  Subdivision Lots ({subdivisionLots.length})
+                </h3>
+
+                {/* Lot Cards */}
+                <div className="space-y-6">
+                  {subdivisionLots.map((lot) => {
+                    const edited = lotEdits[lot.id] || {
+                      lotNumber: lot.lotNumber || '',
+                      lotSize: lot.lotSize || 0,
+                      sizeUnit: 'hectares' as SizeUnit,
+                      address: lot.address || '',
+                      allocationPercentage: lot.allocationPercentage || 0,
+                      isPercentageLocked: lot.allocationPercentage !== undefined && lot.allocationPercentage > 0,
+                    };
+                    const isMainLot = lot.isMainLotContinuation;
+                    const allocatedCostBase = calculateLotCostBase(lot.id);
+
+                    return (
+                      <div
+                        key={lot.id}
+                        className={cn(
+                          "p-4 rounded-lg border-2 space-y-3",
+                          isMainLot
+                            ? "bg-green-50 dark:bg-green-900/10 border-green-300 dark:border-green-700"
+                            : "bg-pink-50 dark:bg-pink-900/10 border-pink-300 dark:border-pink-700"
+                        )}
+                      >
+                        {/* Lot Header */}
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <span className={cn(
+                              "font-semibold",
+                              isMainLot ? "text-green-700 dark:text-green-400" : "text-pink-700 dark:text-pink-400"
+                            )}>
+                              {lot.name || edited.lotNumber || `Lot`}
+                            </span>
+                            {isMainLot && (
+                              <span className="px-2 py-0.5 text-xs font-medium bg-green-200 dark:bg-green-800 text-green-800 dark:text-green-200 rounded">
+                                Main Continuation
+                              </span>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Lot Number Input */}
+                        <div>
+                          <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">
+                            Lot Number
+                          </label>
+                          <input
+                            type="text"
+                            value={edited.lotNumber}
+                            onChange={(e) => {
+                              setLotEdits(prev => ({
+                                ...prev,
+                                [lot.id]: { ...edited, lotNumber: e.target.value }
+                              }));
+                            }}
+                            placeholder="e.g., Lot 1, Lot 2A"
+                            className="w-full px-3 py-2 text-sm border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
+                          />
+                        </div>
+
+                        {/* Lot Size Input */}
+                        <div>
+                          <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">
+                            Lot Size (sqm)
+                          </label>
+                          <input
+                            type="number"
+                            value={edited.lotSize || ''}
+                            onChange={(e) => {
+                              const value = parseFloat(e.target.value) || 0;
+                              setLotEdits(prev => ({
+                                ...prev,
+                                [lot.id]: { ...edited, lotSize: value }
+                              }));
+                            }}
+                            placeholder="0"
+                            min="0"
+                            step="1"
+                            onWheel={(e) => e.currentTarget.blur()}
+                            className="w-full px-3 py-2 text-sm border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
+                          />
+                        </div>
+
+                        {/* Address Input */}
+                        <div>
+                          <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">
+                            Address (optional)
+                          </label>
+                          <input
+                            type="text"
+                            value={edited.address}
+                            onChange={(e) => {
+                              setLotEdits(prev => ({
+                                ...prev,
+                                [lot.id]: { ...edited, address: e.target.value }
+                              }));
+                            }}
+                            placeholder="Street address"
+                            className="w-full px-3 py-2 text-sm border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
+                          />
+                        </div>
+
+                        {/* Allocation Percentage - Editable */}
+                        <div>
+                          <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">
+                            Allocation Percentage
+                          </label>
+                          <div className="flex items-center gap-2">
+                            <input
+                              type="number"
+                              value={edited.allocationPercentage || ''}
+                              onChange={(e) => {
+                                const value = parseFloat(e.target.value) || 0;
+                                setLotEdits(prev => ({
+                                  ...prev,
+                                  [lot.id]: {
+                                    ...edited,
+                                    allocationPercentage: Math.min(100, Math.max(0, value)),
+                                    isPercentageLocked: true  // Lock when manually edited
+                                  }
+                                }));
+                              }}
+                              placeholder="0"
+                              min="0"
+                              max="100"
+                              step="0.1"
+                              onWheel={(e) => e.currentTarget.blur()}
+                              className="flex-1 px-3 py-2 text-sm border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
+                            />
+                            <span className="text-sm text-slate-500 dark:text-slate-400">%</span>
+                            <button
+                              type="button"
+                              onClick={() => setLotEdits(prev => ({
+                                ...prev,
+                                [lot.id]: { ...edited, isPercentageLocked: !edited.isPercentageLocked }
+                              }))}
+                              className={cn(
+                                "p-1.5 rounded transition-colors",
+                                edited.isPercentageLocked
+                                  ? "text-pink-500 hover:bg-pink-100 dark:hover:bg-pink-900/30"
+                                  : "text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700"
+                              )}
+                              title={edited.isPercentageLocked ? "Locked - click to auto-calculate from lot sizes" : "Unlocked - will auto-calculate from lot sizes"}
+                            >
+                              {edited.isPercentageLocked ? <Lock className="w-4 h-4" /> : <Unlock className="w-4 h-4" />}
+                            </button>
+                          </div>
+                          {!edited.isPercentageLocked && (
+                            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                              Auto-calculated from lot sizes
+                            </p>
+                          )}
+                        </div>
+
+                        {/* Allocated Cost Base (Read-only) */}
+                        {(edited.lotSize > 0 || edited.allocationPercentage > 0) && (
+                          <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                            <div className="flex items-center justify-between text-sm">
+                              <span className="font-medium text-blue-700 dark:text-blue-300">
+                                Allocated Cost Base:
+                              </span>
+                              <span className="font-semibold text-blue-700 dark:text-blue-300">
+                                {formatCurrency(allocatedCostBase)}
+                              </span>
+                            </div>
+                            <p className="text-xs text-blue-600 dark:text-blue-400 mt-1">
+                              {edited.isPercentageLocked && edited.allocationPercentage > 0
+                                ? `Based on ${edited.allocationPercentage.toFixed(1)}% allocation (manual)`
+                                : 'Based on proportional lot size'}
+                              {isMainLot && event.subdivisionDetails?.costBreakdown?.buildingValue
+                                ? ` (includes building value)`
+                                : ''}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Allocation Total Validation */}
+                {(() => {
+                  const total = Object.values(lotEdits).reduce((sum, l) => sum + (l.allocationPercentage || 0), 0);
+                  const hasAnyLocked = Object.values(lotEdits).some(l => l.isPercentageLocked);
+                  if (!hasAnyLocked) return null;
+                  const isValid = Math.abs(total - 100) < 0.1;
+                  return (
+                    <div className={cn(
+                      "p-3 rounded-lg border text-sm",
+                      isValid
+                        ? "bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-700 text-green-700 dark:text-green-300"
+                        : "bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-700 text-amber-700 dark:text-amber-300"
+                    )}>
+                      <div className="flex items-center justify-between">
+                        <span>Total Allocation:</span>
+                        <span className="font-semibold">{total.toFixed(1)}%</span>
+                      </div>
+                      {!isValid && (
+                        <p className="text-xs mt-1">
+                          {total < 100
+                            ? `${(100 - total).toFixed(1)}% unallocated`
+                            : `${(total - 100).toFixed(1)}% over-allocated`}
+                        </p>
+                      )}
+                    </div>
+                  );
+                })()}
+
+                {/* Cost Base Breakdown (if specified) */}
+                {event.subdivisionDetails?.costBreakdown && (
+                  (event.subdivisionDetails.costBreakdown.landValue !== undefined ||
+                   event.subdivisionDetails.costBreakdown.buildingValue !== undefined) && (
+                    <div className="p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200 dark:border-purple-700 space-y-2">
+                      <h4 className="text-sm font-semibold text-purple-700 dark:text-purple-300">
+                        Cost Base Breakdown
+                      </h4>
+                      <div className="grid grid-cols-2 gap-2 text-sm">
+                        {event.subdivisionDetails.costBreakdown.landValue !== undefined && (
+                          <div className="flex justify-between">
+                            <span className="text-purple-600 dark:text-purple-400">Land Value:</span>
+                            <span className="font-medium text-purple-900 dark:text-purple-100">
+                              {formatCurrency(event.subdivisionDetails.costBreakdown.landValue)}
+                            </span>
+                          </div>
+                        )}
+                        {event.subdivisionDetails.costBreakdown.buildingValue !== undefined && (
+                          <div className="flex justify-between">
+                            <span className="text-purple-600 dark:text-purple-400">Building Value:</span>
+                            <span className="font-medium text-purple-900 dark:text-purple-100">
+                              {formatCurrency(event.subdivisionDetails.costBreakdown.buildingValue)}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                      <p className="text-xs text-purple-600 dark:text-purple-400 mt-2">
+                        Land value is apportioned across all lots. Building value stays with Lot 1.
+                      </p>
+                    </div>
+                  )
+                )}
+
+                {/* Allocation Method Info */}
+                {event.subdivisionDetails?.allocationMethod && (
+                  <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
+                    <span>Allocation method:</span>
+                    <span className="font-medium capitalize">
+                      {event.subdivisionDetails.allocationMethod === 'by_lot_size'
+                        ? 'By Lot Size'
+                        : event.subdivisionDetails.allocationMethod === 'manual'
+                        ? 'Manual Percentages'
+                        : event.subdivisionDetails.allocationMethod}
+                    </span>
+                  </div>
+                )}
+
+                {/* Notes Section for Subdivision */}
+                <div className="pt-4 border-t border-slate-200 dark:border-slate-700">
+                  <label className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                    <FileText className="w-4 h-4" />
+                    Notes
+                  </label>
+                  <textarea
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    rows={3}
+                    className="w-full px-4 py-2.5 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                    placeholder="Add notes about this subdivision..."
                   />
                 </div>
               </div>

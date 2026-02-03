@@ -198,6 +198,7 @@ export default function GanttChartView({
   const getEventIcon = (eventType: EventType) => {
     const iconMap: Record<EventType, typeof Home> = {
       purchase: DollarSign,
+      building: Building,
       sale: DollarSign,
       move_in: LogIn,
       move_out: LogOut,

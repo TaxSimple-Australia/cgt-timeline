@@ -472,7 +472,7 @@ export default function Timeline({ className, onAlertClick, onOpenAIBuilder }: T
               {visibleProperties.map((property, index) => {
                 // Use calculated branch position if property is part of subdivision hierarchy
                 const branchPos = branchPositions.get(property.id!);
-                const effectiveBranchIndex = branchPos ? branchPos.yOffset / 80 : index;
+                const effectiveBranchIndex = branchPos ? branchPos.yOffset / 100 : index;
 
                 // For subdivided parent properties, also include Lot 1's events (main continuation)
                 // This allows the parent line to show events that happened after subdivision on Lot 1
@@ -483,6 +483,8 @@ export default function Timeline({ className, onAlertClick, onOpenAIBuilder }: T
                   ? [
                       // Parent's events BEFORE subdivision
                       ...events.filter(e => e.propertyId === property.id && e.date < subdivisionDate),
+                      // Parent's subdivision event (AT subdivision date) - include for interactive display
+                      ...events.filter(e => e.propertyId === property.id && e.type === 'subdivision'),
                       // Lot 1's events ON or AFTER subdivision
                       ...events.filter(e => e.propertyId === lot1.id && e.date >= subdivisionDate)
                     ]

@@ -45,19 +45,30 @@ export default function PropertyStatusBands({
     ? dateToPosition(property.subdivisionDate, timelineStart, timelineEnd)
     : null;
 
-  // Find the last position - for sold properties it's the sale, for unsold it's today
+  // Find the last position - for sold properties it's the sale, for unsold it matches "Not Sold" marker
   const getLastPosition = () => {
-    if (events.length === 0) return 0;
-
-    // If there's a sale event, that's the absolute end
+    // Check if property is sold
     const saleEvent = events.find(e => e.type === 'sale');
     if (saleEvent) {
       return dateToPosition(saleEvent.date, timelineStart, timelineEnd);
     }
 
-    // For unsold properties, extend to today's position (unclamped)
+    // For unsold properties, match "Not Sold" marker positioning logic from PropertyBranch.tsx
+    // Position is max(today, lastEventDate + 1 year)
     const today = new Date();
-    return dateToPosition(today, timelineStart, timelineEnd);
+    const lastEvent = events.length > 0
+      ? events.reduce((latest, e) => e.date > latest.date ? e : latest)
+      : null;
+    const lastEventDate = lastEvent ? new Date(lastEvent.date) : today;
+
+    // Add 1 year to last event date (same as PropertyBranch.tsx lines 391-399)
+    const markerDate = new Date(lastEventDate);
+    markerDate.setFullYear(markerDate.getFullYear() + 1);
+
+    // Use the later of today or markerDate
+    const endDate = today > markerDate ? today : markerDate;
+
+    return dateToPosition(endDate, timelineStart, timelineEnd);
   };
 
   const lastPos = getLastPosition();
@@ -184,6 +195,17 @@ export default function PropertyStatusBands({
       </g>
     );
   };
+
+  // Fallback for child lots with no status periods - render a default vacant band
+  // This ensures child lots created from subdivision display a status band
+  // from the subdivision date to today (or sale date)
+  if (statusPeriods.length === 0 && isChildLot && subdivisionStartPos !== null) {
+    return (
+      <g className="status-bands">
+        {renderStatusBand(subdivisionStartPos, lastPos, 'vacant', 'default-vacant-band')}
+      </g>
+    );
+  }
 
   return (
     <g className="status-bands">

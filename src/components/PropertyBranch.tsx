@@ -49,7 +49,7 @@ export default function PropertyBranch({
 }: PropertyBranchProps) {
   const { eventDisplayMode, positionedGaps, selectIssue, selectProperty, enableDragEvents, updateEvent, verificationAlerts, resolveVerificationAlert, properties, events: allEvents, collapsedSubdivisions, toggleSubdivisionCollapse } = useTimelineStore();
   const { getIssuesForProperty } = useValidationStore();
-  const branchY = 100 + branchIndex * 120; // Vertical spacing between branches
+  const branchY = 100 + branchIndex * 100; // Vertical spacing between branches
 
   // Check if this property has been subdivided
   const hasBeenSubdivided = isSubdivided(property, properties);
@@ -135,12 +135,16 @@ export default function PropertyBranch({
 
   // Sort events by DATE (chronological order), with purchase events first when same date
   const sortedEvents = [...eventsWithPositions].sort((a, b) => {
-    const dateDiff = a.date.getTime() - b.date.getTime();
+    // Compare by date only (ignore time component) to properly handle same-day events
+    const aDateOnly = new Date(a.date.getFullYear(), a.date.getMonth(), a.date.getDate()).getTime();
+    const bDateOnly = new Date(b.date.getFullYear(), b.date.getMonth(), b.date.getDate()).getTime();
+    const dateDiff = aDateOnly - bDateOnly;
     if (dateDiff !== 0) return dateDiff;
     // When same date, put purchase events first so mixed-use indicator ends at the next event
     if (a.type === 'purchase' && b.type !== 'purchase') return -1;
     if (b.type === 'purchase' && a.type !== 'purchase') return 1;
-    return 0;
+    // Same date and neither is purchase - sort by ID (creation order)
+    return a.id.localeCompare(b.id);
   });
 
   // Find purchase events with mixed use percentages
@@ -227,6 +231,10 @@ export default function PropertyBranch({
 
   const eventsWithTiers = assignLabelTiers();
 
+  // Helper to get date-only string for grouping same-day events
+  const getDateKey = (date: Date) =>
+    `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
+
   // Filter out status_change events with newStatus="vacant" BEFORE calculating offsets
   // This ensures remaining events don't get stacking offsets from hidden events
   // (data remains intact for backend purposes - status bands still show "Vacant" label)
@@ -251,17 +259,19 @@ export default function PropertyBranch({
 
     const positionGroups: PositionGroup[] = [];
 
-    // Group events by position (with zoom-aware threshold)
+    // Group events by date (same day) to ensure proper stacking of same-day events
+    // This replaces pure position-based grouping which failed when events had different times
     eventsForRendering.forEach(event => {
+      const eventDateKey = getDateKey(event.date);
       const existingGroup = positionGroups.find(group =>
-        Math.abs(group.position - event.calculatedPosition) < POSITION_THRESHOLD
+        getDateKey(group.events[0].date) === eventDateKey
       );
 
       if (existingGroup) {
-        // Add to existing group
+        // Add to existing group (same day)
         existingGroup.events.push({ ...event, verticalOffset: 0, zIndex: 0 });
       } else {
-        // Create new group
+        // Create new group for this day
         positionGroups.push({
           position: event.calculatedPosition,
           events: [{ ...event, verticalOffset: 0, zIndex: 0 }]
@@ -823,19 +833,8 @@ export default function PropertyBranch({
                       />
                     );
                   })()}
-                  {/* Visual marker at subdivision point - rendered AFTER Lot 1 so it appears on top */}
-                  <motion.circle
-                    cx={`${splitPos}%`}
-                    cy={branchY}
-                    r="8"
-                    fill="#9333EA"
-                    stroke="#FFF"
-                    strokeWidth="2"
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    transition={{ duration: 0.3, delay: 0.4 }}
-                    style={{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))' }}
-                  />
+                  {/* Subdivision event is now rendered via EventCircle (passed in events prop) */}
+                  {/* Static purple circle removed - subdivision event is interactive */}
                   {/* Lot 1 label after subdivision point - on parent line */}
                   {(() => {
                     const lot1 = childLots.find(c => c.isMainLotContinuation);

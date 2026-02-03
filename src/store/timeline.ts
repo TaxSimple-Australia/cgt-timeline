@@ -15,6 +15,7 @@ import { showValidationError, showError } from '../lib/toast-helpers';
 
 export type EventType =
   | 'purchase'
+  | 'building'      // Construction/building on land
   | 'move_in'
   | 'move_out'
   | 'rent_start'
@@ -84,6 +85,8 @@ export interface TimelineEvent {
   overTwoHectares?: boolean; // For purchase events - property land exceeds 2 hectares (affects main residence exemption per ATO Section 118-120)
   isLandOnly?: boolean;     // For purchase events - property is land only (no building), affects depreciation calculations
   hectares?: number;        // For purchase events - land size in hectares (used when overTwoHectares is true)
+  constructionStartDate?: Date;  // For building events - when construction started
+  constructionEndDate?: Date;    // For building events - when construction was completed
 
   // Custom event fields
   affectsStatus?: boolean;  // For custom events: does this event change property status?
@@ -144,6 +147,7 @@ export interface TimelineEvent {
       name: string;                        // e.g., "Lot 1", "Lot 2"
       lotNumber?: string;                  // Lot/parcel number
       lotSize?: number;                    // Size in sqm for cost base allocation
+      allocationPercentage?: number;       // Allocation percentage for this lot
       allocatedCostBase?: number;          // Portion of parent cost base
     }>;
     totalLots: number;                     // Total number of lots created
@@ -152,6 +156,10 @@ export interface TimelineEvent {
     legalFees?: number;                    // Legal fees
     titleFees?: number;                    // Title registration fees
     allocationMethod: 'equal' | 'by_lot_size' | 'manual';  // How cost base was split
+    costBreakdown?: {                      // Optional land/building value split
+      landValue?: number;                  // Land value (apportioned across all lots)
+      buildingValue?: number;              // Building value (stays with Lot 1)
+    };
   };
 
   // DEPRECATED: Legacy cost base fields (kept for backward compatibility during migration)
@@ -209,6 +217,7 @@ export interface Property {
   subdivisionGroup?: string;      // UUID linking all lots from same subdivision
   lotNumber?: string;             // e.g., "Lot 1", "Lot 2"
   lotSize?: number;               // Size in sqm or hectares
+  allocationPercentage?: number;  // Allocation percentage for subdivided lots
   initialCostBase?: number;       // Allocated cost base for subdivided lots
   isMainLotContinuation?: boolean; // True if this lot continues parent's CGT history (typically Lot 1)
 }
@@ -311,6 +320,8 @@ interface TimelineState {
       name: string;
       address?: string;
       lotSize: number;  // Required for proportional allocation
+      allocationPercentage: number;  // Allocation percentage
+      isPercentageLocked: boolean;   // Was percentage manually set?
     }>;
     fees: {
       surveyorFees?: number;
@@ -318,6 +329,11 @@ interface TimelineState {
       legalFees?: number;
       titleFees?: number;
     };
+    costBreakdown?: {  // Optional land/building value split
+      landValue?: number;
+      buildingValue?: number;
+    };
+    notes?: string;  // Optional notes about the subdivision
   }) => void;
 
   addEvent: (event: Omit<TimelineEvent, 'id'>) => void;
@@ -430,6 +446,7 @@ const propertyColors = [
 
 const eventColors: Record<EventType, string> = {
   purchase: '#3B82F6',
+  building: '#F97316',       // Orange - Construction/building on land
   move_in: '#10B981',
   move_out: '#EF4444',
   rent_start: '#F59E0B',
@@ -934,7 +951,7 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
   },
 
   subdivideProperty: (config) => {
-    const { parentPropertyId, subdivisionDate, lots, fees } = config;
+    const { parentPropertyId, subdivisionDate, lots, fees, costBreakdown, notes } = config;
     const state = get();
     const parentProperty = state.properties.find((p) => p.id === parentPropertyId);
 
@@ -946,7 +963,7 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
     // Generate subdivision group ID
     const subdivisionGroup = `subdiv-${Date.now()}`;
 
-    // Calculate total lot size for proportional allocation
+    // Calculate total lot size for record-keeping
     const totalLotSize = lots.reduce((sum, lot) => sum + lot.lotSize, 0);
 
     // Calculate parent's cost base (purchase price + improvements before subdivision)
@@ -954,7 +971,15 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
     const parentImprovements = state.events
       .filter((e) => e.propertyId === parentPropertyId && e.type === 'improvement' && e.date < subdivisionDate)
       .reduce((sum, e) => sum + (e.amount || 0), 0);
-    const parentCostBase = parentPurchasePrice + parentImprovements;
+
+    // Determine apportionable base: use land value if specified, otherwise full cost base
+    const { landValue, buildingValue } = costBreakdown || {};
+    const apportionableBase = landValue !== undefined
+      ? landValue + parentImprovements
+      : parentPurchasePrice + parentImprovements;
+
+    // Check if any percentage is manually locked
+    const hasLockedPercentages = lots.some(lot => lot.isPercentageLocked);
 
     // Calculate total subdivision fees
     const totalFees = (fees.surveyorFees || 0) + (fees.planningFees || 0) + (fees.legalFees || 0) + (fees.titleFees || 0);
@@ -962,12 +987,17 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
 
     // Create child properties with allocated cost bases
     const childProperties: Property[] = lots.map((lot, index) => {
-      // Proportional allocation based on lot size
-      const proportion = lot.lotSize / totalLotSize;
-      const allocatedCostBase = parentCostBase * proportion + feePerLot;
+      // Use allocation percentage for proportional allocation
+      const proportion = lot.allocationPercentage / 100;
+      let allocatedCostBase = apportionableBase * proportion + feePerLot;
 
       // Lot 1 (index 0) continues the main property's CGT timeline
       const isMainLot = index === 0;
+
+      // Add building value to main lot only
+      if (isMainLot && buildingValue !== undefined) {
+        allocatedCostBase += buildingValue;
+      }
 
       return {
         id: `prop-${Date.now()}-${index}`,
@@ -980,6 +1010,7 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
         subdivisionGroup,
         lotNumber: `Lot ${index + 1}`,
         lotSize: lot.lotSize,
+        allocationPercentage: lot.allocationPercentage,
         purchasePrice: allocatedCostBase,
         purchaseDate: isMainLot ? parentProperty.purchaseDate : subdivisionDate, // Main lot inherits original purchase date
         owners: parentProperty.owners, // Inherit ownership
@@ -1013,6 +1044,7 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
       type: 'subdivision',
       date: subdivisionDate,
       title: `Subdivided into ${lots.length} lots`,
+      description: notes || '',  // Store notes in description field
       position: 0, // Position will be calculated
       color: '#EC4899',
       subdivisionDetails: {
@@ -1021,11 +1053,13 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
           id: cp.id,
           name: cp.name,
           lotSize: lots[i].lotSize,
+          allocationPercentage: lots[i].allocationPercentage,
           allocatedCostBase: cp.purchasePrice,
         })),
         totalLots: lots.length,
         ...fees,
-        allocationMethod: 'by_lot_size',
+        allocationMethod: hasLockedPercentages ? 'manual' : 'by_lot_size',
+        costBreakdown: costBreakdown,
       },
     };
 
@@ -1115,8 +1149,9 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
     if (updates.date && event.propertyId) {
       const property = state.properties.find(p => p.id === event.propertyId);
       if (property) {
+        // Exclude the event being updated to allow editing subdivision events themselves
         const subdivisionEvent = state.events.find(e =>
-          e.propertyId === property.id && e.type === 'subdivision'
+          e.propertyId === property.id && e.type === 'subdivision' && e.id !== id
         );
 
         if (subdivisionEvent && updates.date >= subdivisionEvent.date) {
@@ -3008,6 +3043,7 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
       ...p,
       purchaseDate: p.purchaseDate?.toISOString(),
       saleDate: p.saleDate?.toISOString(),
+      subdivisionDate: p.subdivisionDate?.toISOString(),
     }));
 
     // Serialize events

@@ -283,6 +283,43 @@ export const COST_BASE_DEFINITIONS: CostBaseDefinition[] = [
   },
 
   // ===== ELEMENT 4: CAPITAL IMPROVEMENTS =====
+  // Building/Construction costs
+  {
+    id: 'construction_cost',
+    name: 'Construction Cost',
+    category: 'element4',
+    description: 'Total cost of building construction. Main construction/building contract amount.',
+    applicableEvents: ['building', 'improvement'],
+  },
+  {
+    id: 'builder_fees',
+    name: 'Builder Fees',
+    category: 'element4',
+    description: 'Builder management and coordination fees.',
+    applicableEvents: ['building', 'improvement'],
+  },
+  {
+    id: 'architect_fees',
+    name: 'Architect Fees',
+    category: 'element4',
+    description: 'Architectural design and plans.',
+    applicableEvents: ['building', 'improvement'],
+  },
+  {
+    id: 'council_permits',
+    name: 'Council/Permit Fees',
+    category: 'element4',
+    description: 'Building permits and council approval fees.',
+    applicableEvents: ['building', 'improvement'],
+  },
+  {
+    id: 'engineering_fees',
+    name: 'Engineering Fees',
+    category: 'element4',
+    description: 'Structural and civil engineering fees.',
+    applicableEvents: ['building', 'improvement'],
+  },
+  // Renovation costs
   {
     id: 'renovation_kitchen',
     name: 'Kitchen Renovation',

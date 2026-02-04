@@ -197,6 +197,8 @@ export interface CGTCalculation {
 
 export interface OwnershipPeriod {
   period_type: string; // e.g., "Total Ownership", "Main Residence", "Rental", "Vacant"
+  start_date?: string; // e.g., "15 Mar 2015"
+  end_date?: string; // e.g., "20 Nov 2024"
   days: number;
   years: string;
   percentage: string;
@@ -270,7 +272,8 @@ export interface PropertyAnalysis {
   move_out_date: string;
   rent_start_date: string | null;
   rent_end_date: string | null;
-  timeline_of_events: TimelineEvent[];
+  timeline_of_events?: TimelineEvent[]; // Legacy field name
+  timeline?: TimelineEvent[]; // New field name from API
   cost_base_items: CostBaseItem[];
   total_cost_base: string | number;
   ownership_periods: OwnershipPeriod[];

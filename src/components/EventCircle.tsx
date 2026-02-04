@@ -48,6 +48,28 @@ export default function EventCircle({ event, cx, cy, color, onClick, tier = 0, z
     return event.title;
   };
 
+  // Helper function to get purchase event subtitle
+  const getPurchaseSubtitle = (event: TimelineEvent): string => {
+    if (event.type !== 'purchase') return '';
+
+    // Check for land
+    if (event.isLandOnly) {
+      return '(Land)';
+    }
+
+    // Check for mixed use
+    const hasLiving = event.livingUsePercentage && event.livingUsePercentage > 0;
+    const hasRental = event.rentalUsePercentage && event.rentalUsePercentage > 0;
+    const hasBusiness = event.businessUsePercentage && event.businessUsePercentage > 0;
+
+    const usageCount = [hasLiving, hasRental, hasBusiness].filter(Boolean).length;
+    if (usageCount > 1) {
+      return '(Mixed Use)';
+    }
+
+    return '';
+  };
+
   // Calculate label Y position based on tier
   // Each tier adds vertical space to avoid overlap
   const TIER_SPACING = 24; // Increased from 18px to 24px for better visual separation
@@ -360,22 +382,27 @@ export default function EventCircle({ event, cx, cy, color, onClick, tier = 0, z
           transform: 'translateX(-75px)'
         }}
       >
-        <div
-          className="text-xs font-semibold text-slate-900 dark:text-slate-100 text-center px-1 line-clamp-2"
-          style={{
-            userSelect: 'none',
-            maxWidth: '150px',
-            lineHeight: '1.2',
-            wordBreak: 'break-word'
-          }}
-          title={getDisplayTitle(event)}
-        >
-          {getDisplayTitle(event).split('|').map((part, idx, arr) => (
-            <React.Fragment key={idx}>
-              {part.trim()}
-              {idx < arr.length - 1 && <br />}
-            </React.Fragment>
-          ))}
+        <div className="text-center px-1" style={{ userSelect: 'none', maxWidth: '150px' }}>
+          <div
+            className="text-xs font-semibold text-slate-900 dark:text-slate-100 line-clamp-2"
+            style={{
+              lineHeight: '1.2',
+              wordBreak: 'break-word'
+            }}
+            title={getDisplayTitle(event)}
+          >
+            {getDisplayTitle(event).split('|').map((part, idx, arr) => (
+              <React.Fragment key={idx}>
+                {part.trim()}
+                {idx < arr.length - 1 && <br />}
+              </React.Fragment>
+            ))}
+          </div>
+          {getPurchaseSubtitle(event) && (
+            <div className="text-[10px] font-medium text-slate-500 dark:text-slate-400 mt-0.5">
+              {getPurchaseSubtitle(event)}
+            </div>
+          )}
         </div>
       </foreignObject>
     </g>

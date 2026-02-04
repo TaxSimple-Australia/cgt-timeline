@@ -10,8 +10,6 @@ import EventCardView from './EventCardView';
 import PropertyStatusBands from './PropertyStatusBands';
 import TimelineGap from './TimelineGap';
 import VerificationAlertBar from './VerificationAlertBar';
-import MixedUseIndicator from './MixedUseIndicator';
-import LandIndicator from './LandIndicator';
 import { cn, dateToPosition, calculateOverlapThreshold } from '@/lib/utils';
 import { isSubdivided, getSubdivisionDate, getChildProperties } from '@/lib/subdivision-helpers';
 import type { PositionedGap } from '@/types/ai-feedback';
@@ -145,41 +143,6 @@ export default function PropertyBranch({
     if (b.type === 'purchase' && a.type !== 'purchase') return 1;
     // Same date and neither is purchase - sort by ID (creation order)
     return a.id.localeCompare(b.id);
-  });
-
-  // Find purchase events with mixed use percentages
-  const purchaseEventsWithMixedUse = sortedEvents.filter(event =>
-    event.type === 'purchase' && (
-      (event.livingUsePercentage && event.livingUsePercentage > 0) ||
-      (event.rentalUsePercentage && event.rentalUsePercentage > 0) ||
-      (event.businessUsePercentage && event.businessUsePercentage > 0)
-    )
-  );
-
-  // Calculate mixed use indicator positions - simple badge at purchase position
-  const mixedUseIndicators = purchaseEventsWithMixedUse.map(purchaseEvent => ({
-    x: purchaseEvent.calculatedPosition,
-    y: branchY + 4, // Position 4px below the branch line
-    livingPercentage: purchaseEvent.livingUsePercentage || 0,
-    rentalPercentage: purchaseEvent.rentalUsePercentage || 0,
-    businessPercentage: purchaseEvent.businessUsePercentage || 0,
-  }));
-
-  // Find purchase events with land characteristics (isLandOnly or overTwoHectares)
-  const purchaseEventsWithLandFlags = sortedEvents.filter(event =>
-    event.type === 'purchase' && (event.isLandOnly || event.overTwoHectares)
-  );
-
-  // Calculate land indicator positions - badge at purchase position (offset from mixed use)
-  const landIndicators = purchaseEventsWithLandFlags.map(purchaseEvent => {
-    // Check if this event also has mixed use indicators - if so, offset the land indicator
-    const hasMixedUse = purchaseEventsWithMixedUse.some(e => e.id === purchaseEvent.id);
-    return {
-      x: purchaseEvent.calculatedPosition,
-      y: branchY + (hasMixedUse ? 28 : 4), // Position below mixed use indicator if present
-      isLandOnly: purchaseEvent.isLandOnly || false,
-      overTwoHectares: purchaseEvent.overTwoHectares || false,
-    };
   });
 
   // Assign tiers to avoid label overlap
@@ -575,29 +538,6 @@ export default function PropertyBranch({
           onBandClick={handleStatusBandClick}
           subdivisionDate={subdivisionDate || undefined}
         />
-
-      {/* Mixed Use Indicators - Show split percentages for properties with mixed use */}
-      {mixedUseIndicators.map((indicator, index) => (
-        <MixedUseIndicator
-          key={`mixed-use-${index}`}
-          x={indicator.x}
-          y={indicator.y}
-          livingPercentage={indicator.livingPercentage}
-          rentalPercentage={indicator.rentalPercentage}
-          businessPercentage={indicator.businessPercentage}
-        />
-      ))}
-
-      {/* Land Indicators - Show land only and/or over 2 hectares flags */}
-      {landIndicators.map((indicator, index) => (
-        <LandIndicator
-          key={`land-${index}`}
-          x={indicator.x}
-          y={indicator.y}
-          isLandOnly={indicator.isLandOnly}
-          overTwoHectares={indicator.overTwoHectares}
-        />
-      ))}
 
       {/* Timeline Gaps for this Property */}
       {propertyGaps.map((gap) => (

@@ -23,7 +23,7 @@ export default function LandIndicator({
   // Build the label text
   const parts: string[] = [];
   if (isLandOnly) {
-    parts.push('Land Only');
+    parts.push('Land');
   }
   if (overTwoHectares) {
     parts.push('2+ Ha');
@@ -44,11 +44,8 @@ export default function LandIndicator({
         style={{ transform: 'translateX(200px)' }}
       >
         <div
-          className="px-2 py-0.5 rounded-full text-[10px] font-medium whitespace-nowrap
-                     bg-gray-100/90 dark:bg-gray-700/90
-                     text-gray-600 dark:text-gray-300
-                     border border-gray-300 dark:border-gray-600
-                     shadow-sm backdrop-blur-sm"
+          className="text-[11px] font-semibold whitespace-nowrap
+                     text-gray-700 dark:text-gray-300"
         >
           {labelText}
         </div>

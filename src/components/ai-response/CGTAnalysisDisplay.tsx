@@ -19,6 +19,12 @@ import FollowUpChatWindow from './FollowUpChatWindow';
 import { AnalysisData, Citations } from '@/types/model-response';
 import { AnalysisStickyNotesLayer, AddStickyNoteButton, ShareLinkButton } from '../sticky-notes';
 import { SendToTaxAgentButton } from '../send-to-agent';
+import TimelineSummaryTable from './TimelineSummaryTable';
+import OwnershipPeriodsTable from './OwnershipPeriodsTable';
+import PropertyTimelineTable from './PropertyTimelineTable';
+import DetailedCalculationSection from './DetailedCalculationSection';
+import ImportantNotesSection from './ImportantNotesSection';
+import LegislationReferencesTable from './LegislationReferencesTable';
 
 interface CGTAnalysisDisplayProps {
   response: any; // AI response (success or verification_failed)
@@ -37,6 +43,8 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
   const [showSources, setShowSources] = useState(false);
   const [showRulesSummary, setShowRulesSummary] = useState(true); // Rules Summary expanded by default (important)
   const [showFollowUpChat, setShowFollowUpChat] = useState(false);
+  // Track property view mode: 'standard' or 'timeline' - global for all properties
+  const [propertyViewMode, setPropertyViewMode] = useState<'standard' | 'timeline'>('standard');
 
   // Ref for sticky notes layer
   const analysisContainerRef = useRef<HTMLDivElement>(null);
@@ -764,6 +772,39 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
           </motion.div>
         )}
 
+        {/* View Mode Toggle - Standard vs Timeline Analysis */}
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 rounded-xl p-3"
+        >
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setPropertyViewMode('standard')}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                propertyViewMode === 'standard'
+                  ? 'bg-blue-600 text-white shadow-sm'
+                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800'
+              }`}
+            >
+              <LayoutGrid className="w-4 h-4" />
+              <span>Standard View</span>
+            </button>
+            <button
+              onClick={() => setPropertyViewMode('timeline')}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                propertyViewMode === 'timeline'
+                  ? 'bg-blue-600 text-white shadow-sm'
+                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800'
+              }`}
+            >
+              <Calendar className="w-4 h-4" />
+              <span>Timeline Analysis</span>
+            </button>
+          </div>
+        </motion.div>
+
         {/* Top-Level Summary */}
         {analysisData.description && (
           <motion.div
@@ -842,6 +883,9 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
                 {/* Property Content */}
                 <div className="p-4 space-y-4">
 
+                {/* STANDARD VIEW - Existing Sections */}
+                {propertyViewMode === 'standard' && (
+                  <>
                 {/* High Level Description */}
                 {property.high_level_description && (
                   <div className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
@@ -1238,6 +1282,34 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
                         <li key={warnIndex}>{warning}</li>
                       ))}
                     </ul>
+                  </div>
+                )}
+                  </>
+                )}
+
+                {/* TIMELINE ANALYSIS VIEW - Detailed Report Format */}
+                {propertyViewMode === 'timeline' && (
+                  <div className="space-y-6">
+                    {/* Section 1: Summary */}
+                    <TimelineSummaryTable
+                      property={property}
+                      timelineUnderstanding={timelineUnderstanding}
+                    />
+
+                    {/* Section 2: Ownership Periods Analysis */}
+                    <OwnershipPeriodsTable property={property} />
+
+                    {/* Timeline of Events */}
+                    <PropertyTimelineTable property={property} />
+
+                    {/* Section 3: CGT Calculation */}
+                    <DetailedCalculationSection property={property} />
+
+                    {/* Section 4: Important Notes */}
+                    <ImportantNotesSection property={property} />
+
+                    {/* Section 5: Key Legislation Referenced */}
+                    <LegislationReferencesTable property={property} />
                   </div>
                 )}
 

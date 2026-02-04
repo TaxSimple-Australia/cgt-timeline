@@ -64,6 +64,28 @@ export default function EventCardView({
     return event.title;
   };
 
+  // Helper function to get purchase event subtitle
+  const getPurchaseSubtitle = (event: TimelineEvent): string => {
+    if (event.type !== 'purchase') return '';
+
+    // Check for land
+    if (event.isLandOnly) {
+      return '(Land)';
+    }
+
+    // Check for mixed use
+    const hasLiving = event.livingUsePercentage && event.livingUsePercentage > 0;
+    const hasRental = event.rentalUsePercentage && event.rentalUsePercentage > 0;
+    const hasBusiness = event.businessUsePercentage && event.businessUsePercentage > 0;
+
+    const usageCount = [hasLiving, hasRental, hasBusiness].filter(Boolean).length;
+    if (usageCount > 1) {
+      return '(Mixed Use)';
+    }
+
+    return '';
+  };
+
   // Get AI feedback issues for this event
   const { timelineIssues, selectIssue } = useTimelineStore();
   const eventIssues = timelineIssues.filter(issue => issue.eventId === event.id);
@@ -436,6 +458,11 @@ export default function EventCardView({
                 <div className="text-[11px] font-medium text-slate-600 dark:text-slate-400 truncate">
                   {getEventTypeLabel()}
                 </div>
+                {getPurchaseSubtitle(event) && (
+                  <div className="text-[9px] font-medium text-slate-500 dark:text-slate-400">
+                    {getPurchaseSubtitle(event)}
+                  </div>
+                )}
               </div>
               {isPPR && (
                 <div

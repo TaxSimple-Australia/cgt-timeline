@@ -25,7 +25,8 @@ export const calculatePortfolioStats = (
   // Event breakdown by type
   const eventBreakdown: Record<EventType, number> = {
     purchase: 0,
-    building: 0,
+    building_start: 0,
+    building_end: 0,
     sale: 0,
     move_in: 0,
     move_out: 0,
@@ -162,7 +163,8 @@ export const formatTimelineSpan = (start: Date, end: Date): string => {
 export const getEventIcon = (type: EventType): string => {
   const icons: Record<EventType, string> = {
     purchase: '🏠',
-    building: '🏗️',
+    building_start: '🏗️',
+    building_end: '🏗️',
     sale: '💰',
     move_in: '📦',
     move_out: '🚚',
@@ -189,7 +191,8 @@ export const getEventIcon = (type: EventType): string => {
 export const getShortEventName = (type: EventType): string => {
   const names: Record<EventType, string> = {
     purchase: 'Purchase',
-    building: 'Building',
+    building_start: 'Build Start',
+    building_end: 'Build End',
     sale: 'Sale',
     move_in: 'Move In',
     move_out: 'Move Out',
@@ -216,7 +219,8 @@ export const getShortEventName = (type: EventType): string => {
 export const getFullEventName = (type: EventType): string => {
   const names: Record<EventType, string> = {
     purchase: 'Property Purchase',
-    building: 'Construction/Building',
+    building_start: 'Construction Started',
+    building_end: 'Construction Completed',
     sale: 'Property Sale',
     move_in: 'Moved In',
     move_out: 'Moved Out',

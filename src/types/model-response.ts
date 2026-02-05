@@ -231,6 +231,17 @@ export interface WhatIfScenario {
   net_capital_gain: string | number;
 }
 
+export interface TaxBracket {
+  income_from: number;
+  income_to: number | null;
+  marginal_rate: number;
+  tax_amount: number;
+}
+
+export interface TaxOnCGT {
+  all_brackets: TaxBracket[];
+}
+
 export interface CalculationSummary {
   sale_price: string | number;
   total_cost_base: string | number;
@@ -242,6 +253,7 @@ export interface CalculationSummary {
   cgt_discount_percentage: string | number;
   cgt_discount_amount: string | number;
   net_capital_gain: string | number;
+  tax_on_cgt?: TaxOnCGT;
 }
 
 export interface ApplicableRule {

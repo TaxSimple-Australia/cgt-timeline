@@ -30,6 +30,11 @@ export default function LandingFooter() {
                 </Link>
               </li>
               <li>
+                <Link href="/#how-it-works" className="text-slate-400 hover:text-white transition-colors text-sm">
+                  How It Works
+                </Link>
+              </li>
+              <li>
                 <Link href="/training-videos" className="text-slate-400 hover:text-white transition-colors text-sm">
                   Training
                 </Link>

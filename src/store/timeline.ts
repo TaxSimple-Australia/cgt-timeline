@@ -15,7 +15,8 @@ import { showValidationError, showError } from '../lib/toast-helpers';
 
 export type EventType =
   | 'purchase'
-  | 'building'      // Construction/building on land
+  | 'building_start'      // Start of construction/building on land
+  | 'building_end'        // End of construction/building
   | 'move_in'
   | 'move_out'
   | 'rent_start'
@@ -446,7 +447,8 @@ const propertyColors = [
 
 const eventColors: Record<EventType, string> = {
   purchase: '#3B82F6',
-  building: '#F97316',       // Orange - Construction/building on land
+  building_start: '#F97316',       // Orange - Start of construction/building
+  building_end: '#FB923C',         // Lighter orange - End of construction/building
   move_in: '#10B981',
   move_out: '#EF4444',
   rent_start: '#F59E0B',
@@ -571,6 +573,7 @@ export const calculateStatusPeriods = (events: TimelineEvent[]): StatusPeriod[] 
     'rent_end': 2,
     'vacant_start': 2,
     'living_in_rental_end': 2,
+    'building_end': 2,
 
     // Priority 3 - Transitional events
     'vacant_end': 3,
@@ -579,6 +582,7 @@ export const calculateStatusPeriods = (events: TimelineEvent[]): StatusPeriod[] 
     'move_in': 4,
     'rent_start': 4,
     'living_in_rental_start': 4,
+    'building_start': 4,
 
     // Priority 5 - Explicit user overrides
     'status_change': 5,
@@ -635,6 +639,14 @@ export const calculateStatusPeriods = (events: TimelineEvent[]): StatusPeriod[] 
       case 'vacant_end':
         // Property is no longer vacant - default to ppr, subsequent events will override
         newStatus = 'ppr';
+        break;
+      case 'building_start':
+        // Construction/building begins
+        newStatus = 'construction';
+        break;
+      case 'building_end':
+        // Construction/building ends - property becomes vacant
+        newStatus = 'vacant';
         break;
       case 'living_in_rental_start':
         // Living in a rental property (renting from someone else while owning this property)

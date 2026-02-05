@@ -654,33 +654,18 @@ export function transformTimelineToAPIFormat(
         console.log('💰 Transform: Added improvement amount to description:', historyEvent.improvement_cost);
       }
 
-      // Handle building events - construction costs add to cost base (similar to improvement)
-      if (event.type === 'building') {
-        // Calculate building cost from cost bases or amount
-        const buildingCost = event.costBases?.reduce((sum, cb) => sum + cb.amount, 0) || event.amount || 0;
+      // Handle building end event - construction costs add to cost base (similar to improvement)
+      // Note: building_start is just a status marker with no costs
+      if (event.type === 'building_end') {
+        // Use the simple amount field for building cost
+        const buildingCost = event.amount || 0;
         if (buildingCost > 0) {
           historyEvent.improvement_cost = (historyEvent.improvement_cost || 0) + buildingCost;
-          const amountInfo = `Building/Construction cost: $${buildingCost.toLocaleString('en-AU', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+          const amountInfo = `Construction completion cost: $${buildingCost.toLocaleString('en-AU', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
           historyEvent.description = historyEvent.description
             ? `${historyEvent.description}. ${amountInfo}`
             : amountInfo;
-          console.log('🏗️ Transform: Added building cost to improvement_cost:', buildingCost);
-        }
-
-        // Add construction dates to description if available
-        if (event.constructionStartDate || event.constructionEndDate) {
-          const datesParts: string[] = [];
-          if (event.constructionStartDate) {
-            datesParts.push(`Started: ${format(event.constructionStartDate, 'dd/MM/yyyy')}`);
-          }
-          if (event.constructionEndDate) {
-            datesParts.push(`Completed: ${format(event.constructionEndDate, 'dd/MM/yyyy')}`);
-          }
-          const datesInfo = `Construction ${datesParts.join(', ')}`;
-          historyEvent.description = historyEvent.description
-            ? `${historyEvent.description}. ${datesInfo}`
-            : datesInfo;
-          console.log('🏗️ Transform: Added building construction dates:', event.constructionStartDate, event.constructionEndDate);
+          console.log('🏗️ Transform: Added building completion cost to improvement_cost:', buildingCost);
         }
       }
 

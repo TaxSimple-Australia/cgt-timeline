@@ -18,7 +18,8 @@ import {
   Star,
   Gift,
   Users,
-  Split
+  Split,
+  Building2
 } from 'lucide-react';
 
 interface EventCardProps {
@@ -36,6 +37,8 @@ const eventIcons: Record<string, React.ReactNode> = {
   rent_end: <DollarSign className="w-4 h-4" />,
   sale: <TrendingUp className="w-4 h-4" />,
   improvement: <Hammer className="w-4 h-4" />,
+  building_start: <Building2 className="w-4 h-4" />,
+  building_end: <Building2 className="w-4 h-4" />,
   refinance: <Gift className="w-4 h-4" />,
   ownership_change: <Users className="w-4 h-4" />,
   subdivision: <Split className="w-4 h-4" />,

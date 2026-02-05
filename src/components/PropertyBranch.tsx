@@ -742,37 +742,6 @@ export default function PropertyBranch({
                       pointerEvents: 'none'
                     }}
                   />
-                  {/* Lot 1 circle marker - positioned clearly to the right of SPLIT badge */}
-                  {(() => {
-                    const lot1 = childLots.find(c => c.isMainLotContinuation);
-
-                    // Debug warning if subdivision detected but Lot 1 not found
-                    if (!lot1 && hasBeenSubdivided) {
-                      console.warn('⚠️ Subdivision detected but Lot 1 not found. childLots:', childLots.length, 'splitPos:', splitPos);
-                    }
-
-                    if (!lot1) return null;
-                    return (
-                      <motion.circle
-                        cx={`${splitPos + 3}%`}
-                        cy={branchY}
-                        r="6"
-                        fill={lot1.color}
-                        stroke="#FFF"
-                        strokeWidth="2"
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        transition={{ duration: 0.3, delay: 0.5 }}
-                        style={{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))', cursor: 'pointer' }}
-                        className="hover:opacity-80 transition-opacity"
-                        onClick={(e) => {
-                          console.log('🎯 Lot 1 circle clicked!', lot1.id);
-                          e.stopPropagation();
-                          if (onLotBadgeClick) onLotBadgeClick(lot1.id!);
-                        }}
-                      />
-                    );
-                  })()}
                   {/* Subdivision event is now rendered via EventCircle (passed in events prop) */}
                   {/* Static purple circle removed - subdivision event is interactive */}
                   {/* Lot 1 label after subdivision point - on parent line */}
@@ -835,29 +804,6 @@ export default function PropertyBranch({
       {/* Lot Start Label - Show for child properties */}
       {property.parentPropertyId && property.subdivisionDate && property.lotNumber && (
         <g>
-          {/* For Lot 1 (main continuation), show circle at first event position */}
-          {/* For other lots, show circle at subdivision start position */}
-          {!property.isMainLotContinuation && (
-            <motion.circle
-              cx={`${dateToPosition(property.subdivisionDate, timelineStart, timelineEnd)}%`}
-              cy={branchY}
-              r="6"
-              fill={property.color}
-              stroke="#FFF"
-              strokeWidth="2"
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ duration: 0.3, delay: 0.2 }}
-              style={{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))', cursor: 'pointer' }}
-              className="hover:opacity-80 transition-opacity"
-              onClick={(e) => {
-                console.log('🎯 Lot circle clicked!', property.id, property.lotNumber);
-                e.stopPropagation();
-                if (onLotBadgeClick) onLotBadgeClick(property.id!);
-              }}
-            />
-          )}
-
           {/* Lot label - only show for non-main-continuation child lots (Lot 2, etc.) */}
           {!property.isMainLotContinuation && (
             <foreignObject

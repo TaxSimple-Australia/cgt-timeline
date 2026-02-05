@@ -44,7 +44,7 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
   const [showRulesSummary, setShowRulesSummary] = useState(true); // Rules Summary expanded by default (important)
   const [showFollowUpChat, setShowFollowUpChat] = useState(false);
   // Track property view mode: 'standard' or 'timeline' - global for all properties
-  const [propertyViewMode, setPropertyViewMode] = useState<'standard' | 'timeline'>('standard');
+  const [propertyViewMode, setPropertyViewMode] = useState<'standard' | 'timeline'>('timeline');
 
   // Ref for sticky notes layer
   const analysisContainerRef = useRef<HTMLDivElement>(null);
@@ -820,28 +820,6 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
           </motion.div>
         )}
 
-        {/* Timeline Understanding */}
-        {timelineUnderstanding && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.1 }}
-            className="bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700 p-4"
-          >
-            <div className="flex items-start gap-3">
-              <Brain className="w-5 h-5 text-indigo-600 dark:text-indigo-400 mt-0.5 flex-shrink-0" />
-              <div>
-                <h3 className="text-base font-bold text-gray-800 dark:text-gray-200 mb-3">
-                  Timeline Analysis
-                </h3>
-                <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
-                  {timelineUnderstanding}
-                </p>
-              </div>
-            </div>
-          </motion.div>
-        )}
-
         {/* Per-Property Analysis */}
         {analysisData.properties && analysisData.properties.length > 0 && (
           <div className="space-y-4">
@@ -1296,11 +1274,11 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
                       timelineUnderstanding={timelineUnderstanding}
                     />
 
-                    {/* Section 2: Ownership Periods Analysis */}
-                    <OwnershipPeriodsTable property={property} />
-
                     {/* Timeline of Events */}
                     <PropertyTimelineTable property={property} />
+
+                    {/* Section 2: Ownership Periods Analysis */}
+                    <OwnershipPeriodsTable property={property} />
 
                     {/* Section 3: CGT Calculation */}
                     <DetailedCalculationSection property={property} />

@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useTimelineStore } from '@/store/timeline';
 import CGTBrainLogo from '@/components/branding/CGTBrainLogo';
+import LogoSwitcher from '@/components/branding/LogoSwitcher';
 import AdminLoginModal from '@/components/admin/AdminLoginModal';
 import AdviserLoginModal from '@/components/AdviserLoginModal';
 import TermsAndConditionsModal from '@/components/TermsAndConditionsModal';
@@ -23,7 +24,7 @@ export default function LandingHeader() {
   const [userRole, setUserRole] = useState<'admin' | 'adviser' | null>(null);
 
   // Logo state from Zustand
-  const { currentLogoVariant } = useTimelineStore();
+  const { currentLogoVariant, setLogoVariant } = useTimelineStore();
 
   // Check login status on mount
   useEffect(() => {
@@ -62,8 +63,8 @@ export default function LandingHeader() {
   };
 
   const navLinks = [
-    { label: 'How It Works', id: 'how-it-works', type: 'link' as const, href: '/#how-it-works' },
-    { label: 'Pricing', id: 'pricing', type: 'link' as const, href: '/pricing' },
+    { label: 'About', id: 'about', type: 'link' as const, href: '/about-us' },
+    { label: 'Training', id: 'training', type: 'link' as const, href: '/training-videos' },
     { label: 'FAQ', id: 'faq', type: 'link' as const, href: '/faqs' },
     { label: 'Contact', id: 'contact', type: 'link' as const, href: '/contact' },
   ];
@@ -155,6 +156,12 @@ export default function LandingHeader() {
                   </button>
                 );
               })}
+
+              {/* Logo Switcher - Press Ctrl+L to toggle */}
+              <LogoSwitcher
+                currentLogo={currentLogoVariant}
+                onLogoChange={setLogoVariant}
+              />
             </div>
 
             {/* Mobile Menu Button */}

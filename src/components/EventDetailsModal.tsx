@@ -40,7 +40,8 @@ const eventTypeOptions = [
   { type: 'vacant_start' as const, label: 'Vacant (Start)', color: '#9CA3AF' },
   { type: 'vacant_end' as const, label: 'Vacant (End)', color: '#6B7280' },
   { type: 'improvement' as const, label: 'Improvement', color: '#06B6D4' },
-  { type: 'building' as const, label: 'Building', color: '#F97316' },
+  { type: 'building_start' as const, label: 'Building Start', color: '#F97316' },
+  { type: 'building_end' as const, label: 'Building End', color: '#FB923C' },
   { type: 'refinance' as const, label: 'Inherit', color: '#6366F1' },
   { type: 'status_change' as const, label: 'Status Change', color: '#A855F7' },
   { type: 'subdivision' as const, label: 'Subdivision', color: '#EC4899' },
@@ -78,8 +79,6 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
   // Refs for date pickers
   const dateInputRef = React.useRef<HTMLInputElement>(null);
   const appreciationDateInputRef = React.useRef<HTMLInputElement>(null);
-  const constructionStartDateInputRef = React.useRef<HTMLInputElement>(null);
-  const constructionEndDateInputRef = React.useRef<HTMLInputElement>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [showSummary, setShowSummary] = useState(false);
   const [showDateTooltip, setShowDateTooltip] = useState(false);
@@ -150,19 +149,6 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
   const [overTwoHectares, setOverTwoHectares] = useState(event.overTwoHectares || false);
   const [isLandOnly, setIsLandOnly] = useState(event.isLandOnly || false);
   const [hectares, setHectares] = useState<number | ''>(event.hectares || '');
-
-  // Building event - construction start and end dates
-  const [constructionStartDate, setConstructionStartDate] = useState<Date | null>(event.constructionStartDate || null);
-  const [constructionStartDateInput, setConstructionStartDateInput] = useState(
-    event.constructionStartDate ? format(event.constructionStartDate, 'dd/MM/yyyy') : ''
-  );
-  const [constructionStartDateError, setConstructionStartDateError] = useState('');
-
-  const [constructionEndDate, setConstructionEndDate] = useState<Date | null>(event.constructionEndDate || null);
-  const [constructionEndDateInput, setConstructionEndDateInput] = useState(
-    event.constructionEndDate ? format(event.constructionEndDate, 'dd/MM/yyyy') : ''
-  );
-  const [constructionEndDateError, setConstructionEndDateError] = useState('');
 
   // Property details section (collapsible) - auto-expand if any options are set
   const [showPropertyDetails, setShowPropertyDetails] = useState(
@@ -742,34 +728,6 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
         // For improvement events, always calculate from cost bases (validation ensures at least one exists)
         const totalCostBases = costBases.reduce((sum, cb) => sum + cb.amount, 0);
         updates.amount = totalCostBases;
-      } else if (event.type === 'building') {
-        // For building events, calculate amount from cost bases if available, otherwise use manual amount
-        if (costBases.length > 0) {
-          const totalCostBases = costBases.reduce((sum, cb) => sum + cb.amount, 0);
-          updates.amount = totalCostBases;
-        } else if (amount && !isNaN(parseFloat(amount))) {
-          updates.amount = parseFloat(amount);
-        } else {
-          updates.amount = undefined;
-        }
-
-        // Validate construction dates
-        if (constructionStartDate && constructionEndDate) {
-          if (constructionEndDate < constructionStartDate) {
-            showWarning('Invalid Dates', 'Construction end date must be after start date');
-            setIsSaving(false);
-            return;
-          }
-        }
-
-        // Save construction dates
-        updates.constructionStartDate = constructionStartDate || undefined;
-        updates.constructionEndDate = constructionEndDate || undefined;
-
-        // Use construction start date as the event date for timeline positioning
-        if (constructionStartDate) {
-          updates.date = constructionStartDate;
-        }
       } else {
         // For other events, use the single amount field
         if (amount && !isNaN(parseFloat(amount))) {
@@ -1587,7 +1545,7 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
               </div>
               <div className="flex items-center gap-2">
                 {/* Cost Base Summary Button - Only show for events with cost bases */}
-                {(eventType === 'purchase' || eventType === 'sale' || eventType === 'improvement' || eventType === 'building') &&
+                {(eventType === 'purchase' || eventType === 'sale' || eventType === 'improvement') &&
                  costBases && costBases.length > 0 && (
                   <button
                     onClick={() => setShowSummary(true)}
@@ -1756,8 +1714,7 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
                 />
               </div>
 
-              {/* Date Input - Hidden for building events (they use construction dates) */}
-              {eventType !== 'building' && (
+              {/* Date Input */}
               <div>
                 <label className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                   <Calendar className="w-4 h-4" />
@@ -1861,7 +1818,6 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
                   </div>
                 )}
               </div>
-              )}
 
               {/* Purchase status checkboxes (for purchase events only) */}
               {eventType === 'purchase' && (
@@ -2228,7 +2184,7 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
               )}
             </div>
 
-            {/* Financial Details Section - Only for specific event types (not purchase, sale, improvements, building, inherit, subdivision, or Not Sold markers) */}
+            {/* Financial Details Section - Only for specific event types (not purchase, sale, improvements, building start/end, inherit, subdivision, or Not Sold markers) */}
             {!isSyntheticNotSold &&
              eventType !== 'purchase' &&
              eventType !== 'move_in' &&
@@ -2240,7 +2196,7 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
              eventType !== 'vacant_end' &&
              eventType !== 'ownership_change' &&
              eventType !== 'improvement' &&
-             eventType !== 'building' &&
+             eventType !== 'building_start' &&
              eventType !== 'refinance' &&
              eventType !== 'subdivision' && (
               <div className="space-y-4 pt-2">
@@ -2266,179 +2222,9 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
               </div>
             )}
 
-            {/* Building Event - Construction Start and End Dates */}
-            {eventType === 'building' && (
-              <div className="space-y-4 pt-2 border-t border-slate-200 dark:border-slate-700">
-                {/* Construction Start Date */}
-                <div>
-                  <label className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                    <Calendar className="w-4 h-4" />
-                    Construction Start Date *
-                  </label>
-                  <div className="relative flex gap-2">
-                    <input
-                      type="text"
-                      value={constructionStartDateInput}
-                      onChange={(e) => {
-                        const value = e.target.value;
-                        setConstructionStartDateInput(value);
-
-                        if (!value.trim()) {
-                          setConstructionStartDate(null);
-                          setConstructionStartDateError('');
-                          return;
-                        }
-
-                        const parsed = parseDateFlexible(value);
-                        if (parsed) {
-                          setConstructionStartDate(parsed);
-                          setConstructionStartDateError('');
-                        } else {
-                          setConstructionStartDate(null);
-                          setConstructionStartDateError('Invalid date format');
-                        }
-                      }}
-                      placeholder={DATE_FORMAT_PLACEHOLDER}
-                      className={cn(
-                        "flex-1 px-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 focus:border-transparent",
-                        "bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100",
-                        constructionStartDateError
-                          ? "border-red-500 focus:ring-red-500"
-                          : constructionStartDate
-                          ? "border-green-500 focus:ring-green-500"
-                          : "border-slate-300 dark:border-slate-600 focus:ring-blue-500"
-                      )}
-                      required
-                    />
-                    <div
-                      className="inline-block cursor-pointer"
-                      onClick={() => constructionStartDateInputRef.current?.showPicker?.()}
-                    >
-                      <input
-                        ref={constructionStartDateInputRef}
-                        type="date"
-                        value={constructionStartDate ? format(constructionStartDate, 'yyyy-MM-dd') : ''}
-                        onChange={(e) => {
-                          const newDate = e.target.value;
-                          if (newDate) {
-                            const parsed = new Date(newDate);
-                            setConstructionStartDate(parsed);
-                            setConstructionStartDateInput(format(parsed, 'dd/MM/yyyy'));
-                            setConstructionStartDateError('');
-                          }
-                        }}
-                        className="sr-only"
-                      />
-                      <div className="px-4 py-3 min-w-[44px] border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 hover:bg-slate-50 dark:hover:bg-slate-600 rounded-lg transition-colors">
-                        <Calendar className="w-5 h-5 text-slate-600 dark:text-slate-400 pointer-events-none" />
-                      </div>
-                    </div>
-                  </div>
-                  {constructionStartDateError && (
-                    <p className="mt-1 text-xs text-red-500">{constructionStartDateError}</p>
-                  )}
-                  {constructionStartDate && !constructionStartDateError && (
-                    <div className="flex items-center gap-2 text-xs text-green-600 dark:text-green-400 mt-1">
-                      <CheckCircle className="w-3 h-3 flex-shrink-0" />
-                      <span>{formatDateDisplay(constructionStartDate)}</span>
-                    </div>
-                  )}
-                  {!constructionStartDate && !constructionStartDateError && (
-                    <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-                      When the construction started
-                    </p>
-                  )}
-                </div>
-
-                {/* Construction End Date */}
-                <div>
-                  <label className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                    <Calendar className="w-4 h-4" />
-                    Construction End Date
-                  </label>
-                  <div className="relative flex gap-2">
-                    <input
-                      type="text"
-                      value={constructionEndDateInput}
-                      onChange={(e) => {
-                        const value = e.target.value;
-                        setConstructionEndDateInput(value);
-
-                        if (!value.trim()) {
-                          setConstructionEndDate(null);
-                          setConstructionEndDateError('');
-                          return;
-                        }
-
-                        const parsed = parseDateFlexible(value);
-                        if (parsed) {
-                          setConstructionEndDate(parsed);
-                          setConstructionEndDateError('');
-                        } else {
-                          setConstructionEndDate(null);
-                          setConstructionEndDateError('Invalid date format');
-                        }
-                      }}
-                      placeholder={DATE_FORMAT_PLACEHOLDER}
-                      className={cn(
-                        "flex-1 px-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 focus:border-transparent",
-                        "bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100",
-                        constructionEndDateError
-                          ? "border-red-500 focus:ring-red-500"
-                          : constructionEndDate
-                          ? "border-green-500 focus:ring-green-500"
-                          : "border-slate-300 dark:border-slate-600 focus:ring-blue-500"
-                      )}
-                    />
-                    <div
-                      className="inline-block cursor-pointer"
-                      onClick={() => constructionEndDateInputRef.current?.showPicker?.()}
-                    >
-                      <input
-                        ref={constructionEndDateInputRef}
-                        type="date"
-                        value={constructionEndDate ? format(constructionEndDate, 'yyyy-MM-dd') : ''}
-                        onChange={(e) => {
-                          const newDate = e.target.value;
-                          if (newDate) {
-                            const parsed = new Date(newDate);
-                            setConstructionEndDate(parsed);
-                            setConstructionEndDateInput(format(parsed, 'dd/MM/yyyy'));
-                            setConstructionEndDateError('');
-                          }
-                        }}
-                        className="sr-only"
-                      />
-                      <div className="px-4 py-3 min-w-[44px] border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 hover:bg-slate-50 dark:hover:bg-slate-600 rounded-lg transition-colors">
-                        <Calendar className="w-5 h-5 text-slate-600 dark:text-slate-400 pointer-events-none" />
-                      </div>
-                    </div>
-                  </div>
-                  {constructionEndDateError && (
-                    <p className="mt-1 text-xs text-red-500">{constructionEndDateError}</p>
-                  )}
-                  {constructionEndDate && !constructionEndDateError && (
-                    <div className="flex items-center gap-2 text-xs text-green-600 dark:text-green-400 mt-1">
-                      <CheckCircle className="w-3 h-3 flex-shrink-0" />
-                      <span>{formatDateDisplay(constructionEndDate)}</span>
-                    </div>
-                  )}
-                  {!constructionEndDate && !constructionEndDateError && (
-                    <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-                      When the construction was completed
-                    </p>
-                  )}
-                </div>
-
-                <p className="text-sm text-slate-500 dark:text-slate-400">
-                  Add construction costs below using Cost Base Items
-                </p>
-              </div>
-            )}
-
             {/* Cost Base Section (for CGT calculation) - NEW COMPONENT */}
             {/* Hide for synthetic "Not Sold" markers and inherit events */}
-            {!isSyntheticNotSold && (eventType === 'purchase' || eventType === 'sale' || eventType === 'improvement' || eventType === 'building' || eventType === 'status_change' || eventType === 'custom') && (
+            {!isSyntheticNotSold && (eventType === 'purchase' || eventType === 'sale' || eventType === 'improvement' || eventType === 'status_change' || eventType === 'custom') && (
               <div className="space-y-4 pt-2 border-t border-slate-200 dark:border-slate-700">
                 <CostBaseSelector
                   eventType={event.type}

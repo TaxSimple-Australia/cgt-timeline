@@ -480,14 +480,14 @@ export default function Timeline({ className, onAlertClick, onOpenAIBuilder }: T
                 // Get subdivision date from Lot 1 to filter events properly and avoid duplicates
                 const subdivisionDate = lot1?.subdivisionDate;
                 const eventsToShow = lot1 && subdivisionDate
-                  ? [
+                  ? Array.from(new Map([
                       // Parent's events BEFORE subdivision
                       ...events.filter(e => e.propertyId === property.id && e.date < subdivisionDate),
                       // Parent's subdivision event (AT subdivision date) - include for interactive display
                       ...events.filter(e => e.propertyId === property.id && e.type === 'subdivision'),
                       // Lot 1's events ON or AFTER subdivision
                       ...events.filter(e => e.propertyId === lot1.id && e.date >= subdivisionDate)
-                    ]
+                    ].map(e => [e.id, e])).values())
                   : events.filter(e => e.propertyId === property.id);
 
                 return (

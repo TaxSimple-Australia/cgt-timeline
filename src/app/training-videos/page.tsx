@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   Play,
   Clock,
@@ -15,20 +15,80 @@ import {
   Filter,
   Video,
   Sparkles,
-  ChevronRight
+  ChevronRight,
+  X
 } from 'lucide-react';
 import LandingHeader from '@/components/landing/LandingHeader';
 import LandingFooter from '@/components/landing/LandingFooter';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
+// Video Player Modal Component
+function VideoPlayerModal({
+  isOpen,
+  onClose,
+  youtubeId,
+  title
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  youtubeId: string;
+  title: string;
+}) {
+  if (!isOpen) return null;
+
+  return (
+    <AnimatePresence>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
+        onClick={onClose}
+      >
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 0.95 }}
+          transition={{ duration: 0.2 }}
+          className="relative w-full max-w-5xl bg-slate-900 rounded-xl overflow-hidden shadow-2xl"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {/* Header */}
+          <div className="flex items-center justify-between p-4 border-b border-slate-700">
+            <h3 className="text-lg font-semibold text-white">{title}</h3>
+            <button
+              onClick={onClose}
+              className="p-2 hover:bg-slate-800 rounded-lg transition-colors"
+            >
+              <X className="w-5 h-5 text-slate-400" />
+            </button>
+          </div>
+
+          {/* YouTube Embed */}
+          <div className="relative aspect-video">
+            <iframe
+              src={`https://www.youtube.com/embed/${youtubeId}?autoplay=1&rel=0`}
+              title={title}
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+              className="absolute inset-0 w-full h-full"
+            />
+          </div>
+        </motion.div>
+      </motion.div>
+    </AnimatePresence>
+  );
+}
+
 export default function TrainingVideosPage() {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const [activeVideo, setActiveVideo] = useState<{ youtubeId: string; title: string } | null>(null);
 
   const categories = [
-    { id: 'all', label: 'All Videos', icon: Video, count: 12 },
-    { id: 'getting-started', label: 'Getting Started', icon: Rocket, count: 3 },
+    { id: 'all', label: 'All Videos', icon: Video, count: 13 },
+    { id: 'getting-started', label: 'Getting Started', icon: Rocket, count: 4 },
     { id: 'timeline-builder', label: 'Timeline Builder', icon: Settings, count: 4 },
     { id: 'cgt-analysis', label: 'CGT Analysis', icon: TrendingUp, count: 3 },
     { id: 'advanced', label: 'Advanced Features', icon: Sparkles, count: 2 },
@@ -36,13 +96,23 @@ export default function TrainingVideosPage() {
 
   const videos = [
     {
+      id: 0,
+      category: 'getting-started',
+      title: 'How to Add Events',
+      description: 'Learn how to add different types of events to your property timeline including purchases, sales, improvements, and more',
+      duration: '10:00',
+      thumbnail: `https://img.youtube.com/vi/Ok0H627f6ls/maxresdefault.jpg`,
+      youtubeId: 'Ok0H627f6ls',
+      isNew: true,
+    },
+    {
       id: 1,
       category: 'getting-started',
       title: 'Introduction to CGT Brain',
       description: 'A comprehensive overview of CGT Brain features and capabilities',
       duration: '5:30',
       thumbnail: 'https://placehold.co/400x225/1e293b/38bdf8?text=Intro+to+CGT+Brain',
-      isNew: true,
+      isNew: false,
     },
     {
       id: 2,
@@ -264,18 +334,38 @@ export default function TrainingVideosPage() {
                   viewport={{ once: true }}
                   transition={{ duration: 0.6, delay: index * 0.05 }}
                   className="group cursor-pointer"
+                  onClick={() => {
+                    if (video.youtubeId) {
+                      setActiveVideo({ youtubeId: video.youtubeId, title: video.title });
+                    }
+                  }}
                 >
-                  <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-xl overflow-hidden hover:border-cyan-500/50 transition-all">
+                  <div className={cn(
+                    "bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-xl overflow-hidden hover:border-cyan-500/50 transition-all",
+                    video.youtubeId && "ring-2 ring-cyan-500/20 hover:ring-cyan-500/40"
+                  )}>
                     {/* Thumbnail */}
                     <div className="relative aspect-video bg-slate-900 overflow-hidden">
                       <img
                         src={video.thumbnail}
                         alt={video.title}
                         className="w-full h-full object-cover transition-transform group-hover:scale-105"
+                        onError={(e) => {
+                          // Fallback to medium quality if maxres doesn't exist
+                          const target = e.target as HTMLImageElement;
+                          if (target.src.includes('maxresdefault')) {
+                            target.src = target.src.replace('maxresdefault', 'hqdefault');
+                          }
+                        }}
                       />
                       {/* Play Button Overlay */}
                       <div className="absolute inset-0 flex items-center justify-center bg-black/40 group-hover:bg-black/30 transition-colors">
-                        <div className="p-4 bg-cyan-500/90 group-hover:bg-cyan-500 rounded-full transition-colors">
+                        <div className={cn(
+                          "p-4 rounded-full transition-colors",
+                          video.youtubeId
+                            ? "bg-red-600/90 group-hover:bg-red-600"
+                            : "bg-cyan-500/90 group-hover:bg-cyan-500"
+                        )}>
                           <Play className="w-6 h-6 text-white fill-white" />
                         </div>
                       </div>
@@ -289,6 +379,13 @@ export default function TrainingVideosPage() {
                         <div className="absolute top-3 left-3 px-2 py-1 bg-cyan-500 rounded text-xs font-medium text-white flex items-center gap-1">
                           <Sparkles className="w-3 h-3" />
                           New
+                        </div>
+                      )}
+                      {/* Available Badge for playable videos */}
+                      {video.youtubeId && (
+                        <div className="absolute top-3 right-3 px-2 py-1 bg-green-500 rounded text-xs font-medium text-white flex items-center gap-1">
+                          <Play className="w-3 h-3 fill-white" />
+                          Watch Now
                         </div>
                       )}
                     </div>
@@ -357,6 +454,16 @@ export default function TrainingVideosPage() {
       </section>
 
       <LandingFooter />
+
+      {/* Video Player Modal */}
+      {activeVideo && (
+        <VideoPlayerModal
+          isOpen={!!activeVideo}
+          onClose={() => setActiveVideo(null)}
+          youtubeId={activeVideo.youtubeId}
+          title={activeVideo.title}
+        />
+      )}
     </div>
   );
 }

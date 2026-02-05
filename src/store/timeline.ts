@@ -2187,7 +2187,7 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
                 propertyId,
                 type: eventType,
                 date: eventDate,
-                title: historyItem.description || eventType.replace('_', ' '),
+                title: historyItem.title || eventType.replace('_', ' '),
                 amount: calculatedAmount,
                 description: historyItem.description,
                 position: 0,

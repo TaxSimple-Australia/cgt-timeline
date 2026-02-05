@@ -223,6 +223,7 @@ export default function TimelineControls({ timelineContainerRef }: TimelineContr
 
           if (event.landPrice !== undefined) historyItem.land_price = event.landPrice;
           if (event.buildingPrice !== undefined) historyItem.building_price = event.buildingPrice;
+          if (event.title) historyItem.title = event.title;
           if (event.description) historyItem.description = event.description;
           if (event.isPPR) historyItem.is_ppr = event.isPPR;
           if (event.contractDate) historyItem.contract_date = format(event.contractDate, 'yyyy-MM-dd');

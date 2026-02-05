@@ -760,7 +760,7 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
     collapsedSubdivisions: [],
 
     // Logo/Branding initial state
-    currentLogoVariant: typeof window !== 'undefined' && localStorage.getItem('logoVariant') || 'logo-14',
+    currentLogoVariant: typeof window !== 'undefined' && localStorage.getItem('logoVariant') || 'logo-20',
 
     // Terms & Conditions initial state
     hasAcceptedTerms: (typeof window !== 'undefined' && localStorage.getItem('cgtBrain_termsAccepted') === 'true') || false,

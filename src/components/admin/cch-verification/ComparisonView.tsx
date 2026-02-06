@@ -61,8 +61,8 @@ export default function ComparisonView({ result, ourAnswer }: ComparisonViewProp
             <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
             <h4 className="font-semibold text-slate-900 dark:text-slate-100">Our AI Response</h4>
           </div>
-          <div className="flex-1 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 overflow-auto max-h-[400px]">
-            <pre className="whitespace-pre-wrap text-sm text-slate-700 dark:text-slate-300 font-mono">
+          <div className="flex-1 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 overflow-auto max-h-[500px]">
+            <pre className="whitespace-pre-wrap text-xs text-slate-700 dark:text-slate-300 font-mono">
               {ourAnswer || result.our_answer || 'No answer provided'}
             </pre>
           </div>
@@ -74,9 +74,9 @@ export default function ComparisonView({ result, ourAnswer }: ComparisonViewProp
             <div className="w-3 h-3 bg-purple-500 rounded-full"></div>
             <h4 className="font-semibold text-slate-900 dark:text-slate-100">CCH iKnowConnect Response</h4>
           </div>
-          <div className="flex-1 bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg p-4 overflow-auto max-h-[400px]">
+          <div className="flex-1 bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg p-4 overflow-auto max-h-[500px]">
             {cchResponse ? (
-              <pre className="whitespace-pre-wrap text-sm text-slate-700 dark:text-slate-300 font-mono">
+              <pre className="whitespace-pre-wrap text-xs text-slate-700 dark:text-slate-300 font-mono">
                 {cchResponse.text}
               </pre>
             ) : (

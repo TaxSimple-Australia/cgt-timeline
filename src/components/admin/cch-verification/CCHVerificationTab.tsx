@@ -1,16 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { Search, RefreshCw, AlertCircle, CheckCircle, FileJson, Copy, Download } from 'lucide-react';
+import { useState, useEffect, useCallback } from 'react';
+import { RefreshCw, AlertCircle, CheckCircle, FileJson, Copy, Download, Clock, Loader2 } from 'lucide-react';
 import VerificationResults from './VerificationResults';
 import ComparisonView from './ComparisonView';
 import AnalysisSummary from './AnalysisSummary';
-
-interface TimelineEvent {
-  date: string;
-  event: string;
-  details?: string;
-}
 
 interface CCHSource {
   title: string;
@@ -52,179 +46,161 @@ interface VerifyResponse {
 }
 
 interface CCHVerificationTabProps {
-  // Pre-populated data from AI analysis
+  // AI response that was returned from the analysis
   aiResponse?: any;
-  verificationPrompt?: string;
 }
 
-export default function CCHVerificationTab({ aiResponse, verificationPrompt }: CCHVerificationTabProps) {
-  const [scenario, setScenario] = useState('');
-  const [ourAnswer, setOurAnswer] = useState('');
-  const [timeline, setTimeline] = useState<TimelineEvent[]>([]);
+/**
+ * Formats the verification prompt by removing escape characters, line feeds,
+ * and special characters to ensure it can be pasted cleanly into CCH chat.
+ */
+function formatVerificationPrompt(prompt: string): string {
+  if (!prompt) return '';
+
+  return prompt
+    // Remove literal \n and \r escape sequences
+    .replace(/\\n/g, ' ')
+    .replace(/\\r/g, ' ')
+    // Replace actual newlines with spaces
+    .replace(/\r\n/g, ' ')
+    .replace(/\r/g, ' ')
+    .replace(/\n/g, ' ')
+    // Replace tabs with spaces
+    .replace(/\t/g, ' ')
+    // Remove markdown headers but keep the text
+    .replace(/#{1,6}\s*/g, '')
+    // Replace multiple spaces with single space
+    .replace(/\s+/g, ' ')
+    // Remove leading/trailing whitespace
+    .trim();
+}
+
+/**
+ * Extracts the full AI response (excluding verification_prompt) for comparison.
+ * Returns the complete response JSON as a string so CCH can compare against our full analysis.
+ */
+function extractOurAnswer(response: any): string {
+  if (!response) return '';
+
+  // Create a copy and remove the verification_prompt field
+  const responseCopy = JSON.parse(JSON.stringify(response));
+
+  // Remove verification_prompt from various possible locations
+  delete responseCopy.verification_prompt;
+  if (responseCopy.data) {
+    delete responseCopy.data.verification_prompt;
+    if (responseCopy.data.data) {
+      delete responseCopy.data.data.verification_prompt;
+    }
+  }
+
+  // Return the full response as JSON string
+  return JSON.stringify(responseCopy, null, 2);
+}
+
+export default function CCHVerificationTab({ aiResponse }: CCHVerificationTabProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<VerifyResponse | null>(null);
   const [showRawJSON, setShowRawJSON] = useState(false);
+  const [hasVerificationPrompt, setHasVerificationPrompt] = useState(false);
+  const [verificationStarted, setVerificationStarted] = useState(false);
 
-  // Pre-populate from AI response when available
-  useEffect(() => {
-    if (aiResponse) {
-      // Extract verification prompt
-      const prompt = aiResponse.verification_prompt ||
-                     aiResponse.data?.verification_prompt ||
-                     verificationPrompt || '';
-      setScenario(prompt);
-
-      // Extract our answer from AI response
-      const answer = extractOurAnswer(aiResponse);
-      setOurAnswer(answer);
-
-      // Extract timeline if available
-      const timelineData = extractTimeline(aiResponse);
-      if (timelineData.length > 0) {
-        setTimeline(timelineData);
-      }
-    }
-  }, [aiResponse, verificationPrompt]);
-
-  const extractOurAnswer = (response: any): string => {
+  // Extract verification prompt from AI response
+  const getVerificationPrompt = useCallback((response: any): string => {
     if (!response) return '';
+    return response.verification_prompt ||
+           response.data?.verification_prompt ||
+           response.data?.data?.verification_prompt ||
+           '';
+  }, []);
 
-    // If there's a direct answer field
-    if (response.answer) return response.answer;
-
-    // If there's analysis data with properties
-    const analysisData = response.data?.data || response.data || response;
-
-    if (analysisData?.properties && Array.isArray(analysisData.properties)) {
-      const parts: string[] = [];
-
-      for (const prop of analysisData.properties) {
-        parts.push(`## Property: ${prop.property_address || 'Unknown'}`);
-
-        if (prop.calculation_summary) {
-          const summary = prop.calculation_summary;
-          parts.push(`\n### Calculation Summary`);
-          parts.push(`- Sale Price: $${Number(summary.sale_price).toLocaleString()}`);
-          parts.push(`- Total Cost Base: $${Number(summary.total_cost_base).toLocaleString()}`);
-          parts.push(`- Gross Capital Gain: $${Number(summary.gross_capital_gain).toLocaleString()}`);
-          parts.push(`- Main Residence Exemption: ${summary.main_residence_exemption_percentage}%`);
-          parts.push(`- Exemption Amount: $${Number(summary.main_residence_exemption_amount).toLocaleString()}`);
-          parts.push(`- Taxable Capital Gain: $${Number(summary.taxable_capital_gain).toLocaleString()}`);
-          if (summary.cgt_discount_applicable) {
-            parts.push(`- CGT Discount: ${summary.cgt_discount_percentage}%`);
-            parts.push(`- Discount Amount: $${Number(summary.cgt_discount_amount).toLocaleString()}`);
-          }
-          parts.push(`- **Net Capital Gain: $${Number(summary.net_capital_gain).toLocaleString()}**`);
-        }
-
-        if (prop.result) {
-          parts.push(`\n**Result:** ${prop.result}`);
-        }
-
-        parts.push('\n---\n');
-      }
-
-      return parts.join('\n');
-    }
-
-    return '';
-  };
-
-  const extractTimeline = (response: any): TimelineEvent[] => {
-    const analysisData = response.data?.data || response.data || response;
-
-    if (analysisData?.properties && Array.isArray(analysisData.properties)) {
-      const events: TimelineEvent[] = [];
-
-      for (const prop of analysisData.properties) {
-        if (prop.timeline && Array.isArray(prop.timeline)) {
-          for (const event of prop.timeline) {
-            events.push({
-              date: event.date,
-              event: event.event,
-              details: event.details
-            });
-          }
-        }
-      }
-
-      return events;
-    }
-
-    return [];
-  };
-
-  const handleVerify = async () => {
-    if (!scenario.trim()) {
-      setError('Please enter a scenario/verification prompt');
-      return;
-    }
-
-    if (!ourAnswer.trim()) {
-      setError('Please enter our AI answer for comparison');
-      return;
-    }
-
+  // Run verification with CCH API
+  const runVerification = useCallback(async (response: any, verificationPrompt: string) => {
     setIsLoading(true);
     setError(null);
-    setResult(null);
-    setLoadingMessage('Sending request to CCH iKnowConnect...');
+    setLoadingMessage('Sending to CCH iKnowConnect...');
+    setVerificationStarted(true);
 
     try {
-      // Update loading message after a delay
+      // Format the verification prompt (remove escape chars, line feeds, etc.)
+      const formattedPrompt = formatVerificationPrompt(verificationPrompt);
+      const ourAnswer = extractOurAnswer(response);
+
+      console.log('📤 CCH Verification - Formatted prompt length:', formattedPrompt.length);
+      console.log('📤 CCH Verification - Our answer length:', ourAnswer.length);
+
+      // Update loading message after delay
       const loadingInterval = setInterval(() => {
         setLoadingMessage(prev => {
-          if (prev.includes('CCH')) return 'Waiting for CCH response (this may take 1-2 minutes)...';
+          if (prev.includes('CCH iKnowConnect')) return 'Waiting for CCH response (this may take 1-2 minutes)...';
           if (prev.includes('1-2 minutes')) return 'Analyzing responses with GPT-4o...';
           return 'Finalizing comparison...';
         });
       }, 20000);
 
-      const response = await fetch('/api/cch/verify-and-compare', {
+      const apiResponse = await fetch('/api/cch/verify-and-compare', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          scenario: scenario,
+          scenario: formattedPrompt,
           our_answer: ourAnswer,
-          timeline: timeline.length > 0 ? timeline : undefined,
-          ai_response: aiResponse || undefined
+          ai_response: response
         })
       });
 
       clearInterval(loadingInterval);
 
-      const data = await response.json();
+      const data = await apiResponse.json();
 
-      if (!response.ok || !data.success) {
-        throw new Error(data.error || 'Verification failed');
+      if (!apiResponse.ok || !data.success) {
+        throw new Error(data.error || 'CCH verification failed');
       }
 
+      console.log('✅ CCH Verification completed successfully');
       setResult(data);
     } catch (err) {
+      console.error('❌ CCH Verification error:', err);
       setError(err instanceof Error ? err.message : 'Unknown error occurred');
     } finally {
       setIsLoading(false);
       setLoadingMessage('');
     }
-  };
+  }, []);
 
-  const handleReset = () => {
-    setResult(null);
-    setError(null);
+  // Auto-verify when AI response with verification_prompt is provided
+  useEffect(() => {
+    const verificationPrompt = getVerificationPrompt(aiResponse);
+    setHasVerificationPrompt(!!verificationPrompt);
+
+    // Auto-start verification if we have a verification prompt and haven't started yet
+    if (verificationPrompt && !verificationStarted && !result && !isLoading) {
+      console.log('🔄 Auto-starting CCH verification...');
+      runVerification(aiResponse, verificationPrompt);
+    }
+  }, [aiResponse, getVerificationPrompt, runVerification, verificationStarted, result, isLoading]);
+
+  const handleRetry = () => {
+    if (aiResponse) {
+      const verificationPrompt = getVerificationPrompt(aiResponse);
+      if (verificationPrompt) {
+        setResult(null);
+        setError(null);
+        setVerificationStarted(false);
+        runVerification(aiResponse, verificationPrompt);
+      }
+    }
   };
 
   const handleCopyResults = () => {
     if (!result) return;
-
     const text = JSON.stringify(result, null, 2);
     navigator.clipboard.writeText(text);
   };
 
   const handleExportReport = () => {
     if (!result) return;
-
     const blob = new Blob([JSON.stringify(result, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -234,15 +210,51 @@ export default function CCHVerificationTab({ aiResponse, verificationPrompt }: C
     URL.revokeObjectURL(url);
   };
 
+  // No AI response yet
+  if (!aiResponse) {
+    return (
+      <div className="bg-white dark:bg-slate-800 rounded-lg shadow-md border border-slate-200 dark:border-slate-700 p-8">
+        <div className="text-center">
+          <Clock className="w-16 h-16 text-slate-300 dark:text-slate-600 mx-auto mb-4" />
+          <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100 mb-2">
+            No CGT Analysis Available
+          </h2>
+          <p className="text-slate-600 dark:text-slate-400 max-w-md mx-auto">
+            CCH verification will run automatically after a CGT analysis is completed.
+            Run an analysis first to see verification results here.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // AI response exists but no verification_prompt
+  if (!hasVerificationPrompt) {
+    return (
+      <div className="bg-white dark:bg-slate-800 rounded-lg shadow-md border border-slate-200 dark:border-slate-700 p-8">
+        <div className="text-center">
+          <AlertCircle className="w-16 h-16 text-amber-400 mx-auto mb-4" />
+          <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100 mb-2">
+            No Verification Prompt Available
+          </h2>
+          <p className="text-slate-600 dark:text-slate-400 max-w-md mx-auto">
+            The AI analysis response does not contain a verification prompt.
+            This may happen with older API responses or certain analysis types.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="bg-white dark:bg-slate-800 rounded-lg shadow-md border border-slate-200 dark:border-slate-700 p-6">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100">CCH Verification</h2>
+            <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100">CCH Verification Results</h2>
             <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
-              Verify CGT calculations against CCH iKnowConnect professional tax research
+              Automatic verification against CCH iKnowConnect professional tax research
             </p>
           </div>
           {result && (
@@ -276,25 +288,43 @@ export default function CCHVerificationTab({ aiResponse, verificationPrompt }: C
         {error && (
           <div className="mb-4 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg flex items-start gap-3">
             <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
-            <div>
+            <div className="flex-1">
               <p className="text-red-700 dark:text-red-300 font-medium">Verification Failed</p>
               <p className="text-red-600 dark:text-red-400 text-sm mt-1">{error}</p>
             </div>
+            <button
+              onClick={handleRetry}
+              className="flex items-center gap-2 px-3 py-1.5 text-sm bg-red-100 dark:bg-red-900/40 hover:bg-red-200 dark:hover:bg-red-800/40 text-red-700 dark:text-red-300 rounded-lg transition-colors"
+            >
+              <RefreshCw className="w-4 h-4" />
+              Retry
+            </button>
           </div>
         )}
 
-        {/* Auto-populated indicator */}
-        {aiResponse && (
-          <div className="mb-4 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg flex items-center gap-2">
+        {/* Status indicator */}
+        {result && (
+          <div className="p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg flex items-center gap-2">
             <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400" />
             <span className="text-green-700 dark:text-green-300 text-sm">
-              Form auto-populated from latest CGT analysis
+              Verification completed at {new Date(result.verified_at).toLocaleString()}
             </span>
           </div>
         )}
       </div>
 
-      {/* Show raw JSON if toggled */}
+      {/* Loading State */}
+      {isLoading && (
+        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-8 text-center">
+          <Loader2 className="w-12 h-12 text-blue-600 dark:text-blue-400 mx-auto mb-4 animate-spin" />
+          <p className="text-blue-700 dark:text-blue-300 font-medium text-lg">{loadingMessage}</p>
+          <p className="text-blue-600 dark:text-blue-400 text-sm mt-2">
+            This process typically takes 60-120 seconds as it queries CCH and analyzes both responses.
+          </p>
+        </div>
+      )}
+
+      {/* Raw JSON View */}
       {showRawJSON && result && (
         <div className="bg-white dark:bg-slate-800 rounded-lg shadow-md border border-slate-200 dark:border-slate-700 p-6">
           <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-4">Raw JSON Response</h3>
@@ -308,99 +338,21 @@ export default function CCHVerificationTab({ aiResponse, verificationPrompt }: C
       {result && !showRawJSON && (
         <>
           <VerificationResults result={result} />
-          <ComparisonView result={result} ourAnswer={ourAnswer} />
+          <ComparisonView result={result} ourAnswer={extractOurAnswer(aiResponse)} />
           <AnalysisSummary result={result} />
 
           {/* Re-verify button */}
-          <div className="flex justify-center gap-4">
+          <div className="flex justify-center">
             <button
-              onClick={handleReset}
-              className="flex items-center gap-2 px-6 py-3 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-300 rounded-lg transition-colors"
+              onClick={handleRetry}
+              disabled={isLoading}
+              className="flex items-center gap-2 px-6 py-3 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 disabled:opacity-50 text-slate-700 dark:text-slate-300 rounded-lg transition-colors"
             >
-              <RefreshCw className="w-5 h-5" />
-              New Verification
+              <RefreshCw className={`w-5 h-5 ${isLoading ? 'animate-spin' : ''}`} />
+              Re-verify with CCH
             </button>
           </div>
         </>
-      )}
-
-      {/* Input Form - show when no results */}
-      {!result && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Scenario Input */}
-          <div className="bg-white dark:bg-slate-800 rounded-lg shadow-md border border-slate-200 dark:border-slate-700 p-6">
-            <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-4">
-              Property Scenario (Verification Prompt)
-            </h3>
-            <p className="text-sm text-slate-600 dark:text-slate-400 mb-3">
-              This will be sent to CCH for verification. Line feeds and special characters will be automatically cleaned.
-            </p>
-            <textarea
-              value={scenario}
-              onChange={(e) => setScenario(e.target.value)}
-              placeholder="Describe the CGT scenario including property details, timeline of events, ownership periods, and cost base elements..."
-              className="w-full h-64 p-4 border border-slate-300 dark:border-slate-600 rounded-lg bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-slate-100 placeholder-slate-400 text-sm font-mono resize-none"
-              disabled={isLoading}
-            />
-            <div className="mt-2 text-xs text-slate-500 dark:text-slate-400">
-              {scenario.length} characters
-            </div>
-          </div>
-
-          {/* Our Answer Input */}
-          <div className="bg-white dark:bg-slate-800 rounded-lg shadow-md border border-slate-200 dark:border-slate-700 p-6">
-            <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-4">
-              Our AI's Answer
-            </h3>
-            <p className="text-sm text-slate-600 dark:text-slate-400 mb-3">
-              The CGT calculation from our system to compare against CCH's response.
-            </p>
-            <textarea
-              value={ourAnswer}
-              onChange={(e) => setOurAnswer(e.target.value)}
-              placeholder="Paste the CGT calculation from our system..."
-              className="w-full h-64 p-4 border border-slate-300 dark:border-slate-600 rounded-lg bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-slate-100 placeholder-slate-400 text-sm font-mono resize-none"
-              disabled={isLoading}
-            />
-            <div className="mt-2 text-xs text-slate-500 dark:text-slate-400">
-              {ourAnswer.length} characters
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Submit Button */}
-      {!result && (
-        <div className="flex justify-center">
-          <button
-            onClick={handleVerify}
-            disabled={isLoading || !scenario.trim() || !ourAnswer.trim()}
-            className="flex items-center gap-3 px-8 py-4 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-400 dark:disabled:bg-slate-600 text-white rounded-lg font-medium text-lg transition-colors disabled:cursor-not-allowed"
-          >
-            {isLoading ? (
-              <>
-                <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                {loadingMessage || 'Verifying...'}
-              </>
-            ) : (
-              <>
-                <Search className="w-5 h-5" />
-                Verify with CCH
-              </>
-            )}
-          </button>
-        </div>
-      )}
-
-      {/* Loading indicator with estimated time */}
-      {isLoading && (
-        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-6 text-center">
-          <div className="inline-block animate-spin rounded-full h-10 w-10 border-4 border-blue-600 border-t-transparent mb-4"></div>
-          <p className="text-blue-700 dark:text-blue-300 font-medium">{loadingMessage}</p>
-          <p className="text-blue-600 dark:text-blue-400 text-sm mt-2">
-            This process typically takes 60-120 seconds as it queries CCH and analyzes both responses.
-          </p>
-        </div>
       )}
     </div>
   );

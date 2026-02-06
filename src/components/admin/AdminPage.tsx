@@ -553,10 +553,7 @@ export default function AdminPage({ apiUrl, onLogout, onBack }: AdminPageProps) 
 
         {/* CCH Verification Tab */}
         {activeTab === 'cch-verification' && (
-          <CCHVerificationTab
-            aiResponse={fullAIResponse}
-            verificationPrompt={verificationPrompt}
-          />
+          <CCHVerificationTab aiResponse={fullAIResponse} />
         )}
       </main>
     </div>

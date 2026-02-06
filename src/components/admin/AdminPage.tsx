@@ -1,12 +1,13 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { ArrowLeft, BarChart3, ClipboardList, Calculator, LogOut, Shield, Users, ShieldCheck } from 'lucide-react';
+import { ArrowLeft, BarChart3, ClipboardList, Calculator, LogOut, Shield, Users, ShieldCheck, FileText } from 'lucide-react';
 import ChatPanel from './ChatPanel';
 import AnnotationPanel from './AnnotationPanel';
 import AccuracyDashboard from './AccuracyDashboard';
 import TaxAgentManagement from './TaxAgentManagement';
 import { CCHVerificationTab } from './cch-verification';
+import { ReportsManagementTab } from './reports';
 
 // LLM Providers for CGT Analysis
 const LLM_PROVIDERS = [
@@ -87,7 +88,7 @@ const SAMPLE_PAYLOAD = {
   llm_provider: 'deepseek'
 };
 
-type TabType = 'analysis' | 'annotation' | 'dashboard' | 'agents' | 'cch-verification';
+type TabType = 'analysis' | 'annotation' | 'dashboard' | 'agents' | 'cch-verification' | 'reports';
 
 interface AdminPageProps {
   apiUrl: string;
@@ -307,6 +308,18 @@ export default function AdminPage({ apiUrl, onLogout, onBack }: AdminPageProps) 
     return '';
   }, []);
 
+  // Raw credentials for Reports API
+  const rawAdminCredentials = useMemo(() => {
+    if (typeof window !== 'undefined') {
+      const user = sessionStorage.getItem('cgt_admin_user');
+      const pass = sessionStorage.getItem('cgt_admin_pass');
+      if (user && pass) {
+        return { user, pass };
+      }
+    }
+    return { user: '', pass: '' };
+  }, []);
+
   return (
     <div className="fixed inset-0 z-[100000] overflow-auto bg-slate-100 dark:bg-slate-950">
       {/* Header */}
@@ -392,6 +405,17 @@ export default function AdminPage({ apiUrl, onLogout, onBack }: AdminPageProps) 
             >
               <ShieldCheck className="w-4 h-4" />
               CCH Verification
+            </button>
+            <button
+              onClick={() => setActiveTab('reports')}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm transition-colors whitespace-nowrap ${
+                activeTab === 'reports'
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-300 dark:hover:bg-slate-600'
+              }`}
+            >
+              <FileText className="w-4 h-4" />
+              Reports
             </button>
             <button
               onClick={() => setActiveTab('analysis')}
@@ -649,6 +673,11 @@ export default function AdminPage({ apiUrl, onLogout, onBack }: AdminPageProps) 
               }
             }}
           />
+        )}
+
+        {/* Reports Management Tab */}
+        {activeTab === 'reports' && (
+          <ReportsManagementTab adminCredentials={rawAdminCredentials} />
         )}
       </main>
     </div>

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { createReport, updateReport, checkStorageHealth } from '@/lib/report-storage';
 
 // API Response Mode type
 type APIResponseMode = 'markdown' | 'json';
@@ -224,9 +225,69 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // ============================================================================
+    // AUTO-SAVE REPORT TO STORAGE
+    // ============================================================================
+    // Save successful analysis to persistent storage for admin review/verification
+    let reportId: string | undefined;
+
+    try {
+      // Check if storage is available
+      const storageHealth = await checkStorageHealth();
+
+      if (storageHealth.healthy) {
+        // Extract timeline data from the payload
+        const timelineData = {
+          properties: apiPayload.properties || [],
+          events: apiPayload.events || [],
+          notes: apiPayload.notes || [],
+        };
+
+        // Determine source (default to 'app', could be 'admin' or 'api' based on header)
+        const source = (request.headers.get('x-report-source') as 'app' | 'admin' | 'api') || 'app';
+
+        // Extract verification prompt from response
+        const verificationPrompt = data.verification_prompt ||
+          data.data?.verification_prompt ||
+          null;
+
+        // Extract net capital gain
+        const netCapitalGain = data.total_net_capital_gain ||
+          data.data?.total_net_capital_gain ||
+          undefined;
+
+        // Create the report
+        const report = await createReport({
+          timelineData,
+          source,
+          llmProvider,
+          shareId: apiPayload.shareId,
+          userEmail: apiPayload.userEmail,
+        });
+
+        // Update with analysis results
+        await updateReport(report.id, {
+          status: 'analyzed',
+          analysisResponse: data,
+          verificationPrompt,
+          netCapitalGain: netCapitalGain ? parseFloat(netCapitalGain) : undefined,
+          analyzedAt: new Date().toISOString(),
+        });
+
+        reportId = report.id;
+        console.log(`📊 Report saved: ${reportId}`);
+      } else {
+        console.log('⚠️ Storage not available, skipping report save');
+      }
+    } catch (saveError) {
+      // Don't fail the request if saving fails, just log it
+      console.error('⚠️ Failed to save report (non-blocking):', saveError);
+    }
+
     return NextResponse.json({
       success: true,
       data,
+      reportId, // Include report ID in response for reference
     });
   } catch (error) {
     console.error('❌ Error calling CGT model API:', error);

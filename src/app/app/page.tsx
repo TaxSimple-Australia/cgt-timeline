@@ -100,57 +100,16 @@ function HomeContent() {
   // AI Timeline Builder state
   const [isAIBuilderOpen, setIsAIBuilderOpen] = useState(false);
 
-  // CCH Verification state
-  const [cchVerifying, setCchVerifying] = useState(false);
-
   /**
-   * Automatically run CCH verification after successful CGT analysis
+   * Store AI response in sessionStorage for admin access
+   * (CCH verification is now done manually from Admin portal)
    */
-  const runAutoCCHVerification = async (response: any) => {
-    // Store the AI response in sessionStorage so CCH tab can access it
+  const storeAIResponseForAdmin = (response: any) => {
     try {
       sessionStorage.setItem('cgt_ai_response', JSON.stringify(response));
-      console.log('💾 Stored AI response in sessionStorage');
+      console.log('💾 Stored AI response in sessionStorage for admin access');
     } catch (e) {
       console.error('Error storing AI response:', e);
-    }
-
-    // Extract verification_prompt from various response structures
-    const verificationPrompt = response?.verification_prompt ||
-                               response?.data?.verification_prompt ||
-                               response?.data?.data?.verification_prompt;
-
-    if (!verificationPrompt) {
-      console.log('ℹ️ No verification_prompt in response, skipping CCH verification');
-      return;
-    }
-
-    console.log('🔄 Auto-triggering CCH verification...');
-    setCchVerifying(true);
-
-    try {
-      const apiResponse = await fetch('/api/cch/verify-and-compare', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ai_response: response
-        })
-      });
-
-      const data = await apiResponse.json();
-
-      if (!apiResponse.ok || !data.success) {
-        console.error('❌ CCH verification failed:', data.error);
-        return;
-      }
-
-      console.log('✅ CCH Verification completed successfully');
-      // Store result in sessionStorage for the CCH tab to display
-      sessionStorage.setItem('cch_verification_result', JSON.stringify(data));
-    } catch (err) {
-      console.error('❌ CCH verification error:', err);
-    } finally {
-      setCchVerifying(false);
     }
   };
 
@@ -484,8 +443,8 @@ function HomeContent() {
         // IMPORTANT: Store the FULL response including sources, query, etc.
         setAnalysisData(fullResponse);
         setAIResponse(fullResponse); // Also save to store for sharing
-        // Auto-trigger CCH verification
-        runAutoCCHVerification(fullResponse);
+        // Store for admin access (CCH verification done via Admin portal)
+        storeAIResponseForAdmin(fullResponse);
       }
 
       setApiConnected(true);
@@ -712,8 +671,8 @@ function HomeContent() {
       // Store the FULL response (not just inner data) to preserve sources and metadata
       setAnalysisData(fullResponse);
       setAIResponse(fullResponse); // Also save to store for sharing
-      // Auto-trigger CCH verification
-      runAutoCCHVerification(fullResponse);
+      // Store for admin access (CCH verification done via Admin portal)
+      storeAIResponseForAdmin(fullResponse);
 
       // Analysis panel is already open (set at start of function)
       console.log('✅ Successfully re-submitted with verifications - showing CGT analysis');
@@ -877,8 +836,8 @@ function HomeContent() {
         // Store the FULL response (not just inner data) to preserve sources and metadata
         setAnalysisData(fullResponse);
         setAIResponse(fullResponse); // Also save to store for sharing
-        // Auto-trigger CCH verification
-        runAutoCCHVerification(fullResponse);
+        // Store for admin access (CCH verification done via Admin portal)
+        storeAIResponseForAdmin(fullResponse);
         // Keep panel open to show final results
       }
     } catch (err) {

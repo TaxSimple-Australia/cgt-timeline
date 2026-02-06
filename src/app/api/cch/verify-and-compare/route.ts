@@ -16,26 +16,189 @@ function formatVerificationPrompt(prompt: string): string {
 }
 
 /**
- * Extracts the full AI response (excluding verification_prompt) for comparison.
- * Returns the complete response JSON as a string so CCH can compare against our full analysis.
+ * Converts our AI response JSON into a human-readable text format for comparison.
+ * This makes it easier for the comparison LLM to understand and compare against CCH's response.
  */
 function extractOurAnswer(response: any): string {
   if (!response) return '';
 
-  // Create a deep copy and remove the verification_prompt field
-  const responseCopy = JSON.parse(JSON.stringify(response));
+  const data = response.data || response;
+  const properties = data.properties || [];
 
-  // Remove verification_prompt from various possible locations
-  delete responseCopy.verification_prompt;
-  if (responseCopy.data) {
-    delete responseCopy.data.verification_prompt;
-    if (responseCopy.data.data) {
-      delete responseCopy.data.data.verification_prompt;
+  if (properties.length === 0) {
+    return 'No property analysis data available.';
+  }
+
+  const lines: string[] = [];
+
+  // Add query/question if available
+  if (response.query) {
+    lines.push('QUERY:');
+    lines.push(response.query);
+    lines.push('');
+  }
+
+  // Add timeline understanding if available
+  if (data.timeline_understanding) {
+    lines.push('TIMELINE UNDERSTANDING:');
+    lines.push(data.timeline_understanding);
+    lines.push('');
+  }
+
+  // Process each property
+  for (const property of properties) {
+    lines.push('='.repeat(60));
+    lines.push(`PROPERTY: ${property.property_address || 'Unknown Address'}`);
+    lines.push('='.repeat(60));
+    lines.push('');
+
+    // Timeline of Events
+    if (property.timeline && property.timeline.length > 0) {
+      lines.push('TIMELINE OF EVENTS:');
+      lines.push('-'.repeat(40));
+      for (const event of property.timeline) {
+        lines.push(`• ${event.date}: ${event.event} - ${event.details}`);
+      }
+      lines.push('');
+    }
+
+    // Ownership Periods
+    if (property.ownership_periods && property.ownership_periods.length > 0) {
+      lines.push('OWNERSHIP PERIOD CLASSIFICATIONS:');
+      lines.push('-'.repeat(40));
+      for (const period of property.ownership_periods) {
+        const percentage = period.percentage ? ` (${period.percentage}%)` : '';
+        lines.push(`• ${period.period_type}: ${period.start_date} to ${period.end_date} = ${period.days} days${percentage}`);
+        if (period.note) {
+          lines.push(`  Reference: ${period.note}`);
+        }
+      }
+      lines.push('');
+    }
+
+    // Cost Base Items
+    if (property.cost_base_items && property.cost_base_items.length > 0) {
+      lines.push('COST BASE BREAKDOWN:');
+      lines.push('-'.repeat(40));
+      for (const item of property.cost_base_items) {
+        const amount = parseFloat(item.amount).toLocaleString('en-AU', { style: 'currency', currency: 'AUD' });
+        lines.push(`• ${item.description}: ${amount}`);
+      }
+      if (property.total_cost_base) {
+        const total = parseFloat(property.total_cost_base).toLocaleString('en-AU', { style: 'currency', currency: 'AUD' });
+        lines.push(`TOTAL COST BASE: ${total}`);
+      }
+      lines.push('');
+    }
+
+    // Calculation Steps
+    if (property.calculation_steps && property.calculation_steps.length > 0) {
+      lines.push('STEP-BY-STEP CALCULATION:');
+      lines.push('-'.repeat(40));
+      for (const step of property.calculation_steps) {
+        lines.push(`Step ${step.step_number}: ${step.title}`);
+        lines.push(`  ${step.description}`);
+        if (step.calculation) {
+          lines.push(`  Calculation: ${step.calculation}`);
+        }
+        lines.push(`  Result: ${step.result}`);
+        lines.push('');
+      }
+    }
+
+    // Calculation Summary
+    if (property.calculation_summary) {
+      const summary = property.calculation_summary;
+      lines.push('CALCULATION SUMMARY:');
+      lines.push('-'.repeat(40));
+
+      if (summary.sale_price) {
+        lines.push(`Sale Price: ${parseFloat(summary.sale_price).toLocaleString('en-AU', { style: 'currency', currency: 'AUD' })}`);
+      }
+      if (summary.total_cost_base) {
+        lines.push(`Total Cost Base: ${parseFloat(summary.total_cost_base).toLocaleString('en-AU', { style: 'currency', currency: 'AUD' })}`);
+      }
+      if (summary.gross_capital_gain) {
+        lines.push(`Gross Capital Gain: ${parseFloat(summary.gross_capital_gain).toLocaleString('en-AU', { style: 'currency', currency: 'AUD' })}`);
+      }
+      if (summary.main_residence_exemption_percentage) {
+        lines.push(`Main Residence Exemption: ${summary.main_residence_exemption_percentage}%`);
+      }
+      if (summary.main_residence_exemption_amount) {
+        lines.push(`Exempt Amount: ${parseFloat(summary.main_residence_exemption_amount).toLocaleString('en-AU', { style: 'currency', currency: 'AUD' })}`);
+      }
+      if (summary.taxable_capital_gain) {
+        lines.push(`Taxable Capital Gain: ${parseFloat(summary.taxable_capital_gain).toLocaleString('en-AU', { style: 'currency', currency: 'AUD' })}`);
+      }
+      if (summary.cgt_discount_applicable) {
+        lines.push(`CGT Discount: ${summary.cgt_discount_percentage}% (held > 12 months)`);
+      }
+      if (summary.cgt_discount_amount) {
+        lines.push(`Discount Amount: ${parseFloat(summary.cgt_discount_amount).toLocaleString('en-AU', { style: 'currency', currency: 'AUD' })}`);
+      }
+      if (summary.net_capital_gain) {
+        lines.push(`NET CAPITAL GAIN: ${parseFloat(summary.net_capital_gain).toLocaleString('en-AU', { style: 'currency', currency: 'AUD' })}`);
+      }
+      lines.push('');
+    }
+
+    // Result
+    if (property.result) {
+      lines.push('FINAL RESULT:');
+      lines.push('-'.repeat(40));
+      lines.push(property.result);
+      lines.push('');
+    }
+
+    // Important Notes
+    if (property.important_notes && property.important_notes.length > 0) {
+      lines.push('IMPORTANT NOTES:');
+      lines.push('-'.repeat(40));
+      for (const note of property.important_notes) {
+        lines.push(`• ${note}`);
+      }
+      lines.push('');
     }
   }
 
-  // Return the full response as JSON string
-  return JSON.stringify(responseCopy, null, 2);
+  // Total summary across all properties
+  if (properties.length > 0) {
+    lines.push('='.repeat(60));
+    lines.push('PORTFOLIO SUMMARY');
+    lines.push('='.repeat(60));
+    if (data.total_net_capital_gain) {
+      lines.push(`Total Net Capital Gain: ${parseFloat(data.total_net_capital_gain).toLocaleString('en-AU', { style: 'currency', currency: 'AUD' })}`);
+    }
+    if (data.total_gross_gains) {
+      lines.push(`Total Gross Gains: ${parseFloat(data.total_gross_gains).toLocaleString('en-AU', { style: 'currency', currency: 'AUD' })}`);
+    }
+    if (data.properties_with_cgt !== undefined) {
+      lines.push(`Properties with CGT Payable: ${data.properties_with_cgt}`);
+    }
+    if (data.properties_fully_exempt !== undefined) {
+      lines.push(`Properties Fully Exempt: ${data.properties_fully_exempt}`);
+    }
+  }
+
+  // Sources/References
+  if (response.sources?.references && response.sources.references.length > 0) {
+    lines.push('');
+    lines.push('REFERENCES:');
+    lines.push('-'.repeat(40));
+    for (const ref of response.sources.references) {
+      lines.push(`• ${ref.title} (${ref.source_document})`);
+    }
+  }
+
+  // Rules Summary
+  if (response.sources?.rules_summary) {
+    lines.push('');
+    lines.push('RULES APPLIED:');
+    lines.push('-'.repeat(40));
+    lines.push(response.sources.rules_summary);
+  }
+
+  return lines.join('\n');
 }
 
 export async function POST(request: NextRequest) {

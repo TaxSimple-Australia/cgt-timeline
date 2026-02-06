@@ -3,27 +3,15 @@ import { NextRequest, NextResponse } from 'next/server';
 const CCH_API_URL = 'https://cch.cgtbrain.com.au';
 
 /**
- * Formats the verification prompt by removing escape characters, line feeds,
- * and special characters to ensure it can be pasted cleanly into CCH chat.
+ * Prepares the verification prompt for sending to CCH.
+ * Sends the full prompt without aggressive formatting to preserve all content.
  */
 function formatVerificationPrompt(prompt: string): string {
   if (!prompt) return '';
 
+  // Only do minimal cleanup - preserve the full content
   return prompt
-    // Remove literal \n and \r escape sequences
-    .replace(/\\n/g, ' ')
-    .replace(/\\r/g, ' ')
-    // Replace actual newlines with spaces
-    .replace(/\r\n/g, ' ')
-    .replace(/\r/g, ' ')
-    .replace(/\n/g, ' ')
-    // Replace tabs with spaces
-    .replace(/\t/g, ' ')
-    // Remove markdown headers but keep the text
-    .replace(/#{1,6}\s*/g, '')
-    // Replace multiple spaces with single space
-    .replace(/\s+/g, ' ')
-    // Remove leading/trailing whitespace
+    // Remove leading/trailing whitespace only
     .trim();
 }
 

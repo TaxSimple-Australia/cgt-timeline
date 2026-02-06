@@ -8,21 +8,13 @@ interface CCHVerifyButtonProps {
 }
 
 /**
- * Formats the verification prompt by removing escape characters, line feeds,
- * and special characters to ensure it can be pasted cleanly into CCH chat.
+ * Prepares the verification prompt for sending to CCH.
+ * Sends the full prompt without aggressive formatting to preserve all content.
  */
 function formatVerificationPrompt(prompt: string): string {
   if (!prompt) return '';
-  return prompt
-    .replace(/\\n/g, ' ')
-    .replace(/\\r/g, ' ')
-    .replace(/\r\n/g, ' ')
-    .replace(/\r/g, ' ')
-    .replace(/\n/g, ' ')
-    .replace(/\t/g, ' ')
-    .replace(/#{1,6}\s*/g, '')
-    .replace(/\s+/g, ' ')
-    .trim();
+  // Only do minimal cleanup - preserve the full content
+  return prompt.trim();
 }
 
 /**

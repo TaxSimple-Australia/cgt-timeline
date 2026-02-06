@@ -19,6 +19,7 @@ import FollowUpChatWindow from './FollowUpChatWindow';
 import { AnalysisData, Citations } from '@/types/model-response';
 import { AnalysisStickyNotesLayer, AddStickyNoteButton, ShareLinkButton } from '../sticky-notes';
 import { SendToTaxAgentButton } from '../send-to-agent';
+import CCHVerifyButton from './CCHVerifyButton';
 import TimelineSummaryTable from './TimelineSummaryTable';
 import OwnershipPeriodsTable from './OwnershipPeriodsTable';
 import PropertyTimelineTable from './PropertyTimelineTable';
@@ -282,6 +283,9 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
         <div className="flex items-center justify-between gap-4">
           <DisplayModeToggle />
           <div className="flex items-center gap-2">
+            {/* CCH Verify Button */}
+            <CCHVerifyButton response={response} />
+
             {/* Share Link Button */}
             <ShareLinkButton variant="analysis" includeAnalysis={true} />
 
@@ -427,6 +431,9 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
                 Follow-up
               </button>
             )}
+
+            {/* CCH Verify Button */}
+            <CCHVerifyButton response={response} />
 
             {/* Share Link Button */}
             <ShareLinkButton variant="analysis" includeAnalysis={true} />
@@ -733,6 +740,9 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
                 Follow-up
               </button>
             )}
+
+            {/* CCH Verify Button */}
+            <CCHVerifyButton response={response} />
 
             {/* Share Link Button */}
             <ShareLinkButton variant="analysis" includeAnalysis={true} />
@@ -1590,6 +1600,9 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
         <div className="flex items-center justify-between gap-4">
           <DisplayModeToggle />
           <div className="flex items-center gap-2">
+            {/* CCH Verify Button */}
+            <CCHVerifyButton response={response} />
+
             {/* Share Link Button */}
             <ShareLinkButton variant="analysis" includeAnalysis={true} />
 
@@ -1785,6 +1798,9 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
       <div className="flex items-center justify-between gap-4">
         <DisplayModeToggle />
         <div className="flex items-center gap-2">
+          {/* CCH Verify Button */}
+          <CCHVerifyButton response={response} />
+
           {/* Share Link Button */}
           <ShareLinkButton variant="analysis" includeAnalysis={true} />
 

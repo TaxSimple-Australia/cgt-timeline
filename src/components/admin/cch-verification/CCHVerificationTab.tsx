@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { RefreshCw, AlertCircle, CheckCircle, FileJson, Copy, Download, Clock, Loader2 } from 'lucide-react';
 import VerificationResults from './VerificationResults';
 import ComparisonView from './ComparisonView';
@@ -52,31 +52,14 @@ interface CCHVerificationTabProps {
   analysisLoading?: boolean;
   // The LLM provider being used for analysis
   llmProvider?: string;
-}
-
-/**
- * Formats the verification prompt by removing escape characters, line feeds,
- * and special characters to ensure it can be pasted cleanly into CCH chat.
- */
-function formatVerificationPrompt(prompt: string): string {
-  if (!prompt) return '';
-
-  return prompt
-    // Remove literal \n and \r escape sequences
-    .replace(/\\n/g, ' ')
-    .replace(/\\r/g, ' ')
-    // Replace actual newlines with spaces
-    .replace(/\r\n/g, ' ')
-    .replace(/\r/g, ' ')
-    .replace(/\n/g, ' ')
-    // Replace tabs with spaces
-    .replace(/\t/g, ' ')
-    // Remove markdown headers but keep the text
-    .replace(/#{1,6}\s*/g, '')
-    // Replace multiple spaces with single space
-    .replace(/\s+/g, ' ')
-    // Remove leading/trailing whitespace
-    .trim();
+  // CCH verification result (passed from parent)
+  cchResult?: VerifyResponse | null;
+  // Whether CCH verification is loading
+  cchLoading?: boolean;
+  // CCH verification error
+  cchError?: string | null;
+  // Callback to retry CCH verification
+  onRetry?: () => void;
 }
 
 /**
@@ -102,14 +85,16 @@ function extractOurAnswer(response: any): string {
   return JSON.stringify(responseCopy, null, 2);
 }
 
-export default function CCHVerificationTab({ aiResponse, analysisLoading, llmProvider }: CCHVerificationTabProps) {
-  const [isLoading, setIsLoading] = useState(false);
-  const [loadingMessage, setLoadingMessage] = useState('');
-  const [error, setError] = useState<string | null>(null);
-  const [result, setResult] = useState<VerifyResponse | null>(null);
+export default function CCHVerificationTab({
+  aiResponse,
+  analysisLoading,
+  llmProvider,
+  cchResult,
+  cchLoading,
+  cchError,
+  onRetry
+}: CCHVerificationTabProps) {
   const [showRawJSON, setShowRawJSON] = useState(false);
-  const [hasVerificationPrompt, setHasVerificationPrompt] = useState(false);
-  const [verificationStarted, setVerificationStarted] = useState(false);
 
   // Extract verification prompt from AI response
   const getVerificationPrompt = useCallback((response: any): string => {
@@ -120,80 +105,15 @@ export default function CCHVerificationTab({ aiResponse, analysisLoading, llmPro
            '';
   }, []);
 
-  // Run verification with CCH API
-  const runVerification = useCallback(async (response: any, verificationPrompt: string) => {
-    setIsLoading(true);
-    setError(null);
-    setLoadingMessage('Sending to CCH iKnowConnect...');
-    setVerificationStarted(true);
-
-    try {
-      // Format the verification prompt (remove escape chars, line feeds, etc.)
-      const formattedPrompt = formatVerificationPrompt(verificationPrompt);
-      const ourAnswer = extractOurAnswer(response);
-
-      console.log('📤 CCH Verification - Formatted prompt length:', formattedPrompt.length);
-      console.log('📤 CCH Verification - Our answer length:', ourAnswer.length);
-
-      // Update loading message after delay
-      const loadingInterval = setInterval(() => {
-        setLoadingMessage(prev => {
-          if (prev.includes('CCH iKnowConnect')) return 'Waiting for CCH response (this may take 1-2 minutes)...';
-          if (prev.includes('1-2 minutes')) return 'Analyzing responses with GPT-4o...';
-          return 'Finalizing comparison...';
-        });
-      }, 20000);
-
-      const apiResponse = await fetch('/api/cch/verify-and-compare', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          scenario: formattedPrompt,
-          our_answer: ourAnswer,
-          ai_response: response
-        })
-      });
-
-      clearInterval(loadingInterval);
-
-      const data = await apiResponse.json();
-
-      if (!apiResponse.ok || !data.success) {
-        throw new Error(data.error || 'CCH verification failed');
-      }
-
-      console.log('✅ CCH Verification completed successfully');
-      setResult(data);
-    } catch (err) {
-      console.error('❌ CCH Verification error:', err);
-      setError(err instanceof Error ? err.message : 'Unknown error occurred');
-    } finally {
-      setIsLoading(false);
-      setLoadingMessage('');
-    }
-  }, []);
-
-  // Auto-verify when AI response with verification_prompt is provided
-  useEffect(() => {
-    const verificationPrompt = getVerificationPrompt(aiResponse);
-    setHasVerificationPrompt(!!verificationPrompt);
-
-    // Auto-start verification if we have a verification prompt and haven't started yet
-    if (verificationPrompt && !verificationStarted && !result && !isLoading) {
-      console.log('🔄 Auto-starting CCH verification...');
-      runVerification(aiResponse, verificationPrompt);
-    }
-  }, [aiResponse, getVerificationPrompt, runVerification, verificationStarted, result, isLoading]);
+  // Use props from parent (AdminPage manages the CCH verification)
+  const result = cchResult || null;
+  const isLoading = cchLoading || false;
+  const error = cchError || null;
+  const hasVerificationPrompt = !!getVerificationPrompt(aiResponse);
 
   const handleRetry = () => {
-    if (aiResponse) {
-      const verificationPrompt = getVerificationPrompt(aiResponse);
-      if (verificationPrompt) {
-        setResult(null);
-        setError(null);
-        setVerificationStarted(false);
-        runVerification(aiResponse, verificationPrompt);
-      }
+    if (onRetry) {
+      onRetry();
     }
   };
 
@@ -341,7 +261,7 @@ export default function CCHVerificationTab({ aiResponse, analysisLoading, llmPro
       {isLoading && (
         <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-8 text-center">
           <Loader2 className="w-12 h-12 text-blue-600 dark:text-blue-400 mx-auto mb-4 animate-spin" />
-          <p className="text-blue-700 dark:text-blue-300 font-medium text-lg">{loadingMessage}</p>
+          <p className="text-blue-700 dark:text-blue-300 font-medium text-lg">Verifying with CCH iKnowConnect...</p>
           <p className="text-blue-600 dark:text-blue-400 text-sm mt-2">
             This process typically takes 60-120 seconds as it queries CCH and analyzes both responses.
           </p>

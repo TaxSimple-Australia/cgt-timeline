@@ -115,6 +115,87 @@ export default function AdminPage({ apiUrl, onLogout, onBack }: AdminPageProps) 
   const [fullAIResponse, setFullAIResponse] = useState<any>(null);
   const [verificationPrompt, setVerificationPrompt] = useState<string>('');
 
+  // CCH Verification state
+  const [cchLoading, setCchLoading] = useState(false);
+  const [cchResult, setCchResult] = useState<any>(null);
+  const [cchError, setCchError] = useState<string | null>(null);
+
+  /**
+   * Formats the verification prompt by removing escape characters, line feeds,
+   * and special characters to ensure it can be pasted cleanly into CCH chat.
+   */
+  const formatVerificationPrompt = (prompt: string): string => {
+    if (!prompt) return '';
+    return prompt
+      .replace(/\\n/g, ' ')
+      .replace(/\\r/g, ' ')
+      .replace(/\r\n/g, ' ')
+      .replace(/\r/g, ' ')
+      .replace(/\n/g, ' ')
+      .replace(/\t/g, ' ')
+      .replace(/#{1,6}\s*/g, '')
+      .replace(/\s+/g, ' ')
+      .trim();
+  };
+
+  /**
+   * Extracts the full AI response (excluding verification_prompt) for comparison.
+   */
+  const extractOurAnswer = (response: any): string => {
+    if (!response) return '';
+    const responseCopy = JSON.parse(JSON.stringify(response));
+    delete responseCopy.verification_prompt;
+    if (responseCopy.data) {
+      delete responseCopy.data.verification_prompt;
+      if (responseCopy.data.data) {
+        delete responseCopy.data.data.verification_prompt;
+      }
+    }
+    return JSON.stringify(responseCopy, null, 2);
+  };
+
+  /**
+   * Run CCH verification automatically after CGT analysis completes
+   */
+  const runCCHVerification = async (aiResponse: any, verificationPromptRaw: string) => {
+    setCchLoading(true);
+    setCchError(null);
+    setCchResult(null);
+
+    try {
+      const formattedPrompt = formatVerificationPrompt(verificationPromptRaw);
+      const ourAnswer = extractOurAnswer(aiResponse);
+
+      console.log('📤 CCH Verification - Starting automatic verification...');
+      console.log('📤 CCH Verification - Formatted prompt length:', formattedPrompt.length);
+      console.log('📤 CCH Verification - Our answer length:', ourAnswer.length);
+
+      const apiResponse = await fetch('/api/cch/verify-and-compare', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          scenario: formattedPrompt,
+          our_answer: ourAnswer,
+          ai_response: aiResponse
+        })
+      });
+
+      const data = await apiResponse.json();
+
+      if (!apiResponse.ok || !data.success) {
+        throw new Error(data.error || 'CCH verification failed');
+      }
+
+      console.log('✅ CCH Verification completed successfully');
+      setCchResult(data);
+    } catch (err) {
+      console.error('❌ CCH Verification error:', err);
+      setCchError(err instanceof Error ? err.message : 'Unknown error occurred');
+    } finally {
+      setCchLoading(false);
+    }
+  };
+
   // Clarification state
   const [needsClarification, setNeedsClarification] = useState(false);
   const [clarificationQuestions, setClarificationQuestions] = useState<ClarificationQuestion[]>([]);
@@ -165,6 +246,12 @@ export default function AdminPage({ apiUrl, onLogout, onBack }: AdminPageProps) 
         // Extract verification prompt if available
         const vPrompt = (data as any).verification_prompt || '';
         setVerificationPrompt(vPrompt);
+
+        // Auto-trigger CCH verification if verification_prompt exists
+        if (vPrompt) {
+          console.log('🔄 Auto-triggering CCH verification with verification_prompt...');
+          runCCHVerification(data, vPrompt);
+        }
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unknown error');
@@ -208,6 +295,10 @@ export default function AdminPage({ apiUrl, onLogout, onBack }: AdminPageProps) 
     setVerificationResponses([]);
     setFullAIResponse(null);
     setVerificationPrompt('');
+    // Reset CCH verification state
+    setCchLoading(false);
+    setCchResult(null);
+    setCchError(null);
   };
 
   const adminUser = typeof window !== 'undefined' ? sessionStorage.getItem('cgt_admin_user') : null;
@@ -557,6 +648,14 @@ export default function AdminPage({ apiUrl, onLogout, onBack }: AdminPageProps) 
             aiResponse={fullAIResponse}
             analysisLoading={loading}
             llmProvider={llmProvider}
+            cchResult={cchResult}
+            cchLoading={cchLoading}
+            cchError={cchError}
+            onRetry={() => {
+              if (fullAIResponse && verificationPrompt) {
+                runCCHVerification(fullAIResponse, verificationPrompt);
+              }
+            }}
           />
         )}
       </main>

@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "generatedAt": "2026-02-03T21:12:14.303Z",
+  "generatedAt": "2026-02-06T09:24:58.740Z",
   "totalScenarios": 82,
   "categories": {
     "Core Concepts": 10,
@@ -1083,7 +1083,7 @@
               }
             ],
             "notes": "ppr - Current main residence. Overlap with Property 1 sale within 6-month window.",
-            "holdingYears": 1.8
+            "holdingYears": 1.9
           }
         ],
         "financialSummary": {
@@ -7430,7 +7430,7 @@
               }
             ],
             "notes": "Original investment property - retained Lot 100 with existing house (still rented).",
-            "holdingYears": 10.5
+            "holdingYears": 10.6
           },
           {
             "address": "15A Riverside Crescent, Bulimba QLD 4171",

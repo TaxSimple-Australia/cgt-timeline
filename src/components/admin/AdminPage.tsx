@@ -1,11 +1,12 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { ArrowLeft, BarChart3, ClipboardList, Calculator, LogOut, Shield, Users } from 'lucide-react';
+import { ArrowLeft, BarChart3, ClipboardList, Calculator, LogOut, Shield, Users, ShieldCheck } from 'lucide-react';
 import ChatPanel from './ChatPanel';
 import AnnotationPanel from './AnnotationPanel';
 import AccuracyDashboard from './AccuracyDashboard';
 import TaxAgentManagement from './TaxAgentManagement';
+import { CCHVerificationTab } from './cch-verification';
 
 // LLM Providers for CGT Analysis
 const LLM_PROVIDERS = [
@@ -86,7 +87,7 @@ const SAMPLE_PAYLOAD = {
   llm_provider: 'deepseek'
 };
 
-type TabType = 'analysis' | 'annotation' | 'dashboard' | 'agents';
+type TabType = 'analysis' | 'annotation' | 'dashboard' | 'agents' | 'cch-verification';
 
 interface AdminPageProps {
   apiUrl: string;
@@ -109,6 +110,10 @@ export default function AdminPage({ apiUrl, onLogout, onBack }: AdminPageProps) 
 
   // Session state for follow-up questions
   const [sessionId, setSessionId] = useState<string | null>(null);
+
+  // Full AI response for CCH verification
+  const [fullAIResponse, setFullAIResponse] = useState<any>(null);
+  const [verificationPrompt, setVerificationPrompt] = useState<string>('');
 
   // Clarification state
   const [needsClarification, setNeedsClarification] = useState(false);
@@ -155,6 +160,11 @@ export default function AdminPage({ apiUrl, onLogout, onBack }: AdminPageProps) 
         setLlmUsed(data.llm_used);
         setSessionId(data.session_id);
         setVerificationResponses([]);
+        // Store full response for CCH verification
+        setFullAIResponse(data);
+        // Extract verification prompt if available
+        const vPrompt = (data as any).verification_prompt || '';
+        setVerificationPrompt(vPrompt);
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unknown error');
@@ -196,6 +206,8 @@ export default function AdminPage({ apiUrl, onLogout, onBack }: AdminPageProps) 
     setClarificationQuestions([]);
     setClarificationAnswers({});
     setVerificationResponses([]);
+    setFullAIResponse(null);
+    setVerificationPrompt('');
   };
 
   const adminUser = typeof window !== 'undefined' ? sessionStorage.getItem('cgt_admin_user') : null;
@@ -286,6 +298,17 @@ export default function AdminPage({ apiUrl, onLogout, onBack }: AdminPageProps) 
             >
               <Users className="w-4 h-4" />
               Tax Agent Management
+            </button>
+            <button
+              onClick={() => setActiveTab('cch-verification')}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm transition-colors whitespace-nowrap ${
+                activeTab === 'cch-verification'
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-300 dark:hover:bg-slate-600'
+              }`}
+            >
+              <ShieldCheck className="w-4 h-4" />
+              CCH Verification
             </button>
             <button
               onClick={() => setActiveTab('analysis')}
@@ -526,6 +549,14 @@ export default function AdminPage({ apiUrl, onLogout, onBack }: AdminPageProps) 
         {/* Tax Agent Management Tab */}
         {activeTab === 'agents' && (
           <TaxAgentManagement adminCredentials={adminCredentials} />
+        )}
+
+        {/* CCH Verification Tab */}
+        {activeTab === 'cch-verification' && (
+          <CCHVerificationTab
+            aiResponse={fullAIResponse}
+            verificationPrompt={verificationPrompt}
+          />
         )}
       </main>
     </div>

@@ -107,6 +107,14 @@ function HomeContent() {
    * Automatically run CCH verification after successful CGT analysis
    */
   const runAutoCCHVerification = async (response: any) => {
+    // Store the AI response in sessionStorage so CCH tab can access it
+    try {
+      sessionStorage.setItem('cgt_ai_response', JSON.stringify(response));
+      console.log('💾 Stored AI response in sessionStorage');
+    } catch (e) {
+      console.error('Error storing AI response:', e);
+    }
+
     // Extract verification_prompt from various response structures
     const verificationPrompt = response?.verification_prompt ||
                                response?.data?.verification_prompt ||

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { RefreshCw, AlertCircle, CheckCircle, FileJson, Copy, Download, Clock, Loader2, Play } from 'lucide-react';
 import VerificationResults from './VerificationResults';
 import ComparisonView from './ComparisonView';
@@ -95,6 +95,49 @@ export default function CCHVerificationTab({
   onRetry
 }: CCHVerificationTabProps) {
   const [showRawJSON, setShowRawJSON] = useState(false);
+  // Local state to store results from sessionStorage (for when analysis runs from main app)
+  const [storedResult, setStoredResult] = useState<VerifyResponse | null>(null);
+  const [storedAIResponse, setStoredAIResponse] = useState<any>(null);
+
+  // Load CCH verification result from sessionStorage on mount and when tab is focused
+  useEffect(() => {
+    const loadFromStorage = () => {
+      try {
+        // Load CCH result
+        const storedCCHResult = sessionStorage.getItem('cch_verification_result');
+        if (storedCCHResult) {
+          const parsed = JSON.parse(storedCCHResult);
+          setStoredResult(parsed);
+          console.log('📥 Loaded CCH result from sessionStorage');
+        }
+
+        // Load AI response (if stored by main app)
+        const storedAI = sessionStorage.getItem('cgt_ai_response');
+        if (storedAI) {
+          const parsed = JSON.parse(storedAI);
+          setStoredAIResponse(parsed);
+          console.log('📥 Loaded AI response from sessionStorage');
+        }
+      } catch (e) {
+        console.error('Error loading from sessionStorage:', e);
+      }
+    };
+
+    // Load on mount
+    loadFromStorage();
+
+    // Also reload when window gains focus (in case user ran analysis in another tab)
+    const handleFocus = () => loadFromStorage();
+    window.addEventListener('focus', handleFocus);
+
+    // Poll for updates every 2 seconds while on this tab
+    const interval = setInterval(loadFromStorage, 2000);
+
+    return () => {
+      window.removeEventListener('focus', handleFocus);
+      clearInterval(interval);
+    };
+  }, []);
 
   // Extract verification prompt from AI response
   const getVerificationPrompt = useCallback((response: any): string => {
@@ -105,11 +148,12 @@ export default function CCHVerificationTab({
            '';
   }, []);
 
-  // Use props from parent (AdminPage manages the CCH verification)
-  const result = cchResult || null;
+  // Use props from parent first, fall back to sessionStorage
+  const effectiveAIResponse = aiResponse || storedAIResponse;
+  const result = cchResult || storedResult || null;
   const isLoading = cchLoading || false;
   const error = cchError || null;
-  const hasVerificationPrompt = !!getVerificationPrompt(aiResponse);
+  const hasVerificationPrompt = !!getVerificationPrompt(effectiveAIResponse);
 
   const handleRetry = () => {
     if (onRetry) {
@@ -154,8 +198,8 @@ export default function CCHVerificationTab({
     );
   }
 
-  // No AI response yet
-  if (!aiResponse) {
+  // No AI response yet - but check if we have stored CCH result
+  if (!effectiveAIResponse && !result) {
     return (
       <div className="bg-white dark:bg-slate-800 rounded-lg shadow-md border border-slate-200 dark:border-slate-700 p-8">
         <div className="text-center">
@@ -305,7 +349,7 @@ export default function CCHVerificationTab({
       {result && !showRawJSON && (
         <>
           <VerificationResults result={result} />
-          <ComparisonView result={result} ourAnswer={extractOurAnswer(aiResponse)} />
+          <ComparisonView result={result} ourAnswer={extractOurAnswer(effectiveAIResponse)} />
           <AnalysisSummary result={result} />
 
           {/* Re-verify button */}

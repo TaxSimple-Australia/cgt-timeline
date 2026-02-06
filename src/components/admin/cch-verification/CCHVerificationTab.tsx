@@ -15,10 +15,9 @@ import {
   FileText,
   History,
   X,
+  Eye,
 } from 'lucide-react';
-import VerificationResults from './VerificationResults';
-import ComparisonView from './ComparisonView';
-import AnalysisSummary from './AnalysisSummary';
+import VerificationDetailModal from './VerificationDetailModal';
 import type { CGTReportSummary, VerificationRecord } from '@/types/cgt-report';
 
 interface CCHVerificationTabProps {
@@ -41,6 +40,12 @@ interface ReportWithVerificationState extends CGTReportSummary {
   loadingHistory?: boolean;
 }
 
+interface DetailModalState {
+  isOpen: boolean;
+  verification: VerificationRecord | null;
+  propertyAddress: string;
+}
+
 export default function CCHVerificationTab({
   aiResponse,
   analysisLoading,
@@ -59,6 +64,13 @@ export default function CCHVerificationTab({
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [total, setTotal] = useState(0);
+
+  // Detail modal state
+  const [detailModal, setDetailModal] = useState<DetailModalState>({
+    isOpen: false,
+    verification: null,
+    propertyAddress: '',
+  });
 
   // Get admin credentials from sessionStorage
   const getCredentials = useCallback(() => {
@@ -243,6 +255,24 @@ export default function CCHVerificationTab({
         r.id === reportId ? { ...r, showHistory: true } : r
       ));
     }
+  };
+
+  // Open detail modal for a verification
+  const openDetailModal = (verification: VerificationRecord, propertyAddress: string) => {
+    setDetailModal({
+      isOpen: true,
+      verification,
+      propertyAddress,
+    });
+  };
+
+  // Close detail modal
+  const closeDetailModal = () => {
+    setDetailModal({
+      isOpen: false,
+      verification: null,
+      propertyAddress: '',
+    });
   };
 
   const formatDate = (isoDate: string) => {
@@ -453,12 +483,21 @@ export default function CCHVerificationTab({
                       <h4 className="text-sm font-semibold text-slate-700 dark:text-slate-300">
                         Verification Result - {new Date(report.expandedVerification.verifiedAt).toLocaleString()}
                       </h4>
-                      <button
-                        onClick={() => toggleExpandedVerification(report.id)}
-                        className="p-1 hover:bg-slate-200 dark:hover:bg-slate-700 rounded"
-                      >
-                        <X className="w-4 h-4 text-slate-400" />
-                      </button>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => openDetailModal(report.expandedVerification!, report.primaryPropertyAddress || 'Unknown Property')}
+                          className="flex items-center gap-1.5 px-3 py-1.5 text-sm bg-blue-500/10 hover:bg-blue-500/20 text-blue-600 dark:text-blue-400 rounded-lg transition-colors"
+                        >
+                          <Eye className="w-4 h-4" />
+                          View Full Details
+                        </button>
+                        <button
+                          onClick={() => toggleExpandedVerification(report.id)}
+                          className="p-1 hover:bg-slate-200 dark:hover:bg-slate-700 rounded"
+                        >
+                          <X className="w-4 h-4 text-slate-400" />
+                        </button>
+                      </div>
                     </div>
 
                     {report.expandedVerification.comparison ? (
@@ -596,16 +635,18 @@ export default function CCHVerificationTab({
                     ) : report.verificationHistory && report.verificationHistory.length > 0 ? (
                       <div className="space-y-2">
                         {report.verificationHistory.map((verif) => (
-                          <button
+                          <div
                             key={verif.id}
-                            onClick={() => toggleExpandedVerification(report.id, verif)}
-                            className={`w-full flex items-center justify-between p-3 rounded-lg border transition-colors ${
+                            className={`flex items-center justify-between p-3 rounded-lg border transition-colors ${
                               report.expandedVerification?.id === verif.id
                                 ? 'bg-blue-500/10 border-blue-500/30'
-                                : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 hover:border-blue-500/30'
+                                : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700'
                             }`}
                           >
-                            <div className="flex items-center gap-3">
+                            <button
+                              onClick={() => toggleExpandedVerification(report.id, verif)}
+                              className="flex items-center gap-3 flex-1"
+                            >
                               {verif.status === 'success' ? (
                                 <CheckCircle className="w-4 h-4 text-green-500" />
                               ) : (
@@ -614,13 +655,20 @@ export default function CCHVerificationTab({
                               <span className="text-sm text-slate-700 dark:text-slate-300">
                                 {new Date(verif.verifiedAt).toLocaleString()}
                               </span>
-                            </div>
-                            {verif.comparison && (
-                              <span className={`px-2 py-0.5 text-xs rounded border ${getAlignmentColor(verif.comparison.overallAlignment)}`}>
-                                {verif.comparison.matchPercentage}%
-                              </span>
-                            )}
-                          </button>
+                              {verif.comparison && (
+                                <span className={`px-2 py-0.5 text-xs rounded border ${getAlignmentColor(verif.comparison.overallAlignment)}`}>
+                                  {verif.comparison.matchPercentage}%
+                                </span>
+                              )}
+                            </button>
+                            <button
+                              onClick={() => openDetailModal(verif, report.primaryPropertyAddress || 'Unknown Property')}
+                              className="flex items-center gap-1 px-2 py-1 text-xs bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-600 dark:text-slate-400 rounded transition-colors"
+                            >
+                              <Eye className="w-3 h-3" />
+                              Details
+                            </button>
+                          </div>
                         ))}
                       </div>
                     ) : (
@@ -658,6 +706,17 @@ export default function CCHVerificationTab({
           </button>
         </div>
       )}
+
+      {/* Verification Detail Modal */}
+      <AnimatePresence>
+        {detailModal.isOpen && detailModal.verification && (
+          <VerificationDetailModal
+            verification={detailModal.verification}
+            propertyAddress={detailModal.propertyAddress}
+            onClose={closeDetailModal}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }

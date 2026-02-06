@@ -31,15 +31,40 @@ function formatVerificationPrompt(prompt: string): string {
 
 /**
  * Converts AI response JSON into human-readable text format for comparison.
+ * Handles multiple response structures from different API versions.
  */
 function extractOurAnswer(response: any): string {
   if (!response) return '';
 
-  const data = response.data || response;
+  // Debug logging to understand structure
+  console.log('📊 Extracting answer from response structure:', {
+    hasData: !!response.data,
+    hasProperties: !!response.properties,
+    hasDataProperties: !!response.data?.properties,
+    topLevelKeys: Object.keys(response).slice(0, 10),
+  });
+
+  // Handle different response structures:
+  // 1. { data: { properties: [...] } } - wrapped response
+  // 2. { properties: [...] } - direct response
+  // 3. { success: true, data: { properties: [...] } } - API wrapper
+  let data = response;
+
+  if (response.data && typeof response.data === 'object') {
+    data = response.data;
+  }
+
+  // Check for nested data.data (double wrapped)
+  if (data.data && typeof data.data === 'object' && data.data.properties) {
+    data = data.data;
+  }
+
   const properties = data.properties || [];
 
   if (properties.length === 0) {
-    return 'No property analysis data available.';
+    // If no properties found, include the full JSON as fallback
+    console.log('⚠️ No properties array found, including full JSON');
+    return `FULL AI RESPONSE (JSON):\n${JSON.stringify(response, null, 2)}`;
   }
 
   const lines: string[] = [];

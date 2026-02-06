@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useCallback } from 'react';
-import { RefreshCw, AlertCircle, CheckCircle, FileJson, Copy, Download, Clock, Loader2 } from 'lucide-react';
+import { RefreshCw, AlertCircle, CheckCircle, FileJson, Copy, Download, Clock, Loader2, Play } from 'lucide-react';
 import VerificationResults from './VerificationResults';
 import ComparisonView from './ComparisonView';
 import AnalysisSummary from './AnalysisSummary';
@@ -253,6 +253,29 @@ export default function CCHVerificationTab({
             <span className="text-green-700 dark:text-green-300 text-sm">
               Verification completed at {new Date(result.verified_at).toLocaleString()}
             </span>
+          </div>
+        )}
+
+        {/* Manual Trigger Button - Show when no result and not loading */}
+        {!result && !isLoading && !error && (
+          <div className="mt-4 p-6 bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 border border-purple-200 dark:border-purple-800 rounded-lg">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div>
+                <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+                  Ready for CCH Verification
+                </h3>
+                <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
+                  A verification prompt is available. Click the button to send to CCH iKnowConnect for verification.
+                </p>
+              </div>
+              <button
+                onClick={handleRetry}
+                className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-medium rounded-lg shadow-lg hover:shadow-xl transition-all whitespace-nowrap"
+              >
+                <Play className="w-5 h-5" />
+                Start CCH Verification
+              </button>
+            </div>
           </div>
         )}
       </div>

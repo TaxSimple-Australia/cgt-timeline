@@ -28,46 +28,26 @@ function formatVerificationPrompt(prompt: string): string {
 }
 
 /**
- * Extracts the answer text from our AI response for comparison
+ * Extracts the full AI response (excluding verification_prompt) for comparison.
+ * Returns the complete response JSON as a string so CCH can compare against our full analysis.
  */
 function extractOurAnswer(response: any): string {
-  // Handle different response formats
   if (!response) return '';
 
-  // If there's a direct answer field
-  if (response.answer) return response.answer;
+  // Create a deep copy and remove the verification_prompt field
+  const responseCopy = JSON.parse(JSON.stringify(response));
 
-  // If there's analysis data with properties
-  const analysisData = response.data?.data || response.data || response;
-
-  if (analysisData?.properties && Array.isArray(analysisData.properties)) {
-    const parts: string[] = [];
-
-    for (const prop of analysisData.properties) {
-      parts.push(`Property: ${prop.property_address || 'Unknown'}`);
-
-      if (prop.calculation_summary) {
-        const summary = prop.calculation_summary;
-        parts.push(`Sale Price: ${summary.sale_price}`);
-        parts.push(`Total Cost Base: ${summary.total_cost_base}`);
-        parts.push(`Gross Capital Gain: ${summary.gross_capital_gain}`);
-        parts.push(`Main Residence Exemption: ${summary.main_residence_exemption_percentage}%`);
-        parts.push(`Taxable Capital Gain: ${summary.taxable_capital_gain}`);
-        if (summary.cgt_discount_applicable) {
-          parts.push(`CGT Discount: ${summary.cgt_discount_percentage}%`);
-        }
-        parts.push(`Net Capital Gain: ${summary.net_capital_gain}`);
-      }
-
-      if (prop.result) {
-        parts.push(`Result: ${prop.result}`);
-      }
+  // Remove verification_prompt from various possible locations
+  delete responseCopy.verification_prompt;
+  if (responseCopy.data) {
+    delete responseCopy.data.verification_prompt;
+    if (responseCopy.data.data) {
+      delete responseCopy.data.data.verification_prompt;
     }
-
-    return parts.join(' | ');
   }
 
-  return '';
+  // Return the full response as JSON string
+  return JSON.stringify(responseCopy, null, 2);
 }
 
 export async function POST(request: NextRequest) {
@@ -118,7 +98,7 @@ export async function POST(request: NextRequest) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        our_answer: formattedOurAnswer,
+        data: formattedOurAnswer,
         verification_prompt: formattedScenario,
         timeline: timeline || []
       }),

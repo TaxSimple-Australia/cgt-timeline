@@ -225,8 +225,8 @@ export function sanitizeDateForAPI(date: Date | string | undefined): string | un
     }
 
     // Format as YYYY-MM-DD (API requirement)
-    // Using toISOString and splitting to avoid timezone issues
-    return dateObj.toISOString().split('T')[0];
+    // Using date-fns format() which uses local timezone (toISOString converts to UTC and shifts dates in AEST)
+    return format(dateObj, 'yyyy-MM-dd');
   } catch (error) {
     console.error('📍 Date sanitization failed:', error, 'Input:', date);
     return undefined;

@@ -119,7 +119,7 @@ export async function POST(request: NextRequest) {
       },
       body: JSON.stringify({
         our_answer: formattedOurAnswer,
-        scenario: formattedScenario,
+        verification_prompt: formattedScenario,
         timeline: timeline || []
       }),
       // Set a long timeout since CCH can take 2+ minutes

@@ -1,0 +1,434 @@
+# Claude Code Prompt: Implement CCH Verification Tab on Admin Dashboard
+
+## Project Context
+
+I have a NextJS admin dashboard for CGT Brain (ai.cgtbrain.com.au) - an Australian Capital Gains Tax calculator. I need to add a new tab called "CCH Verification" that allows admins to verify our AI's CGT calculations against CCH iKnowConnect (a professional Australian tax research platform).
+
+## API Details
+
+### Base URL
+```
+https://cch.cgtbrain.com.au
+```
+
+### Primary Endpoint: Verify and Compare
+```
+POST /api/cch/verify-and-compare
+Content-Type: application/json
+```
+
+### Request Body Schema
+```typescript
+interface VerifyRequest {
+  // Our system's CGT calculation answer (the answer we want to verify)
+  our_answer: string;
+  
+  // The CGT scenario/question to ask CCH
+  scenario: string;
+  
+  // Property timeline events (optional but recommended)
+  timeline?: TimelineEvent[];
+}
+
+interface TimelineEvent {
+  date: string;        // e.g., "2010-03-15"
+  event: string;       // e.g., "Purchased property"
+  details?: string;    // Additional context
+}
+```
+
+### Response Schema
+```typescript
+interface VerifyResponse {
+  success: boolean;
+  
+  // Our original answer that was submitted
+  our_answer: string;
+  
+  // The scenario/question sent to CCH
+  scenario: string;
+  
+  // CCH's response
+  cch_response: {
+    text: string;           // Full text response from CCH AI
+    sources: CCHSource[];   // Reference sources cited
+    queried_at: string;     // ISO timestamp
+  };
+  
+  // GPT-4o comparison analysis
+  comparison: {
+    overall_alignment: "high" | "medium" | "low";
+    confidence_score: number;      // 0-100
+    match_percentage: number;      // 0-100
+    
+    // Individual verification checkboxes
+    checkboxes: {
+      scenario_match: boolean;     // Both address same scenario type
+      timeline_match: boolean;     // Timeline/dates are consistent
+      ownership_match: boolean;    // Ownership periods align
+      cost_base_match: boolean;    // Cost base calculations match
+      rules_match: boolean;        // Same CGT rules applied
+      calculation_match: boolean;  // Final calculations align
+    };
+    
+    // Extracted values for comparison
+    our_net_cgt: string | null;       // e.g., "$40,150.00"
+    external_net_cgt: string | null;  // CCH's calculated amount (if any)
+    calculation_difference: string | null;
+    
+    // Analysis details
+    key_differences: string[];      // List of identified differences
+    external_llm_errors: string[];  // Errors/gaps in CCH response
+    summary: string;                // Human-readable summary
+  };
+  
+  verified_at: string;  // ISO timestamp
+}
+
+interface CCHSource {
+  title: string;  // e.g., "Master Tax Guide | Discount capital gains [¶11-033]"
+  url: string;    // Link to CCH document
+}
+```
+
+### Additional Endpoints
+
+#### Health Check
+```
+GET /api/health
+Response: { status: "ok", browserReady: boolean, loggedIn: boolean }
+```
+
+#### Query CCH Only (no comparison)
+```
+POST /api/cch/query
+Body: { question: string }
+Response: { success: boolean, question: string, response: string, sources: CCHSource[] }
+```
+
+#### Quick Compare (compare two answers without CCH query)
+```
+POST /api/cch/quick-compare
+Body: { our_answer: string, external_answer: string, scenario: string }
+Response: { comparison: ComparisonResult }
+```
+
+## UI/UX Requirements
+
+### Tab Structure
+Create a new tab called "CCH Verification" in the admin dashboard navigation. This tab should have the following sections:
+
+### Section 1: Verification Form
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  CCH Verification                                               │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  Property Scenario                                              │
+│  ┌─────────────────────────────────────────────────────────┐   │
+│  │ [Textarea - Large, supports markdown]                    │   │
+│  │ Describe the CGT scenario including:                     │   │
+│  │ - Property details                                       │   │
+│  │ - Timeline of events                                     │   │
+│  │ - Ownership periods                                      │   │
+│  │ - Cost base elements                                     │   │
+│  └─────────────────────────────────────────────────────────┘   │
+│                                                                 │
+│  Our AI's Answer                                                │
+│  ┌─────────────────────────────────────────────────────────┐   │
+│  │ [Textarea - Large, supports markdown]                    │   │
+│  │ Paste the CGT calculation from our system                │   │
+│  └─────────────────────────────────────────────────────────┘   │
+│                                                                 │
+│  Timeline Events (Optional)                                     │
+│  ┌─────────────────────────────────────────────────────────┐   │
+│  │ [Date] [Event Type ▼] [Details]              [+ Add]    │   │
+│  │ 2010-03-15  Purchase    Bought for $500,000   [×]       │   │
+│  │ 2012-06-01  Move In     Became main residence [×]       │   │
+│  │ 2024-01-15  Sale        Sold for $850,000     [×]       │   │
+│  └─────────────────────────────────────────────────────────┘   │
+│                                                                 │
+│  [🔍 Verify with CCH]  [📊 Quick Compare]                      │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### Section 2: Results Display (appears after verification)
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  Verification Results                                           │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  ┌──────────────────────┐  ┌──────────────────────┐            │
+│  │   Overall Alignment  │  │   Match Percentage   │            │
+│  │        🟢 HIGH       │  │        85%           │            │
+│  │   Confidence: 92%    │  │   ████████░░         │            │
+│  └──────────────────────┘  └──────────────────────┘            │
+│                                                                 │
+│  Verification Checkboxes                                        │
+│  ┌─────────────────────────────────────────────────────────┐   │
+│  │  ✅ Scenario Match      ✅ Timeline Match                │   │
+│  │  ✅ Ownership Match     ❌ Cost Base Match               │   │
+│  │  ✅ Rules Applied       ✅ Calculation Match             │   │
+│  └─────────────────────────────────────────────────────────┘   │
+│                                                                 │
+│  Net CGT Comparison                                             │
+│  ┌─────────────────────────────────────────────────────────┐   │
+│  │  Our System: $40,150.00                                  │   │
+│  │  CCH Result: $39,800.00                                  │   │
+│  │  Difference: $350.00 (0.87%)                             │   │
+│  └─────────────────────────────────────────────────────────┘   │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### Section 3: Side-by-Side Comparison
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  Detailed Comparison                                            │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  ┌─────────────────────────┐ ┌─────────────────────────────┐   │
+│  │    Our AI Response      │ │    CCH Response             │   │
+│  ├─────────────────────────┤ ├─────────────────────────────┤   │
+│  │ [Scrollable markdown    │ │ [Scrollable markdown        │   │
+│  │  rendered content]      │ │  rendered content]          │   │
+│  │                         │ │                             │   │
+│  │ **Net Capital Gain:**   │ │ The CGT calculation...      │   │
+│  │ $40,150.00              │ │                             │   │
+│  │                         │ │ Sources:                    │   │
+│  │ Calculation:            │ │ - Master Tax Guide [¶11-033]│   │
+│  │ - Capital Proceeds...   │ │ - Commentary [¶154-175]     │   │
+│  └─────────────────────────┘ └─────────────────────────────┘   │
+│                                                                 │
+│  Key Differences                                                │
+│  ┌─────────────────────────────────────────────────────────┐   │
+│  │ ⚠️ CCH did not apply the partial main residence        │   │
+│  │    exemption formula                                     │   │
+│  │ ⚠️ CCH uses different indexation factor                 │   │
+│  └─────────────────────────────────────────────────────────┘   │
+│                                                                 │
+│  CCH Sources                                                    │
+│  ┌─────────────────────────────────────────────────────────┐   │
+│  │ 📚 Master Tax Guide | Discount capital gains [¶11-033]  │   │
+│  │    [Open in CCH →]                                       │   │
+│  │ 📚 Commentary | Discount percentage [¶154-175]          │   │
+│  │    [Open in CCH →]                                       │   │
+│  └─────────────────────────────────────────────────────────┘   │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### Section 4: Analysis Summary
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  Analysis Summary                                               │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  [AI-generated summary explaining the comparison results,       │
+│   highlighting areas of agreement and disagreement]             │
+│                                                                 │
+│  Errors Identified in CCH Response:                             │
+│  • Did not apply the 6-year absence rule                        │
+│  • Missing cost base element for stamp duty                     │
+│                                                                 │
+│  Recommendation:                                                │
+│  ┌─────────────────────────────────────────────────────────┐   │
+│  │ 🟢 Our calculation appears accurate. CCH provided       │   │
+│  │    general guidance rather than scenario-specific        │   │
+│  │    calculations.                                         │   │
+│  └─────────────────────────────────────────────────────────┘   │
+│                                                                 │
+│  [📥 Export Report]  [🔄 Re-verify]  [📋 Copy Results]         │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+## Component Structure
+
+Create the following React components:
+
+```
+/components/admin/cch-verification/
+├── CCHVerificationTab.tsx       # Main tab container
+├── VerificationForm.tsx         # Input form with scenario + answer
+├── TimelineBuilder.tsx          # Dynamic timeline event builder
+├── VerificationResults.tsx      # Results overview cards
+├── CheckboxGrid.tsx             # 6 verification checkboxes display
+├── ComparisonView.tsx           # Side-by-side answer comparison
+├── CCHSourcesList.tsx           # CCH reference sources list
+├── AnalysisSummary.tsx          # Summary and recommendations
+├── AlignmentBadge.tsx           # HIGH/MEDIUM/LOW badge component
+├── MatchPercentageBar.tsx       # Progress bar for match %
+└── hooks/
+    └── useCCHVerification.ts    # Custom hook for API calls
+```
+
+## State Management
+
+```typescript
+interface CCHVerificationState {
+  // Form inputs
+  scenario: string;
+  ourAnswer: string;
+  timeline: TimelineEvent[];
+  
+  // API state
+  isLoading: boolean;
+  error: string | null;
+  
+  // Results
+  result: VerifyResponse | null;
+  
+  // History (optional - for tracking past verifications)
+  history: VerifyResponse[];
+}
+```
+
+## Styling Guidelines
+
+1. **Color Scheme for Alignment:**
+   - HIGH: Green (#22c55e) with green background tint
+   - MEDIUM: Yellow/Amber (#f59e0b) with amber background tint  
+   - LOW: Red (#ef4444) with red background tint
+
+2. **Checkbox States:**
+   - ✅ Passed: Green checkmark with subtle green background
+   - ❌ Failed: Red X with subtle red background
+
+3. **Cards:** Use consistent card styling with the rest of the admin dashboard
+
+4. **Responsive:** Must work on desktop (primary) and tablet
+
+5. **Dark Mode:** Support dark mode if the dashboard has it
+
+## Loading States
+
+1. **Initial Submit:** Show skeleton loaders for the results section
+2. **During API Call:** 
+   - Show progress indicator: "Querying CCH iKnowConnect..."
+   - Then: "Analyzing responses with GPT-4o..."
+   - Estimated time: 60-120 seconds (warn user it takes time)
+3. **Error State:** Show error message with retry button
+
+## Error Handling
+
+```typescript
+// Handle these error cases:
+interface APIError {
+  success: false;
+  error: string;
+  code?: 'CCH_LOGIN_FAILED' | 'CCH_TIMEOUT' | 'OPENAI_ERROR' | 'INVALID_REQUEST';
+}
+
+// Display user-friendly messages:
+// - CCH_LOGIN_FAILED: "Unable to connect to CCH. Please try again later."
+// - CCH_TIMEOUT: "CCH took too long to respond. Please try again."
+// - OPENAI_ERROR: "Analysis service unavailable. Please try again."
+// - INVALID_REQUEST: "Please check your input and try again."
+```
+
+## Sample Test Data
+
+Use this for testing:
+
+```typescript
+const sampleScenario = `
+Property: 123 Example Street, Sydney NSW
+- Purchased: 15 March 2010 for $500,000
+- Rented out: 15 March 2010 to 31 May 2012
+- Moved in as main residence: 1 June 2012
+- Sold: 15 January 2024 for $850,000
+
+Cost base additions:
+- Stamp duty: $20,000
+- Legal fees (purchase): $2,500
+- Legal fees (sale): $3,000
+- Agent commission: $17,000
+
+The taxpayer is an Australian resident for tax purposes.
+`;
+
+const sampleOurAnswer = `
+## CGT Calculation Summary
+
+**Property:** 123 Example Street, Sydney NSW
+**Taxpayer:** Australian Resident Individual
+
+### Timeline Analysis
+- Total ownership: 5,055 days (15 Mar 2010 - 15 Jan 2024)
+- Rental period: 809 days (15 Mar 2010 - 31 May 2012)
+- Main residence period: 4,246 days (1 Jun 2012 - 15 Jan 2024)
+
+### Cost Base
+| Element | Amount |
+|---------|--------|
+| Purchase price | $500,000 |
+| Stamp duty | $20,000 |
+| Legal (purchase) | $2,500 |
+| Legal (sale) | $3,000 |
+| Agent commission | $17,000 |
+| **Total Cost Base** | **$542,500** |
+
+### Capital Gain Calculation
+- Capital proceeds: $850,000
+- Cost base: $542,500
+- **Gross capital gain: $307,500**
+
+### Partial Main Residence Exemption
+- Non-main residence days: 809
+- Total days: 5,055
+- Taxable portion: 809/5,055 = 16.00%
+
+- Taxable capital gain: $307,500 × 16.00% = $49,200
+
+### 50% CGT Discount
+- Held > 12 months: Yes
+- Discount applies: Yes
+- Discounted gain: $49,200 × 50% = $24,600
+
+### Result
+**Net Capital Gain: $24,600**
+
+This amount is added to the taxpayer's assessable income for the 2023-24 financial year.
+`;
+```
+
+## Implementation Checklist
+
+- [ ] Create CCH Verification tab in admin navigation
+- [ ] Build VerificationForm component with scenario and answer textareas
+- [ ] Build TimelineBuilder for optional event timeline
+- [ ] Create useCCHVerification hook for API calls
+- [ ] Build VerificationResults component with alignment badge
+- [ ] Create CheckboxGrid with 6 verification checkboxes
+- [ ] Build ComparisonView with side-by-side markdown rendering
+- [ ] Create CCHSourcesList with clickable source links
+- [ ] Build AnalysisSummary with key differences and errors
+- [ ] Add loading states with progress messages
+- [ ] Add error handling with user-friendly messages
+- [ ] Add export functionality (PDF/JSON)
+- [ ] Test with sample data
+- [ ] Add to admin route/navigation
+
+## API Integration Notes
+
+1. **Timeout:** Set axios/fetch timeout to at least 180 seconds (the API can take 2+ minutes)
+
+2. **CORS:** The API at cch.cgtbrain.com.au should accept requests from your admin domain
+
+3. **No Authentication Required:** The API handles CCH authentication internally
+
+4. **Rate Limiting:** Avoid rapid repeated requests (CCH has usage limits)
+
+## Files to Modify
+
+1. Add route/page for the new tab
+2. Add tab to admin navigation component
+3. Create all components in the cch-verification folder
+4. Add any new dependencies (e.g., react-markdown for rendering)
+
+Please implement this CCH Verification tab following the specifications above. Start by showing me the component structure you'll create, then implement each component.

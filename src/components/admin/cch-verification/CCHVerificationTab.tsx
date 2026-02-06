@@ -48,6 +48,10 @@ interface VerifyResponse {
 interface CCHVerificationTabProps {
   // AI response that was returned from the analysis
   aiResponse?: any;
+  // Whether the CGT analysis is currently running
+  analysisLoading?: boolean;
+  // The LLM provider being used for analysis
+  llmProvider?: string;
 }
 
 /**
@@ -98,7 +102,7 @@ function extractOurAnswer(response: any): string {
   return JSON.stringify(responseCopy, null, 2);
 }
 
-export default function CCHVerificationTab({ aiResponse }: CCHVerificationTabProps) {
+export default function CCHVerificationTab({ aiResponse, analysisLoading, llmProvider }: CCHVerificationTabProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -209,6 +213,26 @@ export default function CCHVerificationTab({ aiResponse }: CCHVerificationTabPro
     a.click();
     URL.revokeObjectURL(url);
   };
+
+  // Analysis is currently running
+  if (analysisLoading) {
+    return (
+      <div className="bg-white dark:bg-slate-800 rounded-lg shadow-md border border-slate-200 dark:border-slate-700 p-8">
+        <div className="text-center">
+          <Loader2 className="w-16 h-16 text-blue-500 mx-auto mb-4 animate-spin" />
+          <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100 mb-2">
+            CGT Analysis Running
+          </h2>
+          <p className="text-slate-600 dark:text-slate-400 max-w-md mx-auto mb-4">
+            Analyzing property data with {llmProvider || 'AI'}...
+          </p>
+          <p className="text-sm text-slate-500 dark:text-slate-500">
+            CCH verification will start automatically once the analysis is complete.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   // No AI response yet
   if (!aiResponse) {

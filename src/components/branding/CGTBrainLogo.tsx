@@ -80,9 +80,10 @@ export default function CGTBrainLogo({
 
   // If using image variant, show image logo
   if (variant !== 'text' && variant.startsWith('logo-')) {
-    // Use config file path or fallback to custom logoPath
-    const lightPath = logoConfig?.file || logoPath;
-    const darkPath = logoConfig?.darkFile;
+    // Use config file path, custom logoPath, or construct from variant name
+    const fallbackPath = `/logos/${variant}-dark.png`;
+    const lightPath = logoConfig?.file || logoPath || fallbackPath;
+    const darkPath = logoConfig?.darkFile || fallbackPath;
     const imagePath = (isDarkMode && darkPath) ? darkPath : lightPath;
 
     if (!imagePath) {

@@ -9,7 +9,6 @@ import TwoColumnLayout from '../timeline-viz/TwoColumnLayout';
 import PropertyTwoColumnView from './PropertyTwoColumnView';
 import { useTimelineStore } from '@/store/timeline';
 import MarkdownDisplay from '../model-response/MarkdownDisplay';
-import PortfolioSummarySection from './PortfolioSummarySection';
 import CitationsSection from './CitationsSection';
 import PropertyTimelineEvents from './PropertyTimelineEvents';
 import WhatIfScenariosSection from './WhatIfScenariosSection';
@@ -19,7 +18,6 @@ import FollowUpChatWindow from './FollowUpChatWindow';
 import { AnalysisData, Citations } from '@/types/model-response';
 import { AnalysisStickyNotesLayer, AddStickyNoteButton, ShareLinkButton } from '../sticky-notes';
 import { SendToTaxAgentButton } from '../send-to-agent';
-import CCHVerifyButton from './CCHVerifyButton';
 import TimelineSummaryTable from './TimelineSummaryTable';
 import OwnershipPeriodsTable from './OwnershipPeriodsTable';
 import PropertyTimelineTable from './PropertyTimelineTable';
@@ -283,9 +281,6 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
         <div className="flex items-center justify-between gap-4">
           <DisplayModeToggle />
           <div className="flex items-center gap-2">
-            {/* CCH Verify Button */}
-            <CCHVerifyButton response={response} />
-
             {/* Share Link Button */}
             <ShareLinkButton variant="analysis" includeAnalysis={true} />
 
@@ -319,32 +314,6 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
                 We need clarification about timeline gaps to calculate your CGT accurately.
               </p>
 
-              {/* Portfolio Summary */}
-              <div className="bg-white dark:bg-gray-900 rounded-lg p-4 space-y-2">
-                <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2">
-                  Portfolio Summary
-                </h3>
-                <div className="grid grid-cols-3 gap-4 text-sm">
-                  <div>
-                    <div className="text-gray-500 dark:text-gray-400">Total Properties</div>
-                    <div className="font-semibold text-gray-900 dark:text-gray-100">
-                      {summary?.total_properties || 0}
-                    </div>
-                  </div>
-                  <div>
-                    <div className="text-gray-500 dark:text-gray-400">Passed</div>
-                    <div className="font-semibold text-green-600 dark:text-green-400">
-                      {summary?.properties_passed || 0}
-                    </div>
-                  </div>
-                  <div>
-                    <div className="text-gray-500 dark:text-gray-400">Need Clarification</div>
-                    <div className="font-semibold text-red-600 dark:text-red-400">
-                      {summary?.properties_failed || (summary?.requires_clarification ? 1 : 0)}
-                    </div>
-                  </div>
-                </div>
-              </div>
             </div>
           </div>
         </div>
@@ -431,9 +400,6 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
                 Follow-up
               </button>
             )}
-
-            {/* CCH Verify Button */}
-            <CCHVerifyButton response={response} />
 
             {/* Share Link Button */}
             <ShareLinkButton variant="analysis" includeAnalysis={true} />
@@ -740,9 +706,6 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
                 Follow-up
               </button>
             )}
-
-            {/* CCH Verify Button */}
-            <CCHVerifyButton response={response} />
 
             {/* Share Link Button */}
             <ShareLinkButton variant="analysis" includeAnalysis={true} />
@@ -1307,57 +1270,6 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
           </div>
         )}
 
-        {/* Portfolio Totals - Compact */}
-        {(analysisData.total_net_capital_gain !== undefined || analysisData.properties_with_cgt !== undefined) && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 rounded-lg border border-blue-200 dark:border-blue-800 p-5"
-          >
-            <h3 className="text-base font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-              <TrendingUp className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-              Portfolio Summary
-            </h3>
-            <div className="flex flex-wrap gap-4 items-center">
-              {/* Total Net Capital Gain */}
-              <div className={`px-4 py-2 rounded-lg ${
-                parseFloat(String(analysisData.total_net_capital_gain || 0)) === 0
-                  ? 'bg-green-100 dark:bg-green-900/40 border border-green-200 dark:border-green-800'
-                  : 'bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800'
-              }`}>
-                <div className="text-xs text-gray-600 dark:text-gray-400">Net CGT</div>
-                <div className={`text-lg font-bold ${
-                  parseFloat(String(analysisData.total_net_capital_gain || 0)) === 0
-                    ? 'text-green-700 dark:text-green-400'
-                    : 'text-red-700 dark:text-red-400'
-                }`}>
-                  ${formatNumber(analysisData.total_net_capital_gain)}
-                </div>
-              </div>
-              {/* Total Gross Gains */}
-              {(analysisData as any).total_gross_gains !== undefined && (
-                <div className="px-4 py-2 rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
-                  <div className="text-xs text-gray-600 dark:text-gray-400">Gross Gains</div>
-                  <div className="text-lg font-bold text-gray-900 dark:text-white">
-                    ${formatNumber((analysisData as any).total_gross_gains)}
-                  </div>
-                </div>
-              )}
-              {/* Counts */}
-              <div className="flex gap-3 text-sm">
-                <div className="flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-gray-400"></span>
-                  <span className="text-gray-600 dark:text-gray-400">{analysisData.properties_with_cgt || 0} with CGT</span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-green-500"></span>
-                  <span className="text-gray-600 dark:text-gray-400">{analysisData.properties_fully_exempt || 0} exempt</span>
-                </div>
-              </div>
-            </div>
-          </motion.div>
-        )}
 
         {/* General Notes - Compact */}
         {analysisData.general_notes && analysisData.general_notes.length > 0 && (
@@ -1600,9 +1512,6 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
         <div className="flex items-center justify-between gap-4">
           <DisplayModeToggle />
           <div className="flex items-center gap-2">
-            {/* CCH Verify Button */}
-            <CCHVerifyButton response={response} />
-
             {/* Share Link Button */}
             <ShareLinkButton variant="analysis" includeAnalysis={true} />
 
@@ -1798,9 +1707,6 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
       <div className="flex items-center justify-between gap-4">
         <DisplayModeToggle />
         <div className="flex items-center gap-2">
-          {/* CCH Verify Button */}
-          <CCHVerifyButton response={response} />
-
           {/* Share Link Button */}
           <ShareLinkButton variant="analysis" includeAnalysis={true} />
 

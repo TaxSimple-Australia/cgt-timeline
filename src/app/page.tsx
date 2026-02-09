@@ -6,6 +6,7 @@ import LandingHeader from '@/components/landing/LandingHeader';
 import V4Hero from '@/components/landing/variants/v4/V4Hero';
 import HowItWorksSection from '@/components/landing/HowItWorksSection';
 import LandingFooter from '@/components/landing/LandingFooter';
+import LandingChatWidget from '@/components/landing/LandingChatWidget';
 
 function LandingContent() {
   const searchParams = useSearchParams();
@@ -40,6 +41,7 @@ function LandingContent() {
       <V4Hero />
       <HowItWorksSection />
       <LandingFooter />
+      <LandingChatWidget />
     </main>
   );
 }

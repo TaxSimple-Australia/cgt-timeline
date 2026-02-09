@@ -95,8 +95,7 @@ export default function SendToTaxAgentButton({
           <Send className="w-5 h-5" />
         )}
         <span className="text-sm whitespace-nowrap">
-          <span className="hidden lg:inline">Send to Tax Agent for Review</span>
-          <span className="lg:hidden">Tax Agent Review</span>
+          Tax Agent Review
         </span>
       </motion.button>
 

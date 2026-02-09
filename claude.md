@@ -555,6 +555,66 @@ See also:
 
 ---
 
+## ATO Scenario Testing (Manual Entry Guide)
+
+When the user shares a **screenshot of an ATO example/scenario** and wants to test it against the model, follow this exact process:
+
+### Rules
+1. **ONLY use data explicitly stated in the scenario** — never invent amounts, dates, or fees that aren't there
+2. For data NOT in the scenario but required by the app (e.g. purchase price, sale price, exact dates), clearly state it's **not provided** and explain what value is needed for the model to work (e.g. "pick prices that produce the stated capital gain")
+3. Present steps as a table per event with columns: **Field | Value | Source**
+4. The "Source" column must quote or reference the exact scenario text, or say "Not in scenario"
+5. Any information that has no dedicated UI field should go into **Description** on the event or **Notes** on the property
+
+### Step-by-step Format
+
+Always follow this structure:
+
+#### 1. Add Property
+- **Address**: State whether provided or not. If not, use a placeholder (e.g. owner's name + "Home")
+
+#### 2. Add Events (one table per event)
+For each event (Purchase, Move In, Sale, Status Change, etc.), provide a table:
+
+| Field | Value | Source |
+|-------|-------|--------|
+| Date | `dd/mm/yyyy` | Scenario: "[exact quote]" or "Not in scenario — [explain what's needed]" |
+| Amount | `$X` or "Not in scenario" | Scenario: "[exact quote]" or reasoning |
+| Checkbox options | Checked/Unchecked | Scenario: "[exact quote]" |
+| Mixed-Use fields | Values if applicable | Scenario: "[exact quote]" |
+| Description | Full context text | Compiled from scenario details that have no dedicated field |
+
+**Key UI fields to check for each event type:**
+- **Purchase**: Date, Amount, Contract Date, Move-in same day, Mixed-Use (Living%/Rental%/Business% + start dates), Cost Base items (stamp duty, legal fees), Description
+- **Sale**: Date, Amount, Contract Date, Selling costs (agent fees, legal fees), Description
+- **Move In/Out**: Date, Description
+- **Status Change**: Date, Description (use for business use start/end, aged care, etc.)
+- **Rent Start/End**: Date, Description, Partial Rental floor area fields if applicable
+- **Improvement**: Date, Amount, Description
+
+#### 3. Add Property Notes
+Include ALL scenario context — especially:
+- The expected calculation formula and result
+- Any ATO rules referenced
+- Any qualifying conditions (e.g. "contract before 11:45am AEST 21/9/1999")
+- Information that couldn't be entered in dedicated fields (e.g. "business use was for half the period only")
+
+#### 4. Data Inventory Table
+Always end with a summary table:
+
+| Data | In Scenario? | What to enter |
+|------|-------------|---------------|
+| Each data point | Yes/No | Value or "Not in scenario — [guidance]" |
+
+#### 5. Run CGT Analysis
+- State the **expected answer** from the scenario
+- After running, compare model result vs expected
+
+### Example Reference
+See ATO Example 69 (Business in part of home for part of ownership) — tested and verified with this format. The model correctly calculated $10,000 taxable portion / $5,000 net capital gain.
+
+---
+
 ## Notes
 
 ### Known Limitations

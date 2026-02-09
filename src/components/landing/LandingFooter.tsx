@@ -2,7 +2,8 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { MapPin, Phone, Mail, Globe } from 'lucide-react';
+import { MapPin, Phone, Mail, Globe, Facebook, Linkedin, Twitter, Youtube } from 'lucide-react';
+import CGTBrainLogo from '@/components/branding/CGTBrainLogo';
 
 export default function LandingFooter() {
   return (
@@ -11,42 +12,63 @@ export default function LandingFooter() {
         {/* Main Footer Content - 4 Columns */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
 
-          {/* Column 1: Logo */}
-          <div className="lg:col-span-1">
-            <h3 className="text-2xl font-bold text-white">
+          {/* Column 1: Logo & Social */}
+          <div className="lg:col-span-1 flex flex-col items-center space-y-6">
+            <div className="flex justify-center">
+              <CGTBrainLogo size="2xl" variant="logo-20" className="[&_img]:!h-20 [&_img]:md:!h-24" />
+            </div>
+            <h3 className="text-xl font-bold text-white text-center">
               CGT Brain AI
             </h3>
+            <div className="flex items-center gap-5 pt-2">
+              <a
+                href="#"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-slate-400 hover:text-white transition-colors"
+                aria-label="Facebook"
+              >
+                <Facebook className="w-5 h-5" />
+              </a>
+              <a
+                href="#"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-slate-400 hover:text-white transition-colors"
+                aria-label="LinkedIn"
+              >
+                <Linkedin className="w-5 h-5" />
+              </a>
+              <a
+                href="#"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-slate-400 hover:text-white transition-colors"
+                aria-label="X (Twitter)"
+              >
+                <Twitter className="w-5 h-5" />
+              </a>
+              <a
+                href="#"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-slate-400 hover:text-white transition-colors"
+                aria-label="YouTube"
+              >
+                <Youtube className="w-5 h-5" />
+              </a>
+            </div>
           </div>
 
           {/* Column 2: Resources */}
           <div>
-            <h3 className="text-slate-500 font-semibold mb-4 uppercase text-xs tracking-wider">
+            <h3 className="text-white font-semibold mb-4 uppercase text-xs tracking-wider">
               Resources
             </h3>
             <ul className="space-y-3">
               <li>
-                <Link href="/about-us" className="text-slate-400 hover:text-white transition-colors text-sm">
-                  About Us
-                </Link>
-              </li>
-              <li>
                 <Link href="/#how-it-works" className="text-slate-400 hover:text-white transition-colors text-sm">
                   How It Works
-                </Link>
-              </li>
-              <li>
-                <Link href="/training-videos" className="text-slate-400 hover:text-white transition-colors text-sm">
-                  Training
-                </Link>
-              </li>
-              <li>
-                <Link href="/docs" className="text-slate-400 hover:text-white transition-colors text-sm">
-                  Documentation
-                </Link>
-              </li>
-              <li>
-                <Link href="/contact" className="text-slate-400 hover:text-white transition-colors text-sm">
-                  Support
                 </Link>
               </li>
               <li>
@@ -74,7 +96,7 @@ export default function LandingFooter() {
 
           {/* Column 3: Contact Information */}
           <div>
-            <h3 className="text-slate-500 font-semibold mb-4 uppercase text-xs tracking-wider">
+            <h3 className="text-white font-semibold mb-4 uppercase text-xs tracking-wider">
               Contact
             </h3>
             <div className="space-y-4">
@@ -110,11 +132,11 @@ export default function LandingFooter() {
 
           {/* Column 4: Acknowledgment */}
           <div>
-            <h3 className="text-slate-500 font-semibold mb-4 uppercase text-xs tracking-wider">
+            <h3 className="text-white font-semibold mb-4 uppercase text-xs tracking-wider">
               Acknowledgment
             </h3>
             <p className="text-slate-400 text-xs leading-relaxed">
-              In the spirit of reconciliation and legal transparency, we acknowledge the Traditional Owners and their continuing rights and interests in the lands and waters of Australia. We recognize that these connections underpinned by traditional Law and custom remain unceded. We pay our respects to the Elders who carry these rights and responsibilities, both past and present.
+              We acknowledge the Traditional Owners and Custodians of Country throughout Australia and their continuing connection to land, waters and community. We pay our respects to them, their cultures, and Elders past and present.
             </p>
           </div>
         </div>
@@ -125,14 +147,12 @@ export default function LandingFooter() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <p className="text-slate-500 text-sm">
-              Copyright © CGT Brain 2026. All rights reserved.
+              Copyright © CGT Brain AI 2026. All rights reserved.
             </p>
             <div className="flex flex-wrap justify-center items-center gap-2 text-sm text-slate-500">
               <span>ABN: 79 684 289 843</span>
               <span>•</span>
               <span>Registered Tax Agent: 26205217</span>
-              <span>•</span>
-              <span>ISO 27001 Certified</span>
             </div>
           </div>
         </div>

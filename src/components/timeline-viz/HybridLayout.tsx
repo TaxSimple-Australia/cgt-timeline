@@ -2,6 +2,7 @@ import React from 'react';
 import { format, differenceInMonths } from 'date-fns';
 import { Property, TimelineEvent } from '@/store/timeline';
 import { formatCurrency } from '@/lib/utils';
+import { getDivision43Deductions } from '@/lib/cost-base-calculations';
 
 interface HybridLayoutProps {
   properties: Property[];
@@ -40,7 +41,8 @@ export default function HybridLayout({ properties, events }: HybridLayoutProps) 
       0
     );
     const saleCostTotal = saleEvent?.costBases?.reduce((sum, cb) => sum + cb.amount, 0) || 0;
-    const totalCostBase = purchasePrice + purchaseCostTotal + improvementTotal + saleCostTotal;
+    const div43Deductions = getDivision43Deductions(saleEvent);
+    const totalCostBase = purchasePrice + purchaseCostTotal + improvementTotal + saleCostTotal - div43Deductions;
 
     return {
       propertyEvents,
@@ -54,6 +56,7 @@ export default function HybridLayout({ properties, events }: HybridLayoutProps) 
       purchaseCostTotal,
       improvementTotal,
       saleCostTotal,
+      div43Deductions,
       totalCostBase,
       capitalGain: saleEvent ? (saleEvent.amount || 0) - totalCostBase : 0,
     };

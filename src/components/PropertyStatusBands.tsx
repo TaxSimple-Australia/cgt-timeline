@@ -32,6 +32,11 @@ export default function PropertyStatusBands({
   subdivisionDate,
 }: PropertyStatusBandsProps) {
   const statusPeriods = calculateStatusPeriods(events);
+  console.log('🔍 PropertyStatusBands:', {
+    propertyId,
+    eventTypes: events.map(e => e.type),
+    statusPeriods: statusPeriods.map(p => ({ status: p.status, start: p.startDate.toISOString().split('T')[0], end: p.endDate?.toISOString().split('T')[0] || 'ongoing' })),
+  });
   const today = new Date();
 
   // Calculate subdivision position for parent properties that have been subdivided

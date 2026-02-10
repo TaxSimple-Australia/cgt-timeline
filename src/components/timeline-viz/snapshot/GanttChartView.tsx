@@ -208,8 +208,6 @@ export default function GanttChartView({
       improvement: Hammer,
       refinance: RefreshCw,
       status_change: FileEdit,
-      vacant_start: Building,
-      vacant_end: Building,
       ownership_change: Users,
       subdivision: Split,
       living_in_rental_start: LogIn,

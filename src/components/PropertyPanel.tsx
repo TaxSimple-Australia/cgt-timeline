@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { format } from 'date-fns';
 import { useTimelineStore } from '@/store/timeline';
 import { formatCurrency, cn } from '@/lib/utils';
-import { getPurchasePrice, calculatePurchaseIncidentalCosts, calculateImprovementCosts, calculateSellingCosts } from '@/lib/cost-base-calculations';
+import { getPurchasePrice, calculatePurchaseIncidentalCosts, calculateImprovementCosts, calculateSellingCosts, getDivision43Deductions } from '@/lib/cost-base-calculations';
 import {
   X,
   Edit2,
@@ -91,7 +91,8 @@ export default function PropertyPanel() {
     return getPurchasePrice(purchaseEvent) +
            calculatePurchaseIncidentalCosts(purchaseEvent) +
            calculateImprovementCosts(improvementEvents) +
-           calculateSellingCosts(saleEvent);
+           calculateSellingCosts(saleEvent) -
+           getDivision43Deductions(saleEvent);
   };
 
   const totalCostBase = calculateCostBase();
@@ -858,6 +859,14 @@ export default function PropertyPanel() {
                   </>
                 )}
 
+                {/* Division 43 Capital Works Deductions */}
+                {getDivision43Deductions(saleEvent) > 0 && (
+                  <div className="flex justify-between items-center pt-2 border-t border-red-200 dark:border-red-800">
+                    <span className="text-red-600 dark:text-red-400 text-sm font-medium">Div 43 Capital Works Deductions</span>
+                    <span className="font-semibold text-red-600 dark:text-red-400">- {formatCurrency(getDivision43Deductions(saleEvent))}</span>
+                  </div>
+                )}
+
                 {/* Total Cost Base */}
                 <div className="flex justify-between items-center pt-2 mt-2 border-t-2 border-indigo-300">
                   <span className="font-bold text-indigo-700 dark:text-indigo-200">Total Cost Base</span>
@@ -913,6 +922,11 @@ export default function PropertyPanel() {
             {ownershipDays > 365 && (
               <div className="mt-2 text-xs text-green-600 dark:text-green-400 font-medium">
                 ✓ Eligible for 50% CGT discount
+              </div>
+            )}
+            {purchaseEvent && purchaseEvent.date <= new Date('1999-09-21T11:45:00') && (
+              <div className="mt-2 text-xs text-amber-600 dark:text-amber-400 font-medium">
+                If an asset was acquired at or before 11.45 am EST on 21 September 1999, you may be eligible to use the indexation method to calculate the cost base for capital gains tax purposes.
               </div>
             )}
           </div>

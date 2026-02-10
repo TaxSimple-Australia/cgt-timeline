@@ -11,6 +11,7 @@ import {
   getPurchasePrice,
   getSalePrice,
   getImprovementAmount,
+  getDivision43Deductions,
 } from '@/lib/cost-base-calculations';
 
 // Register fonts (optional - for better typography)
@@ -1204,7 +1205,8 @@ const getPropertyFlowData = (property: Property, events: TimelineEvent[]) => {
   const sellingCosts = calculateSellingCosts(saleEvent);
   const salePrice = getSalePrice(saleEvent);
 
-  const totalCostBase = purchasePrice + purchaseCosts + improvementCosts + sellingCosts;
+  const div43Deductions = getDivision43Deductions(saleEvent);
+  const totalCostBase = purchasePrice + purchaseCosts + improvementCosts + sellingCosts - div43Deductions;
   const ownershipYears = saleEvent && purchaseEvent
     ? Math.round((saleEvent.date.getTime() - purchaseEvent.date.getTime()) / (1000 * 60 * 60 * 24 * 365))
     : 0;
@@ -1220,6 +1222,7 @@ const getPropertyFlowData = (property: Property, events: TimelineEvent[]) => {
     purchaseCosts,
     improvementCosts,
     sellingCosts,
+    div43Deductions,
     totalCostBase,
     capitalGain: saleEvent ? salePrice - totalCostBase : 0,
     ownershipYears,
@@ -1519,7 +1522,8 @@ export const CGTReportPDF: React.FC<CGTReportPDFProps> = ({ response, properties
         const incidentalCostsAcquire = aiIncidentalCostsAcquire || timelinePurchaseCosts;
         const capitalImprovements = aiCapitalImprovements || timelineImprovementCosts;
         const disposalCosts = aiDisposalCosts || timelineSellingCosts;
-        const totalCostBase = aiTotalCostBase || (purchasePrice + incidentalCostsAcquire + capitalImprovements + disposalCosts);
+        const div43Deductions = getDivision43Deductions(saleEvent);
+        const totalCostBase = aiTotalCostBase || (purchasePrice + incidentalCostsAcquire + capitalImprovements + disposalCosts - div43Deductions);
         const rawCapitalGain = aiRawCapitalGain ?? (salePrice - totalCostBase);
         const netCapitalGain = aiNetCapitalGain ?? rawCapitalGain;
 
@@ -2108,7 +2112,8 @@ export const CGTReportPDF: React.FC<CGTReportPDFProps> = ({ response, properties
           (cb) => !excludeFromDisplay.includes(cb.definitionId)
         );
         const sellingCosts = calculateSellingCosts(saleEvent);
-        const totalCostBase = purchasePrice + purchaseCosts + improvementCosts + sellingCosts;
+        const div43Deductions2 = getDivision43Deductions(saleEvent);
+        const totalCostBase = purchasePrice + purchaseCosts + improvementCosts + sellingCosts - div43Deductions2;
         const salePrice = getSalePrice(saleEvent);
         const capitalGain = calculateCapitalGain(purchaseEvent, improvementEvents, saleEvent);
 

@@ -35,8 +35,6 @@ export const calculatePortfolioStats = (
     improvement: 0,
     refinance: 0,
     status_change: 0,
-    vacant_start: 0,
-    vacant_end: 0,
     ownership_change: 0,
     subdivision: 0,
     living_in_rental_start: 0,
@@ -81,9 +79,7 @@ export const getEventTypeBreakdownText = (eventBreakdown: Record<EventType, numb
     eventBreakdown.move_in +
     eventBreakdown.move_out +
     eventBreakdown.rent_start +
-    eventBreakdown.rent_end +
-    eventBreakdown.vacant_start +
-    eventBreakdown.vacant_end;
+    eventBreakdown.rent_end;
 
   if (occupancyEvents > 0) parts.push(`Occupancy: ${occupancyEvents}`);
 
@@ -173,8 +169,6 @@ export const getEventIcon = (type: EventType): string => {
     improvement: '🔨',
     refinance: '🏦',
     status_change: '📋',
-    vacant_start: '🏚️',
-    vacant_end: '🏢',
     ownership_change: '👥',
     subdivision: '✂️',
     living_in_rental_start: '🏡',
@@ -201,8 +195,6 @@ export const getShortEventName = (type: EventType): string => {
     improvement: 'Improve',
     refinance: 'Refinance',
     status_change: 'Status',
-    vacant_start: 'Vacant',
-    vacant_end: 'End Vacant',
     ownership_change: 'Ownership',
     subdivision: 'Subdivision',
     living_in_rental_start: 'Living Start',
@@ -229,8 +221,6 @@ export const getFullEventName = (type: EventType): string => {
     improvement: 'Capital Improvement',
     refinance: 'Refinanced',
     status_change: 'Status Change',
-    vacant_start: 'Vacancy Started',
-    vacant_end: 'Vacancy Ended',
     ownership_change: 'Ownership Change',
     subdivision: 'Property Subdivision',
     living_in_rental_start: 'Living in Rental Started',

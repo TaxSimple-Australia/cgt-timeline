@@ -766,7 +766,7 @@ export default function PropertyBranch({
                           }}
                         >
                           {lot1.lotNumber}
-                          {lot1.lotSize && ` • ${parseFloat((lot1.lotSize / 10000).toFixed(4))} ha`}
+                          {(lot1.lotSize ?? 0) > 0 && ` • ${parseFloat((lot1.lotSize! / 10000).toFixed(4))} ha`}
                         </div>
                       </foreignObject>
                     );
@@ -823,7 +823,7 @@ export default function PropertyBranch({
                 }}
               >
                 {property.lotNumber}
-                {property.lotSize && ` • ${parseFloat((property.lotSize / 10000).toFixed(4))} ha`}
+                {(property.lotSize ?? 0) > 0 && ` • ${parseFloat((property.lotSize! / 10000).toFixed(4))} ha`}
               </div>
             </foreignObject>
           )}
@@ -832,7 +832,7 @@ export default function PropertyBranch({
 
       {/* Branch Label - Show for parent properties only (child lots show lot number labels) */}
       {!property.parentPropertyId && (
-        <foreignObject x="10" y={branchY - 30} width="300" height="60" style={{ pointerEvents: 'none' }}>
+        <foreignObject x="10" y={branchY - 30} width="300" height={60 + (property.owners?.length ? property.owners.length * 16 : 0)} style={{ pointerEvents: 'none' }}>
           <div className="flex items-center gap-2 group select-none">
             <div
               className={cn(
@@ -865,9 +865,16 @@ export default function PropertyBranch({
               </div>
               {/* Show owner information if available */}
               {property.owners && property.owners.length > 0 && (
-                <span className="text-xs text-slate-500 dark:text-slate-400">
-                  Owned by: {property.owners.map(o => `${o.name} (${o.percentage}%)`).join(', ')}
-                </span>
+                <div className="flex flex-col gap-0">
+                  <span className="text-xs text-slate-500 dark:text-slate-400">
+                    Owned by
+                  </span>
+                  {property.owners.map((o, i) => (
+                    <span key={i} className="text-xs text-slate-400 dark:text-slate-500 pl-1">
+                      {o.name} ({o.percentage}%)
+                    </span>
+                  ))}
+                </div>
               )}
             </div>
           </div>
@@ -906,6 +913,7 @@ export default function PropertyBranch({
               timelineEnd={timelineEnd}
               onUpdateEvent={updateEvent}
               isSyntheticStatusMarker={(event as any).isSyntheticStatusMarker}
+              verticalOffset={event.verticalOffset}
             />
           ) : (
             <EventCardView

@@ -101,18 +101,9 @@ export default function LandingFooter() {
             </h3>
             <div className="space-y-4">
               <div className="flex items-start gap-3">
-                <MapPin className="w-5 h-5 text-slate-500 flex-shrink-0 mt-0.5" />
-                <p className="text-slate-400 text-sm">
-                  Level 5, 123 Collins Street<br />
-                  Melbourne VIC 3000<br />
-                  Australia
-                </p>
-              </div>
-              <div className="flex items-start gap-3">
                 <Phone className="w-5 h-5 text-slate-500 flex-shrink-0 mt-0.5" />
                 <p className="text-slate-400 text-sm">
-                  1300 CGT BRAIN<br />
-                  (1300 248 272)
+                  1300 248 272
                 </p>
               </div>
               <div className="flex items-start gap-3">
@@ -127,6 +118,14 @@ export default function LandingFooter() {
                   cgtbrain.com.au
                 </a>
               </div>
+              <div className="flex items-start gap-3">
+                <MapPin className="w-5 h-5 text-slate-500 flex-shrink-0 mt-0.5" />
+                <p className="text-slate-400 text-sm">
+                  Level 5, 123 Collins Street<br />
+                  Melbourne VIC 3000<br />
+                  Australia
+                </p>
+              </div>
             </div>
           </div>
 
@@ -135,7 +134,7 @@ export default function LandingFooter() {
             <h3 className="text-white font-semibold mb-4 uppercase text-xs tracking-wider">
               Acknowledgment
             </h3>
-            <p className="text-slate-400 text-xs leading-relaxed">
+            <p className="text-slate-400 text-sm leading-relaxed">
               We acknowledge the Traditional Owners and Custodians of Country throughout Australia and their continuing connection to land, waters and community. We pay our respects to them, their cultures, and Elders past and present.
             </p>
           </div>

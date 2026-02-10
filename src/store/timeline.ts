@@ -25,8 +25,6 @@ export type EventType =
   | 'improvement'
   | 'refinance'
   | 'status_change'
-  | 'vacant_start'  // Property becomes vacant/unoccupied
-  | 'vacant_end'    // Property is no longer vacant
   | 'ownership_change'  // Change of ownership event
   | 'subdivision'   // Property subdivision into multiple lots
   | 'living_in_rental_start'  // Start living in rental property
@@ -102,8 +100,6 @@ export interface TimelineEvent {
     moveOutAsRent?: boolean;          // Move Out: Move out as rent start
     rentEndAsVacant?: boolean;        // Rent End: Rent end as vacant
     rentEndAsMoveIn?: boolean;        // Rent End: Rent end as move in
-    vacantEndAsMoveIn?: boolean;      // Vacant End: Owner move back in
-    vacantEndAsRent?: boolean;        // Vacant End: Vacant end as rental
     hasBusinessUse?: boolean;         // Purchase: Has business use percentage
     hasPartialRental?: boolean;       // Purchase: Has partial rental percentage
     isNonResident?: boolean;          // Sale: Non-resident status
@@ -139,6 +135,7 @@ export interface TimelineEvent {
   newOwners?: Array<{name: string; percentage: number}>;  // New owners being added
   ownershipChangeReason?: OwnershipChangeReason;  // Reason for ownership change
   ownershipChangeReasonOther?: string;  // Custom reason if "other" selected
+  previousOwners?: Array<{name: string; percentage: number}>;  // Snapshot of owners BEFORE this change (for revert on delete)
 
   // NEW: Subdivision fields
   subdivisionDetails?: {
@@ -457,8 +454,6 @@ const eventColors: Record<EventType, string> = {
   improvement: '#06B6D4',
   refinance: '#6366F1',
   status_change: '#A855F7',
-  vacant_start: '#9CA3AF',   // Gray-400 - Property becomes vacant
-  vacant_end: '#6B7280',     // Gray-500 - Property no longer vacant
   ownership_change: '#A855F7',  // Purple - Change of ownership
   subdivision: '#EC4899',    // Pink - Property subdivision
   living_in_rental_start: '#EC4899',  // Pink - Start living in rental
@@ -554,7 +549,6 @@ export interface StatusPeriod {
 }
 
 export const calculateStatusPeriods = (events: TimelineEvent[]): StatusPeriod[] => {
-  console.log('🔍 calculateStatusPeriods called with events:', events.map(e => ({ type: e.type, date: e.date, title: e.title })));
   const periods: StatusPeriod[] = [];
 
   // Event priority for same-date events (higher number = processed later = takes precedence)
@@ -562,7 +556,7 @@ export const calculateStatusPeriods = (events: TimelineEvent[]): StatusPeriod[] 
   const eventPriority: Record<string, number> = {
     // Priority 0 - Non-status events (lowest)
     'improvement': 0,
-    'refinance': 0,
+    'refinance': 3,
     'custom': 0,
 
     // Priority 1 - Initial acquisition
@@ -571,14 +565,10 @@ export const calculateStatusPeriods = (events: TimelineEvent[]): StatusPeriod[] 
     // Priority 2 - Ending events (remove/end a status)
     'move_out': 2,
     'rent_end': 2,
-    'vacant_start': 2,
     'living_in_rental_end': 2,
     'building_end': 2,
 
-    // Priority 3 - Transitional events
-    'vacant_end': 3,
-
-    // Priority 4 - Active use events (establish new status)
+    // Priority 3 - Active use events (establish new status)
     'move_in': 4,
     'rent_start': 4,
     'living_in_rental_start': 4,
@@ -593,9 +583,11 @@ export const calculateStatusPeriods = (events: TimelineEvent[]): StatusPeriod[] 
     'subdivision': 6,
   };
 
-  // Sort events by date, then by priority for same-date events
+  // Sort events by date (date-only, ignoring time components), then by priority for same-date events
   const sortedEvents = [...events].sort((a, b) => {
-    const timeDiff = a.date.getTime() - b.date.getTime();
+    const aDateOnly = new Date(a.date.getFullYear(), a.date.getMonth(), a.date.getDate()).getTime();
+    const bDateOnly = new Date(b.date.getFullYear(), b.date.getMonth(), b.date.getDate()).getTime();
+    const timeDiff = aDateOnly - bDateOnly;
     if (timeDiff !== 0) return timeDiff;
 
     // Same date - sort by priority (lower priority processed first)
@@ -632,14 +624,6 @@ export const calculateStatusPeriods = (events: TimelineEvent[]): StatusPeriod[] 
       case 'rent_end':
         newStatus = 'vacant';
         break;
-      case 'vacant_start':
-        // Property becomes vacant
-        newStatus = 'vacant';
-        break;
-      case 'vacant_end':
-        // Property is no longer vacant - default to ppr, subsequent events will override
-        newStatus = 'ppr';
-        break;
       case 'building_start':
         // Construction/building begins
         newStatus = 'construction';
@@ -647,6 +631,18 @@ export const calculateStatusPeriods = (events: TimelineEvent[]): StatusPeriod[] 
       case 'building_end':
         // Construction/building ends - property becomes vacant
         newStatus = 'vacant';
+        break;
+      case 'refinance':
+        // Inherit event — force a period break so the status label
+        // appears in the correct segment (e.g. Move In → Inherit)
+        if (currentStatus && currentStartDate) {
+          periods.push({
+            status: currentStatus,
+            startDate: currentStartDate,
+            endDate: event.date,
+          });
+          currentStartDate = event.date;
+        }
         break;
       case 'living_in_rental_start':
         // Living in a rental property (renting from someone else while owning this property)
@@ -660,8 +656,8 @@ export const calculateStatusPeriods = (events: TimelineEvent[]): StatusPeriod[] 
         newStatus = 'sold';
         break;
       case 'subdivision':
-        // Subdivision means property no longer exists as originally held
-        newStatus = 'subdivided';
+        // Don't change status — the "Subdivided into X lots" event circle already
+        // communicates the subdivision. Status should continue from Lot 1's events.
         break;
       case 'status_change':
         newStatus = event.newStatus || null;
@@ -670,7 +666,6 @@ export const calculateStatusPeriods = (events: TimelineEvent[]): StatusPeriod[] 
 
     // If status changed, close previous period and start new one
     if (newStatus && newStatus !== currentStatus) {
-      console.log(`  📊 Status change: ${currentStatus} → ${newStatus} at ${event.date.toISOString().split('T')[0]} (${event.type})`);
       if (currentStatus && currentStartDate) {
         periods.push({
           status: currentStatus,
@@ -693,7 +688,6 @@ export const calculateStatusPeriods = (events: TimelineEvent[]): StatusPeriod[] 
     });
   }
 
-  console.log('✅ Calculated status periods:', periods.map(p => ({ status: p.status, start: p.startDate.toISOString().split('T')[0], end: p.endDate ? p.endDate.toISOString().split('T')[0] : 'ongoing' })));
   return periods;
 };
 
@@ -1276,10 +1270,6 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
       if (event.type === 'rent_end' && checkboxState.rentEndAsMoveIn) {
         findAndMoveLinkedEvent('move_in', 'rentEndAsMoveIn');
       }
-      if (event.type === 'vacant_end' && checkboxState.vacantEndAsMoveIn) {
-        findAndMoveLinkedEvent('move_in', 'vacantEndAsMoveIn');
-      }
-
       // GROUP 2: Events that create rent_start
       if (event.type === 'purchase' && checkboxState.purchaseAsRent) {
         findAndMoveLinkedEvent('rent_start', 'purchaseAsRent');
@@ -1287,10 +1277,6 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
       if (event.type === 'move_out' && checkboxState.moveOutAsRent) {
         findAndMoveLinkedEvent('rent_start', 'moveOutAsRent');
       }
-      if (event.type === 'vacant_end' && checkboxState.vacantEndAsRent) {
-        findAndMoveLinkedEvent('rent_start', 'vacantEndAsRent');
-      }
-
       // GROUP 3: Events that create status_change (vacant)
       // Use additionalFilter to match status_change with newStatus: 'vacant'
       if (event.type === 'purchase' && checkboxState.purchaseAsVacant) {
@@ -1336,13 +1322,28 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
             : p
         ),
       }));
+    } else if (
+      (eventToDelete?.type === 'ownership_change' || eventToDelete?.type === 'refinance') &&
+      eventToDelete.previousOwners &&
+      eventToDelete.propertyId
+    ) {
+      const propertyId = eventToDelete.propertyId;
+      const previousOwners = eventToDelete.previousOwners;
+      set((state) => ({
+        events: state.events.filter((e) => e.id !== id),
+        properties: state.properties.map((p) =>
+          p.id === propertyId
+            ? { ...p, owners: previousOwners }
+            : p
+        ),
+      }));
     } else {
       set((state) => ({
         events: state.events.filter((e) => e.id !== id),
       }));
     }
   },
-  
+
   moveEvent: (id, newPosition) => {
     const state = get();
     const event = state.events.find((e) => e.id === id);
@@ -1784,40 +1785,6 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
       description: 'Kitchen and bathroom renovation',
     });
 
-    // Property 4: Investment Property (Vacant Period)
-    const prop4 = {
-      id: 'demo-prop-4',
-      name: 'Boyne Island Property, Qld 4680',
-      address: 'Investment Property',
-      color: propertyColors[3],
-      currentStatus: 'vacant' as PropertyStatus,
-      isRental: false,
-      branch: 3,
-    };
-    demoProperties.push(prop4);
-
-    demoEvents.push({
-      id: 'demo-event-4-1',
-      propertyId: prop4.id,
-      type: 'vacant_start',
-      date: new Date(2020, 0, 1),
-      title: 'Vacant (Start)',
-      position: 0,
-      color: eventColors.vacant_start,
-      description: 'Property became vacant',
-    });
-
-    demoEvents.push({
-      id: 'demo-event-4-2',
-      propertyId: prop4.id,
-      type: 'vacant_end',
-      date: new Date(2021, 8, 29), // September 29, 2021
-      title: 'Vacant (End)',
-      position: 0,
-      color: eventColors.vacant_end,
-      description: 'Property no longer vacant',
-    });
-
     // Set the demo data with 30-year range
     const today = new Date();
     const thirtyYearsAgo = new Date(today);
@@ -2057,6 +2024,7 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
             newOwners: event.newOwners,
             ownershipChangeReason: event.ownershipChangeReason,
             ownershipChangeReasonOther: event.ownershipChangeReasonOther,
+            previousOwners: event.previousOwners,
             // Subdivision details
             subdivisionDetails: event.subdivisionDetails,
             // Depreciating assets value
@@ -2225,6 +2193,7 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
                 newOwners: historyItem.newOwners,
                 ownershipChangeReason: historyItem.ownershipChangeReason,
                 ownershipChangeReasonOther: historyItem.ownershipChangeReasonOther,
+                previousOwners: historyItem.previousOwners,
                 // Subdivision details
                 subdivisionDetails: historyItem.subdivisionDetails,
                 // Depreciating assets value

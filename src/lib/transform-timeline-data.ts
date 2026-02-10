@@ -23,8 +23,6 @@ function generateCGTContextNotes(event: TimelineEvent): string {
     if (cs.moveOutAsRent) notes.push("Property became rental after move-out");
     if (cs.rentEndAsVacant) notes.push("Property became vacant after rental ended");
     if (cs.rentEndAsMoveIn) notes.push("Owner moved in after rental ended");
-    if (cs.vacantEndAsMoveIn) notes.push("Owner moved in after vacancy");
-    if (cs.vacantEndAsRent) notes.push("Property became rental after vacancy");
     if (cs.hasBusinessUse) notes.push("Property has business/home office use");
     if (cs.hasPartialRental) notes.push("Property has partial rental arrangement");
     if (cs.isNonResident) notes.push("Owner is non-resident for tax purposes (no CGT discount)");

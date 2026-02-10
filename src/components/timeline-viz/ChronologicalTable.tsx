@@ -11,6 +11,7 @@ import {
   getPurchasePrice,
   getSalePrice,
   getImprovementAmount,
+  getDivision43Deductions,
 } from '@/lib/cost-base-calculations';
 
 interface ChronologicalTableProps {
@@ -39,8 +40,6 @@ export default function ChronologicalTable({ properties, events }: Chronological
       improvement: 'Capital Improvement',
       refinance: 'Inherit',
       status_change: 'Status Change',
-      vacant_start: 'Vacant (Start)',
-      vacant_end: 'Vacant (End)',
       custom: 'Custom Event',
     };
     return labels[type] || type;
@@ -76,7 +75,8 @@ export default function ChronologicalTable({ properties, events }: Chronological
         const purchaseCostBase = calculatePurchaseIncidentalCosts(purchaseEvent);
         const improvementCostBase = calculateImprovementCosts(improvementEvents);
         const saleCostBase = calculateSellingCosts(saleEvent);
-        const totalCostBase = purchasePrice + purchaseCostBase + improvementCostBase + saleCostBase;
+        const div43Deductions = getDivision43Deductions(saleEvent);
+        const totalCostBase = purchasePrice + purchaseCostBase + improvementCostBase + saleCostBase - div43Deductions;
 
         return (
           <div key={property.id} className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">

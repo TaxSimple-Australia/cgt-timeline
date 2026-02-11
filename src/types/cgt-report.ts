@@ -86,9 +86,25 @@ export interface VerificationRecord {
   // Status
   status: VerificationStatus;
   errorMessage?: string;
+
+  // Review (admin annotation)
+  review?: VerificationReview;
 }
 
 export type VerificationStatus = 'success' | 'failed' | 'error' | 'timeout';
+
+export type ReviewCorrectness = 'correct' | 'partial' | 'incorrect' | 'unsure';
+export type ReviewStatus = 'pending' | 'reviewed' | 'skipped';
+
+export interface VerificationReview {
+  reviewStatus: ReviewStatus;
+  correctness?: ReviewCorrectness;
+  correctAnswer?: string;
+  reviewNotes?: string;
+  reviewedAt?: string;
+  reviewedBy?: string;
+  editedAt?: string;
+}
 
 /**
  * CCH API Response structure
@@ -286,6 +302,7 @@ export interface CGTReportSummary {
     alignment: 'high' | 'medium' | 'low';
     matchPercentage: number;
     verifiedAt: string;
+    reviewStatus?: ReviewStatus;
   };
 }
 

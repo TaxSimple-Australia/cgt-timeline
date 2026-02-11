@@ -12,6 +12,7 @@ import type {
   CGTReportSummary,
   CGTReportWithVerifications,
   VerificationRecord,
+  VerificationReview,
   ReportListFilters,
   PaginationOptions,
   PaginatedResponse,
@@ -350,6 +351,7 @@ export async function listReports(
             alignment: verif.comparison.overallAlignment,
             matchPercentage: verif.comparison.matchPercentage,
             verifiedAt: verif.verifiedAt,
+            reviewStatus: verif.review?.reviewStatus,
           };
         }
       }
@@ -470,6 +472,40 @@ export async function getVerificationHistory(reportId: string): Promise<Verifica
   );
 
   return verifications;
+}
+
+/**
+ * Update the review on a verification record
+ */
+export async function updateVerificationReview(
+  verificationId: string,
+  review: VerificationReview
+): Promise<VerificationRecord | null> {
+  const redis = getRedis();
+  const verification = await getVerification(verificationId);
+
+  if (!verification) {
+    console.error(`❌ Cannot update review: Verification ${verificationId} not found`);
+    return null;
+  }
+
+  const updatedVerification: VerificationRecord = {
+    ...verification,
+    review,
+  };
+
+  await redis.set(
+    `${STORAGE.VERIFICATION_KEY}${verificationId}`,
+    JSON.stringify(updatedVerification),
+    { ex: STORAGE.VERIFICATION_TTL }
+  );
+
+  console.log(`✅ Verification review updated: ${verificationId}`, {
+    reviewStatus: review.reviewStatus,
+    correctness: review.correctness,
+  });
+
+  return updatedVerification;
 }
 
 // ============================================

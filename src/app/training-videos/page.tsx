@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -10,9 +10,7 @@ import {
   Rocket,
   TrendingUp,
   Settings,
-  FileText,
   Search,
-  Filter,
   Video,
   Sparkles,
   ChevronRight,
@@ -23,61 +21,97 @@ import LandingFooter from '@/components/landing/LandingFooter';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
-// Video Player Modal Component
-function VideoPlayerModal({
-  isOpen,
-  onClose,
+// Fullscreen Video Player with YouTube IFrame API (auto-closes when video ends)
+function FullscreenVideoPlayer({
   youtubeId,
-  title
+  onClose,
 }: {
-  isOpen: boolean;
-  onClose: () => void;
   youtubeId: string;
-  title: string;
+  onClose: () => void;
 }) {
-  if (!isOpen) return null;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const playerRef = useRef<any>(null);
+  const playerDivId = `yt-training-player-${youtubeId}`;
+
+  // Load YouTube IFrame API once
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if ((window as any).YT && (window as any).YT.Player) return;
+    if (!document.getElementById('yt-iframe-api')) {
+      const tag = document.createElement('script');
+      tag.id = 'yt-iframe-api';
+      tag.src = 'https://www.youtube.com/iframe_api';
+      document.head.appendChild(tag);
+    }
+    (window as any).onYouTubeIframeAPIReady = () => {};
+  }, []);
+
+  // Create player
+  useEffect(() => {
+    const waitForApi = () => {
+      const YT = (window as any).YT;
+      if (!YT || !YT.Player) {
+        setTimeout(waitForApi, 100);
+        return;
+      }
+      const el = document.getElementById(playerDivId);
+      if (!el) return;
+
+      playerRef.current = new YT.Player(playerDivId, {
+        videoId: youtubeId,
+        playerVars: { autoplay: 1, rel: 0, modestbranding: 1 },
+        events: {
+          onStateChange: (event: any) => {
+            // 0 = ended
+            if (event.data === 0) onClose();
+          },
+        },
+      });
+    };
+
+    waitForApi();
+
+    return () => {
+      if (playerRef.current) {
+        try { playerRef.current.destroy(); } catch {}
+        playerRef.current = null;
+      }
+    };
+  }, [youtubeId, onClose, playerDivId]);
+
+  // Escape key closes
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [onClose]);
 
   return (
-    <AnimatePresence>
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.2 }}
+      className="fixed inset-0 z-[9999] bg-black/95 flex items-center justify-center"
+      onClick={onClose}
+    >
+      {/* Close button */}
+      <button
         onClick={onClose}
+        className="absolute top-4 right-4 z-10 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors"
+        aria-label="Close video"
       >
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 0.95 }}
-          transition={{ duration: 0.2 }}
-          className="relative w-full max-w-5xl bg-slate-900 rounded-xl overflow-hidden shadow-2xl"
-          onClick={(e) => e.stopPropagation()}
-        >
-          {/* Header */}
-          <div className="flex items-center justify-between p-4 border-b border-slate-700">
-            <h3 className="text-lg font-semibold text-white">{title}</h3>
-            <button
-              onClick={onClose}
-              className="p-2 hover:bg-slate-800 rounded-lg transition-colors"
-            >
-              <X className="w-5 h-5 text-slate-400" />
-            </button>
-          </div>
+        <X className="w-6 h-6" />
+      </button>
 
-          {/* YouTube Embed */}
-          <div className="relative aspect-video">
-            <iframe
-              src={`https://www.youtube.com/embed/${youtubeId}?autoplay=1&rel=0`}
-              title={title}
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-              className="absolute inset-0 w-full h-full"
-            />
-          </div>
-        </motion.div>
-      </motion.div>
-    </AnimatePresence>
+      {/* Video container */}
+      <div
+        className="w-full max-w-6xl aspect-video mx-4"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div id={playerDivId} className="w-full h-full" />
+      </div>
+    </motion.div>
   );
 }
 
@@ -101,7 +135,7 @@ export default function TrainingVideosPage() {
       title: 'How to Add Events',
       description: 'Learn how to add different types of events to your property timeline including purchases, sales, improvements, and more',
       duration: '10:00',
-      thumbnail: `https://img.youtube.com/vi/Ok0H627f6ls/maxresdefault.jpg`,
+      thumbnail: '/youtube_thumbnail_how_to_add_events.jpeg',
       youtubeId: 'Ok0H627f6ls',
       isNew: true,
     },
@@ -455,15 +489,15 @@ export default function TrainingVideosPage() {
 
       <LandingFooter />
 
-      {/* Video Player Modal */}
-      {activeVideo && (
-        <VideoPlayerModal
-          isOpen={!!activeVideo}
-          onClose={() => setActiveVideo(null)}
-          youtubeId={activeVideo.youtubeId}
-          title={activeVideo.title}
-        />
-      )}
+      {/* Fullscreen Video Player */}
+      <AnimatePresence>
+        {activeVideo && (
+          <FullscreenVideoPlayer
+            youtubeId={activeVideo.youtubeId}
+            onClose={() => setActiveVideo(null)}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }

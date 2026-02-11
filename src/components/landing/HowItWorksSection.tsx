@@ -7,27 +7,10 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 
-const VIDEOS = [
-  {
-    id: 'tHd5YmChsaA',
-    title: 'How It Works',
-    thumbnail: '/landing.png',
-    hoverLabel: 'Watch How It Works',
-    width: 960,
-    height: 540,
-  },
-  {
-    id: 'Ok0H627f6ls',
-    title: 'How To Add Events',
-    thumbnail: '/youtube_thumbnail_how_to_add_events.jpeg',
-    hoverLabel: 'Watch How To Add Events',
-    width: 960,
-    height: 540,
-  },
-];
+const YOUTUBE_VIDEO_ID = 'tHd5YmChsaA';
 
 export default function HowItWorksSection() {
-  const [activeVideoId, setActiveVideoId] = useState<string | null>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const playerRef = useRef<any>(null);
   const playerDivId = 'yt-howitworks-player';
@@ -50,12 +33,12 @@ export default function HowItWorksSection() {
       try { playerRef.current.destroy(); } catch {}
       playerRef.current = null;
     }
-    setActiveVideoId(null);
+    setIsPlaying(false);
   }, []);
 
-  // Create the YT player when a video is selected
+  // Create the YT player when playing
   useEffect(() => {
-    if (!activeVideoId) return;
+    if (!isPlaying) return;
 
     const waitForApi = () => {
       const YT = (window as any).YT;
@@ -67,7 +50,7 @@ export default function HowItWorksSection() {
       if (!el) return;
 
       playerRef.current = new YT.Player(playerDivId, {
-        videoId: activeVideoId,
+        videoId: YOUTUBE_VIDEO_ID,
         playerVars: { autoplay: 1, rel: 0, modestbranding: 1 },
         events: {
           onStateChange: (event: any) => {
@@ -85,15 +68,15 @@ export default function HowItWorksSection() {
         playerRef.current = null;
       }
     };
-  }, [activeVideoId, handleClose]);
+  }, [isPlaying, handleClose]);
 
   // Escape key closes modal
   useEffect(() => {
-    if (!activeVideoId) return;
+    if (!isPlaying) return;
     const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') handleClose(); };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [activeVideoId, handleClose]);
+  }, [isPlaying, handleClose]);
 
   return (
     <>
@@ -123,44 +106,38 @@ export default function HowItWorksSection() {
             </p>
           </motion.div>
 
-          {/* Video Thumbnails */}
-          <div className="mb-16 grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
-            {VIDEOS.map((video, index) => (
-              <motion.div
-                key={video.id}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: 0.2 + index * 0.15 }}
-                className="flex flex-col items-center"
-              >
-                <button
-                  onClick={() => setActiveVideoId(video.id)}
-                  className="relative w-full rounded-xl overflow-hidden shadow-2xl border border-cyan-500/50 shadow-cyan-500/50 group cursor-pointer"
-                >
-                  <Image
-                    src={video.thumbnail}
-                    alt={`${video.title} — Click to play video`}
-                    width={video.width}
-                    height={video.height}
-                    className="w-full h-auto"
-                    priority={index === 0}
-                  />
-                  {/* Play overlay */}
-                  <div className="absolute inset-0 bg-black/30 group-hover:bg-black/40 transition-colors flex items-center justify-center">
-                    <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-white/90 group-hover:bg-white group-hover:scale-110 transition-all flex items-center justify-center shadow-2xl">
-                      <Play className="w-7 h-7 md:w-9 md:h-9 text-slate-900 ml-1" fill="currentColor" />
-                    </div>
-                  </div>
-                  {/* Hover label */}
-                  <div className="absolute bottom-4 left-1/2 -translate-x-1/2 px-4 py-1.5 rounded-full bg-black/60 backdrop-blur-sm text-white text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-                    {video.hoverLabel}
-                  </div>
-                </button>
-                <p className="mt-3 text-base font-medium text-slate-300">{video.title}</p>
-              </motion.div>
-            ))}
-          </div>
+          {/* Video Thumbnail */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="mb-16 max-w-7xl mx-auto"
+          >
+            <button
+              onClick={() => setIsPlaying(true)}
+              className="relative w-full rounded-2xl overflow-hidden shadow-2xl border-2 border-cyan-500/50 shadow-cyan-500/50 group cursor-pointer"
+            >
+              <Image
+                src="/Cgt_brain_ai_rescue_thumbnail.png"
+                alt="How It Works — Click to play video"
+                width={1920}
+                height={1080}
+                className="w-full h-auto"
+                priority
+              />
+              {/* Play overlay */}
+              <div className="absolute inset-0 bg-black/30 group-hover:bg-black/40 transition-colors flex items-center justify-center">
+                <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-white/90 group-hover:bg-white group-hover:scale-110 transition-all flex items-center justify-center shadow-2xl">
+                  <Play className="w-7 h-7 md:w-9 md:h-9 text-slate-900 ml-1" fill="currentColor" />
+                </div>
+              </div>
+              {/* Hover label */}
+              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 px-4 py-1.5 rounded-full bg-black/60 backdrop-blur-sm text-white text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                Watch How It Works
+              </div>
+            </button>
+          </motion.div>
 
           {/* CTA */}
           <motion.div
@@ -182,7 +159,7 @@ export default function HowItWorksSection() {
 
       {/* Fullscreen Video Modal */}
       <AnimatePresence>
-        {activeVideoId && (
+        {isPlaying && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}

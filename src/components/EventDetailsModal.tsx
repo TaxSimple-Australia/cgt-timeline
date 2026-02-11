@@ -84,6 +84,7 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
   const [showSummary, setShowSummary] = useState(false);
   const [showDateTooltip, setShowDateTooltip] = useState(false);
   const [showMarketValuationTooltip, setShowMarketValuationTooltip] = useState(false);
+  const [showExcludedForeignResidentTooltip, setShowExcludedForeignResidentTooltip] = useState(false);
 
   // Custom event specific state
   const [customColor, setCustomColor] = useState(event.color || '#6B7280');
@@ -344,6 +345,15 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
   );
   const [ownershipChangeReason, setOwnershipChangeReason] = useState(event.ownershipChangeReason || 'sale_transfer');
   const [ownershipChangeReasonOther, setOwnershipChangeReasonOther] = useState(event.ownershipChangeReasonOther || '');
+
+  // Inherit event - Excluded foreign resident status
+  const [excludedForeignResident, setExcludedForeignResident] = useState(() => {
+    // Check if checkbox state is persisted
+    if (event.checkboxState?.excludedForeignResident !== undefined) {
+      return event.checkboxState.excludedForeignResident;
+    }
+    return false;
+  });
 
   // Track original checkbox states to detect changes (fixes duplicate companion event bug)
   // This captures the checkbox state when modal OPENS, not when it re-renders
@@ -941,6 +951,7 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
         isNonResident,
         division40Claimed,
         division43Claimed,
+        excludedForeignResident,
       };
 
       console.log('💾 Saving event with checkbox state:', {
@@ -3012,6 +3023,47 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
                     </div>
                   )}
                   </>
+                )}
+
+                {/* Excluded Foreign Resident Checkbox - Only for inherit (refinance) events */}
+                {eventType === 'refinance' && (
+                  <div className="flex items-start gap-3 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                    <input
+                      type="checkbox"
+                      id="excludedForeignResident"
+                      checked={excludedForeignResident}
+                      onChange={(e) => setExcludedForeignResident(e.target.checked)}
+                      className="w-4 h-4 mt-0.5 text-blue-600 bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 rounded focus:ring-2 focus:ring-blue-500 cursor-pointer"
+                    />
+                    <label
+                      htmlFor="excludedForeignResident"
+                      className="flex-1 flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300 cursor-pointer"
+                    >
+                      Excluded Foreign Resident
+                      <div className="relative">
+                        <Info
+                          className="w-4 h-4 text-blue-500 dark:text-blue-400 cursor-help"
+                          onMouseEnter={() => setShowExcludedForeignResidentTooltip(true)}
+                          onMouseLeave={() => setShowExcludedForeignResidentTooltip(false)}
+                        />
+                        <AnimatePresence>
+                          {showExcludedForeignResidentTooltip && (
+                            <motion.div
+                              initial={{ opacity: 0, y: -5 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              exit={{ opacity: 0, y: -5 }}
+                              transition={{ duration: 0.15 }}
+                              className="absolute left-1/2 -translate-x-1/2 top-full mt-2 bg-slate-900 dark:bg-slate-800 text-white px-4 py-3 rounded-lg shadow-2xl text-sm min-w-[320px] max-w-[400px] z-50 pointer-events-none border-2 border-blue-500/30"
+                            >
+                              <p className="text-slate-200 leading-relaxed">
+                                The deceased must not have been an "excluded foreign resident" (i.e., a foreign resident for a continuous period of more than six years immediately before death)
+                              </p>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </div>
+                    </label>
+                  </div>
                 )}
 
                 {/* Leaving Owners */}

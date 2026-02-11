@@ -537,6 +537,7 @@ export default function PropertyBranch({
           onHoverChange={onHoverChange}
           onBandClick={handleStatusBandClick}
           subdivisionDate={subdivisionDate || undefined}
+          eventsWithPositions={eventsWithOffsetsAndTiers}
         />
 
       {/* Timeline Gaps for this Property */}

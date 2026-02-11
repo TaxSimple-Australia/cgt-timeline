@@ -51,10 +51,10 @@ export default function VerticalHeroLayout() {
           transition={{ duration: 0.5, delay: 0.1 }}
           className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-6 leading-tight"
         >
-          Calculate Your Capital Gains Tax
+          Calculate Your Residential Capital Gains Tax
           <br />
           <span className="bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
-            in Minutes, Not Days
+            in Minutes
           </span>
         </motion.h1>
 

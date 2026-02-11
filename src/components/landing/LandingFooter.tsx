@@ -1,11 +1,49 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { MapPin, Phone, Mail, Globe, Facebook, Linkedin, Twitter, Youtube } from 'lucide-react';
+import { MapPin, Phone, Mail, Globe, Facebook, Linkedin, Twitter, Youtube, AlertCircle, User, LogOut } from 'lucide-react';
 import CGTBrainLogo from '@/components/branding/CGTBrainLogo';
+import CookiePreferencesModal from '@/components/CookiePreferencesModal';
+import CopyrightModal from '@/components/CopyrightModal';
+import AdminLoginModal from '@/components/admin/AdminLoginModal';
+import AdviserLoginModal from '@/components/AdviserLoginModal';
 
 export default function LandingFooter() {
+  const [showCookieModal, setShowCookieModal] = useState(false);
+  const [showCopyrightModal, setShowCopyrightModal] = useState(false);
+  const [showAdminLogin, setShowAdminLogin] = useState(false);
+  const [showAdviserLogin, setShowAdviserLogin] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userRole, setUserRole] = useState<'admin' | 'adviser' | null>(null);
+
+  // Check login status on mount
+  useEffect(() => {
+    const adminLoggedIn = sessionStorage.getItem('adminLoggedIn') === 'true';
+    const adviserLoggedIn = sessionStorage.getItem('adviserLoggedIn') === 'true';
+
+    if (adminLoggedIn) {
+      setIsLoggedIn(true);
+      setUserRole('admin');
+    } else if (adviserLoggedIn) {
+      setIsLoggedIn(true);
+      setUserRole('adviser');
+    }
+  }, []);
+
+  const handleLoginSuccess = (role: 'admin' | 'adviser') => {
+    setIsLoggedIn(true);
+    setUserRole(role);
+    setShowAdminLogin(false);
+    setShowAdviserLogin(false);
+  };
+
+  const handleLogout = () => {
+    sessionStorage.removeItem('adminLoggedIn');
+    sessionStorage.removeItem('adviserLoggedIn');
+    setIsLoggedIn(false);
+    setUserRole(null);
+  };
   return (
     <footer className="bg-slate-900">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
@@ -87,9 +125,33 @@ export default function LandingFooter() {
                 </Link>
               </li>
               <li>
+                <button
+                  onClick={() => setShowCookieModal(true)}
+                  className="text-slate-400 hover:text-white transition-colors text-sm text-left"
+                >
+                  Cookie Settings
+                </button>
+              </li>
+              <li>
                 <Link href="/terms" className="text-slate-400 hover:text-white transition-colors text-sm">
                   Terms of Use
                 </Link>
+              </li>
+              <li>
+                <button
+                  onClick={() => setShowAdviserLogin(true)}
+                  className="text-slate-400 hover:text-white transition-colors text-sm text-left"
+                >
+                  Adviser Portal
+                </button>
+              </li>
+              <li>
+                <button
+                  onClick={() => setShowAdminLogin(true)}
+                  className="text-slate-400 hover:text-white transition-colors text-sm text-left"
+                >
+                  Admin Portal
+                </button>
               </li>
             </ul>
           </div>
@@ -141,13 +203,28 @@ export default function LandingFooter() {
         </div>
       </div>
 
+      {/* Disclaimer Section */}
+      <div className="border-t border-slate-800 bg-slate-900">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div className="flex items-center gap-2 justify-center">
+            <AlertCircle className="w-4 h-4 text-amber-500 flex-shrink-0" />
+            <p className="text-slate-400 text-xs whitespace-nowrap">
+              <span className="font-semibold text-slate-300">Disclaimer:</span> This AI-generated report is for information only and does not constitute financial advice; please review and confirm with a qualified professional.
+            </p>
+          </div>
+        </div>
+      </div>
+
       {/* Copyright Bar */}
       <div className="border-t border-slate-800 bg-slate-950">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-            <p className="text-slate-500 text-sm">
+            <button
+              onClick={() => setShowCopyrightModal(true)}
+              className="text-slate-500 hover:text-slate-300 text-sm transition-colors cursor-pointer"
+            >
               Copyright © CGT Brain AI 2026. All rights reserved.
-            </p>
+            </button>
             <div className="flex flex-wrap justify-center items-center gap-2 text-sm text-slate-500">
               <span>ABN: 79 684 289 843</span>
               <span>•</span>
@@ -156,6 +233,30 @@ export default function LandingFooter() {
           </div>
         </div>
       </div>
+
+      {/* Cookie Preferences Modal */}
+      <CookiePreferencesModal
+        isOpen={showCookieModal}
+        onClose={() => setShowCookieModal(false)}
+      />
+
+      {/* Copyright Modal */}
+      <CopyrightModal
+        isOpen={showCopyrightModal}
+        onClose={() => setShowCopyrightModal(false)}
+      />
+
+      {/* Login Modals */}
+      <AdminLoginModal
+        isOpen={showAdminLogin}
+        onClose={() => setShowAdminLogin(false)}
+        onSuccess={() => handleLoginSuccess('admin')}
+      />
+      <AdviserLoginModal
+        isOpen={showAdviserLogin}
+        onClose={() => setShowAdviserLogin(false)}
+        onLoginSuccess={() => handleLoginSuccess('adviser')}
+      />
     </footer>
   );
 }

@@ -905,7 +905,7 @@ export default function PropertyPanel() {
                     className="absolute left-1/2 -translate-x-1/2 top-full mt-2 bg-slate-900 dark:bg-slate-800 text-white px-4 py-3 rounded-lg shadow-2xl text-sm min-w-[280px] max-w-[360px] z-50 pointer-events-none border-2 border-blue-500/30"
                   >
                     <p className="text-slate-200 leading-relaxed">
-                      If an asset was acquired before 21 September 1999, you may be eligible to use the indexation method.
+                      If an asset was acquired at or before 11.45 am EST on 21 September 1999, you may be eligible to use the indexation method to calculate the cost base for capital gains tax purposes.
                     </p>
                   </motion.div>
                 )}
@@ -922,11 +922,6 @@ export default function PropertyPanel() {
             {ownershipDays > 365 && (
               <div className="mt-2 text-xs text-green-600 dark:text-green-400 font-medium">
                 ✓ Eligible for 50% CGT discount
-              </div>
-            )}
-            {purchaseEvent && purchaseEvent.date <= new Date('1999-09-21T11:45:00') && (
-              <div className="mt-2 text-xs text-amber-600 dark:text-amber-400 font-medium">
-                If an asset was acquired at or before 11.45 am EST on 21 September 1999, you may be eligible to use the indexation method to calculate the cost base for capital gains tax purposes.
               </div>
             )}
           </div>

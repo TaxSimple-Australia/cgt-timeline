@@ -105,6 +105,7 @@ export interface TimelineEvent {
     isNonResident?: boolean;          // Sale: Non-resident status
     division40Claimed?: boolean;      // Sale: Division 40 depreciating assets claimed
     division43Claimed?: boolean;      // Sale: Division 43 capital works claimed
+    excludedForeignResident?: boolean; // Inherit: Excluded foreign resident status
   };
 
   // NEW: Dynamic Cost Base Items

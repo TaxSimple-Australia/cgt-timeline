@@ -11,6 +11,7 @@ interface TextInputProps {
   disabled?: boolean;
   placeholder?: string;
   currentTranscript?: string;
+  selectedProvider?: string;
 }
 
 export default function TextInput({
@@ -19,6 +20,7 @@ export default function TextInput({
   disabled = false,
   placeholder = 'Type a message...',
   currentTranscript = '',
+  selectedProvider,
 }: TextInputProps) {
   const [message, setMessage] = useState('');
   const [attachedFiles, setAttachedFiles] = useState<File[]>([]);
@@ -96,9 +98,9 @@ export default function TextInput({
 
   return (
     <div className="border-t border-gray-200 dark:border-gray-700 p-3">
-      {/* Media support warning - appears when files are attached */}
+      {/* Media support warning - only show for deepseek (no vision support) */}
       <AnimatePresence>
-        {attachedFiles.length > 0 && (
+        {attachedFiles.length > 0 && selectedProvider === 'deepseek' && (
           <motion.div
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: 'auto', opacity: 1 }}
@@ -107,7 +109,7 @@ export default function TextInput({
           >
             <AlertTriangle className="w-4 h-4 text-amber-500 flex-shrink-0" />
             <p className="text-xs text-amber-700 dark:text-amber-300">
-              Media support is still under development and might not work properly.
+              Deepseek does not support image/media analysis. Switch to Claude, GPT-4, or Gemini.
             </p>
           </motion.div>
         )}

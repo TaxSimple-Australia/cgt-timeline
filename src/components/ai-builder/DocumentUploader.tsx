@@ -11,6 +11,7 @@ interface DocumentUploaderProps {
   onActionsApproved: (actions: TimelineAction[]) => void;
   isProcessing: boolean;
   processedDocuments: ProcessedDocument[];
+  llmProvider?: string;
 }
 
 export default function DocumentUploader({
@@ -18,6 +19,7 @@ export default function DocumentUploader({
   onActionsApproved,
   isProcessing,
   processedDocuments,
+  llmProvider = 'deepseek',
 }: DocumentUploaderProps) {
   const [isDragging, setIsDragging] = useState(false);
   const [selectedDocument, setSelectedDocument] = useState<ProcessedDocument | null>(null);
@@ -59,6 +61,7 @@ export default function DocumentUploader({
     // This will call the document processing API
     const formData = new FormData();
     formData.append('file', file);
+    formData.append('llmProvider', llmProvider);
 
     try {
       const response = await fetch('/api/ai-builder/process-document', {
@@ -182,9 +185,14 @@ export default function DocumentUploader({
       {/* Processed documents list */}
       {processedDocuments.length > 0 && (
         <div className="mt-4 flex-1 overflow-y-auto">
-          <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Processed Documents
-          </h4>
+          <div className="flex items-center justify-between mb-2">
+            <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300">
+              Processed Documents
+            </h4>
+          </div>
+          <p className="text-xs text-blue-600 dark:text-blue-400 mb-2">
+            Documents are available in Chat tab for follow-up questions
+          </p>
           <div className="space-y-2">
             {processedDocuments.map((doc, index) => (
               <button

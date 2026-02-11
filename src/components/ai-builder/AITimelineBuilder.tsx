@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
   X,
   Minimize2,
@@ -11,6 +11,7 @@ import {
   FileText,
   Undo2,
   Redo2,
+  GripVertical,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
@@ -26,6 +27,7 @@ import type {
   ConversationMessage,
   TimelineAction,
   ProcessedDocument,
+  DocumentContext,
 } from '@/types/ai-builder';
 
 interface AITimelineBuilderProps {
@@ -39,6 +41,11 @@ interface VoiceCapabilities {
   available: boolean;
   checked: boolean;
 }
+
+// Panel resize constants
+const MIN_WIDTH = 380;
+const MAX_WIDTH = 700;
+const DEFAULT_WIDTH = 500;
 
 export default function AITimelineBuilder({ isOpen, onClose }: AITimelineBuilderProps) {
   const [activeTab, setActiveTab] = useState<TabType>('chat'); // Default to chat
@@ -54,6 +61,19 @@ export default function AITimelineBuilder({ isOpen, onClose }: AITimelineBuilder
   });
   const [aiBuilderProviders, setAiBuilderProviders] = useState<Record<string, string>>({});
   const [aiBuilderSelectedProvider, setAiBuilderSelectedProvider] = useState<string>('deepseek');
+
+  // Panel resizing state
+  const [panelWidth, setPanelWidth] = useState(DEFAULT_WIDTH);
+  const [isResizing, setIsResizing] = useState(false);
+
+  // Document context state (for bridging docs to chat)
+  const [documentContexts, setDocumentContexts] = useState<DocumentContext[]>([]);
+  const documentContextsRef = useRef<DocumentContext[]>([]);
+
+  // Sync ref with state
+  useEffect(() => {
+    documentContextsRef.current = documentContexts;
+  }, [documentContexts]);
 
   // Refs
   const conversationManagerRef = useRef<ConversationManager | null>(null);
@@ -141,6 +161,7 @@ export default function AITimelineBuilder({ isOpen, onClose }: AITimelineBuilder
           await actionExecutorRef.current.execute(action);
         }
       },
+      getDocumentContexts: () => documentContextsRef.current,
     });
 
   }, [isOpen, aiBuilderSelectedProvider]);
@@ -164,6 +185,40 @@ export default function AITimelineBuilder({ isOpen, onClose }: AITimelineBuilder
 
     checkVoice();
   }, [isOpen, voiceCapabilities.checked]);
+
+  // Panel resize handlers
+  const handleResizeStart = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    setIsResizing(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isResizing) return;
+
+    const handleMouseMove = (e: MouseEvent) => {
+      // Panel is right-aligned, so width = window width - mouse X - right margin (16px)
+      const newWidth = window.innerWidth - e.clientX - 16;
+      setPanelWidth(Math.min(MAX_WIDTH, Math.max(MIN_WIDTH, newWidth)));
+    };
+
+    const handleMouseUp = () => {
+      setIsResizing(false);
+    };
+
+    // Prevent text selection and set resize cursor during drag
+    document.body.style.userSelect = 'none';
+    document.body.style.cursor = 'ew-resize';
+
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseup', handleMouseUp);
+
+    return () => {
+      document.body.style.userSelect = '';
+      document.body.style.cursor = '';
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [isResizing]);
 
   /**
    * Convert a File to a MessageAttachment
@@ -236,9 +291,36 @@ export default function AITimelineBuilder({ isOpen, onClose }: AITimelineBuilder
     await conversationManagerRef.current.processUserInput(text, false, attachments);
   };
 
-  // Document processing
-  const handleDocumentProcessed = (doc: ProcessedDocument) => {
+  // Document processing - now bridges to chat
+  const handleDocumentProcessed = async (doc: ProcessedDocument) => {
     setProcessedDocuments((prev) => [...prev, doc]);
+
+    // Store document context for chat follow-ups
+    const newContext: DocumentContext = {
+      filename: doc.filename,
+      type: doc.type,
+      rawText: doc.rawText,
+      extractedData: doc.extractedData,
+      uploadedAt: new Date(),
+      base64: doc.base64,
+      mimeType: doc.mimeType,
+    };
+
+    setDocumentContexts((prev) => [...prev, newContext]);
+
+    // Add document context to conversation manager
+    if (conversationManagerRef.current) {
+      conversationManagerRef.current.addDocumentContext(newContext);
+    }
+
+    // Auto-switch to Chat tab
+    setActiveTab('chat');
+
+    // Auto-send confirmation request to LLM
+    if (conversationManagerRef.current) {
+      const confirmMsg = `I've uploaded "${doc.filename}". Please review and confirm what you understood from this document. Summarize the key property/CGT information you found.`;
+      await conversationManagerRef.current.processUserInput(confirmMsg, false);
+    }
   };
 
   const handleActionsApproved = async (actions: TimelineAction[]) => {
@@ -293,18 +375,35 @@ export default function AITimelineBuilder({ isOpen, onClose }: AITimelineBuilder
           y: 0,
           scale: 1,
           height: isMinimized ? 'auto' : 'calc(100vh - 96px)',
-          width: isMinimized ? 180 : 500,
+          width: isMinimized ? 180 : panelWidth,
           top: isMinimized ? 'auto' : '80px',
           bottom: '16px',
         }}
         exit={{ opacity: 0, y: 20, scale: 0.95 }}
-        transition={{ duration: 0.2 }}
+        transition={{ duration: isResizing ? 0 : 0.2 }}
         className={cn(
           'fixed right-4 bg-white dark:bg-gray-900',
           'rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700',
           'flex flex-col overflow-hidden z-50'
         )}
       >
+        {/* Resize handle on left edge */}
+        {!isMinimized && (
+          <div
+            onMouseDown={handleResizeStart}
+            className={cn(
+              'absolute left-0 top-0 bottom-0 w-1.5 cursor-ew-resize z-10',
+              'flex items-center justify-center',
+              'hover:bg-blue-500/20 active:bg-blue-500/30 transition-colors',
+              isResizing && 'bg-blue-500/30'
+            )}
+          >
+            <div className="flex flex-col gap-0.5 opacity-0 hover:opacity-60 transition-opacity">
+              <GripVertical className="w-3 h-3 text-gray-400" />
+            </div>
+          </div>
+        )}
+
         {/* Header */}
         <div className={cn(
           "flex items-center justify-between border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-purple-500 to-blue-500",
@@ -391,6 +490,11 @@ export default function AITimelineBuilder({ isOpen, onClose }: AITimelineBuilder
                 >
                   <MessageSquare className="w-4 h-4" />
                   Chat
+                  {documentContexts.length > 0 && (
+                    <span className="ml-1 px-1.5 py-0.5 text-[10px] font-bold bg-blue-500 text-white rounded-full">
+                      {documentContexts.length}
+                    </span>
+                  )}
                 </button>
 
                 {/* Voice Tab - OpenAI Realtime */}
@@ -437,11 +541,11 @@ export default function AITimelineBuilder({ isOpen, onClose }: AITimelineBuilder
               />
             </div>
 
-            {/* Deepseek media attachment warning - hide on Voice tab (uses OpenAI Realtime) */}
+            {/* Deepseek media attachment warning - only show for deepseek, hide on Voice tab */}
             {aiBuilderSelectedProvider === 'deepseek' && activeTab !== 'voice' && (
               <div className="px-4 py-2 bg-amber-50 dark:bg-amber-900/20 border-b border-amber-200 dark:border-amber-800">
                 <p className="text-xs text-amber-700 dark:text-amber-300">
-                  Note: Deepseek doesn&apos;t support image/media analysis. For attachments, use Claude, GPT-4, or Gemini.
+                  Deepseek doesn&apos;t support image/media analysis. For attachments, switch to Claude, GPT-4, or Gemini.
                 </p>
               </div>
             )}
@@ -483,6 +587,7 @@ export default function AITimelineBuilder({ isOpen, onClose }: AITimelineBuilder
                     onSend={(msg, files) => handleSendMessage(msg, files)}
                     onFileUpload={handleFileUpload}
                     disabled={isProcessing}
+                    selectedProvider={aiBuilderSelectedProvider}
                   />
                 </>
               )}
@@ -495,6 +600,7 @@ export default function AITimelineBuilder({ isOpen, onClose }: AITimelineBuilder
                     onActionsApproved={handleActionsApproved}
                     isProcessing={isDocProcessing}
                     processedDocuments={processedDocuments}
+                    llmProvider={aiBuilderSelectedProvider}
                   />
                 </div>
               )}

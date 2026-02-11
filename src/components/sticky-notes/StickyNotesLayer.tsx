@@ -1,12 +1,14 @@
 'use client';
 
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useMemo, useState, useEffect } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import { useTimelineStore } from '@/store/timeline';
 import StickyNote from './StickyNote';
+import StickyNoteArrow from './StickyNoteArrow';
 import {
   TimelineNotePosition,
   isTimelinePosition,
+  STICKY_NOTE_COLORS,
 } from '@/types/sticky-note';
 
 interface StickyNotesLayerProps {
@@ -41,9 +43,39 @@ export default function StickyNotesLayer({
     updateTimelineStickyNote,
     deleteTimelineStickyNote,
     moveTimelineStickyNote,
+    toggleStickyNoteArrow,
+    updateStickyNoteArrowTarget,
     timelineStart,
     timelineEnd,
   } = useTimelineStore();
+
+  // Track container dimensions for SVG viewBox
+  const [containerDims, setContainerDims] = useState({ width: 0, height: 0 });
+
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const updateDims = () => {
+      setContainerDims({
+        width: container.scrollWidth,
+        height: container.scrollHeight,
+      });
+    };
+
+    updateDims();
+
+    const observer = new ResizeObserver(updateDims);
+    observer.observe(container);
+
+    // Also update on scroll (scrollHeight may change)
+    container.addEventListener('scroll', updateDims);
+
+    return () => {
+      observer.disconnect();
+      container.removeEventListener('scroll', updateDims);
+    };
+  }, [containerRef]);
 
   // Convert a date to X position (percentage of timeline width)
   const dateToPosition = useCallback(
@@ -65,6 +97,19 @@ export default function StickyNotesLayer({
     [timelineStart, timelineEnd]
   );
 
+  // Convert anchor position to pixel coordinates
+  const getPixelPosition = useCallback(
+    (anchorDate: string, verticalOffset: number) => {
+      const container = containerRef.current;
+      if (!container) return { x: 0, y: 0 };
+      const xPercent = dateToPosition(new Date(anchorDate));
+      const x = (xPercent / 100) * container.scrollWidth;
+      const y = container.scrollHeight / 2 + verticalOffset;
+      return { x, y };
+    },
+    [dateToPosition, containerRef]
+  );
+
   // Calculate pixel position for a sticky note
   // Uses percentage for X and calc(50% + offset) for Y
   // The 50% is relative to the full scrollable content height
@@ -82,60 +127,62 @@ export default function StickyNotesLayer({
     [dateToPosition]
   );
 
-  // Handle drag end - update note position
-  // Uses raw clientX/clientY from native mouse events (same approach as timeline events)
-  const handleDragEnd = useCallback(
-    (noteId: string, clientX: number, clientY: number) => {
+  // Convert clientX/clientY to anchorDate + verticalOffset
+  const clientToTimelinePosition = useCallback(
+    (clientX: number, clientY: number) => {
       const container = containerRef.current;
-      if (!container) return;
+      if (!container) return null;
 
       const rect = container.getBoundingClientRect();
-
-      // X POSITION: Convert viewport X to percentage of container width
       const xPercent = ((clientX - rect.left) / rect.width) * 100;
       const newDate = positionToDate(Math.max(0, Math.min(100, xPercent)));
 
-      // Y POSITION: Must account for scroll and use full content height
-      // clientY is a viewport coordinate from the native mouseup event
-
-      // Step 1: Get scroll position and full content height
       const scrollTop = container.scrollTop;
-      const contentHeight = container.scrollHeight; // FULL scrollable content height
-
-      // Step 2: Convert viewport Y to content-relative Y
-      // viewport Y -> container-relative Y -> content-relative Y (add scroll)
+      const contentHeight = container.scrollHeight;
       const contentY = (clientY - rect.top) + scrollTop;
-
-      // Step 3: Calculate offset from center of CONTENT (not viewport)
-      // This matches getNoteStyle which uses calc(50% + offset) where 50% is of content
       const contentCenterY = contentHeight / 2;
-      const newVerticalOffset = contentY - contentCenterY;
+      const verticalOffset = contentY - contentCenterY;
 
-      console.log('📍 Sticky note drop calculation:', {
-        clientX,
-        clientY,
-        containerTop: rect.top,
-        containerLeft: rect.left,
-        scrollTop,
-        contentHeight,
-        contentY,
-        contentCenterY,
-        newVerticalOffset,
-        xPercent,
-      });
-
-      moveTimelineStickyNote(noteId, {
-        anchorDate: newDate.toISOString(),
-        verticalOffset: newVerticalOffset,
-      });
+      return { anchorDate: newDate.toISOString(), verticalOffset };
     },
-    [containerRef, positionToDate, moveTimelineStickyNote]
+    [containerRef, positionToDate]
+  );
+
+  // Handle drag end - update note position
+  const handleDragEnd = useCallback(
+    (noteId: string, clientX: number, clientY: number) => {
+      const pos = clientToTimelinePosition(clientX, clientY);
+      if (!pos) return;
+
+      console.log('📍 Sticky note drop calculation:', pos);
+      moveTimelineStickyNote(noteId, pos);
+    },
+    [clientToTimelinePosition, moveTimelineStickyNote]
+  );
+
+  // Handle arrow drag end - update arrow target position
+  const handleArrowDragEnd = useCallback(
+    (noteId: string, clientX: number, clientY: number) => {
+      const pos = clientToTimelinePosition(clientX, clientY);
+      if (!pos) return;
+
+      updateStickyNoteArrowTarget(noteId, pos);
+    },
+    [clientToTimelinePosition, updateStickyNoteArrowTarget]
   );
 
   // Filter to only timeline notes
   const timelineNotes = useMemo(
     () => timelineStickyNotes.filter((note) => note.context === 'timeline'),
     [timelineStickyNotes]
+  );
+
+  // Notes with active arrows
+  const notesWithArrows = useMemo(
+    () => timelineNotes.filter(
+      (note) => note.arrow?.enabled && isTimelinePosition(note.position)
+    ),
+    [timelineNotes]
   );
 
   // Don't render anything if no notes
@@ -152,6 +199,40 @@ export default function StickyNotesLayer({
         zIndex: 50, // Above timeline events but below modals
       }}
     >
+      {/* Arrow SVG layer - behind notes */}
+      {notesWithArrows.length > 0 && containerDims.width > 0 && (
+        <svg
+          className="absolute inset-0"
+          width={containerDims.width}
+          height={containerDims.height}
+          style={{ pointerEvents: 'none', zIndex: 0, overflow: 'visible' }}
+        >
+          {notesWithArrows.map((note) => {
+            const position = note.position as TimelineNotePosition;
+            const notePos = getPixelPosition(position.anchorDate, position.verticalOffset);
+            const targetPos = getPixelPosition(
+              note.arrow!.target.anchorDate,
+              note.arrow!.target.verticalOffset
+            );
+            return (
+              <StickyNoteArrow
+                key={`arrow-${note.id}`}
+                noteId={note.id}
+                noteX={notePos.x}
+                noteY={notePos.y}
+                targetX={targetPos.x}
+                targetY={targetPos.y}
+                color={STICKY_NOTE_COLORS[note.color].border}
+                isMinimized={!!note.isMinimized}
+                isReadOnly={isReadOnly}
+                onArrowDragEnd={handleArrowDragEnd}
+              />
+            );
+          })}
+        </svg>
+      )}
+
+      {/* Notes layer */}
       <AnimatePresence>
         {timelineNotes.map((note) => {
           if (!isTimelinePosition(note.position)) return null;
@@ -172,6 +253,7 @@ export default function StickyNotesLayer({
                 onUpdate={updateTimelineStickyNote}
                 onDelete={deleteTimelineStickyNote}
                 onDragEnd={handleDragEnd}
+                onToggleArrow={toggleStickyNoteArrow}
                 isReadOnly={isReadOnly}
               />
             </div>

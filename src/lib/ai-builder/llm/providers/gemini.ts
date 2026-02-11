@@ -52,8 +52,24 @@ export class GeminiService implements ILLMService {
             data: attachment.data,
           },
         });
-      } else if (attachment.type === 'document' || attachment.type === 'pdf') {
-        // Document/PDF - include extracted text if available
+      } else if (attachment.type === 'pdf') {
+        // PDF - Gemini supports PDF via inlineData natively
+        if (attachment.data) {
+          parts.push({
+            inlineData: {
+              mimeType: 'application/pdf',
+              data: attachment.data,
+            },
+          });
+        }
+        // Also include extracted text as additional context
+        if (attachment.extractedText) {
+          parts.push({
+            text: `[Extracted text from ${attachment.name}]\n${attachment.extractedText}`,
+          });
+        }
+      } else if (attachment.type === 'document') {
+        // Non-PDF document - include extracted text
         if (attachment.extractedText) {
           parts.push({
             text: `[Document: ${attachment.name}]\n${attachment.extractedText}`,

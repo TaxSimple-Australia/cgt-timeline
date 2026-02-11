@@ -9,7 +9,7 @@ interface Message {
   content: string;
 }
 
-const WELCOME_MESSAGE = "Hi! I'm the CGT Brain assistant. Ask me anything about capital gains tax calculations, our features, or how to get started.";
+const WELCOME_MESSAGE = "Hi there! Welcome to CGT Brain AI. I'm here to help with anything you'd like to know — our features, pricing, how it works, privacy & legal policies, or general CGT questions. How can I assist you today?";
 
 export default function LandingChatWidget() {
   const [isOpen, setIsOpen] = useState(false);

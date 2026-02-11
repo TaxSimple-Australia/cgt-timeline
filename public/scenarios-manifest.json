@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "generatedAt": "2026-02-06T22:28:18.157Z",
+  "generatedAt": "2026-02-11T09:55:01.990Z",
   "totalScenarios": 82,
   "categories": {
     "Core Concepts": 10,
@@ -4214,7 +4214,7 @@
               }
             ],
             "notes": "Dwelling block (Lot 1). If sold, full MRE would apply. Main residence entire ownership period.",
-            "holdingYears": 15.9
+            "holdingYears": 16
           },
           {
             "address": "100A Farmview Road, Kingaroy QLD 4610 - Lot 2 (Vacant)",

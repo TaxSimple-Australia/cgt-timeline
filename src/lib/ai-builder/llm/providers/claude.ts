@@ -7,6 +7,7 @@ import { LLM_PROVIDERS } from '../types';
 type ClaudeContentBlock =
   | { type: 'text'; text: string }
   | { type: 'image'; source: { type: 'base64'; media_type: string; data: string } }
+  | { type: 'document'; source: { type: 'base64'; media_type: string; data: string } }
   | { type: 'tool_use'; id: string; name: string; input: Record<string, unknown> }
   | { type: 'tool_result'; tool_use_id: string; content: string };
 
@@ -40,22 +41,32 @@ export class ClaudeService implements ILLMService {
             data: attachment.data,
           },
         });
-      } else if (attachment.type === 'document' || attachment.type === 'pdf') {
-        // Document/PDF - if we have extracted text, include it
+      } else if (attachment.type === 'pdf') {
+        // PDF - send as document content block for native PDF support
+        if (attachment.data) {
+          blocks.push({
+            type: 'document',
+            source: {
+              type: 'base64',
+              media_type: 'application/pdf',
+              data: attachment.data,
+            },
+          });
+        }
+        // Also include extracted text as additional context
+        if (attachment.extractedText) {
+          blocks.push({
+            type: 'text',
+            text: `[Extracted text from ${attachment.name}]\n${attachment.extractedText}`,
+          });
+        }
+      } else if (attachment.type === 'document') {
+        // Non-PDF document - include extracted text
         if (attachment.extractedText) {
           blocks.push({
             type: 'text',
             text: `[Document: ${attachment.name}]\n${attachment.extractedText}`,
           });
-        } else {
-          // For PDFs without extracted text, try to send as-is if supported
-          // Claude supports PDF in some models - try image-like format for visual docs
-          if (attachment.mimeType === 'application/pdf') {
-            blocks.push({
-              type: 'text',
-              text: `[PDF Document: ${attachment.name}] - Please analyze this document.`,
-            });
-          }
         }
       }
     }

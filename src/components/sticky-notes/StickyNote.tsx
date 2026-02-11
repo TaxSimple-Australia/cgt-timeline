@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { X, GripVertical, Minimize2, Trash2, StickyNote as StickyNoteIcon } from 'lucide-react';
+import { X, GripVertical, Minimize2, Trash2, StickyNote as StickyNoteIcon, ArrowUpRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import {
   StickyNote as StickyNoteType,
@@ -22,6 +22,7 @@ interface StickyNoteProps {
   onUpdate: (id: string, updates: Partial<StickyNoteType>) => void;
   onDelete: (id: string) => void;
   onDragEnd?: (id: string, clientX: number, clientY: number) => void;
+  onToggleArrow?: (id: string) => void;
   isReadOnly?: boolean;
   style?: React.CSSProperties;
   className?: string;
@@ -32,6 +33,7 @@ export default function StickyNote({
   onUpdate,
   onDelete,
   onDragEnd,
+  onToggleArrow,
   isReadOnly = false,
   style,
   className,
@@ -297,6 +299,16 @@ export default function StickyNote({
           />
         )}
 
+        {/* Arrow indicator on minimized note */}
+        {note.arrow?.enabled && (
+          <div
+            className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-white shadow-sm flex items-center justify-center"
+            style={{ backgroundColor: colors.border }}
+          >
+            <ArrowUpRight className="w-2.5 h-2.5 text-white" />
+          </div>
+        )}
+
         {/* Delete button on hover (only when not read-only) */}
         {!isReadOnly && !isDraggingState && (
           <button
@@ -370,6 +382,22 @@ export default function StickyNote({
               >
                 <Minimize2 className="w-4 h-4" style={{ color: colors.text }} />
               </button>
+              {onToggleArrow && (
+                <button
+                  onClick={(e) => { e.stopPropagation(); onToggleArrow(note.id); }}
+                  onMouseDown={stopPropagation}
+                  className="p-1.5 hover:bg-black/10 rounded transition-colors"
+                  title={note.arrow?.enabled ? "Remove arrow" : "Add arrow callout"}
+                >
+                  <ArrowUpRight
+                    className="w-4 h-4"
+                    style={{
+                      color: note.arrow?.enabled ? colors.border : colors.text,
+                      opacity: note.arrow?.enabled ? 1 : 0.5,
+                    }}
+                  />
+                </button>
+              )}
               <button
                 onClick={handleDelete}
                 onMouseDown={stopPropagation}

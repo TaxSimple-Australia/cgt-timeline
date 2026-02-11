@@ -46,6 +46,22 @@ export interface AnalysisNotePosition {
   relativeY: number;
 }
 
+/** Arrow target position on the timeline (same coordinate system as note position) */
+export interface ArrowTarget {
+  /** The date on the timeline where the arrow points (ISO string) */
+  anchorDate: string;
+  /** Vertical offset from the timeline center in pixels */
+  verticalOffset: number;
+}
+
+/** Arrow configuration for a sticky note */
+export interface StickyNoteArrow {
+  /** Whether the arrow is currently visible */
+  enabled: boolean;
+  /** Where the arrow points to */
+  target: ArrowTarget;
+}
+
 /**
  * Main sticky note interface
  */
@@ -70,6 +86,8 @@ export interface StickyNote {
   isMinimized?: boolean;
   /** Z-index for stacking order */
   zIndex?: number;
+  /** Optional arrow callout pointing to a location on the timeline */
+  arrow?: StickyNoteArrow;
 }
 
 /**

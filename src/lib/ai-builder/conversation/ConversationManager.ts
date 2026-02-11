@@ -6,6 +6,7 @@ import type {
   ConversationContext,
   ConversationMessage,
   TimelineAction,
+  DocumentContext,
 } from '@/types/ai-builder';
 import type { ChatMessage, ToolCall, MessageAttachment } from '../llm/types';
 import { TIMELINE_TOOLS } from '../llm/tools';
@@ -21,6 +22,7 @@ export interface ConversationManagerConfig {
   getProperties: () => Property[];
   getEvents: () => TimelineEvent[];
   executeAction: (action: TimelineAction) => Promise<void>;
+  getDocumentContexts?: () => DocumentContext[];
 }
 
 export class ConversationManager {
@@ -29,10 +31,18 @@ export class ConversationManager {
   private messageHistory: ChatMessage[] = [];
   private lastPropertyId: string | null = null;
   private lastEventId: string | null = null;
+  private documentContexts: DocumentContext[] = [];
 
   constructor(config: ConversationManagerConfig) {
     this.config = config;
     this.context = this.createInitialContext();
+  }
+
+  /**
+   * Add a document context for inclusion in the system prompt
+   */
+  addDocumentContext(context: DocumentContext): void {
+    this.documentContexts.push(context);
   }
 
   private createInitialContext(): ConversationContext {
@@ -107,7 +117,47 @@ export class ConversationManager {
         };
       });
 
-    return getContextualSystemPrompt(propertyList, allEvents);
+    let prompt = getContextualSystemPrompt(propertyList, allEvents);
+
+    // Append document context if any documents have been uploaded
+    const docContexts = this.documentContexts.length > 0
+      ? this.documentContexts
+      : (this.config.getDocumentContexts?.() || []);
+
+    if (docContexts.length > 0) {
+      const MAX_TOTAL_CHARS = 15000;
+      const MAX_PER_DOC = 5000;
+      let totalChars = 0;
+
+      prompt += '\n\n## Uploaded Document Context\n';
+      prompt += 'The user has uploaded the following documents. Use this information when answering questions.\n\n';
+
+      for (const doc of docContexts) {
+        if (totalChars >= MAX_TOTAL_CHARS) break;
+
+        const remaining = MAX_TOTAL_CHARS - totalChars;
+        const truncatedText = doc.rawText.substring(0, Math.min(MAX_PER_DOC, remaining));
+        totalChars += truncatedText.length;
+
+        prompt += `### Document: ${doc.filename} (${doc.type})\n`;
+        prompt += `Uploaded: ${doc.uploadedAt instanceof Date ? doc.uploadedAt.toLocaleString() : 'recently'}\n\n`;
+
+        // Include extracted data summary
+        const data = doc.extractedData;
+        if (data) {
+          if (data.properties?.length > 0) {
+            prompt += `Found ${data.properties.length} propert${data.properties.length === 1 ? 'y' : 'ies'}\n`;
+          }
+          if (data.events?.length > 0) {
+            prompt += `Found ${data.events.length} event(s)\n`;
+          }
+        }
+
+        prompt += `\nRaw text:\n${truncatedText}\n\n`;
+      }
+    }
+
+    return prompt;
   }
 
   async processUserInput(
@@ -2187,5 +2237,6 @@ export class ConversationManager {
     this.messageHistory = [];
     this.lastPropertyId = null;
     this.lastEventId = null;
+    this.documentContexts = [];
   }
 }

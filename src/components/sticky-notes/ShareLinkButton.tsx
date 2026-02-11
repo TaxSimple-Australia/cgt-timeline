@@ -288,7 +288,7 @@ export default function ShareLinkButton({
             transition={{ duration: 0.15 }}
             className={cn(
               'absolute z-[10000] mt-2',
-              'w-96 p-4 rounded-xl shadow-2xl',
+              'w-[720px] max-w-[calc(100vw-2rem)] p-4 rounded-xl shadow-2xl',
               'bg-white dark:bg-gray-800',
               'border border-gray-200 dark:border-gray-700',
               variant === 'toolbar' ? 'right-0' : 'left-0'
@@ -387,215 +387,242 @@ export default function ShareLinkButton({
                   )}
                 </AnimatePresence>
 
-                {/* Email/Phone Section */}
-                <div className="border-t border-gray-200 dark:border-gray-700 pt-4 mt-2">
-                  <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3 flex items-center gap-2">
-                    <Mail className="w-4 h-4" />
-                    Send Link via Email
-                  </h4>
+                {/* Email & WhatsApp Side by Side */}
+                <div className="border-t border-gray-200 dark:border-gray-700 pt-4 mt-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {/* Email/Phone Section */}
+                  <div>
+                    <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3 flex items-center gap-2">
+                      <Mail className="w-4 h-4" />
+                      Send via Email
+                    </h4>
 
-                  {emailSent ? (
-                    <motion.div
-                      initial={{ opacity: 0, scale: 0.95 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4 text-center"
-                    >
-                      <div className="w-10 h-10 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-2">
-                        <Check className="w-5 h-5 text-green-600 dark:text-green-400" />
-                      </div>
-                      <p className="text-sm font-medium text-green-700 dark:text-green-300">
-                        Email sent successfully!
-                      </p>
-                      <p className="text-xs text-green-600 dark:text-green-400 mt-1">
-                        The share link has been sent to {email}
-                      </p>
-                      <button
-                        onClick={() => {
-                          setEmailSent(false);
-                          setEmail('');
-                          setPhoneNumber('');
-                        }}
-                        className="text-xs text-green-700 dark:text-green-300 hover:underline mt-3 font-medium"
+                    {emailSent ? (
+                      <motion.div
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4 text-center"
                       >
-                        Send to another email
-                      </button>
-                    </motion.div>
-                  ) : (
-                    <div className="space-y-3">
-                      {/* Email Input */}
-                      <div>
-                        <label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">
-                          Email Address <span className="text-red-500">*</span>
-                        </label>
-                        <div className="relative">
-                          <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                          <input
-                            type="email"
-                            value={email}
-                            onChange={(e) => {
-                              setEmail(e.target.value);
-                              setEmailError(null);
-                            }}
-                            placeholder="recipient@example.com"
-                            className={cn(
-                              'w-full pl-9 pr-3 py-2 text-sm rounded-lg',
-                              'bg-gray-50 dark:bg-gray-700',
-                              'border',
-                              emailError
-                                ? 'border-red-300 dark:border-red-600'
-                                : 'border-gray-200 dark:border-gray-600',
-                              'text-gray-900 dark:text-white',
-                              'placeholder-gray-400 dark:placeholder-gray-500',
-                              'focus:outline-none focus:ring-2 focus:ring-blue-500'
-                            )}
-                          />
+                        <div className="w-10 h-10 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-2">
+                          <Check className="w-5 h-5 text-green-600 dark:text-green-400" />
                         </div>
-                      </div>
-
-                      {/* Phone Input */}
-                      <div>
-                        <label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">
-                          Phone Number <span className="text-gray-400">(optional)</span>
-                        </label>
-                        <div className="relative">
-                          <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                          <input
-                            type="tel"
-                            value={phoneNumber}
-                            onChange={(e) => setPhoneNumber(e.target.value)}
-                            placeholder="+61 400 000 000"
-                            className={cn(
-                              'w-full pl-9 pr-3 py-2 text-sm rounded-lg',
-                              'bg-gray-50 dark:bg-gray-700',
-                              'border border-gray-200 dark:border-gray-600',
-                              'text-gray-900 dark:text-white',
-                              'placeholder-gray-400 dark:placeholder-gray-500',
-                              'focus:outline-none focus:ring-2 focus:ring-blue-500'
-                            )}
-                          />
-                        </div>
-                      </div>
-
-                      {/* Email Error */}
-                      <AnimatePresence>
-                        {emailError && (
-                          <motion.p
-                            initial={{ opacity: 0, y: -5 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0 }}
-                            className="text-xs text-red-500 dark:text-red-400"
-                          >
-                            {emailError}
-                          </motion.p>
-                        )}
-                      </AnimatePresence>
-
-                      {/* Send Email Button */}
-                      <motion.button
-                        onClick={handleSendEmail}
-                        disabled={!email || isSendingEmail}
-                        whileHover={email && !isSendingEmail ? { scale: 1.02 } : undefined}
-                        whileTap={email && !isSendingEmail ? { scale: 0.98 } : undefined}
-                        className={cn(
-                          'w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg',
-                          'text-sm font-medium transition-all',
-                          email && !isSendingEmail
-                            ? 'bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white shadow-md hover:shadow-lg'
-                            : 'bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500 cursor-not-allowed'
-                        )}
-                      >
-                        {isSendingEmail ? (
-                          <>
-                            <Loader2 className="w-4 h-4 animate-spin" />
-                            Sending...
-                          </>
-                        ) : (
-                          <>
-                            <Send className="w-4 h-4" />
-                            Send Link to Email
-                          </>
-                        )}
-                      </motion.button>
-                    </div>
-                  )}
-                </div>
-
-                {/* WhatsApp Section */}
-                <div className="border-t border-gray-200 dark:border-gray-700 pt-4 mt-4">
-                  <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3 flex items-center gap-2">
-                    <MessageCircle className="w-4 h-4 text-green-500" />
-                    Send Link via WhatsApp
-                  </h4>
-
-                  {whatsAppSent ? (
-                    <motion.div
-                      initial={{ opacity: 0, scale: 0.95 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4 text-center"
-                    >
-                      <div className="w-10 h-10 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-2">
-                        <Check className="w-5 h-5 text-green-600 dark:text-green-400" />
-                      </div>
-                      <p className="text-sm font-medium text-green-700 dark:text-green-300">
-                        WhatsApp message sent!
-                      </p>
-                      <p className="text-xs text-green-600 dark:text-green-400 mt-1">
-                        The share link has been sent to {waCountryCode}{waPhone}
-                      </p>
-                      <button
-                        onClick={() => {
-                          setWhatsAppSent(false);
-                          setWaPhone('');
-                          setWaName('');
-                        }}
-                        className="text-xs text-green-700 dark:text-green-300 hover:underline mt-3 font-medium"
-                      >
-                        Send to another number
-                      </button>
-                    </motion.div>
-                  ) : (
-                    <div className="space-y-3">
-                      {/* Country Code + Phone Input */}
-                      <div>
-                        <label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">
-                          Phone Number <span className="text-red-500">*</span>
-                        </label>
-                        <div className="flex gap-2">
-                          <select
-                            value={waCountryCode}
-                            onChange={(e) => setWaCountryCode(e.target.value)}
-                            className={cn(
-                              'w-[100px] px-2 py-2 text-sm rounded-lg appearance-none',
-                              'bg-gray-50 dark:bg-gray-700',
-                              'border border-gray-200 dark:border-gray-600',
-                              'text-gray-900 dark:text-white',
-                              'focus:outline-none focus:ring-2 focus:ring-green-500',
-                              'cursor-pointer'
-                            )}
-                          >
-                            {COUNTRY_CODES.map((c) => (
-                              <option key={c.country} value={c.code}>
-                                {c.flag} {c.code}
-                              </option>
-                            ))}
-                          </select>
-                          <div className="relative flex-1">
-                            <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                        <p className="text-sm font-medium text-green-700 dark:text-green-300">
+                          Email sent!
+                        </p>
+                        <p className="text-xs text-green-600 dark:text-green-400 mt-1">
+                          Sent to {email}
+                        </p>
+                        <button
+                          onClick={() => {
+                            setEmailSent(false);
+                            setEmail('');
+                            setPhoneNumber('');
+                          }}
+                          className="text-xs text-green-700 dark:text-green-300 hover:underline mt-3 font-medium"
+                        >
+                          Send to another email
+                        </button>
+                      </motion.div>
+                    ) : (
+                      <div className="space-y-3">
+                        {/* Email Input */}
+                        <div>
+                          <label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">
+                            Email Address <span className="text-red-500">*</span>
+                          </label>
+                          <div className="relative">
+                            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                             <input
-                              type="tel"
-                              value={waPhone}
+                              type="email"
+                              value={email}
                               onChange={(e) => {
-                                handleWaPhoneChange(e.target.value);
-                                setWhatsAppError(null);
+                                setEmail(e.target.value);
+                                setEmailError(null);
                               }}
-                              placeholder="400 123 456"
+                              placeholder="recipient@example.com"
                               className={cn(
                                 'w-full pl-9 pr-3 py-2 text-sm rounded-lg',
                                 'bg-gray-50 dark:bg-gray-700',
                                 'border',
-                                whatsAppError
+                                emailError
                                   ? 'border-red-300 dark:border-red-600'
                                   : 'border-gray-200 dark:border-gray-600',
+                                'text-gray-900 dark:text-white',
+                                'placeholder-gray-400 dark:placeholder-gray-500',
+                                'focus:outline-none focus:ring-2 focus:ring-blue-500'
+                              )}
+                            />
+                          </div>
+                        </div>
+
+                        {/* Phone Input */}
+                        <div>
+                          <label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">
+                            Phone Number <span className="text-gray-400">(optional)</span>
+                          </label>
+                          <div className="relative">
+                            <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                            <input
+                              type="tel"
+                              value={phoneNumber}
+                              onChange={(e) => setPhoneNumber(e.target.value)}
+                              placeholder="+61 400 000 000"
+                              className={cn(
+                                'w-full pl-9 pr-3 py-2 text-sm rounded-lg',
+                                'bg-gray-50 dark:bg-gray-700',
+                                'border border-gray-200 dark:border-gray-600',
+                                'text-gray-900 dark:text-white',
+                                'placeholder-gray-400 dark:placeholder-gray-500',
+                                'focus:outline-none focus:ring-2 focus:ring-blue-500'
+                              )}
+                            />
+                          </div>
+                        </div>
+
+                        {/* Email Error */}
+                        <AnimatePresence>
+                          {emailError && (
+                            <motion.p
+                              initial={{ opacity: 0, y: -5 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              exit={{ opacity: 0 }}
+                              className="text-xs text-red-500 dark:text-red-400"
+                            >
+                              {emailError}
+                            </motion.p>
+                          )}
+                        </AnimatePresence>
+
+                        {/* Send Email Button */}
+                        <motion.button
+                          onClick={handleSendEmail}
+                          disabled={!email || isSendingEmail}
+                          whileHover={email && !isSendingEmail ? { scale: 1.02 } : undefined}
+                          whileTap={email && !isSendingEmail ? { scale: 0.98 } : undefined}
+                          className={cn(
+                            'w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg',
+                            'text-sm font-medium transition-all',
+                            email && !isSendingEmail
+                              ? 'bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white shadow-md hover:shadow-lg'
+                              : 'bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500 cursor-not-allowed'
+                          )}
+                        >
+                          {isSendingEmail ? (
+                            <>
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                              Sending...
+                            </>
+                          ) : (
+                            <>
+                              <Send className="w-4 h-4" />
+                              Send via Email
+                            </>
+                          )}
+                        </motion.button>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* WhatsApp Section */}
+                  <div className="sm:border-l sm:border-gray-200 sm:dark:border-gray-700 sm:pl-4 border-t sm:border-t-0 border-gray-200 dark:border-gray-700 pt-4 sm:pt-0">
+                    <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3 flex items-center gap-2">
+                      <MessageCircle className="w-4 h-4 text-green-500" />
+                      Send via WhatsApp
+                    </h4>
+
+                    {whatsAppSent ? (
+                      <motion.div
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4 text-center"
+                      >
+                        <div className="w-10 h-10 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-2">
+                          <Check className="w-5 h-5 text-green-600 dark:text-green-400" />
+                        </div>
+                        <p className="text-sm font-medium text-green-700 dark:text-green-300">
+                          WhatsApp sent!
+                        </p>
+                        <p className="text-xs text-green-600 dark:text-green-400 mt-1">
+                          Sent to {waCountryCode}{waPhone}
+                        </p>
+                        <button
+                          onClick={() => {
+                            setWhatsAppSent(false);
+                            setWaPhone('');
+                            setWaName('');
+                          }}
+                          className="text-xs text-green-700 dark:text-green-300 hover:underline mt-3 font-medium"
+                        >
+                          Send to another number
+                        </button>
+                      </motion.div>
+                    ) : (
+                      <div className="space-y-3">
+                        {/* Country Code + Phone Input */}
+                        <div>
+                          <label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">
+                            Phone Number <span className="text-red-500">*</span>
+                          </label>
+                          <div className="flex gap-2">
+                            <select
+                              value={waCountryCode}
+                              onChange={(e) => setWaCountryCode(e.target.value)}
+                              className={cn(
+                                'w-[100px] px-2 py-2 text-sm rounded-lg appearance-none',
+                                'bg-gray-50 dark:bg-gray-700',
+                                'border border-gray-200 dark:border-gray-600',
+                                'text-gray-900 dark:text-white',
+                                'focus:outline-none focus:ring-2 focus:ring-green-500',
+                                'cursor-pointer'
+                              )}
+                            >
+                              {COUNTRY_CODES.map((c) => (
+                                <option key={c.country} value={c.code}>
+                                  {c.flag} {c.code}
+                                </option>
+                              ))}
+                            </select>
+                            <div className="relative flex-1">
+                              <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                              <input
+                                type="tel"
+                                value={waPhone}
+                                onChange={(e) => {
+                                  handleWaPhoneChange(e.target.value);
+                                  setWhatsAppError(null);
+                                }}
+                                placeholder="400 123 456"
+                                className={cn(
+                                  'w-full pl-9 pr-3 py-2 text-sm rounded-lg',
+                                  'bg-gray-50 dark:bg-gray-700',
+                                  'border',
+                                  whatsAppError
+                                    ? 'border-red-300 dark:border-red-600'
+                                    : 'border-gray-200 dark:border-gray-600',
+                                  'text-gray-900 dark:text-white',
+                                  'placeholder-gray-400 dark:placeholder-gray-500',
+                                  'focus:outline-none focus:ring-2 focus:ring-green-500'
+                                )}
+                              />
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Recipient Name (optional) */}
+                        <div>
+                          <label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">
+                            Recipient Name <span className="text-gray-400">(optional)</span>
+                          </label>
+                          <div className="relative">
+                            <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                            <input
+                              type="text"
+                              value={waName}
+                              onChange={(e) => setWaName(e.target.value)}
+                              placeholder="John Smith"
+                              className={cn(
+                                'w-full pl-9 pr-3 py-2 text-sm rounded-lg',
+                                'bg-gray-50 dark:bg-gray-700',
+                                'border border-gray-200 dark:border-gray-600',
                                 'text-gray-900 dark:text-white',
                                 'placeholder-gray-400 dark:placeholder-gray-500',
                                 'focus:outline-none focus:ring-2 focus:ring-green-500'
@@ -603,74 +630,50 @@ export default function ShareLinkButton({
                             />
                           </div>
                         </div>
+
+                        {/* WhatsApp Error */}
+                        <AnimatePresence>
+                          {whatsAppError && (
+                            <motion.p
+                              initial={{ opacity: 0, y: -5 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              exit={{ opacity: 0 }}
+                              className="text-xs text-red-500 dark:text-red-400"
+                            >
+                              {whatsAppError}
+                            </motion.p>
+                          )}
+                        </AnimatePresence>
+
+                        {/* Send WhatsApp Button */}
+                        <motion.button
+                          onClick={handleSendWhatsApp}
+                          disabled={!waPhone || isSendingWhatsApp}
+                          whileHover={waPhone && !isSendingWhatsApp ? { scale: 1.02 } : undefined}
+                          whileTap={waPhone && !isSendingWhatsApp ? { scale: 0.98 } : undefined}
+                          className={cn(
+                            'w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg',
+                            'text-sm font-medium transition-all',
+                            waPhone && !isSendingWhatsApp
+                              ? 'bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white shadow-md hover:shadow-lg'
+                              : 'bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500 cursor-not-allowed'
+                          )}
+                        >
+                          {isSendingWhatsApp ? (
+                            <>
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                              Sending...
+                            </>
+                          ) : (
+                            <>
+                              <MessageCircle className="w-4 h-4" />
+                              Send via WhatsApp
+                            </>
+                          )}
+                        </motion.button>
                       </div>
-
-                      {/* Recipient Name (optional) */}
-                      <div>
-                        <label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">
-                          Recipient Name <span className="text-gray-400">(optional)</span>
-                        </label>
-                        <div className="relative">
-                          <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                          <input
-                            type="text"
-                            value={waName}
-                            onChange={(e) => setWaName(e.target.value)}
-                            placeholder="John Smith"
-                            className={cn(
-                              'w-full pl-9 pr-3 py-2 text-sm rounded-lg',
-                              'bg-gray-50 dark:bg-gray-700',
-                              'border border-gray-200 dark:border-gray-600',
-                              'text-gray-900 dark:text-white',
-                              'placeholder-gray-400 dark:placeholder-gray-500',
-                              'focus:outline-none focus:ring-2 focus:ring-green-500'
-                            )}
-                          />
-                        </div>
-                      </div>
-
-                      {/* WhatsApp Error */}
-                      <AnimatePresence>
-                        {whatsAppError && (
-                          <motion.p
-                            initial={{ opacity: 0, y: -5 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0 }}
-                            className="text-xs text-red-500 dark:text-red-400"
-                          >
-                            {whatsAppError}
-                          </motion.p>
-                        )}
-                      </AnimatePresence>
-
-                      {/* Send WhatsApp Button */}
-                      <motion.button
-                        onClick={handleSendWhatsApp}
-                        disabled={!waPhone || isSendingWhatsApp}
-                        whileHover={waPhone && !isSendingWhatsApp ? { scale: 1.02 } : undefined}
-                        whileTap={waPhone && !isSendingWhatsApp ? { scale: 0.98 } : undefined}
-                        className={cn(
-                          'w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg',
-                          'text-sm font-medium transition-all',
-                          waPhone && !isSendingWhatsApp
-                            ? 'bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white shadow-md hover:shadow-lg'
-                            : 'bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500 cursor-not-allowed'
-                        )}
-                      >
-                        {isSendingWhatsApp ? (
-                          <>
-                            <Loader2 className="w-4 h-4 animate-spin" />
-                            Sending...
-                          </>
-                        ) : (
-                          <>
-                            <MessageCircle className="w-4 h-4" />
-                            Send via WhatsApp
-                          </>
-                        )}
-                      </motion.button>
-                    </div>
-                  )}
+                    )}
+                  </div>
                 </div>
 
                 {/* Regenerate Option */}

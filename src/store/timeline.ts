@@ -9,6 +9,7 @@ import type {
   TimelineNotePosition,
   AnalysisNotePosition,
   ShareableTimelineData,
+  ArrowTarget,
 } from '../types/sticky-note';
 import { generateStickyNoteId, DEFAULT_STICKY_NOTE_COLOR } from '../types/sticky-note';
 import { showValidationError, showError } from '../lib/toast-helpers';
@@ -418,6 +419,8 @@ interface TimelineState {
   updateTimelineStickyNote: (id: string, updates: Partial<StickyNote>) => void;
   deleteTimelineStickyNote: (id: string) => void;
   moveTimelineStickyNote: (id: string, newPosition: TimelineNotePosition) => void;
+  toggleStickyNoteArrow: (noteId: string) => void;
+  updateStickyNoteArrowTarget: (noteId: string, target: ArrowTarget) => void;
   clearTimelineStickyNotes: () => void;
 
   // Sticky Notes Actions - Analysis
@@ -2955,6 +2958,36 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
       ),
     }));
     console.log('📍 Moved timeline sticky note:', { id, newPosition });
+  },
+
+  toggleStickyNoteArrow: (noteId) => {
+    set((state) => ({
+      timelineStickyNotes: state.timelineStickyNotes.map((note) => {
+        if (note.id !== noteId) return note;
+        const now = new Date().toISOString();
+        if (note.arrow?.enabled) {
+          // Disable but preserve target position
+          return { ...note, arrow: { ...note.arrow, enabled: false }, updatedAt: now };
+        }
+        // Enable - reuse existing target or create default offset below the note
+        const position = note.position as TimelineNotePosition;
+        const target = note.arrow?.target || {
+          anchorDate: position.anchorDate,
+          verticalOffset: position.verticalOffset + 120,
+        };
+        return { ...note, arrow: { enabled: true, target }, updatedAt: now };
+      }),
+    }));
+  },
+
+  updateStickyNoteArrowTarget: (noteId, target) => {
+    set((state) => ({
+      timelineStickyNotes: state.timelineStickyNotes.map((note) =>
+        note.id === noteId && note.arrow
+          ? { ...note, arrow: { ...note.arrow, target }, updatedAt: new Date().toISOString() }
+          : note
+      ),
+    }));
   },
 
   clearTimelineStickyNotes: () => {

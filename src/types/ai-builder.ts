@@ -416,6 +416,18 @@ export interface ProcessedDocument {
   confidence: number;
   rawText: string;
   suggestedActions: TimelineAction[];
+  base64?: string;
+  mimeType?: string;
+}
+
+export interface DocumentContext {
+  filename: string;
+  type: DocumentType;
+  rawText: string;
+  extractedData: ExtractedData;
+  uploadedAt: Date;
+  base64?: string;
+  mimeType?: string;
 }
 
 // ============================================================================

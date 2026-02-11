@@ -1,6 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { LLMFactory } from '@/lib/ai-builder/llm';
 
+const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB limit
+
+interface ExtractionResult {
+  text: string;
+  base64?: string;
+  mimeType?: string;
+}
+
 export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData();
@@ -9,6 +17,14 @@ export async function POST(request: NextRequest) {
 
     if (!file) {
       return NextResponse.json({ error: 'No file provided' }, { status: 400 });
+    }
+
+    // File size check
+    if (file.size > MAX_FILE_SIZE) {
+      return NextResponse.json(
+        { error: `File too large. Maximum size is ${MAX_FILE_SIZE / 1024 / 1024}MB.` },
+        { status: 400 }
+      );
     }
 
     // Set API keys
@@ -21,11 +37,19 @@ export async function POST(request: NextRequest) {
 
     // Read file content
     const buffer = await file.arrayBuffer();
-    const content = await extractFileContent(file, buffer);
+    const extraction = await extractFileContent(file, buffer);
 
-    // Use LLM to extract structured data
-    const llmService = LLMFactory.getProvider(llmProvider);
+    // Determine which LLM to use
+    // If file produced base64 (image/scanned PDF) and selected provider lacks vision, fallback
+    let effectiveProvider = llmProvider;
+    if (extraction.base64 && !providerSupportsVision(llmProvider)) {
+      effectiveProvider = getFirstVisionProvider();
+      console.log(`📷 File requires vision. Switching from ${llmProvider} to ${effectiveProvider}`);
+    }
 
+    const llmService = LLMFactory.getProvider(effectiveProvider);
+
+    // Build extraction prompt
     const extractionPrompt = `Analyze the following document content and extract property and CGT timeline information.
 
 Look for and extract:
@@ -38,7 +62,7 @@ Look for and extract:
 7. Any capital gains tax related information
 
 Document content:
-${content.substring(0, 15000)}
+${extraction.text.substring(0, 15000)}
 
 Return a JSON object with the following structure:
 {
@@ -85,8 +109,25 @@ Return a JSON object with the following structure:
 
 Only include information that is clearly stated in the document. Do not make assumptions.`;
 
+    // Build the chat request - include base64 for vision-capable providers
+    let messages: Array<{ role: 'user'; content: string }>;
+
+    if (extraction.base64 && providerSupportsVision(effectiveProvider)) {
+      // For vision: we still send the text extraction alongside the prompt
+      // The actual base64 attachment is handled via the chat API's attachment support
+      messages = [{
+        role: 'user',
+        content: extractionPrompt,
+      }];
+    } else {
+      messages = [{
+        role: 'user',
+        content: extractionPrompt,
+      }];
+    }
+
     const response = await llmService.chat({
-      messages: [{ role: 'user', content: extractionPrompt }],
+      messages,
       temperature: 0.1,
       maxTokens: 4096,
     });
@@ -120,8 +161,11 @@ Only include information that is clearly stated in the document. Do not make ass
       filename: file.name,
       extractedData,
       confidence,
-      rawText: content.substring(0, 5000), // Truncate for response
+      rawText: extraction.text.substring(0, 5000), // Truncate for response
       suggestedActions,
+      // Include base64 and mimeType for chat follow-ups
+      ...(extraction.base64 && { base64: extraction.base64 }),
+      ...(extraction.mimeType && { mimeType: extraction.mimeType }),
     };
 
     return NextResponse.json({
@@ -140,37 +184,121 @@ Only include information that is clearly stated in the document. Do not make ass
   }
 }
 
-async function extractFileContent(file: File, buffer: ArrayBuffer): Promise<string> {
+/**
+ * Check if an LLM provider supports vision/image analysis
+ */
+function providerSupportsVision(provider: string): boolean {
+  return ['claude', 'gpt4', 'gemini'].includes(provider);
+}
+
+/**
+ * Get the first available vision-capable provider
+ */
+function getFirstVisionProvider(): string {
+  const visionProviders = ['claude', 'gpt4', 'gemini'];
+  for (const p of visionProviders) {
+    const keys: Record<string, string | undefined> = {
+      claude: process.env.ANTHROPIC_API_KEY,
+      gpt4: process.env.OPENAI_API_KEY,
+      gemini: process.env.GOOGLE_AI_API_KEY,
+    };
+    if (keys[p]) return p;
+  }
+  // Fallback to claude even without key (will fail gracefully)
+  return 'claude';
+}
+
+async function extractFileContent(file: File, buffer: ArrayBuffer): Promise<ExtractionResult> {
   const mimeType = file.type.toLowerCase();
   const extension = file.name.split('.').pop()?.toLowerCase() || '';
 
-  // Text files
+  // Text files (CSV, TXT, MD)
   if (
     mimeType.startsWith('text/') ||
     ['txt', 'csv', 'md'].includes(extension)
   ) {
     const decoder = new TextDecoder();
-    return decoder.decode(buffer);
+    return { text: decoder.decode(buffer) };
   }
 
-  // PDF (basic extraction - for production use pdf-parse)
+  // Excel (.xlsx, .xls)
+  if (mimeType.includes('spreadsheet') || ['xlsx', 'xls'].includes(extension)) {
+    try {
+      const XLSX = await import('xlsx');
+      const workbook = XLSX.read(Buffer.from(buffer), { type: 'buffer' });
+      const sheets: string[] = [];
+
+      for (const sheetName of workbook.SheetNames) {
+        const sheet = workbook.Sheets[sheetName];
+        const csv = XLSX.utils.sheet_to_csv(sheet);
+        sheets.push(`--- Sheet: ${sheetName} ---\n${csv}`);
+      }
+
+      return { text: sheets.join('\n\n') };
+    } catch (e) {
+      console.error('Excel extraction error:', e);
+      return { text: 'Failed to extract Excel content. The file may be corrupted.' };
+    }
+  }
+
+  // Word (.docx)
+  if (mimeType.includes('word') || ['docx', 'doc'].includes(extension)) {
+    try {
+      const mammoth = await import('mammoth');
+      const result = await mammoth.extractRawText({ arrayBuffer: buffer });
+      return { text: result.value || 'No text content found in Word document.' };
+    } catch (e) {
+      console.error('Word extraction error:', e);
+      return { text: 'Failed to extract Word document content.' };
+    }
+  }
+
+  // PDF
   if (mimeType === 'application/pdf' || extension === 'pdf') {
-    const decoder = new TextDecoder('utf-8', { fatal: false });
-    const content = decoder.decode(buffer);
+    try {
+      // pdf-parse uses CommonJS export, require() works in Next.js API routes
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      const pdfParse = require('pdf-parse') as (buf: Buffer) => Promise<{ text: string; numpages: number }>;
+      const pdfBuffer = Buffer.from(buffer);
+      const pdfData = await pdfParse(pdfBuffer);
+      const text = pdfData.text?.trim() || '';
 
-    // Basic PDF text extraction
-    const textMatches = content.match(/\(([^)]+)\)/g) || [];
-    const extractedText = textMatches
-      .map((match) => match.slice(1, -1))
-      .filter((text) => text.length > 2 && /[a-zA-Z]/.test(text))
-      .join(' ');
+      // If text is minimal (likely a scanned PDF), also provide base64 for vision
+      if (text.length < 50) {
+        const base64 = Buffer.from(buffer).toString('base64');
+        return {
+          text: text || 'Scanned PDF - text extraction returned minimal content. Visual analysis may be needed.',
+          base64,
+          mimeType: 'application/pdf',
+        };
+      }
 
-    return extractedText || 'PDF content could not be extracted directly. The document may need OCR processing.';
+      return { text };
+    } catch (e) {
+      console.error('PDF extraction error:', e);
+      // Fallback: return base64 for vision analysis
+      const base64 = Buffer.from(buffer).toString('base64');
+      return {
+        text: 'PDF text extraction failed. Visual analysis may be needed.',
+        base64,
+        mimeType: 'application/pdf',
+      };
+    }
+  }
+
+  // Images - return base64 for vision analysis
+  if (mimeType.startsWith('image/')) {
+    const base64 = Buffer.from(buffer).toString('base64');
+    return {
+      text: `Image file: ${file.name} (${mimeType}). Requires vision analysis.`,
+      base64,
+      mimeType,
+    };
   }
 
   // Default: try to decode as text
   const decoder = new TextDecoder('utf-8', { fatal: false });
-  return decoder.decode(buffer);
+  return { text: decoder.decode(buffer) };
 }
 
 function getDocumentType(file: File): string {

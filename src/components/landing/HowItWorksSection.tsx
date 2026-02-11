@@ -112,7 +112,7 @@ export default function HowItWorksSection() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="mb-16 max-w-7xl mx-auto"
+            className="mb-16 max-w-5xl mx-auto"
           >
             <button
               onClick={() => setIsPlaying(true)}

@@ -4,7 +4,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { TimelineEvent, PropertyStatus, useTimelineStore, CostBaseItem } from '@/store/timeline';
 import { format } from 'date-fns';
-import { X, Calendar, DollarSign, Home, Tag, FileText, CheckCircle, CheckCircle2, Receipt, Info, Star, Palette, Building2, Key, AlertCircle, Briefcase, TrendingUp, Package, Hammer, Gift, MapPin, ChevronDown, Square, Maximize2, Percent, Plus, Layers, Lock, Unlock } from 'lucide-react';
+import { X, Calendar, DollarSign, Home, Tag, FileText, CheckCircle, CheckCircle2, Receipt, Info, Star, Palette, Building2, Key, AlertCircle, Briefcase, TrendingUp, Package, Hammer, Gift, MapPin, ChevronDown, Square, Maximize2, Percent, Plus, Layers, Lock, Unlock, Trash2 } from 'lucide-react';
 import CostBaseSelector from './CostBaseSelector';
 import { getCostBaseDefinition } from '@/lib/cost-base-definitions';
 import CostBaseSummaryModal from './CostBaseSummaryModal';
@@ -53,7 +53,7 @@ interface EventDetailsModalProps {
 }
 
 export default function EventDetailsModal({ event, onClose, propertyName }: EventDetailsModalProps) {
-  const { updateEvent, deleteEvent, addEvent, events, properties, updateProperty } = useTimelineStore();
+  const { updateEvent, deleteEvent, addEvent, events, properties, updateProperty, removeLotFromSubdivision } = useTimelineStore();
 
   // Check if this is a synthetic "Not Sold" status marker
   const isSyntheticNotSold = (event as any).isSyntheticStatusMarker === true;
@@ -160,6 +160,9 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
 
   // Delete confirmation dialog
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
+  // Lot deletion state (for subdivision events)
+  const [lotToDelete, setLotToDelete] = useState<string | null>(null);
 
   // Move out status checkboxes (for move_out events)
   const [moveOutAsVacant, setMoveOutAsVacant] = useState(() => {
@@ -1487,6 +1490,31 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
     deleteEvent(event.id);
     setShowDeleteConfirm(false);
     onClose();
+  };
+
+  // Handle deleting a lot from a subdivision event
+  const handleDeleteLot = () => {
+    if (!lotToDelete) return;
+
+    // Check if this is the last non-Lot-1 lot (revert case)
+    const nonLot1Lots = subdivisionLots.filter((l) => !l.isMainLotContinuation);
+    const isRevertCase = nonLot1Lots.length === 1 && nonLot1Lots[0].id === lotToDelete;
+
+    removeLotFromSubdivision(lotToDelete, event.id);
+
+    // Clean up lotEdits state
+    setLotEdits((prev) => {
+      const next = { ...prev };
+      delete next[lotToDelete];
+      return next;
+    });
+
+    setLotToDelete(null);
+
+    // If revert case, the subdivision event no longer exists — close the modal
+    if (isRevertCase) {
+      onClose();
+    }
   };
 
   // Keyboard shortcuts
@@ -3315,7 +3343,7 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
                               "font-semibold",
                               isMainLot ? "text-green-700 dark:text-green-400" : "text-pink-700 dark:text-pink-400"
                             )}>
-                              {lot.name || edited.lotNumber || `Lot`}
+                              {edited.lotNumber || lot.name || `Lot`}
                             </span>
                             {isMainLot && (
                               <span className="px-2 py-0.5 text-xs font-medium bg-green-200 dark:bg-green-800 text-green-800 dark:text-green-200 rounded">
@@ -3323,12 +3351,22 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
                               </span>
                             )}
                           </div>
+                          {!isMainLot && (
+                            <button
+                              type="button"
+                              onClick={() => setLotToDelete(lot.id)}
+                              className="w-8 h-8 rounded-lg flex items-center justify-center text-red-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors"
+                              title="Delete this lot"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          )}
                         </div>
 
-                        {/* Lot Number Input */}
+                        {/* Lot Name Input */}
                         <div>
                           <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">
-                            Lot Number
+                            Lot Name
                           </label>
                           <input
                             type="text"
@@ -3615,6 +3653,29 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
         title="Delete Event?"
         message="Are you sure you want to delete this event? This action cannot be undone."
         confirmLabel="Delete"
+        variant="danger"
+      />
+
+      {/* Lot Deletion Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={lotToDelete !== null}
+        onClose={() => setLotToDelete(null)}
+        onConfirm={handleDeleteLot}
+        title={
+          subdivisionLots.filter((l) => !l.isMainLotContinuation).length === 1
+            ? "Revert Subdivision?"
+            : "Delete Lot?"
+        }
+        message={
+          subdivisionLots.filter((l) => !l.isMainLotContinuation).length === 1
+            ? "This is the last additional lot. Deleting it will revert the entire subdivision and restore the original property timeline. All events on this lot will be removed."
+            : `This will permanently remove the lot and all its events. The remaining lots' allocation percentages will be recalculated proportionally.`
+        }
+        confirmLabel={
+          subdivisionLots.filter((l) => !l.isMainLotContinuation).length === 1
+            ? "Revert Subdivision"
+            : "Delete Lot"
+        }
         variant="danger"
       />
 

@@ -338,6 +338,7 @@ interface TimelineState {
   addEvent: (event: Omit<TimelineEvent, 'id'>) => void;
   updateEvent: (id: string, event: Partial<TimelineEvent>) => void;
   deleteEvent: (id: string) => void;
+  removeLotFromSubdivision: (lotPropertyId: string, subdivisionEventId: string) => void;
   moveEvent: (id: string, newPosition: number) => void;
 
   selectProperty: (id: string | null) => void;
@@ -957,6 +958,144 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
     });
   },
 
+  removeLotFromSubdivision: (lotPropertyId, subdivisionEventId) => {
+    const state = get();
+    const lot = state.properties.find((p) => p.id === lotPropertyId);
+    const subdivisionEvent = state.events.find((e) => e.id === subdivisionEventId);
+
+    if (!lot || !subdivisionEvent || !subdivisionEvent.subdivisionDetails) {
+      console.warn('❌ removeLotFromSubdivision: lot or event not found');
+      return;
+    }
+
+    // Never allow deleting Lot 1 (main continuation)
+    if (lot.isMainLotContinuation) {
+      console.warn('❌ Cannot delete the main continuation lot (Lot 1)');
+      return;
+    }
+
+    const parentId = subdivisionEvent.subdivisionDetails.parentPropertyId;
+    const parent = state.properties.find((p) => p.id === parentId);
+    if (!parent) {
+      console.warn('❌ removeLotFromSubdivision: parent property not found');
+      return;
+    }
+
+    // Count sibling lots (excluding Lot 1)
+    const nonLot1Siblings = state.properties.filter(
+      (p) =>
+        p.parentPropertyId === parentId &&
+        p.subdivisionGroup === lot.subdivisionGroup &&
+        !p.isMainLotContinuation
+    );
+
+    const clearAnalysis = {
+      aiResponse: null as AIResponse | null,
+      timelineIssues: [] as TimelineIssue[],
+      positionedGaps: [] as PositionedGap[],
+      residenceGapIssues: [] as AIIssue[],
+      selectedIssue: null as string | null,
+      verificationAlerts: [] as VerificationAlert[],
+      currentAlertIndex: -1,
+    };
+
+    if (nonLot1Siblings.length === 1 && nonLot1Siblings[0].id === lotPropertyId) {
+      // Case A: Last non-Lot-1 lot — revert the entire subdivision
+      console.log('🔄 Reverting subdivision — last non-Lot-1 lot being removed');
+
+      const lot1 = state.properties.find(
+        (p) => p.parentPropertyId === parentId && p.isMainLotContinuation
+      );
+
+      // Restore parent property
+      const restoredParent = {
+        ...parent,
+        subdivisionDate: undefined,
+        subdivisionGroup: undefined,
+      };
+
+      // Merge Lot 1's post-subdivision events back to parent
+      let mergedEvents: TimelineEvent[] = [];
+      if (lot1 && lot1.subdivisionDate) {
+        const lot1EventsAfterSubdivision = state.events.filter(
+          (e) => e.propertyId === lot1.id && e.date >= lot1.subdivisionDate!
+        );
+        mergedEvents = lot1EventsAfterSubdivision.map((e) => ({
+          ...e,
+          propertyId: parentId,
+        }));
+      }
+
+      // All lots to delete (including Lot 1)
+      const allLotsToDelete = state.properties.filter(
+        (p) =>
+          p.parentPropertyId === parentId &&
+          p.subdivisionGroup === lot.subdivisionGroup
+      );
+      const lotIdsToDelete = allLotsToDelete.map((l) => l.id!);
+
+      set({
+        properties: state.properties
+          .filter((p) => !lotIdsToDelete.includes(p.id!))
+          .map((p) => (p.id === parentId ? restoredParent : p)),
+        events: state.events
+          .filter((e) => !lotIdsToDelete.includes(e.propertyId))
+          .filter((e) => e.id !== subdivisionEventId)
+          .concat(mergedEvents),
+        ...clearAnalysis,
+      });
+    } else {
+      // Case B: 3+ lots — just remove this one lot
+      console.log('🗑️ Removing single lot from subdivision');
+
+      // Remove the lot from childProperties
+      const remainingChildren = (subdivisionEvent.subdivisionDetails.childProperties || [])
+        .filter((c) => c.id !== lotPropertyId);
+
+      // Rescale allocation percentages proportionally to sum to 100%
+      const currentTotal = remainingChildren.reduce(
+        (sum, c) => sum + (c.allocationPercentage || 0),
+        0
+      );
+      const rescaledChildren = remainingChildren.map((c) => ({
+        ...c,
+        allocationPercentage:
+          currentTotal > 0
+            ? ((c.allocationPercentage || 0) / currentTotal) * 100
+            : 100 / remainingChildren.length,
+      }));
+
+      // Update remaining lot Property objects with rescaled percentages
+      const rescaleMap = new Map(rescaledChildren.map((c) => [c.id, c.allocationPercentage]));
+
+      set({
+        properties: state.properties
+          .filter((p) => p.id !== lotPropertyId)
+          .map((p) =>
+            rescaleMap.has(p.id)
+              ? { ...p, allocationPercentage: rescaleMap.get(p.id) }
+              : p
+          ),
+        events: state.events
+          .filter((e) => e.propertyId !== lotPropertyId)
+          .map((e) =>
+            e.id === subdivisionEventId
+              ? {
+                  ...e,
+                  title: `Subdivided into ${remainingChildren.length} lots`,
+                  subdivisionDetails: {
+                    ...e.subdivisionDetails!,
+                    childProperties: rescaledChildren,
+                    totalLots: remainingChildren.length,
+                  },
+                }
+              : e
+          ),
+        ...clearAnalysis,
+      });
+    }
+  },
+
   subdivideProperty: (config) => {
     const { parentPropertyId, subdivisionDate, lots, fees, costBreakdown, notes } = config;
     const state = get();
@@ -1338,6 +1477,66 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
             : p
         ),
       }));
+    } else if (eventToDelete?.type === 'subdivision' && eventToDelete.subdivisionDetails) {
+      // Deleting a subdivision event — undo the entire subdivision
+      const parentId = eventToDelete.subdivisionDetails.parentPropertyId;
+      const parent = state.properties.find((p) => p.id === parentId);
+
+      if (parent) {
+        console.log('🔄 Undoing subdivision via event deletion');
+
+        // Find Lot 1 (main continuation)
+        const lot1 = state.properties.find(
+          (p) => p.parentPropertyId === parentId && p.isMainLotContinuation
+        );
+
+        // Restore parent property - remove subdivision markers
+        const restoredParent = {
+          ...parent,
+          subdivisionDate: undefined,
+          subdivisionGroup: undefined,
+        };
+
+        // Merge Lot 1's events back to parent (only events AFTER subdivision)
+        let mergedEvents: TimelineEvent[] = [];
+        if (lot1 && lot1.subdivisionDate) {
+          const lot1EventsAfterSubdivision = state.events.filter(
+            (e) => e.propertyId === lot1.id && e.date >= lot1.subdivisionDate!
+          );
+          mergedEvents = lot1EventsAfterSubdivision.map((e) => ({
+            ...e,
+            propertyId: parentId,
+          }));
+        }
+
+        // Find all child lots to delete
+        const allLotsToDelete = state.properties.filter(
+          (p) => p.parentPropertyId === parentId && p.subdivisionGroup === parent.subdivisionGroup
+        );
+        const lotIdsToDelete = allLotsToDelete.map((l) => l.id!);
+
+        set((state) => ({
+          properties: state.properties
+            .filter((p) => !lotIdsToDelete.includes(p.id!))
+            .map((p) => (p.id === parentId ? restoredParent : p)),
+          events: state.events
+            .filter((e) => e.id !== id)
+            .filter((e) => !lotIdsToDelete.includes(e.propertyId))
+            .concat(mergedEvents),
+          aiResponse: null,
+          timelineIssues: [],
+          positionedGaps: [],
+          residenceGapIssues: [],
+          selectedIssue: null,
+          verificationAlerts: [],
+          currentAlertIndex: -1,
+        }));
+      } else {
+        // Parent not found, just remove the event
+        set((state) => ({
+          events: state.events.filter((e) => e.id !== id),
+        }));
+      }
     } else {
       set((state) => ({
         events: state.events.filter((e) => e.id !== id),

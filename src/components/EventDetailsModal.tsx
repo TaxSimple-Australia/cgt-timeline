@@ -869,10 +869,20 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
           return;
         }
 
-        // Calculate total percentage of leaving owners
-        const leavingOwnersTotal = currentProperty?.owners
-          ?.filter(owner => leavingOwners.includes(owner.name))
-          .reduce((sum, owner) => sum + owner.percentage, 0) || 0;
+        // Use currentProperty.owners first; if leaving owners were already removed
+        // (re-editing a saved event), fall back to event.previousOwners snapshot
+        const ownersSource = currentProperty?.owners || [];
+        let leavingOwnersTotal = ownersSource
+          .filter(owner => leavingOwners.includes(owner.name))
+          .reduce((sum, owner) => sum + owner.percentage, 0);
+
+        // If no leaving owners found in current property (already transferred),
+        // use the previousOwners snapshot from the first save
+        if (leavingOwnersTotal === 0 && event.previousOwners && event.previousOwners.length > 0) {
+          leavingOwnersTotal = event.previousOwners
+            .filter(owner => leavingOwners.includes(owner.name))
+            .reduce((sum, owner) => sum + owner.percentage, 0);
+        }
 
         // Validate that new owners' percentages equal the leaving owners' total
         const totalPercentage = newOwners.reduce((sum, owner) => sum + (owner.percentage || 0), 0);
@@ -1334,11 +1344,12 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
       if ((eventType === 'ownership_change' || eventType === 'refinance') && event.propertyId) {
         const currentProperty = properties.find(p => p.id === event.propertyId);
         if (currentProperty) {
-          // Create new owners array by filtering out leaving owners and adding new owners
+          // If re-saving (previousOwners exists), rebuild from previousOwners to avoid duplicates
+          const baseOwners = event.previousOwners && event.previousOwners.length > 0
+            ? event.previousOwners
+            : (currentProperty.owners || []);
           const updatedOwners = [
-            // Keep existing owners that are not leaving
-            ...(currentProperty.owners || []).filter(owner => !leavingOwners.includes(owner.name)),
-            // Add new owners
+            ...baseOwners.filter(owner => !leavingOwners.includes(owner.name)),
             ...newOwners.map(owner => ({
               name: owner.name,
               percentage: owner.percentage
@@ -3077,11 +3088,11 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
                         <AnimatePresence>
                           {showExcludedForeignResidentTooltip && (
                             <motion.div
-                              initial={{ opacity: 0, y: -5 }}
+                              initial={{ opacity: 0, y: 5 }}
                               animate={{ opacity: 1, y: 0 }}
-                              exit={{ opacity: 0, y: -5 }}
+                              exit={{ opacity: 0, y: 5 }}
                               transition={{ duration: 0.15 }}
-                              className="absolute left-1/2 -translate-x-1/2 top-full mt-2 bg-slate-900 dark:bg-slate-800 text-white px-4 py-3 rounded-lg shadow-2xl text-sm min-w-[320px] max-w-[400px] z-50 pointer-events-none border-2 border-blue-500/30"
+                              className="absolute right-0 bottom-full mb-2 bg-slate-900 dark:bg-slate-800 text-white px-4 py-3 rounded-lg shadow-2xl text-sm w-[260px] z-50 pointer-events-none border-2 border-blue-500/30"
                             >
                               <p className="text-slate-200 leading-relaxed">
                                 The deceased must not have been an "excluded foreign resident" (i.e., a foreign resident for a continuous period of more than six years immediately before death)

@@ -682,7 +682,7 @@ export default function PropertyPanel() {
                   <div className="grid grid-cols-2 gap-2 mt-2">
                     {property.lotNumber && (
                       <div className="bg-white dark:bg-slate-700/50 p-2 rounded border border-pink-200 dark:border-pink-700">
-                        <div className="text-xs text-pink-600 dark:text-pink-400">Lot Number</div>
+                        <div className="text-xs text-pink-600 dark:text-pink-400">Lot Name</div>
                         <div className="font-semibold text-sm text-pink-900 dark:text-pink-100">{property.lotNumber}</div>
                       </div>
                     )}

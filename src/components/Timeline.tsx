@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useEffect, MouseEvent, useMemo } from 'react';
 import { format } from 'date-fns';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence } from 'framer-motion';
 import { useTimelineStore, EventType, TimelineEvent } from '@/store/timeline';
 import { cn, dateToPosition, positionToDate, generateTimelineMarkers, TimelineMarker } from '@/lib/utils';
 import EventCard from './EventCard';
@@ -11,7 +11,7 @@ import PropertyBranch from './PropertyBranch';
 import QuickAddMenu from './QuickAddMenu';
 import EventDetailsModal from './EventDetailsModal';
 import TimelineSnapshot from './TimelineSnapshot';
-import LotDetailsModal from './LotDetailsModal';
+
 import { StickyNotesLayer, ShareLinkButton, AddStickyNoteButton } from './sticky-notes';
 import SubdivisionSplitVisual from './SubdivisionSplitVisual';
 import { calculateBranchPositions, calculateSubdivisionConnections } from '@/lib/subdivision-helpers';
@@ -45,7 +45,8 @@ export default function Timeline({ className, onAlertClick, onOpenAIBuilder }: T
   const [isDraggingTimebar, setIsDraggingTimebar] = useState(false);
   const [grabbedDateTimestamp, setGrabbedDateTimestamp] = useState<number>(0);
   const [grabbedViewDuration, setGrabbedViewDuration] = useState<number>(0);
-  const [editingLotId, setEditingLotId] = useState<string | null>(null);
+
+
 
   const {
     properties,
@@ -500,7 +501,18 @@ export default function Timeline({ className, onAlertClick, onOpenAIBuilder }: T
                     onBranchClick={handleBranchClick}
                     onHoverChange={(isHovered) => setHoveredPropertyId(isHovered ? property.id : null)}
                     onAlertClick={onAlertClick}
-                    onLotBadgeClick={setEditingLotId}
+                    onLotBadgeClick={(lotId) => {
+                      const lotProperty = properties.find(p => p.id === lotId);
+                      if (!lotProperty) return;
+                      const parentId = lotProperty.parentPropertyId || lotProperty.id;
+                      const parentProperty = properties.find(p => p.id === parentId);
+                      const subdivisionEvent = events.find(
+                        e => e.propertyId === parentId && e.type === 'subdivision'
+                      );
+                      if (subdivisionEvent && parentProperty) {
+                        handleEventClick(subdivisionEvent, parentProperty.name);
+                      }
+                    }}
                   />
                 );
               })}
@@ -586,25 +598,8 @@ export default function Timeline({ className, onAlertClick, onOpenAIBuilder }: T
       {/* Timeline Snapshot Widget */}
       <TimelineSnapshot />
 
-      {/* Lot Details Modal - Global */}
-      {editingLotId && (() => {
-        console.log('🎨 Timeline: Rendering LotDetailsModal for:', editingLotId);
-        const editingProperty = properties.find(p => p.id === editingLotId);
-        if (!editingProperty) {
-          console.log('⚠️ Timeline: Property not found for editingLotId:', editingLotId);
-          return null;
-        }
-        return (
-          <LotDetailsModal
-            property={editingProperty}
-            isOpen={true}
-            onClose={() => {
-              console.log('🚪 Closing LotDetailsModal');
-              setEditingLotId(null);
-            }}
-          />
-        );
-      })()}
+
+
     </div>
   );
 }

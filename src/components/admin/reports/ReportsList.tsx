@@ -12,6 +12,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Building2,
+  Trash2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import type { CGTReportSummary, ReportStatus } from '@/types/cgt-report';
@@ -23,6 +24,7 @@ interface ReportsListProps {
   onToggleSelectAll: () => void;
   onViewReport: (id: string) => void;
   onVerifyReport: (id: string) => void;
+  onDeleteReport: (id: string) => void;
   page: number;
   totalPages: number;
   total: number;
@@ -51,6 +53,7 @@ export default function ReportsList({
   onToggleSelectAll,
   onViewReport,
   onVerifyReport,
+  onDeleteReport,
   page,
   totalPages,
   total,
@@ -202,6 +205,18 @@ export default function ReportsList({
                     <PlayCircle className="w-4 h-4" />
                   </Button>
                 )}
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => {
+                    if (window.confirm('Are you sure you want to delete this report? This cannot be undone.')) {
+                      onDeleteReport(report.id);
+                    }
+                  }}
+                  className="h-8 w-8 p-0 text-red-400 hover:text-red-300 hover:bg-red-500/10"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </Button>
               </div>
             </motion.div>
           );

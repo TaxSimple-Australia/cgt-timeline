@@ -10,6 +10,7 @@ import type {
   AnalysisNotePosition,
   ShareableTimelineData,
   ArrowTarget,
+  AnalysisArrowTarget,
 } from '../types/sticky-note';
 import { generateStickyNoteId, DEFAULT_STICKY_NOTE_COLOR } from '../types/sticky-note';
 import { showValidationError, showError } from '../lib/toast-helpers';
@@ -428,6 +429,8 @@ interface TimelineState {
   updateAnalysisStickyNote: (id: string, updates: Partial<StickyNote>) => void;
   deleteAnalysisStickyNote: (id: string) => void;
   moveAnalysisStickyNote: (id: string, newPosition: AnalysisNotePosition) => void;
+  toggleAnalysisStickyNoteArrow: (noteId: string) => void;
+  updateAnalysisStickyNoteArrowTarget: (noteId: string, target: AnalysisArrowTarget) => void;
   clearAnalysisStickyNotes: () => void;
 
   // Analysis Saving Actions
@@ -3042,6 +3045,40 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
       ),
     }));
     console.log('📍 Moved analysis sticky note:', { id, newPosition });
+  },
+
+  toggleAnalysisStickyNoteArrow: (noteId) => {
+    set((state) => ({
+      analysisStickyNotes: state.analysisStickyNotes.map((note) => {
+        if (note.id !== noteId) return note;
+        const now = new Date().toISOString();
+        if (note.arrow?.enabled) {
+          // Disable but preserve target position
+          return { ...note, arrow: { ...note.arrow, enabled: false }, updatedAt: now };
+        }
+        // Enable - reuse existing analysisTarget or create default offset below the note
+        const position = note.position as AnalysisNotePosition;
+        const analysisTarget = note.arrow?.analysisTarget || {
+          relativeX: position.relativeX,
+          relativeY: Math.min(position.relativeY + 15, 95),
+          section: position.section,
+          elementId: position.elementId,
+        };
+        // Store a dummy timeline target (not used for analysis arrows)
+        const target = note.arrow?.target || { anchorDate: new Date().toISOString(), verticalOffset: 0 };
+        return { ...note, arrow: { enabled: true, target, analysisTarget }, updatedAt: now };
+      }),
+    }));
+  },
+
+  updateAnalysisStickyNoteArrowTarget: (noteId, analysisTarget) => {
+    set((state) => ({
+      analysisStickyNotes: state.analysisStickyNotes.map((note) =>
+        note.id === noteId && note.arrow
+          ? { ...note, arrow: { ...note.arrow, analysisTarget }, updatedAt: new Date().toISOString() }
+          : note
+      ),
+    }));
   },
 
   clearAnalysisStickyNotes: () => {

@@ -134,7 +134,12 @@ export default function StickyNotesLayer({
       if (!container) return null;
 
       const rect = container.getBoundingClientRect();
-      const xPercent = ((clientX - rect.left) / rect.width) * 100;
+      // Account for scrollLeft: convert client coords to content-relative coords,
+      // then divide by scrollWidth (full content width, not viewport width).
+      // This matches how getPixelPosition/getNoteStyle use scrollWidth for rendering.
+      const scrollLeft = container.scrollLeft;
+      const contentX = (clientX - rect.left) + scrollLeft;
+      const xPercent = (contentX / container.scrollWidth) * 100;
       const newDate = positionToDate(Math.max(0, Math.min(100, xPercent)));
 
       const scrollTop = container.scrollTop;

@@ -1,49 +1,97 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import Link from 'next/link';
 import { MapPin, Phone, Mail, Globe, Facebook, Linkedin, Twitter, Youtube, AlertCircle, User, LogOut } from 'lucide-react';
 import CGTBrainLogo from '@/components/branding/CGTBrainLogo';
 import CookiePreferencesModal from '@/components/CookiePreferencesModal';
 import CopyrightModal from '@/components/CopyrightModal';
 import AdminLoginModal from '@/components/admin/AdminLoginModal';
-import AdviserLoginModal from '@/components/AdviserLoginModal';
+import AdminPage from '@/components/admin/AdminPage';
+import TaxAgentLoginModal from '@/components/tax-agent/TaxAgentLoginModal';
+import TaxAgentDashboard from '@/components/tax-agent/TaxAgentDashboard';
+import type { TaxAgentPublic } from '@/types/tax-agent';
+
+const ADMIN_API_URL = process.env.NEXT_PUBLIC_ADMIN_API_URL || 'https://cgtbrain.com.au';
 
 export default function LandingFooter() {
   const [showCookieModal, setShowCookieModal] = useState(false);
   const [showCopyrightModal, setShowCopyrightModal] = useState(false);
   const [showAdminLogin, setShowAdminLogin] = useState(false);
+  const [showAdminPage, setShowAdminPage] = useState(false);
   const [showAdviserLogin, setShowAdviserLogin] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [userRole, setUserRole] = useState<'admin' | 'adviser' | null>(null);
+  const [showAdviserDashboard, setShowAdviserDashboard] = useState(false);
+  const [taxAgentData, setTaxAgentData] = useState<TaxAgentPublic | null>(null);
+  const [taxAgentToken, setTaxAgentToken] = useState<string | null>(null);
+  const [mounted, setMounted] = useState(false);
 
-  // Check login status on mount
   useEffect(() => {
-    const adminLoggedIn = sessionStorage.getItem('adminLoggedIn') === 'true';
-    const adviserLoggedIn = sessionStorage.getItem('adviserLoggedIn') === 'true';
-
-    if (adminLoggedIn) {
-      setIsLoggedIn(true);
-      setUserRole('admin');
-    } else if (adviserLoggedIn) {
-      setIsLoggedIn(true);
-      setUserRole('adviser');
-    }
+    setMounted(true);
+    return () => setMounted(false);
   }, []);
 
-  const handleLoginSuccess = (role: 'admin' | 'adviser') => {
-    setIsLoggedIn(true);
-    setUserRole(role);
+  // Admin handlers
+  function handleAdminLoginSuccess() {
     setShowAdminLogin(false);
-    setShowAdviserLogin(false);
-  };
+    setShowAdminPage(true);
+  }
 
-  const handleLogout = () => {
-    sessionStorage.removeItem('adminLoggedIn');
-    sessionStorage.removeItem('adviserLoggedIn');
-    setIsLoggedIn(false);
-    setUserRole(null);
-  };
+  function handleAdminClick() {
+    const isAuthenticated = sessionStorage.getItem('cgt_admin_auth') === 'true';
+    if (isAuthenticated) {
+      setShowAdminPage(true);
+    } else {
+      setShowAdminLogin(true);
+    }
+  }
+
+  function handleAdminLogout() {
+    sessionStorage.removeItem('cgt_admin_auth');
+    sessionStorage.removeItem('cgt_admin_user');
+    setShowAdminPage(false);
+  }
+
+  function handleAdminBack() {
+    setShowAdminPage(false);
+  }
+
+  // Adviser (Tax Agent) handlers
+  function handleAdviserLoginSuccess(agent: TaxAgentPublic, token: string) {
+    setTaxAgentData(agent);
+    setTaxAgentToken(token);
+    setShowAdviserLogin(false);
+    setShowAdviserDashboard(true);
+  }
+
+  function handleAdviserClick() {
+    const storedToken = localStorage.getItem('tax_agent_token');
+    const storedData = localStorage.getItem('tax_agent_data');
+    if (storedToken && storedData) {
+      try {
+        const agent = JSON.parse(storedData) as TaxAgentPublic;
+        setTaxAgentToken(storedToken);
+        setTaxAgentData(agent);
+        setShowAdviserDashboard(true);
+      } catch {
+        setShowAdviserLogin(true);
+      }
+    } else {
+      setShowAdviserLogin(true);
+    }
+  }
+
+  function handleAdviserLogout() {
+    localStorage.removeItem('tax_agent_token');
+    localStorage.removeItem('tax_agent_data');
+    setTaxAgentData(null);
+    setTaxAgentToken(null);
+    setShowAdviserDashboard(false);
+  }
+
+  function handleAdviserBack() {
+    setShowAdviserDashboard(false);
+  }
   return (
     <footer className="bg-slate-900">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
@@ -139,7 +187,7 @@ export default function LandingFooter() {
               </li>
               <li>
                 <button
-                  onClick={() => setShowAdviserLogin(true)}
+                  onClick={handleAdviserClick}
                   className="text-slate-400 hover:text-white transition-colors text-sm text-left"
                 >
                   Adviser Portal
@@ -147,7 +195,7 @@ export default function LandingFooter() {
               </li>
               <li>
                 <button
-                  onClick={() => setShowAdminLogin(true)}
+                  onClick={handleAdminClick}
                   className="text-slate-400 hover:text-white transition-colors text-sm text-left"
                 >
                   Admin Portal
@@ -250,13 +298,32 @@ export default function LandingFooter() {
       <AdminLoginModal
         isOpen={showAdminLogin}
         onClose={() => setShowAdminLogin(false)}
-        onSuccess={() => handleLoginSuccess('admin')}
+        onSuccess={handleAdminLoginSuccess}
       />
-      <AdviserLoginModal
+      <TaxAgentLoginModal
         isOpen={showAdviserLogin}
         onClose={() => setShowAdviserLogin(false)}
-        onLoginSuccess={() => handleLoginSuccess('adviser')}
+        onSuccess={handleAdviserLoginSuccess}
       />
+
+      {/* Dashboard Portals */}
+      {mounted && showAdminPage && createPortal(
+        <AdminPage
+          apiUrl={ADMIN_API_URL}
+          onLogout={handleAdminLogout}
+          onBack={handleAdminBack}
+        />,
+        document.body
+      )}
+      {mounted && showAdviserDashboard && taxAgentData && taxAgentToken && createPortal(
+        <TaxAgentDashboard
+          agent={taxAgentData}
+          token={taxAgentToken}
+          onLogout={handleAdviserLogout}
+          onBack={handleAdviserBack}
+        />,
+        document.body
+      )}
     </footer>
   );
 }

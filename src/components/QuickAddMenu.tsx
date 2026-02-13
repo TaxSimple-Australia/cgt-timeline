@@ -39,8 +39,6 @@ const eventTypes: { type: EventType; label: string; icon: React.ReactNode; color
   { type: 'move_out', label: 'Move Out', icon: <Package className="w-4 h-4" />, color: '#EF4444' },
   { type: 'rent_start', label: 'Start Rent', icon: <DollarSign className="w-4 h-4" />, color: '#F59E0B' },
   { type: 'rent_end', label: 'End Rent', icon: <DollarSign className="w-4 h-4" />, color: '#F97316' },
-  { type: 'vacant_start', label: 'Vacant (Start)', icon: <Building className="w-4 h-4" />, color: '#9CA3AF' },
-  { type: 'vacant_end', label: 'Vacant (End)', icon: <Building className="w-4 h-4" />, color: '#6B7280' },
   { type: 'building_start', label: 'Building Start', icon: <Building2 className="w-4 h-4" />, color: '#F97316' },
   { type: 'building_end', label: 'Building End', icon: <Building2 className="w-4 h-4" />, color: '#FB923C' },
   { type: 'improvement', label: 'Improvement', icon: <Hammer className="w-4 h-4" />, color: '#06B6D4' },
@@ -296,7 +294,7 @@ export default function QuickAddMenu({ position, timelinePosition, onClose, pres
     }
 
     // Events that don't have amounts
-    const noAmountEvents = ['move_in', 'move_out', 'vacant_start', 'vacant_end'];
+    const noAmountEvents = ['move_in', 'move_out'];
 
     addEvent({
       propertyId: property.id,

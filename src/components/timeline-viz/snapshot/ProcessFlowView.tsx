@@ -41,8 +41,6 @@ export default function ProcessFlowView({
       'improvement': 'Improvement',
       'refinance': 'Refinance',
       'status_change': 'Status Change',
-      'vacant_start': 'Vacant Start',
-      'vacant_end': 'Vacant End',
       'custom': 'Custom Event',
     };
     return typeMap[type] || type;

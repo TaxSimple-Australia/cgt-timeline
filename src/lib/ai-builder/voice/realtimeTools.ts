@@ -601,61 +601,6 @@ export const REALTIME_TIMELINE_TOOLS: RealtimeTool[] = [
   },
   {
     type: 'function',
-    name: 'add_vacant_start_event',
-    description: 'Add an event when the property becomes vacant/unoccupied.',
-    parameters: {
-      type: 'object',
-      properties: {
-        propertyAddress: {
-          type: 'string',
-          description: 'The address of the property',
-        },
-        date: {
-          type: 'string',
-          description: 'The date property became vacant in ISO format',
-        },
-        description: {
-          type: 'string',
-          description: 'Notes about vacancy',
-        },
-      },
-      required: ['propertyAddress', 'date'],
-    },
-  },
-  {
-    type: 'function',
-    name: 'add_vacant_end_event',
-    description: 'Add an event when the property is no longer vacant.',
-    parameters: {
-      type: 'object',
-      properties: {
-        propertyAddress: {
-          type: 'string',
-          description: 'The address of the property',
-        },
-        date: {
-          type: 'string',
-          description: 'The date vacancy ended in ISO format',
-        },
-        // Companion Events
-        vacantEndAsMoveIn: {
-          type: 'boolean',
-          description: 'Owner is moving in',
-        },
-        vacantEndAsRental: {
-          type: 'boolean',
-          description: 'Property will be rented (creates rent_start event)',
-        },
-        description: {
-          type: 'string',
-          description: 'Notes about vacancy ending',
-        },
-      },
-      required: ['propertyAddress', 'date'],
-    },
-  },
-  {
-    type: 'function',
     name: 'add_improvement_event',
     description: 'Add a capital improvement event (renovations, additions, etc.) that adds to cost base.',
     parameters: {
@@ -1450,8 +1395,6 @@ const EVENT_COLORS: Record<string, string> = {
   improvement: '#06B6D4',   // Cyan
   refinance: '#6366F1',     // Indigo
   status_change: '#A855F7', // Purple
-  vacant_start: '#9CA3AF',  // Gray
-  vacant_end: '#6B7280',    // Dark Gray
   ownership_change: '#A855F7', // Purple
   subdivision: '#EC4899',   // Pink
   living_in_rental_start: '#F472B6', // Pink
@@ -1470,8 +1413,6 @@ const EVENT_TITLES: Record<string, string> = {
   improvement: 'Improvement',
   refinance: 'Inherit',
   status_change: 'Status Change',
-  vacant_start: 'Vacant (Start)',
-  vacant_end: 'Vacant (End)',
   ownership_change: 'Ownership Change',
   subdivision: 'Subdivision',
   living_in_rental_start: 'Living in Rental (Start)',
@@ -1555,10 +1496,6 @@ export class RealtimeToolExecutor {
           return this.addRentStartEvent(args);
         case 'add_rent_end_event':
           return this.addRentEndEvent(args);
-        case 'add_vacant_start_event':
-          return this.addVacantStartEvent(args);
-        case 'add_vacant_end_event':
-          return this.addVacantEndEvent(args);
         case 'add_improvement_event':
           return this.addImprovementEvent(args);
         case 'add_status_change_event':
@@ -2053,18 +1990,6 @@ export class RealtimeToolExecutor {
 
     const companionEvents: string[] = [];
 
-    if (args.moveOutAsVacant) {
-      this.context.addEvent({
-        propertyId: property.id,
-        type: 'vacant_start',
-        date,
-        title: 'Vacant (Start)',
-        color: EVENT_COLORS.vacant_start,
-        position: 0,
-      });
-      companionEvents.push('Vacant');
-    }
-
     if (args.moveOutAsRental) {
       this.context.addEvent({
         propertyId: property.id,
@@ -2123,18 +2048,6 @@ export class RealtimeToolExecutor {
 
     const companionEvents: string[] = [];
 
-    if (args.rentEndAsVacant) {
-      this.context.addEvent({
-        propertyId: property.id,
-        type: 'vacant_start',
-        date,
-        title: 'Vacant (Start)',
-        color: EVENT_COLORS.vacant_start,
-        position: 0,
-      });
-      companionEvents.push('Vacant');
-    }
-
     if (args.rentEndAsMoveIn) {
       this.context.addEvent({
         propertyId: property.id,
@@ -2150,75 +2063,6 @@ export class RealtimeToolExecutor {
     return {
       success: true,
       message: `Added rent end event for ${property.address}${companionEvents.length ? ' with ' + companionEvents.join(', ') : ''}`,
-    };
-  }
-
-  private addVacantStartEvent(args: Record<string, unknown>): unknown {
-    const property = this.findPropertyByAddress(args.propertyAddress as string);
-    if (!property) {
-      return { success: false, error: `Property not found: ${args.propertyAddress}` };
-    }
-
-    this.context.addEvent({
-      propertyId: property.id,
-      type: 'vacant_start',
-      date: new Date(args.date as string),
-      title: 'Vacant (Start)',
-      color: EVENT_COLORS.vacant_start,
-      position: 0,
-      description: args.description as string | undefined,
-    });
-
-    return { success: true, message: `Added vacant start event for ${property.address}` };
-  }
-
-  private addVacantEndEvent(args: Record<string, unknown>): unknown {
-    const property = this.findPropertyByAddress(args.propertyAddress as string);
-    if (!property) {
-      return { success: false, error: `Property not found: ${args.propertyAddress}` };
-    }
-
-    const date = new Date(args.date as string);
-
-    this.context.addEvent({
-      propertyId: property.id,
-      type: 'vacant_end',
-      date,
-      title: 'Vacant (End)',
-      color: EVENT_COLORS.vacant_end,
-      position: 0,
-      description: args.description as string | undefined,
-    });
-
-    const companionEvents: string[] = [];
-
-    if (args.vacantEndAsMoveIn) {
-      this.context.addEvent({
-        propertyId: property.id,
-        type: 'move_in',
-        date,
-        title: 'Move In',
-        color: EVENT_COLORS.move_in,
-        position: 0,
-      });
-      companionEvents.push('Move In');
-    }
-
-    if (args.vacantEndAsRental) {
-      this.context.addEvent({
-        propertyId: property.id,
-        type: 'rent_start',
-        date,
-        title: 'Rent Start',
-        color: EVENT_COLORS.rent_start,
-        position: 0,
-      });
-      companionEvents.push('Rent Start');
-    }
-
-    return {
-      success: true,
-      message: `Added vacant end event for ${property.address}${companionEvents.length ? ' with ' + companionEvents.join(', ') : ''}`,
     };
   }
 
@@ -2556,6 +2400,10 @@ export class RealtimeToolExecutor {
             costBaseBreakdown[cb.category] = (costBaseBreakdown[cb.category] || 0) + cb.amount;
           }
         });
+      }
+      // Division 43 (Capital Works) deductions reduce cost base
+      if (event.type === 'sale' && event.division43Deductions) {
+        totalCostBase -= event.division43Deductions;
       }
     });
 

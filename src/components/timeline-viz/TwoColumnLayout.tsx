@@ -10,6 +10,7 @@ import {
   getPurchasePrice,
   getSalePrice,
   getImprovementAmount,
+  getDivision43Deductions,
 } from '@/lib/cost-base-calculations';
 
 interface TwoColumnLayoutProps {
@@ -47,7 +48,8 @@ export default function TwoColumnLayout({ properties, events }: TwoColumnLayoutP
     const saleCostBases = saleEvent?.costBases || [];
     const saleCostTotal = calculateSellingCosts(saleEvent);
 
-    const totalCostBase = purchasePrice + purchaseCostTotal + improvementTotal + saleCostTotal;
+    const div43Deductions = getDivision43Deductions(saleEvent);
+    const totalCostBase = purchasePrice + purchaseCostTotal + improvementTotal + saleCostTotal - div43Deductions;
     const salePrice = getSalePrice(saleEvent);
     const capitalGain = calculateCapitalGain(purchaseEvent, improvementEvents, saleEvent);
 

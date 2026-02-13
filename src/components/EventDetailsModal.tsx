@@ -4,7 +4,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { TimelineEvent, PropertyStatus, useTimelineStore, CostBaseItem } from '@/store/timeline';
 import { format } from 'date-fns';
-import { X, Calendar, DollarSign, Home, Tag, FileText, CheckCircle, CheckCircle2, Receipt, Info, Star, Palette, Building2, Key, AlertCircle, Briefcase, TrendingUp, Package, Hammer, Gift, MapPin, ChevronDown, Square, Maximize2, Percent, Plus, Layers, Lock, Unlock } from 'lucide-react';
+import { X, Calendar, DollarSign, Home, Tag, FileText, CheckCircle, CheckCircle2, Receipt, Info, Star, Palette, Building2, Key, AlertCircle, Briefcase, TrendingUp, Package, Hammer, Gift, MapPin, ChevronDown, Square, Maximize2, Percent, Plus, Layers, Lock, Unlock, Trash2 } from 'lucide-react';
 import CostBaseSelector from './CostBaseSelector';
 import { getCostBaseDefinition } from '@/lib/cost-base-definitions';
 import CostBaseSummaryModal from './CostBaseSummaryModal';
@@ -37,8 +37,6 @@ const eventTypeOptions = [
   { type: 'move_out' as const, label: 'Move Out', color: '#EF4444' },
   { type: 'rent_start' as const, label: 'Start Rent', color: '#F59E0B' },
   { type: 'rent_end' as const, label: 'End Rent', color: '#F97316' },
-  { type: 'vacant_start' as const, label: 'Vacant (Start)', color: '#9CA3AF' },
-  { type: 'vacant_end' as const, label: 'Vacant (End)', color: '#6B7280' },
   { type: 'improvement' as const, label: 'Improvement', color: '#06B6D4' },
   { type: 'building_start' as const, label: 'Building Start', color: '#F97316' },
   { type: 'building_end' as const, label: 'Building End', color: '#FB923C' },
@@ -55,7 +53,7 @@ interface EventDetailsModalProps {
 }
 
 export default function EventDetailsModal({ event, onClose, propertyName }: EventDetailsModalProps) {
-  const { updateEvent, deleteEvent, addEvent, events, properties, updateProperty } = useTimelineStore();
+  const { updateEvent, deleteEvent, addEvent, events, properties, updateProperty, removeLotFromSubdivision } = useTimelineStore();
 
   // Check if this is a synthetic "Not Sold" status marker
   const isSyntheticNotSold = (event as any).isSyntheticStatusMarker === true;
@@ -79,10 +77,14 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
   // Refs for date pickers
   const dateInputRef = React.useRef<HTMLInputElement>(null);
   const appreciationDateInputRef = React.useRef<HTMLInputElement>(null);
+  const mixedUseMoveInDateRef = React.useRef<HTMLInputElement>(null);
+  const rentalUseStartDateRef = React.useRef<HTMLInputElement>(null);
+  const businessUseStartDateRef = React.useRef<HTMLInputElement>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [showSummary, setShowSummary] = useState(false);
   const [showDateTooltip, setShowDateTooltip] = useState(false);
   const [showMarketValuationTooltip, setShowMarketValuationTooltip] = useState(false);
+  const [showExcludedForeignResidentTooltip, setShowExcludedForeignResidentTooltip] = useState(false);
 
   // Custom event specific state
   const [customColor, setCustomColor] = useState(event.color || '#6B7280');
@@ -115,13 +117,14 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
     if (event.checkboxState?.purchaseAsVacant !== undefined) {
       return event.checkboxState.purchaseAsVacant;
     }
-    // Fallback: Check if a vacant_start event exists on the same date as this purchase
+    // Fallback: Check if a status_change (vacant) event exists on the same date as this purchase
     if (event.type === 'purchase') {
       const purchaseDate = event.date.getTime();
       const existingVacant = events.find(
         (e) =>
           e.propertyId === event.propertyId &&
-          e.type === 'vacant_start' &&
+          e.type === 'status_change' &&
+          e.newStatus === 'vacant' &&
           e.date.getTime() === purchaseDate
       );
       return !!existingVacant;
@@ -158,19 +161,23 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
   // Delete confirmation dialog
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
+  // Lot deletion state (for subdivision events)
+  const [lotToDelete, setLotToDelete] = useState<string | null>(null);
+
   // Move out status checkboxes (for move_out events)
   const [moveOutAsVacant, setMoveOutAsVacant] = useState(() => {
     // First check if checkbox state is persisted
     if (event.checkboxState?.moveOutAsVacant !== undefined) {
       return event.checkboxState.moveOutAsVacant;
     }
-    // Fallback: Check if a vacant_start event exists on the same date as this move_out
+    // Fallback: Check if a status_change (vacant) event exists on the same date as this move_out
     if (event.type === 'move_out') {
       const moveOutDate = event.date.getTime();
       const existingVacant = events.find(
         (e) =>
           e.propertyId === event.propertyId &&
-          e.type === 'vacant_start' &&
+          e.type === 'status_change' &&
+          e.newStatus === 'vacant' &&
           e.date.getTime() === moveOutDate
       );
       return !!existingVacant;
@@ -202,13 +209,14 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
     if (event.checkboxState?.rentEndAsVacant !== undefined) {
       return event.checkboxState.rentEndAsVacant;
     }
-    // Fallback: Check if a vacant_start event exists on the same date as this rent_end
+    // Fallback: Check if a status_change (vacant) event exists on the same date as this rent_end
     if (event.type === 'rent_end') {
       const rentEndDate = event.date.getTime();
       const existingVacant = events.find(
         (e) =>
           e.propertyId === event.propertyId &&
-          e.type === 'vacant_start' &&
+          e.type === 'status_change' &&
+          e.newStatus === 'vacant' &&
           e.date.getTime() === rentEndDate
       );
       return !!existingVacant;
@@ -230,30 +238,6 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
           e.date.getTime() === rentEndDate
       );
       return !!existingMoveIn;
-    }
-    return false;
-  });
-
-  // Vacant end status checkboxes (for vacant_end events - extract from notes if present)
-  const [vacantEndAsMoveIn, setVacantEndAsMoveIn] = useState(() => {
-    // First check if checkbox state is persisted
-    if (event.checkboxState?.vacantEndAsMoveIn !== undefined) {
-      return event.checkboxState.vacantEndAsMoveIn;
-    }
-    // Fallback: extract from description
-    if (event.type === 'vacant_end' && event.description) {
-      return event.description.includes('Next status: Owner Move back in');
-    }
-    return false;
-  });
-  const [vacantEndAsRent, setVacantEndAsRent] = useState(() => {
-    // First check if checkbox state is persisted
-    if (event.checkboxState?.vacantEndAsRent !== undefined) {
-      return event.checkboxState.vacantEndAsRent;
-    }
-    // Fallback: extract from description
-    if (event.type === 'vacant_end' && event.description) {
-      return event.description.includes('Next status: Rental');
     }
     return false;
   });
@@ -365,6 +349,15 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
   const [ownershipChangeReason, setOwnershipChangeReason] = useState(event.ownershipChangeReason || 'sale_transfer');
   const [ownershipChangeReasonOther, setOwnershipChangeReasonOther] = useState(event.ownershipChangeReasonOther || '');
 
+  // Inherit event - Excluded foreign resident status
+  const [excludedForeignResident, setExcludedForeignResident] = useState(() => {
+    // Check if checkbox state is persisted
+    if (event.checkboxState?.excludedForeignResident !== undefined) {
+      return event.checkboxState.excludedForeignResident;
+    }
+    return false;
+  });
+
   // Track original checkbox states to detect changes (fixes duplicate companion event bug)
   // This captures the checkbox state when modal OPENS, not when it re-renders
   const originalCheckboxState = useMemo(() => {
@@ -381,8 +374,6 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
       moveOutAsRent,
       rentEndAsVacant,
       rentEndAsMoveIn,
-      vacantEndAsMoveIn,
-      vacantEndAsRent,
       hasBusinessUse,
       hasPartialRental,
       isNonResident,
@@ -764,19 +755,6 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
         }
       }
 
-      // For vacant_end events, append next status to notes
-      if (event.type === 'vacant_end') {
-        // Remove any existing "Next status:" text first
-        finalDescription = finalDescription.replace(/\n*Next status: (Owner Move back in|Rental)/g, '');
-
-        // Add the selected status
-        if (vacantEndAsMoveIn) {
-          finalDescription = finalDescription.trim() + '\n\nNext status: Owner Move back in';
-        } else if (vacantEndAsRent) {
-          finalDescription = finalDescription.trim() + '\n\nNext status: Rental';
-        }
-      }
-
       // Only include description if not empty
       if (finalDescription) {
         updates.description = finalDescription;
@@ -891,10 +869,20 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
           return;
         }
 
-        // Calculate total percentage of leaving owners
-        const leavingOwnersTotal = currentProperty?.owners
-          ?.filter(owner => leavingOwners.includes(owner.name))
-          .reduce((sum, owner) => sum + owner.percentage, 0) || 0;
+        // Use currentProperty.owners first; if leaving owners were already removed
+        // (re-editing a saved event), fall back to event.previousOwners snapshot
+        const ownersSource = currentProperty?.owners || [];
+        let leavingOwnersTotal = ownersSource
+          .filter(owner => leavingOwners.includes(owner.name))
+          .reduce((sum, owner) => sum + owner.percentage, 0);
+
+        // If no leaving owners found in current property (already transferred),
+        // use the previousOwners snapshot from the first save
+        if (leavingOwnersTotal === 0 && event.previousOwners && event.previousOwners.length > 0) {
+          leavingOwnersTotal = event.previousOwners
+            .filter(owner => leavingOwners.includes(owner.name))
+            .reduce((sum, owner) => sum + owner.percentage, 0);
+        }
 
         // Validate that new owners' percentages equal the leaving owners' total
         const totalPercentage = newOwners.reduce((sum, owner) => sum + (owner.percentage || 0), 0);
@@ -919,6 +907,12 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
         // Save ownership change data
         updates.leavingOwners = leavingOwners;
         updates.newOwners = newOwners;
+        // Capture previousOwners snapshot ONLY on first save (preserve on re-saves)
+        if (!event.previousOwners) {
+          updates.previousOwners = currentProperty?.owners
+            ? currentProperty.owners.map(o => ({ name: o.name, percentage: o.percentage }))
+            : [];
+        }
         // Only save reason for ownership_change events, not inherit (refinance)
         if (eventType === 'ownership_change') {
           updates.ownershipChangeReason = ownershipChangeReason;
@@ -965,13 +959,12 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
         moveOutAsRent,
         rentEndAsVacant,
         rentEndAsMoveIn,
-        vacantEndAsMoveIn,
-        vacantEndAsRent,
         hasBusinessUse,
         hasPartialRental,
         isNonResident,
         division40Claimed,
         division43Claimed,
+        excludedForeignResident,
       };
 
       console.log('💾 Saving event with checkbox state:', {
@@ -1027,7 +1020,6 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
           }
         } else {
           // Checkbox is UNCHECKED - remove any move_in events
-
           // Delete old move_in if it exists
           if (oldMoveIn) {
             deleteEvent(oldMoveIn.id);
@@ -1114,24 +1106,20 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
         if (living > 0 && !moveInOnSameDay && parsedMixedUseMoveInDate) {
           const mixedUseMoveInTimestamp = parsedMixedUseMoveInDate.getTime();
 
-          // Find existing move_in on the mixed-use move-in date
-          const existingMixedUseMoveIn = events.find(
+          // Use fresh store state (not stale closure) to check for existing events
+          const freshEventsB = useTimelineStore.getState().events;
+          const existingMixedUseMoveIn = freshEventsB.find(
             (e) =>
               e.propertyId === event.propertyId &&
               e.type === 'move_in' &&
               e.date.getTime() === mixedUseMoveInTimestamp
           );
 
-          // Check if this is a new condition (wasn't set before)
-          const wasMixedUseWithMoveInDate = originalCheckboxState?.purchaseAsMixedUse &&
-            event.mixedUseMoveInDate &&
-            event.mixedUseMoveInDate.getTime() === mixedUseMoveInTimestamp;
-
-          if (!existingMixedUseMoveIn && !wasMixedUseWithMoveInDate) {
+          if (!existingMixedUseMoveIn) {
             // Delete any old move_in on a different date that was created by mixed-use
             const oldMoveInDate = event.mixedUseMoveInDate;
-            if (oldMoveInDate) {
-              const oldMixedUseMoveIn = events.find(
+            if (oldMoveInDate && oldMoveInDate.getTime() !== mixedUseMoveInTimestamp) {
+              const oldMixedUseMoveIn = freshEventsB.find(
                 (e) =>
                   e.propertyId === event.propertyId &&
                   e.type === 'move_in' &&
@@ -1184,22 +1172,20 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
 
           // Only if rental start date is DIFFERENT from purchase date
           if (rentalUseStartTimestamp !== purchaseTimestamp) {
-            const existingRentalUseRentStart = events.find(
+            // Use fresh store state (not stale closure) to check for existing events
+            const freshEventsD = useTimelineStore.getState().events;
+            const existingRentalUseRentStart = freshEventsD.find(
               (e) =>
                 e.propertyId === event.propertyId &&
                 e.type === 'rent_start' &&
                 e.date.getTime() === rentalUseStartTimestamp
             );
 
-            const wasRentalWithStartDate = originalCheckboxState?.purchaseAsMixedUse &&
-              event.rentalUseStartDate &&
-              event.rentalUseStartDate.getTime() === rentalUseStartTimestamp;
-
-            if (!existingRentalUseRentStart && !wasRentalWithStartDate) {
+            if (!existingRentalUseRentStart) {
               // Delete any old rent_start on a different date that was created by mixed-use
               const oldRentalStartDate = event.rentalUseStartDate;
-              if (oldRentalStartDate && oldRentalStartDate.getTime() !== purchaseTimestamp) {
-                const oldMixedUseRentStart = events.find(
+              if (oldRentalStartDate && oldRentalStartDate.getTime() !== purchaseTimestamp && oldRentalStartDate.getTime() !== rentalUseStartTimestamp) {
+                const oldMixedUseRentStart = freshEventsD.find(
                   (e) =>
                     e.propertyId === event.propertyId &&
                     e.type === 'rent_start' &&
@@ -1232,7 +1218,8 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
           moveInOnSameDay; // User now wants to move in same day (handled elsewhere)
 
         if (shouldRemoveMixedUseMoveIn) {
-          const oldMixedUseMoveIn = events.find(
+          const freshEventsCleanupMoveIn = useTimelineStore.getState().events;
+          const oldMixedUseMoveIn = freshEventsCleanupMoveIn.find(
             (e) =>
               e.propertyId === event.propertyId &&
               e.type === 'move_in' &&
@@ -1257,7 +1244,8 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
             (parseFloat(rentalUsePercentage) || 0) === 0; // Rental % is now 0
 
           if (shouldRemoveMixedUseRentStart) {
-            const oldMixedUseRentStart = events.find(
+            const freshEventsCleanupRent = useTimelineStore.getState().events;
+            const oldMixedUseRentStart = freshEventsCleanupRent.find(
               (e) =>
                 e.propertyId === event.propertyId &&
                 e.type === 'rent_start' &&
@@ -1352,55 +1340,16 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
         }
       }
 
-      // Handle "vacant end as move in" companion event
-      if (event.type === 'vacant_end') {
-        const existingMoveIn = findCompanion('move_in');
-
-        if (vacantEndAsMoveIn) {
-          if (checkboxBecameTrue('vacantEndAsMoveIn') && !existingMoveIn) {
-            addEvent({
-              propertyId: event.propertyId,
-              type: 'move_in',
-              date: parsedDate,
-              title: 'Move In',
-              position: event.position,
-              color: '#10B981',
-            });
-          }
-        } else if (originalCheckboxState?.vacantEndAsMoveIn && existingMoveIn) {
-          deleteEvent(existingMoveIn.id);
-        }
-      }
-
-      // Handle "vacant end as rent" companion event
-      if (event.type === 'vacant_end') {
-        const existingRent = findCompanion('rent_start');
-
-        if (vacantEndAsRent) {
-          if (checkboxBecameTrue('vacantEndAsRent') && !existingRent) {
-            addEvent({
-              propertyId: event.propertyId,
-              type: 'rent_start',
-              date: parsedDate,
-              title: 'Start Rent',
-              position: event.position,
-              color: '#F59E0B',
-            });
-          }
-        } else if (originalCheckboxState?.vacantEndAsRent && existingRent) {
-          deleteEvent(existingRent.id);
-        }
-      }
-
       // Auto-update property owners for ownership_change and refinance (inherit) events
       if ((eventType === 'ownership_change' || eventType === 'refinance') && event.propertyId) {
         const currentProperty = properties.find(p => p.id === event.propertyId);
         if (currentProperty) {
-          // Create new owners array by filtering out leaving owners and adding new owners
+          // If re-saving (previousOwners exists), rebuild from previousOwners to avoid duplicates
+          const baseOwners = event.previousOwners && event.previousOwners.length > 0
+            ? event.previousOwners
+            : (currentProperty.owners || []);
           const updatedOwners = [
-            // Keep existing owners that are not leaving
-            ...(currentProperty.owners || []).filter(owner => !leavingOwners.includes(owner.name)),
-            // Add new owners
+            ...baseOwners.filter(owner => !leavingOwners.includes(owner.name)),
             ...newOwners.map(owner => ({
               name: owner.name,
               percentage: owner.percentage
@@ -1469,6 +1418,73 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
         }
       }
 
+      // === SAFETY NET: Ensure mixed-use companion events exist ===
+      if (event.type === 'purchase' && purchaseAsMixedUse) {
+        const finalLiving = parseFloat(livingUsePercentage) || 0;
+        const finalRental = parseFloat(rentalUsePercentage) || 0;
+        const finalEvents = useTimelineStore.getState().events;
+
+        // Safety net for move_in companion
+        if (finalLiving > 0 && !moveInOnSameDay && parsedMixedUseMoveInDate) {
+          const moveInExists = finalEvents.some(
+            (e) =>
+              e.propertyId === event.propertyId &&
+              e.type === 'move_in' &&
+              e.date.getTime() === parsedMixedUseMoveInDate.getTime()
+          );
+          if (!moveInExists) {
+            addEvent({
+              propertyId: event.propertyId,
+              type: 'move_in',
+              date: parsedMixedUseMoveInDate,
+              title: 'Move In',
+              position: event.position,
+              color: '#10B981',
+            });
+          }
+        }
+
+        // Safety net for move_in on same day (via mixed-use + moveInOnSameDay)
+        if (finalLiving > 0 && moveInOnSameDay) {
+          const moveInExists = finalEvents.some(
+            (e) =>
+              e.propertyId === event.propertyId &&
+              e.type === 'move_in' &&
+              e.date.getTime() === parsedDate.getTime()
+          );
+          if (!moveInExists) {
+            addEvent({
+              propertyId: event.propertyId,
+              type: 'move_in',
+              date: parsedDate,
+              title: 'Move In',
+              position: event.position,
+              color: '#10B981',
+            });
+          }
+        }
+
+        // Safety net for rent_start companion
+        if (finalRental > 0 && parsedRentalUseStartDate) {
+          const rentStartExists = finalEvents.some(
+            (e) =>
+              e.propertyId === event.propertyId &&
+              e.type === 'rent_start' &&
+              e.date.getTime() === parsedRentalUseStartDate.getTime()
+          );
+          if (!rentStartExists) {
+            addEvent({
+              propertyId: event.propertyId,
+              type: 'rent_start',
+              date: parsedRentalUseStartDate,
+              title: 'Start Rent',
+              position: event.position,
+              color: '#F59E0B',
+            });
+          }
+        }
+      }
+
       // Small delay for visual feedback
       setTimeout(() => {
         setIsSaving(false);
@@ -1485,6 +1501,31 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
     deleteEvent(event.id);
     setShowDeleteConfirm(false);
     onClose();
+  };
+
+  // Handle deleting a lot from a subdivision event
+  const handleDeleteLot = () => {
+    if (!lotToDelete) return;
+
+    // Check if this is the last non-Lot-1 lot (revert case)
+    const nonLot1Lots = subdivisionLots.filter((l) => !l.isMainLotContinuation);
+    const isRevertCase = nonLot1Lots.length === 1 && nonLot1Lots[0].id === lotToDelete;
+
+    removeLotFromSubdivision(lotToDelete, event.id);
+
+    // Clean up lotEdits state
+    setLotEdits((prev) => {
+      const next = { ...prev };
+      delete next[lotToDelete];
+      return next;
+    });
+
+    setLotToDelete(null);
+
+    // If revert case, the subdivision event no longer exists — close the modal
+    if (isRevertCase) {
+      onClose();
+    }
   };
 
   // Keyboard shortcuts
@@ -1604,8 +1645,6 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
                     setMoveOutAsRent(false);
                     setRentEndAsVacant(false);
                     setRentEndAsMoveIn(false);
-                    setVacantEndAsMoveIn(false);
-                    setVacantEndAsRent(false);
                   }
                 }}
                 className="w-full px-4 py-2.5 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -1969,33 +2008,58 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
                                 <label className="block text-xs font-medium text-green-700 dark:text-green-400 mb-1.5">
                                   When did you move in?
                                 </label>
-                                <input
-                                  type="text"
-                                  value={mixedUseMoveInDateInput}
-                                  onChange={(e) => {
-                                    const input = e.target.value;
-                                    setMixedUseMoveInDateInput(input);
+                                <div className="flex items-center gap-2">
+                                  <input
+                                    type="text"
+                                    value={mixedUseMoveInDateInput}
+                                    onChange={(e) => {
+                                      const input = e.target.value;
+                                      setMixedUseMoveInDateInput(input);
 
-                                    const parsed = parseDateFlexible(input);
-                                    if (parsed) {
-                                      setParsedMixedUseMoveInDate(parsed);
-                                      setMixedUseMoveInDateError('');
-                                    } else if (input.trim()) {
-                                      setMixedUseMoveInDateError('Invalid date format');
-                                      setParsedMixedUseMoveInDate(null);
-                                    } else {
-                                      setMixedUseMoveInDateError('');
-                                      setParsedMixedUseMoveInDate(null);
-                                    }
-                                  }}
-                                  className={cn(
-                                    "w-full px-3 py-2 text-sm border rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100",
-                                    mixedUseMoveInDateError
-                                      ? "border-red-500 focus:ring-red-500"
-                                      : "border-slate-300 dark:border-slate-600 focus:ring-blue-500"
-                                  )}
-                                  placeholder={DATE_FORMAT_PLACEHOLDER}
-                                />
+                                      const parsed = parseDateFlexible(input);
+                                      if (parsed) {
+                                        setParsedMixedUseMoveInDate(parsed);
+                                        setMixedUseMoveInDateError('');
+                                      } else if (input.trim()) {
+                                        setMixedUseMoveInDateError('Invalid date format');
+                                        setParsedMixedUseMoveInDate(null);
+                                      } else {
+                                        setMixedUseMoveInDateError('');
+                                        setParsedMixedUseMoveInDate(null);
+                                      }
+                                    }}
+                                    className={cn(
+                                      "w-full px-3 py-2 text-sm border rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100",
+                                      mixedUseMoveInDateError
+                                        ? "border-red-500 focus:ring-red-500"
+                                        : "border-slate-300 dark:border-slate-600 focus:ring-blue-500"
+                                    )}
+                                    placeholder={DATE_FORMAT_PLACEHOLDER}
+                                  />
+                                  <div
+                                    className="inline-block cursor-pointer"
+                                    onClick={() => mixedUseMoveInDateRef.current?.showPicker?.()}
+                                  >
+                                    <input
+                                      ref={mixedUseMoveInDateRef}
+                                      type="date"
+                                      value={parsedMixedUseMoveInDate ? format(parsedMixedUseMoveInDate, 'yyyy-MM-dd') : ''}
+                                      onChange={(e) => {
+                                        const newDate = e.target.value;
+                                        if (newDate) {
+                                          const parsed = new Date(newDate);
+                                          setMixedUseMoveInDateInput(format(parsed, 'dd/MM/yyyy'));
+                                          setParsedMixedUseMoveInDate(parsed);
+                                          setMixedUseMoveInDateError('');
+                                        }
+                                      }}
+                                      className="sr-only"
+                                    />
+                                    <div className="px-3 py-2 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 hover:bg-slate-50 dark:hover:bg-slate-600 rounded-lg transition-colors">
+                                      <Calendar className="w-4 h-4 text-slate-600 dark:text-slate-400 pointer-events-none" />
+                                    </div>
+                                  </div>
+                                </div>
                                 {mixedUseMoveInDateError && (
                                   <p className="mt-1 text-xs text-red-500">{mixedUseMoveInDateError}</p>
                                 )}
@@ -2035,33 +2099,58 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
                                 <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1.5">
                                   Date rental use started
                                 </label>
-                                <input
-                                  type="text"
-                                  value={rentalUseStartDateInput}
-                                  onChange={(e) => {
-                                    const input = e.target.value;
-                                    setRentalUseStartDateInput(input);
+                                <div className="flex items-center gap-2">
+                                  <input
+                                    type="text"
+                                    value={rentalUseStartDateInput}
+                                    onChange={(e) => {
+                                      const input = e.target.value;
+                                      setRentalUseStartDateInput(input);
 
-                                    const parsed = parseDateFlexible(input);
-                                    if (parsed) {
-                                      setParsedRentalUseStartDate(parsed);
-                                      setRentalUseDateError('');
-                                    } else if (input.trim()) {
-                                      setRentalUseDateError('Invalid date format');
-                                      setParsedRentalUseStartDate(null);
-                                    } else {
-                                      setRentalUseDateError('');
-                                      setParsedRentalUseStartDate(null);
-                                    }
-                                  }}
-                                  className={cn(
-                                    "w-full px-3 py-2 text-sm border rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100",
-                                    rentalUseDateError
-                                      ? "border-red-500 focus:ring-red-500"
-                                      : "border-slate-300 dark:border-slate-600 focus:ring-blue-500"
-                                  )}
-                                  placeholder={DATE_FORMAT_PLACEHOLDER}
-                                />
+                                      const parsed = parseDateFlexible(input);
+                                      if (parsed) {
+                                        setParsedRentalUseStartDate(parsed);
+                                        setRentalUseDateError('');
+                                      } else if (input.trim()) {
+                                        setRentalUseDateError('Invalid date format');
+                                        setParsedRentalUseStartDate(null);
+                                      } else {
+                                        setRentalUseDateError('');
+                                        setParsedRentalUseStartDate(null);
+                                      }
+                                    }}
+                                    className={cn(
+                                      "w-full px-3 py-2 text-sm border rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100",
+                                      rentalUseDateError
+                                        ? "border-red-500 focus:ring-red-500"
+                                        : "border-slate-300 dark:border-slate-600 focus:ring-blue-500"
+                                    )}
+                                    placeholder={DATE_FORMAT_PLACEHOLDER}
+                                  />
+                                  <div
+                                    className="inline-block cursor-pointer"
+                                    onClick={() => rentalUseStartDateRef.current?.showPicker?.()}
+                                  >
+                                    <input
+                                      ref={rentalUseStartDateRef}
+                                      type="date"
+                                      value={parsedRentalUseStartDate ? format(parsedRentalUseStartDate, 'yyyy-MM-dd') : ''}
+                                      onChange={(e) => {
+                                        const newDate = e.target.value;
+                                        if (newDate) {
+                                          const parsed = new Date(newDate);
+                                          setRentalUseStartDateInput(format(parsed, 'dd/MM/yyyy'));
+                                          setParsedRentalUseStartDate(parsed);
+                                          setRentalUseDateError('');
+                                        }
+                                      }}
+                                      className="sr-only"
+                                    />
+                                    <div className="px-3 py-2 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 hover:bg-slate-50 dark:hover:bg-slate-600 rounded-lg transition-colors">
+                                      <Calendar className="w-4 h-4 text-slate-600 dark:text-slate-400 pointer-events-none" />
+                                    </div>
+                                  </div>
+                                </div>
                                 {rentalUseDateError && (
                                   <p className="mt-1 text-xs text-red-500">{rentalUseDateError}</p>
                                 )}
@@ -2098,33 +2187,58 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
                                 <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1.5">
                                   Date business use started
                                 </label>
-                                <input
-                                  type="text"
-                                  value={businessUseStartDateInput}
-                                  onChange={(e) => {
-                                    const input = e.target.value;
-                                    setBusinessUseStartDateInput(input);
+                                <div className="flex items-center gap-2">
+                                  <input
+                                    type="text"
+                                    value={businessUseStartDateInput}
+                                    onChange={(e) => {
+                                      const input = e.target.value;
+                                      setBusinessUseStartDateInput(input);
 
-                                    const parsed = parseDateFlexible(input);
-                                    if (parsed) {
-                                      setParsedBusinessUseStartDate(parsed);
-                                      setBusinessUseDateError('');
-                                    } else if (input.trim()) {
-                                      setBusinessUseDateError('Invalid date format');
-                                      setParsedBusinessUseStartDate(null);
-                                    } else {
-                                      setBusinessUseDateError('');
-                                      setParsedBusinessUseStartDate(null);
-                                    }
-                                  }}
-                                  className={cn(
-                                    "w-full px-3 py-2 text-sm border rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100",
-                                    businessUseDateError
-                                      ? "border-red-500 focus:ring-red-500"
-                                      : "border-slate-300 dark:border-slate-600 focus:ring-blue-500"
-                                  )}
-                                  placeholder={DATE_FORMAT_PLACEHOLDER}
-                                />
+                                      const parsed = parseDateFlexible(input);
+                                      if (parsed) {
+                                        setParsedBusinessUseStartDate(parsed);
+                                        setBusinessUseDateError('');
+                                      } else if (input.trim()) {
+                                        setBusinessUseDateError('Invalid date format');
+                                        setParsedBusinessUseStartDate(null);
+                                      } else {
+                                        setBusinessUseDateError('');
+                                        setParsedBusinessUseStartDate(null);
+                                      }
+                                    }}
+                                    className={cn(
+                                      "w-full px-3 py-2 text-sm border rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100",
+                                      businessUseDateError
+                                        ? "border-red-500 focus:ring-red-500"
+                                        : "border-slate-300 dark:border-slate-600 focus:ring-blue-500"
+                                    )}
+                                    placeholder={DATE_FORMAT_PLACEHOLDER}
+                                  />
+                                  <div
+                                    className="inline-block cursor-pointer"
+                                    onClick={() => businessUseStartDateRef.current?.showPicker?.()}
+                                  >
+                                    <input
+                                      ref={businessUseStartDateRef}
+                                      type="date"
+                                      value={parsedBusinessUseStartDate ? format(parsedBusinessUseStartDate, 'yyyy-MM-dd') : ''}
+                                      onChange={(e) => {
+                                        const newDate = e.target.value;
+                                        if (newDate) {
+                                          const parsed = new Date(newDate);
+                                          setBusinessUseStartDateInput(format(parsed, 'dd/MM/yyyy'));
+                                          setParsedBusinessUseStartDate(parsed);
+                                          setBusinessUseDateError('');
+                                        }
+                                      }}
+                                      className="sr-only"
+                                    />
+                                    <div className="px-3 py-2 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 hover:bg-slate-50 dark:hover:bg-slate-600 rounded-lg transition-colors">
+                                      <Calendar className="w-4 h-4 text-slate-600 dark:text-slate-400 pointer-events-none" />
+                                    </div>
+                                  </div>
+                                </div>
                                 {businessUseDateError && (
                                   <p className="mt-1 text-xs text-red-500">{businessUseDateError}</p>
                                 )}
@@ -2192,8 +2306,6 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
              eventType !== 'rent_start' &&
              eventType !== 'rent_end' &&
              eventType !== 'sale' &&
-             eventType !== 'vacant_start' &&
-             eventType !== 'vacant_end' &&
              eventType !== 'ownership_change' &&
              eventType !== 'improvement' &&
              eventType !== 'building_start' &&
@@ -2463,63 +2575,6 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
                     >
                       <Home className="w-4 h-4" />
                       Owner Move back in
-                    </label>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Vacant End Event - Status Options */}
-            {eventType === 'vacant_end' && (
-              <div className="space-y-4 pt-2 border-t border-slate-200 dark:border-slate-700">
-                <div className="space-y-3">
-                  <p className="text-xs text-slate-500 dark:text-slate-400">
-                    Set property status after vacancy ends:
-                  </p>
-
-                  {/* Vacant end as move in checkbox */}
-                  <div className="flex items-center gap-3 p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
-                    <input
-                      type="checkbox"
-                      id="vacantEndAsMoveIn"
-                      checked={vacantEndAsMoveIn}
-                      onChange={(e) => {
-                        setVacantEndAsMoveIn(e.target.checked);
-                        if (e.target.checked) {
-                          setVacantEndAsRent(false); // Mutual exclusivity
-                        }
-                      }}
-                      className="w-4 h-4 text-green-600 bg-slate-100 dark:bg-slate-800 border-slate-300 dark:border-slate-600 rounded focus:ring-green-500 focus:ring-2"
-                    />
-                    <label
-                      htmlFor="vacantEndAsMoveIn"
-                      className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300 cursor-pointer"
-                    >
-                      <Home className="w-4 h-4" />
-                      Owner Move back in
-                    </label>
-                  </div>
-
-                  {/* Vacant end as rental checkbox */}
-                  <div className="flex items-center gap-3 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
-                    <input
-                      type="checkbox"
-                      id="vacantEndAsRent"
-                      checked={vacantEndAsRent}
-                      onChange={(e) => {
-                        setVacantEndAsRent(e.target.checked);
-                        if (e.target.checked) {
-                          setVacantEndAsMoveIn(false); // Mutual exclusivity
-                        }
-                      }}
-                      className="w-4 h-4 text-blue-600 bg-slate-100 dark:bg-slate-800 border-slate-300 dark:border-slate-600 rounded focus:ring-blue-500 focus:ring-2"
-                    />
-                    <label
-                      htmlFor="vacantEndAsRent"
-                      className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300 cursor-pointer"
-                    >
-                      <Briefcase className="w-4 h-4" />
-                      Rental
                     </label>
                   </div>
                 </div>
@@ -3009,6 +3064,47 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
                   </>
                 )}
 
+                {/* Excluded Foreign Resident Checkbox - Only for inherit (refinance) events */}
+                {eventType === 'refinance' && (
+                  <div className="flex items-start gap-3 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                    <input
+                      type="checkbox"
+                      id="excludedForeignResident"
+                      checked={excludedForeignResident}
+                      onChange={(e) => setExcludedForeignResident(e.target.checked)}
+                      className="w-4 h-4 mt-0.5 text-blue-600 bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 rounded focus:ring-2 focus:ring-blue-500 cursor-pointer"
+                    />
+                    <label
+                      htmlFor="excludedForeignResident"
+                      className="flex-1 flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300 cursor-pointer"
+                    >
+                      Excluded Foreign Resident
+                      <div className="relative">
+                        <Info
+                          className="w-4 h-4 text-blue-500 dark:text-blue-400 cursor-help"
+                          onMouseEnter={() => setShowExcludedForeignResidentTooltip(true)}
+                          onMouseLeave={() => setShowExcludedForeignResidentTooltip(false)}
+                        />
+                        <AnimatePresence>
+                          {showExcludedForeignResidentTooltip && (
+                            <motion.div
+                              initial={{ opacity: 0, y: 5 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              exit={{ opacity: 0, y: 5 }}
+                              transition={{ duration: 0.15 }}
+                              className="absolute right-0 bottom-full mb-2 bg-slate-900 dark:bg-slate-800 text-white px-4 py-3 rounded-lg shadow-2xl text-sm w-[260px] z-50 pointer-events-none border-2 border-blue-500/30"
+                            >
+                              <p className="text-slate-200 leading-relaxed">
+                                The deceased must not have been an "excluded foreign resident" (i.e., a foreign resident for a continuous period of more than six years immediately before death)
+                              </p>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </div>
+                    </label>
+                  </div>
+                )}
+
                 {/* Leaving Owners */}
                 <div className="space-y-2">
                   <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">
@@ -3258,7 +3354,7 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
                               "font-semibold",
                               isMainLot ? "text-green-700 dark:text-green-400" : "text-pink-700 dark:text-pink-400"
                             )}>
-                              {lot.name || edited.lotNumber || `Lot`}
+                              {edited.lotNumber || lot.name || `Lot`}
                             </span>
                             {isMainLot && (
                               <span className="px-2 py-0.5 text-xs font-medium bg-green-200 dark:bg-green-800 text-green-800 dark:text-green-200 rounded">
@@ -3266,12 +3362,22 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
                               </span>
                             )}
                           </div>
+                          {!isMainLot && (
+                            <button
+                              type="button"
+                              onClick={() => setLotToDelete(lot.id)}
+                              className="w-8 h-8 rounded-lg flex items-center justify-center text-red-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors"
+                              title="Delete this lot"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          )}
                         </div>
 
-                        {/* Lot Number Input */}
+                        {/* Lot Name Input */}
                         <div>
                           <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">
-                            Lot Number
+                            Lot Name
                           </label>
                           <input
                             type="text"
@@ -3558,6 +3664,29 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
         title="Delete Event?"
         message="Are you sure you want to delete this event? This action cannot be undone."
         confirmLabel="Delete"
+        variant="danger"
+      />
+
+      {/* Lot Deletion Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={lotToDelete !== null}
+        onClose={() => setLotToDelete(null)}
+        onConfirm={handleDeleteLot}
+        title={
+          subdivisionLots.filter((l) => !l.isMainLotContinuation).length === 1
+            ? "Revert Subdivision?"
+            : "Delete Lot?"
+        }
+        message={
+          subdivisionLots.filter((l) => !l.isMainLotContinuation).length === 1
+            ? "This is the last additional lot. Deleting it will revert the entire subdivision and restore the original property timeline. All events on this lot will be removed."
+            : `This will permanently remove the lot and all its events. The remaining lots' allocation percentages will be recalculated proportionally.`
+        }
+        confirmLabel={
+          subdivisionLots.filter((l) => !l.isMainLotContinuation).length === 1
+            ? "Revert Subdivision"
+            : "Delete Lot"
+        }
         variant="danger"
       />
 

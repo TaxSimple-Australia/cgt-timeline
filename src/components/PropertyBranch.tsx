@@ -396,6 +396,24 @@ export default function PropertyBranch({
 
   const eventsToRender = addStatusMarkerIfNeeded(eventsWithOffsetsAndTiers);
 
+  // Snap-aware wrapper: when an event is dropped near a sibling event on the
+  // same property, snap to the sibling's exact date so same-day stacking works.
+  const SNAP_THRESHOLD = 1.5; // percentage of timeline width
+  const handleUpdateEventWithSnap = (id: string, updates: Partial<TimelineEvent>) => {
+    if (updates.date) {
+      const newPos = dateToPosition(updates.date, timelineStart, timelineEnd);
+      for (const sibling of events) {
+        if (sibling.id === id) continue;
+        const siblingPos = dateToPosition(sibling.date, timelineStart, timelineEnd);
+        if (Math.abs(newPos - siblingPos) < SNAP_THRESHOLD) {
+          updates = { ...updates, date: sibling.date };
+          break;
+        }
+      }
+    }
+    updateEvent(id, updates);
+  };
+
   // Check if property has any events
   const hasEvents = events.length > 0;
 
@@ -537,6 +555,7 @@ export default function PropertyBranch({
           onHoverChange={onHoverChange}
           onBandClick={handleStatusBandClick}
           subdivisionDate={subdivisionDate || undefined}
+          eventsWithPositions={eventsWithOffsetsAndTiers}
         />
 
       {/* Timeline Gaps for this Property */}
@@ -752,13 +771,13 @@ export default function PropertyBranch({
                       <foreignObject
                         x={`${splitPos}%`}
                         y={branchY - 25}
-                        width="140"
+                        width="80"
                         height="20"
-                        style={{ overflow: 'visible', transform: 'translateX(50px)', pointerEvents: 'none' }}
+                        style={{ overflow: 'visible', transform: 'translateX(20px)', pointerEvents: 'none' }}
                       >
                         <div
-                          className="flex items-center justify-center px-1.5 py-0.5 rounded text-white text-[10px] font-semibold shadow-sm whitespace-nowrap cursor-pointer hover:ring-2 hover:ring-white/50 transition-all"
-                          style={{ backgroundColor: `${lot1.color}E6`, pointerEvents: 'auto' }}
+                          className="flex items-center justify-center text-gray-300 text-[10px] font-medium whitespace-nowrap cursor-pointer transition-all"
+                          style={{ pointerEvents: 'auto' }}
                           onClick={(e) => {
                             console.log('🎯 Lot 1 badge clicked!', lot1.id);
                             e.stopPropagation();
@@ -766,7 +785,7 @@ export default function PropertyBranch({
                           }}
                         >
                           {lot1.lotNumber}
-                          {lot1.lotSize && ` • ${parseFloat((lot1.lotSize / 10000).toFixed(4))} ha`}
+                          {(lot1.lotSize ?? 0) > 0 && ` • ${parseFloat((lot1.lotSize! / 10000).toFixed(4))} ha`}
                         </div>
                       </foreignObject>
                     );
@@ -809,13 +828,13 @@ export default function PropertyBranch({
             <foreignObject
               x={`${dateToPosition(property.subdivisionDate, timelineStart, timelineEnd)}%`}
               y={branchY - 25}
-              width="140"
+              width="80"
               height="20"
-              style={{ overflow: 'visible', transform: 'translateX(-70px)', pointerEvents: 'none' }}
+              style={{ overflow: 'visible', transform: 'translateX(20px)', pointerEvents: 'none' }}
             >
               <div
-                className="flex items-center justify-center px-1.5 py-0.5 rounded text-white text-[10px] font-semibold shadow-sm whitespace-nowrap cursor-pointer hover:ring-2 hover:ring-white/50 transition-all"
-                style={{ backgroundColor: `${property.color}E6`, pointerEvents: 'auto' }}
+                className="flex items-center justify-center text-gray-300 text-[10px] font-medium whitespace-nowrap cursor-pointer transition-all"
+                style={{ pointerEvents: 'auto' }}
                 onClick={(e) => {
                   console.log('🎯 Lot badge clicked!', property.id, property.lotNumber);
                   e.stopPropagation();
@@ -823,7 +842,7 @@ export default function PropertyBranch({
                 }}
               >
                 {property.lotNumber}
-                {property.lotSize && ` • ${parseFloat((property.lotSize / 10000).toFixed(4))} ha`}
+                {(property.lotSize ?? 0) > 0 && ` • ${parseFloat((property.lotSize! / 10000).toFixed(4))} ha`}
               </div>
             </foreignObject>
           )}
@@ -832,7 +851,7 @@ export default function PropertyBranch({
 
       {/* Branch Label - Show for parent properties only (child lots show lot number labels) */}
       {!property.parentPropertyId && (
-        <foreignObject x="10" y={branchY - 30} width="300" height="60" style={{ pointerEvents: 'none' }}>
+        <foreignObject x="10" y={branchY - 30} width="300" height={60 + (property.owners?.length ? property.owners.length * 16 : 0)} style={{ pointerEvents: 'none' }}>
           <div className="flex items-center gap-2 group select-none">
             <div
               className={cn(
@@ -865,9 +884,16 @@ export default function PropertyBranch({
               </div>
               {/* Show owner information if available */}
               {property.owners && property.owners.length > 0 && (
-                <span className="text-xs text-slate-500 dark:text-slate-400">
-                  Owned by: {property.owners.map(o => `${o.name} (${o.percentage}%)`).join(', ')}
-                </span>
+                <div className="flex flex-col gap-0">
+                  <span className="text-xs text-slate-500 dark:text-slate-400">
+                    Owned by
+                  </span>
+                  {property.owners.map((o, i) => (
+                    <span key={i} className="text-xs text-slate-400 dark:text-slate-500 pl-1">
+                      {o.name} ({o.percentage}%)
+                    </span>
+                  ))}
+                </div>
               )}
             </div>
           </div>
@@ -904,8 +930,9 @@ export default function PropertyBranch({
               enableDrag={enableDragEvents && !(event as any).isSyntheticStatusMarker}
               timelineStart={timelineStart}
               timelineEnd={timelineEnd}
-              onUpdateEvent={updateEvent}
+              onUpdateEvent={handleUpdateEventWithSnap}
               isSyntheticStatusMarker={(event as any).isSyntheticStatusMarker}
+              verticalOffset={event.verticalOffset}
             />
           ) : (
             <EventCardView
@@ -918,7 +945,7 @@ export default function PropertyBranch({
               enableDrag={enableDragEvents && !(event as any).isSyntheticStatusMarker}
               timelineStart={timelineStart}
               timelineEnd={timelineEnd}
-              onUpdateEvent={updateEvent}
+              onUpdateEvent={handleUpdateEventWithSnap}
               isSyntheticStatusMarker={(event as any).isSyntheticStatusMarker}
             />
           )}

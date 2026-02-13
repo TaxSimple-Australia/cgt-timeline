@@ -155,10 +155,10 @@ export default function SendToTaxAgentModal({
                     )}
                     <div>
                       <h2 className="text-lg font-bold text-white">
-                        {step === 'success' ? 'Sent Successfully!' : 'Send to Tax Agent'}
+                        {step === 'success' ? 'Sent Successfully!' : 'Send to Tax Expert'}
                       </h2>
                       <p className="text-xs text-emerald-100">
-                        {step === 'select-agent' && 'Choose a Tax Agent to review your timeline'}
+                        {step === 'select-agent' && 'Choose a Tax Expert to review your timeline'}
                         {step === 'enter-details' && `Sending to ${selectedAgent?.name}`}
                         {step === 'success' && 'Your timeline has been sent for review'}
                       </p>
@@ -282,7 +282,7 @@ export default function SendToTaxAgentModal({
                         ) : (
                           <>
                             <Send className="w-4 h-4" />
-                            Send to Tax Agent
+                            Send to Tax Expert
                           </>
                         )}
                       </button>

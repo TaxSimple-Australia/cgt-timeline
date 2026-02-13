@@ -178,6 +178,28 @@ export default function OwnershipPeriodsChart({ periods }: OwnershipPeriodsChart
             </div>
           </div>
         )}
+
+        {/* Indexation Method Notice */}
+        {(() => {
+          // Get the earliest start date from periods (purchase date)
+          const earliestDate = nonTotalPeriods.reduce((earliest, period) => {
+            if (!period.start_date) return earliest;
+            const periodDate = new Date(period.start_date);
+            return !earliest || periodDate < earliest ? periodDate : earliest;
+          }, null as Date | null);
+
+          // Check if eligible for indexation method (before 11:45 AM EST on 21 September 1999)
+          const indexationCutoff = new Date('1999-09-21T11:45:00+10:00');
+          const isEligibleForIndexation = earliestDate && earliestDate <= indexationCutoff;
+
+          return isEligibleForIndexation ? (
+            <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
+              <div className="text-xs text-amber-600 dark:text-amber-400 font-medium">
+                If an asset was acquired at or before 11.45 am EST on 21 September 1999, you may be eligible to use the indexation method to calculate the cost base for capital gains tax purposes.
+              </div>
+            </div>
+          ) : null;
+        })()}
       </div>
     </div>
   );

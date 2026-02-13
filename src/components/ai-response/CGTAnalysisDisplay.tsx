@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CheckCircle, XCircle, ChevronDown, ChevronUp, Cpu, Zap, Clock, FileJson, Download, Home, LayoutGrid, FileText, Settings2, StickyNote, BookOpen, FileQuestion, HelpCircle, Calendar, DollarSign, Calculator, AlertTriangle, Info, TrendingUp, Lightbulb, Brain, MessageCircle } from 'lucide-react';
 import GapQuestionsPanel from './GapQuestionsPanel';
@@ -18,6 +18,7 @@ import FollowUpChatWindow from './FollowUpChatWindow';
 import { AnalysisData, Citations } from '@/types/model-response';
 import { AnalysisStickyNotesLayer, AddStickyNoteButton, ShareLinkButton } from '../sticky-notes';
 import { SendToTaxAgentButton } from '../send-to-agent';
+import FeedbackPopup from '../FeedbackPopup';
 import TimelineSummaryTable from './TimelineSummaryTable';
 import OwnershipPeriodsTable from './OwnershipPeriodsTable';
 import PropertyTimelineTable from './PropertyTimelineTable';
@@ -47,6 +48,23 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
 
   // Ref for sticky notes layer
   const analysisContainerRef = useRef<HTMLDivElement>(null);
+
+  // Feedback popup state
+  const [showFeedback, setShowFeedback] = useState(false);
+
+  // Trigger feedback popup 3 seconds after analysis loads
+  useEffect(() => {
+    // Check if feedback was already shown
+    const feedbackShown = localStorage.getItem('cgtBrain_feedbackShown');
+    if (feedbackShown) return;
+
+    // Show feedback popup after 3 seconds
+    const timer = setTimeout(() => {
+      setShowFeedback(true);
+    }, 3000);
+
+    return () => clearTimeout(timer);
+  }, []);
 
   // Get timeline data and display mode from store
   const properties = useTimelineStore(state => state.properties);
@@ -1742,6 +1760,12 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
 
       {/* Analysis Sticky Notes Layer */}
       <AnalysisStickyNotesLayer containerRef={analysisContainerRef} />
+
+      {/* Feedback Popup */}
+      <FeedbackPopup
+        isOpen={showFeedback}
+        onClose={() => setShowFeedback(false)}
+      />
     </div>
   );
 }

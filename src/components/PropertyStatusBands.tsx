@@ -4,6 +4,10 @@ import React from 'react';
 import { TimelineEvent, calculateStatusPeriods, statusColors, PropertyStatus, Property } from '@/store/timeline';
 import { dateToPosition } from '@/lib/utils';
 
+interface EventWithPosition extends TimelineEvent {
+  calculatedPosition?: number;
+}
+
 interface PropertyStatusBandsProps {
   events: TimelineEvent[];
   branchY: number;
@@ -16,6 +20,7 @@ interface PropertyStatusBandsProps {
   onHoverChange: (isHovered: boolean) => void;
   onBandClick: (propertyId: string, position: number, clientX: number, clientY: number) => void;
   subdivisionDate?: Date;  // For parent properties that have been subdivided
+  eventsWithPositions?: EventWithPosition[];  // Events with calculated positions for collision detection
 }
 
 export default function PropertyStatusBands({
@@ -30,8 +35,14 @@ export default function PropertyStatusBands({
   onHoverChange,
   onBandClick,
   subdivisionDate,
+  eventsWithPositions = [],
 }: PropertyStatusBandsProps) {
   const statusPeriods = calculateStatusPeriods(events);
+  console.log('🔍 PropertyStatusBands:', {
+    propertyId,
+    eventTypes: events.map(e => e.type),
+    statusPeriods: statusPeriods.map(p => ({ status: p.status, start: p.startDate.toISOString().split('T')[0], end: p.endDate?.toISOString().split('T')[0] || 'ongoing' })),
+  });
   const today = new Date();
 
   // Calculate subdivision position for parent properties that have been subdivided
@@ -82,6 +93,17 @@ export default function PropertyStatusBands({
     sold: 'Sold',
     subdivided: 'Subdivided',
     living_in_rental: 'Living in Rental',
+  };
+
+  // Helper to check if there are events nearby that would overlap with status label
+  const hasEventsNearby = (bandCenterPos: number): boolean => {
+    const PROXIMITY_THRESHOLD = 15; // ± 15% horizontal range
+
+    return eventsWithPositions.some(event => {
+      if (!event.calculatedPosition) return false;
+      const distance = Math.abs(event.calculatedPosition - bandCenterPos);
+      return distance < PROXIMITY_THRESHOLD;
+    });
   };
 
   // Helper to render a single status band segment
@@ -147,21 +169,27 @@ export default function PropertyStatusBands({
         />
 
         {/* Status label (show if band is wide enough) */}
-        {width > 2 && (
-          <text
-            x={`${startPos + width / 2}%`}
-            y={hoveredBandY - 12}
-            textAnchor="middle"
-            dominantBaseline="middle"
-            className={isHovered ? "text-[13px] font-bold fill-slate-900 dark:fill-slate-100" : "text-[12px] font-bold fill-slate-900 dark:fill-slate-100"}
-            style={{
-              pointerEvents: 'none',
-              transition: 'all 0.2s ease'
-            }}
-          >
-            {statusLabels[status]}
-          </text>
-        )}
+        {width > 2 && (() => {
+          const bandCenterPos = startPos + width / 2;
+          const hasNearbyEvents = hasEventsNearby(bandCenterPos);
+          const labelYOffset = hasNearbyEvents ? -24 : -12; // Push label just above circles if events nearby
+
+          return (
+            <text
+              x={`${bandCenterPos}%`}
+              y={hoveredBandY + labelYOffset}
+              textAnchor="middle"
+              dominantBaseline="middle"
+              className={isHovered ? "text-[13px] font-bold fill-slate-900 dark:fill-slate-100" : "text-[12px] font-bold fill-slate-900 dark:fill-slate-100"}
+              style={{
+                pointerEvents: 'none',
+                transition: 'all 0.2s ease'
+              }}
+            >
+              {statusLabels[status]}
+            </text>
+          );
+        })()}
 
         {/* Start marker */}
         <line

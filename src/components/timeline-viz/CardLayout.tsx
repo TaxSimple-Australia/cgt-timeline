@@ -2,6 +2,7 @@ import React from 'react';
 import { format } from 'date-fns';
 import { Property, TimelineEvent } from '@/store/timeline';
 import { formatCurrency } from '@/lib/utils';
+import { getDivision43Deductions } from '@/lib/cost-base-calculations';
 import { Home, TrendingUp, Calendar, DollarSign } from 'lucide-react';
 
 interface CardLayoutProps {
@@ -28,7 +29,8 @@ export default function CardLayout({ properties, events }: CardLayoutProps) {
       0
     );
     const saleCostTotal = saleEvent?.costBases?.reduce((sum, cb) => sum + cb.amount, 0) || 0;
-    const totalCostBase = purchasePrice + purchaseCostTotal + improvementTotal + saleCostTotal;
+    const div43Deductions = getDivision43Deductions(saleEvent);
+    const totalCostBase = purchasePrice + purchaseCostTotal + improvementTotal + saleCostTotal - div43Deductions;
 
     return {
       propertyEvents,
@@ -40,6 +42,7 @@ export default function CardLayout({ properties, events }: CardLayoutProps) {
       purchaseCostTotal,
       improvementTotal,
       saleCostTotal,
+      div43Deductions,
       totalCostBase,
       capitalGain: saleEvent ? (saleEvent.amount || 0) - totalCostBase : 0,
     };

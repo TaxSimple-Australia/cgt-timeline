@@ -106,6 +106,7 @@ export interface TimelineEvent {
     division40Claimed?: boolean;      // Sale: Division 40 depreciating assets claimed
     division43Claimed?: boolean;      // Sale: Division 43 capital works claimed
     excludedForeignResident?: boolean; // Inherit: Excluded foreign resident status
+    commissionerExtension?: boolean;  // Inherit: Commissioner extension of 2-years period
   };
 
   // NEW: Dynamic Cost Base Items

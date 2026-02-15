@@ -107,10 +107,10 @@ export default function DetailedCalculationSection({
                       </p>
                     )}
 
-                    {/* Calculation */}
-                    {step.calculation && (
-                      <p className="text-sm text-gray-600 dark:text-gray-400 font-mono bg-gray-50 dark:bg-gray-900 px-3 py-2 rounded">
-                        {step.calculation}
+                    {/* Formula/Calculation */}
+                    {(step.formula || step.calculation) && (
+                      <p className="text-sm text-gray-700 dark:text-gray-300 font-mono bg-gray-50 dark:bg-gray-900 px-3 py-2 rounded border border-gray-200 dark:border-gray-700">
+                        {step.formula || step.calculation}
                       </p>
                     )}
 
@@ -159,10 +159,10 @@ export default function DetailedCalculationSection({
 
               {/* Gross Capital Gain - Highlighted */}
               <div className="flex flex-col bg-gray-100 dark:bg-gray-700/50 px-3 py-2 rounded">
-                <span className="text-xs text-gray-700 dark:text-gray-300 mb-1 font-semibold italic">
+                <span className="text-xs text-gray-700 dark:text-gray-300 mb-1 font-semibold">
                   Gross Capital Gain
                 </span>
-                <span className="text-sm font-mono font-bold text-gray-900 dark:text-gray-100 italic">
+                <span className="text-sm font-mono font-bold text-gray-900 dark:text-gray-100">
                   {formatAmount(summary.gross_capital_gain)}
                 </span>
               </div>
@@ -179,10 +179,10 @@ export default function DetailedCalculationSection({
 
               {/* Taxable Capital Gain - Highlighted */}
               <div className="flex flex-col bg-gray-100 dark:bg-gray-700/50 px-3 py-2 rounded">
-                <span className="text-xs text-gray-700 dark:text-gray-300 mb-1 font-semibold italic">
+                <span className="text-xs text-gray-700 dark:text-gray-300 mb-1 font-semibold">
                   Taxable Capital Gain
                 </span>
-                <span className="text-sm font-mono font-bold text-gray-900 dark:text-gray-100 italic">
+                <span className="text-sm font-mono font-bold text-gray-900 dark:text-gray-100">
                   {formatAmount(summary.taxable_capital_gain)}
                 </span>
               </div>
@@ -202,10 +202,10 @@ export default function DetailedCalculationSection({
 
             {/* NET CAPITAL GAIN - Full width, prominent */}
             <div className="mt-4 pt-4 border-t border-green-200 dark:border-green-700 bg-green-100 dark:bg-green-900/40 px-4 py-3 rounded flex items-center justify-between">
-              <span className="text-base font-bold text-green-900 dark:text-green-100 italic">
+              <span className="text-base font-bold text-green-900 dark:text-green-100">
                 NET CAPITAL GAIN
               </span>
-              <span className="text-lg font-mono font-bold text-green-900 dark:text-green-100 italic">
+              <span className="text-lg font-mono font-bold text-green-900 dark:text-green-100">
                 {formatAmount(summary.net_capital_gain)}
               </span>
             </div>

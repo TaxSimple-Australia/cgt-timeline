@@ -85,6 +85,7 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
   const [showDateTooltip, setShowDateTooltip] = useState(false);
   const [showMarketValuationTooltip, setShowMarketValuationTooltip] = useState(false);
   const [showExcludedForeignResidentTooltip, setShowExcludedForeignResidentTooltip] = useState(false);
+  const [showCommissionerExtensionTooltip, setShowCommissionerExtensionTooltip] = useState(false);
 
   // Custom event specific state
   const [customColor, setCustomColor] = useState(event.color || '#6B7280');
@@ -354,6 +355,15 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
     // Check if checkbox state is persisted
     if (event.checkboxState?.excludedForeignResident !== undefined) {
       return event.checkboxState.excludedForeignResident;
+    }
+    return false;
+  });
+
+  // Inherit event - Commissioner extension of 2-years period
+  const [commissionerExtension, setCommissionerExtension] = useState(() => {
+    // Check if checkbox state is persisted
+    if (event.checkboxState?.commissionerExtension !== undefined) {
+      return event.checkboxState.commissionerExtension;
     }
     return false;
   });
@@ -965,6 +975,7 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
         division40Claimed,
         division43Claimed,
         excludedForeignResident,
+        commissionerExtension,
       };
 
       console.log('💾 Saving event with checkbox state:', {
@@ -3096,6 +3107,47 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
                             >
                               <p className="text-slate-200 leading-relaxed">
                                 The deceased must not have been an "excluded foreign resident" (i.e., a foreign resident for a continuous period of more than six years immediately before death)
+                              </p>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </div>
+                    </label>
+                  </div>
+                )}
+
+                {/* Commissioner Extension Checkbox - Only for inherit (refinance) events */}
+                {eventType === 'refinance' && (
+                  <div className="flex items-start gap-3 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                    <input
+                      type="checkbox"
+                      id="commissionerExtension"
+                      checked={commissionerExtension}
+                      onChange={(e) => setCommissionerExtension(e.target.checked)}
+                      className="w-4 h-4 mt-0.5 text-blue-600 bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 rounded focus:ring-2 focus:ring-blue-500 cursor-pointer"
+                    />
+                    <label
+                      htmlFor="commissionerExtension"
+                      className="flex-1 flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300 cursor-pointer"
+                    >
+                      Commissioner extension of 2-years period
+                      <div className="relative">
+                        <Info
+                          className="w-4 h-4 text-blue-500 dark:text-blue-400 cursor-help"
+                          onMouseEnter={() => setShowCommissionerExtensionTooltip(true)}
+                          onMouseLeave={() => setShowCommissionerExtensionTooltip(false)}
+                        />
+                        <AnimatePresence>
+                          {showCommissionerExtensionTooltip && (
+                            <motion.div
+                              initial={{ opacity: 0, y: -5 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              exit={{ opacity: 0, y: -5 }}
+                              transition={{ duration: 0.15 }}
+                              className="absolute left-1/2 -translate-x-1/2 top-full mt-2 bg-slate-900 dark:bg-slate-800 text-white px-4 py-3 rounded-lg shadow-2xl text-sm min-w-[320px] max-w-[400px] z-50 pointer-events-none border-2 border-blue-500/30"
+                            >
+                              <p className="text-slate-200 leading-relaxed">
+                                The property must be sold within two years of the deceased's death. The Commissioner of Taxation may exercise discretion to extend this period if there are circumstances outside your control, such as legal disputes, delays in estate administration, or government restrictions.
                               </p>
                             </motion.div>
                           )}

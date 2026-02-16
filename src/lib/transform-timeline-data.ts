@@ -26,6 +26,8 @@ function generateCGTContextNotes(event: TimelineEvent): string {
     if (cs.hasBusinessUse) notes.push("Property has business/home office use");
     if (cs.hasPartialRental) notes.push("Property has partial rental arrangement");
     if (cs.isNonResident) notes.push("Owner is non-resident for tax purposes (no CGT discount)");
+    if (cs.excludedForeignResident) notes.push("INHERIT: Deceased was excluded foreign resident (foreign resident for >6 years before death)");
+    if (cs.commissionerExtension) notes.push("INHERIT: Commissioner extension of 2-year rule granted/requested");
   }
 
   // CGT-critical flags (these significantly affect exemptions)

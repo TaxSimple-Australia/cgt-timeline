@@ -27,15 +27,15 @@ function formatNumber(num: number | string | undefined | null): string {
 
 // Render formula with smart splitting
 function renderFormula(raw: string, result?: string) {
-  // Check for pipe-separated segments (e.g. "Exempt: 0 days (0%) | Taxable: 2,259 days (100%)")
+  // Check for pipe-separated segments (e.g. "Main Residence: ... = 1,460 days (exempt) | Rental: ... = 1,872 days")
   if (raw.includes(' | ')) {
     const segments = raw.split(' | ');
     return (
       <div className="rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
-        <div className="bg-gray-50 dark:bg-gray-900 px-4 py-3 space-y-1.5">
+        <div className="bg-gray-50 dark:bg-gray-900 px-3 py-2.5 space-y-1.5">
           {segments.map((seg, i) => (
-            <div key={i} className="flex items-center gap-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-purple-400 dark:bg-purple-500 flex-shrink-0" />
+            <div key={i} className="flex items-start gap-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-purple-400 dark:bg-purple-500 flex-shrink-0 mt-1.5" />
               <span className="text-sm text-gray-700 dark:text-gray-300 font-mono">
                 {seg.trim()}
               </span>
@@ -43,7 +43,7 @@ function renderFormula(raw: string, result?: string) {
           ))}
         </div>
         {result && (
-          <div className="bg-purple-50 dark:bg-purple-950/30 border-t border-purple-200 dark:border-purple-800 px-4 py-2 flex items-center gap-2">
+          <div className="bg-purple-50 dark:bg-purple-950/30 border-t border-purple-200 dark:border-purple-800 px-3 py-1.5 flex items-center gap-2">
             <ArrowRight className="w-3.5 h-3.5 text-purple-500 dark:text-purple-400 flex-shrink-0" />
             <span className="text-sm font-semibold font-mono text-purple-700 dark:text-purple-300">
               {result}
@@ -61,12 +61,12 @@ function renderFormula(raw: string, result?: string) {
     const inlineResult = raw.substring(eqIndex + 3);
     return (
       <div className="rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
-        <div className="bg-gray-50 dark:bg-gray-900 px-4 py-3">
-          <p className="text-sm text-gray-700 dark:text-gray-300 font-mono leading-relaxed">
+        <div className="bg-gray-50 dark:bg-gray-900 px-3 py-2">
+          <p className="text-sm text-gray-700 dark:text-gray-300 font-mono">
             {expression}
           </p>
         </div>
-        <div className="bg-purple-50 dark:bg-purple-950/30 border-t border-purple-200 dark:border-purple-800 px-4 py-2 flex items-center gap-2">
+        <div className="bg-purple-50 dark:bg-purple-950/30 border-t border-purple-200 dark:border-purple-800 px-3 py-1.5">
           <span className="text-sm font-semibold font-mono text-purple-700 dark:text-purple-300">
             = {inlineResult}
           </span>
@@ -75,22 +75,11 @@ function renderFormula(raw: string, result?: string) {
     );
   }
 
-  // Fallback: plain rendering with result pill
+  // Fallback: plain rendering
   return (
-    <>
-      <div className="bg-gray-50 dark:bg-gray-900 px-4 py-3 rounded-lg border border-gray-200 dark:border-gray-700">
-        <p className="text-sm text-gray-700 dark:text-gray-300 font-mono leading-relaxed">
-          {raw}
-        </p>
-      </div>
-      {result && (
-        <div className="inline-flex">
-          <span className="px-3 py-1.5 bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700 rounded-full text-sm font-semibold">
-            {result}
-          </span>
-        </div>
-      )}
-    </>
+    <p className="text-sm text-gray-700 dark:text-gray-300 font-mono bg-gray-50 dark:bg-gray-900 px-3 py-2 rounded border border-gray-200 dark:border-gray-700">
+      {raw}
+    </p>
   );
 }
 
@@ -114,17 +103,16 @@ export default function DetailedCalculationSection({
 
       {/* Cost Base */}
       {costBaseItems.length > 0 && (
-        <div className="space-y-3">
-          <h4 className="text-sm font-bold text-gray-800 dark:text-gray-200 uppercase tracking-wide">
-            Cost Base Breakdown
+        <div className="space-y-2">
+          <h4 className="text-sm font-bold text-gray-800 dark:text-gray-200">
+            Cost Base
           </h4>
           <div className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
-            {/* Cost items as rows */}
             <div className="divide-y divide-gray-100 dark:divide-gray-700">
               {costBaseItems.map((item, index) => (
                 <div
                   key={index}
-                  className="flex items-center justify-between px-4 py-2.5 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-750 transition-colors"
+                  className="flex items-center justify-between px-4 py-2.5 bg-white dark:bg-gray-800"
                 >
                   <span className="text-sm text-gray-700 dark:text-gray-300">
                     {item.description || `Item ${index + 1}`}
@@ -151,62 +139,52 @@ export default function DetailedCalculationSection({
       {/* Calculation Steps */}
       {calculationSteps.length > 0 && (
         <div className="space-y-3">
-          <h4 className="text-sm font-bold text-gray-800 dark:text-gray-200 uppercase tracking-wide">
+          <h4 className="text-sm font-bold text-gray-800 dark:text-gray-200 flex items-center gap-2">
+            <Calculator className="w-4 h-4 text-purple-600 dark:text-purple-400" />
             Calculation Steps
           </h4>
-          <div className="space-y-4">
+          <div className="divide-y divide-gray-100 dark:divide-gray-800">
             {calculationSteps.map((step, index) => (
-              <div
-                key={index}
-                className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden"
-              >
-                {/* Step Header */}
-                <div className="flex items-center gap-3 px-4 py-3 bg-gradient-to-r from-purple-50 to-indigo-50 dark:from-purple-950/30 dark:to-indigo-950/30 border-b border-gray-200 dark:border-gray-700">
-                  <span className="flex-shrink-0 w-7 h-7 bg-purple-600 dark:bg-purple-500 text-white rounded-lg text-xs font-bold flex items-center justify-center">
-                    {step.step_number}
+              <div key={index} className="py-5 first:pt-0">
+                <div className="flex items-start gap-6">
+                  {/* Step label - fixed width, colored */}
+                  <span className="font-bold text-purple-600 dark:text-purple-400 w-16 flex-shrink-0">
+                    Step {step.step_number}
                   </span>
-                  <h5 className="font-bold text-gray-900 dark:text-white text-sm">
-                    {step.title}
-                  </h5>
-                </div>
 
-                {/* Step Body */}
-                <div className="p-4 space-y-3 bg-white dark:bg-gray-800">
-                  {/* Description */}
-                  {step.description && (
-                    <p className="text-sm text-gray-600 dark:text-gray-400 whitespace-pre-line leading-relaxed">
-                      {step.description}
-                    </p>
-                  )}
+                  {/* Content */}
+                  <div className="flex-1 space-y-3">
+                    {/* Title with underline */}
+                    <div className="border-b border-gray-200 dark:border-gray-700 pb-2">
+                      <h5 className="font-bold text-gray-900 dark:text-white">
+                        {step.title}
+                      </h5>
+                    </div>
 
-                  {/* Formula/Calculation + Result */}
-                  {(step.formula || step.calculation) ? (
-                    renderFormula(
-                      (step.formula || step.calculation) as string,
-                      step.result
-                    )
-                  ) : (
-                    /* Result only (no formula) */
-                    step.result && (
+                    {/* Description */}
+                    {step.description && (
+                      <p className="text-sm text-gray-600 dark:text-gray-400 whitespace-pre-line leading-relaxed">
+                        {step.description}
+                      </p>
+                    )}
+
+                    {/* Formula/Calculation */}
+                    {(step.formula || step.calculation) && (
+                      renderFormula(
+                        (step.formula || step.calculation) as string,
+                        step.result
+                      )
+                    )}
+
+                    {/* Result pill - only when no formula (formula rendering includes result) */}
+                    {!(step.formula || step.calculation) && step.result && (
                       <div className="inline-flex">
                         <span className="px-3 py-1.5 bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700 rounded-full text-sm font-semibold">
                           {step.result}
                         </span>
                       </div>
-                    )
-                  )}
-
-                  {/* Checks */}
-                  {step.checks && step.checks.length > 0 && (
-                    <div className="mt-2 space-y-1">
-                      {step.checks.map((check, ci) => (
-                        <div key={ci} className="flex items-start gap-2 text-xs text-gray-500 dark:text-gray-400">
-                          <span className="mt-0.5 text-green-500">&#10003;</span>
-                          <span>{check}</span>
-                        </div>
-                      ))}
-                    </div>
-                  )}
+                    )}
+                  </div>
                 </div>
               </div>
             ))}
@@ -216,9 +194,9 @@ export default function DetailedCalculationSection({
 
       {/* CGT Calculation Summary */}
       {summary && (
-        <div className="space-y-3">
-          <h4 className="text-sm font-bold text-gray-800 dark:text-gray-200 uppercase tracking-wide">
-            Calculation Summary
+        <div className="space-y-2">
+          <h4 className="text-sm font-bold text-gray-800 dark:text-gray-200">
+            CGT Calculation Summary
           </h4>
           <div className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
             {/* Summary rows as a clean ledger */}
@@ -244,7 +222,7 @@ export default function DetailedCalculationSection({
               </div>
 
               {/* Gross Capital Gain - Highlighted */}
-              <div className="flex items-center justify-between px-4 py-3 bg-gray-50 dark:bg-gray-750 border-y border-gray-200 dark:border-gray-600">
+              <div className="flex items-center justify-between px-4 py-3 bg-gray-50 dark:bg-gray-700/50 border-y border-gray-200 dark:border-gray-600">
                 <span className="text-sm font-bold text-gray-900 dark:text-gray-100">
                   Gross Capital Gain
                 </span>
@@ -264,7 +242,7 @@ export default function DetailedCalculationSection({
               </div>
 
               {/* Taxable Capital Gain - Highlighted */}
-              <div className="flex items-center justify-between px-4 py-3 bg-gray-50 dark:bg-gray-750 border-y border-gray-200 dark:border-gray-600">
+              <div className="flex items-center justify-between px-4 py-3 bg-gray-50 dark:bg-gray-700/50 border-y border-gray-200 dark:border-gray-600">
                 <span className="text-sm font-bold text-gray-900 dark:text-gray-100">
                   Taxable Capital Gain
                 </span>
@@ -288,16 +266,14 @@ export default function DetailedCalculationSection({
 
             {/* NET CAPITAL GAIN - Full width, prominent */}
             <div className="flex items-center justify-between px-4 py-4 bg-green-100 dark:bg-green-900/40 border-t-2 border-green-400 dark:border-green-600">
-              <span className="text-base font-bold text-green-900 dark:text-green-100 uppercase tracking-wide">
-                Net Capital Gain
+              <span className="text-base font-bold text-green-900 dark:text-green-100">
+                NET CAPITAL GAIN
               </span>
-              <span className="text-xl font-mono font-bold text-green-900 dark:text-green-100 tabular-nums">
+              <span className="text-lg font-mono font-bold text-green-900 dark:text-green-100 tabular-nums">
                 {formatAmount(summary.net_capital_gain)}
               </span>
             </div>
           </div>
-
-          {/* Result Banner */}
           <div className="text-center py-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-700 rounded-lg">
             <p className="text-sm font-bold text-green-900 dark:text-green-100">
               RESULT: {property.result}
@@ -308,8 +284,8 @@ export default function DetailedCalculationSection({
 
       {/* Estimated Tax on CGT */}
       {taxBrackets.length > 0 && (
-        <div className="space-y-3">
-          <h4 className="text-sm font-bold text-gray-800 dark:text-gray-200 uppercase tracking-wide">
+        <div className="space-y-2">
+          <h4 className="text-sm font-bold text-gray-800 dark:text-gray-200">
             Estimated Tax on CGT (2024-25 Rates)
           </h4>
           <p className="text-xs text-gray-600 dark:text-gray-400">

@@ -9,24 +9,34 @@ interface OwnershipPeriodsTableProps {
 
 // Helper function to determine if period is exempt - check multiple indicators
 function isExemptPeriod(period: OwnershipPeriod): boolean {
-  // Check explicit fields first (API may send these)
-  if ((period as any).is_exempt === true || (period as any).exempt === true) return true;
-  if ((period as any).is_exempt === false || (period as any).exempt === false) return false;
+  // Check explicit "exempt" field (API sends "yes"/"no" strings or true/false booleans)
+  const exemptVal = (period as any).exempt ?? (period as any).is_exempt;
+  if (exemptVal !== undefined && exemptVal !== null) {
+    if (typeof exemptVal === 'boolean') return exemptVal;
+    if (typeof exemptVal === 'string') {
+      const lower = exemptVal.toLowerCase().trim();
+      if (lower === 'yes' || lower === 'true') return true;
+      if (lower === 'no' || lower === 'false') return false;
+    }
+  }
   // Check cgt_status field
   if ((period as any).cgt_status) {
-    const status = (period as any).cgt_status.toLowerCase();
+    const status = String((period as any).cgt_status).toLowerCase();
     if (status === 'exempt') return true;
     if (status === 'taxable') return false;
+  }
+  // Check rule_applied for exemption rules (e.g. s118-145 six-year rule = exempt)
+  const ruleApplied = (period as any).rule_applied || period.note || '';
+  if (ruleApplied) {
+    const lowerRule = String(ruleApplied).toLowerCase();
+    if (lowerRule.includes('s118-145') || lowerRule.includes('s118.145') || lowerRule.includes('six-year') || lowerRule.includes('6-year')) return true;
+    if (lowerRule.includes('s118-110') || lowerRule.includes('s118.110') || lowerRule.includes('main residence')) return true;
   }
   // Fall back to period_type name matching
   const lowerType = period.period_type.toLowerCase();
   if (lowerType.includes('main residence') || lowerType.includes('ppr') || lowerType.includes('exempt')) return true;
+  if (lowerType.includes('absence') && (lowerType.includes('6-year') || lowerType.includes('six-year'))) return true;
   if (lowerType.includes('rental') || lowerType.includes('taxable') || lowerType.includes('investment') || lowerType.includes('business')) return false;
-  // Check note for exemption rules
-  if (period.note) {
-    const lowerNote = period.note.toLowerCase();
-    if (lowerNote.includes('s118.110') || lowerNote.includes('s118-110') || lowerNote.includes('main residence')) return true;
-  }
   return false;
 }
 

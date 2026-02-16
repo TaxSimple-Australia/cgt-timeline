@@ -1253,11 +1253,6 @@ Example: "Add a note that we got council approval in May 2019"
           type: 'boolean',
           description: 'Show AI-suggested questions',
         },
-        apiResponseMode: {
-          type: 'string',
-          enum: ['markdown', 'json'],
-          description: 'CGT analysis response format preference',
-        },
       },
     },
   },

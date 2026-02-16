@@ -242,11 +242,6 @@ export type Theme = 'light' | 'dark';
 // Analysis display mode: 'auto' follows response type, 'json-sections' forces beautiful JSON view, 'markdown' forces markdown view
 export type AnalysisDisplayMode = 'auto' | 'json-sections' | 'markdown';
 
-// API Response Mode: determines which endpoint to call
-// 'markdown' → /calculate-cgt/ (returns markdown string)
-// 'json' → /calculate-cgt-json/ (returns structured JSON)
-export type APIResponseMode = 'markdown' | 'json';
-
 // LLM Provider types
 export interface LLMProviders {
   [key: string]: string;
@@ -276,7 +271,6 @@ interface TimelineState {
   enableDragEvents: boolean; // Allow dragging events along timeline to change dates
   enableAISuggestedQuestions: boolean; // Enable AI-generated question suggestions
   analysisDisplayMode: AnalysisDisplayMode; // Toggle between JSON sections view and markdown view
-  apiResponseMode: APIResponseMode; // Determines which API endpoint to call (markdown or json)
 
   // LLM Provider State
   selectedLLMProvider: string; // Currently selected LLM provider (e.g., 'claude', 'openai')
@@ -367,7 +361,6 @@ interface TimelineState {
   setAnalysisDisplayMode: (mode: AnalysisDisplayMode) => void; // Set analysis display mode
   setLogoVariant: (variantId: string) => void; // Set the current logo variant
   cycleAnalysisDisplayMode: () => void; // Cycle through display modes: auto -> json-sections -> markdown
-  setAPIResponseMode: (mode: APIResponseMode) => void; // Set which API endpoint to use
 
   // LLM Provider Actions
   setSelectedLLMProvider: (provider: string) => void; // Set the selected LLM provider
@@ -733,7 +726,6 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
     enableDragEvents: true,
     enableAISuggestedQuestions: true, // Default enabled
     analysisDisplayMode: 'auto', // Default: auto-detect based on response type
-    apiResponseMode: 'json', // Default: View 2 (json endpoint)
 
     // LLM Provider Initial State
     selectedLLMProvider: 'deepseek', // Default provider (prefer Deepseek)
@@ -2547,11 +2539,6 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
     const currentIndex = modes.indexOf(state.analysisDisplayMode);
     const nextIndex = (currentIndex + 1) % modes.length;
     set({ analysisDisplayMode: modes[nextIndex] });
-  },
-
-  setAPIResponseMode: (mode: APIResponseMode) => {
-    set({ apiResponseMode: mode });
-    console.log(`🔄 API Response Mode changed to: ${mode}`);
   },
 
   // LLM Provider Action Implementations

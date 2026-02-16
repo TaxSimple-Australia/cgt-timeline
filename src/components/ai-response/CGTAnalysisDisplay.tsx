@@ -24,7 +24,6 @@ import OwnershipPeriodsTable from './OwnershipPeriodsTable';
 import PropertyTimelineTable from './PropertyTimelineTable';
 import DetailedCalculationSection from './DetailedCalculationSection';
 import ImportantNotesSection from './ImportantNotesSection';
-import LegislationReferencesTable from './LegislationReferencesTable';
 
 interface CGTAnalysisDisplayProps {
   response: any; // AI response (success or verification_failed)
@@ -859,8 +858,6 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
                       </div>
                     )}
 
-                    {/* Key Legislation Referenced */}
-                    <LegislationReferencesTable property={property} />
                 </div>
               </motion.div>
             ))}

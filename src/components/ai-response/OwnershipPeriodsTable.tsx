@@ -7,37 +7,32 @@ interface OwnershipPeriodsTableProps {
   property: PropertyAnalysis;
 }
 
-// Helper function to determine if period is exempt - check multiple indicators
-function isExemptPeriod(period: OwnershipPeriod): boolean {
-  // Check explicit "exempt" field (API sends "yes"/"no" strings or true/false booleans)
-  const exemptVal = (period as any).exempt ?? (period as any).is_exempt;
-  if (exemptVal !== undefined && exemptVal !== null) {
-    if (typeof exemptVal === 'boolean') return exemptVal;
-    if (typeof exemptVal === 'string') {
-      const lower = exemptVal.toLowerCase().trim();
-      if (lower === 'yes' || lower === 'true') return true;
-      if (lower === 'no' || lower === 'false') return false;
-    }
+// Get the exempt value directly from the API response
+// API sends: "yes", "no", or "partial"
+function getExemptValue(period: OwnershipPeriod): string {
+  const raw = (period as any).exempt ?? (period as any).is_exempt ?? '';
+  if (!raw) return '—';
+  return String(raw).trim().toLowerCase();
+}
+
+// Get styling for exempt badge based on value
+function getExemptStyle(value: string): string {
+  switch (value) {
+    case 'yes':
+      return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400';
+    case 'partial':
+      return 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400';
+    case 'no':
+      return 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400';
+    default:
+      return 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400';
   }
-  // Check cgt_status field
-  if ((period as any).cgt_status) {
-    const status = String((period as any).cgt_status).toLowerCase();
-    if (status === 'exempt') return true;
-    if (status === 'taxable') return false;
-  }
-  // Check rule_applied for exemption rules (e.g. s118-145 six-year rule = exempt)
-  const ruleApplied = (period as any).rule_applied || period.note || '';
-  if (ruleApplied) {
-    const lowerRule = String(ruleApplied).toLowerCase();
-    if (lowerRule.includes('s118-145') || lowerRule.includes('s118.145') || lowerRule.includes('six-year') || lowerRule.includes('6-year')) return true;
-    if (lowerRule.includes('s118-110') || lowerRule.includes('s118.110') || lowerRule.includes('main residence')) return true;
-  }
-  // Fall back to period_type name matching
-  const lowerType = period.period_type.toLowerCase();
-  if (lowerType.includes('main residence') || lowerType.includes('ppr') || lowerType.includes('exempt')) return true;
-  if (lowerType.includes('absence') && (lowerType.includes('6-year') || lowerType.includes('six-year'))) return true;
-  if (lowerType.includes('rental') || lowerType.includes('taxable') || lowerType.includes('investment') || lowerType.includes('business')) return false;
-  return false;
+}
+
+// Capitalize first letter for display
+function capitalizeFirst(str: string): string {
+  if (!str) return '—';
+  return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
 // Helper function to format number with commas
@@ -118,20 +113,22 @@ export default function OwnershipPeriodsTable({
           </thead>
           <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
             {ownershipPeriods.map((period, index) => {
-              const exempt = isExemptPeriod(period);
+              const exemptValue = getExemptValue(period);
               const dateRange = formatDateRange(period.start_date, period.end_date);
               const days = period.days != null && !isNaN(period.days) ? period.days : null;
               const pct = period.percentage;
-              const rule = period.note || (period as any).rule_applied || (period as any).legislation || null;
+              const rule = (period as any).rule_applied || period.note || null;
               const years = period.years;
 
               return (
                 <tr
                   key={index}
                   className={`hover:bg-gray-50 dark:hover:bg-gray-750 ${
-                    exempt
+                    exemptValue === 'yes'
                       ? 'bg-green-50/40 dark:bg-green-950/10'
-                      : 'bg-white dark:bg-gray-800'
+                      : exemptValue === 'partial'
+                        ? 'bg-amber-50/30 dark:bg-amber-950/10'
+                        : 'bg-white dark:bg-gray-800'
                   }`}
                 >
                   {/* Period Type */}
@@ -174,16 +171,12 @@ export default function OwnershipPeriodsTable({
                     )}
                   </td>
 
-                  {/* Exempt */}
+                  {/* Exempt - display exact value from API */}
                   <td className="px-4 py-3 text-center">
                     <span
-                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                        exempt
-                          ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
-                          : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'
-                      }`}
+                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getExemptStyle(exemptValue)}`}
                     >
-                      {exempt ? 'Yes' : 'No'}
+                      {capitalizeFirst(exemptValue)}
                     </span>
                   </td>
                 </tr>

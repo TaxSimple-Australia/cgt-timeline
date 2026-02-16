@@ -7,7 +7,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 
-const YOUTUBE_VIDEO_ID = 'tHd5YmChsaA';
+const YOUTUBE_VIDEO_ID = '9OCV-xoIvk8';
 
 export default function HowItWorksSection() {
   const [isPlaying, setIsPlaying] = useState(false);

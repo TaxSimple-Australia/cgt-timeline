@@ -3216,8 +3216,8 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
         // Enable - reuse existing analysisTarget or create default offset below the note
         const position = note.position as AnalysisNotePosition;
         const analysisTarget = note.arrow?.analysisTarget || {
-          relativeX: position.relativeX,
-          relativeY: Math.min(position.relativeY + 15, 95),
+          relativeX: Math.max(position.relativeX - 3, 2),
+          relativeY: Math.max(position.relativeY - 3, 2),
           section: position.section,
           elementId: position.elementId,
         };

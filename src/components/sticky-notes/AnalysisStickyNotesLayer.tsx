@@ -52,6 +52,9 @@ export default function AnalysisStickyNotesLayer({
   const [sectionRects, setSectionRects] = useState<Map<string, DOMRect>>(new Map());
   const [containerDims, setContainerDims] = useState({ width: 0, height: 0 });
 
+  // Track note DOM elements for accurate arrow origin positioning
+  const noteElementsRef = useRef<Map<string, HTMLDivElement>>(new Map());
+
   // Right-click context menu state
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number; clientX: number; clientY: number } | null>(null);
   const contextMenuRef = useRef<HTMLDivElement>(null);
@@ -256,6 +259,23 @@ export default function AnalysisStickyNotesLayer({
       };
     },
     [getNoteStyle]
+  );
+
+  // Get arrow origin from the note's actual DOM position (top-left corner)
+  const getNoteArrowOrigin = useCallback(
+    (noteId: string): { x: number; y: number } | null => {
+      const noteEl = noteElementsRef.current.get(noteId);
+      const container = containerRef.current;
+      if (!noteEl || !container) return null;
+
+      const noteRect = noteEl.getBoundingClientRect();
+      const containerRect = container.getBoundingClientRect();
+      return {
+        x: noteRect.left - containerRect.left,
+        y: noteRect.top - containerRect.top,
+      };
+    },
+    [containerRef]
   );
 
   // Handle drag end - update note position
@@ -487,8 +507,7 @@ export default function AnalysisStickyNotesLayer({
               style={{ pointerEvents: 'none', zIndex: 0, overflow: 'visible' }}
             >
               {notesWithArrows.map((note) => {
-                const position = note.position as AnalysisNotePosition;
-                const notePos = getNotePixelPos(position);
+                const notePos = getNoteArrowOrigin(note.id);
                 const targetPos = note.arrow?.analysisTarget
                   ? getArrowTargetPixelPos(note.arrow.analysisTarget)
                   : null;
@@ -526,6 +545,10 @@ export default function AnalysisStickyNotesLayer({
               return (
                 <div
                   key={note.id}
+                  ref={(el) => {
+                    if (el) noteElementsRef.current.set(note.id, el);
+                    else noteElementsRef.current.delete(note.id);
+                  }}
                   style={{
                     ...noteStyle,
                     pointerEvents: 'auto',

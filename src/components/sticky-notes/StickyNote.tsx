@@ -258,7 +258,7 @@ export default function StickyNote({
         ref={noteRef}
         onMouseDown={handleMouseDown}
         onClick={handleExpand}
-        initial={{ scale: 0.8, opacity: 0 }}
+        initial={false}
         animate={{ scale: 1, opacity: 1 }}
         exit={{ scale: 0.5, opacity: 0 }}
         whileHover={!isDraggingState ? { scale: 1.15 } : undefined}
@@ -342,7 +342,7 @@ export default function StickyNote({
       whileHover={!isDraggingState ? { boxShadow: '0 8px 25px rgba(0,0,0,0.15)' } : undefined}
       className={cn(
         'rounded-lg shadow-lg border-l-4 overflow-hidden',
-        'min-w-[200px] max-w-[300px]',
+        'w-[260px]',
         'min-h-[120px]',
         isDraggingState ? 'cursor-grabbing' : (!isReadOnly && !isEditing ? 'cursor-grab' : ''),
         className

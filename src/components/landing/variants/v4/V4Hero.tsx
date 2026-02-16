@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { ArrowRight, TrendingUp, Building2, Calendar, Play } from 'lucide-react';
+import { ArrowRight, TrendingUp, Building2, Calendar } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
@@ -68,14 +68,6 @@ export default function V4Hero() {
                 </Button>
               </Link>
 
-              <Button
-                size="lg"
-                variant="outline"
-                className="group border-2 border-slate-600 hover:border-cyan-500 text-slate-300 hover:text-white bg-transparent hover:bg-slate-800/50 px-8 py-6 text-base font-semibold transition-all rounded-full"
-              >
-                <Play className="w-5 h-5 mr-2" />
-                Watch Demo
-              </Button>
             </motion.div>
           </motion.div>
 

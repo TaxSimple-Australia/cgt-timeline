@@ -107,19 +107,78 @@ export default function DetailedCalculationSection({
                       </p>
                     )}
 
-                    {/* Formula/Calculation */}
-                    {(step.formula || step.calculation) && (
-                      <p className="text-sm text-gray-700 dark:text-gray-300 font-mono bg-gray-50 dark:bg-gray-900 px-3 py-2 rounded border border-gray-200 dark:border-gray-700">
-                        {step.formula || step.calculation}
-                      </p>
+                    {/* Formula/Calculation + Result */}
+                    {(step.formula || step.calculation) ? (
+                      (() => {
+                        const raw = (step.formula || step.calculation) as string;
+                        // Check for pipe-separated segments (e.g. "Exempt: 0 days (0%) | Taxable: 2,259 days (100%)")
+                        if (raw.includes(' | ')) {
+                          const segments = raw.split(' | ');
+                          return (
+                            <div className="rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+                              <div className="bg-gray-50 dark:bg-gray-900 px-3 py-2 space-y-1">
+                                {segments.map((seg, i) => (
+                                  <p key={i} className="text-sm text-gray-700 dark:text-gray-300 font-mono">
+                                    {seg.trim()}
+                                  </p>
+                                ))}
+                              </div>
+                              {step.result && (
+                                <div className="bg-purple-50 dark:bg-purple-950/30 border-t border-purple-200 dark:border-purple-800 px-3 py-1.5">
+                                  <span className="text-sm font-semibold font-mono text-purple-700 dark:text-purple-300">
+                                    {step.result}
+                                  </span>
+                                </div>
+                              )}
+                            </div>
+                          );
+                        }
+                        // Check for "expression = result" pattern
+                        const eqIndex = raw.indexOf(' = ');
+                        if (eqIndex !== -1) {
+                          const expression = raw.substring(0, eqIndex);
+                          const inlineResult = raw.substring(eqIndex + 3);
+                          return (
+                            <div className="rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+                              <div className="bg-gray-50 dark:bg-gray-900 px-3 py-2">
+                                <p className="text-sm text-gray-700 dark:text-gray-300 font-mono">
+                                  {expression}
+                                </p>
+                              </div>
+                              <div className="bg-purple-50 dark:bg-purple-950/30 border-t border-purple-200 dark:border-purple-800 px-3 py-1.5">
+                                <span className="text-sm font-semibold font-mono text-purple-700 dark:text-purple-300">
+                                  = {inlineResult}
+                                </span>
+                              </div>
+                            </div>
+                          );
+                        }
+                        // Fallback: plain rendering with result pill
+                        return (
+                          <>
+                            <p className="text-sm text-gray-700 dark:text-gray-300 font-mono bg-gray-50 dark:bg-gray-900 px-3 py-2 rounded border border-gray-200 dark:border-gray-700">
+                              {raw}
+                            </p>
+                            {step.result && (
+                              <div className="inline-flex">
+                                <span className="px-3 py-1.5 bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700 rounded-full text-sm font-semibold">
+                                  {step.result}
+                                </span>
+                              </div>
+                            )}
+                          </>
+                        );
+                      })()
+                    ) : (
+                      /* Result pill only (no formula) */
+                      step.result && (
+                        <div className="inline-flex">
+                          <span className="px-3 py-1.5 bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700 rounded-full text-sm font-semibold">
+                            {step.result}
+                          </span>
+                        </div>
+                      )
                     )}
-
-                    {/* Result pill */}
-                    <div className="inline-flex">
-                      <span className="px-3 py-1.5 bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700 rounded-full text-sm font-semibold">
-                        {step.result}
-                      </span>
-                    </div>
                   </div>
                 </div>
               </div>

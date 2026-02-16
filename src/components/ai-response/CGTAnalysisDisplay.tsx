@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { CheckCircle, XCircle, ChevronDown, ChevronUp, Cpu, Zap, Clock, FileJson, Download, Home, LayoutGrid, FileText, Settings2, StickyNote, BookOpen, FileQuestion, HelpCircle, Calendar, DollarSign, Calculator, AlertTriangle, Info, TrendingUp, Lightbulb, Brain, MessageCircle } from 'lucide-react';
+import { CheckCircle, XCircle, ChevronDown, ChevronUp, Cpu, Zap, Clock, FileJson, Download, Home, LayoutGrid, FileText, Settings2, BookOpen, FileQuestion, HelpCircle, Calendar, DollarSign, Calculator, AlertTriangle, Info, TrendingUp, Lightbulb, Brain, MessageCircle } from 'lucide-react';
 import GapQuestionsPanel from './GapQuestionsPanel';
 import DetailedReportSection from './DetailedReportSection';
 import TwoColumnLayout from '../timeline-viz/TwoColumnLayout';
@@ -16,7 +16,7 @@ import ApplicableRulesDisplay from './ApplicableRulesDisplay';
 import OwnershipPeriodsChart from './OwnershipPeriodsChart';
 import FollowUpChatWindow from './FollowUpChatWindow';
 import { AnalysisData, Citations } from '@/types/model-response';
-import { AnalysisStickyNotesLayer, AddStickyNoteButton, ShareLinkButton } from '../sticky-notes';
+import { AnalysisStickyNotesLayer, ShareLinkButton } from '../sticky-notes';
 import { SendToTaxAgentButton } from '../send-to-agent';
 import FeedbackPopup from '../FeedbackPopup';
 import TimelineSummaryTable from './TimelineSummaryTable';
@@ -297,21 +297,10 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
           <DisplayModeToggle />
           <div className="flex items-center gap-2">
             {/* Share Link Button */}
-            <ShareLinkButton variant="analysis" includeAnalysis={true} />
+            <ShareLinkButton variant="analysis" includeAnalysis={true} className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white border-blue-600 dark:border-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 dark:text-white" />
 
             {/* Send to Tax Agent Button */}
             <SendToTaxAgentButton includeAnalysis={true} />
-
-            {/* Add Sticky Note Button */}
-            <AddStickyNoteButton context="analysis" />
-
-            <button
-              onClick={() => setShowRawJSON(true)}
-              className="flex items-center justify-center w-8 h-8 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors shadow-sm"
-              title="Show Raw JSON"
-            >
-              <span className="text-sm font-mono font-bold">{'{}'}</span>
-            </button>
           </div>
         </div>
 
@@ -381,6 +370,17 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
         )}
 
 
+        {/* Show Raw JSON Link */}
+        <div className="flex justify-center pt-2">
+          <button
+            onClick={() => setShowRawJSON(true)}
+            className="text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-500 dark:hover:text-gray-300 transition-colors flex items-center gap-1.5"
+          >
+            <FileJson className="w-3.5 h-3.5" />
+            Show Raw JSON
+          </button>
+        </div>
+
         {/* Analysis Sticky Notes Layer */}
         <AnalysisStickyNotesLayer containerRef={analysisContainerRef} />
       </div>
@@ -417,21 +417,10 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
             )}
 
             {/* Share Link Button */}
-            <ShareLinkButton variant="analysis" includeAnalysis={true} />
+            <ShareLinkButton variant="analysis" includeAnalysis={true} className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white border-blue-600 dark:border-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 dark:text-white" />
 
             {/* Send to Tax Agent Button */}
             <SendToTaxAgentButton includeAnalysis={true} />
-
-            {/* Add Sticky Note Button */}
-            <AddStickyNoteButton context="analysis" />
-
-            <button
-              onClick={() => setShowRawJSON(true)}
-              className="flex items-center justify-center w-8 h-8 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors shadow-sm"
-              title="Show Raw JSON"
-            >
-              <span className="text-sm font-mono font-bold">{'{}'}</span>
-            </button>
           </div>
         </div>
 
@@ -626,6 +615,16 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
           />
         )}
 
+        {/* Show Raw JSON Link */}
+        <div className="flex justify-center pt-2">
+          <button
+            onClick={() => setShowRawJSON(true)}
+            className="text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-500 dark:hover:text-gray-300 transition-colors flex items-center gap-1.5"
+          >
+            <FileJson className="w-3.5 h-3.5" />
+            Show Raw JSON
+          </button>
+        </div>
 
         {/* Analysis Sticky Notes Layer */}
         <AnalysisStickyNotesLayer containerRef={analysisContainerRef} />
@@ -723,21 +722,10 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
             )}
 
             {/* Share Link Button */}
-            <ShareLinkButton variant="analysis" includeAnalysis={true} />
+            <ShareLinkButton variant="analysis" includeAnalysis={true} className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white border-blue-600 dark:border-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 dark:text-white" />
 
             {/* Send to Tax Agent Button */}
             <SendToTaxAgentButton includeAnalysis={true} />
-
-            {/* Add Sticky Note Button */}
-            <AddStickyNoteButton context="analysis" />
-
-            <button
-              onClick={() => setShowRawJSON(true)}
-              className="flex items-center justify-center w-8 h-8 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors shadow-sm"
-              title="Show Raw JSON"
-            >
-              <span className="text-sm font-mono font-bold">{'{}'}</span>
-            </button>
           </div>
         </div>
 
@@ -1003,6 +991,15 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
           </div>
         </motion.div>
 
+        {/* Disclaimer */}
+        {analysisData.disclaimer && (
+          <div className="px-4 py-3">
+            <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
+              <span className="font-bold">Disclaimer:</span> {analysisData.disclaimer}
+            </p>
+          </div>
+        )}
+
         {/* Follow-up Chat Window */}
         {sessionId && (
           <FollowUpChatWindow
@@ -1014,6 +1011,16 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
           />
         )}
 
+        {/* Show Raw JSON Link */}
+        <div className="flex justify-center pt-2">
+          <button
+            onClick={() => setShowRawJSON(true)}
+            className="text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-500 dark:hover:text-gray-300 transition-colors flex items-center gap-1.5"
+          >
+            <FileJson className="w-3.5 h-3.5" />
+            Show Raw JSON
+          </button>
+        </div>
 
         {/* Analysis Sticky Notes Layer */}
         <AnalysisStickyNotesLayer containerRef={analysisContainerRef} />
@@ -1107,21 +1114,10 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
           <DisplayModeToggle />
           <div className="flex items-center gap-2">
             {/* Share Link Button */}
-            <ShareLinkButton variant="analysis" includeAnalysis={true} />
+            <ShareLinkButton variant="analysis" includeAnalysis={true} className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white border-blue-600 dark:border-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 dark:text-white" />
 
             {/* Send to Tax Agent Button */}
             <SendToTaxAgentButton includeAnalysis={true} />
-
-            {/* Add Sticky Note Button */}
-            <AddStickyNoteButton context="analysis" />
-
-            <button
-              onClick={() => setShowRawJSON(true)}
-              className="flex items-center justify-center w-8 h-8 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors shadow-sm"
-              title="Show Raw JSON"
-            >
-              <span className="text-sm font-mono font-bold">{'{}'}</span>
-            </button>
           </div>
         </div>
 
@@ -1288,6 +1284,17 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
         </AnimatePresence>
 
 
+        {/* Show Raw JSON Link */}
+        <div className="flex justify-center pt-2">
+          <button
+            onClick={() => setShowRawJSON(true)}
+            className="text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-500 dark:hover:text-gray-300 transition-colors flex items-center gap-1.5"
+          >
+            <FileJson className="w-3.5 h-3.5" />
+            Show Raw JSON
+          </button>
+        </div>
+
         {/* Analysis Sticky Notes Layer */}
         <AnalysisStickyNotesLayer containerRef={analysisContainerRef} />
       </div>
@@ -1302,21 +1309,10 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
         <DisplayModeToggle />
         <div className="flex items-center gap-2">
           {/* Share Link Button */}
-          <ShareLinkButton variant="analysis" includeAnalysis={true} />
+          <ShareLinkButton variant="analysis" includeAnalysis={true} className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white border-blue-600 dark:border-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 dark:text-white" />
 
           {/* Send to Tax Agent Button */}
           <SendToTaxAgentButton includeAnalysis={true} />
-
-          {/* Add Sticky Note Button */}
-          <AddStickyNoteButton context="analysis" />
-
-          <button
-            onClick={() => setShowRawJSON(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors shadow-md text-sm"
-          >
-            <FileJson className="w-4 h-4" />
-            Show Raw JSON
-          </button>
         </div>
       </div>
 
@@ -1332,6 +1328,17 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
             {JSON.stringify(response, null, 2)}
           </pre>
         </div>
+      </div>
+
+      {/* Show Raw JSON Link */}
+      <div className="flex justify-center pt-2">
+        <button
+          onClick={() => setShowRawJSON(true)}
+          className="text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-500 dark:hover:text-gray-300 transition-colors flex items-center gap-1.5"
+        >
+          <FileJson className="w-3.5 h-3.5" />
+          Show Raw JSON
+        </button>
       </div>
 
       {/* Analysis Sticky Notes Layer */}

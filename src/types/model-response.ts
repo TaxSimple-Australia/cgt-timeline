@@ -334,6 +334,7 @@ export interface AnalysisData {
   properties_with_cgt: number;
   properties_fully_exempt: number;
   general_notes: string[];
+  disclaimer?: string;
 }
 
 export interface NewAPIResponseData {

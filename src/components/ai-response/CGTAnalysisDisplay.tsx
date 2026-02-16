@@ -374,10 +374,10 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
         <div className="flex justify-center pt-2">
           <button
             onClick={() => setShowRawJSON(true)}
-            className="text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-500 dark:hover:text-gray-300 transition-colors flex items-center gap-1.5"
+            className="text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-500 dark:hover:text-gray-300 transition-colors"
+            title="Show Raw JSON"
           >
-            <FileJson className="w-3.5 h-3.5" />
-            Show Raw JSON
+            <span className="font-mono font-bold">{'{}'}</span>
           </button>
         </div>
 
@@ -619,10 +619,10 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
         <div className="flex justify-center pt-2">
           <button
             onClick={() => setShowRawJSON(true)}
-            className="text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-500 dark:hover:text-gray-300 transition-colors flex items-center gap-1.5"
+            className="text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-500 dark:hover:text-gray-300 transition-colors"
+            title="Show Raw JSON"
           >
-            <FileJson className="w-3.5 h-3.5" />
-            Show Raw JSON
+            <span className="font-mono font-bold">{'{}'}</span>
           </button>
         </div>
 
@@ -1015,10 +1015,10 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
         <div className="flex justify-center pt-2">
           <button
             onClick={() => setShowRawJSON(true)}
-            className="text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-500 dark:hover:text-gray-300 transition-colors flex items-center gap-1.5"
+            className="text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-500 dark:hover:text-gray-300 transition-colors"
+            title="Show Raw JSON"
           >
-            <FileJson className="w-3.5 h-3.5" />
-            Show Raw JSON
+            <span className="font-mono font-bold">{'{}'}</span>
           </button>
         </div>
 
@@ -1288,10 +1288,10 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
         <div className="flex justify-center pt-2">
           <button
             onClick={() => setShowRawJSON(true)}
-            className="text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-500 dark:hover:text-gray-300 transition-colors flex items-center gap-1.5"
+            className="text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-500 dark:hover:text-gray-300 transition-colors"
+            title="Show Raw JSON"
           >
-            <FileJson className="w-3.5 h-3.5" />
-            Show Raw JSON
+            <span className="font-mono font-bold">{'{}'}</span>
           </button>
         </div>
 
@@ -1334,10 +1334,10 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
       <div className="flex justify-center pt-2">
         <button
           onClick={() => setShowRawJSON(true)}
-          className="text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-500 dark:hover:text-gray-300 transition-colors flex items-center gap-1.5"
+          className="text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-500 dark:hover:text-gray-300 transition-colors"
+          title="Show Raw JSON"
         >
-          <FileJson className="w-3.5 h-3.5" />
-          Show Raw JSON
+          <span className="font-mono font-bold">{'{}'}</span>
         </button>
       </div>
 

@@ -209,6 +209,7 @@ export interface CalculationStep {
   step_number: number;
   title: string;
   description: string;
+  formula?: string | null;
   calculation: string | null;
   result: string;
   checks?: string[] | null;

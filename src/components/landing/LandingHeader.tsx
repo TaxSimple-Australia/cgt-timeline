@@ -6,9 +6,7 @@ import { usePathname } from 'next/navigation';
 import { Menu, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { useTimelineStore } from '@/store/timeline';
 import CGTBrainLogo from '@/components/branding/CGTBrainLogo';
-import LogoSwitcher from '@/components/branding/LogoSwitcher';
 import TermsAndConditionsModal from '@/components/TermsAndConditionsModal';
 import { useTermsAcceptance } from '@/hooks/useTermsAcceptance';
 
@@ -16,9 +14,6 @@ export default function LandingHeader() {
   const { showModal, handleNavigateToTimeline, handleAccept, handleClose } = useTermsAcceptance();
   const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-
-  // Logo state from Zustand
-  const { currentLogoVariant, setLogoVariant } = useTimelineStore();
 
   const scrollToSection = (sectionId: string) => {
     const element = document.getElementById(sectionId);
@@ -44,12 +39,10 @@ export default function LandingHeader() {
             {/* Logo */}
             <Link href="/" className="flex-shrink-0">
               <div className="flex items-center gap-3">
-                <CGTBrainLogo size="2xl" variant={currentLogoVariant} />
-                {currentLogoVariant !== 'logo-4' && (
-                  <h1 className="font-bold text-xl md:text-2xl text-white">
-                    CGT Brain AI
-                  </h1>
-                )}
+                <CGTBrainLogo size="2xl" />
+                <h1 className="font-bold text-xl md:text-2xl text-white">
+                  CGT Brain AI
+                </h1>
               </div>
             </Link>
 
@@ -81,11 +74,6 @@ export default function LandingHeader() {
                 );
               })}
 
-              {/* Logo Switcher - Press Ctrl+L to toggle */}
-              <LogoSwitcher
-                currentLogo={currentLogoVariant}
-                onLogoChange={setLogoVariant}
-              />
             </div>
 
             {/* Mobile Menu Button */}

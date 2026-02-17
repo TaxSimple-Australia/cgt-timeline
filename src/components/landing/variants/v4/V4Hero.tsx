@@ -28,9 +28,9 @@ export default function V4Hero() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.3 }}
-              className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-[1.2] tracking-tight"
+              className="text-4xl md:text-5xl lg:text-[50px] font-bold text-white leading-[1.2] tracking-tight"
             >
-              <span className="block">Calculate Your</span>
+              <span className="block whitespace-nowrap">Calculate Your Residential</span>
               <span className="block mt-2">Capital Gains Tax</span>
               <span className="block mt-2 bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
                 in Minutes
@@ -56,6 +56,7 @@ export default function V4Hero() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.5 }}
+              className="flex flex-wrap gap-4"
             >
               <Link href="/app">
                 <Button
@@ -66,6 +67,7 @@ export default function V4Hero() {
                   <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
                 </Button>
               </Link>
+
             </motion.div>
           </motion.div>
 

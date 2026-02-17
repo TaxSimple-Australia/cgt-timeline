@@ -5,25 +5,18 @@ import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import html2canvas from 'html2canvas';
 import {
-  Camera, X, Download, ZoomIn, ZoomOut, LayoutGrid
+  Camera, X, Download
 } from 'lucide-react';
 import { useTimelineStore, Property, TimelineEvent, EventType } from '@/store/timeline';
 import { format } from 'date-fns';
-import ProjectRoadmapView from './timeline-viz/snapshot/ProjectRoadmapView';
 import GanttChartView from './timeline-viz/snapshot/GanttChartView';
-import HorizontalTimelineBarView from './timeline-viz/snapshot/HorizontalTimelineBarView';
-import PhaseTimelineView from './timeline-viz/snapshot/PhaseTimelineView';
-
-type SnapshotView = 'timeline' | 'roadmap' | 'gantt' | 'horizontal' | 'phase';
 
 export default function TimelineSnapshot() {
   const [isOpen, setIsOpen] = useState(false);
-  const [selectedView, setSelectedView] = useState<SnapshotView>('gantt');
   const [clickedEvent, setClickedEvent] = useState<{ event: TimelineEvent; property: Property; clientX: number; clientY: number } | null>(null);
   const [hoveredProperty, setHoveredProperty] = useState<Property | null>(null);
   const [hoveredPropertyElement, setHoveredPropertyElement] = useState<{ property: Property; rect: DOMRect } | null>(null);
   const [hoveredEvent, setHoveredEvent] = useState<{ event: TimelineEvent; property: Property; rect: DOMRect } | null>(null);
-  const [zoomLevel, setZoomLevel] = useState(100); // Zoom percentage: 50%, 75%, 100%
   const [isDownloading, setIsDownloading] = useState(false);
   const snapshotRef = useRef<HTMLDivElement>(null);
 
@@ -256,7 +249,7 @@ export default function TimelineSnapshot() {
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => setIsOpen(true)}
-            className="fixed bottom-8 left-[72px] z-40 w-10 h-10 rounded-full shadow-lg bg-gradient-to-br from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 flex items-center justify-center transition-all duration-300"
+            className="fixed bottom-8 left-6 z-40 w-10 h-10 rounded-full shadow-lg bg-gradient-to-br from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 flex items-center justify-center transition-all duration-300"
             title="Open Timeline Snapshot"
           >
             <Camera className="w-5 h-5 text-white" />
@@ -302,45 +295,6 @@ export default function TimelineSnapshot() {
                     </div>
                   </div>
                   <div className="flex items-center gap-2" data-html2canvas-ignore="true">
-                    {/* View Selector - Hidden from export */}
-                    <div className="flex items-center gap-2 border-r border-slate-300 dark:border-slate-600 pr-2">
-                      <LayoutGrid className="w-4 h-4 text-slate-600 dark:text-slate-400" />
-                      <select
-                        value={selectedView}
-                        onChange={(e) => setSelectedView(e.target.value as SnapshotView)}
-                        className="text-sm bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded px-2 py-1 text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      >
-                        <option value="timeline">Timeline</option>
-                        <option value="gantt">Gantt Chart</option>
-                        <option value="roadmap">Project Roadmap</option>
-                        <option value="horizontal">Horizontal Timeline</option>
-                        <option value="phase">Phase Timeline</option>
-                      </select>
-                    </div>
-                    {/* Zoom Controls - Hidden from export (only for timeline view) */}
-                    {selectedView === 'timeline' && (
-                      <div className="flex items-center gap-1 border-r border-slate-300 dark:border-slate-600 pr-2">
-                        <button
-                          onClick={() => setZoomLevel(Math.max(50, zoomLevel - 25))}
-                          disabled={zoomLevel <= 50}
-                          className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-                          title="Zoom Out"
-                        >
-                          <ZoomOut className="w-4 h-4 text-slate-600 dark:text-slate-400" />
-                        </button>
-                        <span className="text-xs font-medium text-slate-600 dark:text-slate-400 min-w-[40px] text-center">
-                          {zoomLevel}%
-                        </span>
-                        <button
-                          onClick={() => setZoomLevel(Math.min(100, zoomLevel + 25))}
-                          disabled={zoomLevel >= 100}
-                          className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-                          title="Zoom In"
-                        >
-                          <ZoomIn className="w-4 h-4 text-slate-600 dark:text-slate-400" />
-                        </button>
-                      </div>
-                    )}
                     {/* Download Button - Hidden from export */}
                     <button
                       onClick={handleDownload}
@@ -374,11 +328,6 @@ export default function TimelineSnapshot() {
                   <div
                     data-snapshot-content="true"
                     className="relative bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-800 dark:to-slate-900 p-8 min-h-full"
-                    style={{
-                      transform: `scale(${zoomLevel / 100})`,
-                      transformOrigin: 'top left',
-                      width: `${100 / (zoomLevel / 100)}%`,
-                    }}
                     onClick={() => {
                       // Close popup when clicking background
                       if (clickedEvent) {
@@ -386,324 +335,13 @@ export default function TimelineSnapshot() {
                       }
                     }}
                   >
-                  {/* Timeline View */}
-                  {selectedView === 'timeline' && (
-                    <>
-                      {/* Background Grid */}
-                      <div className="absolute inset-0 opacity-5">
-                        <div
-                          className="h-full w-full"
-                          style={{
-                            backgroundImage:
-                              'linear-gradient(90deg, currentColor 1px, transparent 1px), linear-gradient(currentColor 1px, transparent 1px)',
-                            backgroundSize: '50px 50px',
-                          }}
-                        />
-                      </div>
-
-                      {/* Date Markers at Top - 30px gap */}
-                      <div className="relative h-12 mb-8">
-                        {(() => {
-                          const startYear = absoluteStart.getFullYear();
-                          const endYear = absoluteEnd.getFullYear();
-                          const yearCount = endYear - startYear + 1;
-                          const markerInterval = yearCount > 20 ? 5 : yearCount > 10 ? 2 : 1;
-                          const years = [];
-
-                          for (let year = startYear; year <= endYear; year += markerInterval) {
-                            const yearDate = new Date(year, 0, 1);
-                            const position = getDatePosition(yearDate);
-                            years.push({ year, position });
-                          }
-
-                          return years.map(({ year, position }) => (
-                            <div
-                              key={year}
-                              className="absolute top-0"
-                              style={{ left: `${position}%` }}
-                            >
-                              <div className="absolute -translate-x-1/2 text-sm font-bold text-slate-800 dark:text-slate-200 bg-white/95 dark:bg-slate-800/95 px-3 py-1 rounded shadow-md">
-                                {year}
-                              </div>
-                              <div className="absolute top-10 w-px bg-slate-300 dark:bg-slate-600 -translate-x-1/2 opacity-30" style={{ height: `${availableHeight}px` }} />
-                            </div>
-                          ));
-                        })()}
-                      </div>
-
-
-                      {/* Property Branches */}
-                      <div className="relative px-12" style={{ height: `${availableHeight}px` }}>
-                    {properties.map((property, propertyIndex) => {
-                      const propertyEvents = events.filter((e) => e.propertyId === property.id).sort((a, b) => a.date.getTime() - b.date.getTime());
-                      const eventTiers = calculateEventTiers(propertyEvents);
-
-                      // Calculate Y position with dynamic spacing based on previous properties
-                      const yOffset = propertyData
-                        .slice(0, propertyIndex)
-                        .reduce((sum, { maxTier }) => {
-                          return sum + (basePropertyHeight + (maxTier + 1) * tierSpacing) * spacingScale;
-                        }, 0);
-
-                      // Determine property end date
-                      const isSold = property.currentStatus === 'sold' || property.saleDate;
-                      const saleEvent = propertyEvents.find((e) => e.type === 'sale');
-                      const endDate = isSold
-                        ? (property.saleDate || saleEvent?.date || absoluteEnd)
-                        : absoluteEnd;
-
-                      const startPos = getDatePosition(property.purchaseDate || propertyEvents[0]?.date || absoluteStart);
-                      const endPos = getDatePosition(endDate);
-
-                      return (
-                        <div
-                          key={property.id}
-                          className="absolute left-0 right-0"
-                          style={{ top: `${yOffset}px` }}
-                        >
-                          {/* Property Bar */}
-                          <div
-                            className="absolute h-2.5 rounded-full opacity-80 cursor-pointer hover:opacity-100 transition-opacity"
-                            style={{
-                              backgroundColor: property.color,
-                              left: `${startPos}%`,
-                              width: `${endPos - startPos}%`,
-                              zIndex: hoveredProperty?.id === property.id ? 8 : 2,
-                            }}
-                            onMouseEnter={(e) => {
-                              setHoveredProperty(property);
-                              setHoveredPropertyElement({ property, rect: e.currentTarget.getBoundingClientRect() });
-                            }}
-                            onMouseLeave={() => {
-                              setHoveredProperty(null);
-                              setHoveredPropertyElement(null);
-                            }}
-                          />
-
-                          {/* Start Circle - Solid with inner dot */}
-                          <div
-                            className="absolute w-7 h-7 rounded-full border-3 border-white dark:border-slate-900 shadow-md -translate-y-1/2 cursor-pointer hover:scale-110 transition-transform"
-                            style={{
-                              backgroundColor: property.color,
-                              left: `${startPos}%`,
-                              top: '5px',
-                              zIndex: hoveredProperty?.id === property.id ? 8 : 3,
-                            }}
-                            onMouseEnter={(e) => {
-                              setHoveredProperty(property);
-                              setHoveredPropertyElement({ property, rect: e.currentTarget.getBoundingClientRect() });
-                            }}
-                            onMouseLeave={() => {
-                              setHoveredProperty(null);
-                              setHoveredPropertyElement(null);
-                            }}
-                          >
-                            {/* Inner white dot to differentiate start */}
-                            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-white dark:bg-slate-900" />
-                          </div>
-
-                          {/* End Circle - Hollow/ring style */}
-                          <div
-                            className="absolute w-7 h-7 rounded-full border-3 shadow-md -translate-y-1/2 cursor-pointer hover:scale-110 transition-transform"
-                            style={{
-                              backgroundColor: 'white',
-                              borderColor: property.color,
-                              left: `${endPos}%`,
-                              top: '5px',
-                              zIndex: hoveredProperty?.id === property.id ? 8 : 3,
-                            }}
-                            onMouseEnter={(e) => {
-                              setHoveredProperty(property);
-                              setHoveredPropertyElement({ property, rect: e.currentTarget.getBoundingClientRect() });
-                            }}
-                            onMouseLeave={() => {
-                              setHoveredProperty(null);
-                              setHoveredPropertyElement(null);
-                            }}
-                          />
-
-                          {/* Property Label - Inside left padding */}
-                          <div
-                            className="absolute font-bold cursor-pointer hover:underline whitespace-nowrap px-2 py-1 rounded"
-                            style={{
-                              color: property.color,
-                              left: '4px',
-                              top: '-4px',
-                              fontSize: hasManyProperties ? '10px' : '12px',
-                              backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                              boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
-                              zIndex: hoveredProperty?.id === property.id ? 8 : 4,
-                              maxWidth: hasManyProperties ? '200px' : '240px',
-                              overflow: 'hidden',
-                              textOverflow: 'ellipsis',
-                            }}
-                            onMouseEnter={(e) => {
-                              setHoveredProperty(property);
-                              setHoveredPropertyElement({ property, rect: e.currentTarget.getBoundingClientRect() });
-                            }}
-                            onMouseLeave={() => {
-                              setHoveredProperty(null);
-                              setHoveredPropertyElement(null);
-                            }}
-                            title={property.name}
-                          >
-                            {property.name}
-                          </div>
-
-
-                          {/* Events with Tier Stacking - Circle View */}
-                          {propertyEvents.map((event) => {
-                            const eventPos = getDatePosition(event.date);
-                            const tier = eventTiers.get(event.id) || 0;
-                            const tierOffset = tier * tierSpacing;
-                            const baseOffset = 20;
-                            const isPropertyHovered = hoveredProperty?.id === property.id;
-                            const isEventHovered = hoveredEvent?.event.id === event.id;
-                            const LABEL_GAP = 10; // Circle radius (8px) + 2px gap below circle
-
-                            // Check if label is long (more than 3 words)
-                            const wordCount = event.title.trim().split(/\s+/).length;
-                            const isLongLabel = wordCount > 3;
-
-                            return (
-                              <div
-                                key={event.id}
-                                className="absolute -translate-x-1/2"
-                                style={{
-                                  left: `${eventPos}%`,
-                                  top: `${baseOffset + tierOffset}px`,
-                                  zIndex: isPropertyHovered || isEventHovered ? 9 : 5,
-                                }}
-                              >
-                                {/* Dashed connector line from property bar to event circle */}
-                                <div
-                                  className="absolute left-1/2 -translate-x-1/2"
-                                  style={{
-                                    width: '2px',
-                                    height: `${baseOffset + tierOffset}px`,
-                                    bottom: '0',
-                                    backgroundImage: `linear-gradient(to bottom, ${event.color} 50%, transparent 50%)`,
-                                    backgroundSize: '2px 8px',
-                                    backgroundRepeat: 'repeat-y',
-                                    opacity: 0.6,
-                                    zIndex: 1,
-                                  }}
-                                />
-
-                                {/* Main Event Circle - Like timeline circle view */}
-                                <div
-                                  className="absolute left-1/2 -translate-x-1/2 w-4 h-4 rounded-full border-2 border-white dark:border-slate-900 shadow-md cursor-pointer hover:scale-110 transition-transform"
-                                  style={{
-                                    backgroundColor: event.color,
-                                    zIndex: isPropertyHovered || isEventHovered ? 10 : 7,
-                                  }}
-                                  onMouseEnter={(e) => {
-                                    const rect = e.currentTarget.getBoundingClientRect();
-                                    setHoveredEvent({ event, property, rect });
-                                    setHoveredProperty(property);
-                                  }}
-                                  onMouseLeave={() => {
-                                    setHoveredEvent(null);
-                                  }}
-                                />
-
-                                {/* Label below circle - always 2px gap */}
-                                <div
-                                  className={`absolute font-semibold text-slate-900 rounded pointer-events-none ${isLongLabel ? '' : 'text-xs'}`}
-                                  style={{
-                                    left: '50%',
-                                    top: `${LABEL_GAP}px`,
-                                    transform: 'translateX(-50%)',
-                                    backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                                    boxShadow: '0 1px 3px rgba(0,0,0,0.2)',
-                                    display: 'inline-flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    textAlign: 'center',
-                                    verticalAlign: 'middle',
-                                    minHeight: isLongLabel ? '32px' : '24px',
-                                    ...(isLongLabel ? {
-                                      fontSize: '10px',
-                                      width: '150px',
-                                      wordWrap: 'break-word',
-                                      lineHeight: '13px',
-                                      paddingTop: '6px',
-                                      paddingBottom: '6px',
-                                      paddingLeft: '8px',
-                                      paddingRight: '8px',
-                                    } : {
-                                      whiteSpace: 'nowrap',
-                                      lineHeight: '12px',
-                                      paddingTop: '6px',
-                                      paddingBottom: '6px',
-                                      paddingLeft: '8px',
-                                      paddingRight: '8px',
-                                    }),
-                                  }}
-                                  title={event.title}
-                                >
-                                  {event.title}
-                                </div>
-                              </div>
-                            );
-                          })}
-                        </div>
-                      );
-                    })}
-                      </div>
-
-                      {/* Empty State */}
-                      {properties.length === 0 && (
-                        <div className="absolute inset-0 flex items-center justify-center">
-                          <div className="text-center text-slate-400 dark:text-slate-600">
-                            <Camera className="w-16 h-16 mx-auto mb-4 opacity-30" />
-                            <p className="text-lg font-semibold">No timeline data yet</p>
-                            <p className="text-sm mt-2">Add properties and events to see your timeline</p>
-                          </div>
-                        </div>
-                      )}
-                    </>
-                  )}
-
                   {/* Gantt Chart View */}
-                  {selectedView === 'gantt' && (
-                    <GanttChartView
-                      properties={properties}
-                      events={events}
-                      absoluteStart={absoluteStart}
-                      absoluteEnd={absoluteEnd}
-                    />
-                  )}
-
-                  {/* Project Roadmap View */}
-                  {selectedView === 'roadmap' && (
-                    <ProjectRoadmapView
-                      properties={properties}
-                      events={events}
-                      absoluteStart={absoluteStart}
-                      absoluteEnd={absoluteEnd}
-                    />
-                  )}
-
-                  {/* Horizontal Timeline Bar View */}
-                  {selectedView === 'horizontal' && (
-                    <HorizontalTimelineBarView
-                      properties={properties}
-                      events={events}
-                      absoluteStart={absoluteStart}
-                      absoluteEnd={absoluteEnd}
-                    />
-                  )}
-
-                  {/* Phase Timeline View */}
-                  {selectedView === 'phase' && (
-                    <PhaseTimelineView
-                      properties={properties}
-                      events={events}
-                      absoluteStart={absoluteStart}
-                      absoluteEnd={absoluteEnd}
-                    />
-                  )}
+                  <GanttChartView
+                    properties={properties}
+                    events={events}
+                    absoluteStart={absoluteStart}
+                    absoluteEnd={absoluteEnd}
+                  />
                 </div>
               </div>
             </div>

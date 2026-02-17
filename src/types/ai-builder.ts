@@ -358,7 +358,6 @@ export interface UpdateSettingsPayload {
   lockFutureDates?: boolean;
   enableDragEvents?: boolean;
   enableAISuggestedQuestions?: boolean;
-  apiResponseMode?: string;
 }
 
 export interface ActionResult {

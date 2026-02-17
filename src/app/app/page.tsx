@@ -71,8 +71,6 @@ function HomeContent() {
     resolveVerificationAlert,
     panToDate,
     enableAISuggestedQuestions,
-    apiResponseMode,
-    setAPIResponseMode,
     setTimelineNotes,
     selectedLLMProvider,
     savedAnalysis,
@@ -341,7 +339,6 @@ function HomeContent() {
       const apiData = transformTimelineToAPIFormat(properties, events, customQuery, undefined);
 
       console.log('📤 Sending data to API:', JSON.stringify(apiData, null, 2));
-      console.log(`🔗 Using API Response Mode: ${apiResponseMode}`);
       console.log(`🤖 Using LLM Provider: ${selectedLLMProvider}`);
 
       // Call the Next.js API route
@@ -350,7 +347,7 @@ function HomeContent() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ ...apiData, responseMode: apiResponseMode, llmProvider: selectedLLMProvider }),
+        body: JSON.stringify({ ...apiData, llmProvider: selectedLLMProvider }),
       });
 
       if (!response.ok) {
@@ -371,31 +368,8 @@ function HomeContent() {
         throw new Error(displayError);
       }
 
-      // Check if response format is valid - if not and we're in JSON mode, auto-fallback to markdown
-      if (!isValidResponseFormat(result.data) && apiResponseMode === 'json') {
-        console.log('⚠️ Unknown response format detected in JSON mode - auto-switching to markdown mode');
-        setAPIResponseMode('markdown');
-
-        // Retry the API call with markdown mode
-        const retryResponse = await fetch('/api/calculate-cgt', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ ...apiData, responseMode: 'markdown', llmProvider: selectedLLMProvider }),
-        });
-
-        if (!retryResponse.ok) {
-          throw new Error(`API retry request failed with status ${retryResponse.status}`);
-        }
-
-        result = await retryResponse.json();
-        console.log('📥 Received from API (markdown fallback):', result);
-
-        if (!result.success) {
-          const errorMessage = result.error || 'API request failed';
-          throw new Error(`Analysis Error: ${errorMessage}`);
-        }
+      if (!isValidResponseFormat(result.data)) {
+        console.warn('⚠️ Response format not fully recognized, attempting to display anyway');
       }
 
       // Use raw API response data
@@ -579,7 +553,6 @@ function HomeContent() {
 
       if (isApiConfigured) {
         console.log('🌐 Calling CGT API with verified responses...');
-        console.log(`🔗 Using API Response Mode: ${apiResponseMode}`);
         console.log(`🤖 Using LLM Provider: ${selectedLLMProvider}`);
 
         // Call the Next.js API route with verification responses
@@ -588,7 +561,7 @@ function HomeContent() {
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ ...requestData, responseMode: apiResponseMode, llmProvider: selectedLLMProvider }),
+          body: JSON.stringify({ ...requestData, llmProvider: selectedLLMProvider }),
         });
 
         if (!response.ok) {
@@ -609,31 +582,8 @@ function HomeContent() {
           throw new Error(displayError);
         }
 
-        // Check if response format is valid - if not and we're in JSON mode, auto-fallback to markdown
-        if (!isValidResponseFormat(result.data) && apiResponseMode === 'json') {
-          console.log('⚠️ Unknown response format detected in JSON mode - auto-switching to markdown mode');
-          setAPIResponseMode('markdown');
-
-          // Retry the API call with markdown mode
-          const retryResponse = await fetch('/api/calculate-cgt', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ ...requestData, responseMode: 'markdown', llmProvider: selectedLLMProvider }),
-          });
-
-          if (!retryResponse.ok) {
-            throw new Error(`API retry request failed with status ${retryResponse.status}`);
-          }
-
-          result = await retryResponse.json();
-          console.log('📥 Received from API after resolution (markdown fallback):', result);
-
-          if (!result.success) {
-            const errorMessage = result.error || 'API request failed';
-            throw new Error(`Analysis Error: ${errorMessage}`);
-          }
+        if (!isValidResponseFormat(result.data)) {
+          console.warn('⚠️ Response format not fully recognized, attempting to display anyway');
         }
       } else {
         console.log('🧪 DEMO MODE: Using successful demo response (no API configured)');
@@ -745,7 +695,6 @@ function HomeContent() {
       console.log('📋 Original Answers from GapQuestionsPanel:', JSON.stringify(answers, null, 2));
       console.log('📋 Transformed Verification Responses:', JSON.stringify(verificationsData, null, 2));
       console.log('📋 Full Request Payload:', JSON.stringify(requestData, null, 2));
-      console.log(`🔗 Using API Response Mode: ${apiResponseMode}`);
       console.log(`🤖 Using LLM Provider: ${selectedLLMProvider}`);
 
       // Call the Next.js API route with clarification answers included
@@ -754,7 +703,7 @@ function HomeContent() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ ...requestData, responseMode: apiResponseMode, llmProvider: selectedLLMProvider }),
+        body: JSON.stringify({ ...requestData, llmProvider: selectedLLMProvider }),
       });
 
       if (!response.ok) {
@@ -775,31 +724,8 @@ function HomeContent() {
         throw new Error(displayError);
       }
 
-      // Check if response format is valid - if not and we're in JSON mode, auto-fallback to markdown
-      if (!isValidResponseFormat(result.data) && apiResponseMode === 'json') {
-        console.log('⚠️ Unknown response format detected in JSON mode - auto-switching to markdown mode');
-        setAPIResponseMode('markdown');
-
-        // Retry the API call with markdown mode
-        const retryResponse = await fetch('/api/calculate-cgt', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ ...requestData, responseMode: 'markdown', llmProvider: selectedLLMProvider }),
-        });
-
-        if (!retryResponse.ok) {
-          throw new Error(`API retry request failed with status ${retryResponse.status}`);
-        }
-
-        result = await retryResponse.json();
-        console.log('📥 Received from API after gap clarifications (markdown fallback):', result);
-
-        if (!result.success) {
-          const errorMessage = result.error || 'API request failed';
-          throw new Error(`Analysis Error: ${errorMessage}`);
-        }
+      if (!isValidResponseFormat(result.data)) {
+        console.warn('⚠️ Response format not fully recognized, attempting to display anyway');
       }
 
       // Check if API still needs clarification - handle multiple response formats

@@ -226,6 +226,41 @@ export async function deleteReport(id: string): Promise<boolean> {
 }
 
 /**
+ * Delete all reports and their verifications
+ */
+export async function deleteAllReports(): Promise<{ deleted: number; failed: number }> {
+  const redis = getRedis();
+  const index = await redis.get<string[]>(STORAGE.REPORTS_INDEX) || [];
+
+  let deleted = 0;
+  let failed = 0;
+
+  for (const id of index) {
+    try {
+      const success = await deleteReport(id);
+      if (success) {
+        deleted++;
+      } else {
+        failed++;
+      }
+    } catch {
+      failed++;
+    }
+  }
+
+  // Clear all indexes
+  await redis.set(STORAGE.REPORTS_INDEX, JSON.stringify([]));
+  const statuses: ReportStatus[] = ['pending', 'analyzing', 'analyzed', 'verifying', 'verified', 'failed'];
+  for (const status of statuses) {
+    await redis.set(`${STORAGE.REPORTS_BY_STATUS}${status}`, JSON.stringify([]));
+  }
+
+  console.log(`🗑️ All reports deleted: ${deleted} deleted, ${failed} failed`);
+
+  return { deleted, failed };
+}
+
+/**
  * List reports with filtering and pagination
  */
 export async function listReports(

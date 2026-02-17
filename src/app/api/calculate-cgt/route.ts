@@ -1,14 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createReport, updateReport, checkStorageHealth } from '@/lib/report-storage';
 
-// API Response Mode type
-type APIResponseMode = 'markdown' | 'json';
-
-// Endpoint paths for each mode (new endpoints)
-const ENDPOINT_PATHS: Record<APIResponseMode, string> = {
-  markdown: '/calculate-cgt/',
-  json: '/calculate-cgt-json/',
-};
+// JSON endpoint (single endpoint — markdown endpoint phased out)
+const API_ENDPOINT = '/calculate-cgt-json/';
 
 // Base API URL
 const API_BASE_URL = 'https://cgtbrain.com.au';
@@ -17,14 +11,11 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
 
-    // Extract the response mode from the request (default to 'markdown' for View 1)
-    const responseMode: APIResponseMode = body.responseMode || 'markdown';
-
     // Extract LLM provider from the request (default to 'claude')
     const llmProvider: string = body.llmProvider || 'claude';
 
     // Remove internal fields from the payload before sending to external API
-    const { responseMode: _, llmProvider: __, ...apiPayload } = body;
+    const { llmProvider: __, ...apiPayload } = body;
 
     // Add llm_provider to the payload
     const finalPayload = {
@@ -32,11 +23,9 @@ export async function POST(request: NextRequest) {
       llm_provider: llmProvider,
     };
 
-    // Construct the full URL with the correct endpoint based on response mode
-    const endpointPath = ENDPOINT_PATHS[responseMode];
-    const API_URL = `${API_BASE_URL}${endpointPath}`;
+    // Construct the full URL
+    const API_URL = `${API_BASE_URL}${API_ENDPOINT}`;
 
-    console.log(`🔗 API Response Mode: ${responseMode}`);
     console.log(`🤖 LLM Provider: ${llmProvider}`);
     console.log(`🔗 Calling CGT Model API: ${API_URL}`);
     console.log('📤 Request payload:', JSON.stringify(finalPayload, null, 2));

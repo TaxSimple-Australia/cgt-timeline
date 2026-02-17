@@ -7,15 +7,56 @@ interface OwnershipPeriodsTableProps {
   property: PropertyAnalysis;
 }
 
-// Helper function to determine if period is exempt
-function isExemptPeriod(periodType: string): boolean {
-  const lowerType = periodType.toLowerCase();
-  return lowerType.includes('main residence') || lowerType.includes('exempt');
+// Get the exempt value directly from the API response
+// API sends: "yes", "no", or "partial"
+function getExemptValue(period: OwnershipPeriod): string {
+  const raw = (period as any).exempt ?? (period as any).is_exempt ?? '';
+  if (!raw) return '—';
+  return String(raw).trim().toLowerCase();
+}
+
+// Get styling for exempt badge based on value
+function getExemptStyle(value: string): string {
+  switch (value) {
+    case 'yes':
+      return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400';
+    case 'partial':
+      return 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400';
+    case 'no':
+      return 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400';
+    default:
+      return 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400';
+  }
+}
+
+// Capitalize first letter for display
+function capitalizeFirst(str: string): string {
+  if (!str) return '—';
+  return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
 // Helper function to format number with commas
-function formatNumber(num: number): string {
-  return num.toLocaleString('en-US');
+function formatNumber(num: number | string | undefined | null): string {
+  if (num === undefined || num === null) return '—';
+  const numValue = typeof num === 'string' ? parseFloat(num) : num;
+  if (isNaN(numValue)) return '—';
+  return numValue.toLocaleString('en-AU');
+}
+
+// Helper function to safely format percentage
+function formatPercentage(pct: string | number | undefined | null): string {
+  if (pct === undefined || pct === null || pct === '') return '—';
+  const numValue = typeof pct === 'string' ? parseFloat(pct) : pct;
+  if (isNaN(numValue)) return String(pct);
+  return `${numValue}%`;
+}
+
+// Helper function to format date range
+function formatDateRange(startDate?: string, endDate?: string): string {
+  if (!startDate && !endDate) return '—';
+  if (startDate && !endDate) return `${startDate} – Present`;
+  if (!startDate && endDate) return `— – ${endDate}`;
+  return `${startDate} – ${endDate}`;
 }
 
 export default function OwnershipPeriodsTable({
@@ -33,12 +74,15 @@ export default function OwnershipPeriodsTable({
     );
   }
 
+  // Calculate total days for verification
+  const totalDays = ownershipPeriods.reduce((sum, p) => sum + (p.days || 0), 0);
+
   return (
     <div className="space-y-4">
       {/* Section Title */}
       <div className="flex items-center gap-2">
         <span className="text-lg font-bold text-purple-700 dark:text-purple-400">
-          📅 O2. Ownership Periods Analysis
+          Ownership Period Classification
         </span>
       </div>
 
@@ -69,65 +113,119 @@ export default function OwnershipPeriodsTable({
           </thead>
           <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
             {ownershipPeriods.map((period, index) => {
-              const isExempt = isExemptPeriod(period.period_type);
-              const dateRange = period.start_date && period.end_date
-                ? `${period.start_date} – ${period.end_date}`
-                : '—';
+              const exemptValue = getExemptValue(period);
+              const dateRange = formatDateRange(period.start_date, period.end_date);
+              const days = period.days != null && !isNaN(period.days) ? period.days : null;
+              const pct = period.percentage;
+              const rule = (period as any).rule_applied || period.note || null;
+              const years = period.years;
 
               return (
                 <tr
                   key={index}
-                  className="bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-750"
+                  className={`hover:bg-gray-50 dark:hover:bg-gray-750 ${
+                    exemptValue === 'yes'
+                      ? 'bg-green-50/40 dark:bg-green-950/10'
+                      : exemptValue === 'partial'
+                        ? 'bg-amber-50/30 dark:bg-amber-950/10'
+                        : 'bg-white dark:bg-gray-800'
+                  }`}
                 >
                   {/* Period Type */}
-                  <td className="px-4 py-3 font-medium text-gray-900 dark:text-gray-100">
-                    {period.period_type}
+                  <td className="px-4 py-3">
+                    <div className="flex flex-col">
+                      <span className="font-medium text-gray-900 dark:text-gray-100">
+                        {period.period_type || '—'}
+                      </span>
+                      {years && (
+                        <span className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                          {years}
+                        </span>
+                      )}
+                    </div>
                   </td>
 
                   {/* Date Range */}
-                  <td className="px-4 py-3 text-gray-700 dark:text-gray-300 whitespace-nowrap">
+                  <td className="px-4 py-3 text-gray-700 dark:text-gray-300 whitespace-nowrap font-mono text-xs">
                     {dateRange}
                   </td>
 
                   {/* Days */}
                   <td className="px-4 py-3 text-right font-mono text-gray-900 dark:text-gray-100">
-                    {formatNumber(period.days)}
+                    {days !== null ? formatNumber(days) : '—'}
                   </td>
 
                   {/* Percentage */}
                   <td className="px-4 py-3 text-right font-mono text-gray-900 dark:text-gray-100">
-                    {period.percentage}%
+                    {formatPercentage(pct)}
                   </td>
 
                   {/* Rule Applied */}
                   <td className="px-4 py-3 text-center">
-                    {period.note ? (
+                    {rule ? (
                       <span className="inline-flex items-center px-2.5 py-1 rounded font-mono text-xs font-semibold bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400">
-                        {period.note}
+                        {rule}
                       </span>
                     ) : (
                       <span className="text-gray-400 dark:text-gray-600 text-xs">—</span>
                     )}
                   </td>
 
-                  {/* Exempt */}
+                  {/* Exempt - display exact value from API */}
                   <td className="px-4 py-3 text-center">
                     <span
-                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                        isExempt
-                          ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
-                          : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'
-                      }`}
+                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getExemptStyle(exemptValue)}`}
                     >
-                      {isExempt ? 'Yes' : 'No'}
+                      {capitalizeFirst(exemptValue)}
                     </span>
                   </td>
                 </tr>
               );
             })}
           </tbody>
+          {/* Footer with totals */}
+          {totalDays > 0 && (
+            <tfoot>
+              <tr className="bg-purple-50 dark:bg-purple-900/20 border-t-2 border-purple-200 dark:border-purple-700">
+                <td className="px-4 py-2.5 font-bold text-purple-900 dark:text-purple-200">
+                  Total
+                </td>
+                <td className="px-4 py-2.5"></td>
+                <td className="px-4 py-2.5 text-right font-mono font-bold text-purple-900 dark:text-purple-200">
+                  {formatNumber(totalDays)}
+                </td>
+                <td className="px-4 py-2.5 text-right font-mono font-bold text-purple-900 dark:text-purple-200">
+                  100%
+                </td>
+                <td className="px-4 py-2.5"></td>
+                <td className="px-4 py-2.5"></td>
+              </tr>
+            </tfoot>
+          )}
         </table>
       </div>
+
+      {/* Indexation Method Notice */}
+      {(() => {
+        // Get the earliest start date from periods (purchase date)
+        const earliestDate = ownershipPeriods.reduce((earliest, period) => {
+          if (!period.start_date) return earliest;
+          const periodDate = new Date(period.start_date);
+          return !earliest || periodDate < earliest ? periodDate : earliest;
+        }, null as Date | null);
+
+        // Check if eligible for indexation method (before 11:45 AM EST on 21 September 1999)
+        const indexationCutoff = new Date('1999-09-21T11:45:00+10:00');
+        const isEligibleForIndexation = earliestDate && earliestDate <= indexationCutoff;
+
+        return isEligibleForIndexation ? (
+          <div className="p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg">
+            <p className="text-xs text-amber-700 dark:text-amber-400 font-medium">
+              If an asset was acquired at or before 11.45 am EST on 21 September 1999, you may be eligible to use the indexation method to calculate the cost base for capital gains tax purposes.
+            </p>
+          </div>
+        ) : null;
+      })()}
     </div>
   );
 }

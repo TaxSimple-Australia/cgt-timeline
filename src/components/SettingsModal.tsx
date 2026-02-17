@@ -53,7 +53,6 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
     eventDisplayMode, toggleEventDisplayMode,
     enableDragEvents, toggleDragEvents,
     enableAISuggestedQuestions, toggleAISuggestedQuestions,
-    apiResponseMode, setAPIResponseMode,
     properties, events, timelineNotes,
     // LLM Provider state
     selectedLLMProvider, setSelectedLLMProvider,
@@ -466,40 +465,6 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                               Select the AI model for CGT analysis
                             </p>
                           </div>
-                        </div>
-                      </div>
-
-                      {/* Analysis View Section */}
-                      <div>
-                        <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2 sm:mb-3 flex items-center gap-2">
-                          <Eye className="w-4 h-4" />
-                          Analysis View
-                        </h3>
-
-                        <div className="flex gap-2">
-                          {/* View 1 - Markdown (Default) */}
-                          <button
-                            onClick={() => setAPIResponseMode('markdown')}
-                            className={`flex-1 flex items-center justify-center px-4 py-2.5 rounded-lg font-medium text-sm transition-all ${
-                              apiResponseMode === 'markdown'
-                                ? 'bg-blue-600 text-white shadow-md'
-                                : 'bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-300 dark:hover:bg-slate-600'
-                            }`}
-                          >
-                            View 1
-                          </button>
-
-                          {/* View 2 - JSON */}
-                          <button
-                            onClick={() => setAPIResponseMode('json')}
-                            className={`flex-1 flex items-center justify-center px-4 py-2.5 rounded-lg font-medium text-sm transition-all ${
-                              apiResponseMode === 'json'
-                                ? 'bg-blue-600 text-white shadow-md'
-                                : 'bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-300 dark:hover:bg-slate-600'
-                            }`}
-                          >
-                            View 2
-                          </button>
                         </div>
                       </div>
 

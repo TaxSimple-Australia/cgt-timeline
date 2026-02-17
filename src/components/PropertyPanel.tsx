@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { format } from 'date-fns';
 import { useTimelineStore } from '@/store/timeline';
 import { formatCurrency, cn } from '@/lib/utils';
-import { getPurchasePrice, calculatePurchaseIncidentalCosts, calculateImprovementCosts, calculateSellingCosts } from '@/lib/cost-base-calculations';
+import { getPurchasePrice, calculatePurchaseIncidentalCosts, calculateImprovementCosts, calculateSellingCosts, getDivision43Deductions } from '@/lib/cost-base-calculations';
 import {
   X,
   Edit2,
@@ -91,7 +91,8 @@ export default function PropertyPanel() {
     return getPurchasePrice(purchaseEvent) +
            calculatePurchaseIncidentalCosts(purchaseEvent) +
            calculateImprovementCosts(improvementEvents) +
-           calculateSellingCosts(saleEvent);
+           calculateSellingCosts(saleEvent) -
+           getDivision43Deductions(saleEvent);
   };
 
   const totalCostBase = calculateCostBase();
@@ -681,7 +682,7 @@ export default function PropertyPanel() {
                   <div className="grid grid-cols-2 gap-2 mt-2">
                     {property.lotNumber && (
                       <div className="bg-white dark:bg-slate-700/50 p-2 rounded border border-pink-200 dark:border-pink-700">
-                        <div className="text-xs text-pink-600 dark:text-pink-400">Lot Number</div>
+                        <div className="text-xs text-pink-600 dark:text-pink-400">Lot Name</div>
                         <div className="font-semibold text-sm text-pink-900 dark:text-pink-100">{property.lotNumber}</div>
                       </div>
                     )}
@@ -858,6 +859,14 @@ export default function PropertyPanel() {
                   </>
                 )}
 
+                {/* Division 43 Capital Works Deductions */}
+                {getDivision43Deductions(saleEvent) > 0 && (
+                  <div className="flex justify-between items-center pt-2 border-t border-red-200 dark:border-red-800">
+                    <span className="text-red-600 dark:text-red-400 text-sm font-medium">Div 43 Capital Works Deductions</span>
+                    <span className="font-semibold text-red-600 dark:text-red-400">- {formatCurrency(getDivision43Deductions(saleEvent))}</span>
+                  </div>
+                )}
+
                 {/* Total Cost Base */}
                 <div className="flex justify-between items-center pt-2 mt-2 border-t-2 border-indigo-300">
                   <span className="font-bold text-indigo-700 dark:text-indigo-200">Total Cost Base</span>
@@ -896,7 +905,7 @@ export default function PropertyPanel() {
                     className="absolute left-1/2 -translate-x-1/2 top-full mt-2 bg-slate-900 dark:bg-slate-800 text-white px-4 py-3 rounded-lg shadow-2xl text-sm min-w-[280px] max-w-[360px] z-50 pointer-events-none border-2 border-blue-500/30"
                   >
                     <p className="text-slate-200 leading-relaxed">
-                      If an asset was acquired before 21 September 1999, you may be eligible to use the indexation method.
+                      If an asset was acquired at or before 11.45 am EST on 21 September 1999, you may be eligible to use the indexation method to calculate the cost base for capital gains tax purposes.
                     </p>
                   </motion.div>
                 )}

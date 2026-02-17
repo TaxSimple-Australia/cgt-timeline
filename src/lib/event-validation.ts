@@ -7,7 +7,7 @@ export interface ValidationResult {
   valid: boolean;
   error?: string;
   suggestion?: {
-    type: 'createPurchase' | 'createSale' | 'createMoveIn' | 'createRentStart' | 'createVacantStart';
+    type: 'createPurchase' | 'createSale' | 'createMoveIn' | 'createRentStart';
     suggestedDate?: Date;
     message?: string;
   };
@@ -81,8 +81,6 @@ function getEventLabel(type: EventType): string {
     status_change: 'Status Change',
     living_in_rental_start: 'Living in Rental Start',
     living_in_rental_end: 'Living in Rental End',
-    vacant_start: 'Vacant Start',
-    vacant_end: 'Vacant End',
     ownership_change: 'Ownership Change',
     subdivision: 'Subdivision',
     custom: 'Custom Event',

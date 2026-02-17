@@ -12,11 +12,14 @@ import {
   Search,
   PlayCircle,
   Loader2,
+  Trash2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import ReportsList from './ReportsList';
 import ReportDetailModal from './ReportDetailModal';
 import BatchVerificationModal from './BatchVerificationModal';
+import BatchDeleteModal from './BatchDeleteModal';
+import DeleteConfirmModal from './DeleteConfirmModal';
 import type {
   CGTReportSummary,
   ReportListFilters,
@@ -55,6 +58,9 @@ export default function ReportsManagementTab({ adminCredentials }: ReportsManage
   // Modals
   const [selectedReportId, setSelectedReportId] = useState<string | null>(null);
   const [showBatchModal, setShowBatchModal] = useState(false);
+  const [showBatchDeleteModal, setShowBatchDeleteModal] = useState(false);
+  const [showDeleteAllConfirm, setShowDeleteAllConfirm] = useState(false);
+  const [deletingAll, setDeletingAll] = useState(false);
 
   // Fetch reports
   const fetchReports = useCallback(async () => {
@@ -163,6 +169,78 @@ export default function ReportsManagementTab({ adminCredentials }: ReportsManage
     fetchReports();
   };
 
+  // Delete a single report
+  const deleteSingleReport = async (reportId: string) => {
+    try {
+      const response = await fetch(`/api/admin/reports/${reportId}`, {
+        method: 'DELETE',
+        headers: {
+          'x-admin-user': adminCredentials.user,
+          'x-admin-pass': adminCredentials.pass,
+        },
+      });
+
+      const data = await response.json();
+
+      if (!data.success) {
+        throw new Error(data.error || 'Failed to delete report');
+      }
+
+      // Close detail modal if this report was open
+      if (selectedReportId === reportId) {
+        setSelectedReportId(null);
+      }
+
+      // Remove from selection if selected
+      setSelectedReportIds(prev => {
+        const next = new Set(prev);
+        next.delete(reportId);
+        return next;
+      });
+
+      fetchReports();
+    } catch (err) {
+      console.error('Delete error:', err);
+      setError(err instanceof Error ? err.message : 'Failed to delete report');
+    }
+  };
+
+  // Clear selection after batch delete
+  const handleBatchDeleteComplete = () => {
+    setSelectedReportIds(new Set());
+    setShowBatchDeleteModal(false);
+    fetchReports();
+  };
+
+  // Delete all reports
+  const handleDeleteAll = async () => {
+    setDeletingAll(true);
+    try {
+      const response = await fetch('/api/admin/reports/delete-all', {
+        method: 'POST',
+        headers: {
+          'x-admin-user': adminCredentials.user,
+          'x-admin-pass': adminCredentials.pass,
+        },
+      });
+
+      const data = await response.json();
+
+      if (!data.success) {
+        throw new Error(data.error || 'Failed to delete all reports');
+      }
+
+      setSelectedReportIds(new Set());
+      setShowDeleteAllConfirm(false);
+      fetchReports();
+    } catch (err) {
+      console.error('Delete all error:', err);
+      setError(err instanceof Error ? err.message : 'Failed to delete all reports');
+    } finally {
+      setDeletingAll(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Header with Stats */}
@@ -178,6 +256,18 @@ export default function ReportsManagementTab({ adminCredentials }: ReportsManage
         </div>
 
         <div className="flex items-center gap-3">
+          {total > 0 && (
+            <Button
+              onClick={() => setShowDeleteAllConfirm(true)}
+              variant="outline"
+              size="sm"
+              className="border-red-500/50 text-red-400 hover:bg-red-500/10 hover:text-red-300"
+            >
+              <Trash2 className="w-4 h-4 mr-2" />
+              Delete All
+            </Button>
+          )}
+
           <Button
             onClick={fetchReports}
             variant="outline"
@@ -190,14 +280,24 @@ export default function ReportsManagementTab({ adminCredentials }: ReportsManage
           </Button>
 
           {selectedReportIds.size > 0 && (
-            <Button
-              onClick={() => setShowBatchModal(true)}
-              size="sm"
-              className="bg-cyan-600 hover:bg-cyan-700 text-white"
-            >
-              <PlayCircle className="w-4 h-4 mr-2" />
-              Verify Selected ({selectedReportIds.size})
-            </Button>
+            <>
+              <Button
+                onClick={() => setShowBatchDeleteModal(true)}
+                size="sm"
+                className="bg-red-600 hover:bg-red-700 text-white"
+              >
+                <Trash2 className="w-4 h-4 mr-2" />
+                Delete Selected ({selectedReportIds.size})
+              </Button>
+              <Button
+                onClick={() => setShowBatchModal(true)}
+                size="sm"
+                className="bg-cyan-600 hover:bg-cyan-700 text-white"
+              >
+                <PlayCircle className="w-4 h-4 mr-2" />
+                Verify Selected ({selectedReportIds.size})
+              </Button>
+            </>
           )}
         </div>
       </div>
@@ -324,6 +424,7 @@ export default function ReportsManagementTab({ adminCredentials }: ReportsManage
           onToggleSelectAll={toggleSelectAll}
           onViewReport={(id) => setSelectedReportId(id)}
           onVerifyReport={runVerification}
+          onDeleteReport={deleteSingleReport}
           page={page}
           totalPages={totalPages}
           total={total}
@@ -338,6 +439,7 @@ export default function ReportsManagementTab({ adminCredentials }: ReportsManage
           adminCredentials={adminCredentials}
           onClose={() => setSelectedReportId(null)}
           onVerify={runVerification}
+          onDelete={deleteSingleReport}
         />
       )}
 
@@ -348,6 +450,29 @@ export default function ReportsManagementTab({ adminCredentials }: ReportsManage
           adminCredentials={adminCredentials}
           onClose={() => setShowBatchModal(false)}
           onComplete={handleBatchComplete}
+        />
+      )}
+
+      {/* Batch Delete Modal */}
+      {showBatchDeleteModal && (
+        <BatchDeleteModal
+          reportIds={Array.from(selectedReportIds)}
+          adminCredentials={adminCredentials}
+          onClose={() => setShowBatchDeleteModal(false)}
+          onComplete={handleBatchDeleteComplete}
+        />
+      )}
+
+      {/* Delete All Confirmation Modal */}
+      {showDeleteAllConfirm && (
+        <DeleteConfirmModal
+          title="Delete All Reports"
+          message={`This will permanently delete all ${total} report(s) and their associated verifications. This action cannot be undone.`}
+          confirmLabel="Delete All Reports"
+          loading={deletingAll}
+          onConfirm={handleDeleteAll}
+          onCancel={() => setShowDeleteAllConfirm(false)}
+          requireTypedConfirmation="DELETE ALL"
         />
       )}
     </div>

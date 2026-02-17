@@ -19,9 +19,10 @@ interface EventCircleProps {
   timelineEnd?: Date; // Timeline end for date conversion
   onUpdateEvent?: (id: string, updates: Partial<TimelineEvent>) => void; // Update event callback
   isSyntheticStatusMarker?: boolean; // Whether this is a synthetic status marker
+  verticalOffset?: number; // Vertical offset for stacked events (0 = not stacked)
 }
 
-export default function EventCircle({ event, cx, cy, color, onClick, tier = 0, zIndex = 0, enableDrag = false, timelineStart, timelineEnd, onUpdateEvent, isSyntheticStatusMarker = false }: EventCircleProps) {
+export default function EventCircle({ event, cx, cy, color, onClick, tier = 0, zIndex = 0, enableDrag = false, timelineStart, timelineEnd, onUpdateEvent, isSyntheticStatusMarker = false, verticalOffset = 0 }: EventCircleProps) {
   const [isHovered, setIsHovered] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [dragPosition, setDragPosition] = useState<number | null>(null);
@@ -45,12 +46,24 @@ export default function EventCircle({ event, cx, cy, color, onClick, tier = 0, z
         return 'Sold';
       }
     }
+
+    // For stacked purchase events, incorporate subtitle into title to avoid overlap
+    if (event.type === 'purchase' && verticalOffset !== 0) {
+      const hasLiving = event.livingUsePercentage && event.livingUsePercentage > 0;
+      const hasRental = event.rentalUsePercentage && event.rentalUsePercentage > 0;
+      const hasBusiness = event.businessUsePercentage && event.businessUsePercentage > 0;
+      const usageCount = [hasLiving, hasRental, hasBusiness].filter(Boolean).length;
+      if (usageCount > 1) return `${event.title} | Mixed`;
+      if (event.isLandOnly) return `${event.title} | Land`;
+    }
+
     return event.title;
   };
 
   // Helper function to get purchase event subtitle
   const getPurchaseSubtitle = (event: TimelineEvent): string => {
     if (event.type !== 'purchase') return '';
+    if (verticalOffset !== 0) return ''; // Info is in title instead when stacked
 
     // Check for land
     if (event.isLandOnly) {

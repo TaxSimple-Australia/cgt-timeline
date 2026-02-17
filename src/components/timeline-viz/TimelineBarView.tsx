@@ -8,6 +8,7 @@ import {
   calculateSellingCosts,
   getPurchasePrice,
   getSalePrice,
+  getDivision43Deductions,
 } from '@/lib/cost-base-calculations';
 
 interface TimelineBarViewProps {
@@ -109,8 +110,9 @@ export default function TimelineBarView({ properties, events }: TimelineBarViewP
           const improvementCosts = calculateImprovementCosts(improvementEvents);
           const saleCostBasesTotal = calculateSellingCosts(saleEvent);
           const salePrice = getSalePrice(saleEvent);
+          const div43Deductions = getDivision43Deductions(saleEvent);
           const totalCostBase =
-            purchasePrice + purchaseCostBasesTotal + improvementCosts + saleCostBasesTotal;
+            purchasePrice + purchaseCostBasesTotal + improvementCosts + saleCostBasesTotal - div43Deductions;
 
           return (
             <div

@@ -1,74 +1,20 @@
 'use client';
 
-import React, { useState, useRef, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowRight, Play, X } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 
-const YOUTUBE_VIDEO_ID = 'tHd5YmChsaA';
+const VIMEO_VIDEO_ID = '1165321639';
 
 export default function HowItWorksSection() {
   const [isPlaying, setIsPlaying] = useState(false);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const playerRef = useRef<any>(null);
-  const playerDivId = 'yt-howitworks-player';
-
-  // Load YouTube IFrame API once
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    if ((window as any).YT && (window as any).YT.Player) return;
-    if (!document.getElementById('yt-iframe-api')) {
-      const tag = document.createElement('script');
-      tag.id = 'yt-iframe-api';
-      tag.src = 'https://www.youtube.com/iframe_api';
-      document.head.appendChild(tag);
-    }
-    (window as any).onYouTubeIframeAPIReady = () => {};
-  }, []);
 
   const handleClose = useCallback(() => {
-    if (playerRef.current) {
-      try { playerRef.current.destroy(); } catch {}
-      playerRef.current = null;
-    }
     setIsPlaying(false);
   }, []);
-
-  // Create the YT player when playing
-  useEffect(() => {
-    if (!isPlaying) return;
-
-    const waitForApi = () => {
-      const YT = (window as any).YT;
-      if (!YT || !YT.Player) {
-        setTimeout(waitForApi, 100);
-        return;
-      }
-      const el = document.getElementById(playerDivId);
-      if (!el) return;
-
-      playerRef.current = new YT.Player(playerDivId, {
-        videoId: YOUTUBE_VIDEO_ID,
-        playerVars: { autoplay: 1, rel: 0, modestbranding: 1 },
-        events: {
-          onStateChange: (event: any) => {
-            if (event.data === 0) handleClose();
-          },
-        },
-      });
-    };
-
-    waitForApi();
-
-    return () => {
-      if (playerRef.current) {
-        try { playerRef.current.destroy(); } catch {}
-        playerRef.current = null;
-      }
-    };
-  }, [isPlaying, handleClose]);
 
   // Escape key closes modal
   useEffect(() => {
@@ -182,7 +128,12 @@ export default function HowItWorksSection() {
               className="w-full max-w-6xl aspect-video mx-4"
               onClick={(e) => e.stopPropagation()}
             >
-              <div id={playerDivId} className="w-full h-full" />
+              <iframe
+                src={`https://player.vimeo.com/video/${VIMEO_VIDEO_ID}?autoplay=1&title=0&byline=0&portrait=0`}
+                className="w-full h-full"
+                allow="autoplay; fullscreen; picture-in-picture"
+                allowFullScreen
+              />
             </div>
           </motion.div>
         )}

@@ -2,6 +2,7 @@ import React from 'react';
 import { format } from 'date-fns';
 import { Property, TimelineEvent } from '@/store/timeline';
 import { formatCurrency } from '@/lib/utils';
+import { getDivision43Deductions } from '@/lib/cost-base-calculations';
 import { ArrowRight, Home, TrendingUp } from 'lucide-react';
 
 interface FlowchartViewProps {
@@ -31,7 +32,8 @@ export default function FlowchartView({ properties, events }: FlowchartViewProps
       0
     );
     const sellingCosts = saleEvent?.costBases?.reduce((sum, cb) => sum + cb.amount, 0) || 0;
-    const totalCostBase = purchasePrice + purchaseCosts + improvementCosts + sellingCosts;
+    const div43Deductions = getDivision43Deductions(saleEvent);
+    const totalCostBase = purchasePrice + purchaseCosts + improvementCosts + sellingCosts - div43Deductions;
 
     return {
       purchaseEvent,
@@ -45,6 +47,7 @@ export default function FlowchartView({ properties, events }: FlowchartViewProps
       purchaseCosts,
       improvementCosts,
       sellingCosts,
+      div43Deductions,
       totalCostBase,
       capitalGain: saleEvent ? (saleEvent.amount || 0) - totalCostBase : 0,
     };

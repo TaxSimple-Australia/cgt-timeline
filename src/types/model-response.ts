@@ -209,6 +209,7 @@ export interface CalculationStep {
   step_number: number;
   title: string;
   description: string;
+  formula?: string | null;
   calculation: string | null;
   result: string;
   checks?: string[] | null;
@@ -333,6 +334,7 @@ export interface AnalysisData {
   properties_with_cgt: number;
   properties_fully_exempt: number;
   general_notes: string[];
+  disclaimer?: string;
 }
 
 export interface NewAPIResponseData {

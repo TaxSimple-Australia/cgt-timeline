@@ -4,6 +4,7 @@ import React from 'react';
 import { format, differenceInMonths, addMonths } from 'date-fns';
 import { Property, TimelineEvent } from '@/store/timeline';
 import { formatCurrency } from '@/lib/utils';
+import { getDivision43Deductions } from '@/lib/cost-base-calculations';
 
 interface GanttChartProps {
   properties: Property[];
@@ -55,7 +56,7 @@ export default function GanttChart({ properties, events }: GanttChartProps) {
       rentEndEvent,
       improvementEvents,
       ownershipEnd,
-      totalCostBase: purchasePrice + purchaseCostTotal + improvementTotal,
+      totalCostBase: purchasePrice + purchaseCostTotal + improvementTotal - getDivision43Deductions(saleEvent),
     };
   };
 

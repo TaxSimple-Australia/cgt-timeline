@@ -87,7 +87,7 @@ export default function SendToTaxAgentButton({
           (isGeneratingLink || propertiesCount === 0) && 'opacity-50 cursor-not-allowed shadow-none',
           className
         )}
-        title={propertiesCount === 0 ? 'Add properties first' : 'Send timeline to a Tax Agent for professional review'}
+        title={propertiesCount === 0 ? 'Add properties first' : 'Send timeline to a Tax Expert for professional review'}
       >
         {isGeneratingLink ? (
           <Loader2 className="w-5 h-5 animate-spin" />
@@ -95,7 +95,7 @@ export default function SendToTaxAgentButton({
           <Send className="w-5 h-5" />
         )}
         <span className="text-sm whitespace-nowrap">
-          Tax Agent Review
+          Tax Expert Review
         </span>
       </motion.button>
 

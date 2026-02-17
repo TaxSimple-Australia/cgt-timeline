@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Calculator } from 'lucide-react';
+import { Calculator, ArrowRight } from 'lucide-react';
 import { PropertyAnalysis } from '@/types/model-response';
 import { formatCurrency } from '@/lib/utils';
 
@@ -10,16 +10,77 @@ interface DetailedCalculationSectionProps {
 }
 
 // Helper function to format currency from string or number
-function formatAmount(amount: string | number | undefined): string {
+function formatAmount(amount: string | number | undefined | null): string {
   if (amount === undefined || amount === null) return '$0';
   const numAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
+  if (isNaN(numAmount)) return '$0';
   return formatCurrency(numAmount);
 }
 
 // Helper function to format number with commas
-function formatNumber(num: number | string): string {
+function formatNumber(num: number | string | undefined | null): string {
+  if (num === undefined || num === null) return '—';
   const numValue = typeof num === 'string' ? parseFloat(num) : num;
-  return numValue.toLocaleString('en-US');
+  if (isNaN(numValue)) return '—';
+  return numValue.toLocaleString('en-AU');
+}
+
+// Render formula with smart splitting
+function renderFormula(raw: string, result?: string) {
+  // Check for pipe-separated segments (e.g. "Main Residence: ... = 1,460 days (exempt) | Rental: ... = 1,872 days")
+  if (raw.includes(' | ')) {
+    const segments = raw.split(' | ');
+    return (
+      <div className="rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+        <div className="bg-gray-50 dark:bg-gray-900 px-3 py-2.5 space-y-1.5">
+          {segments.map((seg, i) => (
+            <div key={i} className="flex items-start gap-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-purple-400 dark:bg-purple-500 flex-shrink-0 mt-1.5" />
+              <span className="text-sm text-gray-700 dark:text-gray-300 font-mono">
+                {seg.trim()}
+              </span>
+            </div>
+          ))}
+        </div>
+        {result && (
+          <div className="bg-purple-50 dark:bg-purple-950/30 border-t border-purple-200 dark:border-purple-800 px-3 py-1.5 flex items-center gap-2">
+            <ArrowRight className="w-3.5 h-3.5 text-purple-500 dark:text-purple-400 flex-shrink-0" />
+            <span className="text-sm font-semibold font-mono text-purple-700 dark:text-purple-300">
+              {result}
+            </span>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // Check for "expression = result" pattern
+  const eqIndex = raw.indexOf(' = ');
+  if (eqIndex !== -1) {
+    const expression = raw.substring(0, eqIndex);
+    const inlineResult = raw.substring(eqIndex + 3);
+    return (
+      <div className="rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+        <div className="bg-gray-50 dark:bg-gray-900 px-3 py-2">
+          <p className="text-sm text-gray-700 dark:text-gray-300 font-mono">
+            {expression}
+          </p>
+        </div>
+        <div className="bg-purple-50 dark:bg-purple-950/30 border-t border-purple-200 dark:border-purple-800 px-3 py-1.5">
+          <span className="text-sm font-semibold font-mono text-purple-700 dark:text-purple-300">
+            = {inlineResult}
+          </span>
+        </div>
+      </div>
+    );
+  }
+
+  // Fallback: plain rendering
+  return (
+    <p className="text-sm text-gray-700 dark:text-gray-300 font-mono bg-gray-50 dark:bg-gray-900 px-3 py-2 rounded border border-gray-200 dark:border-gray-700">
+      {raw}
+    </p>
+  );
 }
 
 export default function DetailedCalculationSection({
@@ -34,8 +95,9 @@ export default function DetailedCalculationSection({
     <div className="space-y-6">
       {/* Section Title */}
       <div className="flex items-center gap-2">
+        <Calculator className="w-5 h-5 text-green-600 dark:text-green-400" />
         <span className="text-lg font-bold text-green-700 dark:text-green-400">
-          💰 O3. CGT Calculation
+          CGT Calculation
         </span>
       </div>
 
@@ -45,29 +107,28 @@ export default function DetailedCalculationSection({
           <h4 className="text-sm font-bold text-gray-800 dark:text-gray-200">
             Cost Base
           </h4>
-          <div className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden p-4 bg-white dark:bg-gray-800">
-            {/* Grid of cost items */}
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-4">
+          <div className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+            <div className="divide-y divide-gray-100 dark:divide-gray-700">
               {costBaseItems.map((item, index) => (
                 <div
                   key={index}
-                  className="flex flex-col"
+                  className="flex items-center justify-between px-4 py-2.5 bg-white dark:bg-gray-800"
                 >
-                  <span className="text-xs text-gray-600 dark:text-gray-400 mb-1">
-                    {item.description}
+                  <span className="text-sm text-gray-700 dark:text-gray-300">
+                    {item.description || `Item ${index + 1}`}
                   </span>
-                  <span className="text-sm font-mono font-semibold text-gray-900 dark:text-gray-100">
+                  <span className="text-sm font-mono font-semibold text-gray-900 dark:text-gray-100 tabular-nums">
                     {formatAmount(item.amount)}
                   </span>
                 </div>
               ))}
             </div>
             {/* Total Row */}
-            <div className="flex items-center justify-between pt-4 border-t border-green-200 dark:border-green-700">
+            <div className="flex items-center justify-between px-4 py-3 bg-green-50 dark:bg-green-900/30 border-t-2 border-green-300 dark:border-green-700">
               <span className="text-sm font-bold text-green-900 dark:text-green-100">
                 Total Cost Base
               </span>
-              <span className="text-base font-mono font-bold text-green-900 dark:text-green-100">
+              <span className="text-base font-mono font-bold text-green-900 dark:text-green-100 tabular-nums">
                 {formatAmount(property.total_cost_base)}
               </span>
             </div>
@@ -107,19 +168,22 @@ export default function DetailedCalculationSection({
                       </p>
                     )}
 
-                    {/* Calculation */}
-                    {step.calculation && (
-                      <p className="text-sm text-gray-600 dark:text-gray-400 font-mono bg-gray-50 dark:bg-gray-900 px-3 py-2 rounded">
-                        {step.calculation}
-                      </p>
+                    {/* Formula/Calculation */}
+                    {(step.formula || step.calculation) && (
+                      renderFormula(
+                        (step.formula || step.calculation) as string,
+                        step.result
+                      )
                     )}
 
-                    {/* Result pill */}
-                    <div className="inline-flex">
-                      <span className="px-3 py-1.5 bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700 rounded-full text-sm font-semibold">
-                        {step.result}
-                      </span>
-                    </div>
+                    {/* Result pill - only when no formula (formula rendering includes result) */}
+                    {!(step.formula || step.calculation) && step.result && (
+                      <div className="inline-flex">
+                        <span className="px-3 py-1.5 bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700 rounded-full text-sm font-semibold">
+                          {step.result}
+                        </span>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -134,66 +198,66 @@ export default function DetailedCalculationSection({
           <h4 className="text-sm font-bold text-gray-800 dark:text-gray-200">
             CGT Calculation Summary
           </h4>
-          <div className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden p-4 bg-white dark:bg-gray-800">
-            {/* Grid of calculation steps */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+            {/* Summary rows as a clean ledger */}
+            <div className="divide-y divide-gray-100 dark:divide-gray-700">
               {/* Sale Price */}
-              <div className="flex flex-col">
-                <span className="text-xs text-gray-600 dark:text-gray-400 mb-1">
+              <div className="flex items-center justify-between px-4 py-3 bg-white dark:bg-gray-800">
+                <span className="text-sm text-gray-700 dark:text-gray-300">
                   Sale Price (Capital Proceeds)
                 </span>
-                <span className="text-sm font-mono font-semibold text-gray-900 dark:text-gray-100">
+                <span className="text-sm font-mono font-semibold text-gray-900 dark:text-gray-100 tabular-nums">
                   {formatAmount(summary.sale_price)}
                 </span>
               </div>
 
               {/* Less: Total Cost Base */}
-              <div className="flex flex-col">
-                <span className="text-xs text-gray-600 dark:text-gray-400 mb-1">
+              <div className="flex items-center justify-between px-4 py-3 bg-white dark:bg-gray-800">
+                <span className="text-sm text-gray-700 dark:text-gray-300">
                   Less: Total Cost Base
                 </span>
-                <span className="text-sm font-mono font-semibold text-gray-900 dark:text-gray-100">
+                <span className="text-sm font-mono font-semibold text-red-600 dark:text-red-400 tabular-nums">
                   ({formatAmount(summary.total_cost_base)})
                 </span>
               </div>
 
               {/* Gross Capital Gain - Highlighted */}
-              <div className="flex flex-col bg-gray-100 dark:bg-gray-700/50 px-3 py-2 rounded">
-                <span className="text-xs text-gray-700 dark:text-gray-300 mb-1 font-semibold italic">
+              <div className="flex items-center justify-between px-4 py-3 bg-gray-50 dark:bg-gray-700/50 border-y border-gray-200 dark:border-gray-600">
+                <span className="text-sm font-bold text-gray-900 dark:text-gray-100">
                   Gross Capital Gain
                 </span>
-                <span className="text-sm font-mono font-bold text-gray-900 dark:text-gray-100 italic">
+                <span className="text-sm font-mono font-bold text-gray-900 dark:text-gray-100 tabular-nums">
                   {formatAmount(summary.gross_capital_gain)}
                 </span>
               </div>
 
               {/* Less: Main Residence Exemption */}
-              <div className="flex flex-col">
-                <span className="text-xs text-gray-600 dark:text-gray-400 mb-1">
-                  Less: Main Residence Exemption ({summary.main_residence_exemption_percentage}%)
+              <div className="flex items-center justify-between px-4 py-3 bg-white dark:bg-gray-800">
+                <span className="text-sm text-gray-700 dark:text-gray-300">
+                  Less: Main Residence Exemption ({summary.main_residence_exemption_percentage ?? 0}%)
                 </span>
-                <span className="text-sm font-mono font-semibold text-gray-900 dark:text-gray-100">
+                <span className="text-sm font-mono font-semibold text-red-600 dark:text-red-400 tabular-nums">
                   ({formatAmount(summary.main_residence_exemption_amount)})
                 </span>
               </div>
 
               {/* Taxable Capital Gain - Highlighted */}
-              <div className="flex flex-col bg-gray-100 dark:bg-gray-700/50 px-3 py-2 rounded">
-                <span className="text-xs text-gray-700 dark:text-gray-300 mb-1 font-semibold italic">
+              <div className="flex items-center justify-between px-4 py-3 bg-gray-50 dark:bg-gray-700/50 border-y border-gray-200 dark:border-gray-600">
+                <span className="text-sm font-bold text-gray-900 dark:text-gray-100">
                   Taxable Capital Gain
                 </span>
-                <span className="text-sm font-mono font-bold text-gray-900 dark:text-gray-100 italic">
+                <span className="text-sm font-mono font-bold text-gray-900 dark:text-gray-100 tabular-nums">
                   {formatAmount(summary.taxable_capital_gain)}
                 </span>
               </div>
 
               {/* Less: CGT Discount (conditional) */}
               {summary.cgt_discount_applicable && (
-                <div className="flex flex-col">
-                  <span className="text-xs text-gray-600 dark:text-gray-400 mb-1">
-                    Less: {summary.cgt_discount_percentage}% CGT Discount
+                <div className="flex items-center justify-between px-4 py-3 bg-white dark:bg-gray-800">
+                  <span className="text-sm text-gray-700 dark:text-gray-300">
+                    Less: {summary.cgt_discount_percentage ?? 50}% CGT Discount
                   </span>
-                  <span className="text-sm font-mono font-semibold text-gray-900 dark:text-gray-100">
+                  <span className="text-sm font-mono font-semibold text-red-600 dark:text-red-400 tabular-nums">
                     ({formatAmount(summary.cgt_discount_amount)})
                   </span>
                 </div>
@@ -201,11 +265,11 @@ export default function DetailedCalculationSection({
             </div>
 
             {/* NET CAPITAL GAIN - Full width, prominent */}
-            <div className="mt-4 pt-4 border-t border-green-200 dark:border-green-700 bg-green-100 dark:bg-green-900/40 px-4 py-3 rounded flex items-center justify-between">
-              <span className="text-base font-bold text-green-900 dark:text-green-100 italic">
+            <div className="flex items-center justify-between px-4 py-4 bg-green-100 dark:bg-green-900/40 border-t-2 border-green-400 dark:border-green-600">
+              <span className="text-base font-bold text-green-900 dark:text-green-100">
                 NET CAPITAL GAIN
               </span>
-              <span className="text-lg font-mono font-bold text-green-900 dark:text-green-100 italic">
+              <span className="text-lg font-mono font-bold text-green-900 dark:text-green-100 tabular-nums">
                 {formatAmount(summary.net_capital_gain)}
               </span>
             </div>
@@ -244,13 +308,13 @@ export default function DetailedCalculationSection({
 
                   {/* Rate badge */}
                   <div className="mb-2">
-                    <span className="inline-block px-3 py-1.5 bg-amber-100 dark:bg-amber-900/40 text-amber-900 dark:text-amber-100 font-mono font-semibold text-lg rounded">
+                    <span className="inline-block px-3 py-1.5 bg-amber-100 dark:bg-amber-900/40 text-amber-900 dark:text-amber-100 font-mono font-semibold text-lg rounded tabular-nums">
                       {bracket.marginal_rate}%
                     </span>
                   </div>
 
                   {/* Tax amount */}
-                  <span className="text-base font-mono font-bold text-gray-900 dark:text-gray-100">
+                  <span className="text-base font-mono font-bold text-gray-900 dark:text-gray-100 tabular-nums">
                     {formatAmount(bracket.tax_amount)}
                   </span>
                 </div>

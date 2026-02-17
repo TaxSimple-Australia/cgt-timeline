@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { CheckCircle, XCircle, ChevronDown, ChevronUp, Cpu, Zap, Clock, FileJson, Download, Home, LayoutGrid, FileText, Settings2, StickyNote, BookOpen, FileQuestion, HelpCircle, Calendar, DollarSign, Calculator, AlertTriangle, Info, TrendingUp, Lightbulb, Brain, MessageCircle } from 'lucide-react';
+import { CheckCircle, XCircle, ChevronDown, ChevronUp, Cpu, Zap, Clock, FileJson, Download, Home, LayoutGrid, FileText, Settings2, BookOpen, FileQuestion, HelpCircle, Calendar, DollarSign, Calculator, AlertTriangle, Info, TrendingUp, Lightbulb, Brain, MessageCircle } from 'lucide-react';
 import GapQuestionsPanel from './GapQuestionsPanel';
 import DetailedReportSection from './DetailedReportSection';
 import TwoColumnLayout from '../timeline-viz/TwoColumnLayout';
@@ -16,14 +16,14 @@ import ApplicableRulesDisplay from './ApplicableRulesDisplay';
 import OwnershipPeriodsChart from './OwnershipPeriodsChart';
 import FollowUpChatWindow from './FollowUpChatWindow';
 import { AnalysisData, Citations } from '@/types/model-response';
-import { AnalysisStickyNotesLayer, AddStickyNoteButton, ShareLinkButton } from '../sticky-notes';
+import { AnalysisStickyNotesLayer, ShareLinkButton } from '../sticky-notes';
 import { SendToTaxAgentButton } from '../send-to-agent';
+import FeedbackPopup from '../FeedbackPopup';
 import TimelineSummaryTable from './TimelineSummaryTable';
 import OwnershipPeriodsTable from './OwnershipPeriodsTable';
 import PropertyTimelineTable from './PropertyTimelineTable';
 import DetailedCalculationSection from './DetailedCalculationSection';
 import ImportantNotesSection from './ImportantNotesSection';
-import LegislationReferencesTable from './LegislationReferencesTable';
 
 interface CGTAnalysisDisplayProps {
   response: any; // AI response (success or verification_failed)
@@ -42,11 +42,26 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
   const [showSources, setShowSources] = useState(false);
   const [showRulesSummary, setShowRulesSummary] = useState(true); // Rules Summary expanded by default (important)
   const [showFollowUpChat, setShowFollowUpChat] = useState(false);
-  // Track property view mode: 'standard' or 'timeline' - global for all properties
-  const [propertyViewMode, setPropertyViewMode] = useState<'standard' | 'timeline'>('timeline');
 
   // Ref for sticky notes layer
   const analysisContainerRef = useRef<HTMLDivElement>(null);
+
+  // Feedback popup state
+  const [showFeedback, setShowFeedback] = useState(false);
+
+  // Trigger feedback popup 3 seconds after analysis loads
+  useEffect(() => {
+    // Check if feedback was already shown
+    const feedbackShown = localStorage.getItem('cgtBrain_feedbackShown');
+    if (feedbackShown) return;
+
+    // Show feedback popup after 3 seconds
+    const timer = setTimeout(() => {
+      setShowFeedback(true);
+    }, 3000);
+
+    return () => clearTimeout(timer);
+  }, []);
 
   // Get timeline data and display mode from store
   const properties = useTimelineStore(state => state.properties);
@@ -282,21 +297,10 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
           <DisplayModeToggle />
           <div className="flex items-center gap-2">
             {/* Share Link Button */}
-            <ShareLinkButton variant="analysis" includeAnalysis={true} />
+            <ShareLinkButton variant="analysis" includeAnalysis={true} className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white border-blue-600 dark:border-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 dark:text-white" />
 
             {/* Send to Tax Agent Button */}
             <SendToTaxAgentButton includeAnalysis={true} />
-
-            {/* Add Sticky Note Button */}
-            <AddStickyNoteButton context="analysis" />
-
-            <button
-              onClick={() => setShowRawJSON(true)}
-              className="flex items-center justify-center w-8 h-8 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors shadow-sm"
-              title="Show Raw JSON"
-            >
-              <span className="text-sm font-mono font-bold">{'{}'}</span>
-            </button>
           </div>
         </div>
 
@@ -366,6 +370,17 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
         )}
 
 
+        {/* Show Raw JSON Link */}
+        <div className="flex justify-center pt-2">
+          <button
+            onClick={() => setShowRawJSON(true)}
+            className="text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-500 dark:hover:text-gray-300 transition-colors"
+            title="Show Raw JSON"
+          >
+            <span className="font-mono font-bold">{'{}'}</span>
+          </button>
+        </div>
+
         {/* Analysis Sticky Notes Layer */}
         <AnalysisStickyNotesLayer containerRef={analysisContainerRef} />
       </div>
@@ -402,21 +417,10 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
             )}
 
             {/* Share Link Button */}
-            <ShareLinkButton variant="analysis" includeAnalysis={true} />
+            <ShareLinkButton variant="analysis" includeAnalysis={true} className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white border-blue-600 dark:border-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 dark:text-white" />
 
             {/* Send to Tax Agent Button */}
             <SendToTaxAgentButton includeAnalysis={true} />
-
-            {/* Add Sticky Note Button */}
-            <AddStickyNoteButton context="analysis" />
-
-            <button
-              onClick={() => setShowRawJSON(true)}
-              className="flex items-center justify-center w-8 h-8 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors shadow-sm"
-              title="Show Raw JSON"
-            >
-              <span className="text-sm font-mono font-bold">{'{}'}</span>
-            </button>
           </div>
         </div>
 
@@ -611,6 +615,16 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
           />
         )}
 
+        {/* Show Raw JSON Link */}
+        <div className="flex justify-center pt-2">
+          <button
+            onClick={() => setShowRawJSON(true)}
+            className="text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-500 dark:hover:text-gray-300 transition-colors"
+            title="Show Raw JSON"
+          >
+            <span className="font-mono font-bold">{'{}'}</span>
+          </button>
+        </div>
 
         {/* Analysis Sticky Notes Layer */}
         <AnalysisStickyNotesLayer containerRef={analysisContainerRef} />
@@ -708,21 +722,10 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
             )}
 
             {/* Share Link Button */}
-            <ShareLinkButton variant="analysis" includeAnalysis={true} />
+            <ShareLinkButton variant="analysis" includeAnalysis={true} className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white border-blue-600 dark:border-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 dark:text-white" />
 
             {/* Send to Tax Agent Button */}
             <SendToTaxAgentButton includeAnalysis={true} />
-
-            {/* Add Sticky Note Button */}
-            <AddStickyNoteButton context="analysis" />
-
-            <button
-              onClick={() => setShowRawJSON(true)}
-              className="flex items-center justify-center w-8 h-8 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors shadow-sm"
-              title="Show Raw JSON"
-            >
-              <span className="text-sm font-mono font-bold">{'{}'}</span>
-            </button>
           </div>
         </div>
 
@@ -744,39 +747,6 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
             </div>
           </motion.div>
         )}
-
-        {/* View Mode Toggle - Standard vs Timeline Analysis */}
-        <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 rounded-xl p-3"
-        >
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setPropertyViewMode('standard')}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                propertyViewMode === 'standard'
-                  ? 'bg-blue-600 text-white shadow-sm'
-                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800'
-              }`}
-            >
-              <LayoutGrid className="w-4 h-4" />
-              <span>Standard View</span>
-            </button>
-            <button
-              onClick={() => setPropertyViewMode('timeline')}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                propertyViewMode === 'timeline'
-                  ? 'bg-blue-600 text-white shadow-sm'
-                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800'
-              }`}
-            >
-              <Calendar className="w-4 h-4" />
-              <span>Timeline Analysis</span>
-            </button>
-          </div>
-        </motion.div>
 
         {/* Top-Level Summary */}
         {analysisData.description && (
@@ -831,416 +801,8 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
                   </div>
                 </div>
 
-                {/* Property Content */}
-                <div className="p-4 space-y-4">
-
-                {/* STANDARD VIEW - Existing Sections */}
-                {propertyViewMode === 'standard' && (
-                  <>
-                {/* High Level Description */}
-                {property.high_level_description && (
-                  <div className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
-                    {property.high_level_description}
-                  </div>
-                )}
-
-                {/* Reasoning Section */}
-                {property.reasoning && (
-                  <div className="bg-amber-50 dark:bg-amber-950/20 rounded-lg p-4 border border-amber-200 dark:border-amber-800/50">
-                    <h4 className="text-sm font-bold text-amber-800 dark:text-amber-200 mb-2 flex items-center gap-2">
-                      <Lightbulb className="w-4 h-4" />
-                      Reasoning
-                    </h4>
-                    <p className="text-sm text-amber-900 dark:text-amber-100/80 leading-relaxed">
-                      {property.reasoning}
-                    </p>
-                  </div>
-                )}
-
-                {/* Key Facts Section - Compact Grid with Colored Badges */}
-                <div className="space-y-3">
-                  <h4 className="text-sm font-bold text-gray-800 dark:text-gray-200 flex items-center gap-2">
-                    <Info className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                    Key Facts
-                  </h4>
-
-                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2">
-                    {/* Purchase Card */}
-                    <div className="bg-white dark:bg-gray-800 rounded-lg p-3 border border-gray-100 dark:border-gray-700">
-                      <span className="inline-block px-2 py-0.5 text-xs font-semibold rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300 mb-2">
-                        PURCHASED
-                      </span>
-                      <div className="font-semibold text-gray-900 dark:text-white">
-                        {property.key_facts?.purchase_date || property.purchase_date}
-                      </div>
-                      <div className="text-sm text-gray-600 dark:text-gray-400">
-                        ${formatNumber(property.key_facts?.purchase_price || property.purchase_price)}
-                      </div>
-                    </div>
-
-                    {/* Sale Card */}
-                    <div className="bg-white dark:bg-gray-800 rounded-lg p-3 border border-gray-100 dark:border-gray-700">
-                      <span className="inline-block px-2 py-0.5 text-xs font-semibold rounded-full bg-red-100 text-red-700 dark:bg-red-900/50 dark:text-red-300 mb-2">
-                        SOLD
-                      </span>
-                      <div className="font-semibold text-gray-900 dark:text-white">
-                        {property.key_facts?.sale_date || property.sale_date}
-                      </div>
-                      <div className="text-sm text-gray-600 dark:text-gray-400">
-                        ${formatNumber(property.key_facts?.sale_price || property.sale_price)}
-                      </div>
-                    </div>
-
-                    {/* Ownership Card */}
-                    <div className="bg-white dark:bg-gray-800 rounded-lg p-3 border border-gray-100 dark:border-gray-700">
-                      <span className="inline-block px-2 py-0.5 text-xs font-semibold rounded-full bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300 mb-2">
-                        OWNERSHIP
-                      </span>
-                      <div className="font-semibold text-gray-900 dark:text-white">
-                        {property.key_facts?.total_ownership_days || property.total_ownership_days} days
-                      </div>
-                      <div className="text-sm text-gray-600 dark:text-gray-400">
-                        {property.total_ownership_years || (Math.round((property.key_facts?.total_ownership_days || property.total_ownership_days || 0) / 365 * 10) / 10)} years
-                      </div>
-                    </div>
-
-                    {/* Main Residence Card */}
-                    <div className="bg-white dark:bg-gray-800 rounded-lg p-3 border border-gray-100 dark:border-gray-700">
-                      <span className="inline-block px-2 py-0.5 text-xs font-semibold rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-300 mb-2">
-                        MAIN RESIDENCE
-                      </span>
-                      <div className="font-semibold text-gray-900 dark:text-white">
-                        {property.key_facts?.main_residence_days || property.main_residence_days} days
-                      </div>
-                    </div>
-
-                    {/* Non-Main Residence Card */}
-                    <div className="bg-white dark:bg-gray-800 rounded-lg p-3 border border-gray-100 dark:border-gray-700">
-                      <span className="inline-block px-2 py-0.5 text-xs font-semibold rounded-full bg-orange-100 text-orange-700 dark:bg-orange-900/50 dark:text-orange-300 mb-2">
-                        NON-MAIN RES
-                      </span>
-                      <div className="font-semibold text-gray-900 dark:text-white">
-                        {property.key_facts?.non_main_residence_days || ((property.key_facts?.total_ownership_days || property.total_ownership_days || 0) - (property.key_facts?.main_residence_days || property.main_residence_days || 0))} days
-                      </div>
-                    </div>
-
-                    {/* Conditional: Move In */}
-                    {(property.key_facts?.move_in_date || property.move_in_date) && (
-                      <div className="bg-white dark:bg-gray-800 rounded-lg p-3 border border-gray-100 dark:border-gray-700">
-                        <span className="inline-block px-2 py-0.5 text-xs font-semibold rounded-full bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-300 mb-2">
-                          MOVE IN
-                        </span>
-                        <div className="font-semibold text-gray-900 dark:text-white">
-                          {property.key_facts?.move_in_date || property.move_in_date}
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Conditional: Move Out */}
-                    {(property.key_facts?.move_out_date || property.move_out_date) && (
-                      <div className="bg-white dark:bg-gray-800 rounded-lg p-3 border border-gray-100 dark:border-gray-700">
-                        <span className="inline-block px-2 py-0.5 text-xs font-semibold rounded-full bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-300 mb-2">
-                          MOVE OUT
-                        </span>
-                        <div className="font-semibold text-gray-900 dark:text-white">
-                          {property.key_facts?.move_out_date || property.move_out_date}
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Conditional: Rent Start */}
-                    {(property.key_facts?.rent_start_date || property.rent_start_date) && (
-                      <div className="bg-white dark:bg-gray-800 rounded-lg p-3 border border-gray-100 dark:border-gray-700">
-                        <span className="inline-block px-2 py-0.5 text-xs font-semibold rounded-full bg-purple-100 text-purple-700 dark:bg-purple-900/50 dark:text-purple-300 mb-2">
-                          RENT START
-                        </span>
-                        <div className="font-semibold text-gray-900 dark:text-white">
-                          {property.key_facts?.rent_start_date || property.rent_start_date}
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Conditional: Market Value at First Rental */}
-                    {(property.key_facts?.market_value_at_first_rental || property.market_value_at_first_rental) && (
-                      <div className="bg-white dark:bg-gray-800 rounded-lg p-3 border border-gray-100 dark:border-gray-700">
-                        <span className="inline-block px-2 py-0.5 text-xs font-semibold rounded-full bg-cyan-100 text-cyan-700 dark:bg-cyan-900/50 dark:text-cyan-300 mb-2">
-                          MARKET VALUE
-                        </span>
-                        <div className="font-semibold text-gray-900 dark:text-white">
-                          ${formatNumber(property.key_facts?.market_value_at_first_rental || property.market_value_at_first_rental)}
-                        </div>
-                        <div className="text-xs text-gray-500 dark:text-gray-400">
-                          at first rental
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {/* Section 3: Timeline of Events */}
-                <PropertyTimelineEvents timeline={property.timeline_of_events || (property as any).timeline} />
-
-                {/* CGT Calculation - Minimal clean layout */}
-                {(property.cgt_calculation || (property.calculation_steps && property.calculation_steps.length > 0)) && (
-                  <div className="space-y-3" data-sticky-section="calculation-breakdown" data-sticky-element={(property as any).property_id || (property as any).address}>
-                    <h4 className="text-sm font-bold text-gray-800 dark:text-gray-200 flex items-center gap-2">
-                      <Calculator className="w-4 h-4 text-purple-600 dark:text-purple-400" />
-                      CGT Calculation Steps
-                    </h4>
-
-                    {/* New format: cgt_calculation with step1-7 */}
-                    {property.cgt_calculation && (
-                      <div className="divide-y divide-gray-100 dark:divide-gray-800">
-                        {['step1', 'step2', 'step3', 'step4', 'step5', 'step6', 'step7'].map((stepKey, index) => {
-                          const step = property.cgt_calculation[stepKey as keyof typeof property.cgt_calculation];
-                          if (!step || typeof step === 'string') return null;
-
-                          return (
-                            <div key={stepKey} className="py-5 first:pt-0">
-                              <div className="flex items-start gap-6">
-                                {/* Step Label - Fixed Width */}
-                                <span className="font-bold text-purple-600 dark:text-purple-400 w-16 flex-shrink-0">
-                                  Step {index + 1}
-                                </span>
-
-                                {/* Content */}
-                                <div className="flex-1 space-y-3">
-                                  {/* Title with underline */}
-                                  <div className="border-b border-gray-200 dark:border-gray-700 pb-2">
-                                    <h5 className="font-bold text-gray-900 dark:text-white">
-                                      {step.title}
-                                    </h5>
-                                  </div>
-
-                                  {/* Content */}
-                                  <p className="text-sm text-gray-600 dark:text-gray-400 whitespace-pre-wrap">
-                                    {step.content}
-                                  </p>
-                                </div>
-                              </div>
-                            </div>
-                          );
-                        })}
-
-                        {/* Final Result */}
-                        {property.cgt_calculation.result && (
-                          <div className="py-5">
-                            <div className="flex items-start gap-6">
-                              <span className="font-bold text-emerald-600 dark:text-emerald-400 w-16 flex-shrink-0">
-                                Result
-                              </span>
-                              <p className="text-emerald-600 dark:text-emerald-400">
-                                {property.cgt_calculation.result}
-                              </p>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    )}
-
-                    {/* Legacy format: calculation_steps array */}
-                    {!property.cgt_calculation && property.calculation_steps && property.calculation_steps.length > 0 && (
-                      <div className="divide-y divide-gray-100 dark:divide-gray-800">
-                        {property.calculation_steps.map((step, stepIndex) => (
-                          <div key={stepIndex} className="py-5 first:pt-0">
-                            <div className="flex items-start gap-6">
-                              {/* Step Label - Fixed Width */}
-                              <span className={`font-bold w-16 flex-shrink-0 ${getStepColor(step.step_number)}`}>
-                                Step {step.step_number}
-                              </span>
-
-                              {/* Content */}
-                              <div className="flex-1 space-y-3">
-                                {/* Title with underline */}
-                                <div className="border-b border-gray-200 dark:border-gray-700 pb-2">
-                                  <h5 className="font-bold text-gray-900 dark:text-white">
-                                    {step.title}
-                                  </h5>
-                                </div>
-
-                                {/* Description */}
-                                {step.description && (
-                                  <p className="text-sm text-gray-600 dark:text-gray-400">
-                                    {step.description}
-                                  </p>
-                                )}
-
-                                {/* Calculation */}
-                                {step.calculation && (
-                                  <p className="text-sm text-gray-700 dark:text-gray-300">
-                                    {step.calculation}
-                                  </p>
-                                )}
-
-                                {/* Result - Green Pill */}
-                                <div className="inline-flex">
-                                  <span className="px-3 py-1.5 bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700 rounded-full text-sm font-semibold">
-                                    {step.result}
-                                  </span>
-                                </div>
-
-                                {/* Validation Checks */}
-                                {step.checks && step.checks.length > 0 && (
-                                  <div className="pt-3 border-t border-gray-100 dark:border-gray-800">
-                                    <div className="flex flex-wrap gap-2">
-                                      {step.checks.map((check, checkIndex) => {
-                                        const colors = [
-                                          'bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-300',
-                                          'bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300',
-                                          'bg-purple-100 text-purple-700 dark:bg-purple-900/50 dark:text-purple-300',
-                                          'bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-300',
-                                          'bg-cyan-100 text-cyan-700 dark:bg-cyan-900/50 dark:text-cyan-300',
-                                          'bg-pink-100 text-pink-700 dark:bg-pink-900/50 dark:text-pink-300',
-                                        ];
-                                        return (
-                                          <span
-                                            key={checkIndex}
-                                            className={`px-2.5 py-1 text-xs font-medium rounded-full ${colors[checkIndex % colors.length]}`}
-                                          >
-                                            {check}
-                                          </span>
-                                        );
-                                      })}
-                                    </div>
-                                  </div>
-                                )}
-                              </div>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {/* Section 4: Applicable Rules */}
-                <ApplicableRulesDisplay
-                  rules={property.applicable_rules?.filter(rule => rule.applies) || []}
-                />
-
-                {/* Section 5: Cost Base Items - Compact */}
-                {property.cost_base_items && property.cost_base_items.length > 0 && (
-                  <div className="space-y-3">
-                    <h4 className="text-sm font-bold text-gray-800 dark:text-gray-200 flex items-center gap-2">
-                      <DollarSign className="w-4 h-4 text-green-600 dark:text-green-400" />
-                      Cost Base Breakdown
-                    </h4>
-                    <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-3 border border-gray-200 dark:border-gray-700">
-                      <div className="space-y-1.5">
-                        {property.cost_base_items.map((item, itemIndex) => (
-                          <div key={itemIndex} className="flex items-center justify-between text-sm">
-                            <span className="text-gray-600 dark:text-gray-400">{item.description}</span>
-                            <span className="font-medium text-gray-900 dark:text-gray-100">${formatNumber(item.amount)}</span>
-                          </div>
-                        ))}
-                      </div>
-                      <div className="mt-2 pt-2 border-t border-gray-300 dark:border-gray-600 flex items-center justify-between">
-                        <span className="font-semibold text-gray-800 dark:text-gray-200">Total Cost Base</span>
-                        <span className="font-bold text-gray-900 dark:text-white">${formatNumber(property.total_cost_base)}</span>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* Section 6: Ownership Periods */}
-                {property.ownership_periods && property.ownership_periods.length > 0 && (
-                  <OwnershipPeriodsChart periods={property.ownership_periods} />
-                )}
-
-                {/* Section 7: Calculation Summary - Compact */}
-                {property.calculation_summary && (
-                  <div className="space-y-3">
-                    <h4 className="text-sm font-bold text-gray-800 dark:text-gray-200 flex items-center gap-2">
-                      <TrendingUp className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                      Calculation Summary
-                    </h4>
-                    <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-3 border border-gray-200 dark:border-gray-700">
-                      {/* Key figures in compact rows */}
-                      <div className="space-y-1.5 text-sm">
-                        <div className="flex justify-between">
-                          <span className="text-gray-600 dark:text-gray-400">Sale Price</span>
-                          <span className="font-medium text-gray-900 dark:text-gray-100">${formatNumber(property.calculation_summary.sale_price)}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-600 dark:text-gray-400">Cost Base</span>
-                          <span className="font-medium text-gray-900 dark:text-gray-100">-${formatNumber(property.calculation_summary.total_cost_base)}</span>
-                        </div>
-                        <div className="flex justify-between pt-1 border-t border-gray-200 dark:border-gray-600">
-                          <span className="text-gray-700 dark:text-gray-300 font-medium">Gross Capital Gain</span>
-                          <span className="font-semibold text-gray-900 dark:text-white">${formatNumber(property.calculation_summary.gross_capital_gain)}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-600 dark:text-gray-400">Main Residence Exemption ({formatNumber(property.calculation_summary.main_residence_exemption_percentage)}%)</span>
-                          <span className="font-medium text-green-700 dark:text-green-400">-${formatNumber(property.calculation_summary.main_residence_exemption_amount)}</span>
-                        </div>
-                        {property.calculation_summary.cgt_discount_applicable && (
-                          <div className="flex justify-between">
-                            <span className="text-gray-600 dark:text-gray-400">CGT Discount ({formatNumber(property.calculation_summary.cgt_discount_percentage)}%)</span>
-                            <span className="font-medium text-green-700 dark:text-green-400">-${formatNumber(property.calculation_summary.cgt_discount_amount)}</span>
-                          </div>
-                        )}
-                      </div>
-                      {/* Net Capital Gain */}
-                      <div className={`mt-3 p-3 rounded-lg flex items-center justify-between ${
-                        parseFloat(String(property.calculation_summary.net_capital_gain)) === 0
-                          ? 'bg-green-100 dark:bg-green-900/40 border border-green-200 dark:border-green-800'
-                          : 'bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800'
-                      }`}>
-                        <span className="font-semibold text-gray-800 dark:text-gray-200">Net Capital Gain</span>
-                        <span className={`text-xl font-bold ${
-                          parseFloat(String(property.calculation_summary.net_capital_gain)) === 0
-                            ? 'text-green-700 dark:text-green-400'
-                            : 'text-red-700 dark:text-red-400'
-                        }`}>
-                          ${formatNumber(property.calculation_summary.net_capital_gain)}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* Section 8: What-If Scenarios */}
-                {property.what_if_scenarios && property.what_if_scenarios.length > 0 && (
-                  <div data-sticky-section="what-if" data-sticky-element={(property as any).property_id || (property as any).address}>
-                    <WhatIfScenariosSection scenarios={property.what_if_scenarios} />
-                  </div>
-                )}
-
-                {/* Section 9: Important Notes - Compact */}
-                {property.important_notes && property.important_notes.length > 0 && (
-                  <div className="bg-blue-50 dark:bg-blue-950/20 rounded-lg p-3 border border-blue-200 dark:border-blue-800">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Info className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                      <span className="font-semibold text-sm text-blue-800 dark:text-blue-200">Important Notes</span>
-                    </div>
-                    <ul className="space-y-1 text-sm text-gray-700 dark:text-gray-300 pl-6 list-disc">
-                      {property.important_notes.map((note, noteIndex) => (
-                        <li key={noteIndex}>{note}</li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-
-                {/* Section 10: Warnings - Compact */}
-                {property.warnings && property.warnings.length > 0 && (
-                  <div className="bg-amber-50 dark:bg-amber-950/20 rounded-lg p-3 border border-amber-200 dark:border-amber-800">
-                    <div className="flex items-center gap-2 mb-2">
-                      <AlertTriangle className="w-4 h-4 text-amber-600 dark:text-amber-400" />
-                      <span className="font-semibold text-sm text-amber-800 dark:text-amber-200">Warnings</span>
-                    </div>
-                    <ul className="space-y-1 text-sm text-gray-700 dark:text-gray-300 pl-6 list-disc">
-                      {property.warnings.map((warning, warnIndex) => (
-                        <li key={warnIndex}>{warning}</li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-                  </>
-                )}
-
-                {/* TIMELINE ANALYSIS VIEW - Detailed Report Format */}
-                {propertyViewMode === 'timeline' && (
-                  <div className="space-y-6">
+                {/* Property Content - Timeline Analysis View */}
+                <div className="p-4 space-y-6">
                     {/* Section 1: Summary */}
                     <TimelineSummaryTable
                       property={property}
@@ -1250,19 +812,39 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
                     {/* Timeline of Events */}
                     <PropertyTimelineTable property={property} />
 
-                    {/* Section 2: Ownership Periods Analysis */}
+                    {/* Section O2: Ownership Periods Analysis */}
                     <OwnershipPeriodsTable property={property} />
 
-                    {/* Section 3: CGT Calculation */}
+                    {/* Section O1: Ownership Periods Bar */}
+                    {property.ownership_periods && property.ownership_periods.length > 0 && (
+                      <OwnershipPeriodsChart periods={property.ownership_periods} />
+                    )}
+
+                    {/* Section O3: CGT Calculation */}
                     <DetailedCalculationSection property={property} />
 
-                    {/* Section 4: Important Notes */}
+                    {/* Section O6: What-If Scenarios */}
+                    {property.what_if_scenarios && property.what_if_scenarios.length > 0 && (
+                      <WhatIfScenariosSection scenarios={property.what_if_scenarios} />
+                    )}
+
+                    {/* Section O7: Important Notes */}
                     <ImportantNotesSection property={property} />
 
-                    {/* Section 5: Key Legislation Referenced */}
-                    <LegislationReferencesTable property={property} />
-                  </div>
-                )}
+                    {/* Section O8: Warnings */}
+                    {property.warnings && property.warnings.length > 0 && (
+                      <div className="bg-amber-50 dark:bg-amber-950/20 rounded-lg p-4 border border-amber-200 dark:border-amber-800">
+                        <div className="flex items-center gap-2 mb-3">
+                          <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-400" />
+                          <h3 className="text-base font-bold text-amber-800 dark:text-amber-200">Warnings</h3>
+                        </div>
+                        <ul className="space-y-2 text-sm text-gray-700 dark:text-gray-300 pl-6 list-disc">
+                          {property.warnings.map((warning, warnIndex) => (
+                            <li key={warnIndex}>{warning}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
 
                 </div>
               </motion.div>
@@ -1409,6 +991,15 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
           </div>
         </motion.div>
 
+        {/* Disclaimer */}
+        {analysisData.disclaimer && (
+          <div className="px-4 py-3">
+            <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
+              <span className="font-bold">Disclaimer:</span> {analysisData.disclaimer}
+            </p>
+          </div>
+        )}
+
         {/* Follow-up Chat Window */}
         {sessionId && (
           <FollowUpChatWindow
@@ -1420,6 +1011,16 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
           />
         )}
 
+        {/* Show Raw JSON Link */}
+        <div className="flex justify-center pt-2">
+          <button
+            onClick={() => setShowRawJSON(true)}
+            className="text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-500 dark:hover:text-gray-300 transition-colors"
+            title="Show Raw JSON"
+          >
+            <span className="font-mono font-bold">{'{}'}</span>
+          </button>
+        </div>
 
         {/* Analysis Sticky Notes Layer */}
         <AnalysisStickyNotesLayer containerRef={analysisContainerRef} />
@@ -1513,21 +1114,10 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
           <DisplayModeToggle />
           <div className="flex items-center gap-2">
             {/* Share Link Button */}
-            <ShareLinkButton variant="analysis" includeAnalysis={true} />
+            <ShareLinkButton variant="analysis" includeAnalysis={true} className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white border-blue-600 dark:border-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 dark:text-white" />
 
             {/* Send to Tax Agent Button */}
             <SendToTaxAgentButton includeAnalysis={true} />
-
-            {/* Add Sticky Note Button */}
-            <AddStickyNoteButton context="analysis" />
-
-            <button
-              onClick={() => setShowRawJSON(true)}
-              className="flex items-center justify-center w-8 h-8 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors shadow-sm"
-              title="Show Raw JSON"
-            >
-              <span className="text-sm font-mono font-bold">{'{}'}</span>
-            </button>
           </div>
         </div>
 
@@ -1694,6 +1284,17 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
         </AnimatePresence>
 
 
+        {/* Show Raw JSON Link */}
+        <div className="flex justify-center pt-2">
+          <button
+            onClick={() => setShowRawJSON(true)}
+            className="text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-500 dark:hover:text-gray-300 transition-colors"
+            title="Show Raw JSON"
+          >
+            <span className="font-mono font-bold">{'{}'}</span>
+          </button>
+        </div>
+
         {/* Analysis Sticky Notes Layer */}
         <AnalysisStickyNotesLayer containerRef={analysisContainerRef} />
       </div>
@@ -1708,21 +1309,10 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
         <DisplayModeToggle />
         <div className="flex items-center gap-2">
           {/* Share Link Button */}
-          <ShareLinkButton variant="analysis" includeAnalysis={true} />
+          <ShareLinkButton variant="analysis" includeAnalysis={true} className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white border-blue-600 dark:border-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 dark:text-white" />
 
           {/* Send to Tax Agent Button */}
           <SendToTaxAgentButton includeAnalysis={true} />
-
-          {/* Add Sticky Note Button */}
-          <AddStickyNoteButton context="analysis" />
-
-          <button
-            onClick={() => setShowRawJSON(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors shadow-md text-sm"
-          >
-            <FileJson className="w-4 h-4" />
-            Show Raw JSON
-          </button>
         </div>
       </div>
 
@@ -1740,8 +1330,25 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
         </div>
       </div>
 
+      {/* Show Raw JSON Link */}
+      <div className="flex justify-center pt-2">
+        <button
+          onClick={() => setShowRawJSON(true)}
+          className="text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-500 dark:hover:text-gray-300 transition-colors"
+          title="Show Raw JSON"
+        >
+          <span className="font-mono font-bold">{'{}'}</span>
+        </button>
+      </div>
+
       {/* Analysis Sticky Notes Layer */}
       <AnalysisStickyNotesLayer containerRef={analysisContainerRef} />
+
+      {/* Feedback Popup */}
+      <FeedbackPopup
+        isOpen={showFeedback}
+        onClose={() => setShowFeedback(false)}
+      />
     </div>
   );
 }

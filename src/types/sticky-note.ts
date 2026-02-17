@@ -54,12 +54,26 @@ export interface ArrowTarget {
   verticalOffset: number;
 }
 
+/** Arrow target position on the analysis view (percentage-based) */
+export interface AnalysisArrowTarget {
+  /** Relative X position within the container (0-100 percentage) */
+  relativeX: number;
+  /** Relative Y position within the container (0-100 percentage) */
+  relativeY: number;
+  /** Optional: target a specific section */
+  section?: AnalysisNotePosition['section'];
+  /** Optional: target a specific element within section */
+  elementId?: string;
+}
+
 /** Arrow configuration for a sticky note */
 export interface StickyNoteArrow {
   /** Whether the arrow is currently visible */
   enabled: boolean;
-  /** Where the arrow points to */
+  /** Where the arrow points to (timeline arrows) */
   target: ArrowTarget;
+  /** Where the arrow points to (analysis arrows) */
+  analysisTarget?: AnalysisArrowTarget;
 }
 
 /**

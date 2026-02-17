@@ -17,6 +17,7 @@ import {
   ChevronDown,
   ChevronUp,
   ExternalLink,
+  Trash2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import type {
@@ -30,6 +31,7 @@ interface ReportDetailModalProps {
   adminCredentials: { user: string; pass: string };
   onClose: () => void;
   onVerify: (reportId: string) => void;
+  onDelete: (reportId: string) => void;
 }
 
 const statusConfig: Record<ReportStatus, { label: string; color: string; bgColor: string }> = {
@@ -46,11 +48,13 @@ export default function ReportDetailModal({
   adminCredentials,
   onClose,
   onVerify,
+  onDelete,
 }: ReportDetailModalProps) {
   const [report, setReport] = useState<CGTReportWithVerifications | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [verifying, setVerifying] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [activeTab, setActiveTab] = useState<'overview' | 'analysis' | 'verifications'>('overview');
   const [expandedVerification, setExpandedVerification] = useState<string | null>(null);
 
@@ -92,6 +96,17 @@ export default function ReportDetailModal({
       await fetchReport();
     } finally {
       setVerifying(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!window.confirm('Are you sure you want to delete this report? This cannot be undone.')) return;
+    setDeleting(true);
+    try {
+      await onDelete(reportId);
+      onClose();
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -429,7 +444,20 @@ export default function ReportDetailModal({
           </div>
 
           {/* Footer */}
-          <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-slate-700 bg-slate-800/50">
+          <div className="flex items-center justify-between px-6 py-4 border-t border-slate-700 bg-slate-800/50">
+            <Button
+              onClick={handleDelete}
+              disabled={deleting || loading}
+              variant="outline"
+              className="border-red-500/50 text-red-400 hover:bg-red-500/10 hover:text-red-300"
+            >
+              {deleting ? (
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              ) : (
+                <Trash2 className="w-4 h-4 mr-2" />
+              )}
+              Delete Report
+            </Button>
             <Button
               onClick={onClose}
               variant="outline"

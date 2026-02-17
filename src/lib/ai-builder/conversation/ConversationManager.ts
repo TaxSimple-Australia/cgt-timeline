@@ -2221,7 +2221,6 @@ export class ConversationManager {
         lockFutureDates: args.lockFutureDates,
         enableDragEvents: args.enableDragEvents,
         enableAISuggestedQuestions: args.enableAISuggestedQuestions,
-        apiResponseMode: args.apiResponseMode,
       },
       description: 'Update timeline settings',
     };

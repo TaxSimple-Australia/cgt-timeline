@@ -101,7 +101,7 @@ export default function LandingFooter() {
           {/* Column 1: Logo & Social */}
           <div className="lg:col-span-1 flex flex-col items-center space-y-6">
             <div className="flex justify-center">
-              <CGTBrainLogo size="2xl" variant="logo-20" className="[&_img]:!h-20 [&_img]:md:!h-24" />
+              <CGTBrainLogo size="2xl" className="[&_img]:!h-20 [&_img]:md:!h-24" />
             </div>
             <h3 className="text-xl font-bold text-white text-center">
               CGT Brain AI

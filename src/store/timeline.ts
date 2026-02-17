@@ -299,9 +299,6 @@ interface TimelineState {
   // Subdivision Collapse State
   collapsedSubdivisions: string[]; // Array of subdivision group IDs that are collapsed
 
-  // Logo/Branding State
-  currentLogoVariant: string; // Currently selected logo variant ID (e.g., 'text-current', 'logo-1')
-
   // Terms & Conditions State
   hasAcceptedTerms: boolean; // Whether user has accepted T&C
 
@@ -359,7 +356,6 @@ interface TimelineState {
   toggleDragEvents: () => void; // Toggle event dragging functionality
   toggleAISuggestedQuestions: () => void; // Toggle AI-generated question suggestions
   setAnalysisDisplayMode: (mode: AnalysisDisplayMode) => void; // Set analysis display mode
-  setLogoVariant: (variantId: string) => void; // Set the current logo variant
   cycleAnalysisDisplayMode: () => void; // Cycle through display modes: auto -> json-sections -> markdown
 
   // LLM Provider Actions
@@ -753,9 +749,6 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
 
     // Subdivision Collapse initial state
     collapsedSubdivisions: [],
-
-    // Logo/Branding initial state
-    currentLogoVariant: typeof window !== 'undefined' && localStorage.getItem('logoVariant') || 'logo-20',
 
     // Terms & Conditions initial state
     hasAcceptedTerms: (typeof window !== 'undefined' && localStorage.getItem('cgtBrain_termsAccepted') === 'true') || false,
@@ -2504,14 +2497,6 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
   toggleEventDisplayMode: () => {
     const state = get();
     set({ eventDisplayMode: state.eventDisplayMode === 'circle' ? 'card' : 'circle' });
-  },
-
-  setLogoVariant: (variantId: string) => {
-    set({ currentLogoVariant: variantId });
-    // Persist to localStorage
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('logoVariant', variantId);
-    }
   },
 
   toggleLockFutureDates: () => {

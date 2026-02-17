@@ -771,13 +771,13 @@ export default function PropertyBranch({
                       <foreignObject
                         x={`${splitPos}%`}
                         y={branchY - 25}
-                        width="80"
+                        width="120"
                         height="20"
                         style={{ overflow: 'visible', transform: 'translateX(20px)', pointerEvents: 'none' }}
                       >
                         <div
-                          className="flex items-center justify-center text-gray-300 text-[10px] font-medium whitespace-nowrap cursor-pointer transition-all"
-                          style={{ pointerEvents: 'auto' }}
+                          className="inline-flex items-center justify-center text-[10px] font-semibold whitespace-nowrap cursor-pointer transition-all rounded-full px-2 py-0.5"
+                          style={{ pointerEvents: 'auto', backgroundColor: `${lot1.color}20`, color: lot1.color, border: `1px solid ${lot1.color}40` }}
                           onClick={(e) => {
                             console.log('🎯 Lot 1 badge clicked!', lot1.id);
                             e.stopPropagation();
@@ -828,13 +828,13 @@ export default function PropertyBranch({
             <foreignObject
               x={`${dateToPosition(property.subdivisionDate, timelineStart, timelineEnd)}%`}
               y={branchY - 25}
-              width="80"
+              width="120"
               height="20"
               style={{ overflow: 'visible', transform: 'translateX(20px)', pointerEvents: 'none' }}
             >
               <div
-                className="flex items-center justify-center text-gray-300 text-[10px] font-medium whitespace-nowrap cursor-pointer transition-all"
-                style={{ pointerEvents: 'auto' }}
+                className="inline-flex items-center justify-center text-[10px] font-semibold whitespace-nowrap cursor-pointer transition-all rounded-full px-2 py-0.5"
+                style={{ pointerEvents: 'auto', backgroundColor: `${property.color}20`, color: property.color, border: `1px solid ${property.color}40` }}
                 onClick={(e) => {
                   console.log('🎯 Lot badge clicked!', property.id, property.lotNumber);
                   e.stopPropagation();

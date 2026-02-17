@@ -141,7 +141,7 @@ export default function TermsAcceptanceModal({ onAccept }: TermsAcceptanceModalP
               <div className="px-6 py-6 bg-gradient-to-r from-cyan-500/10 via-blue-500/10 to-purple-500/10 border-b border-slate-200 dark:border-slate-700">
                 <div className="flex items-center gap-4">
                   <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center shadow-lg shadow-cyan-500/30">
-                    <CGTBrainLogo size="lg" variant="logo-1" className="text-white" />
+                    <CGTBrainLogo size="lg" className="text-white" />
                   </div>
                   <div>
                     <h2 className="text-xl font-bold text-slate-900 dark:text-white">

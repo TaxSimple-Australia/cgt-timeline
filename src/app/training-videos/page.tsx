@@ -21,21 +21,24 @@ import LandingFooter from '@/components/landing/LandingFooter';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
-// Fullscreen Video Player with YouTube IFrame API (auto-closes when video ends)
+// Fullscreen Video Player supporting YouTube and Vimeo (auto-closes when video ends)
 function FullscreenVideoPlayer({
-  youtubeId,
+  videoId,
+  provider,
   onClose,
 }: {
-  youtubeId: string;
+  videoId: string;
+  provider: 'youtube' | 'vimeo';
   onClose: () => void;
 }) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const playerRef = useRef<any>(null);
-  const playerDivId = `yt-training-player-${youtubeId}`;
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+  const playerDivId = `training-player-${videoId}`;
 
-  // Load YouTube IFrame API once
+  // Load YouTube IFrame API
   useEffect(() => {
-    if (typeof window === 'undefined') return;
+    if (provider !== 'youtube' || typeof window === 'undefined') return;
     if ((window as any).YT && (window as any).YT.Player) return;
     if (!document.getElementById('yt-iframe-api')) {
       const tag = document.createElement('script');
@@ -44,10 +47,24 @@ function FullscreenVideoPlayer({
       document.head.appendChild(tag);
     }
     (window as any).onYouTubeIframeAPIReady = () => {};
-  }, []);
+  }, [provider]);
 
-  // Create player
+  // Load Vimeo Player SDK
   useEffect(() => {
+    if (provider !== 'vimeo' || typeof window === 'undefined') return;
+    if ((window as any).Vimeo && (window as any).Vimeo.Player) return;
+    if (!document.getElementById('vimeo-player-api')) {
+      const tag = document.createElement('script');
+      tag.id = 'vimeo-player-api';
+      tag.src = 'https://player.vimeo.com/api/player.js';
+      document.head.appendChild(tag);
+    }
+  }, [provider]);
+
+  // Create YouTube player
+  useEffect(() => {
+    if (provider !== 'youtube') return;
+
     const waitForApi = () => {
       const YT = (window as any).YT;
       if (!YT || !YT.Player) {
@@ -58,11 +75,10 @@ function FullscreenVideoPlayer({
       if (!el) return;
 
       playerRef.current = new YT.Player(playerDivId, {
-        videoId: youtubeId,
+        videoId,
         playerVars: { autoplay: 1, rel: 0, modestbranding: 1 },
         events: {
           onStateChange: (event: any) => {
-            // 0 = ended
             if (event.data === 0) onClose();
           },
         },
@@ -77,7 +93,35 @@ function FullscreenVideoPlayer({
         playerRef.current = null;
       }
     };
-  }, [youtubeId, onClose, playerDivId]);
+  }, [provider, videoId, onClose, playerDivId]);
+
+  // Create Vimeo player
+  useEffect(() => {
+    if (provider !== 'vimeo') return;
+
+    const waitForApi = () => {
+      const Vimeo = (window as any).Vimeo;
+      if (!Vimeo || !Vimeo.Player) {
+        setTimeout(waitForApi, 100);
+        return;
+      }
+      const iframe = iframeRef.current;
+      if (!iframe) return;
+
+      const player = new Vimeo.Player(iframe);
+      playerRef.current = player;
+      player.on('ended', () => onClose());
+    };
+
+    waitForApi();
+
+    return () => {
+      if (playerRef.current) {
+        try { playerRef.current.destroy(); } catch {}
+        playerRef.current = null;
+      }
+    };
+  }, [provider, videoId, onClose]);
 
   // Escape key closes
   useEffect(() => {
@@ -109,7 +153,17 @@ function FullscreenVideoPlayer({
         className="w-full max-w-6xl aspect-video mx-4"
         onClick={(e) => e.stopPropagation()}
       >
-        <div id={playerDivId} className="w-full h-full" />
+        {provider === 'youtube' ? (
+          <div id={playerDivId} className="w-full h-full" />
+        ) : (
+          <iframe
+            ref={iframeRef}
+            src={`https://player.vimeo.com/video/${videoId}?autoplay=1&title=0&byline=0&portrait=0`}
+            className="w-full h-full"
+            allow="autoplay; fullscreen; picture-in-picture"
+            allowFullScreen
+          />
+        )}
       </div>
     </motion.div>
   );
@@ -118,7 +172,7 @@ function FullscreenVideoPlayer({
 export default function TrainingVideosPage() {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
-  const [activeVideo, setActiveVideo] = useState<{ youtubeId: string; title: string } | null>(null);
+  const [activeVideo, setActiveVideo] = useState<{ videoId: string; provider: 'youtube' | 'vimeo'; title: string } | null>(null);
 
   const categories = [
     { id: 'all', label: 'All Videos', icon: Video, count: 13 },
@@ -136,7 +190,8 @@ export default function TrainingVideosPage() {
       description: 'Learn how to add different types of events to your property timeline including purchases, sales, improvements, and more',
       duration: '10:00',
       thumbnail: '/youtube_thumbnail_how_to_add_events.jpeg',
-      youtubeId: 'Ok0H627f6ls',
+      videoId: '1165576075',
+      provider: 'vimeo' as const,
       isNew: true,
     },
     {
@@ -369,14 +424,14 @@ export default function TrainingVideosPage() {
                   transition={{ duration: 0.6, delay: index * 0.05 }}
                   className="group cursor-pointer"
                   onClick={() => {
-                    if (video.youtubeId) {
-                      setActiveVideo({ youtubeId: video.youtubeId, title: video.title });
+                    if (video.videoId) {
+                      setActiveVideo({ videoId: video.videoId, provider: video.provider || 'youtube', title: video.title });
                     }
                   }}
                 >
                   <div className={cn(
                     "bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-xl overflow-hidden hover:border-cyan-500/50 transition-all",
-                    video.youtubeId && "ring-2 ring-cyan-500/20 hover:ring-cyan-500/40"
+                    video.videoId && "ring-2 ring-cyan-500/20 hover:ring-cyan-500/40"
                   )}>
                     {/* Thumbnail */}
                     <div className="relative aspect-video bg-slate-900 overflow-hidden">
@@ -396,7 +451,7 @@ export default function TrainingVideosPage() {
                       <div className="absolute inset-0 flex items-center justify-center bg-black/40 group-hover:bg-black/30 transition-colors">
                         <div className={cn(
                           "p-4 rounded-full transition-colors",
-                          video.youtubeId
+                          video.videoId
                             ? "bg-red-600/90 group-hover:bg-red-600"
                             : "bg-cyan-500/90 group-hover:bg-cyan-500"
                         )}>
@@ -416,7 +471,7 @@ export default function TrainingVideosPage() {
                         </div>
                       )}
                       {/* Available Badge for playable videos */}
-                      {video.youtubeId && (
+                      {video.videoId && (
                         <div className="absolute top-3 right-3 px-2 py-1 bg-green-500 rounded text-xs font-medium text-white flex items-center gap-1">
                           <Play className="w-3 h-3 fill-white" />
                           Watch Now
@@ -493,7 +548,8 @@ export default function TrainingVideosPage() {
       <AnimatePresence>
         {activeVideo && (
           <FullscreenVideoPlayer
-            youtubeId={activeVideo.youtubeId}
+            videoId={activeVideo.videoId}
+            provider={activeVideo.provider}
             onClose={() => setActiveVideo(null)}
           />
         )}

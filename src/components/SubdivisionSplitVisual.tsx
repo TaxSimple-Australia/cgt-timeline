@@ -27,10 +27,11 @@ export default function SubdivisionSplitVisual({
         const xPercent = `${splitPosition}%`;
 
         // Convert yOffset to actual rendered position
-        // PropertyBranch uses: branchY = 100 + branchIndex * 120
-        // subdivision-helpers uses BRANCH_VERTICAL_SPACING = 100, so yOffset/100 gives branchIndex
-        const parentBranchY = 100 + (parentY / 100) * 120;
-        const childBranchY = 100 + (childY / 100) * 120;
+        // Timeline.tsx: branchIndex = yOffset / 100
+        // PropertyBranch.tsx: branchY = 100 + branchIndex * 100
+        // So: branchY = 100 + yOffset
+        const parentBranchY = 100 + parentY;
+        const childBranchY = 100 + childY;
 
         return (
           <motion.g

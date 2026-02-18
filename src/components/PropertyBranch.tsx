@@ -770,10 +770,10 @@ export default function PropertyBranch({
                     return (
                       <foreignObject
                         x={`${splitPos}%`}
-                        y={branchY - 25}
+                        y={branchY - 30}
                         width="120"
                         height="20"
-                        style={{ overflow: 'visible', transform: 'translateX(20px)', pointerEvents: 'none' }}
+                        style={{ overflow: 'visible', transform: 'translateX(60px)', pointerEvents: 'none' }}
                       >
                         <div
                           className="inline-flex items-center justify-center text-[10px] font-semibold whitespace-nowrap cursor-pointer transition-all rounded-full px-2 py-0.5"
@@ -827,10 +827,10 @@ export default function PropertyBranch({
           {!property.isMainLotContinuation && (
             <foreignObject
               x={`${dateToPosition(property.subdivisionDate, timelineStart, timelineEnd)}%`}
-              y={branchY - 25}
+              y={branchY - 30}
               width="120"
               height="20"
-              style={{ overflow: 'visible', transform: 'translateX(20px)', pointerEvents: 'none' }}
+              style={{ overflow: 'visible', transform: 'translateX(60px)', pointerEvents: 'none' }}
             >
               <div
                 className="inline-flex items-center justify-center text-[10px] font-semibold whitespace-nowrap cursor-pointer transition-all rounded-full px-2 py-0.5"

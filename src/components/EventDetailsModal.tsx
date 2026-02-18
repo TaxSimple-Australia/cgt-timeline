@@ -53,7 +53,7 @@ interface EventDetailsModalProps {
 }
 
 export default function EventDetailsModal({ event, onClose, propertyName }: EventDetailsModalProps) {
-  const { updateEvent, deleteEvent, addEvent, events, properties, updateProperty, removeLotFromSubdivision } = useTimelineStore();
+  const { updateEvent, deleteEvent, addEvent, events, properties, updateProperty, addLotToSubdivision, removeLotFromSubdivision } = useTimelineStore();
 
   // Check if this is a synthetic "Not Sold" status marker
   const isSyntheticNotSold = (event as any).isSyntheticStatusMarker === true;
@@ -502,6 +502,26 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
     return initial;
   });
 
+  // Sync lotEdits when new lots are added (e.g., via addLotToSubdivision)
+  useEffect(() => {
+    setLotEdits(prev => {
+      const newLots = subdivisionLots.filter(lot => !(lot.id in prev));
+      if (newLots.length === 0) return prev;
+      const updated = { ...prev };
+      newLots.forEach(lot => {
+        updated[lot.id] = {
+          lotNumber: lot.lotNumber || '',
+          lotSize: lot.lotSize || 0,
+          sizeUnit: 'hectares' as SizeUnit,
+          address: lot.address || '',
+          allocationPercentage: lot.allocationPercentage || 0,
+          isPercentageLocked: lot.allocationPercentage !== undefined && lot.allocationPercentage > 0,
+        };
+      });
+      return updated;
+    });
+  }, [subdivisionLots]);
+
   // Unit conversion helpers for lot size
   const convertToSqm = (value: number, unit: SizeUnit): number => {
     if (unit === 'sqms') return value;
@@ -646,6 +666,11 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
         title: title.trim(),
         date: parsedDate, // Use the validated parsed date
       };
+
+      // For subdivision events, use a simple title
+      if (eventType === 'subdivision') {
+        updates.title = 'Subdivided';
+      }
 
       // Handle event type change
       if (eventType !== event.type) {
@@ -3564,6 +3589,18 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
                     );
                   })}
                 </div>
+
+                {/* Add Lot Button */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    addLotToSubdivision(event.id);
+                  }}
+                  className="w-full py-2.5 px-4 rounded-lg border-2 border-dashed border-pink-300 dark:border-pink-700 text-pink-600 dark:text-pink-400 hover:bg-pink-50 dark:hover:bg-pink-900/20 hover:border-pink-400 dark:hover:border-pink-600 transition-colors flex items-center justify-center gap-2 text-sm font-medium"
+                >
+                  <Plus className="w-4 h-4" />
+                  Add Lot
+                </button>
 
                 {/* Allocation Total Validation */}
                 {(() => {

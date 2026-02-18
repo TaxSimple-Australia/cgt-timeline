@@ -1,26 +1,22 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Paperclip, X, AlertTriangle } from 'lucide-react';
+import { Send, Paperclip, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
 interface TextInputProps {
   onSend: (message: string, files?: File[]) => void;
-  onFileUpload?: (files: File[]) => void; // For backward compatibility with docs tab
   disabled?: boolean;
   placeholder?: string;
   currentTranscript?: string;
-  selectedProvider?: string;
 }
 
 export default function TextInput({
   onSend,
-  onFileUpload,
   disabled = false,
   placeholder = 'Type a message...',
   currentTranscript = '',
-  selectedProvider,
 }: TextInputProps) {
   const [message, setMessage] = useState('');
   const [attachedFiles, setAttachedFiles] = useState<File[]>([]);
@@ -98,23 +94,6 @@ export default function TextInput({
 
   return (
     <div className="border-t border-gray-200 dark:border-gray-700 p-3">
-      {/* Media support warning - only show for deepseek (no vision support) */}
-      <AnimatePresence>
-        {attachedFiles.length > 0 && selectedProvider === 'deepseek' && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            className="flex items-center gap-2 px-3 py-2 mb-2 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg overflow-hidden"
-          >
-            <AlertTriangle className="w-4 h-4 text-amber-500 flex-shrink-0" />
-            <p className="text-xs text-amber-700 dark:text-amber-300">
-              Deepseek does not support image/media analysis. Switch to Claude, GPT-4, or Gemini.
-            </p>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
       {/* Attached files preview */}
       <AnimatePresence>
         {attachedFiles.length > 0 && (
@@ -151,30 +130,26 @@ export default function TextInput({
       {/* Input area */}
       <div className="flex items-end gap-2">
         {/* File upload button */}
-        {onFileUpload && (
-          <>
-            <input
-              ref={fileInputRef}
-              type="file"
-              multiple
-              accept=".pdf,.png,.jpg,.jpeg,.xlsx,.xls,.csv,.docx,.doc,.txt"
-              onChange={handleFileSelect}
-              className="hidden"
-            />
-            <button
-              onClick={() => fileInputRef.current?.click()}
-              disabled={disabled}
-              className={cn(
-                'p-2 rounded-lg text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200',
-                'hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors',
-                disabled && 'opacity-50 cursor-not-allowed'
-              )}
-              title="Attach file"
-            >
-              <Paperclip className="w-5 h-5" />
-            </button>
-          </>
-        )}
+        <input
+          ref={fileInputRef}
+          type="file"
+          multiple
+          accept=".pdf,.png,.jpg,.jpeg,.xlsx,.xls,.csv,.docx,.doc,.txt"
+          onChange={handleFileSelect}
+          className="hidden"
+        />
+        <button
+          onClick={() => fileInputRef.current?.click()}
+          disabled={disabled}
+          className={cn(
+            'p-2 rounded-lg text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200',
+            'hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors',
+            disabled && 'opacity-50 cursor-not-allowed'
+          )}
+          title="Attach file"
+        >
+          <Paperclip className="w-5 h-5" />
+        </button>
 
         {/* Text input */}
         <div className="flex-1 relative">

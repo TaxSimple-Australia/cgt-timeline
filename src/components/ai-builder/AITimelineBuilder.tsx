@@ -8,7 +8,6 @@ import {
   MessageSquare,
   Mic,
   MicOff,
-  FileText,
   Undo2,
   Redo2,
   GripVertical,
@@ -19,7 +18,6 @@ import { useTimelineStore } from '@/store/timeline';
 import Voice2Controls from './Voice2Controls';
 import ConversationView from './ConversationView';
 import TextInput from './TextInput';
-import DocumentUploader from './DocumentUploader';
 import LLMSelector from './LLMSelector';
 import { ConversationManager } from '@/lib/ai-builder/conversation';
 import { ActionExecutor } from '@/lib/ai-builder/actions';
@@ -35,7 +33,7 @@ interface AITimelineBuilderProps {
   onClose: () => void;
 }
 
-type TabType = 'chat' | 'voice' | 'documents';
+type TabType = 'chat' | 'voice';
 
 interface VoiceCapabilities {
   available: boolean;
@@ -54,7 +52,6 @@ export default function AITimelineBuilder({ isOpen, onClose }: AITimelineBuilder
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [processedDocuments, setProcessedDocuments] = useState<ProcessedDocument[]>([]);
-  const [isDocProcessing, setIsDocProcessing] = useState(false);
   const [voiceCapabilities, setVoiceCapabilities] = useState<VoiceCapabilities>({
     available: false,
     checked: false,
@@ -78,20 +75,6 @@ export default function AITimelineBuilder({ isOpen, onClose }: AITimelineBuilder
   // Refs
   const conversationManagerRef = useRef<ConversationManager | null>(null);
   const actionExecutorRef = useRef<ActionExecutor | null>(null);
-
-  // Store
-  const {
-    properties,
-    events,
-    addProperty,
-    updateProperty,
-    deleteProperty,
-    addEvent,
-    updateEvent,
-    deleteEvent,
-    importTimelineData,
-    clearAllData,
-  } = useTimelineStore();
 
   // Fetch AI Builder specific providers (checks local API keys)
   useEffect(() => {
@@ -220,78 +203,90 @@ export default function AITimelineBuilder({ isOpen, onClose }: AITimelineBuilder
     };
   }, [isResizing]);
 
-  /**
-   * Convert a File to a MessageAttachment
-   */
-  const fileToAttachment = async (file: File): Promise<{
-    type: 'image' | 'document' | 'pdf';
-    name: string;
-    mimeType: string;
-    data: string;
-    extractedText?: string;
-  }> => {
-    // Read file as base64
-    const base64 = await new Promise<string>((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => {
-        const result = reader.result as string;
-        // Remove the data URL prefix (e.g., "data:image/png;base64,")
-        const base64Data = result.split(',')[1];
-        resolve(base64Data);
-      };
-      reader.onerror = reject;
-      reader.readAsDataURL(file);
-    });
-
-    // Determine attachment type
-    let type: 'image' | 'document' | 'pdf' = 'document';
-    if (file.type.startsWith('image/')) {
-      type = 'image';
-    } else if (file.type === 'application/pdf') {
-      type = 'pdf';
-    }
-
-    return {
-      type,
-      name: file.name,
-      mimeType: file.type,
-      data: base64,
-    };
-  };
-
-  // Send message handler - now supports file attachments
+  // Send message handler - routes files through process-document extraction pipeline
   const handleSendMessage = async (text: string, files?: File[]) => {
     if (!text.trim() && (!files || files.length === 0)) return;
     if (!conversationManagerRef.current) return;
 
     setError(null);
 
-    // Convert files to attachments if provided
-    let attachments: Array<{
-      type: 'image' | 'document' | 'pdf';
-      name: string;
-      mimeType: string;
-      data: string;
-      extractedText?: string;
-    }> | undefined;
-
     if (files && files.length > 0) {
-      setIsProcessing(true);
-      try {
-        attachments = await Promise.all(files.map(fileToAttachment));
-        console.log('📎 Converted files to attachments:', attachments.map(a => `${a.name} (${a.type})`));
-      } catch (error) {
-        console.error('Error converting files:', error);
-        setError('Failed to process attachments');
-        setIsProcessing(false);
-        return;
+      // Auto-switch away from Deepseek for file uploads (no vision support)
+      let effectiveProvider = aiBuilderSelectedProvider;
+      if (effectiveProvider === 'deepseek') {
+        const preferred = 'gemini';
+        const fallback = Object.keys(aiBuilderProviders).find((p) => p !== 'deepseek');
+        const newProvider = aiBuilderProviders[preferred] ? preferred : fallback;
+        if (newProvider) {
+          effectiveProvider = newProvider;
+          setAiBuilderSelectedProvider(newProvider);
+          setMessages((prev) => [
+            ...prev,
+            {
+              id: `system-${Date.now()}`,
+              role: 'system' as const,
+              content: `Switched to ${aiBuilderProviders[newProvider] || newProvider} for document processing`,
+              timestamp: new Date(),
+            },
+          ]);
+        }
       }
-    }
 
-    await conversationManagerRef.current.processUserInput(text, false, attachments);
+      // Show user message immediately with file indicators
+      const fileNames = files.map((f) => f.name).join(', ');
+      const userContent = text.trim()
+        ? `${text.trim()}\n\n📎 ${fileNames}`
+        : `📎 ${fileNames}`;
+
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: Date.now().toString(),
+          role: 'user' as const,
+          content: userContent,
+          timestamp: new Date(),
+        },
+      ]);
+
+      setIsProcessing(true);
+
+      try {
+        // Process each file through the extraction pipeline
+        for (const file of files) {
+          const formData = new FormData();
+          formData.append('file', file);
+          formData.append('llmProvider', effectiveProvider);
+
+          const response = await fetch('/api/ai-builder/process-document', {
+            method: 'POST',
+            body: formData,
+          });
+
+          if (response.ok) {
+            const { document: doc } = await response.json();
+            await handleDocumentProcessed(doc);
+          } else {
+            console.error('❌ Document processing failed for:', file.name);
+          }
+        }
+
+        // After all files processed, if user typed a question, send it to the LLM
+        if (text.trim()) {
+          await conversationManagerRef.current.processUserInput(text.trim(), false);
+        }
+      } catch (error) {
+        console.error('Error processing files:', error);
+        setError('Failed to process attachments');
+      } finally {
+        setIsProcessing(false);
+      }
+    } else {
+      // Text-only message — send directly to LLM
+      await conversationManagerRef.current.processUserInput(text, false);
+    }
   };
 
-  // Document processing - now bridges to chat
+  // Document processing - injects extraction card into chat
   const handleDocumentProcessed = async (doc: ProcessedDocument) => {
     setProcessedDocuments((prev) => [...prev, doc]);
 
@@ -313,14 +308,28 @@ export default function AITimelineBuilder({ isOpen, onClose }: AITimelineBuilder
       conversationManagerRef.current.addDocumentContext(newContext);
     }
 
-    // Auto-switch to Chat tab
-    setActiveTab('chat');
+    // Inject an assistant message with the extraction card into chat
+    const { extractedData } = doc;
+    const summaryParts: string[] = [];
+    if (extractedData.properties.length > 0) summaryParts.push(`${extractedData.properties.length} propert${extractedData.properties.length === 1 ? 'y' : 'ies'}`);
+    if (extractedData.events.length > 0) summaryParts.push(`${extractedData.events.length} event${extractedData.events.length === 1 ? '' : 's'}`);
+    if (extractedData.dates.length > 0) summaryParts.push(`${extractedData.dates.length} date${extractedData.dates.length === 1 ? '' : 's'}`);
+    if (extractedData.amounts.length > 0) summaryParts.push(`${extractedData.amounts.length} amount${extractedData.amounts.length === 1 ? '' : 's'}`);
 
-    // Auto-send confirmation request to LLM
-    if (conversationManagerRef.current) {
-      const confirmMsg = `I've uploaded "${doc.filename}". Please review and confirm what you understood from this document. Summarize the key property/CGT information you found.`;
-      await conversationManagerRef.current.processUserInput(confirmMsg, false);
-    }
+    const summaryText = summaryParts.length > 0
+      ? `I extracted ${summaryParts.join(', ')} from **${doc.filename}**. Review the suggested actions below and click Apply to add them to your timeline.`
+      : `I processed **${doc.filename}** but couldn't extract structured data. You can ask me questions about the document.`;
+
+    setMessages((prev) => [
+      ...prev,
+      {
+        id: `doc-${Date.now()}`,
+        role: 'assistant' as const,
+        content: summaryText,
+        timestamp: new Date(),
+        documentExtraction: doc,
+      },
+    ]);
   };
 
   const handleActionsApproved = async (actions: TimelineAction[]) => {
@@ -328,30 +337,6 @@ export default function AITimelineBuilder({ isOpen, onClose }: AITimelineBuilder
       if (actionExecutorRef.current) {
         await actionExecutorRef.current.execute(action);
       }
-    }
-  };
-
-  // File upload from text input
-  const handleFileUpload = async (files: File[]) => {
-    setIsDocProcessing(true);
-    try {
-      for (const file of files) {
-        const formData = new FormData();
-        formData.append('file', file);
-        formData.append('llmProvider', aiBuilderSelectedProvider);
-
-        const response = await fetch('/api/ai-builder/process-document', {
-          method: 'POST',
-          body: formData,
-        });
-
-        if (response.ok) {
-          const { document } = await response.json();
-          handleDocumentProcessed(document);
-        }
-      }
-    } finally {
-      setIsDocProcessing(false);
     }
   };
 
@@ -518,19 +503,6 @@ export default function AITimelineBuilder({ isOpen, onClose }: AITimelineBuilder
                   Voice
                 </button>
 
-                {/* Documents Tab */}
-                <button
-                  onClick={() => setActiveTab('documents')}
-                  className={cn(
-                    'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors',
-                    activeTab === 'documents'
-                      ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300'
-                      : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'
-                  )}
-                >
-                  <FileText className="w-4 h-4" />
-                  Docs
-                </button>
               </div>
 
               {/* LLM Selector - uses AI Builder's own providers (based on local API keys) */}
@@ -540,15 +512,6 @@ export default function AITimelineBuilder({ isOpen, onClose }: AITimelineBuilder
                 onSelect={setAiBuilderSelectedProvider}
               />
             </div>
-
-            {/* Deepseek media attachment warning - only show for deepseek, hide on Voice tab */}
-            {aiBuilderSelectedProvider === 'deepseek' && activeTab !== 'voice' && (
-              <div className="px-4 py-2 bg-amber-50 dark:bg-amber-900/20 border-b border-amber-200 dark:border-amber-800">
-                <p className="text-xs text-amber-700 dark:text-amber-300">
-                  Deepseek doesn&apos;t support image/media analysis. For attachments, switch to Claude, GPT-4, or Gemini.
-                </p>
-              </div>
-            )}
 
             {/* Tab Content */}
             <div className="flex-1 flex flex-col overflow-hidden">
@@ -580,30 +543,17 @@ export default function AITimelineBuilder({ isOpen, onClose }: AITimelineBuilder
                     messages={messages}
                     isProcessing={isProcessing}
                     error={error}
+                    onActionsApproved={handleActionsApproved}
                   />
 
                   {/* Text Input */}
                   <TextInput
                     onSend={(msg, files) => handleSendMessage(msg, files)}
-                    onFileUpload={handleFileUpload}
                     disabled={isProcessing}
-                    selectedProvider={aiBuilderSelectedProvider}
                   />
                 </>
               )}
 
-              {/* Documents Tab */}
-              {activeTab === 'documents' && (
-                <div className="flex-1 p-4 overflow-y-auto">
-                  <DocumentUploader
-                    onDocumentProcessed={handleDocumentProcessed}
-                    onActionsApproved={handleActionsApproved}
-                    isProcessing={isDocProcessing}
-                    processedDocuments={processedDocuments}
-                    llmProvider={aiBuilderSelectedProvider}
-                  />
-                </div>
-              )}
             </div>
           </>
         )}

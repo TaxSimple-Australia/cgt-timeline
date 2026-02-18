@@ -3,18 +3,20 @@
 import React, { useEffect, useRef } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import MessageBubble, { TypingIndicator, ErrorMessage } from './MessageBubble';
-import type { ConversationMessage } from '@/types/ai-builder';
+import type { ConversationMessage, TimelineAction } from '@/types/ai-builder';
 
 interface ConversationViewProps {
   messages: ConversationMessage[];
   isProcessing: boolean;
   error?: string | null;
+  onActionsApproved?: (actions: TimelineAction[]) => void;
 }
 
 export default function ConversationView({
   messages,
   isProcessing,
   error,
+  onActionsApproved,
 }: ConversationViewProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -66,6 +68,7 @@ export default function ConversationView({
             key={message.id}
             message={message}
             isLatest={index === messages.length - 1}
+            onActionsApproved={onActionsApproved}
           />
         ))}
       </AnimatePresence>

@@ -5,14 +5,16 @@ import { User, Bot, Mic, Check, AlertCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
 import { cn } from '@/lib/utils';
-import type { ConversationMessage } from '@/types/ai-builder';
+import type { ConversationMessage, TimelineAction } from '@/types/ai-builder';
+import DocumentExtractionCard from './DocumentExtractionCard';
 
 interface MessageBubbleProps {
   message: ConversationMessage;
   isLatest?: boolean;
+  onActionsApproved?: (actions: TimelineAction[]) => void;
 }
 
-export default function MessageBubble({ message, isLatest = false }: MessageBubbleProps) {
+export default function MessageBubble({ message, isLatest = false, onActionsApproved }: MessageBubbleProps) {
   const isUser = message.role === 'user';
   const isSystem = message.role === 'system';
 
@@ -129,6 +131,14 @@ export default function MessageBubble({ message, isLatest = false }: MessageBubb
             </div>
           )}
         </div>
+
+        {/* Document extraction card */}
+        {!isUser && message.documentExtraction && onActionsApproved && (
+          <DocumentExtractionCard
+            document={message.documentExtraction}
+            onApply={onActionsApproved}
+          />
+        )}
 
         {/* Action badges */}
         {actions.length > 0 && (

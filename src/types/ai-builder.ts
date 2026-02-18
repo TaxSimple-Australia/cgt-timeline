@@ -150,6 +150,7 @@ export interface ConversationMessage {
   isVoice?: boolean;
   intent?: Intent;
   actions?: TimelineAction[];
+  documentExtraction?: ProcessedDocument;
 }
 
 export interface ConversationContext {
@@ -436,7 +437,7 @@ export interface DocumentContext {
 export interface AIBuilderState {
   isOpen: boolean;
   isMinimized: boolean;
-  activeTab: 'voice' | 'chat' | 'documents';
+  activeTab: 'voice' | 'chat';
   voiceState: VoiceState;
   voiceConfig: VoiceConfig;
   conversationContext: ConversationContext;

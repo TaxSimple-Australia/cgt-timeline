@@ -256,6 +256,19 @@ export default function TimelineControls({ timelineContainerRef }: TimelineContr
           if (event.newOwners) historyItem.newOwners = event.newOwners;
           if (event.ownershipChangeReason) historyItem.ownershipChangeReason = event.ownershipChangeReason;
           if (event.ownershipChangeReasonOther) historyItem.ownershipChangeReasonOther = event.ownershipChangeReasonOther;
+          if (event.previousOwners) historyItem.previousOwners = event.previousOwners;
+
+          // Construction dates
+          if (event.constructionStartDate) historyItem.constructionStartDate = format(event.constructionStartDate, 'yyyy-MM-dd');
+          if (event.constructionEndDate) historyItem.constructionEndDate = format(event.constructionEndDate, 'yyyy-MM-dd');
+
+          // Division 40 & 43 tax deductions
+          if (event.division40Assets !== undefined) historyItem.division40Assets = event.division40Assets;
+          if (event.division43Deductions !== undefined) historyItem.division43Deductions = event.division43Deductions;
+
+          // Appreciation/future value
+          if (event.appreciationValue !== undefined) historyItem.appreciationValue = event.appreciationValue;
+          if (event.appreciationDate) historyItem.appreciationDate = format(event.appreciationDate, 'yyyy-MM-dd');
 
           // Subdivision details
           if (event.subdivisionDetails) historyItem.subdivisionDetails = event.subdivisionDetails;
@@ -274,9 +287,25 @@ export default function TimelineControls({ timelineContainerRef }: TimelineContr
         });
 
         return {
+          id: property.id,
           address: `${property.name}${property.address ? ', ' + property.address : ''}`,
           property_history,
           notes: property.currentStatus || 'No notes',
+          // Property metadata
+          color: property.color,
+          isRental: property.isRental,
+          owners: property.owners,
+          currentValue: property.currentValue,
+          branch: property.branch,
+          // Subdivision fields
+          parentPropertyId: property.parentPropertyId,
+          subdivisionDate: property.subdivisionDate ? format(property.subdivisionDate, 'yyyy-MM-dd') : undefined,
+          subdivisionGroup: property.subdivisionGroup,
+          lotNumber: property.lotNumber,
+          lotSize: property.lotSize,
+          allocationPercentage: property.allocationPercentage,
+          initialCostBase: property.initialCostBase,
+          isMainLotContinuation: property.isMainLotContinuation,
         };
       }),
       user_query: "Please analyze my property portfolio with accurate CGT calculations including all cost base elements.",

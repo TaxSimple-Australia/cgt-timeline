@@ -332,6 +332,7 @@ interface TimelineState {
   addEvent: (event: Omit<TimelineEvent, 'id'>) => void;
   updateEvent: (id: string, event: Partial<TimelineEvent>) => void;
   deleteEvent: (id: string) => void;
+  addLotToSubdivision: (subdivisionEventId: string) => void;
   removeLotFromSubdivision: (lotPropertyId: string, subdivisionEventId: string) => void;
   moveEvent: (id: string, newPosition: number) => void;
 
@@ -950,6 +951,96 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
     });
   },
 
+  addLotToSubdivision: (subdivisionEventId) => {
+    const state = get();
+    const subdivisionEvent = state.events.find((e) => e.id === subdivisionEventId);
+
+    if (!subdivisionEvent || !subdivisionEvent.subdivisionDetails) {
+      console.warn('❌ addLotToSubdivision: subdivision event not found');
+      return;
+    }
+
+    const parentId = subdivisionEvent.subdivisionDetails.parentPropertyId;
+    const parent = state.properties.find((p) => p.id === parentId);
+    if (!parent) {
+      console.warn('❌ addLotToSubdivision: parent property not found');
+      return;
+    }
+
+    // Find existing sibling lots to determine next lot number
+    const siblingLots = state.properties.filter(
+      (p) => p.parentPropertyId === parentId && p.subdivisionGroup
+    );
+    const nextLotNumber = siblingLots.length + 1;
+
+    // Pick next available color
+    const usedColors = new Set(state.properties.map((p) => p.color));
+    let selectedColor = propertyColors[0];
+    for (const color of propertyColors) {
+      if (!usedColors.has(color)) {
+        selectedColor = color;
+        break;
+      }
+    }
+    if (usedColors.has(selectedColor)) {
+      selectedColor = propertyColors[(state.properties.length) % propertyColors.length];
+    }
+
+    // Get subdivisionGroup from a sibling
+    const subdivisionGroup = siblingLots[0]?.subdivisionGroup || `subdiv-${Date.now()}`;
+    const subdivisionDate = siblingLots[0]?.subdivisionDate || subdivisionEvent.date;
+
+    const newLot: Property = {
+      id: `prop-${Date.now()}-${nextLotNumber}`,
+      name: `Lot ${nextLotNumber}`,
+      address: parent.address,
+      color: selectedColor,
+      branch: state.properties.length,
+      parentPropertyId: parentId,
+      subdivisionDate,
+      subdivisionGroup,
+      lotNumber: `Lot ${nextLotNumber}`,
+      lotSize: 0,
+      allocationPercentage: 0,
+      purchasePrice: 0,
+      purchaseDate: subdivisionDate,
+      owners: parent.owners,
+      isMainLotContinuation: false,
+    };
+
+    // Update subdivision event details
+    const updatedChildProperties = [
+      ...(subdivisionEvent.subdivisionDetails.childProperties || []),
+      {
+        id: newLot.id,
+        name: newLot.name,
+        lotSize: 0,
+        allocationPercentage: 0,
+        allocatedCostBase: 0,
+      },
+    ];
+    const newTotalLots = updatedChildProperties.length;
+
+    set({
+      properties: [...state.properties, newLot],
+      events: state.events.map((e) =>
+        e.id === subdivisionEventId
+          ? {
+              ...e,
+              title: 'Subdivided',
+              subdivisionDetails: {
+                ...e.subdivisionDetails!,
+                childProperties: updatedChildProperties,
+                totalLots: newTotalLots,
+              },
+            }
+          : e
+      ),
+    });
+
+    console.log(`✅ Added Lot ${nextLotNumber} to subdivision`);
+  },
+
   removeLotFromSubdivision: (lotPropertyId, subdivisionEventId) => {
     const state = get();
     const lot = state.properties.find((p) => p.id === lotPropertyId);
@@ -1074,7 +1165,7 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
             e.id === subdivisionEventId
               ? {
                   ...e,
-                  title: `Subdivided into ${remainingChildren.length} lots`,
+                  title: 'Subdivided',
                   subdivisionDetails: {
                     ...e.subdivisionDetails!,
                     childProperties: rescaledChildren,
@@ -1181,7 +1272,7 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
       propertyId: parentPropertyId,
       type: 'subdivision',
       date: subdivisionDate,
-      title: `Subdivided into ${lots.length} lots`,
+      title: 'Subdivided',
       description: notes || '',  // Store notes in description field
       position: 0, // Position will be calculated
       color: '#EC4899',
@@ -2225,8 +2316,13 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
         }).filter((event: any) => event !== null);
       } else if (data.properties && Array.isArray(data.properties)) {
         // Export format with property_history inside properties
+        const oldToNewIdMap: Record<string, string> = {};
         data.properties.forEach((prop: any, propIndex: number) => {
           const propertyId = `import-prop-${Date.now()}-${propIndex}`;
+          // Track old→new ID mapping for subdivision cross-references
+          if (prop.id) {
+            oldToNewIdMap[prop.id] = propertyId;
+          }
 
           // Parse address (might be combined with name)
           const addressParts = prop.address ? prop.address.split(', ') : [];
@@ -2390,6 +2486,15 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
                 subdivisionDetails: historyItem.subdivisionDetails,
                 // Depreciating assets value
                 depreciatingAssetsValue: historyItem.depreciatingAssetsValue,
+                // Construction dates
+                constructionStartDate: historyItem.constructionStartDate ? new Date(historyItem.constructionStartDate) : undefined,
+                constructionEndDate: historyItem.constructionEndDate ? new Date(historyItem.constructionEndDate) : undefined,
+                // Division 40 & 43 tax deductions
+                division40Assets: historyItem.division40Assets,
+                division43Deductions: historyItem.division43Deductions,
+                // Appreciation/future value
+                appreciationValue: historyItem.appreciationValue,
+                appreciationDate: historyItem.appreciationDate ? new Date(historyItem.appreciationDate) : undefined,
               };
 
               propertyEvents.push(event);
@@ -2401,18 +2506,51 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
             id: propertyId,
             name,
             address,
-            color: propertyColors[propIndex % propertyColors.length],
+            color: prop.color || propertyColors[propIndex % propertyColors.length],
             purchasePrice,
             purchaseDate,
             salePrice,
             saleDate,
             currentStatus,
-            branch: propIndex,
+            branch: prop.branch ?? propIndex,
+            isRental: prop.isRental,
+            owners: prop.owners,
+            currentValue: prop.currentValue,
+            // Subdivision fields
+            parentPropertyId: prop.parentPropertyId,
+            subdivisionDate: prop.subdivisionDate ? new Date(prop.subdivisionDate) : undefined,
+            subdivisionGroup: prop.subdivisionGroup,
+            lotNumber: prop.lotNumber,
+            lotSize: prop.lotSize,
+            allocationPercentage: prop.allocationPercentage,
+            initialCostBase: prop.initialCostBase,
+            isMainLotContinuation: prop.isMainLotContinuation,
           };
 
           importedProperties.push(property);
           importedEvents.push(...propertyEvents);
         });
+
+        // Remap subdivision ID references from old→new IDs
+        if (Object.keys(oldToNewIdMap).length > 0) {
+          importedProperties.forEach(property => {
+            if (property.parentPropertyId && oldToNewIdMap[property.parentPropertyId]) {
+              property.parentPropertyId = oldToNewIdMap[property.parentPropertyId];
+            }
+          });
+          importedEvents.forEach(event => {
+            if (event.subdivisionDetails) {
+              if (oldToNewIdMap[event.subdivisionDetails.parentPropertyId]) {
+                event.subdivisionDetails.parentPropertyId = oldToNewIdMap[event.subdivisionDetails.parentPropertyId];
+              }
+              event.subdivisionDetails.childProperties?.forEach(child => {
+                if (oldToNewIdMap[child.id]) {
+                  child.id = oldToNewIdMap[child.id];
+                }
+              });
+            }
+          });
+        }
       }
 
       // Migrate market valuation from move_out to rent_start events

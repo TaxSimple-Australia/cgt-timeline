@@ -6,7 +6,69 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { getReport, getVerification, updateVerificationReview } from '@/lib/report-storage';
-import type { VerificationReview, ReviewCorrectness, ReviewStatus } from '@/types/cgt-report';
+import type { CGTReport, VerificationReview, ReviewCorrectness, ReviewStatus } from '@/types/cgt-report';
+
+const EXTERNAL_API_URL = process.env.NEXT_PUBLIC_ADMIN_API_URL || 'https://cgtbrain.com.au';
+const FORWARD_TIMEOUT_MS = 15000;
+
+/**
+ * Forward a CCH review to the external backend so it appears in the Accuracy Dashboard.
+ * Maps CCH review fields to the annotation submit/update format used by AnnotationPanel.
+ */
+async function forwardReviewToBackend(
+  report: CGTReport,
+  review: VerificationReview,
+  isEdit: boolean
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    // Extract session_id from the stored analysis response (multiple possible locations)
+    const analysisResponse = report.analysisResponse;
+    const sessionId = analysisResponse?.session_id
+      || analysisResponse?.data?.session_id
+      || analysisResponse?.data?.data?.session_id
+      || null;
+
+    // Map correctness: 'unsure' → 'na' for the external backend
+    const mappedCorrectness = review.correctness === 'unsure' ? 'na' : review.correctness;
+
+    const payload = {
+      item_id: sessionId,
+      correctness: mappedCorrectness,
+      correct_answer: review.correctAnswer || null,
+      doc_annotations: [],
+      faithfulness_notes: null,
+      general_notes: review.reviewNotes || null,
+      annotator: `cch_reviewer:${review.reviewedBy || 'admin'}`,
+    };
+
+    const endpoint = isEdit ? '/annotation/update/' : '/annotation/submit/';
+    const method = isEdit ? 'PUT' : 'POST';
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), FORWARD_TIMEOUT_MS);
+
+    const response = await fetch(`${EXTERNAL_API_URL}${endpoint}`, {
+      method,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+      signal: controller.signal,
+    });
+
+    clearTimeout(timeoutId);
+
+    if (!response.ok) {
+      const text = await response.text().catch(() => 'No response body');
+      return { success: false, error: `Backend responded ${response.status}: ${text}` };
+    }
+
+    console.log(`✅ CCH review forwarded to backend (${endpoint})`);
+    return { success: true };
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Unknown error';
+    console.error(`❌ Failed to forward CCH review to backend:`, message);
+    return { success: false, error: message };
+  }
+}
 
 // Admin authentication check
 function isAdminAuthenticated(request: NextRequest): boolean {
@@ -104,9 +166,20 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       );
     }
 
+    // Forward to external backend (non-blocking — KV save already succeeded)
+    const isEdit = !!existingReview?.reviewedAt;
+    const forwardResult = await forwardReviewToBackend(report, review, isEdit);
+
+    // Update the review with forwarding status
+    if (forwardResult.success) {
+      await updateVerificationReview(verifId, { ...review, forwardedToBackend: true });
+    }
+
     return NextResponse.json({
       success: true,
       verification: updatedVerification,
+      forwardedToBackend: forwardResult.success,
+      forwardError: forwardResult.error || undefined,
     });
   } catch (error) {
     console.error('❌ Error saving verification review:', error);

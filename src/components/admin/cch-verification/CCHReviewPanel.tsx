@@ -48,6 +48,7 @@ export default function CCHReviewPanel({
   const [submitting, setSubmitting] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [forwardWarning, setForwardWarning] = useState<string | null>(null);
 
   // Answer tab state
   const [activeTab, setActiveTab] = useState<'our' | 'cch'>('our');
@@ -71,6 +72,7 @@ export default function CCHReviewPanel({
       setIsEditMode(false);
     }
     setSubmitError(null);
+    setForwardWarning(null);
   }, [verification.id]);
 
   // Get admin credentials
@@ -116,6 +118,13 @@ export default function CCHReviewPanel({
 
       if (!data.success) {
         throw new Error(data.error || 'Failed to save review');
+      }
+
+      // Check if forwarding to external backend succeeded
+      if (data.forwardedToBackend === false) {
+        setForwardWarning(data.forwardError || 'Review was not synced to the Accuracy Dashboard backend.');
+      } else {
+        setForwardWarning(null);
       }
 
       setIsEditMode(false);
@@ -429,6 +438,17 @@ export default function CCHReviewPanel({
           <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg text-red-400 text-sm flex items-center gap-2">
             <AlertTriangle className="w-4 h-4 flex-shrink-0" />
             {submitError}
+          </div>
+        )}
+
+        {/* Forward warning (review saved locally but not synced to backend) */}
+        {forwardWarning && (
+          <div className="p-3 bg-yellow-500/10 border border-yellow-500/20 rounded-lg text-yellow-400 text-sm flex items-start gap-2">
+            <AlertTriangle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+            <div>
+              <span className="font-medium">Review saved locally</span> but could not be synced to the Accuracy Dashboard.
+              <span className="block text-xs mt-1 text-yellow-500/70">{forwardWarning}</span>
+            </div>
           </div>
         )}
       </div>

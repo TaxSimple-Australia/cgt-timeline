@@ -104,6 +104,7 @@ export interface VerificationReview {
   reviewedAt?: string;
   reviewedBy?: string;
   editedAt?: string;
+  forwardedToBackend?: boolean;
 }
 
 /**

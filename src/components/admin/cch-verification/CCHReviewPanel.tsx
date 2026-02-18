@@ -9,6 +9,7 @@ import {
   Loader2,
   Keyboard,
   AlertTriangle,
+  RefreshCw,
 } from 'lucide-react';
 import type { VerificationRecord, ReviewCorrectness, ReviewStatus } from '@/types/cgt-report';
 
@@ -49,6 +50,7 @@ export default function CCHReviewPanel({
   const [isEditMode, setIsEditMode] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [forwardWarning, setForwardWarning] = useState<string | null>(null);
+  const [retrying, setRetrying] = useState(false);
 
   // Answer tab state
   const [activeTab, setActiveTab] = useState<'our' | 'cch'>('our');
@@ -65,14 +67,21 @@ export default function CCHReviewPanel({
       setCorrectAnswer(verification.review.correctAnswer || '');
       setReviewNotes(verification.review.reviewNotes || '');
       setIsEditMode(false);
+      // Restore forward warning for previously-failed forwards
+      if (verification.review.reviewStatus === 'reviewed' && verification.review.forwardedToBackend === false) {
+        setForwardWarning('This review was not synced to the Accuracy Dashboard. Use Retry to resend.');
+      } else {
+        setForwardWarning(null);
+      }
     } else {
       setCorrectness('');
       setCorrectAnswer('');
       setReviewNotes('');
       setIsEditMode(false);
+      setForwardWarning(null);
     }
     setSubmitError(null);
-    setForwardWarning(null);
+    setRetrying(false);
   }, [verification.id]);
 
   // Get admin credentials
@@ -84,6 +93,46 @@ export default function CCHReviewPanel({
     }
     return null;
   }, []);
+
+  // Retry forwarding a review that saved locally but failed to sync
+  const retryForward = useCallback(async () => {
+    const creds = getCredentials();
+    if (!creds || !verification.review) return;
+
+    setRetrying(true);
+    try {
+      // Resubmit the existing review — the backend route will re-attempt forwarding
+      const response = await fetch(
+        `/api/admin/reports/${reportId}/verifications/${verification.id}/review`,
+        {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-admin-user': creds.user,
+            'x-admin-pass': creds.pass,
+          },
+          body: JSON.stringify({
+            reviewStatus: verification.review.reviewStatus,
+            correctness: verification.review.correctness,
+            correctAnswer: verification.review.correctAnswer || undefined,
+            reviewNotes: verification.review.reviewNotes || undefined,
+            reviewedBy: verification.review.reviewedBy || creds.user,
+          }),
+        }
+      );
+
+      const data = await response.json();
+      if (data.forwardedToBackend) {
+        setForwardWarning(null);
+      } else {
+        setForwardWarning(data.forwardError || 'Retry failed — still not synced to backend.');
+      }
+    } catch (err) {
+      setForwardWarning(err instanceof Error ? err.message : 'Retry failed');
+    } finally {
+      setRetrying(false);
+    }
+  }, [getCredentials, reportId, verification.id, verification.review]);
 
   // Submit review
   const submitReview = useCallback(async (status: ReviewStatus = 'reviewed') => {
@@ -445,10 +494,22 @@ export default function CCHReviewPanel({
         {forwardWarning && (
           <div className="p-3 bg-yellow-500/10 border border-yellow-500/20 rounded-lg text-yellow-400 text-sm flex items-start gap-2">
             <AlertTriangle className="w-4 h-4 flex-shrink-0 mt-0.5" />
-            <div>
+            <div className="flex-1">
               <span className="font-medium">Review saved locally</span> but could not be synced to the Accuracy Dashboard.
               <span className="block text-xs mt-1 text-yellow-500/70">{forwardWarning}</span>
             </div>
+            <button
+              onClick={retryForward}
+              disabled={retrying}
+              className="flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 bg-yellow-500/20 hover:bg-yellow-500/30 border border-yellow-500/30 rounded-md text-yellow-300 text-xs font-medium transition-colors disabled:opacity-50"
+            >
+              {retrying ? (
+                <Loader2 className="w-3 h-3 animate-spin" />
+              ) : (
+                <RefreshCw className="w-3 h-3" />
+              )}
+              {retrying ? 'Retrying...' : 'Retry'}
+            </button>
           </div>
         )}
       </div>

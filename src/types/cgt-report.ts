@@ -22,6 +22,7 @@ export interface CGTReport {
 
   // Analysis Results
   analysisResponse?: any;              // Full AI JSON response
+  sessionId?: string | null;           // Backend session_id for annotation mapping
   verificationPrompt?: string;         // The scenario text for CCH
   netCapitalGain?: number;             // Calculated net CGT
   analyzedAt?: string;                 // When analysis completed

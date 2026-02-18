@@ -21,12 +21,30 @@ async function forwardReviewToBackend(
   isEdit: boolean
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    // Extract session_id from the stored analysis response (multiple possible locations)
+    // Extract session_id: prefer explicit field, then dig through analysisResponse
     const analysisResponse = report.analysisResponse;
-    const sessionId = analysisResponse?.session_id
+    const sessionId = report.sessionId
+      || analysisResponse?.session_id
       || analysisResponse?.data?.session_id
       || analysisResponse?.data?.data?.session_id
+      || analysisResponse?.id
+      || analysisResponse?.data?.id
       || null;
+
+    console.log('🔍 CCH review forward — session_id extraction:', {
+      reportId: report.id,
+      explicitSessionId: report.sessionId ?? 'not set',
+      extractedSessionId: sessionId,
+      analysisResponseKeys: analysisResponse ? Object.keys(analysisResponse) : 'null',
+    });
+
+    if (!sessionId) {
+      console.error('❌ Cannot forward CCH review: No session_id found in report', {
+        reportId: report.id,
+        analysisResponseKeys: analysisResponse ? Object.keys(analysisResponse) : 'null',
+      });
+      return { success: false, error: 'No session_id found in report — cannot map to backend annotation item' };
+    }
 
     // Map correctness: 'unsure' → 'na' for the external backend
     const mappedCorrectness = review.correctness === 'unsure' ? 'na' : review.correctness;
@@ -40,6 +58,8 @@ async function forwardReviewToBackend(
       general_notes: review.reviewNotes || null,
       annotator: `cch_reviewer:${review.reviewedBy || 'admin'}`,
     };
+
+    console.log('📤 CCH review forward payload:', JSON.stringify(payload, null, 2));
 
     const endpoint = isEdit ? '/annotation/update/' : '/annotation/submit/';
     const method = isEdit ? 'PUT' : 'POST';

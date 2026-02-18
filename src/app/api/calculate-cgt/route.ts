@@ -254,10 +254,24 @@ export async function POST(request: NextRequest) {
           userEmail: apiPayload.userEmail,
         });
 
+        // Extract session_id for annotation mapping (backend uses this as item_id)
+        const sessionId = data.session_id
+          || data.data?.session_id
+          || data.id
+          || data.data?.id
+          || null;
+
+        if (sessionId) {
+          console.log(`🔑 Session ID extracted: ${sessionId}`);
+        } else {
+          console.log('⚠️ No session_id found in API response. Keys:', Object.keys(data));
+        }
+
         // Update with analysis results
         await updateReport(report.id, {
           status: 'analyzed',
           analysisResponse: data,
+          sessionId,
           verificationPrompt,
           netCapitalGain: netCapitalGain ? parseFloat(netCapitalGain) : undefined,
           analyzedAt: new Date().toISOString(),

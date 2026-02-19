@@ -1621,9 +1621,103 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
         }));
       }
     } else {
-      set((state) => ({
-        events: state.events.filter((e) => e.id !== id),
-      }));
+      // Generalized companion cleanup: when deleting a companion event,
+      // find and uncheck the parent's checkbox that created it.
+      // This covers all 8 checkbox-companion relationships.
+      const parentUpdates: Array<{ parentId: string; checkboxKey: string }> = [];
+
+      if (eventToDelete) {
+        const deletedDate = eventToDelete.date.getTime();
+        const deletedPropId = eventToDelete.propertyId;
+
+        // Helper to find a parent event with a specific checkbox checked
+        const findParent = (
+          parentType: EventType,
+          checkboxKey: string,
+          matchDate?: number // defaults to deletedDate
+        ) => {
+          const matchTime = matchDate ?? deletedDate;
+          return state.events.find(
+            (e) =>
+              e.propertyId === deletedPropId &&
+              e.type === parentType &&
+              e.date.getTime() === matchTime &&
+              (e.checkboxState as Record<string, unknown>)?.[checkboxKey] === true
+          );
+        };
+
+        if (eventToDelete.type === 'move_in') {
+          // Could be companion of: purchase.moveInOnSameDay, rent_end.rentEndAsMoveIn, purchase.purchaseAsMixedUse
+          const p1 = findParent('purchase', 'moveInOnSameDay');
+          if (p1) parentUpdates.push({ parentId: p1.id, checkboxKey: 'moveInOnSameDay' });
+
+          const p2 = findParent('rent_end', 'rentEndAsMoveIn');
+          if (p2) parentUpdates.push({ parentId: p2.id, checkboxKey: 'rentEndAsMoveIn' });
+
+          // purchaseAsMixedUse: companion move_in may be on the purchase date or mixedUseMoveInDate
+          const p3 = state.events.find(
+            (e) =>
+              e.propertyId === deletedPropId &&
+              e.type === 'purchase' &&
+              (e.checkboxState as Record<string, unknown>)?.purchaseAsMixedUse === true &&
+              (e.date.getTime() === deletedDate ||
+                (e.mixedUseMoveInDate && e.mixedUseMoveInDate.getTime() === deletedDate))
+          );
+          if (p3 && !parentUpdates.some(u => u.parentId === p3.id)) {
+            parentUpdates.push({ parentId: p3.id, checkboxKey: 'purchaseAsMixedUse' });
+          }
+        }
+
+        if (eventToDelete.type === 'rent_start') {
+          // Could be companion of: purchase.purchaseAsRent, move_out.moveOutAsRent, purchase.purchaseAsMixedUse
+          const p1 = findParent('purchase', 'purchaseAsRent');
+          if (p1) parentUpdates.push({ parentId: p1.id, checkboxKey: 'purchaseAsRent' });
+
+          const p2 = findParent('move_out', 'moveOutAsRent');
+          if (p2) parentUpdates.push({ parentId: p2.id, checkboxKey: 'moveOutAsRent' });
+
+          // purchaseAsMixedUse with only rental creates rent_start
+          const p3 = findParent('purchase', 'purchaseAsMixedUse');
+          if (p3 && !parentUpdates.some(u => u.parentId === p3.id)) {
+            parentUpdates.push({ parentId: p3.id, checkboxKey: 'purchaseAsMixedUse' });
+          }
+        }
+
+        if (eventToDelete.type === 'status_change' && eventToDelete.newStatus === 'vacant') {
+          // Could be companion of: purchase.purchaseAsVacant, move_out.moveOutAsVacant, rent_end.rentEndAsVacant
+          const p1 = findParent('purchase', 'purchaseAsVacant');
+          if (p1) parentUpdates.push({ parentId: p1.id, checkboxKey: 'purchaseAsVacant' });
+
+          const p2 = findParent('move_out', 'moveOutAsVacant');
+          if (p2) parentUpdates.push({ parentId: p2.id, checkboxKey: 'moveOutAsVacant' });
+
+          const p3 = findParent('rent_end', 'rentEndAsVacant');
+          if (p3) parentUpdates.push({ parentId: p3.id, checkboxKey: 'rentEndAsVacant' });
+        }
+      }
+
+      if (parentUpdates.length > 0) {
+        // Delete the companion and uncheck all matching parent checkboxes
+        const parentIds = new Set(parentUpdates.map(u => u.parentId));
+        set((state) => ({
+          events: state.events
+            .filter((e) => e.id !== id)
+            .map((e) => {
+              if (!parentIds.has(e.id)) return e;
+              const updates = parentUpdates.filter(u => u.parentId === e.id);
+              const newCheckboxState = { ...e.checkboxState };
+              for (const u of updates) {
+                (newCheckboxState as Record<string, unknown>)[u.checkboxKey] = false;
+              }
+              return { ...e, checkboxState: newCheckboxState };
+            }),
+        }));
+      } else {
+        // No companion relationship — simple deletion
+        set((state) => ({
+          events: state.events.filter((e) => e.id !== id),
+        }));
+      }
     }
   },
 
@@ -1708,50 +1802,80 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
       }),
     }));
 
-    // NEW: Handle linked events - Move Move In event when Purchase is dragged (if created via "move in on same date")
-    if (event.type === 'purchase' && event.checkboxState?.moveInOnSameDay) {
-      console.log('🔗 Purchase event has moveInOnSameDay checkbox checked, looking for linked move_in...');
+    // Handle all linked companion events when dragging a parent event
+    if (event.checkboxState) {
       const currentState = get();
+      const checkboxState = event.checkboxState;
 
-      // Find the linked move_in event on the ORIGINAL purchase date (before drag)
-      const linkedMoveIn = currentState.events.find(
-        (e) =>
-          e.propertyId === event.propertyId &&
-          e.type === 'move_in' &&
-          e.date.getTime() === originalDate.getTime() // Same as old purchase date
-      );
+      // Helper to find and move a companion event to the new date/position
+      const findAndMoveCompanion = (
+        companionType: EventType,
+        checkboxName: string,
+        additionalFilter?: (e: TimelineEvent) => boolean
+      ) => {
+        const companion = currentState.events.find(
+          (e) =>
+            e.propertyId === event.propertyId &&
+            e.type === companionType &&
+            e.date.getTime() === originalDate.getTime() &&
+            (additionalFilter ? additionalFilter(e) : true)
+        );
 
-      console.log('🔍 Searching for linked move_in:', {
-        propertyId: event.propertyId,
-        originalDateTimestamp: originalDate.getTime(),
-        allMoveInEvents: currentState.events.filter(e => e.type === 'move_in' && e.propertyId === event.propertyId).map(e => ({
-          id: e.id,
-          date: e.date,
-          timestamp: e.date.getTime()
-        })),
-        foundLinkedMoveIn: !!linkedMoveIn,
-      });
+        if (companion) {
+          console.log(`🔗 Moving linked ${companionType} event with ${event.type}:`, {
+            parentId: event.id,
+            companionId: companion.id,
+            checkboxName,
+            oldDate: originalDate,
+            newDate,
+          });
 
-      if (linkedMoveIn) {
-        console.log('🔗 Moving linked Move In event with Purchase:', {
-          purchaseId: event.id,
-          moveInId: linkedMoveIn.id,
-          oldDate: originalDate,
-          newDate,
-        });
+          set((state) => ({
+            events: state.events.map((e) => {
+              if (e.id !== companion.id) return e;
+              return { ...e, position: newPosition, date: newDate };
+            }),
+          }));
+        }
+      };
 
-        // Move the linked move_in event to the new date
-        set((state) => ({
-          events: state.events.map((e) => {
-            if (e.id !== linkedMoveIn.id) return e;
+      // GROUP 1: Events that create move_in
+      if (event.type === 'purchase' && checkboxState.moveInOnSameDay) {
+        findAndMoveCompanion('move_in', 'moveInOnSameDay');
+      }
+      if (event.type === 'rent_end' && checkboxState.rentEndAsMoveIn) {
+        findAndMoveCompanion('move_in', 'rentEndAsMoveIn');
+      }
 
-            return {
-              ...e,
-              position: newPosition, // Same position as purchase
-              date: newDate,         // Same date as purchase
-            };
-          }),
-        }));
+      // GROUP 2: Events that create rent_start
+      if (event.type === 'purchase' && checkboxState.purchaseAsRent) {
+        findAndMoveCompanion('rent_start', 'purchaseAsRent');
+      }
+      if (event.type === 'move_out' && checkboxState.moveOutAsRent) {
+        findAndMoveCompanion('rent_start', 'moveOutAsRent');
+      }
+
+      // GROUP 3: Events that create status_change (vacant)
+      if (event.type === 'purchase' && checkboxState.purchaseAsVacant) {
+        findAndMoveCompanion('status_change', 'purchaseAsVacant', (e) => e.newStatus === 'vacant');
+      }
+      if (event.type === 'move_out' && checkboxState.moveOutAsVacant) {
+        findAndMoveCompanion('status_change', 'moveOutAsVacant', (e) => e.newStatus === 'vacant');
+      }
+      if (event.type === 'rent_end' && checkboxState.rentEndAsVacant) {
+        findAndMoveCompanion('status_change', 'rentEndAsVacant', (e) => e.newStatus === 'vacant');
+      }
+
+      // GROUP 4: Mixed-use (special case - purchase only)
+      if (event.type === 'purchase' && checkboxState.purchaseAsMixedUse) {
+        const hasLivingPercentage = event.livingUsePercentage && event.livingUsePercentage > 0;
+        const hasOnlyRentalPercentage = event.rentalUsePercentage && event.rentalUsePercentage > 0 && (!event.livingUsePercentage || event.livingUsePercentage === 0);
+
+        if (hasLivingPercentage && !checkboxState.moveInOnSameDay) {
+          findAndMoveCompanion('move_in', 'purchaseAsMixedUse (living)');
+        } else if (hasOnlyRentalPercentage) {
+          findAndMoveCompanion('rent_start', 'purchaseAsMixedUse (rental only)');
+        }
       }
     }
   },

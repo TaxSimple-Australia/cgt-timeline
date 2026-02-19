@@ -2072,10 +2072,10 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
                                     )}
                                     placeholder={DATE_FORMAT_PLACEHOLDER}
                                   />
-                                  <div
-                                    className="inline-block cursor-pointer"
-                                    onClick={() => mixedUseMoveInDateRef.current?.showPicker?.()}
-                                  >
+                                  <div className="relative inline-block">
+                                    <div className="px-3 py-2 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 hover:bg-slate-50 dark:hover:bg-slate-600 rounded-lg transition-colors cursor-pointer">
+                                      <Calendar className="w-4 h-4 text-slate-600 dark:text-slate-400 pointer-events-none" />
+                                    </div>
                                     <input
                                       ref={mixedUseMoveInDateRef}
                                       type="date"
@@ -2089,11 +2089,9 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
                                           setMixedUseMoveInDateError('');
                                         }
                                       }}
-                                      className="sr-only"
+                                      onClick={(e) => { e.stopPropagation(); try { (e.target as HTMLInputElement).showPicker(); } catch {} }}
+                                      className="absolute inset-0 opacity-0 cursor-pointer z-10"
                                     />
-                                    <div className="px-3 py-2 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 hover:bg-slate-50 dark:hover:bg-slate-600 rounded-lg transition-colors">
-                                      <Calendar className="w-4 h-4 text-slate-600 dark:text-slate-400 pointer-events-none" />
-                                    </div>
                                   </div>
                                 </div>
                                 {mixedUseMoveInDateError && (
@@ -2163,10 +2161,10 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
                                     )}
                                     placeholder={DATE_FORMAT_PLACEHOLDER}
                                   />
-                                  <div
-                                    className="inline-block cursor-pointer"
-                                    onClick={() => rentalUseStartDateRef.current?.showPicker?.()}
-                                  >
+                                  <div className="relative inline-block">
+                                    <div className="px-3 py-2 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 hover:bg-slate-50 dark:hover:bg-slate-600 rounded-lg transition-colors cursor-pointer">
+                                      <Calendar className="w-4 h-4 text-slate-600 dark:text-slate-400 pointer-events-none" />
+                                    </div>
                                     <input
                                       ref={rentalUseStartDateRef}
                                       type="date"
@@ -2180,11 +2178,9 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
                                           setRentalUseDateError('');
                                         }
                                       }}
-                                      className="sr-only"
+                                      onClick={(e) => { e.stopPropagation(); try { (e.target as HTMLInputElement).showPicker(); } catch {} }}
+                                      className="absolute inset-0 opacity-0 cursor-pointer z-10"
                                     />
-                                    <div className="px-3 py-2 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 hover:bg-slate-50 dark:hover:bg-slate-600 rounded-lg transition-colors">
-                                      <Calendar className="w-4 h-4 text-slate-600 dark:text-slate-400 pointer-events-none" />
-                                    </div>
                                   </div>
                                 </div>
                                 {rentalUseDateError && (
@@ -2251,10 +2247,10 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
                                     )}
                                     placeholder={DATE_FORMAT_PLACEHOLDER}
                                   />
-                                  <div
-                                    className="inline-block cursor-pointer"
-                                    onClick={() => businessUseStartDateRef.current?.showPicker?.()}
-                                  >
+                                  <div className="relative inline-block">
+                                    <div className="px-3 py-2 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 hover:bg-slate-50 dark:hover:bg-slate-600 rounded-lg transition-colors cursor-pointer">
+                                      <Calendar className="w-4 h-4 text-slate-600 dark:text-slate-400 pointer-events-none" />
+                                    </div>
                                     <input
                                       ref={businessUseStartDateRef}
                                       type="date"
@@ -2268,11 +2264,9 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
                                           setBusinessUseDateError('');
                                         }
                                       }}
-                                      className="sr-only"
+                                      onClick={(e) => { e.stopPropagation(); try { (e.target as HTMLInputElement).showPicker(); } catch {} }}
+                                      className="absolute inset-0 opacity-0 cursor-pointer z-10"
                                     />
-                                    <div className="px-3 py-2 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 hover:bg-slate-50 dark:hover:bg-slate-600 rounded-lg transition-colors">
-                                      <Calendar className="w-4 h-4 text-slate-600 dark:text-slate-400 pointer-events-none" />
-                                    </div>
                                   </div>
                                 </div>
                                 {businessUseDateError && (

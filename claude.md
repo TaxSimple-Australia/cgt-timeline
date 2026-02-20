@@ -57,6 +57,7 @@ This file serves as the project's memory and workflow guide. All instructions he
 3. Merge to master via pull requests or explicit merges
 4. Commit regularly with descriptive messages
 5. **NEVER push code to remote unless explicitly told to do so by the user** - Always wait for user confirmation before pushing
+6. **NEVER mention Claude, AI, or automated tools in commit messages** - Keep commits professional and focused on what changed
 
 ### Commit Message Format
 ```

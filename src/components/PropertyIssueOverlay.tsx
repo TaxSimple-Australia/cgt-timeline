@@ -23,8 +23,13 @@ export default function PropertyIssueOverlay({
   const [selectedAnswer, setSelectedAnswer] = useState<string>('');
   const [customAnswer, setCustomAnswer] = useState('');
   const [showCustomInput, setShowCustomInput] = useState(false);
+  const [marketValue, setMarketValue] = useState('');
+  const [showMarketValueInput, setShowMarketValueInput] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const isVacantForRent = (answer: string) =>
+    answer.toLowerCase().includes('vacant') && answer.toLowerCase().includes('available for rent');
 
   // Get question text and possible answers from alert
   const questionText = alert.clarificationQuestion || alert.resolutionText;
@@ -47,6 +52,8 @@ export default function PropertyIssueOverlay({
     setSelectedAnswer('');
     setCustomAnswer('');
     setShowCustomInput(false);
+    setMarketValue('');
+    setShowMarketValueInput(false);
     setError(null);
   }, [alert.id]);
 
@@ -65,9 +72,19 @@ export default function PropertyIssueOverlay({
 
     if (answer === 'other') {
       setShowCustomInput(true);
+      setShowMarketValueInput(false);
+      setMarketValue('');
       setSelectedAnswer('other');
+    } else if (isVacantForRent(answer)) {
+      // Don't auto-resolve — need market value input first
+      setShowMarketValueInput(true);
+      setShowCustomInput(false);
+      setCustomAnswer('');
+      setSelectedAnswer(answer);
     } else {
       setShowCustomInput(false);
+      setShowMarketValueInput(false);
+      setMarketValue('');
       setSelectedAnswer(answer);
       setCustomAnswer('');
 
@@ -92,6 +109,24 @@ export default function PropertyIssueOverlay({
       // Call the resolve function with custom answer immediately
       onResolve(alert.id, finalAnswer);
       console.log('✅ Alert resolved with custom answer:', alert.id, finalAnswer);
+    } catch (err) {
+      console.error('❌ Error resolving alert:', err);
+      setError('Failed to submit answer. Please try again.');
+    }
+  };
+
+  const handleMarketValueSubmit = () => {
+    if (!marketValue.trim()) {
+      setError('Please enter the market value');
+      return;
+    }
+
+    setError(null);
+    const finalAnswer = `${selectedAnswer}. Market value: $${marketValue}`;
+
+    try {
+      onResolve(alert.id, finalAnswer);
+      console.log('✅ Alert resolved with market value:', alert.id, finalAnswer);
     } catch (err) {
       console.error('❌ Error resolving alert:', err);
       setError('Failed to submit answer. Please try again.');
@@ -307,6 +342,48 @@ export default function PropertyIssueOverlay({
                   </motion.div>
                 )}
               </AnimatePresence>
+
+              {/* Market value input (shown when "Vacant - available for rent" is selected) */}
+              <AnimatePresence>
+                {showMarketValueInput && !showCustomInput && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    exit={{ opacity: 0, height: 0 }}
+                    className="mt-3"
+                  >
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+                      Market value during this period
+                    </label>
+                    <div className="relative">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-base text-gray-500 dark:text-gray-400 font-medium">$</span>
+                      <input
+                        type="text"
+                        inputMode="decimal"
+                        placeholder="e.g. 650000"
+                        value={marketValue}
+                        onChange={(e) => {
+                          const sanitized = e.target.value.replace(/[^0-9.]/g, '');
+                          setMarketValue(sanitized);
+                          setError(null);
+                        }}
+                        disabled={isSubmitting}
+                        autoFocus
+                        className={`w-full pl-8 pr-4 py-3 rounded-lg border-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-purple-600/20 outline-none transition-all ${
+                          !marketValue
+                            ? 'border-amber-400 dark:border-amber-500 focus:border-amber-500'
+                            : 'border-purple-300 dark:border-purple-700 focus:border-purple-600'
+                        }`}
+                      />
+                    </div>
+                    {!marketValue && (
+                      <p className="text-xs text-amber-600 dark:text-amber-400 mt-1.5">
+                        Required for accurate CGT calculation
+                      </p>
+                    )}
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
 
             {/* Error Message */}
@@ -327,16 +404,16 @@ export default function PropertyIssueOverlay({
 
           {/* Footer */}
           <div className="px-6 py-4 bg-gray-50 dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 flex items-center justify-between">
-            {showCustomInput ? (
+            {showCustomInput || showMarketValueInput ? (
               <>
                 <p className="text-sm text-gray-600 dark:text-gray-400">
                   Your answer will help us provide accurate CGT analysis
                 </p>
                 <button
-                  onClick={handleSubmit}
-                  disabled={isSubmitting || !customAnswer.trim()}
+                  onClick={showMarketValueInput ? handleMarketValueSubmit : handleSubmit}
+                  disabled={isSubmitting || (showCustomInput && !customAnswer.trim()) || (showMarketValueInput && !marketValue.trim())}
                   className={`px-6 py-2.5 rounded-lg font-semibold transition-all flex items-center gap-2 ${
-                    isSubmitting || !customAnswer.trim()
+                    isSubmitting || (showCustomInput && !customAnswer.trim()) || (showMarketValueInput && !marketValue.trim())
                       ? 'bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed'
                       : 'bg-gradient-to-r from-purple-600 to-blue-600 text-white hover:from-purple-700 hover:to-blue-700 shadow-lg hover:shadow-xl'
                   }`}

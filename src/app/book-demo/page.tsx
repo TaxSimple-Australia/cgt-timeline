@@ -352,7 +352,7 @@ ${formData.message || 'N/A'}
                     onChange={handleChange}
                     required
                     className="w-full px-4 py-3 bg-slate-900 border border-slate-600 rounded-lg text-white placeholder-slate-500 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-colors"
-                    placeholder="+61 123 456 789"
+                    placeholder="0430 334 344"
                   />
                 </div>
               </div>

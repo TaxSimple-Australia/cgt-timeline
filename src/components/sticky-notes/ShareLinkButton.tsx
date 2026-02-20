@@ -465,7 +465,7 @@ export default function ShareLinkButton({
                               type="tel"
                               value={phoneNumber}
                               onChange={(e) => setPhoneNumber(e.target.value)}
-                              placeholder="+61 400 000 000"
+                              placeholder="0430 334 344"
                               className={cn(
                                 'w-full pl-9 pr-3 py-2 text-sm rounded-lg',
                                 'bg-gray-50 dark:bg-gray-700',

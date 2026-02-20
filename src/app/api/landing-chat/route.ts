@@ -17,8 +17,8 @@ Website: cgtbrain.com.au
 - **ABN**: 79 684 289 843
 - **Registered Tax Agent Number**: 26205217
 - **Website**: cgtbrain.com.au
-- **Office**: Level 5, 123 Collins Street, Melbourne VIC 3000, Australia
-- **Phone**: 1300 CGT BRAIN (1300 248 272)
+- **Office**: 8 Fuhrmann Street, Muirhead Northern Territory 0810, Australia
+- **Phone**: 0430 334 344
 - **General enquiries**: info@cgtbrain.com.au
 - **Support**: support@cgtbrain.com.au
 - **Privacy Officer**: privacy@cgtbrain.com.au

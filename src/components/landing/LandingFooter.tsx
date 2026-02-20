@@ -213,7 +213,7 @@ export default function LandingFooter() {
               <div className="flex items-start gap-3">
                 <Phone className="w-5 h-5 text-slate-500 flex-shrink-0 mt-0.5" />
                 <p className="text-slate-400 text-sm">
-                  1300 248 272
+                  0430 334 344
                 </p>
               </div>
               <div className="flex items-start gap-3">
@@ -231,8 +231,8 @@ export default function LandingFooter() {
               <div className="flex items-start gap-3">
                 <MapPin className="w-5 h-5 text-slate-500 flex-shrink-0 mt-0.5" />
                 <p className="text-slate-400 text-sm">
-                  Level 5, 123 Collins Street<br />
-                  Melbourne VIC 3000<br />
+                  8 Fuhrmann Street<br />
+                  Muirhead Northern Territory 0810<br />
                   Australia
                 </p>
               </div>

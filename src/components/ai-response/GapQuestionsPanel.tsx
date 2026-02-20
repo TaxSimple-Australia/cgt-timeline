@@ -52,8 +52,10 @@ export default function GapQuestionsPanel({ questions, issues, onSubmit }: GapQu
     setMarketValues(prev => ({ ...prev, [questionIndex]: sanitized }));
   };
 
-  const isVacantForRent = (answer: string) =>
-    answer.toLowerCase().includes('vacant') && answer.toLowerCase().includes('available for rent');
+  const isVacantForRent = (answer: string) => {
+    const lower = answer.toLowerCase();
+    return lower.includes('vacant') && lower.includes('available for rent') && !lower.includes('not available for rent');
+  };
 
   const handleSubmit = () => {
     // Format answers for API submission

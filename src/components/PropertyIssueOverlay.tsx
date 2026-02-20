@@ -28,8 +28,10 @@ export default function PropertyIssueOverlay({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const isVacantForRent = (answer: string) =>
-    answer.toLowerCase().includes('vacant') && answer.toLowerCase().includes('available for rent');
+  const isVacantForRent = (answer: string) => {
+    const lower = answer.toLowerCase();
+    return lower.includes('vacant') && lower.includes('available for rent') && !lower.includes('not available for rent');
+  };
 
   // Get question text and possible answers from alert
   const questionText = alert.clarificationQuestion || alert.resolutionText;

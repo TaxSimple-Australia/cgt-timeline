@@ -34,6 +34,7 @@ interface GapQuestionsPanelProps {
 export default function GapQuestionsPanel({ questions, issues, onSubmit }: GapQuestionsPanelProps) {
   const [answers, setAnswers] = useState<Record<number, string>>({});
   const [customTexts, setCustomTexts] = useState<Record<number, string>>({});
+  const [marketValues, setMarketValues] = useState<Record<number, string>>({});
 
   if (!questions || questions.length === 0) return null;
 
@@ -45,12 +46,25 @@ export default function GapQuestionsPanel({ questions, issues, onSubmit }: GapQu
     setCustomTexts(prev => ({ ...prev, [questionIndex]: text }));
   };
 
+  const handleMarketValueChange = (questionIndex: number, value: string) => {
+    // Only allow digits and decimal point
+    const sanitized = value.replace(/[^0-9.]/g, '');
+    setMarketValues(prev => ({ ...prev, [questionIndex]: sanitized }));
+  };
+
+  const isVacantForRent = (answer: string) =>
+    answer.toLowerCase().includes('vacant') && answer.toLowerCase().includes('available for rent');
+
   const handleSubmit = () => {
     // Format answers for API submission
     const formattedAnswers = questions.map((question, index) => {
       const answer = answers[index];
       const isOtherOption = answer?.toLowerCase().includes('other') || answer?.toLowerCase().includes('specify');
-      const finalAnswer = isOtherOption && customTexts[index] ? customTexts[index] : answer;
+      let finalAnswer = isOtherOption && customTexts[index] ? customTexts[index] : answer;
+
+      if (finalAnswer && isVacantForRent(finalAnswer) && marketValues[index]) {
+        finalAnswer = `${finalAnswer}. Market value: $${marketValues[index]}`;
+      }
 
       return {
         question: question.question,
@@ -194,6 +208,40 @@ export default function GapQuestionsPanel({ questions, issues, onSubmit }: GapQu
                       />
                     </motion.div>
                   )}
+
+                  {/* Market Value Input for "Vacant - available for rent" option */}
+                  {isSelected && isVacantForRent(answer) && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      exit={{ opacity: 0, height: 0 }}
+                      className="mt-2 ml-8"
+                    >
+                      <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
+                        Market value during this period
+                      </label>
+                      <div className="relative">
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-gray-500 dark:text-gray-400">$</span>
+                        <input
+                          type="text"
+                          inputMode="decimal"
+                          placeholder="e.g. 650000"
+                          value={marketValues[index] || ''}
+                          onChange={(e) => handleMarketValueChange(index, e.target.value)}
+                          className={`w-full pl-7 pr-3 py-2 text-sm border rounded bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                            answers[index] && isVacantForRent(answers[index]) && !marketValues[index]
+                              ? 'border-amber-400 dark:border-amber-500'
+                              : 'border-gray-300 dark:border-gray-600'
+                          }`}
+                        />
+                      </div>
+                      {!marketValues[index] && (
+                        <p className="text-xs text-amber-600 dark:text-amber-400 mt-1">
+                          Required for accurate CGT calculation
+                        </p>
+                      )}
+                    </motion.div>
+                  )}
                 </div>
               );
             })}
@@ -205,7 +253,10 @@ export default function GapQuestionsPanel({ questions, issues, onSubmit }: GapQu
       <div className="flex justify-end">
         <button
           onClick={handleSubmit}
-          disabled={Object.keys(answers).length !== questions.length}
+          disabled={
+            Object.keys(answers).length !== questions.length ||
+            questions.some((_, index) => answers[index] && isVacantForRent(answers[index]) && !marketValues[index])
+          }
           className="flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-colors"
         >
           <Send className="w-4 h-4" />

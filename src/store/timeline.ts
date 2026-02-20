@@ -2823,8 +2823,21 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
         selectedProvider = data.default;
       }
 
+      // Map server provider names to branded display names
+      const brandedNameMap: Record<string, string> = {
+        deepseek: 'CGT Brain AI (D)',
+        claude: 'CGT Brain AI (C)',
+        olmo: 'CGT Brain AI (OL)',
+        openai: 'CGT Brain AI (O)',
+        gemini: 'CGT Brain AI (G)',
+      };
+      const brandedProviders: Record<string, string> = {};
+      for (const [key, name] of Object.entries(data.providers)) {
+        brandedProviders[key] = brandedNameMap[key] || name;
+      }
+
       set({
-        availableLLMProviders: data.providers,
+        availableLLMProviders: brandedProviders,
         selectedLLMProvider: selectedProvider,
         isLoadingProviders: false,
       });

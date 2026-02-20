@@ -9,6 +9,7 @@ export function cn(...inputs: ClassValue[]) {
 export function getBrandedProviderName(provider: string | null | undefined): string {
   if (!provider) return '—';
   const key = provider.toLowerCase();
+  if (key.includes('deepseek') && key.includes('qwen')) return 'CGT Brain AI (DQw)';
   if (key.includes('deepseek')) return 'CGT Brain AI (D)';
   if (key.includes('olmo')) return 'CGT Brain AI (OL)';
   if (key.includes('claude') || key.includes('anthropic')) return 'CGT Brain AI (C)';

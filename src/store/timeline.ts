@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { addDays, format } from 'date-fns';
+import { getBrandedProviderName } from '@/lib/utils';
 import type { AIResponse, TimelineIssue, PositionedGap, AIIssue } from '../types/ai-feedback';
 import type { VerificationAlert } from '../types/verification-alert';
 import type { CostBaseCategory } from '../lib/cost-base-definitions';
@@ -2824,16 +2825,9 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
       }
 
       // Map server provider names to branded display names
-      const brandedNameMap: Record<string, string> = {
-        deepseek: 'CGT Brain AI (D)',
-        claude: 'CGT Brain AI (C)',
-        olmo: 'CGT Brain AI (OL)',
-        openai: 'CGT Brain AI (O)',
-        gemini: 'CGT Brain AI (G)',
-      };
       const brandedProviders: Record<string, string> = {};
       for (const [key, name] of Object.entries(data.providers)) {
-        brandedProviders[key] = brandedNameMap[key] || name;
+        brandedProviders[key] = getBrandedProviderName(name as string);
       }
 
       set({

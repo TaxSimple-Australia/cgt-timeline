@@ -256,7 +256,8 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
   const getLLMProviderKey = (displayName: string | null | undefined): string => {
     if (!displayName) return 'deepseek'; // Default
     const lowerName = displayName.toLowerCase();
-    // Match branded names first (check OL before O to avoid false match)
+    // Match branded names first (check longer codes before shorter to avoid false match)
+    if (lowerName.includes('cgt brain ai (dqw)')) return 'deepseek';
     if (lowerName.includes('cgt brain ai (d)')) return 'deepseek';
     if (lowerName.includes('cgt brain ai (ol)')) return 'olmo';
     if (lowerName.includes('cgt brain ai (o)')) return 'openai';

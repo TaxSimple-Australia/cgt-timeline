@@ -256,12 +256,20 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
   const getLLMProviderKey = (displayName: string | null | undefined): string => {
     if (!displayName) return 'deepseek'; // Default
     const lowerName = displayName.toLowerCase();
+    // Match branded names first (check OL before O to avoid false match)
+    if (lowerName.includes('cgt brain ai (d)')) return 'deepseek';
+    if (lowerName.includes('cgt brain ai (ol)')) return 'olmo';
+    if (lowerName.includes('cgt brain ai (o)')) return 'openai';
+    if (lowerName.includes('cgt brain ai (c)')) return 'claude';
+    if (lowerName.includes('cgt brain ai (g)')) return 'gemini';
+    // Match original names from external API
     if (lowerName.includes('deepseek')) return 'deepseek';
     if (lowerName.includes('claude') || lowerName.includes('anthropic')) return 'claude';
     if (lowerName.includes('openai') || lowerName.includes('gpt')) return 'openai';
     if (lowerName.includes('olmo') || lowerName.includes('openrouter')) return 'olmo';
+    if (lowerName.includes('gemini')) return 'gemini';
     // If it's already a key format, return as-is
-    if (['deepseek', 'claude', 'openai', 'olmo'].includes(lowerName)) return lowerName;
+    if (['deepseek', 'claude', 'openai', 'olmo', 'gemini'].includes(lowerName)) return lowerName;
     return 'deepseek'; // Default fallback
   };
 

@@ -139,7 +139,7 @@ export default function OwnershipPeriodsTable({
                       </span>
                       {years && (
                         <span className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                          {years}
+                          {years} yrs
                         </span>
                       )}
                     </div>

@@ -11,11 +11,11 @@ import { ReportsManagementTab } from './reports';
 
 // LLM Providers for CGT Analysis
 const LLM_PROVIDERS = [
-  { value: 'deepseek', label: 'DeepSeek Chat' },
-  { value: 'claude', label: 'Claude Sonnet 4' },
-  { value: 'olmo', label: 'Olmo 3.1 32B (Free)' },
-  { value: 'openai', label: 'GPT-4o' },
-  { value: 'gemini', label: 'Gemini 2.0 Flash' },
+  { value: 'deepseek', label: 'CGT Brain AI (D)' },
+  { value: 'claude', label: 'CGT Brain AI (C)' },
+  { value: 'olmo', label: 'CGT Brain AI (OL)' },
+  { value: 'openai', label: 'CGT Brain AI (O)' },
+  { value: 'gemini', label: 'CGT Brain AI (G)' },
 ];
 
 // Types

@@ -88,7 +88,7 @@ export default function AITimelineBuilder({ isOpen, onClose }: AITimelineBuilder
       } catch (error) {
         console.error('Failed to fetch AI Builder providers:', error);
         // Fallback to Deepseek
-        setAiBuilderProviders({ deepseek: 'Deepseek Chat' });
+        setAiBuilderProviders({ deepseek: 'CGT Brain AI (D)' });
       }
     };
 

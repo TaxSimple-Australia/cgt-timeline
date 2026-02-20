@@ -32,7 +32,7 @@ export async function GET() {
   // If no providers available, return mock list with Deepseek as default
   if (Object.keys(availableProviders).length === 0) {
     return NextResponse.json({
-      providers: { deepseek: 'Deepseek Chat' },
+      providers: { deepseek: 'CGT Brain AI (D)' },
       default: 'deepseek',
       warning: 'No LLM API keys configured. Using mock mode.',
     });

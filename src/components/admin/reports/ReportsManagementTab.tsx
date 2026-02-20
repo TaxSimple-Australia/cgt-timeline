@@ -396,10 +396,10 @@ export default function ReportsManagementTab({ adminCredentials }: ReportsManage
             className="px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-cyan-500"
           >
             <option value="">All Providers</option>
-            <option value="deepseek">DeepSeek</option>
-            <option value="claude">Claude</option>
-            <option value="openai">OpenAI</option>
-            <option value="gemini">Gemini</option>
+            <option value="deepseek">CGT Brain AI (D)</option>
+            <option value="claude">CGT Brain AI (C)</option>
+            <option value="openai">CGT Brain AI (O)</option>
+            <option value="gemini">CGT Brain AI (G)</option>
           </select>
         </div>
       </div>

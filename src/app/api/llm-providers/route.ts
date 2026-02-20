@@ -21,7 +21,7 @@ export async function GET() {
       // Return default providers if API fails
       return NextResponse.json({
         providers: {
-          claude: 'Claude Sonnet 4 (Anthropic)',
+          claude: 'CGT Brain AI (C)',
         },
         default: 'claude',
       });
@@ -37,7 +37,7 @@ export async function GET() {
     // Return default providers on error
     return NextResponse.json({
       providers: {
-        claude: 'Claude Sonnet 4 (Anthropic)',
+        claude: 'CGT Brain AI (C)',
       },
       default: 'claude',
     });

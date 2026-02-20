@@ -81,7 +81,7 @@ export interface ILLMService {
 export const LLM_PROVIDERS: Record<string, LLMProvider> = {
   deepseek: {
     id: 'deepseek',
-    name: 'Deepseek V3',
+    name: 'CGT Brain AI (D)',
     model: 'deepseek-chat',
     maxTokens: 128000,
     supportsStreaming: true,
@@ -92,7 +92,7 @@ export const LLM_PROVIDERS: Record<string, LLMProvider> = {
   },
   claude: {
     id: 'claude',
-    name: 'Claude Sonnet 4',
+    name: 'CGT Brain AI (C)',
     model: 'claude-sonnet-4-20250514',
     maxTokens: 200000,
     supportsStreaming: true,
@@ -103,7 +103,7 @@ export const LLM_PROVIDERS: Record<string, LLMProvider> = {
   },
   gpt4: {
     id: 'gpt4',
-    name: 'GPT-4o',
+    name: 'CGT Brain AI (O)',
     model: 'gpt-4o',
     maxTokens: 128000,
     supportsStreaming: true,
@@ -114,7 +114,7 @@ export const LLM_PROVIDERS: Record<string, LLMProvider> = {
   },
   gemini: {
     id: 'gemini',
-    name: 'Gemini 3 Pro',
+    name: 'CGT Brain AI (G)',
     model: 'gemini-3-pro-preview',
     maxTokens: 1000000,
     supportsStreaming: true,

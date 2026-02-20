@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { ClipboardList, Keyboard, ChevronRight } from 'lucide-react';
+import { getBrandedProviderName } from '@/lib/utils';
 
 // Types
 interface QueueItem {
@@ -466,7 +467,7 @@ export default function AnnotationPanel({ apiUrl }: AnnotationPanelProps) {
                   </div>
                   <p className="text-sm mt-1 line-clamp-2 text-slate-700 dark:text-slate-300">{item.query}</p>
                   <div className="flex justify-between mt-2 text-xs text-slate-500 dark:text-slate-400">
-                    <span>{item.llm_used}</span>
+                    <span>{getBrandedProviderName(item.llm_used)}</span>
                     <span>{item.num_docs} docs</span>
                   </div>
                 </div>
@@ -535,7 +536,7 @@ export default function AnnotationPanel({ apiUrl }: AnnotationPanelProps) {
               {/* Generated Answer */}
               <div>
                 <h4 className="font-medium text-sm text-slate-700 dark:text-slate-300 mb-1">
-                  Generated Answer (LLM: {selectedItem.llm_used})
+                  Generated Answer (LLM: {getBrandedProviderName(selectedItem.llm_used)})
                 </h4>
                 <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800 text-sm max-h-64 overflow-y-auto whitespace-pre-wrap text-slate-700 dark:text-slate-300">
                   {selectedItem.generated_answer}

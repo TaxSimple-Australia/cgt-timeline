@@ -5,6 +5,18 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
+/** Map any provider key or display name to a branded "CGT Brain AI (X)" name */
+export function getBrandedProviderName(provider: string | null | undefined): string {
+  if (!provider) return '—';
+  const key = provider.toLowerCase();
+  if (key.includes('deepseek')) return 'CGT Brain AI (D)';
+  if (key.includes('olmo')) return 'CGT Brain AI (OL)';
+  if (key.includes('claude') || key.includes('anthropic')) return 'CGT Brain AI (C)';
+  if (key.includes('openai') || key.includes('gpt')) return 'CGT Brain AI (O)';
+  if (key.includes('gemini')) return 'CGT Brain AI (G)';
+  return provider;
+}
+
 export function formatCurrency(amount: number): string {
   return new Intl.NumberFormat('en-AU', {
     style: 'currency',

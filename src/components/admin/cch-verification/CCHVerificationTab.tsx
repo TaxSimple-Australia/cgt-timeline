@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { getBrandedProviderName } from '@/lib/utils';
 import {
   RefreshCw,
   AlertCircle,
@@ -611,7 +612,7 @@ export default function CCHVerificationTab({
                       </div>
                       <div className="flex items-center justify-between gap-2">
                         <span className="text-xs text-slate-500 dark:text-slate-400">
-                          {formatDate(report.createdAt)} · {report.llmProvider}
+                          {formatDate(report.createdAt)} · {getBrandedProviderName(report.llmProvider)}
                         </span>
                         {report.latestVerification && getReviewStatusBadge(report.latestVerification.reviewStatus)}
                       </div>
@@ -727,7 +728,7 @@ export default function CCHVerificationTab({
                     <span className="text-slate-300 dark:text-slate-600">|</span>
                     <span>{formatDate(report.createdAt)}</span>
                     <span className="text-slate-300 dark:text-slate-600">|</span>
-                    <span className="capitalize">{report.llmProvider}</span>
+                    <span>{getBrandedProviderName(report.llmProvider)}</span>
                     <span className="text-slate-300 dark:text-slate-600">|</span>
                     <span>{formatCurrency(report.netCapitalGain)}</span>
                   </div>

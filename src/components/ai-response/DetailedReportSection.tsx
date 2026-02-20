@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown, ChevronUp, FileText, Book, Download, Mail, Printer, Code, Copy, Check, AlertTriangle, Scale, FileCheck, Home, PieChart, BarChart3, Lightbulb } from 'lucide-react';
+import { getBrandedProviderName } from '@/lib/utils';
 import { pdf } from '@react-pdf/renderer';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
@@ -1240,7 +1241,7 @@ export default function DetailedReportSection({ properties, analysis, calculatio
                           AI Model Used
                         </div>
                         <div className="text-lg font-bold text-indigo-700 dark:text-indigo-300">
-                          {analysis.metadata.llm_used}
+                          {getBrandedProviderName(analysis.metadata.llm_used)}
                         </div>
                         <div className="text-xs text-indigo-600 dark:text-indigo-500 mt-1">
                           Language model

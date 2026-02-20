@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { BarChart3, RefreshCw, Download, ChevronDown, ChevronRight, AlertCircle, CheckCircle, XCircle } from 'lucide-react';
+import { getBrandedProviderName } from '@/lib/utils';
 
 // Types
 interface FewShotStats {
@@ -578,7 +579,7 @@ export default function AccuracyDashboard({ apiUrl }: AccuracyDashboardProps) {
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                   {Object.entries(dashboardData.by_llm).map(([llm, stats]) => (
                     <div key={llm} className="bg-slate-50 dark:bg-slate-900 rounded-lg p-3 border border-slate-200 dark:border-slate-700">
-                      <div className="font-medium text-slate-900 dark:text-slate-100">{llm}</div>
+                      <div className="font-medium text-slate-900 dark:text-slate-100">{getBrandedProviderName(llm)}</div>
                       <div className={`text-2xl font-bold ${getAccuracyColor(stats.accuracy_rate)}`}>
                         {stats.accuracy_rate}%
                       </div>
@@ -612,7 +613,7 @@ export default function AccuracyDashboard({ apiUrl }: AccuracyDashboardProps) {
                           <span className={`px-2 py-0.5 text-xs rounded ${getCorrectnessColor(review.correctness)}`}>
                             {review.correctness}
                           </span>
-                          <span className="text-xs text-slate-500 dark:text-slate-400">{review.llm_used}</span>
+                          <span className="text-xs text-slate-500 dark:text-slate-400">{getBrandedProviderName(review.llm_used)}</span>
                           <span className="text-xs text-slate-400 dark:text-slate-500">ID: {review.id}</span>
                         </div>
                         <div className="text-sm text-slate-800 dark:text-slate-200 line-clamp-2">{review.query}</div>

@@ -3,6 +3,7 @@
 import React from 'react';
 import { Document, Page, Text, View, StyleSheet, Font, Image, Link } from '@react-pdf/renderer';
 import type { Property, TimelineEvent } from '@/store/timeline';
+import { getBrandedProviderName } from '@/lib/utils';
 import {
   calculatePurchaseIncidentalCosts,
   calculateImprovementCosts,
@@ -2009,7 +2010,7 @@ export const CGTReportPDF: React.FC<CGTReportPDFProps> = ({ response, properties
                 <View style={[styles.validationCard, { backgroundColor: '#eef2ff', borderColor: '#c7d2fe' }]}>
                   <Text style={styles.validationLabel}>AI Model</Text>
                   <Text style={{ fontSize: 9, fontWeight: 'bold', color: '#4338ca' }}>
-                    {analysis.metadata.llm_used}
+                    {getBrandedProviderName(analysis.metadata.llm_used)}
                   </Text>
                   <Text style={styles.validationSubtext}>Language model</Text>
                 </View>

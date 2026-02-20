@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { Send, MessageCircle } from 'lucide-react';
+import { getBrandedProviderName } from '@/lib/utils';
 
 interface SourceReference {
   page: number;
@@ -231,7 +232,7 @@ export default function ChatPanel({ sessionId, llmProvider, apiUrl }: ChatPanelP
       </div>
 
       <p className="text-xs text-slate-400 dark:text-slate-500 mt-2">
-        Session: {sessionId.slice(0, 8)}... | Using: {llmProvider}
+        Session: {sessionId.slice(0, 8)}... | Using: {getBrandedProviderName(llmProvider)}
       </p>
     </div>
   );

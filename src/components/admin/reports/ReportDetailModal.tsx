@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { getBrandedProviderName } from '@/lib/utils';
 import {
   X,
   FileText,
@@ -228,7 +229,7 @@ export default function ReportDetailModal({
                       <Cpu className="w-3 h-3" />
                       Provider
                     </div>
-                    <div className="text-lg font-semibold text-white capitalize">{report.llmProvider}</div>
+                    <div className="text-lg font-semibold text-white">{getBrandedProviderName(report.llmProvider)}</div>
                   </div>
 
                   <div className="bg-slate-800/50 rounded-lg p-3">

@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
+import { getBrandedProviderName } from '@/lib/utils';
 import {
   Eye,
   PlayCircle,
@@ -158,8 +159,8 @@ export default function ReportsList({
 
               {/* Provider */}
               <div>
-                <span className="px-2 py-1 text-xs rounded-full bg-slate-700/50 text-slate-300 capitalize">
-                  {report.llmProvider}
+                <span className="px-2 py-1 text-xs rounded-full bg-slate-700/50 text-slate-300">
+                  {getBrandedProviderName(report.llmProvider)}
                 </span>
               </div>
 

@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "generatedAt": "2026-02-18T08:12:46.312Z",
+  "generatedAt": "2026-02-19T08:28:46.035Z",
   "totalScenarios": 82,
   "categories": {
     "Core Concepts": 10,
@@ -543,7 +543,7 @@
               }
             ],
             "notes": "ppr - Current main residence. Overlap with Property 1 sale within 6-month window.",
-            "holdingYears": 2
+            "holdingYears": 2.1
           }
         ],
         "financialSummary": {
@@ -1787,7 +1787,7 @@
               }
             ],
             "notes": "New home - keeping as main residence. Not being sold.",
-            "holdingYears": 2
+            "holdingYears": 2.1
           }
         ],
         "financialSummary": {

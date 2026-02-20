@@ -5,52 +5,142 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { getReport, getVerification, updateVerificationReview } from '@/lib/report-storage';
-import type { CGTReport, VerificationReview, ReviewCorrectness, ReviewStatus } from '@/types/cgt-report';
+import { getReport, getVerification, updateVerificationReview, updateReport } from '@/lib/report-storage';
+import type { CGTReport, VerificationRecord, VerificationReview, ReviewCorrectness, ReviewStatus } from '@/types/cgt-report';
 
 const EXTERNAL_API_URL = process.env.NEXT_PUBLIC_ADMIN_API_URL || 'https://cgtbrain.com.au';
 const FORWARD_TIMEOUT_MS = 15000;
 
 /**
+ * Helper to make a fetch with timeout.
+ */
+async function fetchWithTimeout(url: string, options: RequestInit): Promise<Response> {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), FORWARD_TIMEOUT_MS);
+  try {
+    const response = await fetch(url, { ...options, signal: controller.signal });
+    return response;
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
+
+/**
+ * Ensure the report has an annotation queue item in the external backend.
+ * If `report.annotationItemId` already exists, returns it.
+ * Otherwise, calls `/annotation/add/` to create one and persists the ID.
+ */
+async function ensureAnnotationItem(
+  report: CGTReport,
+  verification: VerificationRecord
+): Promise<{ itemId: string | null; error?: string }> {
+  // Already have a cached ID — verify it still exists
+  if (report.annotationItemId) {
+    console.log(`🔍 Using cached annotationItemId: ${report.annotationItemId}`);
+    return { itemId: report.annotationItemId };
+  }
+
+  // Build the payload for /annotation/add/ using data from report + verification
+  const analysisResponse = report.analysisResponse;
+  const analysisData = analysisResponse?.data || analysisResponse || {};
+
+  // Extract properties_data in the format the backend expects
+  const propertiesData = report.timelineData?.properties?.map((p: any) => ({
+    address: p.address || p.name || 'Unknown',
+    property_history: (report.timelineData?.events || [])
+      .filter((e: any) => e.propertyId === p.id)
+      .map((e: any) => ({
+        date: e.date,
+        event: e.type || e.eventType,
+        price: e.amount || e.price || undefined,
+      })),
+    notes: p.notes || undefined,
+  })) || [];
+
+  // Use the verification prompt as the query (same text the AnnotationPanel would show)
+  const query = report.verificationPrompt
+    || verification.scenario
+    || analysisData.query
+    || 'CGT analysis';
+
+  // Use the AI's answer text
+  const generatedAnswer = verification.ourAnswer
+    || analysisData.answer
+    || JSON.stringify(analysisData).substring(0, 5000);
+
+  const addPayload = {
+    query,
+    properties_data: propertiesData,
+    generated_answer: generatedAnswer,
+    retrieved_docs: analysisData.sources?.documents || [],
+    sources: analysisData.sources || {},
+    llm_used: report.llmProvider || 'unknown',
+  };
+
+  console.log('📤 Creating annotation queue item via /annotation/add/', {
+    query: query.substring(0, 100) + '...',
+    propertiesCount: propertiesData.length,
+    llm: addPayload.llm_used,
+  });
+
+  try {
+    const response = await fetchWithTimeout(`${EXTERNAL_API_URL}/annotation/add/`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(addPayload),
+    });
+
+    if (!response.ok) {
+      const text = await response.text().catch(() => 'No response body');
+      return { itemId: null, error: `/annotation/add/ failed (${response.status}): ${text}` };
+    }
+
+    const result = await response.json();
+    const itemId = result.id || result.item_id || result.data?.id || null;
+
+    if (!itemId) {
+      console.error('❌ /annotation/add/ returned no item ID:', result);
+      return { itemId: null, error: 'Backend did not return an item ID from /annotation/add/' };
+    }
+
+    console.log(`✅ Annotation queue item created: ${itemId}`);
+
+    // Persist the ID on the report for future use
+    await updateReport(report.id, { annotationItemId: itemId });
+
+    return { itemId };
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Unknown error';
+    return { itemId: null, error: `Failed to create annotation item: ${message}` };
+  }
+}
+
+/**
  * Forward a CCH review to the external backend so it appears in the Accuracy Dashboard.
- * Maps CCH review fields to the annotation submit/update format used by AnnotationPanel.
+ *
+ * Flow:
+ * 1. Ensure the report has an annotation queue item (creates one via /annotation/add/ if needed)
+ * 2. Submit/update the review via /annotation/submit/ or /annotation/update/
  */
 async function forwardReviewToBackend(
   report: CGTReport,
+  verification: VerificationRecord,
   review: VerificationReview,
   isEdit: boolean
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    // Extract session_id: prefer explicit field, then dig through analysisResponse
-    const analysisResponse = report.analysisResponse;
-    const sessionId = report.sessionId
-      || analysisResponse?.session_id
-      || analysisResponse?.data?.session_id
-      || analysisResponse?.data?.data?.session_id
-      || analysisResponse?.id
-      || analysisResponse?.data?.id
-      || null;
+    // Step 1: Ensure we have an annotation queue item
+    const { itemId, error: addError } = await ensureAnnotationItem(report, verification);
 
-    console.log('🔍 CCH review forward — session_id extraction:', {
-      reportId: report.id,
-      explicitSessionId: report.sessionId ?? 'not set',
-      extractedSessionId: sessionId,
-      analysisResponseKeys: analysisResponse ? Object.keys(analysisResponse) : 'null',
-    });
-
-    if (!sessionId) {
-      console.error('❌ Cannot forward CCH review: No session_id found in report', {
-        reportId: report.id,
-        analysisResponseKeys: analysisResponse ? Object.keys(analysisResponse) : 'null',
-      });
-      return { success: false, error: 'No session_id found in report — cannot map to backend annotation item' };
+    if (!itemId) {
+      return { success: false, error: addError || 'Could not create annotation queue item' };
     }
 
-    // Map correctness: 'unsure' → 'na' for the external backend
+    // Step 2: Submit/update the review
     const mappedCorrectness = review.correctness === 'unsure' ? 'na' : review.correctness;
 
     const payload = {
-      item_id: sessionId,
+      item_id: itemId,
       correctness: mappedCorrectness,
       correct_answer: review.correctAnswer || null,
       doc_annotations: [],
@@ -59,22 +149,16 @@ async function forwardReviewToBackend(
       annotator: `cch_reviewer:${review.reviewedBy || 'admin'}`,
     };
 
-    console.log('📤 CCH review forward payload:', JSON.stringify(payload, null, 2));
-
     const endpoint = isEdit ? '/annotation/update/' : '/annotation/submit/';
     const method = isEdit ? 'PUT' : 'POST';
 
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), FORWARD_TIMEOUT_MS);
+    console.log(`📤 Forwarding CCH review to ${endpoint}:`, { item_id: itemId, correctness: mappedCorrectness });
 
-    const response = await fetch(`${EXTERNAL_API_URL}${endpoint}`, {
+    const response = await fetchWithTimeout(`${EXTERNAL_API_URL}${endpoint}`, {
       method,
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
-      signal: controller.signal,
     });
-
-    clearTimeout(timeoutId);
 
     if (!response.ok) {
       const text = await response.text().catch(() => 'No response body');
@@ -188,7 +272,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
 
     // Forward to external backend (non-blocking — KV save already succeeded)
     const isEdit = !!existingReview?.reviewedAt;
-    const forwardResult = await forwardReviewToBackend(report, review, isEdit);
+    const forwardResult = await forwardReviewToBackend(report, verification, review, isEdit);
 
     // Update the review with forwarding status
     if (forwardResult.success) {

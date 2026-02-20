@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useCallback, useMemo, useState, useEffect } from 'react';
+import React, { useCallback, useMemo, useState, useEffect, useRef } from 'react';
 import { AnimatePresence } from 'framer-motion';
+import { StickyNote as StickyNoteIcon, Plus } from 'lucide-react';
 import { useTimelineStore } from '@/store/timeline';
 import StickyNote from './StickyNote';
 import StickyNoteArrow from './StickyNoteArrow';
@@ -9,6 +10,7 @@ import {
   TimelineNotePosition,
   isTimelinePosition,
   STICKY_NOTE_COLORS,
+  DEFAULT_STICKY_NOTE_COLOR,
 } from '@/types/sticky-note';
 
 interface StickyNotesLayerProps {
@@ -43,11 +45,16 @@ export default function StickyNotesLayer({
     updateTimelineStickyNote,
     deleteTimelineStickyNote,
     moveTimelineStickyNote,
+    addTimelineStickyNote,
     toggleStickyNoteArrow,
     updateStickyNoteArrowTarget,
     timelineStart,
     timelineEnd,
   } = useTimelineStore();
+
+  // Right-click context menu state
+  const [contextMenu, setContextMenu] = useState<{ x: number; y: number; clientX: number; clientY: number } | null>(null);
+  const contextMenuRef = useRef<HTMLDivElement>(null);
 
   // Track container dimensions for SVG viewBox
   const [containerDims, setContainerDims] = useState({ width: 0, height: 0 });
@@ -76,6 +83,54 @@ export default function StickyNotesLayer({
       container.removeEventListener('scroll', updateDims);
     };
   }, [containerRef]);
+
+  // Attach right-click handler to the container element directly
+  useEffect(() => {
+    if (isReadOnly) return;
+    const container = containerRef.current;
+    if (!container) return;
+
+    const onContextMenu = (e: MouseEvent) => {
+      // Don't show context menu if right-clicking on a sticky note itself
+      const target = e.target as HTMLElement;
+      if (target.closest('[data-sticky-note]')) return;
+
+      e.preventDefault();
+      const containerRect = container.getBoundingClientRect();
+      setContextMenu({
+        x: e.clientX - containerRect.left,
+        y: e.clientY - containerRect.top,
+        clientX: e.clientX,
+        clientY: e.clientY,
+      });
+    };
+
+    container.addEventListener('contextmenu', onContextMenu);
+    return () => {
+      container.removeEventListener('contextmenu', onContextMenu);
+    };
+  }, [isReadOnly, containerRef]);
+
+  // Close context menu on click-away or Escape
+  useEffect(() => {
+    if (!contextMenu) return;
+
+    const handleClickAway = (e: MouseEvent) => {
+      if (contextMenuRef.current && !contextMenuRef.current.contains(e.target as Node)) {
+        setContextMenu(null);
+      }
+    };
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setContextMenu(null);
+    };
+
+    document.addEventListener('mousedown', handleClickAway);
+    document.addEventListener('keydown', handleEscape);
+    return () => {
+      document.removeEventListener('mousedown', handleClickAway);
+      document.removeEventListener('keydown', handleEscape);
+    };
+  }, [contextMenu]);
 
   // Convert a date to X position (percentage of timeline width)
   const dateToPosition = useCallback(
@@ -176,6 +231,23 @@ export default function StickyNotesLayer({
     [clientToTimelinePosition, updateStickyNoteArrowTarget]
   );
 
+  // Add note at context menu position
+  const handleAddNoteAtPosition = useCallback(() => {
+    if (!contextMenu) return;
+    const pos = clientToTimelinePosition(contextMenu.clientX, contextMenu.clientY);
+    if (!pos) return;
+
+    addTimelineStickyNote({
+      content: '',
+      color: DEFAULT_STICKY_NOTE_COLOR,
+      context: 'timeline',
+      position: { anchorDate: pos.anchorDate, verticalOffset: pos.verticalOffset },
+      isMinimized: false,
+      zIndex: 1000 + timelineStickyNotes.length,
+    });
+    setContextMenu(null);
+  }, [contextMenu, clientToTimelinePosition, addTimelineStickyNote, timelineStickyNotes.length]);
+
   // Filter to only timeline notes
   const timelineNotes = useMemo(
     () => timelineStickyNotes.filter((note) => note.context === 'timeline'),
@@ -190,81 +262,100 @@ export default function StickyNotesLayer({
     [timelineNotes]
   );
 
-  // Don't render anything if no notes
-  if (timelineNotes.length === 0) {
-    return null;
-  }
-
   return (
-    // Container with pointer-events: none - allows timeline interactions to pass through
-    <div
-      className="absolute inset-0 overflow-hidden"
-      style={{
-        pointerEvents: 'none',
-        zIndex: 50, // Above timeline events but below modals
-      }}
-    >
-      {/* Arrow SVG layer - behind notes */}
-      {notesWithArrows.length > 0 && containerDims.width > 0 && (
-        <svg
-          className="absolute inset-0"
-          width={containerDims.width}
-          height={containerDims.height}
-          style={{ pointerEvents: 'none', zIndex: 0, overflow: 'visible' }}
+    <>
+      {/* Context menu popup */}
+      {contextMenu && (
+        <div
+          ref={contextMenuRef}
+          className="fixed bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-600 py-1 z-[9999]"
+          style={{ left: contextMenu.clientX, top: contextMenu.clientY }}
         >
-          {notesWithArrows.map((note) => {
-            const position = note.position as TimelineNotePosition;
-            const notePos = getPixelPosition(position.anchorDate, position.verticalOffset);
-            const targetPos = getPixelPosition(
-              note.arrow!.target.anchorDate,
-              note.arrow!.target.verticalOffset
-            );
-            return (
-              <StickyNoteArrow
-                key={`arrow-${note.id}`}
-                noteId={note.id}
-                noteX={notePos.x}
-                noteY={notePos.y}
-                targetX={targetPos.x}
-                targetY={targetPos.y}
-                color={STICKY_NOTE_COLORS[note.color].border}
-                isMinimized={!!note.isMinimized}
-                isReadOnly={isReadOnly}
-                onArrowDragEnd={handleArrowDragEnd}
-              />
-            );
-          })}
-        </svg>
+          <button
+            onClick={handleAddNoteAtPosition}
+            className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-amber-50 dark:hover:bg-amber-900/30 w-full text-left transition-colors"
+          >
+            <div className="relative">
+              <StickyNoteIcon className="w-4 h-4 text-amber-600" />
+              <Plus className="w-2.5 h-2.5 absolute -bottom-0.5 -right-0.5 text-amber-600" />
+            </div>
+            Add Note Here
+          </button>
+        </div>
       )}
 
-      {/* Notes layer */}
-      <AnimatePresence>
-        {timelineNotes.map((note) => {
-          if (!isTimelinePosition(note.position)) return null;
-          const position = note.position as TimelineNotePosition;
-          const noteStyle = getNoteStyle(position);
-
-          return (
-            // Each note wrapper has pointer-events: auto - can be interacted with
-            <div
-              key={note.id}
-              style={{
-                ...noteStyle,
-                pointerEvents: 'auto', // Only the note itself captures events
-              }}
+      {/* Container with pointer-events: none - allows timeline interactions to pass through */}
+      {timelineNotes.length > 0 && (
+        <div
+          className="absolute inset-0 overflow-hidden"
+          style={{
+            pointerEvents: 'none',
+            zIndex: 50, // Above timeline events but below modals
+          }}
+        >
+          {/* Arrow SVG layer - behind notes */}
+          {notesWithArrows.length > 0 && containerDims.width > 0 && (
+            <svg
+              className="absolute inset-0"
+              width={containerDims.width}
+              height={containerDims.height}
+              style={{ pointerEvents: 'none', zIndex: 0, overflow: 'visible' }}
             >
-              <StickyNote
-                note={note}
-                onUpdate={updateTimelineStickyNote}
-                onDelete={deleteTimelineStickyNote}
-                onDragEnd={handleDragEnd}
-                onToggleArrow={toggleStickyNoteArrow}
-                isReadOnly={isReadOnly}
-              />
-            </div>
-          );
-        })}
-      </AnimatePresence>
-    </div>
+              {notesWithArrows.map((note) => {
+                const position = note.position as TimelineNotePosition;
+                const notePos = getPixelPosition(position.anchorDate, position.verticalOffset);
+                const targetPos = getPixelPosition(
+                  note.arrow!.target.anchorDate,
+                  note.arrow!.target.verticalOffset
+                );
+                return (
+                  <StickyNoteArrow
+                    key={`arrow-${note.id}`}
+                    noteId={note.id}
+                    noteX={notePos.x}
+                    noteY={notePos.y}
+                    targetX={targetPos.x}
+                    targetY={targetPos.y}
+                    color={STICKY_NOTE_COLORS[note.color].border}
+                    isMinimized={!!note.isMinimized}
+                    isReadOnly={isReadOnly}
+                    onArrowDragEnd={handleArrowDragEnd}
+                  />
+                );
+              })}
+            </svg>
+          )}
+
+          {/* Notes layer */}
+          <AnimatePresence>
+            {timelineNotes.map((note) => {
+              if (!isTimelinePosition(note.position)) return null;
+              const position = note.position as TimelineNotePosition;
+              const noteStyle = getNoteStyle(position);
+
+              return (
+                // Each note wrapper has pointer-events: auto - can be interacted with
+                <div
+                  key={note.id}
+                  style={{
+                    ...noteStyle,
+                    pointerEvents: 'auto', // Only the note itself captures events
+                  }}
+                >
+                  <StickyNote
+                    note={note}
+                    onUpdate={updateTimelineStickyNote}
+                    onDelete={deleteTimelineStickyNote}
+                    onDragEnd={handleDragEnd}
+                    onToggleArrow={toggleStickyNoteArrow}
+                    isReadOnly={isReadOnly}
+                  />
+                </div>
+              );
+            })}
+          </AnimatePresence>
+        </div>
+      )}
+    </>
   );
 }

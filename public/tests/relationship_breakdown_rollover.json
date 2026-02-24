@@ -2,6 +2,7 @@
   "properties": [
     {
       "address": "156 Harmony Street, South Yarra VIC 3141",
+      "owners": [{"name": "transferee", "percentage": 100}],
       "property_history": [
         {
           "date": "2010-09-01",
@@ -27,7 +28,11 @@
           "date": "2019-06-01",
           "event": "ownership_change",
           "market_value": 920000,
-          "description": "Property transferred as part of divorce settlement"
+          "description": "Property transferred as part of divorce settlement",
+          "leavingOwners": ["partner A"],
+          "newOwners": [{"name": "transferee", "percentage": 100}],
+          "previousOwners": [{"name": "partner A", "percentage": 50}, {"name": "partner B", "percentage": 50}],
+          "ownershipChangeReason": "divorce"
         },
         {
           "date": "2019-07-01",

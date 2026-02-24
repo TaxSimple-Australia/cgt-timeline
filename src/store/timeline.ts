@@ -2464,7 +2464,20 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
           const propertyEvents: TimelineEvent[] = [];
 
           if (prop.property_history && Array.isArray(prop.property_history)) {
-            prop.property_history.forEach((historyItem: any, eventIndex: number) => {
+            // First pass: separate status_change items from regular events
+            // status_change events are contextual metadata (deaths, separations, business use changes)
+            // that should be merged into nearby events rather than displayed as timeline circles
+            const regularHistory: any[] = [];
+            const statusChangeHistory: any[] = [];
+            prop.property_history.forEach((historyItem: any) => {
+              if (historyItem.event === 'status_change') {
+                statusChangeHistory.push(historyItem);
+              } else {
+                regularHistory.push(historyItem);
+              }
+            });
+
+            regularHistory.forEach((historyItem: any, eventIndex: number) => {
               const eventDate = new Date(historyItem.date);
               const eventType = historyItem.event as EventType;
 
@@ -2624,6 +2637,105 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
 
               propertyEvents.push(event);
             });
+
+            // Post-process: Detect partial rental from scenario data and populate mixed-use fields
+            // This enables the "(Mixed Use)" subtitle for imported scenario JSONs
+            const purchaseEvt = propertyEvents.find(e => e.type === 'purchase');
+            const hasMoveInEvt = propertyEvents.some(e => e.type === 'move_in');
+
+            if (purchaseEvt && hasMoveInEvt && !purchaseEvt.livingUsePercentage && !purchaseEvt.rentalUsePercentage) {
+              for (let i = 0; i < propertyEvents.length; i++) {
+                const evt = propertyEvents[i];
+                if (evt.type !== 'rent_start') continue;
+
+                // Find the corresponding raw history item for floor_area_percentage
+                const rawItem = regularHistory.find((h: any) =>
+                  h.event === 'rent_start' && new Date(h.date).getTime() === evt.date.getTime()
+                );
+
+                const floorAreaPct = rawItem?.floor_area_percentage;
+                const floorData = evt.floorAreaData as any;
+
+                if (floorAreaPct || floorData) {
+                  let rentalPct = 0;
+
+                  if (floorAreaPct) {
+                    rentalPct = floorAreaPct;
+                  } else if (floorData) {
+                    const exclusiveArea = floorData.exclusive || floorData.rental || 0;
+                    const sharedArea = floorData.shared || 0;
+                    const totalArea = floorData.total || 0;
+                    if (totalArea > 0) {
+                      rentalPct = Math.round(((exclusiveArea / totalArea) * 100) + ((sharedArea / totalArea) * 50));
+                    } else if (exclusiveArea > 0 || sharedArea > 0) {
+                      rentalPct = 20;
+                    }
+                  }
+
+                  if (rentalPct > 0) {
+                    purchaseEvt.livingUsePercentage = 100 - rentalPct;
+                    purchaseEvt.rentalUsePercentage = rentalPct;
+                    purchaseEvt.checkboxState = {
+                      ...purchaseEvt.checkboxState,
+                      purchaseAsMixedUse: true,
+                    };
+                    break;
+                  }
+                }
+              }
+            }
+
+            // Second pass: merge status_change descriptions into nearest events
+            // This preserves ALL data for the model while removing visual clutter from the timeline
+            if (statusChangeHistory.length > 0 && propertyEvents.length > 0) {
+              statusChangeHistory.forEach((sc: any) => {
+                const scDate = new Date(sc.date).getTime();
+
+                // Build comprehensive description from all status_change fields
+                const parts: string[] = [];
+                if (sc.title && sc.title !== 'Status Change') parts.push(`[${sc.title}]`);
+                if (sc.description) parts.push(sc.description);
+                if (sc.notes) parts.push(sc.notes);
+                if (sc.market_value) parts.push(`Market value at time: $${Number(sc.market_value).toLocaleString()}`);
+                if (sc.market_value_at_death) parts.push(`Market value at death: $${Number(sc.market_value_at_death).toLocaleString()}`);
+                if (sc.new_status) parts.push(`Status changed to: ${sc.new_status}`);
+                const scText = parts.join('. ');
+                if (!scText) return; // Skip empty status_changes
+
+                // Find the closest event by date
+                let closestEvent = propertyEvents[0];
+                let closestDiff = Math.abs(new Date(propertyEvents[0].date).getTime() - scDate);
+                for (let i = 1; i < propertyEvents.length; i++) {
+                  const diff = Math.abs(new Date(propertyEvents[i].date).getTime() - scDate);
+                  if (diff < closestDiff) {
+                    closestDiff = diff;
+                    closestEvent = propertyEvents[i];
+                  }
+                }
+
+                // Append status_change info to the closest event's description
+                const dateStr = sc.date ? ` (${sc.date})` : '';
+                const mergedText = `[Status context${dateStr}: ${scText}]`;
+                closestEvent.description = closestEvent.description
+                  ? `${closestEvent.description}. ${mergedText}`
+                  : mergedText;
+              });
+            } else if (statusChangeHistory.length > 0 && propertyEvents.length === 0) {
+              // No other events exist — append all status_change data to property notes
+              const allStatusText = statusChangeHistory.map((sc: any) => {
+                const parts: string[] = [];
+                if (sc.date) parts.push(sc.date);
+                if (sc.title && sc.title !== 'Status Change') parts.push(sc.title);
+                if (sc.description) parts.push(sc.description);
+                if (sc.notes) parts.push(sc.notes);
+                if (sc.market_value) parts.push(`Market value: $${Number(sc.market_value).toLocaleString()}`);
+                if (sc.market_value_at_death) parts.push(`Market value at death: $${Number(sc.market_value_at_death).toLocaleString()}`);
+                return parts.join(' - ');
+              }).join('; ');
+              prop.notes = prop.notes
+                ? `${prop.notes}. Status changes: ${allStatusText}`
+                : `Status changes: ${allStatusText}`;
+            }
           }
 
           // Create property
@@ -2651,6 +2763,18 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
             initialCostBase: prop.initialCostBase,
             isMainLotContinuation: prop.isMainLotContinuation,
           };
+
+          // Auto-apply ownership from ownership_change events if property doesn't have owners
+          if (!property.owners || property.owners.length === 0) {
+            // Sort ownership_change events chronologically and apply the last one's newOwners
+            const ownershipEvents = propertyEvents
+              .filter(e => e.type === 'ownership_change' && e.newOwners && e.newOwners.length > 0)
+              .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+            if (ownershipEvents.length > 0) {
+              const lastOwnershipEvent = ownershipEvents[ownershipEvents.length - 1];
+              property.owners = lastOwnershipEvent.newOwners;
+            }
+          }
 
           importedProperties.push(property);
           importedEvents.push(...propertyEvents);

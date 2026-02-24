@@ -46,7 +46,11 @@
           "market_value_at_transfer": 1850000,
           "rollover_applies": true,
           "notes": "Spouse B received full ownership under BFA",
-          "description": "Divorce property settlement - ownership transfer"
+          "description": "Divorce property settlement - ownership transfer",
+          "leavingOwners": ["husband"],
+          "newOwners": [{"name": "wife", "percentage": 100}],
+          "previousOwners": [{"name": "husband", "percentage": 50}, {"name": "wife", "percentage": 50}],
+          "ownershipChangeReason": "divorce"
         },
         {
           "date": "2021-06-01",
@@ -71,7 +75,8 @@
           "legal_fees": 5200
         }
       ],
-      "notes": "sold - Transferred to Spouse B who continued living there briefly then rented it."
+      "notes": "sold - Transferred to Spouse B who continued living there briefly then rented it.",
+      "owners": [{"name": "wife", "percentage": 100}]
     }
   ],
   "user_query": "My ex-wife and I bought our home in 2010. We separated in 2019, I moved out in 2020, and she got full ownership in 2021. She lived there until mid-2021 then moved interstate and rented it out for 4 years before selling. How does the CGT work when she's changed the use after the divorce transfer?",

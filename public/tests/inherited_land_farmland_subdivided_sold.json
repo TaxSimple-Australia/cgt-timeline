@@ -82,6 +82,17 @@
           "notes": "Two children inherited farm equally"
         },
         {
+          "date": "2021-06-01",
+          "event": "ownership_change",
+          "title": "Ownership Transfer",
+          "description": "Property inherited by beneficiaries",
+          "leavingOwners": ["father"],
+          "newOwners": [{"name": "Child A", "percentage": 50}, {"name": "Child B", "percentage": 50}],
+          "previousOwners": [{"name": "father", "percentage": 100}],
+          "ownershipChangeReason": "other",
+          "ownershipChangeReasonOther": "Inheritance"
+        },
+        {
           "date": "2023-09-01",
           "event": "subdivision",
           "title": "Subdivided",
@@ -122,6 +133,7 @@
         }
       ],
       "notes": "Original farm property inherited from parents. Subdivided into 6 lots - Lot 1 retained with farmhouse, Lots 2-6 sold.",
+      "owners": [{"name": "Child A", "percentage": 50}, {"name": "Child B", "percentage": 50}],
       "color": "#10B981",
       "branch": 0,
       "subdivisionGroup": "d956ea87-22bb-4380-988b-ddc5cb2001c6",

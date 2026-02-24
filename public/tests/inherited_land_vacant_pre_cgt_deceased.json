@@ -23,7 +23,12 @@
           "event": "ownership_change",
           "beneficiary": "Son",
           "notes": "Inherited under will.",
-          "description": "Property inherited by beneficiary"
+          "description": "Property inherited by beneficiary",
+          "leavingOwners": ["father"],
+          "newOwners": [{"name": "child", "percentage": 100}],
+          "previousOwners": [{"name": "father", "percentage": 100}],
+          "ownershipChangeReason": "other",
+          "ownershipChangeReasonOther": "Inheritance"
         },
         {
           "date": "2025-08-20",
@@ -35,7 +40,8 @@
           "notes": "Sold within 2 years of death"
         }
       ],
-      "notes": "sold - Inherited vacant land. Father owned pre-CGT (1978). Never developed."
+      "notes": "sold - Inherited vacant land. Father owned pre-CGT (1978). Never developed.",
+      "owners": [{"name": "child", "percentage": 100}]
     }
   ],
   "user_query": "My father bought vacant land in 1978 for $25,000 and never built on it. He passed away in 2022 and I inherited it. I've now sold it for $780,000. Since the land was bought before CGT, is it still exempt? I heard there's a 2-year rule for inherited property.",

@@ -2,6 +2,7 @@
   "properties": [
     {
       "address": "77 Heritage Estate, Hunters Hill NSW 2110",
+      "owners": [{"name": "husband", "percentage": 100}],
       "property_history": [
         {
           "date": "1983-09-20",
@@ -29,7 +30,12 @@
           "previous_ownership": "100% Spouse A",
           "new_ownership": "Joint tenants 50/50",
           "no_consideration": true,
-          "notes": "Added Spouse B to title after marriage."
+          "notes": "Added Spouse B to title after marriage.",
+          "leavingOwners": [],
+          "newOwners": [{"name": "husband", "percentage": 50}, {"name": "wife", "percentage": 50}],
+          "previousOwners": [{"name": "husband", "percentage": 100}],
+          "ownershipChangeReason": "other",
+          "ownershipChangeReasonOther": "Added spouse to title"
         },
         {
           "date": "2005-03-01",
@@ -52,7 +58,11 @@
           "market_value_at_transfer": 4200000,
           "rollover_applies": true,
           "notes": "Full property transferred to Spouse B.",
-          "description": "Divorce property settlement - ownership transfer"
+          "description": "Divorce property settlement - ownership transfer",
+          "leavingOwners": ["wife"],
+          "newOwners": [{"name": "husband", "percentage": 100}],
+          "previousOwners": [{"name": "husband", "percentage": 50}, {"name": "wife", "percentage": 50}],
+          "ownershipChangeReason": "divorce"
         },
         {
           "date": "2021-05-01",

@@ -68,6 +68,18 @@
           "description": "Death of owner - property passes to beneficiary. Market value at date of death: $685,000. Two-year deceased estate exemption period begins."
         },
         {
+          "date": "2023-03-10",
+          "event": "ownership_change",
+          "title": "Ownership Change",
+          "checkboxState": {},
+          "description": "Property inherited from mother by William",
+          "leavingOwners": ["mother"],
+          "newOwners": [{"name": "William", "percentage": 100}],
+          "previousOwners": [{"name": "mother", "percentage": 100}],
+          "ownershipChangeReason": "other",
+          "ownershipChangeReasonOther": "Inheritance"
+        },
+        {
           "date": "2024-11-15",
           "event": "sale",
           "price": 715000,
@@ -96,6 +108,7 @@
           "description": "Property sold by beneficiary for $715,000 within 2-year exemption period (1 year 8 months after death)"
         }
       ],
+      "owners": [{"name": "William", "percentage": 100}],
       "notes": "**Batch 1,2,3 - Scenario 24: Deceased Estate - Two-Year Exemption**\n\nProperty was deceased's main residence. Beneficiary sold within 2 years of death, qualifying for full main residence exemption.\n\n**Timeline:**\n- 15 Jun 1995 to 10 Mar 2023: Main residence (deceased) - 27.73 years\n- 10 Mar 2023: Death of owner - property passes to beneficiary\n- 10 Mar 2023 to 15 Nov 2024: Deceased estate period (1.69 years - within 2-year limit)\n\n**Key Rules:**\n- Beneficiary's cost base: Market value at date of death ($685,000)\n- Beneficiary sold within 2 years: Qualifies for full main residence exemption\n- Capital gain for beneficiary: $715,000 - $685,000 - $20,075 = $9,925\n- **NO CGT PAYABLE** - Two-year deceased estate exemption applies\n\n**Expected Result:**\n- NO CGT PAYABLE - Two-year deceased estate exemption (s118-195 ITAA 1997)\n\n**ATO Rules Applied:**\n- Section 118-195 ITAA 1997 (Deceased Estate Exemption)\n- If beneficiary sells within 2 years of death, main residence exemption continues\n- Section 128-15 ITAA 1997 (Market value cost base for beneficiary)",
       "color": "#10B981",
       "branch": 0

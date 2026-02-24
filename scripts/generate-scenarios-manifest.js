@@ -1,100 +1,134 @@
 /**
  * Script to generate a scenarios manifest file
  * This runs at build time to create a single JSON file with all scenario metadata
- * Instead of fetching 82 files, the app only needs to fetch this one manifest
+ * Instead of fetching each file individually, the app only needs to fetch this one manifest
  */
 
 const fs = require('fs');
 const path = require('path');
 
-// Scenario configuration - same as in ScenarioSelectorModal.tsx
+// Scenario configuration - categories match ScenarioSelectorModal.tsx CATEGORIES
 const SCENARIO_CONFIG = [
-  // Core Concepts (1-10)
-  { filename: 'scenario1_full_main_residence_exemption.json', displayTitle: 'Full Main Residence Exemption', category: 'Core Concepts' },
-  { filename: 'scenario2_six_year_rule_within.json', displayTitle: '6-Year Absence Rule (Within Limit)', category: 'Core Concepts' },
-  { filename: 'scenario3_six_year_rule_exceeded.json', displayTitle: '6-Year Absence Rule (Exceeded)', category: 'Core Concepts' },
-  { filename: 'scenario4_rental_first_then_main_residence.json', displayTitle: 'Rental First, Then Main Residence', category: 'Core Concepts' },
-  { filename: 'scenario5_moving_between_residences.json', displayTitle: 'Moving Between Residences', category: 'Core Concepts' },
-  { filename: 'new_scenario_1_full_main_residence.json', displayTitle: 'Full Main Residence (Variant B)', category: 'Core Concepts' },
-  { filename: 'new_scenario_2_six_year_within.json', displayTitle: '6-Year Rule Within (Variant B)', category: 'Core Concepts' },
-  { filename: 'new_scenario_3_six_year_exceeded.json', displayTitle: '6-Year Rule Exceeded (Variant B)', category: 'Core Concepts' },
-  { filename: 'new_scenario_4_rental_first.json', displayTitle: 'Rental First (Variant B)', category: 'Core Concepts' },
-  { filename: 'new_scenario_5_moving_between_residences.json', displayTitle: 'Moving Between Residences (Variant B)', category: 'Core Concepts' },
-  // Multi-Factor (11-20)
-  { filename: 'scenario6_multiple_absence_periods.json', displayTitle: 'Multiple Absence Periods', category: 'Multi-Factor' },
-  { filename: 'scenario7_two_properties_strategic_mre.json', displayTitle: 'Two Properties - Strategic MRE Choice', category: 'Multi-Factor' },
-  { filename: 'scenario8_inherited_property_rental.json', displayTitle: 'Inherited Property with Rental', category: 'Multi-Factor' },
-  { filename: 'scenario9_investment_then_ppr_then_rental.json', displayTitle: 'Investment → Main Residence → Rental', category: 'Multi-Factor' },
-  { filename: 'scenario10_six_month_overlap_exceeded.json', displayTitle: '6-Month Overlap Rule Exceeded', category: 'Multi-Factor' },
-  { filename: 'scenario11_construction_four_year_rule.json', displayTitle: 'Construction & 4-Year Building Rule', category: 'Multi-Factor' },
-  { filename: 'scenario12_airbnb_room_rental.json', displayTitle: 'Partial Use - Airbnb Room Rental', category: 'Multi-Factor' },
-  { filename: 'scenario13_couple_separate_properties.json', displayTitle: 'Couple with Separate Properties', category: 'Multi-Factor' },
-  { filename: 'scenario14_foreign_resident_period.json', displayTitle: 'Foreign Resident Period Impact', category: 'Multi-Factor' },
-  { filename: 'scenario15_three_property_portfolio.json', displayTitle: 'Three Property Portfolio', category: 'Multi-Factor' },
-  // Special Rules (21-40)
-  { filename: 'scenario21_aged_care_indefinite_absence.json', displayTitle: 'Aged Care - Indefinite Absence', category: 'Special Rules' },
-  { filename: 'scenario22_delayed_move_in_work.json', displayTitle: 'Delayed Move-In (Work Assignment)', category: 'Special Rules' },
-  { filename: 'scenario23_six_year_periods_reset.json', displayTitle: 'Multiple 6-Year Periods Reset', category: 'Special Rules' },
-  { filename: 'scenario24_deceased_estate_two_years.json', displayTitle: 'Deceased Estate (Within 2 Years)', category: 'Special Rules' },
-  { filename: 'scenario25_beneficiary_moves_in.json', displayTitle: 'Beneficiary Moves Into Inherited Property', category: 'Special Rules' },
-  { filename: 'scenario26_pre_cgt_major_improvements.json', displayTitle: 'Pre-CGT with Major Improvements', category: 'Special Rules' },
-  { filename: 'scenario27_large_rural_property.json', displayTitle: 'Large Rural Property (>2 Hectares)', category: 'Special Rules' },
-  { filename: 'scenario28_granny_flat_arrangement.json', displayTitle: 'Granny Flat Arrangement', category: 'Special Rules' },
-  { filename: 'scenario29_relationship_breakdown.json', displayTitle: 'Relationship Breakdown Rollover', category: 'Special Rules' },
-  { filename: 'scenario30_home_office_business.json', displayTitle: 'Home Office Business Use', category: 'Special Rules' },
-  { filename: 'scenario31_foreign_resident_life_event.json', displayTitle: 'Foreign Resident Life Event', category: 'Special Rules' },
-  { filename: 'scenario32_pre_may_2012_foreign.json', displayTitle: 'Pre-9 May 2012 Foreign Residency', category: 'Special Rules' },
-  { filename: 'scenario33_spouses_different_residences.json', displayTitle: 'Spouses - Different Main Residences', category: 'Special Rules' },
-  { filename: 'scenario34_vacant_periods_extended_rental.json', displayTitle: 'Vacant Periods During Rental', category: 'Special Rules' },
-  { filename: 'scenario35_four_year_construction.json', displayTitle: '4-Year Construction Rule Exceeded', category: 'Special Rules' },
-  { filename: 'scenario36_subdivision_land_sale.json', displayTitle: 'Subdivision - Separate Land Sale', category: 'Special Rules' },
-  { filename: 'scenario37_deceased_estate_covid.json', displayTitle: 'Deceased Estate - COVID Extension', category: 'Special Rules' },
-  { filename: 'scenario38_small_business_15_year.json', displayTitle: 'Small Business 15-Year Exemption', category: 'Special Rules' },
-  { filename: 'scenario39_investment_then_main_residence.json', displayTitle: 'Investment Then Main Residence', category: 'Special Rules' },
-  { filename: 'scenario40_four_property_portfolio.json', displayTitle: 'Four Property Portfolio', category: 'Special Rules' },
-  // Real-World (41-82)
-  { filename: 'aged_care_main_residence.json', displayTitle: 'Aged Care - Main Residence', category: 'Real-World', path: 'tests' },
-  { filename: 'airbnb_investment_only.json', displayTitle: 'Airbnb - Investment Only', category: 'Real-World', path: 'tests' },
-  { filename: 'airbnb_spare_room.json', displayTitle: 'Airbnb - Spare Room', category: 'Real-World', path: 'tests' },
-  { filename: 'bare_trust_no_cgt.json', displayTitle: 'Bare Trust - No CGT', category: 'Real-World', path: 'tests' },
-  { filename: 'compulsory_acquisition_rollover.json', displayTitle: 'Compulsory Acquisition Rollover', category: 'Real-World', path: 'tests' },
-  { filename: 'death_of_joint_owner.json', displayTitle: 'Death of Joint Owner', category: 'Real-World', path: 'tests' },
-  { filename: 'defacto_breakdown_rollover.json', displayTitle: 'De Facto Breakdown Rollover', category: 'Real-World', path: 'tests' },
-  { filename: 'divorce_complex_mre_then_rented_after_transfer.json', displayTitle: 'Divorce - MRE Then Rented After Transfer', category: 'Real-World', path: 'tests' },
-  { filename: 'executor_sale_before_distribution.json', displayTitle: 'Executor Sale Before Distribution', category: 'Real-World', path: 'tests' },
-  { filename: 'first_use_overseas_posting.json', displayTitle: 'First Use - Overseas Posting', category: 'Real-World', path: 'tests' },
-  { filename: 'inherited_land_built_dwelling_then_sold.json', displayTitle: 'Inherited Land - Built Dwelling Then Sold', category: 'Real-World', path: 'tests' },
-  { filename: 'inherited_land_farmland_subdivided_sold.json', displayTitle: 'Inherited Farmland - Subdivided & Sold', category: 'Real-World', path: 'tests' },
-  { filename: 'inherited_land_vacant_pre_cgt_deceased.json', displayTitle: 'Inherited Vacant Land - Pre-CGT Deceased', category: 'Real-World', path: 'tests' },
-  { filename: 'inherited_property_2year_rule.json', displayTitle: 'Inherited Property - 2 Year Rule', category: 'Real-World', path: 'tests' },
-  { filename: 'investment_property_divorce_transfer.json', displayTitle: 'Investment Property - Divorce Transfer', category: 'Real-World', path: 'tests' },
-  { filename: 'joint_ownership_main_residence_choice.json', displayTitle: 'Joint Ownership - MR Choice', category: 'Real-World', path: 'tests' },
-  { filename: 'joint_sale_during_separation.json', displayTitle: 'Joint Sale During Separation', category: 'Real-World', path: 'tests' },
-  { filename: 'joint_tenants_equal_split.json', displayTitle: 'Joint Tenants - Equal Split', category: 'Real-World', path: 'tests' },
-  { filename: 'main_residence_land_exceeds_2ha.json', displayTitle: 'Main Residence - Land Exceeds 2ha', category: 'Real-World', path: 'tests' },
-  { filename: 'mortgagee_sale_foreclosure.json', displayTitle: 'Mortgagee Sale - Foreclosure', category: 'Real-World', path: 'tests' },
-  { filename: 'multiple_beneficiaries.json', displayTitle: 'Multiple Beneficiaries', category: 'Real-World', path: 'tests' },
-  { filename: 'pre_cgt_inheritance.json', displayTitle: 'Pre-CGT Inheritance', category: 'Real-World', path: 'tests' },
-  { filename: 'pre_cgt_property_with_improvements.json', displayTitle: 'Pre-CGT Property with Improvements', category: 'Real-World', path: 'tests' },
-  { filename: 'relationship_breakdown_rollover.json', displayTitle: 'Relationship Breakdown Rollover', category: 'Real-World', path: 'tests' },
-  { filename: 'six_month_overlap_old_home_rented.json', displayTitle: '6-Month Overlap - Old Home Rented', category: 'Real-World', path: 'tests' },
-  { filename: 'six_year_rule_exceeded.json', displayTitle: '6-Year Rule Exceeded', category: 'Real-World', path: 'tests' },
-  { filename: 'six_year_rule_multiple_absences.json', displayTitle: '6-Year Rule - Multiple Absences', category: 'Real-World', path: 'tests' },
-  { filename: 'six_year_rule_within_limit.json', displayTitle: '6-Year Rule Within Limit', category: 'Real-World', path: 'tests' },
-  { filename: 'subdivision_build_and_sell.json', displayTitle: 'Subdivision - Build & Sell', category: 'Real-World', path: 'tests' },
-  { filename: 'subdivision_main_residence_vacant_land.json', displayTitle: 'Subdivision - MR Vacant Land', category: 'Real-World', path: 'tests' },
-  { filename: 'subdivision_multiple_lots_sold.json', displayTitle: 'Subdivision - Multiple Lots Sold', category: 'Real-World', path: 'tests' },
-  { filename: 'subdivision_pre_cgt_property.json', displayTitle: 'Subdivision - Pre-CGT Property', category: 'Real-World', path: 'tests' },
-  { filename: 'subdivision_retain_dwelling_sell_vacant.json', displayTitle: 'Subdivision - Retain Dwelling, Sell Vacant', category: 'Real-World', path: 'tests' },
-  { filename: 'subdivision_strata_title.json', displayTitle: 'Subdivision - Strata Title', category: 'Real-World', path: 'tests' },
-  { filename: 'tenants_in_common_unequal.json', displayTitle: 'Tenants in Common - Unequal', category: 'Real-World', path: 'tests' },
-  { filename: 'time_apportionment_multiple_periods.json', displayTitle: 'Time Apportionment - Multiple Periods', category: 'Real-World', path: 'tests' },
-  { filename: 'time_apportionment_with_absence_rule.json', displayTitle: 'Time Apportionment with Absence Rule', category: 'Real-World', path: 'tests' },
-  { filename: 'transfer_to_family_trust.json', displayTitle: 'Transfer to Family Trust', category: 'Real-World', path: 'tests' },
-  { filename: 'trust_distribution_to_beneficiary.json', displayTitle: 'Trust Distribution to Beneficiary', category: 'Real-World', path: 'tests' },
-  { filename: 'two_year_building_rule_eligible.json', displayTitle: '2-Year Building Rule - Eligible', category: 'Real-World', path: 'tests' },
-  { filename: 'two_year_building_rule_exceeded.json', displayTitle: '2-Year Building Rule - Exceeded', category: 'Real-World', path: 'tests' },
-  { filename: 'two_year_building_rule_renovation.json', displayTitle: '2-Year Building Rule - Renovation', category: 'Real-World', path: 'tests' },
+  // === Main Residence (MRE, 6-year rule, absence, aged care) ===
+  { filename: 'scenario6_multiple_absence_periods.json', displayTitle: 'Multiple Absence Periods', category: 'Main Residence' },
+  { filename: 'scenario9_investment_then_ppr_then_rental.json', displayTitle: 'Investment → Main Residence → Rental', category: 'Main Residence' },
+  { filename: 'scenario22_delayed_move_in_work.json', displayTitle: 'Delayed Move-In (Work Assignment)', category: 'Main Residence' },
+  { filename: 'scenario23_six_year_periods_reset.json', displayTitle: 'Multiple 6-Year Periods Reset', category: 'Main Residence' },
+  { filename: 'scenario34_vacant_periods_extended_rental.json', displayTitle: 'Vacant Periods During Rental', category: 'Main Residence' },
+  { filename: 'scenario39_investment_then_main_residence.json', displayTitle: 'Investment Then Main Residence', category: 'Main Residence' },
+  // Main Residence test scenarios
+  { filename: 'aged_care_main_residence.json', displayTitle: 'Aged Care - Main Residence', category: 'Main Residence', path: 'tests' },
+  { filename: 'first_use_overseas_posting.json', displayTitle: 'First Use - Overseas Posting', category: 'Main Residence', path: 'tests' },
+  { filename: 'main_residence_land_exceeds_2ha.json', displayTitle: 'Main Residence - Land Exceeds 2ha', category: 'Main Residence', path: 'tests' },
+  { filename: 'six_month_overlap_old_home_rented.json', displayTitle: '6-Month Overlap - Old Home Rented', category: 'Main Residence', path: 'tests' },
+  { filename: 'six_year_rule_exceeded.json', displayTitle: '6-Year Rule Exceeded', category: 'Main Residence', path: 'tests' },
+  { filename: 'six_year_rule_multiple_absences.json', displayTitle: '6-Year Rule - Multiple Absences', category: 'Main Residence', path: 'tests' },
+  { filename: 'six_year_rule_within_limit.json', displayTitle: '6-Year Rule Within Limit', category: 'Main Residence', path: 'tests' },
+  { filename: 'time_apportionment_multiple_periods.json', displayTitle: 'Time Apportionment - Multiple Periods', category: 'Main Residence', path: 'tests' },
+  { filename: 'time_apportionment_with_absence_rule.json', displayTitle: 'Time Apportionment with Absence Rule', category: 'Main Residence', path: 'tests' },
+
+  // === Ownership Changes (inheritance, death, divorce, relationship breakdown, trusts) ===
+  { filename: 'scenario8_inherited_property_rental.json', displayTitle: 'Inherited Property with Rental', category: 'Ownership Changes' },
+  // Ownership Changes test scenarios
+  { filename: 'death_of_joint_owner.json', displayTitle: 'Death of Joint Owner', category: 'Ownership Changes', path: 'tests' },
+  { filename: 'defacto_breakdown_rollover.json', displayTitle: 'De Facto Breakdown Rollover', category: 'Ownership Changes', path: 'tests' },
+  { filename: 'divorce_complex_mre_then_rented_after_transfer.json', displayTitle: 'Divorce - MRE Then Rented After Transfer', category: 'Ownership Changes', path: 'tests' },
+  { filename: 'executor_sale_before_distribution.json', displayTitle: 'Executor Sale Before Distribution', category: 'Ownership Changes', path: 'tests' },
+  { filename: 'inherited_land_built_dwelling_then_sold.json', displayTitle: 'Inherited Land - Built Dwelling Then Sold', category: 'Ownership Changes', path: 'tests' },
+  { filename: 'inherited_land_farmland_subdivided_sold.json', displayTitle: 'Inherited Farmland - Subdivided & Sold', category: 'Ownership Changes', path: 'tests' },
+  { filename: 'inherited_land_vacant_pre_cgt_deceased.json', displayTitle: 'Inherited Vacant Land - Pre-CGT Deceased', category: 'Ownership Changes', path: 'tests' },
+  { filename: 'inherited_property_2year_rule.json', displayTitle: 'Inherited Property - 2 Year Rule', category: 'Ownership Changes', path: 'tests' },
+  { filename: 'investment_property_divorce_transfer.json', displayTitle: 'Investment Property - Divorce Transfer', category: 'Ownership Changes', path: 'tests' },
+  { filename: 'joint_sale_during_separation.json', displayTitle: 'Joint Sale During Separation', category: 'Ownership Changes', path: 'tests' },
+  { filename: 'mortgagee_sale_foreclosure.json', displayTitle: 'Mortgagee Sale - Foreclosure', category: 'Ownership Changes', path: 'tests' },
+  { filename: 'multiple_beneficiaries.json', displayTitle: 'Multiple Beneficiaries', category: 'Ownership Changes', path: 'tests' },
+  { filename: 'pre_cgt_inheritance.json', displayTitle: 'Pre-CGT Inheritance', category: 'Ownership Changes', path: 'tests' },
+  { filename: 'pre_cgt_property_with_improvements.json', displayTitle: 'Pre-CGT Property with Improvements', category: 'Ownership Changes', path: 'tests' },
+  { filename: 'relationship_breakdown_rollover.json', displayTitle: 'Relationship Breakdown Rollover', category: 'Ownership Changes', path: 'tests' },
+  { filename: 'transfer_to_family_trust.json', displayTitle: 'Transfer to Family Trust', category: 'Ownership Changes', path: 'tests' },
+  { filename: 'trust_distribution_to_beneficiary.json', displayTitle: 'Trust Distribution to Beneficiary', category: 'Ownership Changes', path: 'tests' },
+
+  // === Subdivision ===
+  { filename: 'scenario36_subdivision_land_sale.json', displayTitle: 'Subdivision - Separate Land Sale', category: 'Subdivision' },
+  // Subdivision test scenarios
+  { filename: 'subdivision_build_and_sell.json', displayTitle: 'Subdivision - Build & Sell', category: 'Subdivision', path: 'tests' },
+  { filename: 'subdivision_main_residence_vacant_land.json', displayTitle: 'Subdivision - MR Vacant Land', category: 'Subdivision', path: 'tests' },
+  { filename: 'subdivision_multiple_lots_sold.json', displayTitle: 'Subdivision - Multiple Lots Sold', category: 'Subdivision', path: 'tests' },
+  { filename: 'subdivision_pre_cgt_property.json', displayTitle: 'Subdivision - Pre-CGT Property', category: 'Subdivision', path: 'tests' },
+  { filename: 'subdivision_retain_dwelling_sell_vacant.json', displayTitle: 'Subdivision - Retain Dwelling, Sell Vacant', category: 'Subdivision', path: 'tests' },
+  { filename: 'subdivision_strata_title.json', displayTitle: 'Subdivision - Strata Title', category: 'Subdivision', path: 'tests' },
+
+  // === Multi-Property Portfolios ===
+  { filename: 'scenario7_two_properties_strategic_mre.json', displayTitle: 'Two Properties - Strategic MRE Choice', category: 'Multi-Property Portfolios' },
+  { filename: 'scenario10_six_month_overlap_exceeded.json', displayTitle: '6-Month Overlap Rule Exceeded', category: 'Multi-Property Portfolios' },
+  { filename: 'scenario13_couple_separate_properties.json', displayTitle: 'Couple with Separate Properties', category: 'Multi-Property Portfolios' },
+  { filename: 'scenario15_three_property_portfolio.json', displayTitle: 'Three Property Portfolio', category: 'Multi-Property Portfolios' },
+  { filename: 'scenario33_spouses_different_residences.json', displayTitle: 'Spouses - Different Main Residences', category: 'Multi-Property Portfolios' },
+  // Multi-Property test scenarios
+  { filename: 'joint_ownership_main_residence_choice.json', displayTitle: 'Joint Ownership - MR Choice', category: 'Multi-Property Portfolios', path: 'tests' },
+
+  // === Foreign Resident ===
+  { filename: 'scenario14_foreign_resident_period.json', displayTitle: 'Foreign Resident Period Impact', category: 'Foreign Resident' },
+  { filename: 'scenario31_foreign_resident_life_event.json', displayTitle: 'Foreign Resident Life Event', category: 'Foreign Resident' },
+  { filename: 'scenario32_pre_may_2012_foreign.json', displayTitle: 'Pre-9 May 2012 Foreign Residency', category: 'Foreign Resident' },
+
+  // === Special Rules & Exemptions (business use, construction, granny flat, etc.) ===
+  { filename: 'scenario11_construction_four_year_rule.json', displayTitle: 'Construction & 4-Year Building Rule', category: 'Special Rules & Exemptions' },
+  { filename: 'scenario12_airbnb_room_rental.json', displayTitle: 'Partial Use - Airbnb Room Rental', category: 'Special Rules & Exemptions' },
+  { filename: 'scenario26_pre_cgt_major_improvements.json', displayTitle: 'Pre-CGT with Major Improvements', category: 'Special Rules & Exemptions' },
+  { filename: 'scenario27_large_rural_property.json', displayTitle: 'Large Rural Property (>2 Hectares)', category: 'Special Rules & Exemptions' },
+  { filename: 'scenario28_granny_flat_arrangement.json', displayTitle: 'Granny Flat Arrangement', category: 'Special Rules & Exemptions' },
+  { filename: 'scenario30_home_office_business.json', displayTitle: 'Home Office Business Use', category: 'Special Rules & Exemptions' },
+  { filename: 'scenario35_four_year_construction.json', displayTitle: '4-Year Construction Rule Exceeded', category: 'Special Rules & Exemptions' },
+  { filename: 'scenario38_small_business_15_year.json', displayTitle: 'Small Business 15-Year Exemption', category: 'Special Rules & Exemptions' },
+  // Special Rules test scenarios
+  { filename: 'airbnb_investment_only.json', displayTitle: 'Airbnb - Investment Only', category: 'Special Rules & Exemptions', path: 'tests' },
+  { filename: 'airbnb_spare_room.json', displayTitle: 'Airbnb - Spare Room', category: 'Special Rules & Exemptions', path: 'tests' },
+  { filename: 'bare_trust_no_cgt.json', displayTitle: 'Bare Trust - No CGT', category: 'Special Rules & Exemptions', path: 'tests' },
+  { filename: 'compulsory_acquisition_rollover.json', displayTitle: 'Compulsory Acquisition Rollover', category: 'Special Rules & Exemptions', path: 'tests' },
+  { filename: 'joint_tenants_equal_split.json', displayTitle: 'Joint Tenants - Equal Split', category: 'Special Rules & Exemptions', path: 'tests' },
+  { filename: 'tenants_in_common_unequal.json', displayTitle: 'Tenants in Common - Unequal', category: 'Special Rules & Exemptions', path: 'tests' },
+  { filename: 'two_year_building_rule_eligible.json', displayTitle: '2-Year Building Rule - Eligible', category: 'Special Rules & Exemptions', path: 'tests' },
+  { filename: 'two_year_building_rule_exceeded.json', displayTitle: '2-Year Building Rule - Exceeded', category: 'Special Rules & Exemptions', path: 'tests' },
+  { filename: 'two_year_building_rule_renovation.json', displayTitle: '2-Year Building Rule - Renovation', category: 'Special Rules & Exemptions', path: 'tests' },
+
+  // === Batch 123 Scenarios (canonical versions) ===
+  // Main Residence batch scenarios
+  { filename: 'batch123_scenario1_full_main_residence_exemption.json', displayTitle: 'Full Main Residence Exemption', category: 'Main Residence' },
+  { filename: 'batch123_scenario2_six_year_within.json', displayTitle: '6-Year Absence Rule (Within Limit)', category: 'Main Residence' },
+  { filename: 'batch123_scenario3_six_year_exceeded.json', displayTitle: '6-Year Absence Rule (Exceeded)', category: 'Main Residence' },
+  { filename: 'batch123_scenario4_rental_first.json', displayTitle: 'Rental First, Then Main Residence', category: 'Main Residence' },
+  { filename: 'batch123_scenario5_moving_between_residences.json', displayTitle: 'Moving Between Residences', category: 'Main Residence' },
+  { filename: 'batch123_scenario6_six_year_within.json', displayTitle: '6-Year Rule Within (Variant B)', category: 'Main Residence' },
+  { filename: 'batch123_scenario7_six_year_exceeded.json', displayTitle: '6-Year Rule Exceeded (Variant B)', category: 'Main Residence' },
+  { filename: 'batch123_scenario8_full_main_residence.json', displayTitle: 'Full Main Residence (Variant B)', category: 'Main Residence' },
+  { filename: 'batch123_scenario9_moving_between_residences.json', displayTitle: 'Moving Between Residences (Variant B)', category: 'Main Residence' },
+  { filename: 'batch123_scenario10_rental_first.json', displayTitle: 'Rental First (Variant B)', category: 'Main Residence' },
+  { filename: 'batch123_scenario21_aged_care_indefinite_absence.json', displayTitle: 'Aged Care - Indefinite Absence', category: 'Main Residence' },
+  { filename: 'batch123_scenario22_delayed_move_in_work.json', displayTitle: 'Delayed Move-In (Batch 123)', category: 'Main Residence' },
+  { filename: 'batch123_scenario23_six_year_periods_reset.json', displayTitle: '6-Year Periods Reset (Batch 123)', category: 'Main Residence' },
+  { filename: 'batch123_scenario34_vacant_periods_extended_rental.json', displayTitle: 'Vacant Periods (Batch 123)', category: 'Main Residence' },
+  { filename: 'batch123_scenario39_investment_then_main_residence.json', displayTitle: 'Investment Then MR (Batch 123)', category: 'Main Residence' },
+  // Ownership Changes batch scenarios
+  { filename: 'batch123_scenario24_deceased_estate_two_years.json', displayTitle: 'Deceased Estate (Within 2 Years)', category: 'Ownership Changes' },
+  { filename: 'batch123_scenario25_beneficiary_moves_in.json', displayTitle: 'Beneficiary Moves Into Inherited Property', category: 'Ownership Changes' },
+  { filename: 'batch123_scenario29_relationship_breakdown.json', displayTitle: 'Relationship Breakdown Rollover', category: 'Ownership Changes' },
+  { filename: 'batch123_scenario37_deceased_estate_covid.json', displayTitle: 'Deceased Estate - COVID Extension', category: 'Ownership Changes' },
+  // Special Rules & Exemptions batch scenarios
+  { filename: 'batch123_scenario26_pre_cgt_major_improvements.json', displayTitle: 'Pre-CGT Improvements (Batch 123)', category: 'Special Rules & Exemptions' },
+  { filename: 'batch123_scenario27_large_rural_property.json', displayTitle: 'Large Rural Property (Batch 123)', category: 'Special Rules & Exemptions' },
+  { filename: 'batch123_scenario28_granny_flat_arrangement.json', displayTitle: 'Granny Flat (Batch 123)', category: 'Special Rules & Exemptions' },
+  { filename: 'batch123_scenario30_home_office_business.json', displayTitle: 'Home Office (Batch 123)', category: 'Special Rules & Exemptions' },
+  { filename: 'batch123_scenario35_four_year_construction.json', displayTitle: '4-Year Construction (Batch 123)', category: 'Special Rules & Exemptions' },
+  { filename: 'batch123_scenario38_small_business_15_year.json', displayTitle: 'Small Business 15yr (Batch 123)', category: 'Special Rules & Exemptions' },
+  // Foreign Resident batch scenarios
+  { filename: 'batch123_scenario31_foreign_resident_life_event.json', displayTitle: 'Foreign Resident Life Event (Batch 123)', category: 'Foreign Resident' },
+  { filename: 'batch123_scenario32_pre_may_2012_foreign.json', displayTitle: 'Pre-2012 Foreign (Batch 123)', category: 'Foreign Resident' },
+  // Multi-Property Portfolios batch scenarios
+  { filename: 'batch123_scenario33_spouses_different_residences.json', displayTitle: 'Spouses Different MR (Batch 123)', category: 'Multi-Property Portfolios' },
+  { filename: 'batch123_scenario40_four_property_portfolio.json', displayTitle: 'Four Property Portfolio', category: 'Multi-Property Portfolios' },
+  // Subdivision batch scenarios
+  { filename: 'batch123_scenario36_subdivision_land_sale.json', displayTitle: 'Subdivision (Batch 123)', category: 'Subdivision' },
 ];
 
 const publicDir = path.join(__dirname, '..', 'public');
@@ -288,17 +322,27 @@ async function generateManifest() {
     }
   }
 
+  // Category names match ScenarioSelectorModal.tsx CATEGORIES
+  const categoryNames = [
+    'Main Residence',
+    'Ownership Changes',
+    'Subdivision',
+    'Multi-Property Portfolios',
+    'Foreign Resident',
+    'Special Rules & Exemptions',
+  ];
+
   // Generate manifest
+  const categories = {};
+  for (const name of categoryNames) {
+    categories[name] = scenarios.filter(s => s.category === name).length;
+  }
+
   const manifest = {
     version: '1.0.0',
     generatedAt: new Date().toISOString(),
     totalScenarios: scenarios.length,
-    categories: {
-      'Core Concepts': scenarios.filter(s => s.category === 'Core Concepts').length,
-      'Multi-Factor': scenarios.filter(s => s.category === 'Multi-Factor').length,
-      'Special Rules': scenarios.filter(s => s.category === 'Special Rules').length,
-      'Real-World': scenarios.filter(s => s.category === 'Real-World').length,
-    },
+    categories,
     scenarios,
   };
 

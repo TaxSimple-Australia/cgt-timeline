@@ -24,7 +24,12 @@
           "event": "ownership_change",
           "beneficiary": "Granddaughter",
           "notes": "Sole beneficiary inherited vacant land",
-          "description": "Property inherited by beneficiary"
+          "description": "Property inherited by beneficiary",
+          "leavingOwners": ["father"],
+          "newOwners": [{"name": "child", "percentage": 100}],
+          "previousOwners": [{"name": "father", "percentage": 100}],
+          "ownershipChangeReason": "other",
+          "ownershipChangeReasonOther": "Inheritance"
         },
         {
           "date": "2021-06-01",
@@ -56,7 +61,8 @@
           "event": "move_out"
         }
       ],
-      "notes": "sold - Inherited vacant land, beneficiary built home and lived in it. Complex CGT: Land inherited (cost base = MV at death), building added to cost base. Partial MRE from move-in date only."
+      "notes": "sold - Inherited vacant land, beneficiary built home and lived in it. Complex CGT: Land inherited (cost base = MV at death), building added to cost base. Partial MRE from move-in date only.",
+      "owners": [{"name": "child", "percentage": 100}]
     }
   ],
   "user_query": "I inherited vacant land from my grandmother in 2020. She'd owned it since 2005 but never built on it. I built a house and moved in during 2022, and I've now sold. How is CGT calculated when I've added a building to inherited land and then lived in it?",

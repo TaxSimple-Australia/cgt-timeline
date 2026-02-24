@@ -75,6 +75,17 @@
           "description": "Property transferred to remaining partner under Family Court order (rollover relief applies). Market value at transfer: $850,000. No CGT event for transferor."
         },
         {
+          "date": "2023-06-30",
+          "event": "ownership_change",
+          "title": "Ownership Change",
+          "checkboxState": {},
+          "description": "Property transferred to remaining partner under Family Court order due to relationship breakdown",
+          "leavingOwners": ["partner A"],
+          "newOwners": [{"name": "transferee", "percentage": 100}],
+          "previousOwners": [{"name": "partner A", "percentage": 50}, {"name": "partner B", "percentage": 50}],
+          "ownershipChangeReason": "divorce"
+        },
+        {
           "date": "2024-11-20",
           "event": "sale",
           "price": 925000,
@@ -103,6 +114,7 @@
           "description": "Property sold by remaining partner for $925,000"
         }
       ],
+      "owners": [{"name": "transferee", "percentage": 100}],
       "notes": "**Batch 1,2,3 - Scenario 29: Relationship Breakdown with Rollover Relief**\n\nJoint property, relationship breakdown, transfer to one partner under Family Court order with rollover relief.\n\n**Timeline:**\n- 20 Sep 2014 to 15 Mar 2021: Main residence (couple) - 6.48 years\n- 15 Mar 2021: Relationship breakdown, one partner moves out\n- 30 Jun 2023: Transfer to remaining partner (rollover relief)\n- 30 Jun 2023 to 20 Nov 2024: Main residence (remaining partner) - 1.39 years\n\n**Key Rules:**\n- Rollover relief under s126-5 ITAA 1997\n- Transferee (remaining partner) inherits transferor's cost base\n- No CGT event on transfer under court order\n- Remaining partner's cost base: Original joint cost base ($536,825)\n- Property was main residence throughout for remaining partner\n- **NO CGT PAYABLE** - Full main residence exemption\n\n**Expected Result:**\n- NO CGT PAYABLE - Main residence exemption applies\n- Capital gain (before exemption): $360,650\n- Full exemption for remaining partner\n\n**ATO Rules Applied:**\n- Section 126-5 ITAA 1997 (Rollover Relief - Marriage/Relationship Breakdown)\n- Section 118-110 ITAA 1997 (Main Residence Exemption)\n- Transferee continues with transferor's cost base\n- Property was main residence for remaining partner throughout",
       "color": "#10B981",
       "branch": 0

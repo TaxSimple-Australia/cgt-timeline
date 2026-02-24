@@ -37,9 +37,9 @@
         },
         {
           "date": "2020-08-01",
-          "event": "inheritance",
+          "event": "ownership_change",
           "market_value": 395000,
-          "description": "Father passes. Property was his investment property (NOT his main residence). Inherited by Sarah."
+          "description": "Property inherited. Father passes. Property was his investment property (NOT his main residence). Inherited by Sarah."
         },
         {
           "date": "2020-09-15",

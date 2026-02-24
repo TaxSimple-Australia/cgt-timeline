@@ -20,8 +20,9 @@
         },
         {
           "date": "2025-07-15",
-          "event": "transfer_to_trust",
-          "market_value": 1100000
+          "event": "ownership_change",
+          "market_value": 1100000,
+          "description": "Property transferred to family trust"
         }
       ],
       "notes": "Individual transferring investment property to family discretionary trust for asset protection purposes. Property has never been main residence."
@@ -31,5 +32,9 @@
   "additional_info": {
     "australian_resident": true
   },
-  "llm_provider": "deepseek"
+  "llm_provider": "deepseek",
+  "scenario_info": {
+    "name": "Six-Year Absence Rule Exceeded",
+    "description": "I want to transfer my investment property to my family trust for asset protection. Will I have to pay CGT when I make the transfer?"
+  }
 }

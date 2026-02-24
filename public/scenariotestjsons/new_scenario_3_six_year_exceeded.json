@@ -44,5 +44,9 @@
   "additional_info": {
     "australian_resident": true,
     "market_value_at_first_rental": 1050000
+  },
+  "scenario_info": {
+    "name": "Six Year Exceeded",
+    "description": "I rented my Sydney home for over 8 years while working in Singapore. How much CGT do I owe now that I've sold?"
   }
 }

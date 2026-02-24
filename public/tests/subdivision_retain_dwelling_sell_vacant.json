@@ -1,41 +1,158 @@
 {
   "properties": [
     {
+      "id": "prop-55acreage-parent",
       "address": "55 Acreage Court, Castle Hill NSW 2154",
+      "original_lot": "Original 5000m² property",
       "property_history": [
         {
           "date": "2005-08-20",
           "event": "purchase",
           "price": 850000,
           "stamp_duty": 35000,
-          "purchase_legal_fees": 3200
+          "title": "Purchase",
+          "checkboxState": {
+            "moveInOnSameDay": false,
+            "purchaseAsVacant": false,
+            "purchaseAsRent": false,
+            "purchaseAsConstruction": false,
+            "purchaseAsBusiness": false,
+            "inheritedProperty": false,
+            "preCGTProperty": false,
+            "partialRental": false,
+            "partialBusiness": false,
+            "mixedUse": false
+          },
+          "costBases": [
+            {
+              "id": "cb-55acreage-purchase",
+              "definitionId": "purchase_price",
+              "name": "Purchase Price",
+              "amount": 850000,
+              "category": "element1",
+              "isCustom": false,
+              "description": "Large property with dwelling on 5000m² land"
+            },
+            {
+              "id": "cb-55acreage-stamp",
+              "definitionId": "stamp_duty",
+              "name": "Stamp Duty",
+              "amount": 35000,
+              "category": "element2",
+              "isCustom": false,
+              "description": "State government transfer duty"
+            },
+            {
+              "id": "cb-55acreage-legal",
+              "definitionId": "legal_fees_acquire",
+              "name": "Legal Fees (Acquisition)",
+              "amount": 3200,
+              "category": "element2",
+              "isCustom": false,
+              "description": "Legal fees and conveyancing costs"
+            }
+          ],
+          "description": "Property purchased for $850,000 - large 5000m² block with dwelling",
+          "notes": "Property purchased for $850,000 - large 5000m² block with dwelling"
         },
         {
           "date": "2005-09-01",
-          "event": "move_in"
-        },
-        {
-          "date": "2024-03-15",
-          "event": "subdivision_approved",
-          "subdivision_costs": 65000,
-          "valuation_lot_a": 1200000,
-          "valuation_lot_b": 800000,
-          "total_value_at_subdivision": 2000000
+          "event": "move_in",
+          "title": "Move In",
+          "checkboxState": {},
+          "description": "Moved in - main residence",
+          "notes": "Moved in - main residence"
         },
         {
           "date": "2024-05-01",
-          "event": "subdivision_registered"
-        },
+          "event": "subdivision",
+          "title": "Subdivided",
+          "color": "#EC4899",
+          "subdivisionDetails": {
+            "childPropertyIds": ["prop-55acreage-lotA", "prop-55acreage-lotB"],
+            "totalLots": 2,
+            "subdivisionCosts": 65000,
+            "lotSizes": {
+              "lotA": "Dwelling + land",
+              "lotB": "Vacant land"
+            },
+            "approvalDate": "2024-03-15",
+            "registrationDate": "2024-05-01",
+            "valuations": {
+              "lotA": 1200000,
+              "lotB": 800000
+            },
+            "notes": "Subdivision registered - titles issued. Lot A (with dwelling) retained as main residence. Lot B (vacant land) sold."
+          },
+          "checkboxState": {},
+          "description": "Subdivision registered - titles issued. Lot A (with dwelling) retained as main residence. Lot B (vacant land) for sale."
+        }
+      ],
+      "notes": "Original property subdivided into Lot A (dwelling retained) and Lot B (vacant land sold). Market value at subdivision: Lot A $1,200,000, Lot B $800,000. Subdivision costs: $65,000.",
+      "color": "#10B981",
+      "branch": 0,
+      "subdivisionGroup": "09d1cb0c-2d92-4bf5-8176-224e00be8b58",
+      "subdivisionDate": "2024-05-01"
+    },
+    {
+      "id": "prop-55acreage-lotA",
+      "address": "Lot A, 55 Acreage Court, Castle Hill NSW 2154",
+      "original_lot": "Lot A (Dwelling)",
+      "parentPropertyId": "prop-55acreage-parent",
+      "property_history": [],
+      "notes": "Lot A - Dwelling lot retained as main residence. Owner continues living here. Market value at subdivision: $1,200,000. Still held.",
+      "color": "#10B981",
+      "branch": 0,
+      "subdivisionGroup": "09d1cb0c-2d92-4bf5-8176-224e00be8b58",
+      "subdivisionDate": "2024-05-01",
+      "isMainLotContinuation": true,
+      "lotNumber": "1",
+      "lotSize": "Dwelling + land"
+    },
+    {
+      "id": "prop-55acreage-lotB",
+      "address": "Lot B, Acreage Court, Castle Hill NSW 2154",
+      "original_lot": "Lot B (Vacant Land)",
+      "parentPropertyId": "prop-55acreage-parent",
+      "property_history": [
         {
           "date": "2025-08-01",
           "event": "sale",
           "price": 850000,
+          "title": "Sale",
+          "checkboxState": {},
+          "costBases": [
+            {
+              "id": "cb-55acreage-lotB-agent",
+              "definitionId": "agent_fees",
+              "name": "Real Estate Agent Commission",
+              "amount": 21250,
+              "category": "element5",
+              "isCustom": false,
+              "description": "Commission paid to real estate agent for sale"
+            },
+            {
+              "id": "cb-55acreage-lotB-legal",
+              "definitionId": "legal_fees_disposal",
+              "name": "Legal Fees (Disposal)",
+              "amount": 2800,
+              "category": "element5",
+              "isCustom": false,
+              "description": "Legal fees for property sale and conveyancing"
+            }
+          ],
+          "description": "Lot B (vacant land) sold for $850,000. Apportioned cost base: $355,680 (40% of total = $888,200 × 40%)",
           "contract_date": "2025-08-01",
-          "agent_fees": 21250,
-          "legal_fees": 2800
+          "notes": "Vacant land lot sold"
         }
       ],
-      "notes": "sold - Subdivided 2024. Lot A (with dwelling) retained as main residence. Lot B (vacant) sold. Owner continues living on Lot A."
+      "notes": "Lot B - Vacant land created from subdivision. Market value at subdivision: $800,000 (40% of total $2M). Sold 2025-08-01.",
+      "color": "#F59E0B",
+      "branch": 1,
+      "subdivisionGroup": "09d1cb0c-2d92-4bf5-8176-224e00be8b58",
+      "subdivisionDate": "2024-05-01",
+      "lotNumber": "2",
+      "lotSize": "Vacant land"
     }
   ],
   "user_query": "I subdivided my property last year. I kept the lot with my house and sold the vacant block. I still live in my house. How is CGT calculated on the vacant block I sold?",
@@ -43,5 +160,9 @@
     "australian_resident": true
   },
   "llm_provider": "deepseek",
-  "use_claude": true
+  "use_claude": true,
+  "scenario_info": {
+    "name": "Subdivision - Retain Dwelling, Sell Vacant",
+    "description": "I subdivided my property last year. I kept the lot with my house and sold the vacant block. I still live in my house. How is CGT calculated on the vacant block I sold?"
+  }
 }

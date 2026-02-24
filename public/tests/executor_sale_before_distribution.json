@@ -16,8 +16,9 @@
         },
         {
           "date": "2024-11-15",
-          "event": "death_of_owner",
-          "market_value": 1850000
+          "event": "status_change",
+          "market_value": 1850000,
+          "description": "Death of property owner"
         },
         {
           "date": "2025-04-01",
@@ -44,5 +45,9 @@
     "sole_beneficiary": true
   },
   "llm_provider": "deepseek",
-  "use_claude": true
+  "use_claude": true,
+  "scenario_info": {
+    "name": "Executor Sale Before Distribution",
+    "description": "I'm the executor of my mother's estate. She lived in her house for 20 years until she passed. I'm selling it now (within 2 years of her death) before distributing the proceeds to myself as sole beneficiary. What's the CGT situation?"
+  }
 }

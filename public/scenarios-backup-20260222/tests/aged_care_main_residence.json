@@ -1,0 +1,46 @@
+{
+  "properties": [
+    {
+      "address": "33 Golden Years Way, Turramurra NSW 2074",
+      "property_history": [
+        {
+          "date": "1998-04-15",
+          "event": "purchase",
+          "price": 380000,
+          "stamp_duty": 14000,
+          "purchase_legal_fees": 2200
+        },
+        {
+          "date": "1998-05-01",
+          "event": "move_in"
+        },
+        {
+          "date": "2020-03-15",
+          "event": "move_to_aged_care"
+        },
+        {
+          "date": "2025-11-01",
+          "event": "sale",
+          "price": 1850000,
+          "contract_date": "2025-11-01",
+          "agent_fees": 37000,
+          "legal_fees": 4000
+        },
+        {
+          "date": "2025-11-01",
+          "event": "move_out"
+        }
+      ],
+      "notes": "sold - Owner moved to aged care facility in 2020. House left vacant (not rented). No other property treated as main residence. Selling after 5+ years in aged care."
+    }
+  ],
+  "user_query": "I moved into an aged care home 5 years ago. My old house has been sitting empty ever since - I never rented it out. I'm now selling it to pay for my care. Do I still get the main residence exemption even though I haven't lived there for years?",
+  "additional_info": {
+    "australian_resident": true,
+    "marginal_tax_rate": 0.37
+
+  },
+  "llm_provider": "deepseek",
+  "use_claude": true
+  
+}

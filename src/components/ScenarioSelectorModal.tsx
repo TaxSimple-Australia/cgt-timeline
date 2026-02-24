@@ -79,13 +79,15 @@ interface ScenarioSelectorModalProps {
   onClose: () => void;
 }
 
-// Category configuration
+// Category configuration - New 7-category system
 const CATEGORIES = [
   { id: 'all', label: 'All Scenarios', icon: Filter },
-  { id: 'Core Concepts', label: 'Core Concepts', icon: Home },
-  { id: 'Multi-Factor', label: 'Multi-Factor', icon: TrendingUp },
-  { id: 'Special Rules', label: 'Special Rules', icon: Building2 },
-  { id: 'Real-World', label: 'Real-World', icon: FlaskConical },
+  { id: 'Main Residence', label: 'Main Residence', icon: Home },
+  { id: 'Ownership Changes', label: 'Ownership Changes', icon: User },
+  { id: 'Subdivision', label: 'Subdivision', icon: Building2 },
+  { id: 'Multi-Property Portfolios', label: 'Multi-Property', icon: TrendingUp },
+  { id: 'Foreign Resident', label: 'Foreign Resident', icon: MapPin },
+  { id: 'Special Rules & Exemptions', label: 'Special Rules', icon: FlaskConical },
 ];
 
 // Global cache for manifest - persists across modal opens/closes
@@ -202,16 +204,20 @@ export default function ScenarioSelectorModal({ isOpen, onClose }: ScenarioSelec
     setViewingScenario(null);
   };
 
-  // Get category color
+  // Get category color - New 7-category system
   const getCategoryColor = (category: string) => {
     switch (category) {
-      case 'Core Concepts':
+      case 'Main Residence':
         return 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400';
-      case 'Multi-Factor':
+      case 'Ownership Changes':
         return 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400';
-      case 'Special Rules':
+      case 'Subdivision':
+        return 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400';
+      case 'Multi-Property Portfolios':
         return 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400';
-      case 'Real-World':
+      case 'Foreign Resident':
+        return 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400';
+      case 'Special Rules & Exemptions':
         return 'bg-cyan-100 text-cyan-700 dark:bg-cyan-900/30 dark:text-cyan-400';
       default:
         return 'bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300';

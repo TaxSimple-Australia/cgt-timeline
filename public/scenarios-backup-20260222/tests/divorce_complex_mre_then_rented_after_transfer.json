@@ -1,0 +1,76 @@
+{
+  "properties": [
+    {
+      "address": "44 Settlement Way, Pymble NSW 2073",
+      "property_history": [
+        {
+          "date": "2010-07-15",
+          "event": "purchase",
+          "price": 1250000,
+          "stamp_duty": 52000,
+          "purchase_legal_fees": 4200,
+          "ownership": "joint_tenants",
+          "owners": ["Spouse A 50%", "Spouse B 50%"],
+          "notes": "Family home purchased jointly"
+        },
+        {
+          "date": "2010-08-01",
+          "event": "move_in"
+        },
+        {
+          "date": "2019-09-01",
+          "event": "separation",
+          "notes": "Separated but both continued living in property"
+        },
+        {
+          "date": "2020-02-01",
+          "event": "spouse_a_moves_out",
+          "notes": "Spouse A moved out, Spouse B remained"
+        },
+        {
+          "date": "2020-11-15",
+          "event": "divorce_finalised"
+        },
+        {
+          "date": "2021-03-20",
+          "event": "divorce_property_settlement",
+          "transfer_type": "binding_financial_agreement",
+          "previous_ownership": "50% each",
+          "new_ownership": "100% Spouse B",
+          "market_value_at_transfer": 1850000,
+          "rollover_applies": true,
+          "notes": "Spouse B received full ownership under BFA"
+        },
+        {
+          "date": "2021-06-01",
+          "event": "move_out",
+          "notes": "Spouse B moved interstate for work"
+        },
+        {
+          "date": "2021-07-01",
+          "event": "rent_start",
+          "notes": "Property rented out after Spouse B relocated"
+        },
+        {
+          "date": "2025-09-30",
+          "event": "rent_end"
+        },
+        {
+          "date": "2025-10-20",
+          "event": "sale",
+          "price": 2450000,
+          "contract_date": "2025-10-20",
+          "agent_fees": 49000,
+          "legal_fees": 5200
+        }
+      ],
+      "notes": "sold - Transferred to Spouse B who continued living there briefly then rented it."
+    }
+  ],
+  "user_query": "My ex-wife and I bought our home in 2010. We separated in 2019, I moved out in 2020, and she got full ownership in 2021. She lived there until mid-2021 then moved interstate and rented it out for 4 years before selling. How does the CGT work when she's changed the use after the divorce transfer?",
+  "additional_info": {
+    "australian_resident": true
+  },
+  "llm_provider": "deepseek",
+  "use_claude": true
+}

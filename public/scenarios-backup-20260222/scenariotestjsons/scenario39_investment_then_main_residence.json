@@ -1,0 +1,64 @@
+{
+  "title": "Investment Property Becomes Main Residence Then Sold",
+  "scenario_info": {
+    "name": "Investment Property Becomes Main Residence Then Sold",
+    "description": "Amanda purchases an investment property and rents it out for 3 years. She then moves in and lives there as her main residence for 2 years before selling. The six-year absence rule does NOT apply because the property was an investment first. Only the period as main residence qualifies for exemption.",
+    "expected_result": {
+      "exemption_type": "partial",
+      "exemption_percentage": 39.98,
+      "capital_gain": 101550,
+      "taxable_gain": 30475,
+      "notes": "After 50% discount. Only lived-in period is exempt. Six-year rule does NOT apply."
+    },
+    "applicable_rules": [
+      "ITAA97 s118.185: Partial main residence exemption",
+      "Six-year rule NOT applicable: Property was investment first, then main residence",
+      "Only actual residence period (39.98%) is exempt",
+      "Rental period (60.02%) is taxable",
+      "ITAA97 s115.25: 50% CGT discount applies",
+      "Key distinction: If MR first then rental, six-year rule would apply"
+    ]
+  },
+  "properties": [
+    {
+      "address": "88 Investor Lane, Emerald QLD 4720",
+      "property_history": [
+        {
+          "date": "2019-03-01",
+          "event": "purchase",
+          "price": 295000,
+          "stamp_duty": 8850,
+          "purchase_legal_fees": 2200
+        },
+        {
+          "date": "2019-03-01",
+          "event": "rent_start",
+          "description": "Immediately rented as investment property from day one"
+        },
+        {
+          "date": "2022-02-28",
+          "event": "rent_end",
+          "description": "Tenant vacates after 3 years"
+        },
+        {
+          "date": "2022-03-01",
+          "event": "move_in",
+          "description": "Amanda moves in as main residence"
+        },
+        {
+          "date": "2024-02-28",
+          "event": "sale",
+          "price": 420000,
+          "contract_date": "2024-02-28",
+          "agent_fees": 10500,
+          "legal_fees": 1900
+        }
+      ],
+      "notes": "Partial exemption (39.98%). Investment first, then main residence = six-year rule does NOT apply. Only the 2-year residence period is exempt. Rental period (3 years / 60.02%) is taxable. Capital gain: $101,550. Taxable after discount: $30,475."
+    }
+  ],
+  "user_query": "I bought an investment property and rented it for 3 years. Then I moved in and lived there for 2 years as my main residence. Now I'm selling. Can I use the six-year rule?",
+  "additional_info": {
+    "australian_resident": true
+  }
+}

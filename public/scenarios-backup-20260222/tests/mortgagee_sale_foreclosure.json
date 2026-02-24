@@ -1,0 +1,58 @@
+{
+  "properties": [
+    {
+      "address": "88 Distress Street, Bankstown NSW 2200",
+      "property_history": [
+        {
+          "date": "2019-08-10",
+          "event": "purchase",
+          "price": 680000,
+          "stamp_duty": 26000,
+          "purchase_legal_fees": 2600
+        },
+        {
+          "date": "2019-09-01",
+          "event": "move_in"
+        },
+        {
+          "date": "2022-06-01",
+          "event": "move_out"
+        },
+        {
+          "date": "2022-06-15",
+          "event": "rent_start"
+        },
+        {
+          "date": "2025-02-01",
+          "event": "rent_end"
+        },
+        {
+          "date": "2025-04-15",
+          "event": "sale",
+          "price": 720000,
+          "contract_date": "2025-04-15",
+          "agent_fees": 18000,
+          "legal_fees": 8500
+        }
+      ],
+      "notes": "sold - Owner defaulted on mortgage. Bank foreclosed and sold property as mortgagee in possession. Property was main residence 2019-2022, then rented 2022-2025. Sold under mortgagee sale."
+    }
+  ],
+  "user_query": "I couldn't keep up with my mortgage payments and the bank foreclosed on my property. It was my home for 3 years then I rented it out for a few years before the bank sold it. Do I still have to pay CGT even though I lost the property?",
+  "additional_info": {
+    "australian_resident": true,
+    "tax_year": "2025-2026",
+    "mortgagee_sale": true,
+    "foreclosure": true,
+    "main_residence_period": {
+      "start": "2019-09-01",
+      "end": "2022-06-01"
+    },
+    "rental_period": {
+      "start": "2022-06-15",
+      "end": "2025-02-01"
+    }
+  },
+  "llm_provider": "deepseek",
+  "use_claude": true
+}

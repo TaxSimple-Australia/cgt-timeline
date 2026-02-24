@@ -1,0 +1,47 @@
+{
+  "properties": [
+    {
+      "address": "55 Panorama Drive, Surfers Paradise QLD 4217",
+      "property_history": [
+        {
+          "date": "2016-03-01",
+          "event": "purchase",
+          "price": 720000,
+          "stamp_duty": 28800,
+          "purchase_legal_fees": 3500
+        },
+        {
+          "date": "2016-03-01",
+          "event": "move_in"
+        },
+        {
+          "date": "2017-10-01",
+          "event": "improvement",
+          "price": 48000
+        },
+        {
+          "date": "2019-03-01",
+          "event": "move_out",
+          "market_value": 800300
+        },
+        {
+          "date": "2019-03-01",
+          "event": "rent_start"
+        },
+        {
+          "date": "2024-11-01",
+          "event": "sale",
+          "price": 1350000,
+          "contract_date": "2024-11-01",
+          "agent_fees": 33750,
+          "legal_fees": 3000
+        }
+      ],
+      "notes": "sold - Six-year absence rule applies. Rented for 5.67 years while working in Melbourne. Full exemption."
+    }
+  ],
+  "user_query": "I moved to Melbourne for work and rented my Gold Coast home for about 5.5 years before selling. What is my CGT liability?",
+  "additional_info": {
+    "australian_resident": true
+  }
+}

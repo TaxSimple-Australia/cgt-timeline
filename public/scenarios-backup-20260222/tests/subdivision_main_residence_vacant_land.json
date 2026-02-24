@@ -1,0 +1,61 @@
+{
+  "properties": [
+    {
+      "address": "28 Panorama Drive, Kenmore QLD 4069",
+      "property_history": [
+        {
+          "date": "2008-03-15",
+          "event": "purchase",
+          "price": 685000,
+          "purchase_legal_fees": 2800,
+          "stamp_duty": 24500
+        },
+        {
+          "date": "2008-04-01",
+          "event": "move_in"
+        },
+        {
+          "date": "2022-06-01",
+          "event": "subdivision_approved",
+          "subdivision_costs": 45000,
+          "valuation_lot1_with_dwelling": 720000,
+          "valuation_lot2_vacant": 480000,
+          "total_value_at_subdivision": 1200000
+        },
+        {
+          "date": "2022-08-15",
+          "event": "subdivision_registered"
+        },
+        {
+          "date": "2025-10-01",
+          "event": "sale",
+          "price": 620000,
+          "contract_date": "2025-10-01",
+          "agent_fees": 15500,
+          "legal_fees": 1800
+        }
+      ],
+      "notes": "sold - Subdivided in 2022 into Lot 1 (650 sqm with dwelling) and Lot 2 (550 sqm vacant). Owner continues to live in dwelling on Lot 1. Selling vacant Lot 2 only. Original block 1,200 sqm."
+    }
+  ],
+  "user_query": "I subdivided my backyard in 2022 and now I'm selling the vacant block. I still live in my house on the other lot. Do I have to pay CGT on the vacant land sale even though it was part of my home?",
+  "additional_info": {
+    "australian_resident": true,
+    "tax_year": "2025-2026",
+    "continues_to_live_in_dwelling": true,
+    "land_size_hectares": 0.12,
+    "subdivision_details": {
+      "original_land_size_sqm": 1200,
+      "lot1_size_sqm": 650,
+      "lot2_size_sqm": 550,
+      "subdivision_costs": 45000,
+      "valuation_at_subdivision": {
+        "lot1_with_dwelling": 720000,
+        "lot2_vacant": 480000,
+        "total": 1200000
+      }
+    }
+  },
+  "llm_provider": "deepseek",
+  "use_claude": true
+}

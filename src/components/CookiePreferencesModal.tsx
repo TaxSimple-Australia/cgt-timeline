@@ -3,9 +3,9 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Cookie, Save } from 'lucide-react';
+import { X, Cookie, Save, ChevronDown, ChevronUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { PREFERENCE_CHECKBOXES } from '@/lib/legal-content';
+import { PREFERENCE_CHECKBOXES, TERMS_AND_CONDITIONS } from '@/lib/legal-content';
 
 interface CookiePreferencesModalProps {
   isOpen: boolean;
@@ -18,6 +18,7 @@ export default function CookiePreferencesModal({
 }: CookiePreferencesModalProps) {
   const [preferences, setPreferences] = useState<Record<string, boolean>>({});
   const [hasChanges, setHasChanges] = useState(false);
+  const [showDetails, setShowDetails] = useState(false);
 
   // Load current preferences from localStorage when modal opens
   useEffect(() => {
@@ -108,13 +109,61 @@ export default function CookiePreferencesModal({
                 </button>
               </div>
 
-              {/* Content */}
-              <div className="p-6 space-y-6">
+              {/* Content - Scrollable */}
+              <div className="p-6 space-y-6 max-h-[70vh] overflow-y-auto">
                 {/* Info Text */}
                 <p className="text-sm text-slate-300 leading-relaxed">
                   You can customize how CGT BRAIN AI uses cookies and collects data to enhance your experience.
                   These preferences are stored locally and can be changed at any time.
                 </p>
+
+                {/* Learn More - Expandable Section */}
+                <div className="border border-cyan-500/30 rounded-lg overflow-hidden">
+                  <button
+                    onClick={() => setShowDetails(!showDetails)}
+                    className="w-full flex items-center justify-between p-4 bg-cyan-500/10 hover:bg-cyan-500/20 transition-colors"
+                  >
+                    <span className="text-sm font-semibold text-cyan-400">
+                      Data Collection & Preference Governance
+                    </span>
+                    {showDetails ? (
+                      <ChevronUp className="w-5 h-5 text-cyan-400" />
+                    ) : (
+                      <ChevronDown className="w-5 h-5 text-cyan-400" />
+                    )}
+                  </button>
+
+                  <AnimatePresence>
+                    {showDetails && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: 'auto', opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.3 }}
+                        className="overflow-hidden"
+                      >
+                        <div className="p-4 bg-slate-800/30 space-y-4 text-sm text-slate-300">
+                          {TERMS_AND_CONDITIONS.sections[0].content.map((section, index) => (
+                            <div key={index}>
+                              <h4 className="font-semibold text-white mb-2">{section.subtitle}</h4>
+                              <p className="leading-relaxed mb-2">{section.text}</p>
+                              {section.list && (
+                                <ul className="space-y-2 pl-4">
+                                  {section.list.map((item, itemIndex) => (
+                                    <li key={itemIndex} className="flex items-start gap-2">
+                                      <span className="text-cyan-400 mt-1.5">•</span>
+                                      <span className="flex-1">{item}</span>
+                                    </li>
+                                  ))}
+                                </ul>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
 
                 {/* Essential Cookies Notice */}
                 <div className="bg-slate-800/50 rounded-lg p-4 border border-slate-700">
@@ -155,8 +204,21 @@ export default function CookiePreferencesModal({
                   ))}
                 </div>
 
-                {/* Action Buttons */}
-                <div className="flex gap-3 pt-4 border-t border-slate-700">
+                {/* Footer Note */}
+                {hasChanges && (
+                  <motion.p
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="text-xs text-amber-500 text-center"
+                  >
+                    You have unsaved changes
+                  </motion.p>
+                )}
+              </div>
+
+              {/* Action Buttons - Fixed at Bottom */}
+              <div className="p-6 pt-0 border-t border-slate-700">
+                <div className="flex gap-3">
                   <Button
                     onClick={handleSave}
                     className="flex-1 h-12 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white font-semibold transition-all"
@@ -172,17 +234,6 @@ export default function CookiePreferencesModal({
                     Cancel
                   </Button>
                 </div>
-
-                {/* Footer Note */}
-                {hasChanges && (
-                  <motion.p
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="text-xs text-amber-500 text-center"
-                  >
-                    You have unsaved changes
-                  </motion.p>
-                )}
               </div>
             </motion.div>
           </div>

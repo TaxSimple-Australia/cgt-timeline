@@ -43,5 +43,9 @@
   "user_query": "I moved to Melbourne for work and rented my Gold Coast home for about 5.5 years before selling. What is my CGT liability?",
   "additional_info": {
     "australian_resident": true
+  },
+  "scenario_info": {
+    "name": "Six Year Within",
+    "description": "I moved to Melbourne for work and rented my Gold Coast home for about 5.5 years before selling. What is my CGT liability?"
   }
 }

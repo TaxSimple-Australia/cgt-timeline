@@ -1,0 +1,500 @@
+{
+  "generatedAt": "2026-02-22T16:56:33.521Z",
+  "stats": {
+    "totalScenarios": 87,
+    "scenariosUpdated": 49,
+    "scenariosSkipped": 38,
+    "titlesImproved": 49,
+    "descriptionsAdded": 47
+  },
+  "updates": [
+    {
+      "filename": "new_scenario_1_full_main_residence.json",
+      "oldTitle": "Full Main Residence",
+      "newTitle": "Full Main Residence",
+      "descriptionAdded": true,
+      "changes": [
+        "Title: \"Full Main Residence\" → \"Full Main Residence\"",
+        "Description: Added from user_query"
+      ]
+    },
+    {
+      "filename": "new_scenario_2_six_year_within.json",
+      "oldTitle": "Six Year Within",
+      "newTitle": "Six Year Within",
+      "descriptionAdded": true,
+      "changes": [
+        "Title: \"Six Year Within\" → \"Six Year Within\"",
+        "Description: Added from user_query"
+      ]
+    },
+    {
+      "filename": "new_scenario_3_six_year_exceeded.json",
+      "oldTitle": "Six Year Exceeded",
+      "newTitle": "Six Year Exceeded",
+      "descriptionAdded": true,
+      "changes": [
+        "Title: \"Six Year Exceeded\" → \"Six Year Exceeded\"",
+        "Description: Added from user_query"
+      ]
+    },
+    {
+      "filename": "new_scenario_4_rental_first.json",
+      "oldTitle": "Rental First",
+      "newTitle": "Six-Year Absence Rule - Within Limit",
+      "descriptionAdded": true,
+      "changes": [
+        "Title: \"Rental First\" → \"Six-Year Absence Rule - Within Limit\"",
+        "Description: Added from user_query"
+      ]
+    },
+    {
+      "filename": "new_scenario_5_moving_between_residences.json",
+      "oldTitle": "Moving Between Residences",
+      "newTitle": "Moving Between Main Residences",
+      "descriptionAdded": true,
+      "changes": [
+        "Title: \"Moving Between Residences\" → \"Moving Between Main Residences\"",
+        "Description: Added from user_query"
+      ]
+    },
+    {
+      "filename": "scenario1_full_main_residence_exemption.json",
+      "oldTitle": "Full Main Residence Exemption",
+      "newTitle": "Full Main Residence Exemption",
+      "descriptionAdded": true,
+      "changes": [
+        "Title: \"Full Main Residence Exemption\" → \"Full Main Residence Exemption\""
+      ]
+    },
+    {
+      "filename": "scenario28_granny_flat_arrangement.json",
+      "oldTitle": "Granny Flat Arrangement",
+      "newTitle": "Partial Use - Granny Flat Arrangement",
+      "descriptionAdded": true,
+      "changes": [
+        "Title: \"Granny Flat Arrangement\" → \"Partial Use - Granny Flat Arrangement\""
+      ]
+    },
+    {
+      "filename": "aged_care_main_residence.json",
+      "oldTitle": "Aged Care Main Residence",
+      "newTitle": "Aged Care - Indefinite Absence Exemption",
+      "descriptionAdded": true,
+      "changes": [
+        "Title: \"Aged Care Main Residence\" → \"Aged Care - Indefinite Absence Exemption\"",
+        "Description: Added from user_query"
+      ]
+    },
+    {
+      "filename": "airbnb_investment_only.json",
+      "oldTitle": "Airbnb Investment Only",
+      "newTitle": "Airbnb - Investment Property",
+      "descriptionAdded": true,
+      "changes": [
+        "Title: \"Airbnb Investment Only\" → \"Airbnb - Investment Property\"",
+        "Description: Added from user_query"
+      ]
+    },
+    {
+      "filename": "airbnb_spare_room.json",
+      "oldTitle": "Airbnb Spare Room",
+      "newTitle": "Partial Use - Airbnb Spare Room",
+      "descriptionAdded": true,
+      "changes": [
+        "Title: \"Airbnb Spare Room\" → \"Partial Use - Airbnb Spare Room\"",
+        "Description: Added from user_query"
+      ]
+    },
+    {
+      "filename": "bare_trust_no_cgt.json",
+      "oldTitle": "Bare Trust No Cgt",
+      "newTitle": "Bare Trust - No CGT Event",
+      "descriptionAdded": true,
+      "changes": [
+        "Title: \"Bare Trust No Cgt\" → \"Bare Trust - No CGT Event\"",
+        "Description: Added from user_query"
+      ]
+    },
+    {
+      "filename": "compulsory_acquisition_rollover.json",
+      "oldTitle": "Compulsory Acquisition Rollover",
+      "newTitle": "Compulsory Acquisition Rollover",
+      "descriptionAdded": true,
+      "changes": [
+        "Title: \"Compulsory Acquisition Rollover\" → \"Compulsory Acquisition Rollover\"",
+        "Description: Added from user_query"
+      ]
+    },
+    {
+      "filename": "death_of_joint_owner.json",
+      "oldTitle": "Death Of Joint Owner",
+      "newTitle": "Inherited Property",
+      "descriptionAdded": true,
+      "changes": [
+        "Title: \"Death Of Joint Owner\" → \"Inherited Property\"",
+        "Description: Added from user_query"
+      ]
+    },
+    {
+      "filename": "defacto_breakdown_rollover.json",
+      "oldTitle": "Defacto Breakdown Rollover",
+      "newTitle": "Relationship Breakdown - CGT Rollover",
+      "descriptionAdded": true,
+      "changes": [
+        "Title: \"Defacto Breakdown Rollover\" → \"Relationship Breakdown - CGT Rollover\"",
+        "Description: Added from user_query"
+      ]
+    },
+    {
+      "filename": "divorce_complex_mre_then_rented_after_transfer.json",
+      "oldTitle": "Divorce Complex Mre Then Rented After Transfer",
+      "newTitle": "Six-Year Absence Rule - Within Limit",
+      "descriptionAdded": true,
+      "changes": [
+        "Title: \"Divorce Complex Mre Then Rented After Transfer\" → \"Six-Year Absence Rule - Within Limit\"",
+        "Description: Added from user_query"
+      ]
+    },
+    {
+      "filename": "executor_sale_before_distribution.json",
+      "oldTitle": "Executor Sale Before Distribution",
+      "newTitle": "Executor Sale Before Distribution",
+      "descriptionAdded": true,
+      "changes": [
+        "Title: \"Executor Sale Before Distribution\" → \"Executor Sale Before Distribution\"",
+        "Description: Added from user_query"
+      ]
+    },
+    {
+      "filename": "first_use_overseas_posting.json",
+      "oldTitle": "First Use Overseas Posting",
+      "newTitle": "Six-Year Absence Rule - Within Limit",
+      "descriptionAdded": true,
+      "changes": [
+        "Title: \"First Use Overseas Posting\" → \"Six-Year Absence Rule - Within Limit\"",
+        "Description: Added from user_query"
+      ]
+    },
+    {
+      "filename": "inherited_land_built_dwelling_then_sold.json",
+      "oldTitle": "Inherited Land Built Dwelling Then Sold",
+      "newTitle": "Inherited Land - Vacant Pre-CGT",
+      "descriptionAdded": true,
+      "changes": [
+        "Title: \"Inherited Land Built Dwelling Then Sold\" → \"Inherited Land - Vacant Pre-CGT\"",
+        "Description: Added from user_query"
+      ]
+    },
+    {
+      "filename": "inherited_land_farmland_subdivided_sold.json",
+      "oldTitle": "Inherited Land Farmland Subdivided Sold",
+      "newTitle": "Subdivision - Farmland Subdivided and Sold",
+      "descriptionAdded": true,
+      "changes": [
+        "Title: \"Inherited Land Farmland Subdivided Sold\" → \"Subdivision - Farmland Subdivided and Sold\"",
+        "Description: Added from user_query"
+      ]
+    },
+    {
+      "filename": "inherited_land_vacant_pre_cgt_deceased.json",
+      "oldTitle": "Inherited Land Vacant Pre Cgt Deceased",
+      "newTitle": "Inheritance - Pre-CGT Property",
+      "descriptionAdded": true,
+      "changes": [
+        "Title: \"Inherited Land Vacant Pre Cgt Deceased\" → \"Inheritance - Pre-CGT Property\"",
+        "Description: Added from user_query"
+      ]
+    },
+    {
+      "filename": "inherited_property_2year_rule.json",
+      "oldTitle": "Inherited Property 2year Rule",
+      "newTitle": "Six-Year Absence Rule - Within Limit",
+      "descriptionAdded": true,
+      "changes": [
+        "Title: \"Inherited Property 2year Rule\" → \"Six-Year Absence Rule - Within Limit\"",
+        "Description: Added from user_query"
+      ]
+    },
+    {
+      "filename": "investment_property_divorce_transfer.json",
+      "oldTitle": "Investment Property Divorce Transfer",
+      "newTitle": "Six-Year Absence Rule Exceeded",
+      "descriptionAdded": true,
+      "changes": [
+        "Title: \"Investment Property Divorce Transfer\" → \"Six-Year Absence Rule Exceeded\"",
+        "Description: Added from user_query"
+      ]
+    },
+    {
+      "filename": "joint_ownership_main_residence_choice.json",
+      "oldTitle": "Joint Ownership Main Residence Choice",
+      "newTitle": "Six-Year Absence Rule - Within Limit",
+      "descriptionAdded": true,
+      "changes": [
+        "Title: \"Joint Ownership Main Residence Choice\" → \"Six-Year Absence Rule - Within Limit\"",
+        "Description: Added from user_query"
+      ]
+    },
+    {
+      "filename": "joint_sale_during_separation.json",
+      "oldTitle": "Joint Sale During Separation",
+      "newTitle": "Relationship Breakdown - Property Transfer",
+      "descriptionAdded": true,
+      "changes": [
+        "Title: \"Joint Sale During Separation\" → \"Relationship Breakdown - Property Transfer\"",
+        "Description: Added from user_query"
+      ]
+    },
+    {
+      "filename": "joint_tenants_equal_split.json",
+      "oldTitle": "Joint Tenants Equal Split",
+      "newTitle": "Six-Year Absence Rule Exceeded",
+      "descriptionAdded": true,
+      "changes": [
+        "Title: \"Joint Tenants Equal Split\" → \"Six-Year Absence Rule Exceeded\"",
+        "Description: Added from user_query"
+      ]
+    },
+    {
+      "filename": "main_residence_land_exceeds_2ha.json",
+      "oldTitle": "Main Residence Land Exceeds 2ha",
+      "newTitle": "Large Rural Property - Land Exceeding 2 Hectares",
+      "descriptionAdded": true,
+      "changes": [
+        "Title: \"Main Residence Land Exceeds 2ha\" → \"Large Rural Property - Land Exceeding 2 Hectares\"",
+        "Description: Added from user_query"
+      ]
+    },
+    {
+      "filename": "mortgagee_sale_foreclosure.json",
+      "oldTitle": "Mortgagee Sale Foreclosure",
+      "newTitle": "Six-Year Absence Rule - Within Limit",
+      "descriptionAdded": true,
+      "changes": [
+        "Title: \"Mortgagee Sale Foreclosure\" → \"Six-Year Absence Rule - Within Limit\"",
+        "Description: Added from user_query"
+      ]
+    },
+    {
+      "filename": "multiple_beneficiaries.json",
+      "oldTitle": "Multiple Beneficiaries",
+      "newTitle": "Six-Year Absence Rule - Within Limit",
+      "descriptionAdded": true,
+      "changes": [
+        "Title: \"Multiple Beneficiaries\" → \"Six-Year Absence Rule - Within Limit\"",
+        "Description: Added from user_query"
+      ]
+    },
+    {
+      "filename": "pre_cgt_inheritance.json",
+      "oldTitle": "Pre Cgt Inheritance",
+      "newTitle": "Six-Year Absence Rule - Within Limit",
+      "descriptionAdded": true,
+      "changes": [
+        "Title: \"Pre Cgt Inheritance\" → \"Six-Year Absence Rule - Within Limit\"",
+        "Description: Added from user_query"
+      ]
+    },
+    {
+      "filename": "pre_cgt_property_with_improvements.json",
+      "oldTitle": "Pre Cgt Property With Improvements",
+      "newTitle": "Six-Year Absence Rule - Within Limit",
+      "descriptionAdded": true,
+      "changes": [
+        "Title: \"Pre Cgt Property With Improvements\" → \"Six-Year Absence Rule - Within Limit\"",
+        "Description: Added from user_query"
+      ]
+    },
+    {
+      "filename": "relationship_breakdown_rollover.json",
+      "oldTitle": "Relationship Breakdown Rollover",
+      "newTitle": "Six-Year Absence Rule - Within Limit",
+      "descriptionAdded": true,
+      "changes": [
+        "Title: \"Relationship Breakdown Rollover\" → \"Six-Year Absence Rule - Within Limit\"",
+        "Description: Added from user_query"
+      ]
+    },
+    {
+      "filename": "six_month_overlap_old_home_rented.json",
+      "oldTitle": "Six Month Overlap Old Home Rented",
+      "newTitle": "Six-Year Absence Rule - Within Limit",
+      "descriptionAdded": true,
+      "changes": [
+        "Title: \"Six Month Overlap Old Home Rented\" → \"Six-Year Absence Rule - Within Limit\"",
+        "Description: Added from user_query"
+      ]
+    },
+    {
+      "filename": "six_year_rule_exceeded.json",
+      "oldTitle": "Six Year Rule Exceeded",
+      "newTitle": "Six-Year Absence Rule Exceeded",
+      "descriptionAdded": true,
+      "changes": [
+        "Title: \"Six Year Rule Exceeded\" → \"Six-Year Absence Rule Exceeded\"",
+        "Description: Added from user_query"
+      ]
+    },
+    {
+      "filename": "six_year_rule_multiple_absences.json",
+      "oldTitle": "Six Year Rule Multiple Absences",
+      "newTitle": "Six-Year Absence Rule - Within Limit",
+      "descriptionAdded": true,
+      "changes": [
+        "Title: \"Six Year Rule Multiple Absences\" → \"Six-Year Absence Rule - Within Limit\"",
+        "Description: Added from user_query"
+      ]
+    },
+    {
+      "filename": "six_year_rule_within_limit.json",
+      "oldTitle": "Six Year Rule Within Limit",
+      "newTitle": "Six-Year Absence Rule - Within Limit",
+      "descriptionAdded": true,
+      "changes": [
+        "Title: \"Six Year Rule Within Limit\" → \"Six-Year Absence Rule - Within Limit\"",
+        "Description: Added from user_query"
+      ]
+    },
+    {
+      "filename": "subdivision_build_and_sell.json",
+      "oldTitle": "Subdivision Build And Sell",
+      "newTitle": "Six-Year Absence Rule - Within Limit",
+      "descriptionAdded": true,
+      "changes": [
+        "Title: \"Subdivision Build And Sell\" → \"Six-Year Absence Rule - Within Limit\"",
+        "Description: Added from user_query"
+      ]
+    },
+    {
+      "filename": "subdivision_main_residence_vacant_land.json",
+      "oldTitle": "Subdivision Main Residence Vacant Land",
+      "newTitle": "Subdivision - Vacant Land Sold Separately",
+      "descriptionAdded": true,
+      "changes": [
+        "Title: \"Subdivision Main Residence Vacant Land\" → \"Subdivision - Vacant Land Sold Separately\"",
+        "Description: Added from user_query"
+      ]
+    },
+    {
+      "filename": "subdivision_multiple_lots_sold.json",
+      "oldTitle": "Subdivision Multiple Lots Sold",
+      "newTitle": "Property Subdivision",
+      "descriptionAdded": true,
+      "changes": [
+        "Title: \"Subdivision Multiple Lots Sold\" → \"Property Subdivision\"",
+        "Description: Added from user_query"
+      ]
+    },
+    {
+      "filename": "subdivision_pre_cgt_property.json",
+      "oldTitle": "Subdivision Pre Cgt Property",
+      "newTitle": "Subdivision - Pre-CGT Property",
+      "descriptionAdded": true,
+      "changes": [
+        "Title: \"Subdivision Pre Cgt Property\" → \"Subdivision - Pre-CGT Property\"",
+        "Description: Added from user_query"
+      ]
+    },
+    {
+      "filename": "subdivision_retain_dwelling_sell_vacant.json",
+      "oldTitle": "Subdivision Retain Dwelling Sell Vacant",
+      "newTitle": "Property Subdivision",
+      "descriptionAdded": true,
+      "changes": [
+        "Title: \"Subdivision Retain Dwelling Sell Vacant\" → \"Property Subdivision\"",
+        "Description: Added from user_query"
+      ]
+    },
+    {
+      "filename": "subdivision_strata_title.json",
+      "oldTitle": "Subdivision Strata Title",
+      "newTitle": "Six-Year Absence Rule - Within Limit",
+      "descriptionAdded": true,
+      "changes": [
+        "Title: \"Subdivision Strata Title\" → \"Six-Year Absence Rule - Within Limit\"",
+        "Description: Added from user_query"
+      ]
+    },
+    {
+      "filename": "tenants_in_common_unequal.json",
+      "oldTitle": "Tenants In Common Unequal",
+      "newTitle": "Six-Year Absence Rule Exceeded",
+      "descriptionAdded": true,
+      "changes": [
+        "Title: \"Tenants In Common Unequal\" → \"Six-Year Absence Rule Exceeded\"",
+        "Description: Added from user_query"
+      ]
+    },
+    {
+      "filename": "time_apportionment_multiple_periods.json",
+      "oldTitle": "Time Apportionment Multiple Periods",
+      "newTitle": "Six-Year Absence Rule - Within Limit",
+      "descriptionAdded": true,
+      "changes": [
+        "Title: \"Time Apportionment Multiple Periods\" → \"Six-Year Absence Rule - Within Limit\"",
+        "Description: Added from user_query"
+      ]
+    },
+    {
+      "filename": "time_apportionment_with_absence_rule.json",
+      "oldTitle": "Time Apportionment With Absence Rule",
+      "newTitle": "Six-Year Absence Rule Exceeded",
+      "descriptionAdded": true,
+      "changes": [
+        "Title: \"Time Apportionment With Absence Rule\" → \"Six-Year Absence Rule Exceeded\"",
+        "Description: Added from user_query"
+      ]
+    },
+    {
+      "filename": "transfer_to_family_trust.json",
+      "oldTitle": "Transfer To Family Trust",
+      "newTitle": "Six-Year Absence Rule Exceeded",
+      "descriptionAdded": true,
+      "changes": [
+        "Title: \"Transfer To Family Trust\" → \"Six-Year Absence Rule Exceeded\"",
+        "Description: Added from user_query"
+      ]
+    },
+    {
+      "filename": "trust_distribution_to_beneficiary.json",
+      "oldTitle": "Trust Distribution To Beneficiary",
+      "newTitle": "Six-Year Absence Rule Exceeded",
+      "descriptionAdded": true,
+      "changes": [
+        "Title: \"Trust Distribution To Beneficiary\" → \"Six-Year Absence Rule Exceeded\"",
+        "Description: Added from user_query"
+      ]
+    },
+    {
+      "filename": "two_year_building_rule_eligible.json",
+      "oldTitle": "Two Year Building Rule Eligible",
+      "newTitle": "Construction and Main Residence",
+      "descriptionAdded": true,
+      "changes": [
+        "Title: \"Two Year Building Rule Eligible\" → \"Construction and Main Residence\"",
+        "Description: Added from user_query"
+      ]
+    },
+    {
+      "filename": "two_year_building_rule_exceeded.json",
+      "oldTitle": "Two Year Building Rule Exceeded",
+      "newTitle": "Construction and Main Residence",
+      "descriptionAdded": true,
+      "changes": [
+        "Title: \"Two Year Building Rule Exceeded\" → \"Construction and Main Residence\"",
+        "Description: Added from user_query"
+      ]
+    },
+    {
+      "filename": "two_year_building_rule_renovation.json",
+      "oldTitle": "Two Year Building Rule Renovation",
+      "newTitle": "Construction and Main Residence",
+      "descriptionAdded": true,
+      "changes": [
+        "Title: \"Two Year Building Rule Renovation\" → \"Construction and Main Residence\"",
+        "Description: Added from user_query"
+      ]
+    }
+  ]
+}

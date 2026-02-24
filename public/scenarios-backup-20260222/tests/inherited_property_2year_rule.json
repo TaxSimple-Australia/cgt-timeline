@@ -1,0 +1,52 @@
+{
+  "properties": [
+    {
+      "address": "88 Memorial Drive, Toowong QLD 4066",
+      "property_history": [
+        {
+          "date": "1995-04-20",
+          "event": "purchase",
+          "price": 185000,
+          "purchase_legal_fees": 1800,
+          "stamp_duty": 4500
+        },
+        {
+          "date": "1995-05-01",
+          "event": "move_in"
+        },
+        {
+          "date": "2023-08-15",
+          "event": "death_of_owner",
+          "market_value": 950000
+        },
+        {
+          "date": "2023-10-01",
+          "event": "inherited"
+        },
+        {
+          "date": "2023-11-01",
+          "event": "rent_start"
+        },
+        {
+          "date": "2025-06-30",
+          "event": "rent_end"
+        },
+        {
+          "date": "2025-07-15",
+          "event": "sale",
+          "price": 1050000,
+          "contract_date": "2025-07-15",
+          "agent_fees": 26250,
+          "legal_fees": 2500
+        }
+      ],
+      "notes": "sold - Inherited from deceased mother. Property was her main residence when she died. Rented for ~20 months but sold within 2 years of death."
+    }
+  ],
+  "user_query": "My mother passed away in August 2023 and I inherited her home. I rented it out for about 20 months and then sold it in July 2025. Do I have to pay CGT?",
+  "additional_info": {
+    "australian_resident": true
+  },
+  "llm_provider": "deepseek",
+  "use_claude": true
+}

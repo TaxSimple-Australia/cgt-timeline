@@ -41,5 +41,9 @@
     "look_through_applies": true
   },
   "llm_provider": "deepseek",
-  "use_claude": true
+  "use_claude": true,
+  "scenario_info": {
+    "name": "Bare Trust - No CGT Event",
+    "description": "My property is held in a bare trust where I'm the sole beneficiary with absolute entitlement. The trustee is selling it but I've lived in it as my home since purchase. Do I get the main residence exemption even though I don't hold legal title?"
+  }
 }

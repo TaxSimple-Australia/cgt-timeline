@@ -1,0 +1,125 @@
+{
+  "properties": [
+    {
+      "id": "prop-batch123-scenario28",
+      "address": "88 Elm Street, Indooroopilly QLD 4068",
+      "property_history": [
+        {
+          "date": "2010-04-01",
+          "event": "purchase",
+          "price": 580000,
+          "stamp_duty": 21600,
+          "title": "Purchase",
+          "checkboxState": {
+            "moveInOnSameDay": true,
+            "purchaseAsVacant": false,
+            "purchaseAsRent": false,
+            "purchaseAsConstruction": false,
+            "purchaseAsBusiness": false,
+            "inheritedProperty": false,
+            "preCGTProperty": false,
+            "partialRental": false,
+            "partialBusiness": false,
+            "mixedUse": false
+          },
+          "costBases": [
+            {
+              "id": "cb-batch123-s28-purchase",
+              "definitionId": "purchase_price",
+              "name": "Purchase Price",
+              "amount": 580000,
+              "category": "element1",
+              "isCustom": false,
+              "description": "The total amount paid to acquire the property on 1 April 2010"
+            },
+            {
+              "id": "cb-batch123-s28-stamp",
+              "definitionId": "stamp_duty",
+              "name": "Stamp Duty",
+              "amount": 21600,
+              "category": "element2",
+              "isCustom": false,
+              "description": "State government transfer duty paid on property acquisition"
+            },
+            {
+              "id": "cb-batch123-s28-legal-purchase",
+              "definitionId": "legal_fees_acquire",
+              "name": "Legal Fees (Acquisition)",
+              "amount": 2700,
+              "category": "element2",
+              "isCustom": false,
+              "description": "Legal fees and conveyancing costs for property purchase"
+            }
+          ],
+          "description": "Property purchased for $580,000"
+        },
+        {
+          "date": "2010-04-01",
+          "event": "move_in",
+          "title": "Move In",
+          "checkboxState": {},
+          "description": "Moved in immediately - main residence"
+        },
+        {
+          "date": "2015-06-15",
+          "event": "improvement",
+          "price": 95000,
+          "title": "Capital Improvement",
+          "checkboxState": {},
+          "costBases": [
+            {
+              "id": "cb-batch123-s28-granny-flat",
+              "definitionId": "renovations",
+              "name": "Granny Flat Construction",
+              "amount": 95000,
+              "category": "element3",
+              "isCustom": false,
+              "description": "Construction of self-contained granny flat for elderly parent"
+            }
+          ],
+          "description": "Built granny flat for $95,000 - elderly parent moved in under formal written granny flat arrangement (no rent charged)"
+        },
+        {
+          "date": "2024-10-10",
+          "event": "sale",
+          "price": 1150000,
+          "title": "Sale",
+          "checkboxState": {},
+          "costBases": [
+            {
+              "id": "cb-batch123-s28-agent",
+              "definitionId": "agent_fees",
+              "name": "Real Estate Agent Commission",
+              "amount": 28750,
+              "category": "element5",
+              "isCustom": false,
+              "description": "Commission paid to real estate agent for sale"
+            },
+            {
+              "id": "cb-batch123-s28-legal-sale",
+              "definitionId": "legal_fees_disposal",
+              "name": "Legal Fees (Disposal)",
+              "amount": 2500,
+              "category": "element5",
+              "isCustom": false,
+              "description": "Legal fees for property sale and conveyancing"
+            }
+          ],
+          "description": "Property sold for $1,150,000"
+        }
+      ],
+      "notes": "**Batch 1,2,3 - Scenario 28: Granny Flat Arrangement**\n\nProperty with granny flat built for elderly parent under formal written granny flat arrangement. No rent charged.\n\n**Timeline:**\n- 1 Apr 2010 to 10 Oct 2024: Main residence (14.53 years)\n- 15 Jun 2015: Granny flat constructed ($95,000)\n- Elderly parent lived in granny flat under written agreement (no rent)\n\n**Key Rules:**\n- Granny flat arrangement under written agreement\n- No rent charged to parent\n- Property can still qualify for full main residence exemption\n- Granny flat is ancillary to main dwelling\n- **NO CGT PAYABLE** - Full main residence exemption applies\n\n**Expected Result:**\n- NO CGT PAYABLE - Granny flat arrangement doesn't affect main residence exemption\n- Total capital gain (before exemption): $443,450\n- Full exemption applies\n\n**ATO Rules Applied:**\n- Section 118-110 ITAA 1997 (Main Residence Exemption)\n- TD 2004/26 (Granny Flat Arrangements)\n- Formal written granny flat arrangement doesn't constitute income-producing use\n- Property remains eligible for full main residence exemption",
+      "color": "#10B981",
+      "branch": 0
+    }
+  ],
+  "user_query": "Batch 1,2,3 - Scenario 28: Granny Flat Arrangement - Property at 88 Elm Street, Indooroopilly QLD 4068, with granny flat for elderly parent under formal arrangement",
+  "additional_info": {
+    "australian_resident": true,
+    "tax_year": "2024-2025",
+    "scenario_batch": "Batch 1,2,3",
+    "scenario_number": "Scenario 28",
+    "scenario_title": "Granny Flat Arrangement",
+    "expected_outcome": "NO CGT PAYABLE - Granny flat arrangement doesn't affect main residence exemption (TD 2004/26)"
+  }
+}

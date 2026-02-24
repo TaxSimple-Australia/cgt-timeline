@@ -16,9 +16,10 @@
         },
         {
           "date": "2025-03-01",
-          "event": "compulsory_acquisition",
+          "event": "sale",
           "price": 980000,
-          "acquiring_authority": "Transport for NSW"
+          "acquiring_authority": "Transport for NSW",
+          "description": "Compulsory acquisition by government"
         }
       ],
       "notes": "Investment property compulsorily acquired for road widening project. Owner received $980,000 compensation. Planning to buy replacement investment property within 12 months."
@@ -27,7 +28,10 @@
   "user_query": "The government compulsorily acquired my investment property for a road project. I received $980,000 compensation. I want to buy another investment property with the money. Can I defer the CGT?",
   "additional_info": {
     "australian_resident": true
- 
   },
-  "llm_provider": "deepseek"
+  "llm_provider": "deepseek",
+  "scenario_info": {
+    "name": "Compulsory Acquisition Rollover",
+    "description": "The government compulsorily acquired my investment property for a road project. I received $980,000 compensation. I want to buy another investment property with the money. Can I defer the CGT?"
+  }
 }

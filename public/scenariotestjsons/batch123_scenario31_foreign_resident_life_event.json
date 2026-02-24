@@ -1,0 +1,115 @@
+{
+  "properties": [
+    {
+      "id": "prop-batch123-scenario31",
+      "address": "245 Skyline Drive, Sunshine Beach QLD 4567",
+      "property_history": [
+        {
+          "date": "2015-05-15",
+          "event": "purchase",
+          "price": 925000,
+          "stamp_duty": 35875,
+          "title": "Purchase",
+          "checkboxState": {
+            "moveInOnSameDay": true,
+            "purchaseAsVacant": false,
+            "purchaseAsRent": false,
+            "purchaseAsConstruction": false,
+            "purchaseAsBusiness": false,
+            "inheritedProperty": false,
+            "preCGTProperty": false,
+            "partialRental": false,
+            "partialBusiness": false,
+            "mixedUse": false
+          },
+          "costBases": [
+            {
+              "id": "cb-batch123-s31-purchase",
+              "definitionId": "purchase_price",
+              "name": "Purchase Price",
+              "amount": 925000,
+              "category": "element1",
+              "isCustom": false,
+              "description": "The total amount paid to acquire the property on 15 May 2015"
+            },
+            {
+              "id": "cb-batch123-s31-stamp",
+              "definitionId": "stamp_duty",
+              "name": "Stamp Duty",
+              "amount": 35875,
+              "category": "element2",
+              "isCustom": false,
+              "description": "State government transfer duty paid on property acquisition"
+            },
+            {
+              "id": "cb-batch123-s31-legal-purchase",
+              "definitionId": "legal_fees_acquire",
+              "name": "Legal Fees (Acquisition)",
+              "amount": 3600,
+              "category": "element2",
+              "isCustom": false,
+              "description": "Legal fees and conveyancing costs for property purchase"
+            }
+          ],
+          "description": "Property purchased for $925,000 while Australian resident"
+        },
+        {
+          "date": "2015-05-15",
+          "event": "move_in",
+          "title": "Move In",
+          "checkboxState": {},
+          "description": "Moved in immediately - main residence while Australian resident"
+        },
+        {
+          "date": "2020-08-01",
+          "event": "status_change",
+          "title": "Status Change",
+          "checkboxState": {},
+          "description": "Became foreign resident for tax purposes - moved overseas for work. Property remains available for use (not rented). Market value: $1,150,000. Life event exception applies - property can continue to be treated as main residence."
+        },
+        {
+          "date": "2024-09-15",
+          "event": "sale",
+          "price": 1680000,
+          "title": "Sale",
+          "checkboxState": {},
+          "costBases": [
+            {
+              "id": "cb-batch123-s31-agent",
+              "definitionId": "agent_fees",
+              "name": "Real Estate Agent Commission",
+              "amount": 42000,
+              "category": "element5",
+              "isCustom": false,
+              "description": "Commission paid to real estate agent for sale"
+            },
+            {
+              "id": "cb-batch123-s31-legal-sale",
+              "definitionId": "legal_fees_disposal",
+              "name": "Legal Fees (Disposal)",
+              "amount": 3200,
+              "category": "element5",
+              "isCustom": false,
+              "description": "Legal fees for property sale and conveyancing"
+            }
+          ],
+          "description": "Property sold for $1,680,000"
+        }
+      ],
+      "notes": "**Batch 1,2,3 - Scenario 31: Foreign Resident - Life Event Exception**\n\nAustralian purchased property, became foreign resident due to work overseas. Eligible for life event exception.\n\n**Timeline:**\n- 15 May 2015 to 1 Aug 2020: Main residence (Australian resident) - 5.21 years\n- 1 Aug 2020: Became foreign resident (work overseas - life event)\n- 1 Aug 2020 to 15 Sep 2024: Foreign resident period (4.12 years)\n- Property not rented - kept available for use\n- Total ownership: 9.33 years\n\n**Key Rules:**\n- Post-9 May 2017: Foreign residents generally not eligible for main residence exemption\n- **EXCEPTION**: Life event (employment overseas) allows continued exemption\n- Property must not be rented (income-producing)\n- Must have been main residence before becoming foreign resident\n- Absence from Australia < 6 years qualifies\n- **NO CGT PAYABLE** - Life event exception applies\n\n**Expected Result:**\n- NO CGT PAYABLE - Foreign resident life event exception applies\n- Total capital gain (before exemption): $666,325\n- Full exemption under life event provisions\n\n**ATO Rules Applied:**\n- Section 118-145 ITAA 1997 (Absence from Dwelling)\n- TD 2019/20 (Foreign Resident Main Residence Exemption)\n- Life event exception for employment overseas\n- Property not used to produce income",
+      "color": "#10B981",
+      "branch": 0
+    }
+  ],
+  "user_query": "Batch 1,2,3 - Scenario 31: Foreign Resident - Life Event Exception - Property at 245 Skyline Drive, Sunshine Beach QLD 4567, became foreign resident due to work overseas",
+  "additional_info": {
+    "australian_resident": false,
+    "tax_year": "2024-2025",
+    "scenario_batch": "Batch 1,2,3",
+    "scenario_number": "Scenario 31",
+    "scenario_title": "Foreign Resident - Life Event Exception",
+    "expected_outcome": "NO CGT PAYABLE - Foreign resident life event exception applies (TD 2019/20)",
+    "foreign_resident_from": "2020-08-01",
+    "life_event_reason": "Employment overseas"
+  }
+}

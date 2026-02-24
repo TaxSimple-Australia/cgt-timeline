@@ -1,0 +1,48 @@
+{
+  "properties": [
+    {
+      "address": "44 Absence Avenue, Crows Nest NSW 2065",
+      "property_history": [
+        {
+          "date": "2014-08-15",
+          "event": "purchase",
+          "price": 780000,
+          "stamp_duty": 32000,
+          "purchase_legal_fees": 3000
+        },
+        {
+          "date": "2014-09-01",
+          "event": "move_in"
+        },
+        {
+          "date": "2019-10-01",
+          "event": "move_out",
+          "market_value": 1050000
+        },
+        {
+          "date": "2019-10-15",
+          "event": "rent_start"
+        },
+        {
+          "date": "2025-04-30",
+          "event": "rent_end"
+        },
+        {
+          "date": "2025-05-15",
+          "event": "sale",
+          "price": 1450000,
+          "contract_date": "2025-05-15",
+          "agent_fees": 29000,
+          "legal_fees": 3400
+        }
+      ],
+      "notes": "sold - Main residence 2014-2019 (5 years), rented 2019-2025 (5.5 years)"
+    }
+  ],
+  "user_query": "I lived in my home for 5 years then rented it out for 5.5 years while renting elsewhere. I never owned another home. I'm selling now - do I get the full main residence exemption under the 6-year rule?",
+  "additional_info": {
+    "australian_resident": true
+  },
+  "llm_provider": "deepseek",
+  "use_claude": true
+}

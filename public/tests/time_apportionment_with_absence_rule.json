@@ -44,5 +44,9 @@
     "australian_resident": true
   },
   "llm_provider": "deepseek",
-  "use_claude": true
+  "use_claude": true,
+  "scenario_info": {
+    "name": "Six-Year Absence Rule Exceeded",
+    "description": "I lived in my home for 5 years then rented it for 8 years. I know the 6-year rule gives me 6 years of exemption while absent. But I was away for 8 years. How do I calculate the partial exemption?"
+  }
 }

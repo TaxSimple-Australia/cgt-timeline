@@ -16,12 +16,14 @@
         },
         {
           "date": "2024-02-01",
-          "event": "separation"
+          "event": "status_change",
+          "description": "Separation/relationship breakdown began"
         },
         {
           "date": "2024-09-01",
-          "event": "divorce_transfer",
-          "market_value": 580000
+          "event": "ownership_change",
+          "market_value": 580000,
+          "description": "Property transferred as part of divorce settlement"
         },
         {
           "date": "2025-06-30",
@@ -52,5 +54,9 @@
     "always_investment": true
   },
   "llm_provider": "deepseek",
-  "use_claude": true
+  "use_claude": true,
+  "scenario_info": {
+    "name": "Six-Year Absence Rule Exceeded",
+    "description": "I received an investment property in my divorce settlement. It was always rented - never our home. I've now sold it. My ex bought it in 2016 and transferred it to me in 2024. How do I calculate CGT?"
+  }
 }

@@ -101,12 +101,22 @@ export default function AIHumanSection() {
           transition={{ duration: 0.5, delay: 0.2 }}
           className="mb-24"
         >
-          <h2 className="text-3xl md:text-4xl font-bold text-white text-center mb-4">
+          <h2 className="text-3xl md:text-4xl font-bold text-white text-center mb-12">
             AI + Human Partnership
           </h2>
-          <p className="text-slate-400 text-center max-w-3xl mx-auto mb-12">
-            We don't believe in "black box" algorithms or slow manual spreadsheets. Our collaborative intelligence model combines the best of both worlds — machine precision with human expertise.
-          </p>
+
+          {/* Amplification Text - Before Cards */}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+            className="mb-12 text-center"
+          >
+            <p className="text-slate-400 max-w-6xl mx-auto leading-relaxed text-justify">
+              The conversation around AI often focuses on replacement. However, at CGT Brain AI, we focus on amplification. We have redesigned the workflow of property tax advice to be more agile and data-rich, yet our core remains unchanged; human-led and specialist-verified. We operate under a strict mandate that no AI response is final until it has been vetted by a tax specialist who assumes full responsibility and indemnity. By combining the efficiency of CGT Brain AI with our established, specialist-led review process, we provide a level of accuracy and security that technology alone cannot achieve.
+            </p>
+          </motion.div>
 
           <div className="grid md:grid-cols-2 gap-8">
             {/* AI Column */}
@@ -189,19 +199,6 @@ export default function AIHumanSection() {
               </ul>
             </motion.div>
           </div>
-
-          {/* Bottom Note */}
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: 0.5 }}
-            className="mt-8 text-center"
-          >
-            <p className="text-slate-400 max-w-3xl mx-auto leading-relaxed">
-              We focus on amplification, not replacement. Our workflow is more agile and data-rich, yet our core remains unchanged: human-led and specialist-verified.
-            </p>
-          </motion.div>
         </motion.div>
 
         {/* Section 4: How It Works (Stepper) */}

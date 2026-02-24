@@ -12,16 +12,19 @@
         },
         {
           "date": "2021-09-01",
-          "event": "demolition_start"
+          "event": "status_change",
+          "description": "Demolition commenced"
         },
         {
           "date": "2021-10-15",
-          "event": "construction_start",
-          "construction_cost": 650000
+          "event": "building_start",
+          "construction_cost": 650000,
+          "description": "Construction commenced"
         },
         {
           "date": "2022-12-01",
-          "event": "construction_complete"
+          "event": "building_end",
+          "description": "Construction completed"
         },
         {
           "date": "2022-12-15",
@@ -46,7 +49,10 @@
   "user_query": "I bought a property with an old house, demolished it, and built a new house. I moved in about 15 months after purchase. Does the 2-year building rule apply to knockdown rebuilds?",
   "additional_info": {
     "australian_resident": true
-    
   },
-  "llm_provider": "deepseek"
+  "llm_provider": "deepseek",
+  "scenario_info": {
+    "name": "Construction and Main Residence",
+    "description": "I bought a property with an old house, demolished it, and built a new house. I moved in about 15 months after purchase. Does the 2-year building rule apply to knockdown rebuilds?"
+  }
 }

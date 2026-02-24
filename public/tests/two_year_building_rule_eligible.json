@@ -5,19 +5,22 @@
       "property_history": [
         {
           "date": "2022-03-15",
-          "event": "purchase_vacant_land",
+          "event": "purchase",
           "price": 650000,
           "stamp_duty": 25000,
-          "purchase_legal_fees": 2500
+          "purchase_legal_fees": 2500,
+          "description": "Purchased vacant land"
         },
         {
           "date": "2022-09-01",
-          "event": "construction_start",
-          "construction_cost": 450000
+          "event": "building_start",
+          "construction_cost": 450000,
+          "description": "Construction commenced"
         },
         {
           "date": "2023-06-15",
-          "event": "construction_complete"
+          "event": "building_end",
+          "description": "Construction completed"
         },
         {
           "date": "2023-07-01",
@@ -43,5 +46,9 @@
   "additional_info": {
     "australian_resident": true
   },
-  "llm_provider": "deepseek"
+  "llm_provider": "deepseek",
+  "scenario_info": {
+    "name": "Construction and Main Residence",
+    "description": "I bought vacant land in March 2022, built a house, and moved in July 2023 - about 16 months after buying the land. I'm selling now. Can I get the main residence exemption from when I bought the land?"
+  }
 }

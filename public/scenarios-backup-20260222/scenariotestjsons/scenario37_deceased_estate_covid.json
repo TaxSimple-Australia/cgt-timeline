@@ -1,0 +1,70 @@
+{
+  "title": "Deceased Estate with COVID Extension",
+  "scenario_info": {
+    "name": "Deceased Estate with COVID Extension",
+    "description": "Peter's mother passed away in March 2020. Due to COVID-19 restrictions on real estate activities, he was unable to sell the property within 2 years. The ATO provides automatic extensions for delays caused by COVID-19 government restrictions.",
+    "expected_result": {
+      "exemption_type": "full",
+      "exemption_percentage": 100,
+      "capital_gain": 48700,
+      "taxable_gain": 0,
+      "cgt_payable": 0,
+      "notes": "COVID extension applies - sold 3.4 years after death but still qualifies for 2-year rule"
+    },
+    "applicable_rules": [
+      "ITAA97 s118.195: 2-year disposal rule",
+      "PCG 2019/5: Automatic extension for qualifying circumstances",
+      "COVID-19 restrictions = Qualifying circumstance",
+      "More than 12 months of delay within first 2 years = Automatic extension",
+      "Peter did not need to apply for extension",
+      "If COVID extension didn't apply, partial exemption would calculate from date of death"
+    ]
+  },
+  "properties": [
+    {
+      "address": "28 Memorial Avenue, Dalby QLD 4405",
+      "property_history": [
+        {
+          "date": "2005-01-01",
+          "event": "purchase",
+          "price": 180000,
+          "description": "Mother's original purchase - was her main residence"
+        },
+        {
+          "date": "2005-01-01",
+          "event": "move_in",
+          "description": "Mother established as main residence"
+        },
+        {
+          "date": "2020-03-15",
+          "event": "inheritance",
+          "market_value": 320000,
+          "description": "Mother passes. Property was her main residence. COVID-19 pandemic begins."
+        },
+        {
+          "date": "2020-06-01",
+          "event": "status_change",
+          "description": "Peter receives property as beneficiary. COVID restrictions prevent sale."
+        },
+        {
+          "date": "2021-12-31",
+          "event": "status_change",
+          "description": "COVID restrictions ease. 22 months of restrictions qualify for automatic extension."
+        },
+        {
+          "date": "2023-08-01",
+          "event": "sale",
+          "price": 380000,
+          "contract_date": "2023-08-01",
+          "agent_fees": 9500,
+          "legal_fees": 1800
+        }
+      ],
+      "notes": "Full exemption with COVID extension. Sold 3.4 years after death, but 22 months of COVID restrictions qualify for automatic extension under PCG 2019/5. 2-year rule effectively extended."
+    }
+  ],
+  "user_query": "My mother passed away in March 2020 and left me her home. I couldn't sell during COVID lockdowns. I finally sold in August 2023. Is it still exempt under the 2-year rule?",
+  "additional_info": {
+    "australian_resident": true
+  }
+}

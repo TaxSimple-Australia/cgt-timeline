@@ -16,7 +16,8 @@
         },
         {
           "date": "2018-03-15",
-          "event": "separation"
+          "event": "status_change",
+          "description": "Separation/relationship breakdown began"
         },
         {
           "date": "2018-04-01",
@@ -24,8 +25,9 @@
         },
         {
           "date": "2019-06-01",
-          "event": "divorce_transfer",
-          "market_value": 920000
+          "event": "ownership_change",
+          "market_value": 920000,
+          "description": "Property transferred as part of divorce settlement"
         },
         {
           "date": "2019-07-01",
@@ -58,5 +60,9 @@
     "tax_year": "2025-2026"
   },
   "llm_provider": "deepseek",
-  "use_claude": true
+  "use_claude": true,
+  "scenario_info": {
+    "name": "Six-Year Absence Rule - Within Limit",
+    "description": "I received my ex-husband's share of our home in our 2019 divorce settlement. I've now sold the property. How do I calculate CGT? We bought it together in 2010?"
+  }
 }

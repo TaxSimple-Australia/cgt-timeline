@@ -56,5 +56,9 @@
   "user_query": "I bought a new home and moved in before selling my old home. The overlap was about 4.5 months. What CGT do I owe?",
   "additional_info": {
     "australian_resident": true
+  },
+  "scenario_info": {
+    "name": "Moving Between Main Residences",
+    "description": "I bought a new home and moved in before selling my old home. The overlap was about 4.5 months. What CGT do I owe?"
   }
 }

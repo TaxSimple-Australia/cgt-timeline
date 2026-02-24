@@ -59,5 +59,9 @@
     "australian_resident": true
   },
   "llm_provider": "deepseek",
-  "use_claude": true
+  "use_claude": true,
+  "scenario_info": {
+    "name": "Six-Year Absence Rule - Within Limit",
+    "description": "I moved in and out of my home multiple times. First absence was 4 years (2011-2015), then I moved back for 3 years, then absent again for 7 years. Does each absence get its own 6-year rule?"
+  }
 }

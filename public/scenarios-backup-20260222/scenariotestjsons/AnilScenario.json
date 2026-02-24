@@ -1,0 +1,91 @@
+{
+  "properties": [
+    {
+      "address": "Roya's Apartment, Australia",
+      "property_history": [
+        {
+          "date": "1995-09-15",
+          "event": "purchase",
+          "price": 280000
+        },
+        {
+          "date": "1995-09-15",
+          "event": "move_in"
+        },
+        {
+          "date": "1997-09-29",
+          "event": "move_out",
+          "market_value": 340000
+        },
+        {
+          "date": "1997-09-29",
+          "event": "rent_start"
+        },
+        {
+          "date": "2024-09-29",
+          "event": "sale",
+          "price": 555000,
+          "contract_date": "2024-07-01",
+          "agent_fees": 15000
+        }
+      ],
+      "notes": "sold - Six-year rule exceeded. Rented for 27 years. Partial exemption applies. First use to produce income rule triggered - deemed acquisition at market value."
+    }
+  ],
+  "user_query": "I bought an apartment in 1995, lived in it for 2 years, then rented it out for 27 years before selling in 2024. What is my CGT liability?",
+  "additional_info": {
+    "australian_resident": true,
+    "market_value_at_first_rental": 340000
+  },
+  "scenario_info": {
+    "name": "Six-Year Absence Rule Exceeded - Deemed Acquisition (Roya's Apartment)",
+    "description": "Roya purchased an apartment in 1995, lived in it for 2 years as main residence, then moved to another city and rented it out for 27 years. Six-year rule exceeded - partial exemption applies with deemed acquisition at market value.",
+    "timeline": {
+      "purchase_date": "1995-09-15",
+      "move_in_date": "1995-09-15",
+      "move_out_date": "1997-09-29",
+      "rent_start_date": "1997-09-29",
+      "six_year_rule_end_date": "2003-09-29",
+      "sale_contract_date": "2024-07-01",
+      "sale_settlement_date": "2024-09-29"
+    },
+    "expected_result": {
+      "exemption_type": "partial",
+      "deemed_acquisition_applies": true,
+      "deemed_acquisition_date": "1997-09-29",
+      "deemed_acquisition_value": 340000,
+      "cost_base": {
+        "deemed_acquisition_value": 340000,
+        "selling_costs": 15000,
+        "total": 355000
+      },
+      "capital_proceeds": 555000,
+      "total_capital_gain": 200000,
+      "ownership_period_days": 9863,
+      "non_main_residence_days": 7671,
+      "main_residence_days": 2192,
+      "taxable_proportion": 77.78,
+      "taxable_capital_gain": 155551,
+      "cgt_discount_percentage": 50,
+      "net_capital_gain": 77776,
+      "six_year_rule_exceeded_by_years": 21
+    },
+    "applicable_rules": [
+      "ITAA97 s118.110 - Main residence exemption",
+      "ITAA97 s118.145 - Six-year absence rule",
+      "ITAA97 s118.192 - First use to produce income (deemed acquisition at market value)",
+      "ITAA97 s118.185 - Partial exemption apportionment",
+      "ITAA97 s115.25 - 50% CGT discount"
+    ],
+    "rules_not_applicable": [
+      "Full main residence exemption (rented > 6 years)",
+      "Indexation method (discount method chosen instead)"
+    ],
+    "key_dates_explanation": {
+      "main_residence_period": "15 September 1995 to 29 September 1997 (2 years)",
+      "six_year_exemption_period": "29 September 1997 to 29 September 2003 (6 years)",
+      "non_exempt_rental_period": "30 September 2003 to 29 September 2024 (21 years)",
+      "total_deemed_ownership": "29 September 1997 to 29 September 2024 (27 years)"
+    }
+  }
+}

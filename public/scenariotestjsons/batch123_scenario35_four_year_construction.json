@@ -1,0 +1,129 @@
+{
+  "properties": [
+    {
+      "id": "prop-batch123-scenario35",
+      "address": "Lot 42 Hillside Crescent, Chapel Hill QLD 4069",
+      "property_history": [
+        {
+          "date": "2019-02-15",
+          "event": "purchase",
+          "price": 485000,
+          "stamp_duty": 18150,
+          "title": "Purchase",
+          "checkboxState": {
+            "moveInOnSameDay": false,
+            "purchaseAsVacant": true,
+            "purchaseAsRent": false,
+            "purchaseAsConstruction": true,
+            "purchaseAsBusiness": false,
+            "inheritedProperty": false,
+            "preCGTProperty": false,
+            "partialRental": false,
+            "partialBusiness": false,
+            "mixedUse": false
+          },
+          "costBases": [
+            {
+              "id": "cb-batch123-s35-purchase",
+              "definitionId": "purchase_price",
+              "name": "Purchase Price",
+              "amount": 485000,
+              "category": "element1",
+              "isCustom": false,
+              "description": "The total amount paid to acquire the vacant land on 15 February 2019"
+            },
+            {
+              "id": "cb-batch123-s35-stamp",
+              "definitionId": "stamp_duty",
+              "name": "Stamp Duty",
+              "amount": 18150,
+              "category": "element2",
+              "isCustom": false,
+              "description": "State government transfer duty paid on property acquisition"
+            },
+            {
+              "id": "cb-batch123-s35-legal-purchase",
+              "definitionId": "legal_fees_acquire",
+              "name": "Legal Fees (Acquisition)",
+              "amount": 2500,
+              "category": "element2",
+              "isCustom": false,
+              "description": "Legal fees and conveyancing costs for property purchase"
+            }
+          ],
+          "description": "Vacant land purchased for $485,000 - intending to build dwelling"
+        },
+        {
+          "date": "2019-06-01",
+          "event": "improvement",
+          "price": 425000,
+          "title": "Capital Improvement",
+          "checkboxState": {},
+          "costBases": [
+            {
+              "id": "cb-batch123-s35-construction",
+              "definitionId": "construction_costs",
+              "name": "Construction of Dwelling",
+              "amount": 425000,
+              "category": "element3",
+              "isCustom": false,
+              "description": "Construction of new dwelling commenced 1 June 2019"
+            }
+          ],
+          "description": "Construction commenced - dwelling construction cost $425,000"
+        },
+        {
+          "date": "2023-04-15",
+          "event": "move_in",
+          "title": "Move In",
+          "checkboxState": {},
+          "description": "Construction completed and moved in - 3.87 years from land purchase (within 4-year limit). Property treated as main residence from land acquisition date."
+        },
+        {
+          "date": "2024-09-30",
+          "event": "sale",
+          "price": 1650000,
+          "title": "Sale",
+          "checkboxState": {},
+          "costBases": [
+            {
+              "id": "cb-batch123-s35-agent",
+              "definitionId": "agent_fees",
+              "name": "Real Estate Agent Commission",
+              "amount": 41250,
+              "category": "element5",
+              "isCustom": false,
+              "description": "Commission paid to real estate agent for sale"
+            },
+            {
+              "id": "cb-batch123-s35-legal-sale",
+              "definitionId": "legal_fees_disposal",
+              "name": "Legal Fees (Disposal)",
+              "amount": 3100,
+              "category": "element5",
+              "isCustom": false,
+              "description": "Legal fees for property sale and conveyancing"
+            }
+          ],
+          "description": "Property sold for $1,650,000"
+        }
+      ],
+      "notes": "**Batch 1,2,3 - Scenario 35: Four-Year Construction Rule**\n\nVacant land purchased and dwelling constructed. Moved in within 4 years of land purchase - qualifies for backdating.\n\n**Timeline:**\n- 15 Feb 2019: Vacant land purchased\n- 1 Jun 2019: Construction commenced\n- 15 Apr 2023: Construction completed, moved in (3.87 years from land purchase)\n- 15 Apr 2023 to 30 Sep 2024: Main residence (1.46 years)\n- Total ownership: 5.62 years\n\n**Key Rules:**\n- Four-year construction rule applies (s118-150 ITAA 1997)\n- Moved in within 4 years of land purchase (3.87 years)\n- Property treated as main residence from land acquisition date (15 Feb 2019)\n- **NO CGT PAYABLE** - Full main residence exemption from land acquisition\n\n**Expected Result:**\n- NO CGT PAYABLE - Four-year construction rule applies\n- Total capital gain (before exemption): $690,000\n- Full exemption (property treated as main residence from land purchase)\n\n**ATO Rules Applied:**\n- Section 118-150 ITAA 1997 (Four-Year Construction Rule)\n- If dwelling constructed and occupied within 4 years, backdated to land acquisition\n- Property treated as main residence from land purchase date",
+      "color": "#10B981",
+      "branch": 0
+    }
+  ],
+  "user_query": "Batch 1,2,3 - Scenario 35: Four-Year Construction Rule - Vacant land at Lot 42 Hillside Crescent, Chapel Hill QLD 4069, dwelling constructed and moved in within 4 years",
+  "additional_info": {
+    "australian_resident": true,
+    "tax_year": "2024-2025",
+    "scenario_batch": "Batch 1,2,3",
+    "scenario_number": "Scenario 35",
+    "scenario_title": "Four-Year Construction Rule",
+    "expected_outcome": "NO CGT PAYABLE - Four-year construction rule applies (s118-150 ITAA 1997)",
+    "land_purchase_date": "2019-02-15",
+    "construction_start": "2019-06-01",
+    "move_in_date": "2023-04-15",
+    "years_to_move_in": 3.87
+  }
+}

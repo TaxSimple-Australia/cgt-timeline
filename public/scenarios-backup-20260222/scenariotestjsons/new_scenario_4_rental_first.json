@@ -1,0 +1,46 @@
+{
+  "properties": [
+    {
+      "address": "127 Exhibition Street, Melbourne VIC 3000",
+      "property_history": [
+        {
+          "date": "2014-04-01",
+          "event": "purchase",
+          "price": 485000,
+          "stamp_duty": 19400,
+          "purchase_legal_fees": 2900
+        },
+        {
+          "date": "2014-04-01",
+          "event": "rent_start"
+        },
+        {
+          "date": "2018-05-15",
+          "event": "rent_end"
+        },
+        {
+          "date": "2018-05-15",
+          "event": "move_in"
+        },
+        {
+          "date": "2021-08-01",
+          "event": "improvement",
+          "price": 28000
+        },
+        {
+          "date": "2024-10-01",
+          "event": "sale",
+          "price": 875000,
+          "contract_date": "2024-10-01",
+          "agent_fees": 21875,
+          "legal_fees": 2600
+        }
+      ],
+      "notes": "sold - Investment property converted to main residence. Partial exemption for main residence period only."
+    }
+  ],
+  "user_query": "I bought an investment property, rented it for 4 years, then moved in for 6 years before selling. What CGT do I owe?",
+  "additional_info": {
+    "australian_resident": true
+  }
+}

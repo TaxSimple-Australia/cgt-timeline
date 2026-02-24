@@ -19,7 +19,8 @@
         },
         {
           "date": "1988-06-15",
-          "event": "marriage"
+          "event": "status_change",
+          "description": "Marriage/relationship commenced"
         },
         {
           "date": "1988-07-01",
@@ -32,28 +33,31 @@
         },
         {
           "date": "2005-03-01",
-          "event": "major_renovation",
+          "event": "improvement",
           "renovation_cost": 320000,
-          "description": "Major extension and renovation - added second storey",
+          "description": "Major renovation/capital improvement. Major extension and renovation - added second storey",
           "notes": "Post-CGT improvement adds to cost base"
         },
         {
           "date": "2020-08-01",
-          "event": "separation"
+          "event": "status_change",
+          "description": "Separation/relationship breakdown began"
         },
         {
           "date": "2021-04-15",
-          "event": "divorce_property_settlement",
+          "event": "ownership_change",
           "transfer_type": "court_order",
           "previous_ownership": "Joint tenants 50/50",
           "new_ownership": "100% Spouse B",
           "market_value_at_transfer": 4200000,
           "rollover_applies": true,
-          "notes": "Full property transferred to Spouse B."
+          "notes": "Full property transferred to Spouse B.",
+          "description": "Divorce property settlement - ownership transfer"
         },
         {
           "date": "2021-05-01",
-          "event": "spouse_a_moves_out"
+          "event": "move_out",
+          "description": "Spouse moved out following separation"
         },
         {
           "date": "2021-06-01",
@@ -81,5 +85,9 @@
     "australian_resident": true
   },
   "llm_provider": "deepseek",
-  "use_claude": true
+  "use_claude": true,
+  "scenario_info": {
+    "name": "Six-Year Absence Rule - Within Limit",
+    "description": "My ex-husband bought our home in 1983 before we married. He added me to the title in 1988 when we got married. We did a $320K renovation in 2005. In the divorce I got full ownership in 2021, then rented it out. Now I'm selling. This seems incredibly complicated - half is pre-CGT, half isn't, plus the renovation?"
+  }
 }

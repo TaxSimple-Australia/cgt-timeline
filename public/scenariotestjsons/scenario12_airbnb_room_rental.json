@@ -37,7 +37,11 @@
         {
           "date": "2019-01-01",
           "event": "rent_start",
-          "description": "Started renting spare room on Airbnb. Room: 18sqm exclusive, 45sqm shared areas. Total home: 180sqm."
+          "description": "Started renting spare room on Airbnb. Room: 18sqm exclusive, 45sqm shared areas. Total home: 180sqm.",
+          "floorAreaData": {
+            "rental": 18,
+            "shared": 45
+          }
         },
         {
           "date": "2023-12-31",

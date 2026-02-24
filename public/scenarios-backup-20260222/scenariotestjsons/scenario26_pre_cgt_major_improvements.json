@@ -1,0 +1,59 @@
+{
+  "title": "Pre-CGT Property with Major Post-CGT Improvements",
+  "scenario_info": {
+    "name": "Pre-CGT Property with Major Post-CGT Improvements",
+    "description": "George purchased a property in 1982 (before CGT commenced on 20 September 1985). In 2015, he undertook a major renovation costing $250,000. He sells the property in 2024. While the original property is exempt as a pre-CGT asset, the major capital improvement is a separate CGT asset. However, since it was his main residence, both are exempt.",
+    "expected_result": {
+      "exemption_type": "full",
+      "exemption_percentage": 100,
+      "capital_gain": 50000,
+      "taxable_gain": 0,
+      "cgt_payable": 0,
+      "notes": "Pre-CGT property exempt. Major improvement also exempt under main residence exemption."
+    },
+    "applicable_rules": [
+      "ITAA97 s149.10: Pre-CGT assets (acquired before 20 September 1985) exempt",
+      "ITAA97 s108.70: Major capital improvements are separate CGT assets",
+      "Major improvement threshold 2024-25: >5% of proceeds AND >$182,665",
+      "ITAA97 s118.110: Main residence exemption extends to improvements used as part of home",
+      "Note: If property was NOT main residence, improvement would be taxable"
+    ]
+  },
+  "properties": [
+    {
+      "address": "78 Colonial Road, Bundaberg QLD 4670",
+      "property_history": [
+        {
+          "date": "1982-06-01",
+          "event": "purchase",
+          "price": 42000,
+          "description": "Pre-CGT asset - acquired before 20 September 1985"
+        },
+        {
+          "date": "1982-06-01",
+          "event": "move_in",
+          "description": "Established as main residence"
+        },
+        {
+          "date": "2015-03-01",
+          "event": "improvement",
+          "price": 250000,
+          "description": "Major renovation - complete house renovation. This is a separate post-CGT asset but exempt under MRE."
+        },
+        {
+          "date": "2024-10-15",
+          "event": "sale",
+          "price": 680000,
+          "contract_date": "2024-10-15",
+          "agent_fees": 17000,
+          "legal_fees": 2500
+        }
+      ],
+      "notes": "Full exemption. Original property is pre-CGT (exempt). Major renovation ($250,000 > $182,665 threshold and > 5% of sale) is technically a separate CGT asset, but is also exempt because property was main residence for entire ownership."
+    }
+  ],
+  "user_query": "I bought my home in 1982 before CGT started. I did a major $250,000 renovation in 2015. Now I'm selling for $680,000. Is any part taxable?",
+  "additional_info": {
+    "australian_resident": true
+  }
+}

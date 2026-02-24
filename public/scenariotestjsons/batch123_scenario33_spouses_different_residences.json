@@ -1,0 +1,199 @@
+{
+  "properties": [
+    {
+      "id": "prop-batch123-scenario33-spouse1",
+      "address": "42 Northshore Boulevard, Murarrie QLD 4172",
+      "property_history": [
+        {
+          "date": "2018-02-01",
+          "event": "purchase",
+          "price": 520000,
+          "stamp_duty": 19400,
+          "title": "Purchase",
+          "checkboxState": {
+            "moveInOnSameDay": true,
+            "purchaseAsVacant": false,
+            "purchaseAsRent": false,
+            "purchaseAsConstruction": false,
+            "purchaseAsBusiness": false,
+            "inheritedProperty": false,
+            "preCGTProperty": false,
+            "partialRental": false,
+            "partialBusiness": false,
+            "mixedUse": false
+          },
+          "costBases": [
+            {
+              "id": "cb-batch123-s33-s1-purchase",
+              "definitionId": "purchase_price",
+              "name": "Purchase Price",
+              "amount": 520000,
+              "category": "element1",
+              "isCustom": false,
+              "description": "The total amount paid to acquire the property on 1 February 2018"
+            },
+            {
+              "id": "cb-batch123-s33-s1-stamp",
+              "definitionId": "stamp_duty",
+              "name": "Stamp Duty",
+              "amount": 19400,
+              "category": "element2",
+              "isCustom": false,
+              "description": "State government transfer duty paid on property acquisition"
+            },
+            {
+              "id": "cb-batch123-s33-s1-legal-purchase",
+              "definitionId": "legal_fees_acquire",
+              "name": "Legal Fees (Acquisition)",
+              "amount": 2500,
+              "category": "element2",
+              "isCustom": false,
+              "description": "Legal fees and conveyancing costs for property purchase"
+            }
+          ],
+          "description": "Property purchased for $520,000 by Spouse 1"
+        },
+        {
+          "date": "2018-02-01",
+          "event": "move_in",
+          "title": "Move In",
+          "checkboxState": {},
+          "description": "Spouse 1 moved in - treating as main residence"
+        },
+        {
+          "date": "2024-10-20",
+          "event": "sale",
+          "price": 815000,
+          "title": "Sale",
+          "checkboxState": {},
+          "costBases": [
+            {
+              "id": "cb-batch123-s33-s1-agent",
+              "definitionId": "agent_fees",
+              "name": "Real Estate Agent Commission",
+              "amount": 20375,
+              "category": "element5",
+              "isCustom": false,
+              "description": "Commission paid to real estate agent for sale"
+            },
+            {
+              "id": "cb-batch123-s33-s1-legal-sale",
+              "definitionId": "legal_fees_disposal",
+              "name": "Legal Fees (Disposal)",
+              "amount": 2200,
+              "category": "element5",
+              "isCustom": false,
+              "description": "Legal fees for property sale and conveyancing"
+            }
+          ],
+          "description": "Property sold for $815,000"
+        }
+      ],
+      "notes": "**Batch 1,2,3 - Scenario 33: Spouses with Different Main Residences (Spouse 1)**\n\nSpouse 1's property at Murarrie. Couple has separate main residences due to work in different cities.\n\n**Timeline:**\n- 1 Feb 2018 to 20 Oct 2024: Spouse 1's main residence (6.72 years)\n- Spouse 2 lives separately at Cannon Hill property (work in different city)\n\n**Key Rules:**\n- Spouses can nominate different main residences under s118-110(2)\n- Applicable from 1 July 2018 (change in law)\n- Spouse 1 treats Murarrie property as main residence\n- **NO CGT PAYABLE** - Full main residence exemption for Spouse 1\n\n**Expected Result:**\n- NO CGT PAYABLE - Spouse 1's main residence exemption applies\n- Total capital gain (before exemption): $270,525\n- Full exemption\n\n**ATO Rules Applied:**\n- Section 118-110(2) ITAA 1997 (Separate Main Residences for Spouses)\n- From 1 July 2018, spouses can have different main residences\n- Each spouse entitled to exemption for their nominated residence",
+      "color": "#10B981",
+      "branch": 0
+    },
+    {
+      "id": "prop-batch123-scenario33-spouse2",
+      "address": "156 Creek Road, Cannon Hill QLD 4170",
+      "property_history": [
+        {
+          "date": "2018-03-15",
+          "event": "purchase",
+          "price": 485000,
+          "stamp_duty": 18150,
+          "title": "Purchase",
+          "checkboxState": {
+            "moveInOnSameDay": true,
+            "purchaseAsVacant": false,
+            "purchaseAsRent": false,
+            "purchaseAsConstruction": false,
+            "purchaseAsBusiness": false,
+            "inheritedProperty": false,
+            "preCGTProperty": false,
+            "partialRental": false,
+            "partialBusiness": false,
+            "mixedUse": false
+          },
+          "costBases": [
+            {
+              "id": "cb-batch123-s33-s2-purchase",
+              "definitionId": "purchase_price",
+              "name": "Purchase Price",
+              "amount": 485000,
+              "category": "element1",
+              "isCustom": false,
+              "description": "The total amount paid to acquire the property on 15 March 2018"
+            },
+            {
+              "id": "cb-batch123-s33-s2-stamp",
+              "definitionId": "stamp_duty",
+              "name": "Stamp Duty",
+              "amount": 18150,
+              "category": "element2",
+              "isCustom": false,
+              "description": "State government transfer duty paid on property acquisition"
+            },
+            {
+              "id": "cb-batch123-s33-s2-legal-purchase",
+              "definitionId": "legal_fees_acquire",
+              "name": "Legal Fees (Acquisition)",
+              "amount": 2450,
+              "category": "element2",
+              "isCustom": false,
+              "description": "Legal fees and conveyancing costs for property purchase"
+            }
+          ],
+          "description": "Property purchased for $485,000 by Spouse 2"
+        },
+        {
+          "date": "2018-03-15",
+          "event": "move_in",
+          "title": "Move In",
+          "checkboxState": {},
+          "description": "Spouse 2 moved in - treating as main residence"
+        },
+        {
+          "date": "2024-11-05",
+          "event": "sale",
+          "price": 765000,
+          "title": "Sale",
+          "checkboxState": {},
+          "costBases": [
+            {
+              "id": "cb-batch123-s33-s2-agent",
+              "definitionId": "agent_fees",
+              "name": "Real Estate Agent Commission",
+              "amount": 19125,
+              "category": "element5",
+              "isCustom": false,
+              "description": "Commission paid to real estate agent for sale"
+            },
+            {
+              "id": "cb-batch123-s33-s2-legal-sale",
+              "definitionId": "legal_fees_disposal",
+              "name": "Legal Fees (Disposal)",
+              "amount": 2150,
+              "category": "element5",
+              "isCustom": false,
+              "description": "Legal fees for property sale and conveyancing"
+            }
+          ],
+          "description": "Property sold for $765,000"
+        }
+      ],
+      "notes": "**Batch 1,2,3 - Scenario 33: Spouses with Different Main Residences (Spouse 2)**\n\nSpouse 2's property at Cannon Hill. Couple has separate main residences due to work in different cities.\n\n**Timeline:**\n- 15 Mar 2018 to 5 Nov 2024: Spouse 2's main residence (6.64 years)\n- Spouse 1 lives separately at Murarrie property (work in different city)\n\n**Key Rules:**\n- Spouses can nominate different main residences under s118-110(2)\n- Applicable from 1 July 2018 (change in law)\n- Spouse 2 treats Cannon Hill property as main residence\n- **NO CGT PAYABLE** - Full main residence exemption for Spouse 2\n\n**Expected Result:**\n- NO CGT PAYABLE - Spouse 2's main residence exemption applies\n- Total capital gain (before exemption): $237,525\n- Full exemption\n\n**ATO Rules Applied:**\n- Section 118-110(2) ITAA 1997 (Separate Main Residences for Spouses)\n- From 1 July 2018, spouses can have different main residences\n- Each spouse entitled to exemption for their nominated residence",
+      "color": "#10B981",
+      "branch": 1
+    }
+  ],
+  "user_query": "Batch 1,2,3 - Scenario 33: Spouses with Different Main Residences - Two properties: Spouse 1 at 42 Northshore Boulevard, Murarrie; Spouse 2 at 156 Creek Road, Cannon Hill",
+  "additional_info": {
+    "australian_resident": true,
+    "tax_year": "2024-2025",
+    "scenario_batch": "Batch 1,2,3",
+    "scenario_number": "Scenario 33",
+    "scenario_title": "Spouses with Different Main Residences",
+    "expected_outcome": "NO CGT PAYABLE for both properties - Separate main residence exemptions apply (s118-110(2) ITAA 1997)"
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "properties": [
+    {
+      "address": "45 Highway Reserve, Parramatta NSW 2150",
+      "property_history": [
+        {
+          "date": "2012-06-20",
+          "event": "purchase",
+          "price": 520000,
+          "stamp_duty": 20000,
+          "purchase_legal_fees": 2400
+        },
+        {
+          "date": "2012-07-01",
+          "event": "rent_start"
+        },
+        {
+          "date": "2025-03-01",
+          "event": "compulsory_acquisition",
+          "price": 980000,
+          "acquiring_authority": "Transport for NSW"
+        }
+      ],
+      "notes": "Investment property compulsorily acquired for road widening project. Owner received $980,000 compensation. Planning to buy replacement investment property within 12 months."
+    }
+  ],
+  "user_query": "The government compulsorily acquired my investment property for a road project. I received $980,000 compensation. I want to buy another investment property with the money. Can I defer the CGT?",
+  "additional_info": {
+    "australian_resident": true
+ 
+  },
+  "llm_provider": "deepseek"
+}

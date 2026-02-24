@@ -1,0 +1,115 @@
+{
+  "properties": [
+    {
+      "id": "prop-batch123-scenario30",
+      "address": "72 Carlton Terrace, Manly QLD 4179",
+      "property_history": [
+        {
+          "date": "2016-07-01",
+          "event": "purchase",
+          "price": 685000,
+          "stamp_duty": 26425,
+          "title": "Purchase",
+          "checkboxState": {
+            "moveInOnSameDay": true,
+            "purchaseAsVacant": false,
+            "purchaseAsRent": false,
+            "purchaseAsConstruction": false,
+            "purchaseAsBusiness": false,
+            "inheritedProperty": false,
+            "preCGTProperty": false,
+            "partialRental": false,
+            "partialBusiness": false,
+            "mixedUse": false
+          },
+          "costBases": [
+            {
+              "id": "cb-batch123-s30-purchase",
+              "definitionId": "purchase_price",
+              "name": "Purchase Price",
+              "amount": 685000,
+              "category": "element1",
+              "isCustom": false,
+              "description": "The total amount paid to acquire the property on 1 July 2016"
+            },
+            {
+              "id": "cb-batch123-s30-stamp",
+              "definitionId": "stamp_duty",
+              "name": "Stamp Duty",
+              "amount": 26425,
+              "category": "element2",
+              "isCustom": false,
+              "description": "State government transfer duty paid on property acquisition"
+            },
+            {
+              "id": "cb-batch123-s30-legal-purchase",
+              "definitionId": "legal_fees_acquire",
+              "name": "Legal Fees (Acquisition)",
+              "amount": 3100,
+              "category": "element2",
+              "isCustom": false,
+              "description": "Legal fees and conveyancing costs for property purchase"
+            }
+          ],
+          "description": "Property purchased for $685,000"
+        },
+        {
+          "date": "2016-07-01",
+          "event": "move_in",
+          "title": "Move In",
+          "checkboxState": {},
+          "description": "Moved in immediately - main residence"
+        },
+        {
+          "date": "2018-01-01",
+          "event": "status_change",
+          "title": "Status Change",
+          "checkboxState": {},
+          "description": "Started using home office (1 room out of 5, 20% floor area) for business. Claimed home office expenses. Market value: $725,000. Business use period begins."
+        },
+        {
+          "date": "2024-10-01",
+          "event": "sale",
+          "price": 1280000,
+          "title": "Sale",
+          "checkboxState": {},
+          "costBases": [
+            {
+              "id": "cb-batch123-s30-agent",
+              "definitionId": "agent_fees",
+              "name": "Real Estate Agent Commission",
+              "amount": 32000,
+              "category": "element5",
+              "isCustom": false,
+              "description": "Commission paid to real estate agent for sale"
+            },
+            {
+              "id": "cb-batch123-s30-legal-sale",
+              "definitionId": "legal_fees_disposal",
+              "name": "Legal Fees (Disposal)",
+              "amount": 2650,
+              "category": "element5",
+              "isCustom": false,
+              "description": "Legal fees for property sale and conveyancing"
+            }
+          ],
+          "description": "Property sold for $1,280,000"
+        }
+      ],
+      "notes": "**Batch 1,2,3 - Scenario 30: Home Office Business Use**\n\nProperty used as main residence with one room (20% floor area) used for business from 2018. Home office expenses claimed.\n\n**Timeline:**\n- 1 Jul 2016 to 1 Jan 2018: Full main residence (1.5 years)\n- 1 Jan 2018 to 1 Oct 2024: Main residence + home office (6.75 years)\n  - 80% main residence\n  - 20% business use (claimed home office expenses)\n- Total ownership: 8.25 years\n\n**Key Calculations:**\n- Total capital gain: $559,825\n- Business use portion: 20% × 6.75/8.25 years = 16.36% taxable\n- Main residence portion: 83.64% exempt\n- Taxable capital gain: $559,825 × 16.36% = $91,587\n- After 50% CGT discount: $91,587 × 50% = $45,794\n- **NET CAPITAL GAIN: $45,794**\n\n**Expected Result:**\n- NET CAPITAL GAIN = $45,794\n- 16.36% of capital gain is taxable (business use proportion)\n\n**ATO Rules Applied:**\n- Section 118-190 ITAA 1997 (Business Use of Dwelling)\n- When part of home used for business and expenses claimed, that portion not exempt\n- Area × time apportionment method\n- Section 115-25 ITAA 1997 (50% CGT discount)",
+      "color": "#F59E0B",
+      "branch": 0
+    }
+  ],
+  "user_query": "Batch 1,2,3 - Scenario 30: Home Office Business Use - Property at 72 Carlton Terrace, Manly QLD 4179, with 20% business use for home office",
+  "additional_info": {
+    "australian_resident": true,
+    "tax_year": "2024-2025",
+    "scenario_batch": "Batch 1,2,3",
+    "scenario_number": "Scenario 30",
+    "scenario_title": "Home Office Business Use",
+    "expected_outcome": "NET CAPITAL GAIN = $45,794 (16.36% taxable - business use portion)",
+    "business_use_percentage": 20,
+    "business_use_start_date": "2018-01-01"
+  }
+}

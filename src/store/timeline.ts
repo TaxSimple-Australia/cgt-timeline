@@ -2678,6 +2678,178 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
         }
       }
 
+      // ========== FORMAT 2 SUBDIVISION CONVERSION ==========
+      // Detect and convert Format 2 subdivisions (only parent property with subdivision events)
+      // to Format 1 (parent + child properties)
+      const subdivisionGroupsProcessed = new Set<string>();
+
+      importedProperties.forEach(property => {
+        const propertyEvents = importedEvents.filter(e => e.propertyId === property.id);
+        const subdivisionEvents = propertyEvents.filter(e =>
+          e.type === 'subdivision' &&
+          e.subdivisionDetails?.subdivisionGroup &&
+          !subdivisionGroupsProcessed.has(e.subdivisionDetails.subdivisionGroup)
+        );
+
+        subdivisionEvents.forEach(subdivEvent => {
+          const subdivisionGroup = subdivEvent.subdivisionDetails?.subdivisionGroup;
+          if (!subdivisionGroup) return;
+
+          // Check if child properties already exist for this subdivision group
+          const hasChildProperties = importedProperties.some(p =>
+            p.subdivisionGroup === subdivisionGroup && p.parentPropertyId === property.id
+          );
+
+          if (hasChildProperties) {
+            // Format 1: Already has child properties, skip conversion
+            subdivisionGroupsProcessed.add(subdivisionGroup);
+            return;
+          }
+
+          // Format 2: No child properties found - need to auto-generate them
+          console.log(`🔍 Detected Format 2 subdivision: ${property.name || property.address}`);
+
+          // Extract valuation data from the subdivision event
+          // Look for fields like valuation_lot1_with_dwelling, valuation_lot2_vacant, etc.
+          const subdivEventRaw = importedEvents.find(e => e === subdivEvent);
+          const eventData: any = subdivEventRaw || {};
+
+          // Collect all valuation fields
+          const valuations: Array<{lotNumber: number, value: number, hasDwelling: boolean}> = [];
+          Object.keys(eventData).forEach(key => {
+            const match = key.match(/^valuation_lot(\d+)_?(.*)?$/i);
+            if (match && typeof eventData[key] === 'number') {
+              const lotNum = parseInt(match[1]);
+              const suffix = match[2] || '';
+              valuations.push({
+                lotNumber: lotNum,
+                value: eventData[key],
+                hasDwelling: suffix.toLowerCase().includes('dwelling') || suffix.toLowerCase().includes('house')
+              });
+            }
+          });
+
+          // Sort by lot number
+          valuations.sort((a, b) => a.lotNumber - b.lotNumber);
+
+          if (valuations.length === 0) {
+            console.warn(`⚠️ No valuation data found for subdivision, skipping auto-generation`);
+            return;
+          }
+
+          // Calculate total valuation
+          const totalValuation = eventData.total_value_at_subdivision ||
+                                 valuations.reduce((sum, v) => sum + v.value, 0);
+
+          // Get subdivision costs
+          const subdivisionCosts = eventData.subdivision_costs || 0;
+
+          // Calculate parent's cost base before subdivision
+          const parentPurchasePrice = property.purchasePrice || 0;
+          const parentImprovements = importedEvents
+            .filter(e => e.propertyId === property.id && e.type === 'improvement' && e.date < subdivEvent.date)
+            .reduce((sum, e) => sum + (e.amount || 0), 0);
+          const parentCostBase = parentPurchasePrice + parentImprovements;
+
+          // Create child properties
+          const childProperties: Property[] = valuations.map((valuation, index) => {
+            const isMainLot = index === 0;
+            const lotName = `Lot ${valuation.lotNumber}`;
+
+            // Calculate allocation percentage based on valuation
+            const allocationPercentage = (valuation.value / totalValuation) * 100;
+
+            // Calculate allocated cost base (proportional to valuation)
+            const baseCostAllocation = (parentCostBase * allocationPercentage) / 100;
+            const feeAllocation = subdivisionCosts / valuations.length;
+            const allocatedCostBase = baseCostAllocation + feeAllocation;
+
+            // Generate new property ID
+            const childId = `${property.id}-${index}`;
+
+            return {
+              id: childId,
+              name: lotName,
+              address: lotName,
+              color: propertyColors[(importedProperties.length + index) % propertyColors.length],
+              branch: importedProperties.length + index,
+              parentPropertyId: property.id,
+              subdivisionDate: subdivEvent.date,
+              subdivisionGroup,
+              lotNumber: lotName,
+              lotSize: undefined, // Not available in Format 2
+              allocationPercentage,
+              purchasePrice: allocatedCostBase,
+              purchaseDate: isMainLot ? property.purchaseDate : subdivEvent.date,
+              owners: property.owners,
+              isMainLotContinuation: isMainLot,
+              notes: property.notes,
+            };
+          });
+
+          // Get parent events before subdivision to copy to Lot 1
+          const parentEventsBeforeSubdivision = importedEvents.filter(
+            e => e.propertyId === property.id && e.date < subdivEvent.date
+          );
+
+          // Create copies of parent events for Lot 1 (remove financial data)
+          const lot1Id = childProperties[0]?.id;
+          const copiedEventsForLot1: TimelineEvent[] = lot1Id
+            ? parentEventsBeforeSubdivision.map(event => {
+                const { amount, costBases, ...eventWithoutFinancials } = event;
+                return {
+                  ...eventWithoutFinancials,
+                  id: `event-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
+                  propertyId: lot1Id,
+                };
+              })
+            : [];
+
+          // Update subdivision event with full details
+          if (subdivEvent.subdivisionDetails) {
+            subdivEvent.subdivisionDetails.parentPropertyId = property.id;
+            subdivEvent.subdivisionDetails.childProperties = childProperties.map((cp, i) => ({
+              id: cp.id,
+              name: cp.name,
+              lotSize: cp.lotSize,
+              allocationPercentage: cp.allocationPercentage,
+              allocatedCostBase: cp.purchasePrice,
+            }));
+            subdivEvent.subdivisionDetails.totalLots = childProperties.length;
+            subdivEvent.subdivisionDetails.allocationMethod = 'by_valuation';
+            subdivEvent.subdivisionDetails.costBreakdown = {
+              totalValuation,
+              valuations: valuations.map(v => ({
+                lot: v.lotNumber,
+                value: v.value,
+                hasDwelling: v.hasDwelling
+              })),
+              subdivisionCosts,
+            };
+          }
+
+          // Update parent property
+          const parentIndex = importedProperties.findIndex(p => p.id === property.id);
+          if (parentIndex >= 0) {
+            importedProperties[parentIndex] = {
+              ...importedProperties[parentIndex],
+              subdivisionDate: subdivEvent.date,
+              subdivisionGroup,
+            };
+          }
+
+          // Add child properties and their events
+          importedProperties.push(...childProperties);
+          importedEvents.push(...copiedEventsForLot1);
+
+          subdivisionGroupsProcessed.add(subdivisionGroup);
+
+          console.log(`✅ Auto-generated ${childProperties.length} child properties for Format 2 subdivision`);
+          console.log(`📊 Valuations: ${valuations.map(v => `Lot ${v.lotNumber}: $${v.value.toLocaleString()}`).join(', ')}`);
+        });
+      });
+      // ========== END FORMAT 2 CONVERSION ==========
+
       // Migrate market valuation from move_out to rent_start events
       // For each property, find move_out events with marketValuation and corresponding rent_start events
       importedProperties.forEach(property => {

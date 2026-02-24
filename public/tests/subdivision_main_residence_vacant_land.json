@@ -1,41 +1,158 @@
 {
   "properties": [
     {
+      "id": "prop-28panorama-parent",
       "address": "28 Panorama Drive, Kenmore QLD 4069",
+      "original_lot": "Original 1200m² property",
       "property_history": [
         {
           "date": "2008-03-15",
           "event": "purchase",
           "price": 685000,
-          "purchase_legal_fees": 2800,
-          "stamp_duty": 24500
+          "stamp_duty": 24500,
+          "title": "Purchase",
+          "checkboxState": {
+            "moveInOnSameDay": false,
+            "purchaseAsVacant": false,
+            "purchaseAsRent": false,
+            "purchaseAsConstruction": false,
+            "purchaseAsBusiness": false,
+            "inheritedProperty": false,
+            "preCGTProperty": false,
+            "partialRental": false,
+            "partialBusiness": false,
+            "mixedUse": false
+          },
+          "costBases": [
+            {
+              "id": "cb-28panorama-purchase",
+              "definitionId": "purchase_price",
+              "name": "Purchase Price",
+              "amount": 685000,
+              "category": "element1",
+              "isCustom": false,
+              "description": "Property with dwelling on 1200m² land"
+            },
+            {
+              "id": "cb-28panorama-stamp",
+              "definitionId": "stamp_duty",
+              "name": "Stamp Duty",
+              "amount": 24500,
+              "category": "element2",
+              "isCustom": false,
+              "description": "State government transfer duty"
+            },
+            {
+              "id": "cb-28panorama-legal",
+              "definitionId": "legal_fees_acquire",
+              "name": "Legal Fees (Acquisition)",
+              "amount": 2800,
+              "category": "element2",
+              "isCustom": false,
+              "description": "Legal fees and conveyancing costs"
+            }
+          ],
+          "description": "Property purchased for $685,000 - 1200m² block with dwelling",
+          "notes": "Property purchased for $685,000 - 1200m² block with dwelling"
         },
         {
           "date": "2008-04-01",
-          "event": "move_in"
-        },
-        {
-          "date": "2022-06-01",
-          "event": "subdivision_approved",
-          "subdivision_costs": 45000,
-          "valuation_lot1_with_dwelling": 720000,
-          "valuation_lot2_vacant": 480000,
-          "total_value_at_subdivision": 1200000
+          "event": "move_in",
+          "title": "Move In",
+          "checkboxState": {},
+          "description": "Moved in - main residence",
+          "notes": "Moved in - main residence"
         },
         {
           "date": "2022-08-15",
-          "event": "subdivision_registered"
-        },
+          "event": "subdivision",
+          "title": "Subdivided",
+          "color": "#EC4899",
+          "subdivisionDetails": {
+            "childPropertyIds": ["prop-28panorama-lot1", "prop-28panorama-lot2"],
+            "totalLots": 2,
+            "subdivisionCosts": 45000,
+            "lotSizes": {
+              "lot1": "650m² with dwelling",
+              "lot2": "550m² vacant"
+            },
+            "approvalDate": "2022-06-01",
+            "registrationDate": "2022-08-15",
+            "valuations": {
+              "lot1": 720000,
+              "lot2": 480000
+            },
+            "notes": "Subdivision registered - titles issued. Lot 1 (650 sqm with dwelling) retained as main residence. Lot 2 (550 sqm vacant) for sale."
+          },
+          "checkboxState": {},
+          "description": "Subdivision registered - titles issued. Lot 1 (650 sqm with dwelling) retained as main residence. Lot 2 (550 sqm vacant) for sale."
+        }
+      ],
+      "notes": "Original 1200m² property subdivided into Lot 1 (650 sqm with dwelling, retained) and Lot 2 (550 sqm vacant land, sold). Market value at subdivision: Lot 1 $720,000 (60%), Lot 2 $480,000 (40%). Subdivision costs: $45,000.",
+      "color": "#10B981",
+      "branch": 0,
+      "subdivisionGroup": "dc653007-eeb4-4c1f-a8d2-619b0b41e805",
+      "subdivisionDate": "2022-08-15"
+    },
+    {
+      "id": "prop-28panorama-lot1",
+      "address": "Lot 1, 28 Panorama Drive, Kenmore QLD 4069",
+      "original_lot": "Lot 1 (Dwelling)",
+      "parentPropertyId": "prop-28panorama-parent",
+      "property_history": [],
+      "notes": "Lot 1 - Dwelling lot (650 sqm) retained as main residence. Owner continues living here. Market value at subdivision: $720,000. Still held.",
+      "color": "#10B981",
+      "branch": 0,
+      "subdivisionGroup": "dc653007-eeb4-4c1f-a8d2-619b0b41e805",
+      "subdivisionDate": "2022-08-15",
+      "isMainLotContinuation": true,
+      "lotNumber": "1",
+      "lotSize": "650m²"
+    },
+    {
+      "id": "prop-28panorama-lot2",
+      "address": "Lot 2, Panorama Drive, Kenmore QLD 4069",
+      "original_lot": "Lot 2 (Vacant Land)",
+      "parentPropertyId": "prop-28panorama-parent",
+      "property_history": [
         {
           "date": "2025-10-01",
           "event": "sale",
           "price": 620000,
+          "title": "Sale",
+          "checkboxState": {},
+          "costBases": [
+            {
+              "id": "cb-28panorama-lot2-agent",
+              "definitionId": "agent_fees",
+              "name": "Real Estate Agent Commission",
+              "amount": 15500,
+              "category": "element5",
+              "isCustom": false,
+              "description": "Commission paid to real estate agent for sale"
+            },
+            {
+              "id": "cb-28panorama-lot2-legal",
+              "definitionId": "legal_fees_disposal",
+              "name": "Legal Fees (Disposal)",
+              "amount": 1800,
+              "category": "element5",
+              "isCustom": false,
+              "description": "Legal fees for property sale and conveyancing"
+            }
+          ],
+          "description": "Lot 2 (vacant land) sold for $620,000. Apportioned cost base: $285,320 (40% of total = $713,300 × 40%)",
           "contract_date": "2025-10-01",
-          "agent_fees": 15500,
-          "legal_fees": 1800
+          "notes": "Vacant land lot sold"
         }
       ],
-      "notes": "sold - Subdivided in 2022 into Lot 1 (650 sqm with dwelling) and Lot 2 (550 sqm vacant). Owner continues to live in dwelling on Lot 1. Selling vacant Lot 2 only. Original block 1,200 sqm."
+      "notes": "Lot 2 - Vacant land (550 sqm) created from subdivision of backyard. Market value at subdivision: $480,000 (40% of total $1.2M). Sold 2025-10-01.",
+      "color": "#F59E0B",
+      "branch": 1,
+      "subdivisionGroup": "dc653007-eeb4-4c1f-a8d2-619b0b41e805",
+      "subdivisionDate": "2022-08-15",
+      "lotNumber": "2",
+      "lotSize": "550m²"
     }
   ],
   "user_query": "I subdivided my backyard in 2022 and now I'm selling the vacant block. I still live in my house on the other lot. Do I have to pay CGT on the vacant land sale even though it was part of my home?",
@@ -57,5 +174,9 @@
     }
   },
   "llm_provider": "deepseek",
-  "use_claude": true
+  "use_claude": true,
+  "scenario_info": {
+    "name": "Subdivision - Vacant Land Sold Separately",
+    "description": "I subdivided my backyard in 2022 and now I'm selling the vacant block. I still live in my house on the other lot. Do I have to pay CGT on the vacant land sale even though it was part of my home?"
+  }
 }

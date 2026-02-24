@@ -1,0 +1,45 @@
+{
+  "properties": [
+    {
+      "address": "12 Nominee Street, North Sydney NSW 2060",
+      "property_history": [
+        {
+          "date": "2017-11-10",
+          "event": "purchase",
+          "price": 850000,
+          "stamp_duty": 35000,
+          "purchase_legal_fees": 3200
+        },
+        {
+          "date": "2017-12-01",
+          "event": "move_in"
+        },
+        {
+          "date": "2025-08-01",
+          "event": "sale",
+          "price": 1450000,
+          "contract_date": "2025-08-01",
+          "agent_fees": 36250,
+          "legal_fees": 3500
+        },
+        {
+          "date": "2025-08-01",
+          "event": "move_out"
+        }
+      ],
+      "notes": "sold - Property held in bare trust (nominee arrangement) where beneficiary (John) is absolutely entitled. Property was John's main residence entire time. Legal title in trustee's name but John is beneficial owner."
+    }
+  ],
+  "user_query": "My property is held in a bare trust where I'm the sole beneficiary with absolute entitlement. The trustee is selling it but I've lived in it as my home since purchase. Do I get the main residence exemption even though I don't hold legal title?",
+  "additional_info": {
+    "australian_resident": true,
+    "tax_year": "2025-2026",
+    "trust_type": "bare_trust",
+    "beneficiary_absolutely_entitled": true,
+    "beneficial_owner": "John",
+    "always_main_residence": true,
+    "look_through_applies": true
+  },
+  "llm_provider": "deepseek",
+  "use_claude": true
+}

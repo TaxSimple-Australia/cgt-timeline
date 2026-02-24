@@ -1,0 +1,58 @@
+{
+  "title": "Deceased Estate Sold Within Two Years",
+  "scenario_info": {
+    "name": "Deceased Estate Sold Within Two Years",
+    "description": "William's mother passes away and leaves him her home, which was her main residence. William sells the property within 2 years of her death. Because the property was the deceased's main residence and was sold within 2 years, William is entitled to a full CGT exemption under the deceased estate provisions.",
+    "expected_result": {
+      "exemption_type": "full",
+      "exemption_percentage": 100,
+      "capital_gain": 10250,
+      "taxable_gain": 0,
+      "cgt_payable": 0
+    },
+    "applicable_rules": [
+      "ITAA97 s118.195: 2-year disposal rule",
+      "Property was deceased's main residence at time of death",
+      "Sold within 2 years = Full exemption (regardless of whether beneficiary lived there)",
+      "William did not need to move in to claim exemption",
+      "Note: If sold after 2 years, partial exemption may apply"
+    ]
+  },
+  "properties": [
+    {
+      "address": "55 Heritage Lane, Ipswich QLD 4305",
+      "property_history": [
+        {
+          "date": "1998-01-01",
+          "event": "purchase",
+          "price": 145000,
+          "description": "Mother's original purchase - was her main residence"
+        },
+        {
+          "date": "2023-03-15",
+          "event": "inheritance",
+          "market_value": 485000,
+          "description": "Mother passes away. Property was her main residence. Inherited by William."
+        },
+        {
+          "date": "2023-06-01",
+          "event": "status_change",
+          "description": "William receives property as beneficiary. Property left vacant."
+        },
+        {
+          "date": "2025-02-01",
+          "event": "sale",
+          "price": 510000,
+          "contract_date": "2025-02-01",
+          "agent_fees": 12750,
+          "legal_fees": 2000
+        }
+      ],
+      "notes": "Full CGT exemption under 2-year disposal rule. Property was mother's main residence and sold within 2 years of death (688 days). William never lived there but still qualifies for full exemption."
+    }
+  ],
+  "user_query": "I inherited my mother's home when she passed away in March 2023. It was her main residence. I never lived there but I'm selling it now in February 2025. What's my CGT liability?",
+  "additional_info": {
+    "australian_resident": true
+  }
+}

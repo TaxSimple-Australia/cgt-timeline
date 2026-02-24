@@ -44,5 +44,9 @@
     "australian_resident": true
   },
   "llm_provider": "deepseek",
-  "use_claude": true
+  "use_claude": true,
+  "scenario_info": {
+    "name": "Six-Year Absence Rule - Within Limit",
+    "description": "I lived in my home for 5 years then rented it out for 5.5 years while renting elsewhere. I never owned another home. I'm selling now - do I get the full main residence exemption under the 6-year rule?"
+  }
 }

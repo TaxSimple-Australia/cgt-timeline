@@ -1,0 +1,125 @@
+{
+  "properties": [
+    {
+      "id": "prop-batch123-scenario7",
+      "address": "42 Harbour View Road, McMahons Point NSW 2060",
+      "property_history": [
+        {
+          "date": "2012-01-01",
+          "event": "purchase",
+          "price": 890000,
+          "stamp_duty": 34200,
+          "title": "Purchase",
+          "checkboxState": {
+            "moveInOnSameDay": true,
+            "purchaseAsVacant": false,
+            "purchaseAsRent": false,
+            "purchaseAsConstruction": false,
+            "purchaseAsBusiness": false,
+            "inheritedProperty": false,
+            "preCGTProperty": false,
+            "partialRental": false,
+            "partialBusiness": false,
+            "mixedUse": false
+          },
+          "costBases": [
+            {
+              "id": "cb-batch123-s7-purchase",
+              "definitionId": "purchase_price",
+              "name": "Purchase Price",
+              "amount": 890000,
+              "category": "element1",
+              "isCustom": false,
+              "description": "The total amount paid to acquire the property on 1 January 2012"
+            },
+            {
+              "id": "cb-batch123-s7-stamp",
+              "definitionId": "stamp_duty",
+              "name": "Stamp Duty",
+              "amount": 34200,
+              "category": "element2",
+              "isCustom": false,
+              "description": "State government transfer duty paid on property acquisition"
+            },
+            {
+              "id": "cb-batch123-s7-legal-purchase",
+              "definitionId": "legal_fees_acquire",
+              "name": "Legal Fees (Acquisition)",
+              "amount": 3500,
+              "category": "element2",
+              "isCustom": false,
+              "description": "Legal fees and conveyancing costs for property purchase"
+            }
+          ],
+          "description": "Property purchased for $890,000"
+        },
+        {
+          "date": "2012-01-01",
+          "event": "move_in",
+          "title": "Move In",
+          "checkboxState": {},
+          "description": "Moved in immediately upon purchase - used as main residence"
+        },
+        {
+          "date": "2016-01-01",
+          "event": "move_out",
+          "title": "Move Out",
+          "checkboxState": {},
+          "description": "Moved out after 4 years of residence - property to be rented"
+        },
+        {
+          "date": "2016-01-01",
+          "event": "rent_start",
+          "title": "Start Rent",
+          "price": 1050000,
+          "checkboxState": {
+            "partialRental": false,
+            "selectMainResidence": true,
+            "firstUseToProduceIncome": true
+          },
+          "description": "Started renting property to tenants - Market value at first use to produce income: $1,050,000 (s118.192 deemed acquisition). Property rented for 8.67 years - exceeds six-year absence rule limit."
+        },
+        {
+          "date": "2024-09-01",
+          "event": "sale",
+          "price": 2150000,
+          "title": "Sale",
+          "checkboxState": {},
+          "costBases": [
+            {
+              "id": "cb-batch123-s7-agent",
+              "definitionId": "agent_fees",
+              "name": "Real Estate Agent Commission",
+              "amount": 53750,
+              "category": "element5",
+              "isCustom": false,
+              "description": "Commission paid to real estate agent for sale"
+            },
+            {
+              "id": "cb-batch123-s7-legal-sale",
+              "definitionId": "legal_fees_disposal",
+              "name": "Legal Fees (Disposal)",
+              "amount": 3200,
+              "category": "element5",
+              "isCustom": false,
+              "description": "Legal fees for property sale and conveyancing"
+            }
+          ],
+          "description": "Property sold for $2,150,000"
+        }
+      ],
+      "notes": "**Batch 1,2,3 - Scenario 7: Six-Year Absence Rule Exceeded**\n\nProperty used as main residence for 4 years, then rented for 8.67 years - exceeds the six-year absence rule limit.\n\n**Timeline:**\n- 1 Jan 2012 to 1 Jan 2016: Main residence (4 years)\n- 1 Jan 2016 to 1 Sep 2024: Rented (8.67 years - exceeds 6-year limit)\n\n**Key Calculations:**\n- Market value at first rental (1 Jan 2016): $1,050,000\n- Deemed cost base under s118.192: $1,050,000\n- Capital gain calculation:\n  - Sale price: $2,150,000\n  - Less: Market value cost base: $1,050,000\n  - Less: Selling costs: $56,950\n  - Capital gain: $1,043,050\n- Time apportionment: 10/12.67 years fully exempt (4 years lived + 6 years absence rule)\n- Taxable portion: 2.67/12.67 years\n- After 50% CGT discount and time apportionment\n- **NET CAPITAL GAIN: $160,430**\n\n**Expected Result:**\n- NET CAPITAL GAIN = $160,430\n- 21% of ownership period is taxable (2.67/12.67 years)\n\n**ATO Rules Applied:**\n- Section 118-145 ITAA 1997 (Six-Year Absence Rule) - exceeded\n- Section 118-192 ITAA 1997 (First Use to Produce Income)\n- Section 115-25 ITAA 1997 (50% CGT discount for individuals)",
+      "color": "#F59E0B",
+      "branch": 0
+    }
+  ],
+  "user_query": "Batch 1,2,3 - Scenario 7: Six-Year Absence Rule Exceeded - Property at 42 Harbour View Road, McMahons Point NSW 2060, lived in for 4 years, then rented for 8.67 years (exceeds 6-year limit)",
+  "additional_info": {
+    "australian_resident": true,
+    "tax_year": "2024-2025",
+    "scenario_batch": "Batch 1,2,3",
+    "scenario_number": "Scenario 7",
+    "scenario_title": "Six-Year Absence Rule Exceeded",
+    "expected_outcome": "NET CAPITAL GAIN = $160,430 (21% taxable after partial exemption and discount)"
+  }
+}

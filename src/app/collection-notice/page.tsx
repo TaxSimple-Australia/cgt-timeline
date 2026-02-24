@@ -111,123 +111,97 @@ export default function CollectionNoticePage() {
               <div className="relative">
                 <div className="space-y-6 text-slate-300">
                   <div>
-                    <h3 className="text-xl font-semibold text-white mb-3">Collection Statement</h3>
+                    <h3 className="text-xl font-semibold text-white mb-3">1. Who is collecting your information?</h3>
                     <p className="leading-relaxed">
-                      This Privacy Collection Notice explains what personal information CGT BRAIN collects, why we collect it, and how we handle it in accordance with the Privacy Act 1988 (Cth) and the Australian Privacy Principles (APPs).
+                      Your personal and financial information is collected by CGT BRAIN. You can contact our Privacy Officer at{' '}
+                      <a href="mailto:privacy@cgtbrain.com.au" className="text-cyan-400 hover:text-cyan-300 underline">
+                        privacy@cgtbrain.com.au
+                      </a>{' '}
+                      or{' '}
+                      <a href="tel:+61430334344" className="text-cyan-400 hover:text-cyan-300 underline">
+                        0430 334 344
+                      </a>.
                     </p>
                   </div>
 
                   <div>
-                    <h3 className="text-xl font-semibold text-white mb-3">What We Collect</h3>
-                    <p className="mb-3 leading-relaxed">When you use CGT BRAIN, we may collect:</p>
+                    <h3 className="text-xl font-semibold text-white mb-3">2. Why are we collecting this information?</h3>
+                    <p className="mb-3 leading-relaxed">We collect your data primarily to:</p>
                     <ul className="space-y-3 pl-6">
                       <li className="flex items-start gap-3">
                         <span className="text-cyan-400 mt-1.5">•</span>
-                        <span><strong className="text-white">Personal Information:</strong> Name, email address, and contact details for account creation and communication.</span>
+                        <span>Calculate your estimated Capital Gains Tax (CGT) liability based on the assets you report.</span>
                       </li>
                       <li className="flex items-start gap-3">
                         <span className="text-cyan-400 mt-1.5">•</span>
-                        <span><strong className="text-white">Financial Information:</strong> Asset purchase and sale dates, cost base amounts, capital improvements, and property details necessary for CGT calculations.</span>
+                        <span>Generate compliance reports and tax summaries for your personal records.</span>
                       </li>
                       <li className="flex items-start gap-3">
                         <span className="text-cyan-400 mt-1.5">•</span>
-                        <span><strong className="text-white">Technical Information:</strong> IP addresses, browser type, device information, and usage patterns to improve service delivery and security.</span>
+                        <span>Comply with our obligations under the Income Tax Assessment Act 1997 to provide accurate financial tools.</span>
+                      </li>
+                      <li className="flex items-start gap-3">
+                        <span className="text-cyan-400 mt-1.5">•</span>
+                        <span><strong className="text-white">Automated Processing:</strong> We use automated algorithms to categorize your assets and calculate discounts. You can review or manually override these results at any time.</span>
                       </li>
                     </ul>
                   </div>
 
                   <div>
-                    <h3 className="text-xl font-semibold text-white mb-3">Why We Collect It</h3>
-                    <p className="mb-3 leading-relaxed">We collect this information to:</p>
-                    <ul className="space-y-3 pl-6">
-                      <li className="flex items-start gap-3">
-                        <span className="text-cyan-400 mt-1.5">•</span>
-                        <span>Provide accurate Capital Gains Tax assessments and calculations</span>
-                      </li>
-                      <li className="flex items-start gap-3">
-                        <span className="text-cyan-400 mt-1.5">•</span>
-                        <span>Maintain and improve our service</span>
-                      </li>
-                      <li className="flex items-start gap-3">
-                        <span className="text-cyan-400 mt-1.5">•</span>
-                        <span>Communicate with you about your account and our services</span>
-                      </li>
-                      <li className="flex items-start gap-3">
-                        <span className="text-cyan-400 mt-1.5">•</span>
-                        <span>Comply with legal and regulatory obligations</span>
-                      </li>
-                      <li className="flex items-start gap-3">
-                        <span className="text-cyan-400 mt-1.5">•</span>
-                        <span>Protect against fraud and unauthorized access</span>
-                      </li>
-                    </ul>
-                  </div>
-
-                  <div>
-                    <h3 className="text-xl font-semibold text-white mb-3">How We Use and Disclose It</h3>
-                    <p className="mb-3 leading-relaxed">Your information will be:</p>
-                    <ul className="space-y-3 pl-6">
-                      <li className="flex items-start gap-3">
-                        <span className="text-cyan-400 mt-1.5">•</span>
-                        <span>Used solely for the purposes stated in our Privacy Policy</span>
-                      </li>
-                      <li className="flex items-start gap-3">
-                        <span className="text-cyan-400 mt-1.5">•</span>
-                        <span>Stored securely on Australian-hosted servers where possible</span>
-                      </li>
-                      <li className="flex items-start gap-3">
-                        <span className="text-cyan-400 mt-1.5">•</span>
-                        <span>Shared only with authorized service providers under strict confidentiality agreements</span>
-                      </li>
-                      <li className="flex items-start gap-3">
-                        <span className="text-cyan-400 mt-1.5">•</span>
-                        <span>Never sold to third parties for marketing purposes</span>
-                      </li>
-                      <li className="flex items-start gap-3">
-                        <span className="text-cyan-400 mt-1.5">•</span>
-                        <span>Disclosed only when required by law or with your explicit consent</span>
-                      </li>
-                    </ul>
-                  </div>
-
-                  <div>
-                    <h3 className="text-xl font-semibold text-white mb-3">Your Rights</h3>
-                    <p className="mb-3 leading-relaxed">You have the right to:</p>
-                    <ul className="space-y-3 pl-6">
-                      <li className="flex items-start gap-3">
-                        <span className="text-cyan-400 mt-1.5">•</span>
-                        <span>Access the personal information we hold about you</span>
-                      </li>
-                      <li className="flex items-start gap-3">
-                        <span className="text-cyan-400 mt-1.5">•</span>
-                        <span>Request correction of inaccurate or incomplete information</span>
-                      </li>
-                      <li className="flex items-start gap-3">
-                        <span className="text-cyan-400 mt-1.5">•</span>
-                        <span>Request deletion of your account and associated data</span>
-                      </li>
-                      <li className="flex items-start gap-3">
-                        <span className="text-cyan-400 mt-1.5">•</span>
-                        <span>Lodge a complaint with our Privacy Officer or the Office of the Australian Information Commissioner (OAIC)</span>
-                      </li>
-                      <li className="flex items-start gap-3">
-                        <span className="text-cyan-400 mt-1.5">•</span>
-                        <span>Withdraw consent for certain data processing activities</span>
-                      </li>
-                    </ul>
-                  </div>
-
-                  <div>
-                    <h3 className="text-xl font-semibold text-white mb-3">Consent</h3>
+                    <h3 className="text-xl font-semibold text-white mb-3">3. What happens if you don't provide it?</h3>
                     <p className="leading-relaxed">
-                      By using CGT BRAIN, you consent to the collection, use, and disclosure of your personal information as described in this notice and our full Privacy Policy. If you do not consent, please do not use our services.
+                      If you choose not to provide the requested financial information (such as purchase dates, cost bases, or disposal prices), our software will be unable to generate an accurate CGT estimate, and you may not be able to utilize our reporting or ATO-linked features.
                     </p>
                   </div>
 
                   <div>
-                    <h3 className="text-xl font-semibold text-white mb-3">Contact</h3>
-                    <p className="leading-relaxed">
-                      For questions about this collection notice or to exercise your rights, please contact our Privacy Officer at CGT Brain via <a href="mailto:privacy@cgtbrain.com.au" className="text-cyan-400 hover:text-cyan-300 underline">privacy@cgtbrain.com.au</a>
+                    <h3 className="text-xl font-semibold text-white mb-3">4. Disclosure to Third Parties</h3>
+                    <p className="mb-3 leading-relaxed">We do not sell your personal data. We may disclose your information to:</p>
+                    <ul className="space-y-3 pl-6">
+                      <li className="flex items-start gap-3">
+                        <span className="text-cyan-400 mt-1.5">•</span>
+                        <span><strong className="text-white">The ATO:</strong> Only if you explicitly choose to use our "Direct Lodgement" or "Data Matching" features.</span>
+                      </li>
+                      <li className="flex items-start gap-3">
+                        <span className="text-cyan-400 mt-1.5">•</span>
+                        <span><strong className="text-white">Authorized Professionals:</strong> Your nominated accountant or tax agent (only with your specific permission).</span>
+                      </li>
+                      <li className="flex items-start gap-3">
+                        <span className="text-cyan-400 mt-1.5">•</span>
+                        <span><strong className="text-white">Service Providers:</strong> We use secure cloud hosting services located in Australia / USA / Europe. Where data is stored overseas, we take steps to ensure it is handled in accordance with Australian privacy standards.</span>
+                      </li>
+                    </ul>
+                  </div>
+
+                  <div>
+                    <h3 className="text-xl font-semibold text-white mb-3">5. Access, Correction, and Complaints</h3>
+                    <p className="mb-3 leading-relaxed">
+                      Our full{' '}
+                      <Link href="/privacy" className="text-cyan-400 hover:text-cyan-300 underline">
+                        Privacy Policy
+                      </Link>{' '}
+                      contains detailed information on how you can:
+                    </p>
+                    <ul className="space-y-3 pl-6">
+                      <li className="flex items-start gap-3">
+                        <span className="text-cyan-400 mt-1.5">•</span>
+                        <span>Access the personal information we hold about you.</span>
+                      </li>
+                      <li className="flex items-start gap-3">
+                        <span className="text-cyan-400 mt-1.5">•</span>
+                        <span>Request a correction to inaccurate data.</span>
+                      </li>
+                      <li className="flex items-start gap-3">
+                        <span className="text-cyan-400 mt-1.5">•</span>
+                        <span>Lodge a complaint if you believe we have breached the Australian Privacy Principles.</span>
+                      </li>
+                    </ul>
+                  </div>
+
+                  <div className="bg-cyan-500/10 border border-cyan-500/30 p-6 rounded-lg mt-6">
+                    <h4 className="text-lg font-semibold text-cyan-300 mb-3">Consent</h4>
+                    <p className="text-cyan-100 leading-relaxed">
+                      By proceeding and entering your data, you acknowledge you have read this notice and consent to the collection and use of your information as described.
                     </p>
                   </div>
                 </div>

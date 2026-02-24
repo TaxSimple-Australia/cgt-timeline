@@ -1,0 +1,82 @@
+{
+  "title": "Multiple Six-Year Periods Reset",
+  "scenario_info": {
+    "name": "Multiple Six-Year Periods Reset",
+    "description": "Rebecca purchases a home, lives in it for 5 years, rents it out for 4 years while working overseas, moves back in for 2 years, then rents it again for 5 years before selling. Because she genuinely moved back in and re-established the property as her main residence, she is entitled to a new 6-year period for the second rental. The full main residence exemption applies.",
+    "expected_result": {
+      "exemption_type": "full",
+      "exemption_percentage": 100,
+      "capital_gain": 354850,
+      "taxable_gain": 0,
+      "cgt_payable": 0
+    },
+    "applicable_rules": [
+      "ITAA97 s118.145: Six-year absence rule can be reset",
+      "When owner genuinely moves back in and re-establishes main residence, a new 6-year period starts",
+      "9 years total rental split: 4 years + 5 years = both within respective 6-year limits",
+      "Key: Must genuinely re-establish main residence (not just a brief visit)"
+    ]
+  },
+  "properties": [
+    {
+      "address": "88 Riverside Road, Gympie QLD 4570",
+      "property_history": [
+        {
+          "date": "2010-07-01",
+          "event": "purchase",
+          "price": 295000,
+          "stamp_duty": 8850,
+          "purchase_legal_fees": 1800
+        },
+        {
+          "date": "2010-07-01",
+          "event": "move_in",
+          "description": "Established as main residence"
+        },
+        {
+          "date": "2015-07-01",
+          "event": "move_out",
+          "description": "Relocated overseas for work"
+        },
+        {
+          "date": "2015-07-01",
+          "event": "rent_start",
+          "description": "First rental period begins (4 years)"
+        },
+        {
+          "date": "2019-06-30",
+          "event": "rent_end",
+          "description": "Tenant vacates after 4 years"
+        },
+        {
+          "date": "2019-07-01",
+          "event": "move_in",
+          "description": "Genuinely re-established as main residence - 6-year clock resets"
+        },
+        {
+          "date": "2021-07-01",
+          "event": "move_out",
+          "description": "Relocated again for work"
+        },
+        {
+          "date": "2021-07-01",
+          "event": "rent_start",
+          "description": "Second rental period begins (new 6-year clock)"
+        },
+        {
+          "date": "2026-06-30",
+          "event": "sale",
+          "price": 680000,
+          "contract_date": "2026-06-30",
+          "agent_fees": 17000,
+          "legal_fees": 2500
+        }
+      ],
+      "notes": "Full main residence exemption. First rental (4 years) covered by first 6-year period. Genuine move-back reset the clock. Second rental (5 years) covered by new 6-year period."
+    }
+  ],
+  "user_query": "I rented my home for 4 years, moved back in for 2 years, then rented it again for 5 years before selling. That's 9 years of rental total. Is my six-year rule exceeded?",
+  "additional_info": {
+    "australian_resident": true
+  }
+}

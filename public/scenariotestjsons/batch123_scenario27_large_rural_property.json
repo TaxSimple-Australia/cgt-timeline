@@ -1,0 +1,109 @@
+{
+  "properties": [
+    {
+      "id": "prop-batch123-scenario27",
+      "address": "1250 Rural Road, Samford Valley QLD 4520",
+      "property_history": [
+        {
+          "date": "2012-01-15",
+          "event": "purchase",
+          "price": 1200000,
+          "stamp_duty": 47500,
+          "title": "Purchase",
+          "checkboxState": {
+            "moveInOnSameDay": true,
+            "purchaseAsVacant": false,
+            "purchaseAsRent": false,
+            "purchaseAsConstruction": false,
+            "purchaseAsBusiness": false,
+            "inheritedProperty": false,
+            "preCGTProperty": false,
+            "partialRental": false,
+            "partialBusiness": false,
+            "mixedUse": false
+          },
+          "costBases": [
+            {
+              "id": "cb-batch123-s27-purchase",
+              "definitionId": "purchase_price",
+              "name": "Purchase Price",
+              "amount": 1200000,
+              "category": "element1",
+              "isCustom": false,
+              "description": "The total amount paid to acquire the property on 15 January 2012 - 5.8 hectare rural property"
+            },
+            {
+              "id": "cb-batch123-s27-stamp",
+              "definitionId": "stamp_duty",
+              "name": "Stamp Duty",
+              "amount": 47500,
+              "category": "element2",
+              "isCustom": false,
+              "description": "State government transfer duty paid on property acquisition"
+            },
+            {
+              "id": "cb-batch123-s27-legal-purchase",
+              "definitionId": "legal_fees_acquire",
+              "name": "Legal Fees (Acquisition)",
+              "amount": 4200,
+              "category": "element2",
+              "isCustom": false,
+              "description": "Legal fees and conveyancing costs for property purchase"
+            }
+          ],
+          "description": "Rural property purchased for $1,200,000 - total land area 5.8 hectares (exceeds 2 hectare limit for full main residence exemption)"
+        },
+        {
+          "date": "2012-01-15",
+          "event": "move_in",
+          "title": "Move In",
+          "checkboxState": {},
+          "description": "Moved in immediately - used as main residence. Land exceeds 2 hectares - partial exemption applies."
+        },
+        {
+          "date": "2024-09-30",
+          "event": "sale",
+          "price": 2400000,
+          "title": "Sale",
+          "checkboxState": {},
+          "costBases": [
+            {
+              "id": "cb-batch123-s27-agent",
+              "definitionId": "agent_fees",
+              "name": "Real Estate Agent Commission",
+              "amount": 60000,
+              "category": "element5",
+              "isCustom": false,
+              "description": "Commission paid to real estate agent for sale"
+            },
+            {
+              "id": "cb-batch123-s27-legal-sale",
+              "definitionId": "legal_fees_disposal",
+              "name": "Legal Fees (Disposal)",
+              "amount": 3800,
+              "category": "element5",
+              "isCustom": false,
+              "description": "Legal fees for property sale and conveyancing"
+            }
+          ],
+          "description": "Property sold for $2,400,000"
+        }
+      ],
+      "notes": "**Batch 1,2,3 - Scenario 27: Large Rural Property Exceeding 2 Hectares**\n\nRural property with 5.8 hectares of land - exceeds the 2 hectare limit for automatic full main residence exemption.\n\n**Timeline:**\n- 15 Jan 2012 to 30 Sep 2024: Main residence (12.71 years)\n- Total land area: 5.8 hectares (58,000 m²)\n- Exempt area: 2 hectares (20,000 m²) - dwelling + curtilage\n- Taxable area: 3.8 hectares (38,000 m²)\n\n**Key Calculations:**\n- Total capital gain: $1,088,500\n- Area apportionment:\n  - Exempt: 2 ha / 5.8 ha = 34.5%\n  - Taxable: 3.8 ha / 5.8 ha = 65.5%\n- Taxable capital gain: $1,088,500 × 65.5% = $713,000\n- After 50% CGT discount: $713,000 × 50% = $356,500\n- **NET CAPITAL GAIN: $356,500**\n\n**Expected Result:**\n- NET CAPITAL GAIN = $356,500\n- 65.5% of capital gain is taxable (land exceeding 2 hectares)\n\n**ATO Rules Applied:**\n- Section 118-120 ITAA 1997 (Adjacent Land)\n- Main residence exemption limited to 2 hectares unless larger area has use and enjoyment character\n- Section 115-25 ITAA 1997 (50% CGT discount)\n- Area apportionment method applied",
+      "color": "#F59E0B",
+      "branch": 0
+    }
+  ],
+  "user_query": "Batch 1,2,3 - Scenario 27: Large Rural Property Exceeding 2 Hectares - Property at 1250 Rural Road, Samford Valley QLD 4520, 5.8 hectares rural property",
+  "additional_info": {
+    "australian_resident": true,
+    "tax_year": "2024-2025",
+    "scenario_batch": "Batch 1,2,3",
+    "scenario_number": "Scenario 27",
+    "scenario_title": "Large Rural Property Exceeding 2 Hectares",
+    "expected_outcome": "NET CAPITAL GAIN = $356,500 (65.5% taxable - land exceeding 2 hectares)",
+    "total_land_area_hectares": 5.8,
+    "exempt_area_hectares": 2.0,
+    "taxable_area_hectares": 3.8
+  }
+}

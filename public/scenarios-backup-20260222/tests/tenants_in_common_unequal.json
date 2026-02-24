@@ -1,0 +1,39 @@
+{
+  "properties": [
+    {
+      "address": "Unit 8, 45 Collins Street, Melbourne VIC 3000",
+      "property_history": [
+        {
+          "date": "2018-07-20",
+          "event": "purchase",
+          "price": 580000,
+          "stamp_duty": 31000,
+          "purchase_legal_fees": 2400
+        },
+        {
+          "date": "2018-08-01",
+          "event": "rent_start"
+        },
+        {
+          "date": "2025-11-30",
+          "event": "rent_end"
+        },
+        {
+          "date": "2025-12-15",
+          "event": "sale",
+          "price": 820000,
+          "contract_date": "2025-12-15",
+          "agent_fees": 20500,
+          "legal_fees": 2200
+        }
+      ],
+      "notes": "sold - Investment unit owned as tenants in common - Brother 70%, Sister 30%. Never main residence for either owner."
+    }
+  ],
+  "user_query": "My sister and I bought an investment unit together as tenants in common. I own 70% and she owns 30%. We've sold it - how do we each calculate our CGT?",
+  "additional_info": {
+    "australian_resident": true
+  },
+  "llm_provider": "deepseek",
+  "use_claude": true
+}

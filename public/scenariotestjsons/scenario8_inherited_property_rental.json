@@ -22,9 +22,9 @@
       "property_history": [
         {
           "date": "2020-08-15",
-          "event": "inheritance",
+          "event": "ownership_change",
           "market_value": 780000,
-          "description": "Inherited from mother. Property was mother's main residence. Mother purchased in 1985."
+          "description": "Property inherited. Inherited from mother. Property was mother's main residence. Mother purchased in 1985."
         },
         {
           "date": "2020-11-01",

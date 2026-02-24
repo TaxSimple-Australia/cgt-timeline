@@ -1,0 +1,1080 @@
+{
+  "generatedAt": "2026-02-22T12:57:08.731Z",
+  "stats": {
+    "totalScenarios": 87,
+    "scenariosMigrated": 36,
+    "scenariosUnchanged": 51,
+    "eventTypesMigrated": 77,
+    "subdivisionDataAdded": 15,
+    "floorAreaExtracted": 1
+  },
+  "results": [
+    {
+      "migrated": false,
+      "scenario": "Six-Year Absence Rule Exceeded - Deemed Acquisition (Roya's Apartment)"
+    },
+    {
+      "migrated": false,
+      "scenario": "new_scenario_1_full_main_residence.json"
+    },
+    {
+      "migrated": false,
+      "scenario": "new_scenario_2_six_year_within.json"
+    },
+    {
+      "migrated": false,
+      "scenario": "new_scenario_3_six_year_exceeded.json"
+    },
+    {
+      "migrated": false,
+      "scenario": "new_scenario_4_rental_first.json"
+    },
+    {
+      "migrated": false,
+      "scenario": "new_scenario_5_moving_between_residences.json"
+    },
+    {
+      "migrated": false,
+      "scenario": "Six-Month Overlap Exceeded"
+    },
+    {
+      "migrated": false,
+      "scenario": "Building New Home - 4-Year Construction Rule"
+    },
+    {
+      "migrated": true,
+      "scenario": "Partial Use - Airbnb Room Rental"
+    },
+    {
+      "migrated": false,
+      "scenario": "Couple Marries with Separate Properties"
+    },
+    {
+      "migrated": false,
+      "scenario": "Foreign Resident Period"
+    },
+    {
+      "migrated": false,
+      "scenario": "Three Property Portfolio"
+    },
+    {
+      "migrated": false,
+      "scenario": "Kelly's Home - Six-Year Absence Rule (Full Exemption)"
+    },
+    {
+      "migrated": false,
+      "scenario": "Kelly's Home - Rental and Vacant Periods During Absence"
+    },
+    {
+      "migrated": false,
+      "scenario": "Full Main Residence Exemption"
+    },
+    {
+      "migrated": false,
+      "scenario": "Aged Care Entry with Indefinite Absence"
+    },
+    {
+      "migrated": false,
+      "scenario": "Scenario 21: Home Rented Before Becoming Main Residence"
+    },
+    {
+      "migrated": false,
+      "scenario": "Delayed Move-In Due to Work Assignment"
+    },
+    {
+      "migrated": false,
+      "scenario": "Scenario 22: Six Month Overlap Rule Exceeded"
+    },
+    {
+      "migrated": false,
+      "scenario": "Multiple Six-Year Periods Reset"
+    },
+    {
+      "migrated": true,
+      "scenario": "Deceased Estate Sold Within Two Years"
+    },
+    {
+      "migrated": true,
+      "scenario": "Beneficiary Moves Into Inherited Property"
+    },
+    {
+      "migrated": false,
+      "scenario": "Pre-CGT Property with Major Post-CGT Improvements"
+    },
+    {
+      "migrated": false,
+      "scenario": "Large Rural Property Exceeding Two Hectares"
+    },
+    {
+      "migrated": false,
+      "scenario": "Granny Flat Arrangement"
+    },
+    {
+      "migrated": false,
+      "scenario": "Relationship Breakdown Property Transfer"
+    },
+    {
+      "migrated": false,
+      "scenario": "Six-Year Absence Rule (Within 6 Years)"
+    },
+    {
+      "migrated": false,
+      "scenario": "Home Office Business Use"
+    },
+    {
+      "migrated": false,
+      "scenario": "Foreign Resident Life Event Exception"
+    },
+    {
+      "migrated": false,
+      "scenario": "Pre-9 May 2012 Property with Foreign Residency"
+    },
+    {
+      "migrated": false,
+      "scenario": "Spouses Nominating Different Main Residences"
+    },
+    {
+      "migrated": false,
+      "scenario": "Vacant Periods During Extended Rental"
+    },
+    {
+      "migrated": false,
+      "scenario": "Four-Year Construction Rule Exceeded"
+    },
+    {
+      "migrated": false,
+      "scenario": "Subdivision and Separate Land Sale"
+    },
+    {
+      "migrated": true,
+      "scenario": "Deceased Estate with COVID Extension"
+    },
+    {
+      "migrated": false,
+      "scenario": "Small Business CGT Concessions"
+    },
+    {
+      "migrated": false,
+      "scenario": "Investment Property Becomes Main Residence Then Sold"
+    },
+    {
+      "migrated": false,
+      "scenario": "Six-Year Absence Rule (Exceeded)"
+    },
+    {
+      "migrated": true,
+      "scenario": "Four Property Portfolio Optimization"
+    },
+    {
+      "migrated": false,
+      "scenario": "Rental First, Then Main Residence"
+    },
+    {
+      "migrated": false,
+      "scenario": "Moving Between Main Residences (6-Month Overlap Rule)"
+    },
+    {
+      "migrated": false,
+      "scenario": "Multiple Absence Periods with Six-Year Rule"
+    },
+    {
+      "migrated": false,
+      "scenario": "Two Properties - Strategic MRE Choice"
+    },
+    {
+      "migrated": true,
+      "scenario": "Inherited Property with Rental"
+    },
+    {
+      "migrated": false,
+      "scenario": "Investment First, Then PPR, Then Rental"
+    },
+    {
+      "migrated": true,
+      "scenario": "aged_care_main_residence.json"
+    },
+    {
+      "migrated": true,
+      "scenario": "airbnb_investment_only.json"
+    },
+    {
+      "migrated": true,
+      "scenario": "airbnb_spare_room.json"
+    },
+    {
+      "migrated": false,
+      "scenario": "bare_trust_no_cgt.json"
+    },
+    {
+      "migrated": true,
+      "scenario": "compulsory_acquisition_rollover.json"
+    },
+    {
+      "migrated": true,
+      "scenario": "death_of_joint_owner.json"
+    },
+    {
+      "migrated": true,
+      "scenario": "defacto_breakdown_rollover.json"
+    },
+    {
+      "migrated": true,
+      "scenario": "divorce_complex_mre_then_rented_after_transfer.json"
+    },
+    {
+      "migrated": true,
+      "scenario": "executor_sale_before_distribution.json"
+    },
+    {
+      "migrated": true,
+      "scenario": "first_use_overseas_posting.json"
+    },
+    {
+      "migrated": true,
+      "scenario": "inherited_land_built_dwelling_then_sold.json"
+    },
+    {
+      "migrated": true,
+      "scenario": "inherited_land_farmland_subdivided_sold.json"
+    },
+    {
+      "migrated": true,
+      "scenario": "inherited_land_vacant_pre_cgt_deceased.json"
+    },
+    {
+      "migrated": true,
+      "scenario": "inherited_property_2year_rule.json"
+    },
+    {
+      "migrated": true,
+      "scenario": "investment_property_divorce_transfer.json"
+    },
+    {
+      "migrated": false,
+      "scenario": "joint_ownership_main_residence_choice.json"
+    },
+    {
+      "migrated": true,
+      "scenario": "joint_sale_during_separation.json"
+    },
+    {
+      "migrated": false,
+      "scenario": "joint_tenants_equal_split.json"
+    },
+    {
+      "migrated": false,
+      "scenario": "main_residence_land_exceeds_2ha.json"
+    },
+    {
+      "migrated": false,
+      "scenario": "mortgagee_sale_foreclosure.json"
+    },
+    {
+      "migrated": true,
+      "scenario": "multiple_beneficiaries.json"
+    },
+    {
+      "migrated": true,
+      "scenario": "pre_cgt_inheritance.json"
+    },
+    {
+      "migrated": true,
+      "scenario": "pre_cgt_property_with_improvements.json"
+    },
+    {
+      "migrated": true,
+      "scenario": "relationship_breakdown_rollover.json"
+    },
+    {
+      "migrated": false,
+      "scenario": "six_month_overlap_old_home_rented.json"
+    },
+    {
+      "migrated": false,
+      "scenario": "six_year_rule_exceeded.json"
+    },
+    {
+      "migrated": false,
+      "scenario": "six_year_rule_multiple_absences.json"
+    },
+    {
+      "migrated": false,
+      "scenario": "six_year_rule_within_limit.json"
+    },
+    {
+      "migrated": true,
+      "scenario": "subdivision_build_and_sell.json"
+    },
+    {
+      "migrated": true,
+      "scenario": "subdivision_main_residence_vacant_land.json"
+    },
+    {
+      "migrated": true,
+      "scenario": "subdivision_multiple_lots_sold.json"
+    },
+    {
+      "migrated": true,
+      "scenario": "subdivision_pre_cgt_property.json"
+    },
+    {
+      "migrated": true,
+      "scenario": "subdivision_retain_dwelling_sell_vacant.json"
+    },
+    {
+      "migrated": true,
+      "scenario": "subdivision_strata_title.json"
+    },
+    {
+      "migrated": false,
+      "scenario": "tenants_in_common_unequal.json"
+    },
+    {
+      "migrated": false,
+      "scenario": "time_apportionment_multiple_periods.json"
+    },
+    {
+      "migrated": false,
+      "scenario": "time_apportionment_with_absence_rule.json"
+    },
+    {
+      "migrated": true,
+      "scenario": "transfer_to_family_trust.json"
+    },
+    {
+      "migrated": true,
+      "scenario": "trust_distribution_to_beneficiary.json"
+    },
+    {
+      "migrated": true,
+      "scenario": "two_year_building_rule_eligible.json"
+    },
+    {
+      "migrated": true,
+      "scenario": "two_year_building_rule_exceeded.json"
+    },
+    {
+      "migrated": true,
+      "scenario": "two_year_building_rule_renovation.json"
+    }
+  ],
+  "migrations": [
+    {
+      "scenario": "Partial Use - Airbnb Room Rental",
+      "property": "33 Wharf Street, Kangaroo Point QLD 4169",
+      "event": "rent_start",
+      "date": "2019-01-01",
+      "changes": [
+        "Extracted floor area from description: {\"rental\":18,\"shared\":45}"
+      ]
+    },
+    {
+      "scenario": "Deceased Estate Sold Within Two Years",
+      "property": "55 Heritage Lane, Ipswich QLD 4305",
+      "event": "inheritance",
+      "date": "2023-03-15",
+      "changes": [
+        "Event type: \"inheritance\" → \"ownership_change\""
+      ]
+    },
+    {
+      "scenario": "Beneficiary Moves Into Inherited Property",
+      "property": "120 Investment Crescent, Mackay QLD 4740",
+      "event": "inheritance",
+      "date": "2020-08-01",
+      "changes": [
+        "Event type: \"inheritance\" → \"ownership_change\""
+      ]
+    },
+    {
+      "scenario": "Deceased Estate with COVID Extension",
+      "property": "28 Memorial Avenue, Dalby QLD 4405",
+      "event": "inheritance",
+      "date": "2020-03-15",
+      "changes": [
+        "Event type: \"inheritance\" → \"ownership_change\""
+      ]
+    },
+    {
+      "scenario": "Four Property Portfolio Optimization",
+      "property": "1200 Rural Highway, Roma QLD 4455",
+      "event": "inheritance",
+      "date": "2022-09-01",
+      "changes": [
+        "Event type: \"inheritance\" → \"ownership_change\""
+      ]
+    },
+    {
+      "scenario": "Inherited Property with Rental",
+      "property": "67 Jacaranda Drive, Indooroopilly QLD 4068",
+      "event": "inheritance",
+      "date": "2020-08-15",
+      "changes": [
+        "Event type: \"inheritance\" → \"ownership_change\""
+      ]
+    },
+    {
+      "scenario": "aged_care_main_residence.json",
+      "property": "33 Golden Years Way, Turramurra NSW 2074",
+      "event": "move_to_aged_care",
+      "date": "2020-03-15",
+      "changes": [
+        "Event type: \"move_to_aged_care\" → \"status_change\""
+      ]
+    },
+    {
+      "scenario": "airbnb_investment_only.json",
+      "property": "88 Holiday Let Lane, Noosa QLD 4567",
+      "event": "airbnb_start",
+      "date": "2019-08-01",
+      "changes": [
+        "Event type: \"airbnb_start\" → \"rent_start\""
+      ]
+    },
+    {
+      "scenario": "airbnb_investment_only.json",
+      "property": "88 Holiday Let Lane, Noosa QLD 4567",
+      "event": "airbnb_end",
+      "date": "2025-08-31",
+      "changes": [
+        "Event type: \"airbnb_end\" → \"rent_end\""
+      ]
+    },
+    {
+      "scenario": "airbnb_spare_room.json",
+      "property": "55 Share House Road, Surry Hills NSW 2010",
+      "event": "airbnb_start_spare_room",
+      "date": "2018-03-01",
+      "changes": [
+        "Event type: \"airbnb_start_spare_room\" → \"rent_start\""
+      ]
+    },
+    {
+      "scenario": "airbnb_spare_room.json",
+      "property": "55 Share House Road, Surry Hills NSW 2010",
+      "event": "airbnb_end",
+      "date": "2025-09-30",
+      "changes": [
+        "Event type: \"airbnb_end\" → \"rent_end\""
+      ]
+    },
+    {
+      "scenario": "compulsory_acquisition_rollover.json",
+      "property": "45 Highway Reserve, Parramatta NSW 2150",
+      "event": "compulsory_acquisition",
+      "date": "2025-03-01",
+      "changes": [
+        "Event type: \"compulsory_acquisition\" → \"sale\""
+      ]
+    },
+    {
+      "scenario": "death_of_joint_owner.json",
+      "property": "22 Riverside Drive, Toorak VIC 3142",
+      "event": "death_of_joint_owner",
+      "date": "2022-09-15",
+      "changes": [
+        "Event type: \"death_of_joint_owner\" → \"ownership_change\""
+      ]
+    },
+    {
+      "scenario": "defacto_breakdown_rollover.json",
+      "property": "78 Partner Lane, Newtown NSW 2042",
+      "event": "separation",
+      "date": "2022-08-01",
+      "changes": [
+        "Event type: \"separation\" → \"status_change\""
+      ]
+    },
+    {
+      "scenario": "defacto_breakdown_rollover.json",
+      "property": "78 Partner Lane, Newtown NSW 2042",
+      "event": "defacto_transfer",
+      "date": "2023-03-15",
+      "changes": [
+        "Event type: \"defacto_transfer\" → \"ownership_change\""
+      ]
+    },
+    {
+      "scenario": "divorce_complex_mre_then_rented_after_transfer.json",
+      "property": "44 Settlement Way, Pymble NSW 2073",
+      "event": "separation",
+      "date": "2019-09-01",
+      "changes": [
+        "Event type: \"separation\" → \"status_change\""
+      ]
+    },
+    {
+      "scenario": "divorce_complex_mre_then_rented_after_transfer.json",
+      "property": "44 Settlement Way, Pymble NSW 2073",
+      "event": "spouse_a_moves_out",
+      "date": "2020-02-01",
+      "changes": [
+        "Event type: \"spouse_a_moves_out\" → \"move_out\""
+      ]
+    },
+    {
+      "scenario": "divorce_complex_mre_then_rented_after_transfer.json",
+      "property": "44 Settlement Way, Pymble NSW 2073",
+      "event": "divorce_finalised",
+      "date": "2020-11-15",
+      "changes": [
+        "Event type: \"divorce_finalised\" → \"status_change\""
+      ]
+    },
+    {
+      "scenario": "divorce_complex_mre_then_rented_after_transfer.json",
+      "property": "44 Settlement Way, Pymble NSW 2073",
+      "event": "divorce_property_settlement",
+      "date": "2021-03-20",
+      "changes": [
+        "Event type: \"divorce_property_settlement\" → \"ownership_change\""
+      ]
+    },
+    {
+      "scenario": "executor_sale_before_distribution.json",
+      "property": "34 Estate Avenue, Brighton VIC 3186",
+      "event": "death_of_owner",
+      "date": "2024-11-15",
+      "changes": [
+        "Event type: \"death_of_owner\" → \"status_change\""
+      ]
+    },
+    {
+      "scenario": "first_use_overseas_posting.json",
+      "property": "55 Expat Avenue, Double Bay NSW 2028",
+      "event": "move_out_overseas",
+      "date": "2019-07-01",
+      "changes": [
+        "Event type: \"move_out_overseas\" → \"move_out\""
+      ]
+    },
+    {
+      "scenario": "inherited_land_built_dwelling_then_sold.json",
+      "property": "22 Legacy Street, Castle Hill NSW 2154",
+      "event": "purchase_by_deceased",
+      "date": "2005-09-15",
+      "changes": [
+        "Event type: \"purchase_by_deceased\" → \"purchase\""
+      ]
+    },
+    {
+      "scenario": "inherited_land_built_dwelling_then_sold.json",
+      "property": "22 Legacy Street, Castle Hill NSW 2154",
+      "event": "death_of_owner",
+      "date": "2020-07-10",
+      "changes": [
+        "Event type: \"death_of_owner\" → \"status_change\""
+      ]
+    },
+    {
+      "scenario": "inherited_land_built_dwelling_then_sold.json",
+      "property": "22 Legacy Street, Castle Hill NSW 2154",
+      "event": "inherited",
+      "date": "2020-10-15",
+      "changes": [
+        "Event type: \"inherited\" → \"ownership_change\""
+      ]
+    },
+    {
+      "scenario": "inherited_land_built_dwelling_then_sold.json",
+      "property": "22 Legacy Street, Castle Hill NSW 2154",
+      "event": "construction_start",
+      "date": "2021-06-01",
+      "changes": [
+        "Event type: \"construction_start\" → \"building_start\""
+      ]
+    },
+    {
+      "scenario": "inherited_land_built_dwelling_then_sold.json",
+      "property": "22 Legacy Street, Castle Hill NSW 2154",
+      "event": "construction_complete",
+      "date": "2022-04-15",
+      "changes": [
+        "Event type: \"construction_complete\" → \"building_end\""
+      ]
+    },
+    {
+      "scenario": "inherited_land_farmland_subdivided_sold.json",
+      "property": "Lot 1, 500 Farm Lane, Richmond NSW 2753",
+      "event": "purchase_by_deceased",
+      "date": "1992-06-20",
+      "changes": [
+        "Event type: \"purchase_by_deceased\" → \"purchase\""
+      ]
+    },
+    {
+      "scenario": "inherited_land_farmland_subdivided_sold.json",
+      "property": "Lot 1, 500 Farm Lane, Richmond NSW 2753",
+      "event": "death_of_owner",
+      "date": "2021-03-15",
+      "changes": [
+        "Event type: \"death_of_owner\" → \"status_change\""
+      ]
+    },
+    {
+      "scenario": "inherited_land_farmland_subdivided_sold.json",
+      "property": "Lot 1, 500 Farm Lane, Richmond NSW 2753",
+      "event": "inherited",
+      "date": "2021-06-01",
+      "changes": [
+        "Event type: \"inherited\" → \"ownership_change\""
+      ]
+    },
+    {
+      "scenario": "inherited_land_farmland_subdivided_sold.json",
+      "property": "Lot 1, 500 Farm Lane, Richmond NSW 2753",
+      "event": "subdivision_approved",
+      "date": "2023-08-15",
+      "changes": [
+        "Event type: \"subdivision_approved\" → \"subdivision\"",
+        "Added subdivisionGroup and subdivisionDetails"
+      ]
+    },
+    {
+      "scenario": "inherited_land_farmland_subdivided_sold.json",
+      "property": "Lot 1, 500 Farm Lane, Richmond NSW 2753",
+      "event": "subdivision_registered",
+      "date": "2023-09-01",
+      "changes": [
+        "Event type: \"subdivision_registered\" → \"subdivision\"",
+        "Added subdivisionGroup and subdivisionDetails"
+      ]
+    },
+    {
+      "scenario": "inherited_land_farmland_subdivided_sold.json",
+      "property": "Lot 2-6, Farm Lane, Richmond NSW 2753",
+      "event": "subdivision_registered",
+      "date": "2023-09-01",
+      "changes": [
+        "Event type: \"subdivision_registered\" → \"subdivision\"",
+        "Added subdivisionGroup and subdivisionDetails"
+      ]
+    },
+    {
+      "scenario": "inherited_land_vacant_pre_cgt_deceased.json",
+      "property": "Lot 15, Rural Road, Wilberforce NSW 2756",
+      "event": "purchase_by_deceased",
+      "date": "1978-03-15",
+      "changes": [
+        "Event type: \"purchase_by_deceased\" → \"purchase\""
+      ]
+    },
+    {
+      "scenario": "inherited_land_vacant_pre_cgt_deceased.json",
+      "property": "Lot 15, Rural Road, Wilberforce NSW 2756",
+      "event": "death_of_owner",
+      "date": "2022-11-20",
+      "changes": [
+        "Event type: \"death_of_owner\" → \"status_change\""
+      ]
+    },
+    {
+      "scenario": "inherited_land_vacant_pre_cgt_deceased.json",
+      "property": "Lot 15, Rural Road, Wilberforce NSW 2756",
+      "event": "inherited",
+      "date": "2023-02-15",
+      "changes": [
+        "Event type: \"inherited\" → \"ownership_change\""
+      ]
+    },
+    {
+      "scenario": "inherited_property_2year_rule.json",
+      "property": "88 Memorial Drive, Toowong QLD 4066",
+      "event": "death_of_owner",
+      "date": "2023-08-15",
+      "changes": [
+        "Event type: \"death_of_owner\" → \"status_change\""
+      ]
+    },
+    {
+      "scenario": "inherited_property_2year_rule.json",
+      "property": "88 Memorial Drive, Toowong QLD 4066",
+      "event": "inherited",
+      "date": "2023-10-01",
+      "changes": [
+        "Event type: \"inherited\" → \"ownership_change\""
+      ]
+    },
+    {
+      "scenario": "investment_property_divorce_transfer.json",
+      "property": "Unit 15, 200 Investment Parade, Surfers Paradise QLD 4217",
+      "event": "separation",
+      "date": "2024-02-01",
+      "changes": [
+        "Event type: \"separation\" → \"status_change\""
+      ]
+    },
+    {
+      "scenario": "investment_property_divorce_transfer.json",
+      "property": "Unit 15, 200 Investment Parade, Surfers Paradise QLD 4217",
+      "event": "divorce_transfer",
+      "date": "2024-09-01",
+      "changes": [
+        "Event type: \"divorce_transfer\" → \"ownership_change\""
+      ]
+    },
+    {
+      "scenario": "joint_sale_during_separation.json",
+      "property": "92 Separation Street, Hawthorn VIC 3122",
+      "event": "separation",
+      "date": "2023-06-15",
+      "changes": [
+        "Event type: \"separation\" → \"status_change\""
+      ]
+    },
+    {
+      "scenario": "multiple_beneficiaries.json",
+      "property": "55 Family Court, Ashgrove QLD 4060",
+      "event": "death_of_owner",
+      "date": "2023-07-20",
+      "changes": [
+        "Event type: \"death_of_owner\" → \"status_change\""
+      ]
+    },
+    {
+      "scenario": "multiple_beneficiaries.json",
+      "property": "55 Family Court, Ashgrove QLD 4060",
+      "event": "inherited",
+      "date": "2023-10-01",
+      "changes": [
+        "Event type: \"inherited\" → \"ownership_change\""
+      ]
+    },
+    {
+      "scenario": "pre_cgt_inheritance.json",
+      "property": "67 Heritage Road, Wahroonga NSW 2076",
+      "event": "death_of_owner",
+      "date": "2024-03-20",
+      "changes": [
+        "Event type: \"death_of_owner\" → \"status_change\""
+      ]
+    },
+    {
+      "scenario": "pre_cgt_inheritance.json",
+      "property": "67 Heritage Road, Wahroonga NSW 2076",
+      "event": "inherited",
+      "date": "2024-06-01",
+      "changes": [
+        "Event type: \"inherited\" → \"ownership_change\""
+      ]
+    },
+    {
+      "scenario": "pre_cgt_property_with_improvements.json",
+      "property": "77 Heritage Estate, Hunters Hill NSW 2110",
+      "event": "marriage",
+      "date": "1988-06-15",
+      "changes": [
+        "Event type: \"marriage\" → \"status_change\""
+      ]
+    },
+    {
+      "scenario": "pre_cgt_property_with_improvements.json",
+      "property": "77 Heritage Estate, Hunters Hill NSW 2110",
+      "event": "major_renovation",
+      "date": "2005-03-01",
+      "changes": [
+        "Event type: \"major_renovation\" → \"improvement\""
+      ]
+    },
+    {
+      "scenario": "pre_cgt_property_with_improvements.json",
+      "property": "77 Heritage Estate, Hunters Hill NSW 2110",
+      "event": "separation",
+      "date": "2020-08-01",
+      "changes": [
+        "Event type: \"separation\" → \"status_change\""
+      ]
+    },
+    {
+      "scenario": "pre_cgt_property_with_improvements.json",
+      "property": "77 Heritage Estate, Hunters Hill NSW 2110",
+      "event": "divorce_property_settlement",
+      "date": "2021-04-15",
+      "changes": [
+        "Event type: \"divorce_property_settlement\" → \"ownership_change\""
+      ]
+    },
+    {
+      "scenario": "pre_cgt_property_with_improvements.json",
+      "property": "77 Heritage Estate, Hunters Hill NSW 2110",
+      "event": "spouse_a_moves_out",
+      "date": "2021-05-01",
+      "changes": [
+        "Event type: \"spouse_a_moves_out\" → \"move_out\""
+      ]
+    },
+    {
+      "scenario": "relationship_breakdown_rollover.json",
+      "property": "156 Harmony Street, South Yarra VIC 3141",
+      "event": "separation",
+      "date": "2018-03-15",
+      "changes": [
+        "Event type: \"separation\" → \"status_change\""
+      ]
+    },
+    {
+      "scenario": "relationship_breakdown_rollover.json",
+      "property": "156 Harmony Street, South Yarra VIC 3141",
+      "event": "divorce_transfer",
+      "date": "2019-06-01",
+      "changes": [
+        "Event type: \"divorce_transfer\" → \"ownership_change\""
+      ]
+    },
+    {
+      "scenario": "subdivision_build_and_sell.json",
+      "property": "15 Riverside Crescent, Bulimba QLD 4171",
+      "event": "subdivision_approved",
+      "date": "2021-06-15",
+      "changes": [
+        "Event type: \"subdivision_approved\" → \"subdivision\"",
+        "Added subdivisionGroup and subdivisionDetails"
+      ]
+    },
+    {
+      "scenario": "subdivision_build_and_sell.json",
+      "property": "15 Riverside Crescent, Bulimba QLD 4171",
+      "event": "subdivision_registered",
+      "date": "2021-08-01",
+      "changes": [
+        "Event type: \"subdivision_registered\" → \"subdivision\"",
+        "Added subdivisionGroup and subdivisionDetails"
+      ]
+    },
+    {
+      "scenario": "subdivision_build_and_sell.json",
+      "property": "15A Riverside Crescent, Bulimba QLD 4171",
+      "event": "subdivision_registered",
+      "date": "2021-08-01",
+      "changes": [
+        "Event type: \"subdivision_registered\" → \"subdivision\"",
+        "Added subdivisionGroup and subdivisionDetails"
+      ]
+    },
+    {
+      "scenario": "subdivision_build_and_sell.json",
+      "property": "15A Riverside Crescent, Bulimba QLD 4171",
+      "event": "construction_start",
+      "date": "2021-10-01",
+      "changes": [
+        "Event type: \"construction_start\" → \"building_start\""
+      ]
+    },
+    {
+      "scenario": "subdivision_build_and_sell.json",
+      "property": "15A Riverside Crescent, Bulimba QLD 4171",
+      "event": "construction_complete",
+      "date": "2022-08-15",
+      "changes": [
+        "Event type: \"construction_complete\" → \"building_end\""
+      ]
+    },
+    {
+      "scenario": "subdivision_main_residence_vacant_land.json",
+      "property": "28 Panorama Drive, Kenmore QLD 4069",
+      "event": "subdivision_approved",
+      "date": "2022-06-01",
+      "changes": [
+        "Event type: \"subdivision_approved\" → \"subdivision\"",
+        "Added subdivisionGroup and subdivisionDetails"
+      ]
+    },
+    {
+      "scenario": "subdivision_main_residence_vacant_land.json",
+      "property": "28 Panorama Drive, Kenmore QLD 4069",
+      "event": "subdivision_registered",
+      "date": "2022-08-15",
+      "changes": [
+        "Event type: \"subdivision_registered\" → \"subdivision\"",
+        "Added subdivisionGroup and subdivisionDetails"
+      ]
+    },
+    {
+      "scenario": "subdivision_multiple_lots_sold.json",
+      "property": "200 Rural Road, Dural NSW 2158",
+      "event": "subdivision_approved",
+      "date": "2023-06-01",
+      "changes": [
+        "Event type: \"subdivision_approved\" → \"subdivision\"",
+        "Added subdivisionGroup and subdivisionDetails"
+      ]
+    },
+    {
+      "scenario": "subdivision_multiple_lots_sold.json",
+      "property": "200 Rural Road, Dural NSW 2158",
+      "event": "subdivision_registered",
+      "date": "2023-08-15",
+      "changes": [
+        "Event type: \"subdivision_registered\" → \"subdivision\"",
+        "Added subdivisionGroup and subdivisionDetails"
+      ]
+    },
+    {
+      "scenario": "subdivision_pre_cgt_property.json",
+      "property": "8 Old Farm Road, Dural NSW 2158",
+      "event": "subdivision_approved",
+      "date": "2023-04-01",
+      "changes": [
+        "Event type: \"subdivision_approved\" → \"subdivision\"",
+        "Added subdivisionGroup and subdivisionDetails"
+      ]
+    },
+    {
+      "scenario": "subdivision_pre_cgt_property.json",
+      "property": "8 Old Farm Road, Dural NSW 2158",
+      "event": "subdivision_registered",
+      "date": "2023-06-15",
+      "changes": [
+        "Event type: \"subdivision_registered\" → \"subdivision\"",
+        "Added subdivisionGroup and subdivisionDetails"
+      ]
+    },
+    {
+      "scenario": "subdivision_retain_dwelling_sell_vacant.json",
+      "property": "55 Acreage Court, Castle Hill NSW 2154",
+      "event": "subdivision_approved",
+      "date": "2024-03-15",
+      "changes": [
+        "Event type: \"subdivision_approved\" → \"subdivision\"",
+        "Added subdivisionGroup and subdivisionDetails"
+      ]
+    },
+    {
+      "scenario": "subdivision_retain_dwelling_sell_vacant.json",
+      "property": "55 Acreage Court, Castle Hill NSW 2154",
+      "event": "subdivision_registered",
+      "date": "2024-05-01",
+      "changes": [
+        "Event type: \"subdivision_registered\" → \"subdivision\"",
+        "Added subdivisionGroup and subdivisionDetails"
+      ]
+    },
+    {
+      "scenario": "subdivision_strata_title.json",
+      "property": "12 Duplex Drive, Randwick NSW 2031",
+      "event": "strata_subdivision",
+      "date": "2020-08-01",
+      "changes": [
+        "Event type: \"strata_subdivision\" → \"subdivision\"",
+        "Added subdivisionGroup and subdivisionDetails"
+      ]
+    },
+    {
+      "scenario": "subdivision_strata_title.json",
+      "property": "12 Duplex Drive, Randwick NSW 2031",
+      "event": "rent_start_unit_b",
+      "date": "2020-09-01",
+      "changes": [
+        "Event type: \"rent_start_unit_b\" → \"rent_start\""
+      ]
+    },
+    {
+      "scenario": "subdivision_strata_title.json",
+      "property": "12 Duplex Drive, Randwick NSW 2031",
+      "event": "rent_end_unit_b",
+      "date": "2025-06-30",
+      "changes": [
+        "Event type: \"rent_end_unit_b\" → \"rent_end\""
+      ]
+    },
+    {
+      "scenario": "transfer_to_family_trust.json",
+      "property": "45 Investment Lane, Chatswood NSW 2067",
+      "event": "transfer_to_trust",
+      "date": "2025-07-15",
+      "changes": [
+        "Event type: \"transfer_to_trust\" → \"ownership_change\""
+      ]
+    },
+    {
+      "scenario": "trust_distribution_to_beneficiary.json",
+      "property": "88 Trust Avenue, Paddington QLD 4064",
+      "event": "distribution_to_beneficiary",
+      "date": "2025-06-15",
+      "changes": [
+        "Event type: \"distribution_to_beneficiary\" → \"ownership_change\""
+      ]
+    },
+    {
+      "scenario": "two_year_building_rule_eligible.json",
+      "property": "Lot 5, 88 New Build Crescent, Kellyville NSW 2155",
+      "event": "purchase_vacant_land",
+      "date": "2022-03-15",
+      "changes": [
+        "Event type: \"purchase_vacant_land\" → \"purchase\""
+      ]
+    },
+    {
+      "scenario": "two_year_building_rule_eligible.json",
+      "property": "Lot 5, 88 New Build Crescent, Kellyville NSW 2155",
+      "event": "construction_start",
+      "date": "2022-09-01",
+      "changes": [
+        "Event type: \"construction_start\" → \"building_start\""
+      ]
+    },
+    {
+      "scenario": "two_year_building_rule_eligible.json",
+      "property": "Lot 5, 88 New Build Crescent, Kellyville NSW 2155",
+      "event": "construction_complete",
+      "date": "2023-06-15",
+      "changes": [
+        "Event type: \"construction_complete\" → \"building_end\""
+      ]
+    },
+    {
+      "scenario": "two_year_building_rule_exceeded.json",
+      "property": "Lot 12, 55 Delayed Build Road, Box Hill NSW 2765",
+      "event": "purchase_vacant_land",
+      "date": "2018-06-20",
+      "changes": [
+        "Event type: \"purchase_vacant_land\" → \"purchase\""
+      ]
+    },
+    {
+      "scenario": "two_year_building_rule_exceeded.json",
+      "property": "Lot 12, 55 Delayed Build Road, Box Hill NSW 2765",
+      "event": "construction_start",
+      "date": "2023-02-01",
+      "changes": [
+        "Event type: \"construction_start\" → \"building_start\""
+      ]
+    },
+    {
+      "scenario": "two_year_building_rule_exceeded.json",
+      "property": "Lot 12, 55 Delayed Build Road, Box Hill NSW 2765",
+      "event": "construction_complete",
+      "date": "2024-01-15",
+      "changes": [
+        "Event type: \"construction_complete\" → \"building_end\""
+      ]
+    },
+    {
+      "scenario": "two_year_building_rule_renovation.json",
+      "property": "22 Knockdown Rebuild Lane, Willoughby NSW 2068",
+      "event": "demolition_start",
+      "date": "2021-09-01",
+      "changes": [
+        "Event type: \"demolition_start\" → \"status_change\""
+      ]
+    },
+    {
+      "scenario": "two_year_building_rule_renovation.json",
+      "property": "22 Knockdown Rebuild Lane, Willoughby NSW 2068",
+      "event": "construction_start",
+      "date": "2021-10-15",
+      "changes": [
+        "Event type: \"construction_start\" → \"building_start\""
+      ]
+    },
+    {
+      "scenario": "two_year_building_rule_renovation.json",
+      "property": "22 Knockdown Rebuild Lane, Willoughby NSW 2068",
+      "event": "construction_complete",
+      "date": "2022-12-01",
+      "changes": [
+        "Event type: \"construction_complete\" → \"building_end\""
+      ]
+    }
+  ]
+}

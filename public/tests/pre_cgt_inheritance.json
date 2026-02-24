@@ -16,12 +16,14 @@
         },
         {
           "date": "2024-03-20",
-          "event": "death_of_owner",
-          "market_value": 2400000
+          "event": "status_change",
+          "market_value": 2400000,
+          "description": "Death of property owner"
         },
         {
           "date": "2024-06-01",
-          "event": "inherited"
+          "event": "ownership_change",
+          "description": "Property inherited by beneficiary"
         },
         {
           "date": "2024-07-01",
@@ -55,5 +57,9 @@
     "deceased_main_residence": true
   },
   "llm_provider": "deepseek",
-  "use_claude": true
+  "use_claude": true,
+  "scenario_info": {
+    "name": "Six-Year Absence Rule - Within Limit",
+    "description": "I inherited my father's house which he bought in 1978. He lived there his whole life until he passed. I rented it for a while then sold it. Since it was pre-CGT, is it still exempt?"
+  }
 }

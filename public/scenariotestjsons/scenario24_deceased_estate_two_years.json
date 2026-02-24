@@ -30,9 +30,9 @@
         },
         {
           "date": "2023-03-15",
-          "event": "inheritance",
+          "event": "ownership_change",
           "market_value": 485000,
-          "description": "Mother passes away. Property was her main residence. Inherited by William."
+          "description": "Property inherited. Mother passes away. Property was her main residence. Inherited by William."
         },
         {
           "date": "2023-06-01",

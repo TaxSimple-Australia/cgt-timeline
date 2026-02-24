@@ -1,0 +1,60 @@
+{
+  "properties": [
+    {
+      "address": "55 Family Court, Ashgrove QLD 4060",
+      "property_history": [
+        {
+          "date": "2010-03-15",
+          "event": "purchase",
+          "price": 520000,
+          "stamp_duty": 18000,
+          "purchase_legal_fees": 2400
+        },
+        {
+          "date": "2010-04-01",
+          "event": "move_in"
+        },
+        {
+          "date": "2023-07-20",
+          "event": "death_of_owner",
+          "market_value": 980000
+        },
+        {
+          "date": "2023-10-01",
+          "event": "inherited"
+        },
+        {
+          "date": "2023-11-01",
+          "event": "rent_start"
+        },
+        {
+          "date": "2025-12-31",
+          "event": "rent_end"
+        },
+        {
+          "date": "2026-01-15",
+          "event": "sale",
+          "price": 1080000,
+          "contract_date": "2026-01-15",
+          "agent_fees": 27000,
+          "legal_fees": 3200
+        }
+      ],
+      "notes": "sold - Deceased's main residence inherited equally by 3 children (33.33% each). Property rented for 2+ years then sold (more than 2 years after death). Each beneficiary calculates their own CGT."
+    }
+  ],
+  "user_query": "My father passed away in 2023 and left his home to me and my 2 siblings equally. We rented it out and now we're selling it more than 2 years after his death. How do we each calculate CGT?",
+  "additional_info": {
+    "australian_resident": true,
+    "tax_year": "2025-2026",
+    "inherited_property": true,
+    "multiple_beneficiaries": true,
+    "beneficiary_shares": [33.33, 33.33, 33.33],
+    "deceased_main_residence": true,
+    "date_of_death": "2023-07-20",
+    "market_value_at_death": 980000,
+    "sold_after_2_years": true
+  },
+  "llm_provider": "deepseek",
+  "use_claude": true
+}

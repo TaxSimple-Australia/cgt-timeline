@@ -16,12 +16,14 @@
         },
         {
           "date": "2022-08-01",
-          "event": "separation"
+          "event": "status_change",
+          "description": "Separation/relationship breakdown began"
         },
         {
           "date": "2023-03-15",
-          "event": "defacto_transfer",
-          "market_value": 1150000
+          "event": "ownership_change",
+          "market_value": 1150000,
+          "description": "Property transferred to de facto partner"
         },
         {
           "date": "2025-09-01",
@@ -52,5 +54,9 @@
     "rollover_applies": true
   },
   "llm_provider": "deepseek",
-  "use_claude": true
+  "use_claude": true,
+  "scenario_info": {
+    "name": "Relationship Breakdown - CGT Rollover",
+    "description": "My de facto partner and I separated after 8 years. The house was in his name but got transferred to me under a binding financial agreement. I lived in it for another 2 years then sold. How is the CGT calculated?"
+  }
 }

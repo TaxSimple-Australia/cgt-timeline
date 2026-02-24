@@ -16,7 +16,8 @@
         },
         {
           "date": "2023-06-15",
-          "event": "separation"
+          "event": "status_change",
+          "description": "Separation/relationship breakdown began"
         },
         {
           "date": "2023-07-01",
@@ -47,5 +48,9 @@
     "divorce_not_finalised": true
   },
   "llm_provider": "deepseek",
-  "use_claude": true
+  "use_claude": true,
+  "scenario_info": {
+    "name": "Relationship Breakdown - Property Transfer",
+    "description": "My husband and I separated in 2023. We owned our home jointly 50/50. Instead of one of us keeping it, we decided to sell. I moved out when we separated but he stayed until the sale. How do we each handle the CGT?"
+  }
 }

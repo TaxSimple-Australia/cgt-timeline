@@ -1,0 +1,47 @@
+{
+  "properties": [
+    {
+      "address": "Lot 5, 88 New Build Crescent, Kellyville NSW 2155",
+      "property_history": [
+        {
+          "date": "2022-03-15",
+          "event": "purchase_vacant_land",
+          "price": 650000,
+          "stamp_duty": 25000,
+          "purchase_legal_fees": 2500
+        },
+        {
+          "date": "2022-09-01",
+          "event": "construction_start",
+          "construction_cost": 450000
+        },
+        {
+          "date": "2023-06-15",
+          "event": "construction_complete"
+        },
+        {
+          "date": "2023-07-01",
+          "event": "move_in"
+        },
+        {
+          "date": "2025-10-01",
+          "event": "sale",
+          "price": 1450000,
+          "contract_date": "2025-10-01",
+          "agent_fees": 29000,
+          "legal_fees": 3500
+        },
+        {
+          "date": "2025-10-01",
+          "event": "move_out"
+        }
+      ],
+      "notes": "sold - Vacant land purchased, house built and moved in within 2 years."
+    }
+  ],
+  "user_query": "I bought vacant land in March 2022, built a house, and moved in July 2023 - about 16 months after buying the land. I'm selling now. Can I get the main residence exemption from when I bought the land?",
+  "additional_info": {
+    "australian_resident": true
+  },
+  "llm_provider": "deepseek"
+}

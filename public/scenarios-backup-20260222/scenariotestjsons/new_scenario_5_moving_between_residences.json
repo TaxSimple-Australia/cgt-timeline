@@ -1,0 +1,60 @@
+{
+  "properties": [
+    {
+      "address": "65 Parkview Crescent, Toowong QLD 4066",
+      "property_history": [
+        {
+          "date": "2010-07-01",
+          "event": "purchase",
+          "price": 510000,
+          "stamp_duty": 17850,
+          "purchase_legal_fees": 2800
+        },
+        {
+          "date": "2010-07-01",
+          "event": "move_in"
+        },
+        {
+          "date": "2015-09-15",
+          "event": "improvement",
+          "price": 85000
+        },
+        {
+          "date": "2024-04-01",
+          "event": "move_out",
+          "market_value": 642550
+        },
+        {
+          "date": "2024-08-15",
+          "event": "sale",
+          "price": 980000,
+          "contract_date": "2024-08-15",
+          "agent_fees": 24500,
+          "legal_fees": 2400
+        }
+      ],
+      "notes": "sold - Original main residence sold within 6-month overlap period. Full exemption under s118.140."
+    },
+    {
+      "address": "22 Ridgeline Drive, Chapel Hill QLD 4069",
+      "property_history": [
+        {
+          "date": "2024-04-01",
+          "event": "purchase",
+          "price": 1150000,
+          "stamp_duty": 46000,
+          "purchase_legal_fees": 5200
+        },
+        {
+          "date": "2024-04-01",
+          "event": "move_in"
+        }
+      ],
+      "notes": "ppr - Current main residence. Overlap with Property 1 sale within 6-month window."
+    }
+  ],
+  "user_query": "I bought a new home and moved in before selling my old home. The overlap was about 4.5 months. What CGT do I owe?",
+  "additional_info": {
+    "australian_resident": true
+  }
+}

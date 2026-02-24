@@ -1,0 +1,144 @@
+{
+  "properties": [
+    {
+      "id": "prop-batch123-scenario1",
+      "address": "42 Jacaranda Avenue, Paddington QLD 4064",
+      "property_history": [
+        {
+          "date": "2015-03-15",
+          "event": "purchase",
+          "price": 620000,
+          "stamp_duty": 24800,
+          "title": "Purchase",
+          "checkboxState": {
+            "moveInOnSameDay": true,
+            "purchaseAsVacant": false,
+            "purchaseAsRent": false,
+            "purchaseAsConstruction": false,
+            "purchaseAsBusiness": false,
+            "inheritedProperty": false,
+            "preCGTProperty": false,
+            "partialRental": false,
+            "partialBusiness": false,
+            "mixedUse": false
+          },
+          "costBases": [
+            {
+              "id": "cb-batch123-s1-purchase",
+              "definitionId": "purchase_price",
+              "name": "Purchase Price",
+              "amount": 620000,
+              "category": "element1",
+              "isCustom": false,
+              "description": "The total amount paid to acquire the property on 15 March 2015"
+            },
+            {
+              "id": "cb-batch123-s1-stamp",
+              "definitionId": "stamp_duty",
+              "name": "Stamp Duty",
+              "amount": 24800,
+              "category": "element2",
+              "isCustom": false,
+              "description": "State government transfer duty paid on property acquisition"
+            },
+            {
+              "id": "cb-batch123-s1-legal-purchase",
+              "definitionId": "legal_fees_acquire",
+              "name": "Legal Fees (Acquisition)",
+              "amount": 2500,
+              "category": "element2",
+              "isCustom": false,
+              "description": "Legal fees and conveyancing costs for property purchase"
+            }
+          ],
+          "description": "Property purchased for $620,000"
+        },
+        {
+          "date": "2015-03-15",
+          "event": "move_in",
+          "title": "Move In",
+          "checkboxState": {},
+          "description": "Moved in immediately upon purchase - used as main residence"
+        },
+        {
+          "date": "2018-06-01",
+          "event": "improvement",
+          "price": 45000,
+          "title": "Capital Improvement",
+          "checkboxState": {},
+          "costBases": [
+            {
+              "id": "cb-batch123-s1-kitchen",
+              "definitionId": "renovations",
+              "name": "Kitchen Renovation",
+              "amount": 45000,
+              "category": "element3",
+              "isCustom": false,
+              "description": "Complete kitchen renovation - capital improvement"
+            }
+          ],
+          "description": "Kitchen renovation - $45,000"
+        },
+        {
+          "date": "2021-09-15",
+          "event": "improvement",
+          "price": 28000,
+          "title": "Capital Improvement",
+          "checkboxState": {},
+          "costBases": [
+            {
+              "id": "cb-batch123-s1-bathroom",
+              "definitionId": "renovations",
+              "name": "Bathroom Renovation",
+              "amount": 28000,
+              "category": "element3",
+              "isCustom": false,
+              "description": "Complete bathroom renovation - capital improvement"
+            }
+          ],
+          "description": "Bathroom renovation - $28,000"
+        },
+        {
+          "date": "2024-11-20",
+          "event": "sale",
+          "price": 1150000,
+          "title": "Sale",
+          "checkboxState": {},
+          "costBases": [
+            {
+              "id": "cb-batch123-s1-agent",
+              "definitionId": "agent_fees",
+              "name": "Real Estate Agent Commission",
+              "amount": 28750,
+              "category": "element5",
+              "isCustom": false,
+              "description": "Commission paid to real estate agent for sale"
+            },
+            {
+              "id": "cb-batch123-s1-legal-sale",
+              "definitionId": "legal_fees_disposal",
+              "name": "Legal Fees (Disposal)",
+              "amount": 2200,
+              "category": "element5",
+              "isCustom": false,
+              "description": "Legal fees for property sale and conveyancing"
+            }
+          ],
+          "description": "Property sold for $1,150,000"
+        }
+      ],
+      "notes": "**Batch 1,2,3 - Scenario 1: Full Main Residence Exemption**\n\nProperty used exclusively as main residence throughout entire ownership period (15 March 2015 to 20 November 2024).\n\n**Expected Result:**\n- Total capital gain (before exemption): $430,750\n- Main Residence Exemption: 100% (entire ownership)\n- **NO CGT PAYABLE** - Full main residence exemption applies\n\n**ATO Rules Applied:**\n- Section 118-110 ITAA 1997 (Main Residence Exemption)\n- Property used exclusively as main residence from purchase to sale",
+      "color": "#10B981",
+      "branch": 0
+    }
+  ],
+  "user_query": "Batch 1,2,3 - Scenario 1: Full Main Residence Exemption - Property at 42 Jacaranda Avenue, Paddington QLD 4064, purchased 15 March 2015 for $620,000, used exclusively as main residence, sold 20 November 2024 for $1,150,000",
+  "additional_info": {
+    "australian_resident": true,
+    "tax_year": "2024-2025",
+    "scenario_batch": "Batch 1,2,3",
+    "scenario_number": "Scenario 1",
+    "scenario_title": "Full Main Residence Exemption",
+    "expected_outcome": "NO CGT PAYABLE - Full main residence exemption applies"
+  }
+}

@@ -39,5 +39,9 @@
   "user_query": "I lived in my home for the entire time I owned it. What is my CGT liability on sale?",
   "additional_info": {
     "australian_resident": true
+  },
+  "scenario_info": {
+    "name": "Full Main Residence",
+    "description": "I lived in my home for the entire time I owned it. What is my CGT liability on sale?"
   }
 }

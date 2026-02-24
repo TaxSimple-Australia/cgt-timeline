@@ -1,0 +1,59 @@
+{
+  "properties": [
+    {
+      "address": "67 Heritage Road, Wahroonga NSW 2076",
+      "property_history": [
+        {
+          "date": "1978-06-15",
+          "event": "purchase",
+          "price": 45000,
+          "stamp_duty": 800,
+          "purchase_legal_fees": 400
+        },
+        {
+          "date": "1978-07-01",
+          "event": "move_in"
+        },
+        {
+          "date": "2024-03-20",
+          "event": "death_of_owner",
+          "market_value": 2400000
+        },
+        {
+          "date": "2024-06-01",
+          "event": "inherited"
+        },
+        {
+          "date": "2024-07-01",
+          "event": "rent_start"
+        },
+        {
+          "date": "2025-11-30",
+          "event": "rent_end"
+        },
+        {
+          "date": "2025-12-15",
+          "event": "sale",
+          "price": 2650000,
+          "contract_date": "2025-12-15",
+          "agent_fees": 53000,
+          "legal_fees": 4500
+        }
+      ],
+      "notes": "sold - Pre-CGT property (acquired 1978) inherited from father. Father lived there until death. Beneficiary rented it out then sold after 20 months."
+    }
+  ],
+  "user_query": "I inherited my father's house which he bought in 1978. He lived there his whole life until he passed. I rented it for a while then sold it. Since it was pre-CGT, is it still exempt?",
+  "additional_info": {
+    "australian_resident": true,
+    "tax_year": "2025-2026",
+    "inherited_property": true,
+    "pre_cgt_asset": true,
+    "original_acquisition_date": "1978-06-15",
+    "date_of_death": "2024-03-20",
+    "market_value_at_death": 2400000,
+    "deceased_main_residence": true
+  },
+  "llm_provider": "deepseek",
+  "use_claude": true
+}

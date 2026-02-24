@@ -73,5 +73,9 @@
     "australian_resident": true
   },
   "llm_provider": "deepseek",
-  "use_claude": true
+  "use_claude": true,
+  "scenario_info": {
+    "name": "Six-Year Absence Rule - Within Limit",
+    "description": "What is the CGT for Anna and Mark on their properties? Anna owned both a flat and a townhouse (jointly with Mark) from 2001-02-05 to 2002-03-11. How does the main residence choice affect their CGT?"
+  }
 }

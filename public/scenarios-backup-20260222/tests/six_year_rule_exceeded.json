@@ -1,0 +1,48 @@
+{
+  "properties": [
+    {
+      "address": "66 Long Absence Road, St Leonards NSW 2065",
+      "property_history": [
+        {
+          "date": "2010-05-20",
+          "event": "purchase",
+          "price": 620000,
+          "stamp_duty": 24000,
+          "purchase_legal_fees": 2600
+        },
+        {
+          "date": "2010-06-01",
+          "event": "move_in"
+        },
+        {
+          "date": "2015-07-01",
+          "event": "move_out",
+          "market_value": 850000
+        },
+        {
+          "date": "2015-07-15",
+          "event": "rent_start"
+        },
+        {
+          "date": "2025-09-30",
+          "event": "rent_end"
+        },
+        {
+          "date": "2025-10-15",
+          "event": "sale",
+          "price": 1380000,
+          "contract_date": "2025-10-15",
+          "agent_fees": 27600,
+          "legal_fees": 3200
+        }
+      ],
+      "notes": "sold - Lived 2010-2015 (5 years), rented 2015-2025 (10+ years)."
+    }
+  ],
+  "user_query": "I lived in my home for 5 years then rented it for over 10 years. I exceeded the 6-year rule. How do I calculate the partial exemption for the years beyond 6?",
+  "additional_info": {
+    "australian_resident": true
+  },
+  "llm_provider": "claude",
+  "use_claude": true
+}

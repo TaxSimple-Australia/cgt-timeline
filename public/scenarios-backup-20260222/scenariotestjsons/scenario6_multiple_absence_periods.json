@@ -1,0 +1,135 @@
+{
+  "title": "Multiple Absence Periods with Six-Year Rule",
+  "scenario_info": {
+    "name": "Multiple Absence Periods (ATO Example 80)",
+    "description": "Ian owns a Sydney home and is posted to different cities for work over 30 years. He rents out Sydney during absences, buys/sells other properties, but never claims MRE on them. The combined rental periods exceed 6 years.",
+    "expected_result": {
+      "exemption_type": "partial",
+      "exemption_percentage": 96.74,
+      "taxable_proportion": 3.26
+    },
+    "applicable_rules": [
+      "ITAA97 s118.145: Six-year absence rule (partial - combined rental exceeds 6 years)",
+      "Multiple absence periods are combined for the 6-year test",
+      "Can choose to treat Sydney as MR since no other property claimed as MR",
+      "ITAA97 s115.25: 50% CGT discount applies"
+    ]
+  },
+  "properties": [
+    {
+      "address": "42 Harbour View Road, Sydney NSW 2000",
+      "property_history": [
+        {
+          "date": "1994-07-01",
+          "event": "purchase",
+          "price": 320000,
+          "stamp_duty": 12800,
+          "purchase_legal_fees": 2200
+        },
+        {
+          "date": "1994-07-01",
+          "event": "move_in",
+          "description": "Established as main residence"
+        },
+        {
+          "date": "1996-01-01",
+          "event": "move_out",
+          "description": "Posted to Brisbane for work"
+        },
+        {
+          "date": "1996-01-01",
+          "event": "rent_start",
+          "market_value": 380000,
+          "description": "First rental period begins"
+        },
+        {
+          "date": "2000-12-31",
+          "event": "rent_end",
+          "description": "Tenant leaves after 5 years"
+        },
+        {
+          "date": "2001-03-01",
+          "event": "rent_start",
+          "description": "Second rental period begins (posted to Melbourne)"
+        },
+        {
+          "date": "2003-02-28",
+          "event": "rent_end",
+          "description": "Tenant leaves after 2 years"
+        },
+        {
+          "date": "2004-12-31",
+          "event": "move_in",
+          "description": "Returns to Sydney, re-establishes as main residence"
+        },
+        {
+          "date": "2025-02-28",
+          "event": "sale",
+          "price": 2500000,
+          "contract_date": "2025-02-28",
+          "agent_fees": 62500,
+          "legal_fees": 3500
+        }
+      ],
+      "notes": "Complex scenario with multiple rental periods totaling 7 years. First 6 years exempt under s118.145, remaining 1 year (365 days) is taxable."
+    },
+    {
+      "address": "15 River Terrace, Brisbane QLD 4000",
+      "property_history": [
+        {
+          "date": "1996-01-01",
+          "event": "purchase",
+          "price": 185000,
+          "stamp_duty": 7400,
+          "purchase_legal_fees": 1800
+        },
+        {
+          "date": "1996-01-01",
+          "event": "move_in",
+          "description": "Moved in but did NOT claim as main residence"
+        },
+        {
+          "date": "2000-12-31",
+          "event": "sale",
+          "price": 265000,
+          "contract_date": "2000-12-31",
+          "agent_fees": 6625,
+          "legal_fees": 1500,
+          "description": "Sold - did not claim MRE"
+        }
+      ],
+      "notes": "Brisbane property - MRE not claimed to preserve Sydney six-year rule"
+    },
+    {
+      "address": "88 Collins Street, Melbourne VIC 3000",
+      "property_history": [
+        {
+          "date": "2001-01-01",
+          "event": "purchase",
+          "price": 290000,
+          "stamp_duty": 11600,
+          "purchase_legal_fees": 2000
+        },
+        {
+          "date": "2001-01-01",
+          "event": "move_in",
+          "description": "Moved in but did NOT claim as main residence"
+        },
+        {
+          "date": "2003-12-31",
+          "event": "sale",
+          "price": 380000,
+          "contract_date": "2003-12-31",
+          "agent_fees": 9500,
+          "legal_fees": 1800,
+          "description": "Sold - did not claim MRE"
+        }
+      ],
+      "notes": "Melbourne property - MRE not claimed to preserve Sydney six-year rule"
+    }
+  ],
+  "user_query": "I owned my Sydney home for 30 years but rented it out during two work relocations totaling 7 years. I also bought and sold properties in Brisbane and Melbourne but never claimed MRE on them. What is my CGT position?",
+  "additional_info": {
+    "australian_resident": true
+  }
+}

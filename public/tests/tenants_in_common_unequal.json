@@ -35,5 +35,9 @@
     "australian_resident": true
   },
   "llm_provider": "deepseek",
-  "use_claude": true
+  "use_claude": true,
+  "scenario_info": {
+    "name": "Six-Year Absence Rule Exceeded",
+    "description": "My sister and I bought an investment unit together as tenants in common. I own 70% and she owns 30%. We've sold it - how do we each calculate our CGT?"
+  }
 }

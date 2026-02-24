@@ -12,11 +12,13 @@
         },
         {
           "date": "2019-08-01",
-          "event": "airbnb_start"
+          "event": "rent_start",
+          "description": "Started Airbnb/short-term rental"
         },
         {
           "date": "2025-08-31",
-          "event": "airbnb_end"
+          "event": "rent_end",
+          "description": "Ended Airbnb/short-term rental"
         },
         {
           "date": "2025-09-15",
@@ -35,5 +37,9 @@
     "australian_resident": true
   },
   "llm_provider": "deepseek",
-  "use_claude": true
+  "use_claude": true,
+  "scenario_info": {
+    "name": "Airbnb - Investment Property",
+    "description": "I bought a holiday apartment in 2019 purely for Airbnb - I never lived in it. I'm selling now. Is it just treated like any other investment property for CGT?"
+  }
 }

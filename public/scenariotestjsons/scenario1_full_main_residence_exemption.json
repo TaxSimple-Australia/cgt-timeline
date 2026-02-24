@@ -51,6 +51,8 @@
       "taxable_gain": 0,
       "cgt_payable": 0
     },
-    "applicable_rules": ["ITAA97 s118.110"]
+    "applicable_rules": [
+      "ITAA97 s118.110"
+    ]
   }
 }

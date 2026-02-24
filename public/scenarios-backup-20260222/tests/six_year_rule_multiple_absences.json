@@ -1,0 +1,63 @@
+{
+  "properties": [
+    {
+      "address": "77 Revolving Door Place, Chatswood NSW 2067",
+      "property_history": [
+        {
+          "date": "2008-04-15",
+          "event": "purchase",
+          "price": 580000,
+          "stamp_duty": 22000,
+          "purchase_legal_fees": 2400
+        },
+        {
+          "date": "2008-05-01",
+          "event": "move_in"
+        },
+        {
+          "date": "2011-06-01",
+          "event": "move_out"
+        },
+        {
+          "date": "2011-06-15",
+          "event": "rent_start"
+        },
+        {
+          "date": "2015-05-31",
+          "event": "rent_end"
+        },
+        {
+          "date": "2015-06-15",
+          "event": "move_in"
+        },
+        {
+          "date": "2018-08-01",
+          "event": "move_out"
+        },
+        {
+          "date": "2018-08-15",
+          "event": "rent_start"
+        },
+        {
+          "date": "2025-08-31",
+          "event": "rent_end"
+        },
+        {
+          "date": "2025-09-15",
+          "event": "sale",
+          "price": 1420000,
+          "contract_date": "2025-09-15",
+          "agent_fees": 28400,
+          "legal_fees": 3200
+        }
+      ],
+      "notes": "sold - Multiple absence periods. First absence: 2011-2015 (4 years). Second absence: 2018-2025 (7 years). Main residence 2008-2011, 2015-2018."
+    }
+  ],
+  "user_query": "I moved in and out of my home multiple times. First absence was 4 years (2011-2015), then I moved back for 3 years, then absent again for 7 years. Does each absence get its own 6-year rule?",
+  "additional_info": {
+    "australian_resident": true
+  },
+  "llm_provider": "deepseek",
+  "use_claude": true
+}

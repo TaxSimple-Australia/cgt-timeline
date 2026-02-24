@@ -42,5 +42,9 @@
   "user_query": "I bought an investment property, rented it for 4 years, then moved in for 6 years before selling. What CGT do I owe?",
   "additional_info": {
     "australian_resident": true
+  },
+  "scenario_info": {
+    "name": "Six-Year Absence Rule - Within Limit",
+    "description": "I bought an investment property, rented it for 4 years, then moved in for 6 years before selling. What CGT do I owe?"
   }
 }

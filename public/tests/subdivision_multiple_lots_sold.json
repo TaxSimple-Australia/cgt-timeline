@@ -1,59 +1,252 @@
 {
   "properties": [
     {
+      "id": "prop-200rural-parent",
       "address": "200 Rural Road, Dural NSW 2158",
+      "original_lot": "Original 5-acre property",
       "property_history": [
         {
           "date": "2008-11-15",
           "event": "purchase",
           "price": 1200000,
           "stamp_duty": 55000,
-          "purchase_legal_fees": 4500
+          "title": "Purchase",
+          "checkboxState": {
+            "moveInOnSameDay": false,
+            "purchaseAsVacant": false,
+            "purchaseAsRent": false,
+            "purchaseAsConstruction": false,
+            "purchaseAsBusiness": false,
+            "inheritedProperty": false,
+            "preCGTProperty": false,
+            "partialRental": false,
+            "partialBusiness": false,
+            "mixedUse": false
+          },
+          "costBases": [
+            {
+              "id": "cb-200rural-purchase",
+              "definitionId": "purchase_price",
+              "name": "Purchase Price",
+              "amount": 1200000,
+              "category": "element1",
+              "isCustom": false,
+              "description": "Large 5-acre rural property with dwelling"
+            },
+            {
+              "id": "cb-200rural-stamp",
+              "definitionId": "stamp_duty",
+              "name": "Stamp Duty",
+              "amount": 55000,
+              "category": "element2",
+              "isCustom": false,
+              "description": "State government transfer duty"
+            },
+            {
+              "id": "cb-200rural-legal",
+              "definitionId": "legal_fees_acquire",
+              "name": "Legal Fees (Acquisition)",
+              "amount": 4500,
+              "category": "element2",
+              "isCustom": false,
+              "description": "Legal fees and conveyancing costs"
+            }
+          ],
+          "description": "Property purchased for $1,200,000 - large 5-acre rural block with dwelling",
+          "notes": "Property purchased for $1,200,000 - large 5-acre rural block with dwelling"
         },
         {
           "date": "2008-12-01",
-          "event": "move_in"
-        },
-        {
-          "date": "2023-06-01",
-          "event": "subdivision_approved",
-          "subdivision_costs": 120000,
-          "valuation_lot_1": 1500000,
-          "valuation_lot_2": 600000,
-          "valuation_lot_3": 550000,
-          "valuation_lot_4": 500000,
-          "total_value_at_subdivision": 3150000
+          "event": "move_in",
+          "title": "Move In",
+          "checkboxState": {},
+          "description": "Moved in - main residence",
+          "notes": "Moved in - main residence"
         },
         {
           "date": "2023-08-15",
-          "event": "subdivision_registered"
-        },
+          "event": "subdivision",
+          "title": "Subdivided",
+          "color": "#EC4899",
+          "subdivisionDetails": {
+            "childPropertyIds": ["prop-200rural-lot1", "prop-200rural-lot2", "prop-200rural-lot3", "prop-200rural-lot4"],
+            "totalLots": 4,
+            "subdivisionCosts": 120000,
+            "lotSizes": {
+              "lot1": "Dwelling + land",
+              "lot2": "Vacant lot",
+              "lot3": "Vacant lot",
+              "lot4": "Vacant lot"
+            },
+            "approvalDate": "2023-06-01",
+            "registrationDate": "2023-08-15",
+            "valuations": {
+              "lot1": 1500000,
+              "lot2": 600000,
+              "lot3": 550000,
+              "lot4": 500000
+            },
+            "notes": "Subdivision registered - 5-acre property divided into 4 lots. Lot 1 (dwelling) retained as main residence. Lots 2, 3, 4 (vacant) sold separately."
+          },
+          "checkboxState": {},
+          "description": "Subdivision registered - 5-acre property divided into 4 lots. Lot 1 (dwelling) retained. Lots 2, 3, 4 (vacant) for sale."
+        }
+      ],
+      "notes": "Original 5-acre property subdivided into 4 lots. Lot 1 (dwelling, retained). Lots 2-4 (vacant land, sold over 2024-2025). Market value at subdivision: $3,150,000 total. Subdivision costs: $120,000.",
+      "color": "#10B981",
+      "branch": 0,
+      "subdivisionGroup": "8142ad71-4b79-4f9a-8cf7-aad2d6fe3058",
+      "subdivisionDate": "2023-08-15"
+    },
+    {
+      "id": "prop-200rural-lot1",
+      "address": "Lot 1, 200 Rural Road, Dural NSW 2158",
+      "original_lot": "Lot 1 (Dwelling)",
+      "parentPropertyId": "prop-200rural-parent",
+      "property_history": [],
+      "notes": "Lot 1 - Dwelling lot retained as main residence. Owner continues living here. Market value at subdivision: $1,500,000 (47.6%). Still held.",
+      "color": "#10B981",
+      "branch": 0,
+      "subdivisionGroup": "8142ad71-4b79-4f9a-8cf7-aad2d6fe3058",
+      "subdivisionDate": "2023-08-15",
+      "isMainLotContinuation": true,
+      "lotNumber": "1",
+      "lotSize": "Dwelling + land"
+    },
+    {
+      "id": "prop-200rural-lot2",
+      "address": "Lot 2, Rural Road, Dural NSW 2158",
+      "original_lot": "Lot 2 (Vacant)",
+      "parentPropertyId": "prop-200rural-parent",
+      "property_history": [
         {
           "date": "2024-02-01",
           "event": "sale",
           "price": 620000,
+          "title": "Sale",
+          "checkboxState": {},
+          "costBases": [
+            {
+              "id": "cb-200rural-lot2-agent",
+              "definitionId": "agent_fees",
+              "name": "Real Estate Agent Commission",
+              "amount": 15500,
+              "category": "element5",
+              "isCustom": false,
+              "description": "Commission paid to real estate agent for sale"
+            },
+            {
+              "id": "cb-200rural-lot2-legal",
+              "definitionId": "legal_fees_disposal",
+              "name": "Legal Fees (Disposal)",
+              "amount": 2200,
+              "category": "element5",
+              "isCustom": false,
+              "description": "Legal fees for property sale and conveyancing"
+            }
+          ],
+          "description": "Lot 2 (vacant land) sold for $620,000. Apportioned cost base: 19% of total.",
           "contract_date": "2024-02-01",
-          "agent_fees": 15500,
-          "legal_fees": 2200
-        },
+          "notes": "First vacant lot sold"
+        }
+      ],
+      "notes": "Lot 2 - Vacant land. Market value at subdivision: $600,000 (19% of total). Sold 2024-02-01.",
+      "color": "#F59E0B",
+      "branch": 1,
+      "subdivisionGroup": "8142ad71-4b79-4f9a-8cf7-aad2d6fe3058",
+      "subdivisionDate": "2023-08-15",
+      "lotNumber": "2",
+      "lotSize": "Vacant lot"
+    },
+    {
+      "id": "prop-200rural-lot3",
+      "address": "Lot 3, Rural Road, Dural NSW 2158",
+      "original_lot": "Lot 3 (Vacant)",
+      "parentPropertyId": "prop-200rural-parent",
+      "property_history": [
         {
           "date": "2024-09-15",
           "event": "sale",
           "price": 580000,
+          "title": "Sale",
+          "checkboxState": {},
+          "costBases": [
+            {
+              "id": "cb-200rural-lot3-agent",
+              "definitionId": "agent_fees",
+              "name": "Real Estate Agent Commission",
+              "amount": 14500,
+              "category": "element5",
+              "isCustom": false,
+              "description": "Commission paid to real estate agent for sale"
+            },
+            {
+              "id": "cb-200rural-lot3-legal",
+              "definitionId": "legal_fees_disposal",
+              "name": "Legal Fees (Disposal)",
+              "amount": 2200,
+              "category": "element5",
+              "isCustom": false,
+              "description": "Legal fees for property sale and conveyancing"
+            }
+          ],
+          "description": "Lot 3 (vacant land) sold for $580,000. Apportioned cost base: 17.5% of total.",
           "contract_date": "2024-09-15",
-          "agent_fees": 14500,
-          "legal_fees": 2200
-        },
+          "notes": "Second vacant lot sold"
+        }
+      ],
+      "notes": "Lot 3 - Vacant land. Market value at subdivision: $550,000 (17.5% of total). Sold 2024-09-15.",
+      "color": "#F59E0B",
+      "branch": 2,
+      "subdivisionGroup": "8142ad71-4b79-4f9a-8cf7-aad2d6fe3058",
+      "subdivisionDate": "2023-08-15",
+      "lotNumber": "3",
+      "lotSize": "Vacant lot"
+    },
+    {
+      "id": "prop-200rural-lot4",
+      "address": "Lot 4, Rural Road, Dural NSW 2158",
+      "original_lot": "Lot 4 (Vacant)",
+      "parentPropertyId": "prop-200rural-parent",
+      "property_history": [
         {
           "date": "2025-05-01",
           "event": "sale",
           "price": 540000,
+          "title": "Sale",
+          "checkboxState": {},
+          "costBases": [
+            {
+              "id": "cb-200rural-lot4-agent",
+              "definitionId": "agent_fees",
+              "name": "Real Estate Agent Commission",
+              "amount": 13500,
+              "category": "element5",
+              "isCustom": false,
+              "description": "Commission paid to real estate agent for sale"
+            },
+            {
+              "id": "cb-200rural-lot4-legal",
+              "definitionId": "legal_fees_disposal",
+              "name": "Legal Fees (Disposal)",
+              "amount": 2200,
+              "category": "element5",
+              "isCustom": false,
+              "description": "Legal fees for property sale and conveyancing"
+            }
+          ],
+          "description": "Lot 4 (vacant land) sold for $540,000. Apportioned cost base: 15.9% of total.",
           "contract_date": "2025-05-01",
-          "agent_fees": 13500,
-          "legal_fees": 2200
+          "notes": "Third vacant lot sold"
         }
       ],
-      "notes": "sold - Large 5-acre block subdivided into 4 lots (2023). Lot 1 with house retained. Lots 2, 3, 4 sold in different financial years (2024, 2024, 2025)."
+      "notes": "Lot 4 - Vacant land. Market value at subdivision: $500,000 (15.9% of total). Sold 2025-05-01.",
+      "color": "#F59E0B",
+      "branch": 3,
+      "subdivisionGroup": "8142ad71-4b79-4f9a-8cf7-aad2d6fe3058",
+      "subdivisionDate": "2023-08-15",
+      "lotNumber": "4",
+      "lotSize": "Vacant lot"
     }
   ],
   "user_query": "I subdivided my 5-acre property into 4 lots. I kept the lot with my house and sold the other 3 vacant lots over different years. How do I calculate CGT for each lot sold?",
@@ -61,5 +254,9 @@
     "australian_resident": true
   },
   "llm_provider": "claude",
-  "use_claude": true
+  "use_claude": true,
+  "scenario_info": {
+    "name": "Subdivision - Multiple Lots Sold Over Time",
+    "description": "I subdivided my 5-acre property into 4 lots. I kept the lot with my house and sold the other 3 vacant lots over different years. How do I calculate CGT for each lot sold?"
+  }
 }

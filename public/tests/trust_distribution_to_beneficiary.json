@@ -20,8 +20,9 @@
         },
         {
           "date": "2025-06-15",
-          "event": "distribution_to_beneficiary",
-          "market_value": 920000
+          "event": "ownership_change",
+          "market_value": 920000,
+          "description": "Property distributed from trust to beneficiary"
         }
       ],
       "notes": "Family discretionary trust distributing investment property in-specie to adult beneficiary (daughter). Trust has held property since 2012."
@@ -31,5 +32,9 @@
   "additional_info": {
     "australian_resident": true
   },
-  "llm_provider": "deepseek"
+  "llm_provider": "deepseek",
+  "scenario_info": {
+    "name": "Six-Year Absence Rule Exceeded",
+    "description": "Our family trust owns an investment property. Instead of selling it, we want to distribute the property directly to my daughter who is a beneficiary. What are the CGT implications?"
+  }
 }

@@ -158,11 +158,16 @@ export interface TimelineEvent {
     planningFees?: number;                 // Planning/council fees
     legalFees?: number;                    // Legal fees
     titleFees?: number;                    // Title registration fees
-    allocationMethod: 'equal' | 'by_lot_size' | 'manual';  // How cost base was split
+    allocationMethod: 'equal' | 'by_lot_size' | 'manual' | 'by_valuation';  // How cost base was split
     costBreakdown?: {                      // Optional land/building value split
       landValue?: number;                  // Land value (apportioned across all lots)
       buildingValue?: number;              // Building value (stays with Lot 1)
+      totalValuation?: number;             // Total valuation for by_valuation method
+      valuations?: Array<{ lot: number | string; value: number; hasDwelling?: boolean }>;
+      subdivisionCosts?: number;           // Total subdivision costs
+      [key: string]: unknown;              // Allow additional fields
     };
+    subdivisionGroup?: string;             // UUID linking all lots from same subdivision
   };
 
   // DEPRECATED: Legacy cost base fields (kept for backward compatibility during migration)
@@ -223,6 +228,7 @@ export interface Property {
   allocationPercentage?: number;  // Allocation percentage for subdivided lots
   initialCostBase?: number;       // Allocated cost base for subdivided lots
   isMainLotContinuation?: boolean; // True if this lot continues parent's CGT history (typically Lot 1)
+  notes?: string;                  // Optional notes about the property
 }
 
 export type ZoomLevel =

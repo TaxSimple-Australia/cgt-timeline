@@ -162,7 +162,7 @@ export default function TermsAcceptanceModal({ onAccept }: TermsAcceptanceModalP
                 <div className="space-y-3">
                   {legalItems.map((item) => {
                     const Icon = item.icon;
-                    const isWarning = item.isWarning || false;
+                    const isWarning = (item as any).isWarning || false;
                     const accentColor = isWarning ? 'amber' : 'cyan';
 
                     return (

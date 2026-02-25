@@ -70,14 +70,14 @@ export function extractVerificationAlerts(
       return match?.possible_answers;
     };
 
-    // Helper function to match property address to timeline property
-    const matchPropertyByAddress = (propertyAddress: string): Property | undefined => {
+    // Helper function to match a single address string to a timeline property
+    const matchSingleAddress = (addr: string): Property | undefined => {
+      const propAddr = addr.toLowerCase().trim();
+      if (!propAddr) return undefined;
       return timelineProperties.find(p => {
         const pFullAddress = `${p.name}, ${p.address}`.toLowerCase();
         const pAddress = p.address?.toLowerCase() || '';
         const pName = p.name?.toLowerCase() || '';
-        const propAddr = propertyAddress.toLowerCase();
-
         return (
           pAddress.includes(propAddr) ||
           pName.includes(propAddr) ||
@@ -87,6 +87,25 @@ export function extractVerificationAlerts(
           propAddr.includes(pFullAddress)
         );
       });
+    };
+
+    // Helper function to match property address to timeline property.
+    // Handles combined strings like "Property A & Property B" (main residence questions)
+    // by splitting on " & " and trying each individual address.
+    const matchPropertyByAddress = (propertyAddress: string): Property | undefined => {
+      // Try the full string first (covers standard single-property gap questions)
+      const directMatch = matchSingleAddress(propertyAddress);
+      if (directMatch) return directMatch;
+
+      // If no direct match, try splitting on " & " for combined main-residence strings
+      const parts = propertyAddress.split(/\s*&\s*/);
+      if (parts.length > 1) {
+        for (const part of parts) {
+          const match = matchSingleAddress(part);
+          if (match) return match;
+        }
+      }
+      return undefined;
     };
 
     // Process clarification_questions directly (most accurate source)

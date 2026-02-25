@@ -600,20 +600,39 @@ function HomeContent() {
         await new Promise(resolve => setTimeout(resolve, 1500));
       }
 
+      const fullResponse = result.data;
+      const innerData = result.data.data || result.data;
+
+      console.log('📊 Re-submit: Full response keys:', Object.keys(fullResponse || {}));
+
+      // Check if the API still needs clarification (another round of questions)
+      // Mirror the same check used in handleAnalyze
+      const stillNeedsClarification =
+        innerData?.needs_clarification === true ||
+        fullResponse?.needs_clarification === true ||
+        innerData?.summary?.requires_clarification === true ||
+        innerData?.status === 'verification_failed';
+
+      if (stillNeedsClarification) {
+        // Another verification round — extract new alerts and show them on the timeline
+        console.log('⚠️ Re-submit: API still needs clarification — extracting new alerts');
+        const newAlerts = extractVerificationAlerts(innerData, properties);
+        setVerificationAlerts(newAlerts);
+        if (innerData.verification?.issues) {
+          setValidationIssues(innerData.verification.issues, properties);
+        }
+        setShowAllResolvedPopup(false);
+        setShowAnalysis(false);
+        setAnalysisData(null);
+        console.log('🔄 New verification alerts set — waiting for user to answer');
+        return;
+      }
+
       // Clear old verification alerts since they've been resolved
       clearVerificationAlerts();
-
-      // Popup already closed by button click
-      // setShowAllResolvedPopup(false); // Not needed - already closed
-
-      // Store the FULL response including sources, query, etc.
-      // result.data contains the complete external API response
-      const fullResponse = result.data;
-      console.log('📊 Re-submit: Full response keys:', Object.keys(fullResponse || {}));
-      console.log('📊 Re-submit: Has sources?:', !!fullResponse?.sources);
+      setShowAllResolvedPopup(false);
 
       // Set validation issues in store if present
-      const innerData = result.data.data || result.data;
       if (innerData.verification?.issues) {
         setValidationIssues(innerData.verification.issues, properties);
       }

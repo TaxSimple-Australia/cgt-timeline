@@ -1,0 +1,77 @@
+{
+  "properties": [
+    {
+      "address": "42 Parkview Terrace, Mosman NSW 2088",
+      "property_history": [
+        {
+          "date": "2001-02-05",
+          "event": "purchase",
+          "price": 650000,
+          "stamp_duty": 24000,
+          "purchase_legal_fees": 3500
+        },
+        {
+          "date": "2001-02-05",
+          "event": "move_in"
+        },
+        {
+          "date": "2025-04-29",
+          "event": "sale",
+          "price": 2800000,
+          "contract_date": "2025-04-29",
+          "agent_fees": 56000,
+          "legal_fees": 4500
+        },
+        {
+          "date": "2025-04-29",
+          "event": "move_out"
+        }
+      ],
+      "notes": "sold - Joint ownership - Anna 60%, Mark 40% as tenants in common. Both moved in together. Anna also owned a flat from 2001-02-05 to 2002-03-11 creating main residence conflict."
+    },
+    {
+      "address": "Unit 12, 88 Harbour Street, Sydney NSW 2000",
+      "property_history": [
+        {
+          "date": "1998-06-15",
+          "event": "purchase",
+          "price": 320000,
+          "stamp_duty": 11000,
+          "purchase_legal_fees": 2200
+        },
+        {
+          "date": "1998-06-20",
+          "event": "move_in"
+        },
+        {
+          "date": "2001-02-05",
+          "event": "move_out",
+          "market_value": 380000
+        },
+        {
+          "date": "2001-02-05",
+          "event": "rent_start"
+        },
+        {
+          "date": "2002-03-01",
+          "event": "rent_end"
+        },
+        {
+          "date": "2002-03-11",
+          "event": "sale",
+          "price": 420000,
+          "contract_date": "2002-03-11",
+          "agent_fees": 8400,
+          "legal_fees": 1800
+        }
+      ],
+      "notes": "sold - Anna's sole property. Main residence conflict period 2001-02-05 to 2002-03-11 when she owned both this flat and the townhouse with Mark."
+    }
+  ],
+  "user_query": "What is the CGT for Anna and Mark on their properties? Anna owned both a flat and a townhouse (jointly with Mark) from 2001-02-05 to 2002-03-11. How does the main residence choice affect their CGT?",
+  "additional_info": {
+    "australian_resident": true
+  },
+  "llm_provider": "deepseek",
+  "use_claude": true
+}

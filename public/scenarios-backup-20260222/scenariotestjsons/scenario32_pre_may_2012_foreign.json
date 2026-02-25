@@ -1,0 +1,74 @@
+{
+  "title": "Pre-9 May 2012 Property with Foreign Residency",
+  "scenario_info": {
+    "name": "Pre-9 May 2012 Property with Foreign Residency",
+    "description": "Andrew owned his main residence since 2008 and became a foreign resident from 2015-2020. He returned to Australia and sold in 2024. Because he owned the property before 9 May 2012 and was a resident on that date, special rules apply. The six-year absence rule covers the rental, so full MRE applies.",
+    "expected_result": {
+      "exemption_type": "full",
+      "exemption_percentage": 100,
+      "capital_gain": 340000,
+      "taxable_gain": 0,
+      "cgt_payable": 0,
+      "notes": "Australian resident at sale + six-year rule = full MRE"
+    },
+    "applicable_rules": [
+      "ITAA97 s118.145: Six-year absence rule (rental 5 years < 6 years)",
+      "Returned to Australia and sold as resident = Can claim MRE",
+      "ITAA97 s115.105: CGT discount reduced for foreign resident periods (post-9 May 2012)",
+      "Special rule: Property owned on 9 May 2012 while resident = Pre-9 May portion gets full discount",
+      "Since full MRE applies, these discount rules don't affect outcome"
+    ]
+  },
+  "properties": [
+    {
+      "address": "88 Historic Lane, Hervey Bay QLD 4655",
+      "property_history": [
+        {
+          "date": "2008-06-01",
+          "event": "purchase",
+          "price": 365000,
+          "stamp_duty": 12775,
+          "purchase_legal_fees": 2400
+        },
+        {
+          "date": "2008-06-01",
+          "event": "move_in",
+          "description": "Established as main residence"
+        },
+        {
+          "date": "2015-01-01",
+          "event": "move_out",
+          "description": "Moved overseas - became foreign resident for tax purposes"
+        },
+        {
+          "date": "2015-01-01",
+          "event": "rent_start",
+          "description": "Property rented during overseas period"
+        },
+        {
+          "date": "2020-01-01",
+          "event": "rent_end",
+          "description": "Returned to Australia - became Australian resident again"
+        },
+        {
+          "date": "2020-01-01",
+          "event": "move_in",
+          "description": "Re-established as main residence"
+        },
+        {
+          "date": "2024-06-30",
+          "event": "sale",
+          "price": 720000,
+          "contract_date": "2024-06-30",
+          "agent_fees": 18000,
+          "legal_fees": 2600
+        }
+      ],
+      "notes": "Full exemption. Owned property before 9 May 2012 and was Australian resident on that date. Foreign resident period (2015-2020) covered by six-year absence rule (5 years). Returned to Australia before sale = full MRE applies."
+    }
+  ],
+  "user_query": "I bought my home in 2008 and lived overseas from 2015-2020 as a foreign resident. I rented it out for those 5 years. I'm back in Australia now and selling. What's my CGT?",
+  "additional_info": {
+    "australian_resident": true
+  }
+}

@@ -1,0 +1,64 @@
+{
+  "title": "Delayed Move-In Due to Work Assignment",
+  "scenario_info": {
+    "name": "Delayed Move-In Due to Work Assignment",
+    "description": "Anthony purchases a home but cannot move in immediately due to a work assignment overseas that was arranged before the purchase. He moves in 8 months after purchase when his assignment ends. Because the delay was due to unforeseen work circumstances, the dwelling is treated as his main residence from the acquisition date.",
+    "expected_result": {
+      "exemption_type": "full",
+      "exemption_percentage": 100,
+      "capital_gain": 165365,
+      "taxable_gain": 0,
+      "cgt_payable": 0
+    },
+    "applicable_rules": [
+      "ATO guidance on delayed move-in: Valid exceptions include illness or work-related travel",
+      "Delay of 8 months accepted due to pre-arranged overseas work assignment",
+      "Moved in as soon as practicable (5 days after assignment ended)",
+      "Property not rented during delay = full exemption from acquisition date",
+      "Note: Renting during delay would NOT qualify for this exception"
+    ]
+  },
+  "properties": [
+    {
+      "address": "42 Coral Drive, Cairns QLD 4870",
+      "property_history": [
+        {
+          "date": "2018-02-01",
+          "event": "purchase",
+          "price": 380000,
+          "stamp_duty": 12160,
+          "purchase_legal_fees": 2400
+        },
+        {
+          "date": "2018-02-01",
+          "event": "status_change",
+          "description": "Property vacant - owner on pre-arranged overseas work assignment"
+        },
+        {
+          "date": "2018-10-05",
+          "event": "move_in",
+          "description": "Moved in as soon as practicable after work assignment ended (5 days after return)"
+        },
+        {
+          "date": "2021-03-15",
+          "event": "improvement",
+          "price": 18000,
+          "description": "Bathroom renovation"
+        },
+        {
+          "date": "2024-11-20",
+          "event": "sale",
+          "price": 595000,
+          "contract_date": "2024-11-20",
+          "agent_fees": 14875,
+          "legal_fees": 2200
+        }
+      ],
+      "notes": "Full main residence exemption. Delayed move-in exception applies due to pre-arranged overseas work assignment. Property treated as main residence from acquisition date."
+    }
+  ],
+  "user_query": "I bought my home but couldn't move in for 8 months because I was overseas on a work assignment that was arranged before the purchase. I moved in as soon as I returned. What's my CGT situation?",
+  "additional_info": {
+    "australian_resident": true
+  }
+}

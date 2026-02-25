@@ -1,0 +1,52 @@
+{
+  "properties": [
+    {
+      "address": "22 Knockdown Rebuild Lane, Willoughby NSW 2068",
+      "property_history": [
+        {
+          "date": "2021-08-15",
+          "event": "purchase",
+          "price": 1200000,
+          "stamp_duty": 55000,
+          "purchase_legal_fees": 4000
+        },
+        {
+          "date": "2021-09-01",
+          "event": "demolition_start"
+        },
+        {
+          "date": "2021-10-15",
+          "event": "construction_start",
+          "construction_cost": 650000
+        },
+        {
+          "date": "2022-12-01",
+          "event": "construction_complete"
+        },
+        {
+          "date": "2022-12-15",
+          "event": "move_in"
+        },
+        {
+          "date": "2025-11-01",
+          "event": "sale",
+          "price": 2400000,
+          "contract_date": "2025-11-01",
+          "agent_fees": 48000,
+          "legal_fees": 5000
+        },
+        {
+          "date": "2025-11-01",
+          "event": "move_out"
+        }
+      ],
+      "notes": "sold - Knockdown rebuild. Bought property with old house, demolished, built new. "
+    }
+  ],
+  "user_query": "I bought a property with an old house, demolished it, and built a new house. I moved in about 15 months after purchase. Does the 2-year building rule apply to knockdown rebuilds?",
+  "additional_info": {
+    "australian_resident": true
+    
+  },
+  "llm_provider": "deepseek"
+}

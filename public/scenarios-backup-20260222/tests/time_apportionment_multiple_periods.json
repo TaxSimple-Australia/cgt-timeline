@@ -1,0 +1,63 @@
+{
+  "properties": [
+    {
+      "address": "77 Complex Lane, Lane Cove NSW 2066",
+      "property_history": [
+        {
+          "date": "2008-03-10",
+          "event": "purchase",
+          "price": 650000,
+          "stamp_duty": 25000,
+          "purchase_legal_fees": 2600
+        },
+        {
+          "date": "2008-04-01",
+          "event": "move_in"
+        },
+        {
+          "date": "2012-07-01",
+          "event": "move_out"
+        },
+        {
+          "date": "2012-07-15",
+          "event": "rent_start"
+        },
+        {
+          "date": "2016-08-31",
+          "event": "rent_end"
+        },
+        {
+          "date": "2016-09-15",
+          "event": "move_in"
+        },
+        {
+          "date": "2020-03-01",
+          "event": "move_out"
+        },
+        {
+          "date": "2020-03-15",
+          "event": "rent_start"
+        },
+        {
+          "date": "2025-08-31",
+          "event": "rent_end"
+        },
+        {
+          "date": "2025-09-15",
+          "event": "sale",
+          "price": 1520000,
+          "contract_date": "2025-09-15",
+          "agent_fees": 30400,
+          "legal_fees": 3500
+        }
+      ],
+      "notes": "sold - Multiple main residence and rental periods. MR: 2008-2012 (4 yrs), 2016-2020 (4 yrs). Rental: 2012-2016 (4 yrs), 2020-2025 (5 yrs)."
+    }
+  ],
+  "user_query": "I moved in and out of my property several times over the years. I lived there 2008-2012, rented it 2012-2016, moved back 2016-2020, then rented again 2020-2025. How do I calculate the exempt and taxable portions?",
+  "additional_info": {
+    "australian_resident": true
+  },
+  "llm_provider": "deepseek",
+  "use_claude": true
+}

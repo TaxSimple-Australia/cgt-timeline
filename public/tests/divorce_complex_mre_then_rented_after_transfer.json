@@ -10,7 +10,10 @@
           "stamp_duty": 52000,
           "purchase_legal_fees": 4200,
           "ownership": "joint_tenants",
-          "owners": ["Spouse A 50%", "Spouse B 50%"],
+          "owners": [
+            "Spouse A 50%",
+            "Spouse B 50%"
+          ],
           "notes": "Family home purchased jointly"
         },
         {
@@ -19,27 +22,51 @@
         },
         {
           "date": "2019-09-01",
-          "event": "separation",
-          "notes": "Separated but both continued living in property"
+          "event": "status_change",
+          "notes": "Separated but both continued living in property",
+          "description": "Separation/relationship breakdown began"
         },
         {
           "date": "2020-02-01",
-          "event": "spouse_a_moves_out",
-          "notes": "Spouse A moved out, Spouse B remained"
+          "event": "move_out",
+          "notes": "Spouse A moved out, Spouse B remained",
+          "description": "Spouse moved out following separation"
         },
         {
           "date": "2020-11-15",
-          "event": "divorce_finalised"
+          "event": "status_change",
+          "description": "Divorce finalised"
         },
         {
           "date": "2021-03-20",
-          "event": "divorce_property_settlement",
+          "event": "ownership_change",
           "transfer_type": "binding_financial_agreement",
           "previous_ownership": "50% each",
           "new_ownership": "100% Spouse B",
           "market_value_at_transfer": 1850000,
           "rollover_applies": true,
-          "notes": "Spouse B received full ownership under BFA"
+          "notes": "Spouse B received full ownership under BFA",
+          "description": "Divorce property settlement - ownership transfer",
+          "leavingOwners": [
+            "husband"
+          ],
+          "newOwners": [
+            {
+              "name": "wife",
+              "percentage": 100
+            }
+          ],
+          "previousOwners": [
+            {
+              "name": "husband",
+              "percentage": 50
+            },
+            {
+              "name": "wife",
+              "percentage": 50
+            }
+          ],
+          "ownershipChangeReason": "divorce"
         },
         {
           "date": "2021-06-01",
@@ -64,13 +91,24 @@
           "legal_fees": 5200
         }
       ],
-      "notes": "sold - Transferred to Spouse B who continued living there briefly then rented it."
+      "notes": "sold - Transferred to Spouse B who continued living there briefly then rented it.",
+      "owners": [
+        {
+          "name": "wife",
+          "percentage": 100
+        }
+      ]
     }
   ],
   "user_query": "My ex-wife and I bought our home in 2010. We separated in 2019, I moved out in 2020, and she got full ownership in 2021. She lived there until mid-2021 then moved interstate and rented it out for 4 years before selling. How does the CGT work when she's changed the use after the divorce transfer?",
   "additional_info": {
-    "australian_resident": true
+    "australian_resident": true,
+    "subcategory": "Relationships"
   },
   "llm_provider": "deepseek",
-  "use_claude": true
+  "use_claude": true,
+  "scenario_info": {
+    "name": "Six-Year Absence Rule - Within Limit",
+    "description": "My ex-wife and I bought our home in 2010. We separated in 2019, I moved out in 2020, and she got full ownership in 2021. She lived there until mid-2021 then moved interstate and rented it out for 4 years before selling. How does the CGT work when she's changed the use after the divorce transfer?"
+  }
 }

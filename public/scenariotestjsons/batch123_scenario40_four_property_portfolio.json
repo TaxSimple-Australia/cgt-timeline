@@ -1,0 +1,408 @@
+{
+  "properties": [
+    {
+      "id": "prop-batch123-scenario40-property1",
+      "address": "15 Beach Road, Surfers Paradise QLD 4217",
+      "property_history": [
+        {
+          "date": "2016-03-01",
+          "event": "purchase",
+          "price": 585000,
+          "stamp_duty": 21875,
+          "title": "Purchase",
+          "checkboxState": {
+            "moveInOnSameDay": true,
+            "purchaseAsVacant": false,
+            "purchaseAsRent": false,
+            "purchaseAsConstruction": false,
+            "purchaseAsBusiness": false,
+            "inheritedProperty": false,
+            "preCGTProperty": false,
+            "partialRental": false,
+            "partialBusiness": false,
+            "mixedUse": false
+          },
+          "costBases": [
+            {
+              "id": "cb-batch123-s40-p1-purchase",
+              "definitionId": "purchase_price",
+              "name": "Purchase Price",
+              "amount": 585000,
+              "category": "element1",
+              "isCustom": false,
+              "description": "The total amount paid to acquire the property on 1 March 2016"
+            },
+            {
+              "id": "cb-batch123-s40-p1-stamp",
+              "definitionId": "stamp_duty",
+              "name": "Stamp Duty",
+              "amount": 21875,
+              "category": "element2",
+              "isCustom": false,
+              "description": "State government transfer duty paid on property acquisition"
+            },
+            {
+              "id": "cb-batch123-s40-p1-legal-purchase",
+              "definitionId": "legal_fees_acquire",
+              "name": "Legal Fees (Acquisition)",
+              "amount": 2650,
+              "category": "element2",
+              "isCustom": false,
+              "description": "Legal fees and conveyancing costs for property purchase"
+            }
+          ],
+          "description": "Main residence purchased for $585,000"
+        },
+        {
+          "date": "2016-03-01",
+          "event": "move_in",
+          "title": "Move In",
+          "checkboxState": {},
+          "description": "Moved in - main residence"
+        },
+        {
+          "date": "2022-07-15",
+          "event": "move_out",
+          "title": "Move Out",
+          "checkboxState": {},
+          "description": "Moved out - relocated to Property 4"
+        },
+        {
+          "date": "2022-07-15",
+          "event": "rent_start",
+          "title": "Start Rent",
+          "checkboxState": {
+            "partialRental": false,
+            "selectMainResidence": true,
+            "firstUseToProduceIncome": false
+          },
+          "description": "Started renting - applying six-year absence rule"
+        },
+        {
+          "date": "2024-10-01",
+          "event": "sale",
+          "price": 895000,
+          "title": "Sale",
+          "checkboxState": {},
+          "costBases": [
+            {
+              "id": "cb-batch123-s40-p1-agent",
+              "definitionId": "agent_fees",
+              "name": "Real Estate Agent Commission",
+              "amount": 22375,
+              "category": "element5",
+              "isCustom": false,
+              "description": "Commission paid to real estate agent for sale"
+            },
+            {
+              "id": "cb-batch123-s40-p1-legal-sale",
+              "definitionId": "legal_fees_disposal",
+              "name": "Legal Fees (Disposal)",
+              "amount": 2200,
+              "category": "element5",
+              "isCustom": false,
+              "description": "Legal fees for property sale and conveyancing"
+            }
+          ],
+          "description": "Property sold for $895,000 - rented for 2.22 years (within 6-year limit)"
+        }
+      ],
+      "notes": "**Property 1: Main Residence Then Rented**\n\n- Main residence: 6.37 years\n- Rented: 2.22 years (within 6-year limit)\n- **NO CGT PAYABLE** - Full exemption under six-year rule",
+      "color": "#10B981",
+      "branch": 0
+    },
+    {
+      "id": "prop-batch123-scenario40-property2",
+      "address": "42 Investment Street, Brisbane QLD 4000",
+      "property_history": [
+        {
+          "date": "2017-06-15",
+          "event": "purchase",
+          "price": 425000,
+          "stamp_duty": 15700,
+          "title": "Purchase",
+          "checkboxState": {
+            "moveInOnSameDay": false,
+            "purchaseAsVacant": false,
+            "purchaseAsRent": true,
+            "purchaseAsConstruction": false,
+            "purchaseAsBusiness": false,
+            "inheritedProperty": false,
+            "preCGTProperty": false,
+            "partialRental": false,
+            "partialBusiness": false,
+            "mixedUse": false
+          },
+          "costBases": [
+            {
+              "id": "cb-batch123-s40-p2-purchase",
+              "definitionId": "purchase_price",
+              "name": "Purchase Price",
+              "amount": 425000,
+              "category": "element1",
+              "isCustom": false,
+              "description": "The total amount paid to acquire the property on 15 June 2017"
+            },
+            {
+              "id": "cb-batch123-s40-p2-stamp",
+              "definitionId": "stamp_duty",
+              "name": "Stamp Duty",
+              "amount": 15700,
+              "category": "element2",
+              "isCustom": false,
+              "description": "State government transfer duty paid on property acquisition"
+            },
+            {
+              "id": "cb-batch123-s40-p2-legal-purchase",
+              "definitionId": "legal_fees_acquire",
+              "name": "Legal Fees (Acquisition)",
+              "amount": 2400,
+              "category": "element2",
+              "isCustom": false,
+              "description": "Legal fees and conveyancing costs for property purchase"
+            }
+          ],
+          "description": "Investment property purchased for $425,000"
+        },
+        {
+          "date": "2017-06-15",
+          "event": "rent_start",
+          "title": "Start Rent",
+          "checkboxState": {
+            "partialRental": false,
+            "selectMainResidence": false
+          },
+          "description": "Rented from purchase - investment property"
+        },
+        {
+          "date": "2024-08-20",
+          "event": "sale",
+          "price": 685000,
+          "title": "Sale",
+          "checkboxState": {},
+          "costBases": [
+            {
+              "id": "cb-batch123-s40-p2-agent",
+              "definitionId": "agent_fees",
+              "name": "Real Estate Agent Commission",
+              "amount": 17125,
+              "category": "element5",
+              "isCustom": false,
+              "description": "Commission paid to real estate agent for sale"
+            },
+            {
+              "id": "cb-batch123-s40-p2-legal-sale",
+              "definitionId": "legal_fees_disposal",
+              "name": "Legal Fees (Disposal)",
+              "amount": 2150,
+              "category": "element5",
+              "isCustom": false,
+              "description": "Legal fees for property sale and conveyancing"
+            }
+          ],
+          "description": "Property sold for $685,000"
+        }
+      ],
+      "notes": "**Property 2: Investment Property**\n\n- Investment property throughout: 7.18 years\n- Never used as main residence\n- **NET CAPITAL GAIN: $111,263** (after 50% discount)",
+      "color": "#F59E0B",
+      "branch": 1
+    },
+    {
+      "id": "prop-batch123-scenario40-property3",
+      "address": "78 Rental Avenue, Gold Coast QLD 4215",
+      "property_history": [
+        {
+          "date": "2018-11-01",
+          "event": "purchase",
+          "price": 395000,
+          "stamp_duty": 13825,
+          "title": "Purchase",
+          "checkboxState": {
+            "moveInOnSameDay": false,
+            "purchaseAsVacant": false,
+            "purchaseAsRent": true,
+            "purchaseAsConstruction": false,
+            "purchaseAsBusiness": false,
+            "inheritedProperty": false,
+            "preCGTProperty": false,
+            "partialRental": false,
+            "partialBusiness": false,
+            "mixedUse": false
+          },
+          "costBases": [
+            {
+              "id": "cb-batch123-s40-p3-purchase",
+              "definitionId": "purchase_price",
+              "name": "Purchase Price",
+              "amount": 395000,
+              "category": "element1",
+              "isCustom": false,
+              "description": "The total amount paid to acquire the property on 1 November 2018"
+            },
+            {
+              "id": "cb-batch123-s40-p3-stamp",
+              "definitionId": "stamp_duty",
+              "name": "Stamp Duty",
+              "amount": 13825,
+              "category": "element2",
+              "isCustom": false,
+              "description": "State government transfer duty paid on property acquisition"
+            },
+            {
+              "id": "cb-batch123-s40-p3-legal-purchase",
+              "definitionId": "legal_fees_acquire",
+              "name": "Legal Fees (Acquisition)",
+              "amount": 2100,
+              "category": "element2",
+              "isCustom": false,
+              "description": "Legal fees and conveyancing costs for property purchase"
+            }
+          ],
+          "description": "Investment property purchased for $395,000"
+        },
+        {
+          "date": "2018-11-01",
+          "event": "rent_start",
+          "title": "Start Rent",
+          "checkboxState": {
+            "partialRental": false,
+            "selectMainResidence": false
+          },
+          "description": "Rented from purchase - investment property"
+        },
+        {
+          "date": "2024-09-10",
+          "event": "sale",
+          "price": 625000,
+          "title": "Sale",
+          "checkboxState": {},
+          "costBases": [
+            {
+              "id": "cb-batch123-s40-p3-agent",
+              "definitionId": "agent_fees",
+              "name": "Real Estate Agent Commission",
+              "amount": 15625,
+              "category": "element5",
+              "isCustom": false,
+              "description": "Commission paid to real estate agent for sale"
+            },
+            {
+              "id": "cb-batch123-s40-p3-legal-sale",
+              "definitionId": "legal_fees_disposal",
+              "name": "Legal Fees (Disposal)",
+              "amount": 2050,
+              "category": "element5",
+              "isCustom": false,
+              "description": "Legal fees for property sale and conveyancing"
+            }
+          ],
+          "description": "Property sold for $625,000"
+        }
+      ],
+      "notes": "**Property 3: Investment Property**\n\n- Investment property throughout: 5.86 years\n- Never used as main residence\n- **NET CAPITAL GAIN: $98,850** (after 50% discount)",
+      "color": "#F59E0B",
+      "branch": 2
+    },
+    {
+      "id": "prop-batch123-scenario40-property4",
+      "address": "125 Sunset Boulevard, Main Beach QLD 4217",
+      "property_history": [
+        {
+          "date": "2022-05-01",
+          "event": "purchase",
+          "price": 785000,
+          "stamp_duty": 30525,
+          "title": "Purchase",
+          "checkboxState": {
+            "moveInOnSameDay": false,
+            "purchaseAsVacant": false,
+            "purchaseAsRent": false,
+            "purchaseAsConstruction": false,
+            "purchaseAsBusiness": false,
+            "inheritedProperty": false,
+            "preCGTProperty": false,
+            "partialRental": false,
+            "partialBusiness": false,
+            "mixedUse": false
+          },
+          "costBases": [
+            {
+              "id": "cb-batch123-s40-p4-purchase",
+              "definitionId": "purchase_price",
+              "name": "Purchase Price",
+              "amount": 785000,
+              "category": "element1",
+              "isCustom": false,
+              "description": "The total amount paid to acquire the property on 1 May 2022"
+            },
+            {
+              "id": "cb-batch123-s40-p4-stamp",
+              "definitionId": "stamp_duty",
+              "name": "Stamp Duty",
+              "amount": 30525,
+              "category": "element2",
+              "isCustom": false,
+              "description": "State government transfer duty paid on property acquisition"
+            },
+            {
+              "id": "cb-batch123-s40-p4-legal-purchase",
+              "definitionId": "legal_fees_acquire",
+              "name": "Legal Fees (Acquisition)",
+              "amount": 3200,
+              "category": "element2",
+              "isCustom": false,
+              "description": "Legal fees and conveyancing costs for property purchase"
+            }
+          ],
+          "description": "Property purchased for $785,000"
+        },
+        {
+          "date": "2022-07-15",
+          "event": "move_in",
+          "title": "Move In",
+          "checkboxState": {},
+          "description": "Moved in - new main residence (from Property 1)"
+        },
+        {
+          "date": "2024-11-20",
+          "event": "sale",
+          "price": 985000,
+          "title": "Sale",
+          "checkboxState": {},
+          "costBases": [
+            {
+              "id": "cb-batch123-s40-p4-agent",
+              "definitionId": "agent_fees",
+              "name": "Real Estate Agent Commission",
+              "amount": 24625,
+              "category": "element5",
+              "isCustom": false,
+              "description": "Commission paid to real estate agent for sale"
+            },
+            {
+              "id": "cb-batch123-s40-p4-legal-sale",
+              "definitionId": "legal_fees_disposal",
+              "name": "Legal Fees (Disposal)",
+              "amount": 2350,
+              "category": "element5",
+              "isCustom": false,
+              "description": "Legal fees for property sale and conveyancing"
+            }
+          ],
+          "description": "Property sold for $985,000"
+        }
+      ],
+      "notes": "**Property 4: New Main Residence**\n\n- Main residence: 2.52 years (full ownership)\n- **NO CGT PAYABLE** - Full main residence exemption",
+      "color": "#10B981",
+      "branch": 3
+    }
+  ],
+  "user_query": "Multiple properties: (1) Main residence then rented, (2) Investment property, (3) Investment property, (4) New main residence",
+  "additional_info": {
+    "australian_resident": true,
+    "tax_year": "2024-2025",
+    "scenario_number": "Scenario 40",
+    "scenario_title": "Four Property Portfolio with Mixed Use",
+    "expected_outcome": "Property 1: NO CGT; Property 2: NET GAIN $111,263; Property 3: NET GAIN $98,850; Property 4: NO CGT. Total portfolio net capital gain: $210,113"
+  }
+}

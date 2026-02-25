@@ -16,8 +16,30 @@
         },
         {
           "date": "2022-09-15",
-          "event": "death_of_joint_owner",
-          "market_value": 2800000
+          "event": "ownership_change",
+          "market_value": 2800000,
+          "description": "Death of joint owner - ownership transfer",
+          "leavingOwners": [
+            "husband"
+          ],
+          "newOwners": [
+            {
+              "name": "surviving partner",
+              "percentage": 100
+            }
+          ],
+          "previousOwners": [
+            {
+              "name": "husband",
+              "percentage": 50
+            },
+            {
+              "name": "wife",
+              "percentage": 50
+            }
+          ],
+          "ownershipChangeReason": "other",
+          "ownershipChangeReasonOther": "Death of joint owner"
         },
         {
           "date": "2025-10-01",
@@ -32,13 +54,24 @@
           "event": "move_out"
         }
       ],
-      "notes": "sold - Husband and wife owned as joint tenants. Husband died Sept 2022. Wife became sole owner via right of survivorship. Property was main residence entire time for both owners."
+      "notes": "sold - Husband and wife owned as joint tenants. Husband died Sept 2022. Wife became sole owner via right of survivorship. Property was main residence entire time for both owners.",
+      "owners": [
+        {
+          "name": "surviving partner",
+          "percentage": 100
+        }
+      ]
     }
   ],
   "user_query": "My husband and I owned our home as joint tenants. He passed away in 2022 and I automatically became the sole owner. I'm now selling the property. Do I pay CGT on his share that I inherited?",
   "additional_info": {
-    "australian_resident": true
+    "australian_resident": true,
+    "subcategory": "Inheritance/Death"
   },
   "llm_provider": "deepseek",
-  "use_claude": true
+  "use_claude": true,
+  "scenario_info": {
+    "name": "Inherited Property",
+    "description": "My husband and I owned our home as joint tenants. He passed away in 2022 and I automatically became the sole owner. I'm now selling the property. Do I pay CGT on his share that I inherited?"
+  }
 }

@@ -16,9 +16,10 @@
         },
         {
           "date": "2019-07-01",
-          "event": "move_out_overseas",
+          "event": "move_out",
           "market_value": 1450000,
-          "reason": "work_posting_singapore"
+          "reason": "work_posting_singapore",
+          "description": "Moved overseas (6-year absence rule may apply)"
         },
         {
           "date": "2019-07-15",
@@ -42,8 +43,13 @@
   ],
   "user_query": "I moved overseas for work in 2019 and rented out my Sydney home. I rented accommodation in Singapore - never bought property there. I've now sold after 6 years.first use rule apply to me?",
   "additional_info": {
-    "australian_resident": true
+    "australian_resident": true,
+    "subcategory": "Special Circumstances"
   },
   "llm_provider": "deepseek",
-  "use_claude": true
+  "use_claude": true,
+  "scenario_info": {
+    "name": "Six-Year Absence Rule - Within Limit",
+    "description": "I moved overseas for work in 2019 and rented out my Sydney home. I rented accommodation in Singapore - never bought property there. I've now sold after 6 years.first use rule apply to me?"
+  }
 }

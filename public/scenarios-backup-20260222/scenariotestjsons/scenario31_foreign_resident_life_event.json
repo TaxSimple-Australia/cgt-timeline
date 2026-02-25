@@ -1,0 +1,69 @@
+{
+  "title": "Foreign Resident Life Event Exception",
+  "scenario_info": {
+    "name": "Foreign Resident Life Event Exception",
+    "description": "Jessica moved to the UK in 2019 and became a foreign resident for tax purposes. In 2023, her husband passed away. Under the life event exception, she has 6 years from the date of his death to sell her Australian main residence and claim the main residence exemption, despite being a foreign resident.",
+    "expected_result": {
+      "exemption_type": "full",
+      "exemption_percentage": 100,
+      "capital_gain": 287100,
+      "taxable_gain": 0,
+      "cgt_payable": 0,
+      "notes": "Life event exception + six-year rule = full exemption despite foreign residency"
+    },
+    "applicable_rules": [
+      "ITAA97 s118.110: Foreign residents cannot claim MRE (since 1 July 2020)",
+      "Exception: Life event within 6 years - death of spouse, child under 18, or terminal illness",
+      "ITAA97 s118.145: Six-year absence rule (rental 5.67 years < 6 years)",
+      "Jessica can claim MRE despite being foreign resident due to husband's death",
+      "Must sell within 6 years of life event (sold 1.5 years after)"
+    ]
+  },
+  "properties": [
+    {
+      "address": "45 Harbour View, Gold Coast QLD 4217",
+      "property_history": [
+        {
+          "date": "2015-03-01",
+          "event": "purchase",
+          "price": 580000,
+          "stamp_duty": 23200,
+          "purchase_legal_fees": 3500
+        },
+        {
+          "date": "2015-03-01",
+          "event": "move_in",
+          "description": "Established as main residence with husband"
+        },
+        {
+          "date": "2019-07-01",
+          "event": "move_out",
+          "description": "Relocated to UK for work - became foreign resident for tax purposes"
+        },
+        {
+          "date": "2019-07-01",
+          "event": "rent_start",
+          "description": "Property rented while overseas"
+        },
+        {
+          "date": "2023-09-15",
+          "event": "status_change",
+          "description": "LIFE EVENT: Husband passes away. This triggers the life event exception allowing MRE claim within 6 years."
+        },
+        {
+          "date": "2025-03-01",
+          "event": "sale",
+          "price": 920000,
+          "contract_date": "2025-03-01",
+          "agent_fees": 23000,
+          "legal_fees": 3200
+        }
+      ],
+      "notes": "Full exemption. Although Jessica is a foreign resident, the life event exception (husband's death) allows her to claim MRE. Sold within 6 years of life event (1.5 years). Six-year absence rule also satisfied (rental 5.67 years)."
+    }
+  ],
+  "user_query": "I became a foreign resident in 2019 when I moved to the UK. My husband passed away in 2023. I'm selling my Australian home in 2025. Can I still claim the main residence exemption?",
+  "additional_info": {
+    "australian_resident": false
+  }
+}

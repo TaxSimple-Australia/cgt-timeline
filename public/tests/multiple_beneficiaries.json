@@ -2,6 +2,20 @@
   "properties": [
     {
       "address": "55 Family Court, Ashgrove QLD 4060",
+      "owners": [
+        {
+          "name": "Child 1",
+          "percentage": 33.33
+        },
+        {
+          "name": "Child 2",
+          "percentage": 33.33
+        },
+        {
+          "name": "Child 3",
+          "percentage": 33.34
+        }
+      ],
       "property_history": [
         {
           "date": "2010-03-15",
@@ -16,12 +30,39 @@
         },
         {
           "date": "2023-07-20",
-          "event": "death_of_owner",
-          "market_value": 980000
+          "event": "status_change",
+          "market_value": 980000,
+          "description": "Death of property owner"
         },
         {
           "date": "2023-10-01",
-          "event": "inherited"
+          "event": "ownership_change",
+          "description": "Property inherited by beneficiary",
+          "leavingOwners": [
+            "parent"
+          ],
+          "newOwners": [
+            {
+              "name": "Child 1",
+              "percentage": 33.33
+            },
+            {
+              "name": "Child 2",
+              "percentage": 33.33
+            },
+            {
+              "name": "Child 3",
+              "percentage": 33.34
+            }
+          ],
+          "previousOwners": [
+            {
+              "name": "parent",
+              "percentage": 100
+            }
+          ],
+          "ownershipChangeReason": "other",
+          "ownershipChangeReasonOther": "Inheritance"
         },
         {
           "date": "2023-11-01",
@@ -49,12 +90,21 @@
     "tax_year": "2025-2026",
     "inherited_property": true,
     "multiple_beneficiaries": true,
-    "beneficiary_shares": [33.33, 33.33, 33.33],
+    "beneficiary_shares": [
+      33.33,
+      33.33,
+      33.33
+    ],
     "deceased_main_residence": true,
     "date_of_death": "2023-07-20",
     "market_value_at_death": 980000,
-    "sold_after_2_years": true
+    "sold_after_2_years": true,
+    "subcategory": "Inheritance/Death"
   },
   "llm_provider": "deepseek",
-  "use_claude": true
+  "use_claude": true,
+  "scenario_info": {
+    "name": "Six-Year Absence Rule - Within Limit",
+    "description": "My father passed away in 2023 and left his home to me and my 2 siblings equally. We rented it out and now we're selling it more than 2 years after his death. How do we each calculate CGT?"
+  }
 }

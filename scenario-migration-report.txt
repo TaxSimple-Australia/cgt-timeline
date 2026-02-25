@@ -1,0 +1,527 @@
+================================================================================
+SCENARIO MIGRATION REPORT
+Generated: 2026-02-22T12:57:08.706Z
+================================================================================
+
+MIGRATION SUMMARY
+--------------------------------------------------------------------------------
+Total Scenarios Processed:   87
+Scenarios Migrated:          36
+Scenarios Unchanged:         51
+
+CHANGES APPLIED
+--------------------------------------------------------------------------------
+Event Types Migrated:        77
+Subdivision Data Added:      15
+Floor Areas Extracted:       1
+
+================================================================================
+DETAILED MIGRATION LOG
+================================================================================
+
+1. Partial Use - Airbnb Room Rental
+   Total changes: 1
+
+   1) Property: 33 Wharf Street, Kangaroo Point QLD 4169
+      Original Event: rent_start (2019-01-01)
+      ✓ Extracted floor area from description: {"rental":18,"shared":45}
+
+--------------------------------------------------------------------------------
+
+2. Deceased Estate Sold Within Two Years
+   Total changes: 1
+
+   1) Property: 55 Heritage Lane, Ipswich QLD 4305
+      Original Event: inheritance (2023-03-15)
+      ✓ Event type: "inheritance" → "ownership_change"
+
+--------------------------------------------------------------------------------
+
+3. Beneficiary Moves Into Inherited Property
+   Total changes: 1
+
+   1) Property: 120 Investment Crescent, Mackay QLD 4740
+      Original Event: inheritance (2020-08-01)
+      ✓ Event type: "inheritance" → "ownership_change"
+
+--------------------------------------------------------------------------------
+
+4. Deceased Estate with COVID Extension
+   Total changes: 1
+
+   1) Property: 28 Memorial Avenue, Dalby QLD 4405
+      Original Event: inheritance (2020-03-15)
+      ✓ Event type: "inheritance" → "ownership_change"
+
+--------------------------------------------------------------------------------
+
+5. Four Property Portfolio Optimization
+   Total changes: 1
+
+   1) Property: 1200 Rural Highway, Roma QLD 4455
+      Original Event: inheritance (2022-09-01)
+      ✓ Event type: "inheritance" → "ownership_change"
+
+--------------------------------------------------------------------------------
+
+6. Inherited Property with Rental
+   Total changes: 1
+
+   1) Property: 67 Jacaranda Drive, Indooroopilly QLD 4068
+      Original Event: inheritance (2020-08-15)
+      ✓ Event type: "inheritance" → "ownership_change"
+
+--------------------------------------------------------------------------------
+
+7. aged_care_main_residence.json
+   Total changes: 1
+
+   1) Property: 33 Golden Years Way, Turramurra NSW 2074
+      Original Event: move_to_aged_care (2020-03-15)
+      ✓ Event type: "move_to_aged_care" → "status_change"
+
+--------------------------------------------------------------------------------
+
+8. airbnb_investment_only.json
+   Total changes: 2
+
+   1) Property: 88 Holiday Let Lane, Noosa QLD 4567
+      Original Event: airbnb_start (2019-08-01)
+      ✓ Event type: "airbnb_start" → "rent_start"
+
+   2) Property: 88 Holiday Let Lane, Noosa QLD 4567
+      Original Event: airbnb_end (2025-08-31)
+      ✓ Event type: "airbnb_end" → "rent_end"
+
+--------------------------------------------------------------------------------
+
+9. airbnb_spare_room.json
+   Total changes: 2
+
+   1) Property: 55 Share House Road, Surry Hills NSW 2010
+      Original Event: airbnb_start_spare_room (2018-03-01)
+      ✓ Event type: "airbnb_start_spare_room" → "rent_start"
+
+   2) Property: 55 Share House Road, Surry Hills NSW 2010
+      Original Event: airbnb_end (2025-09-30)
+      ✓ Event type: "airbnb_end" → "rent_end"
+
+--------------------------------------------------------------------------------
+
+10. compulsory_acquisition_rollover.json
+   Total changes: 1
+
+   1) Property: 45 Highway Reserve, Parramatta NSW 2150
+      Original Event: compulsory_acquisition (2025-03-01)
+      ✓ Event type: "compulsory_acquisition" → "sale"
+
+--------------------------------------------------------------------------------
+
+11. death_of_joint_owner.json
+   Total changes: 1
+
+   1) Property: 22 Riverside Drive, Toorak VIC 3142
+      Original Event: death_of_joint_owner (2022-09-15)
+      ✓ Event type: "death_of_joint_owner" → "ownership_change"
+
+--------------------------------------------------------------------------------
+
+12. defacto_breakdown_rollover.json
+   Total changes: 2
+
+   1) Property: 78 Partner Lane, Newtown NSW 2042
+      Original Event: separation (2022-08-01)
+      ✓ Event type: "separation" → "status_change"
+
+   2) Property: 78 Partner Lane, Newtown NSW 2042
+      Original Event: defacto_transfer (2023-03-15)
+      ✓ Event type: "defacto_transfer" → "ownership_change"
+
+--------------------------------------------------------------------------------
+
+13. divorce_complex_mre_then_rented_after_transfer.json
+   Total changes: 4
+
+   1) Property: 44 Settlement Way, Pymble NSW 2073
+      Original Event: separation (2019-09-01)
+      ✓ Event type: "separation" → "status_change"
+
+   2) Property: 44 Settlement Way, Pymble NSW 2073
+      Original Event: spouse_a_moves_out (2020-02-01)
+      ✓ Event type: "spouse_a_moves_out" → "move_out"
+
+   3) Property: 44 Settlement Way, Pymble NSW 2073
+      Original Event: divorce_finalised (2020-11-15)
+      ✓ Event type: "divorce_finalised" → "status_change"
+
+   4) Property: 44 Settlement Way, Pymble NSW 2073
+      Original Event: divorce_property_settlement (2021-03-20)
+      ✓ Event type: "divorce_property_settlement" → "ownership_change"
+
+--------------------------------------------------------------------------------
+
+14. executor_sale_before_distribution.json
+   Total changes: 1
+
+   1) Property: 34 Estate Avenue, Brighton VIC 3186
+      Original Event: death_of_owner (2024-11-15)
+      ✓ Event type: "death_of_owner" → "status_change"
+
+--------------------------------------------------------------------------------
+
+15. first_use_overseas_posting.json
+   Total changes: 1
+
+   1) Property: 55 Expat Avenue, Double Bay NSW 2028
+      Original Event: move_out_overseas (2019-07-01)
+      ✓ Event type: "move_out_overseas" → "move_out"
+
+--------------------------------------------------------------------------------
+
+16. inherited_land_built_dwelling_then_sold.json
+   Total changes: 5
+
+   1) Property: 22 Legacy Street, Castle Hill NSW 2154
+      Original Event: purchase_by_deceased (2005-09-15)
+      ✓ Event type: "purchase_by_deceased" → "purchase"
+
+   2) Property: 22 Legacy Street, Castle Hill NSW 2154
+      Original Event: death_of_owner (2020-07-10)
+      ✓ Event type: "death_of_owner" → "status_change"
+
+   3) Property: 22 Legacy Street, Castle Hill NSW 2154
+      Original Event: inherited (2020-10-15)
+      ✓ Event type: "inherited" → "ownership_change"
+
+   4) Property: 22 Legacy Street, Castle Hill NSW 2154
+      Original Event: construction_start (2021-06-01)
+      ✓ Event type: "construction_start" → "building_start"
+
+   5) Property: 22 Legacy Street, Castle Hill NSW 2154
+      Original Event: construction_complete (2022-04-15)
+      ✓ Event type: "construction_complete" → "building_end"
+
+--------------------------------------------------------------------------------
+
+17. inherited_land_farmland_subdivided_sold.json
+   Total changes: 6
+
+   1) Property: Lot 1, 500 Farm Lane, Richmond NSW 2753
+      Original Event: purchase_by_deceased (1992-06-20)
+      ✓ Event type: "purchase_by_deceased" → "purchase"
+
+   2) Property: Lot 1, 500 Farm Lane, Richmond NSW 2753
+      Original Event: death_of_owner (2021-03-15)
+      ✓ Event type: "death_of_owner" → "status_change"
+
+   3) Property: Lot 1, 500 Farm Lane, Richmond NSW 2753
+      Original Event: inherited (2021-06-01)
+      ✓ Event type: "inherited" → "ownership_change"
+
+   4) Property: Lot 1, 500 Farm Lane, Richmond NSW 2753
+      Original Event: subdivision_approved (2023-08-15)
+      ✓ Event type: "subdivision_approved" → "subdivision"
+      ✓ Added subdivisionGroup and subdivisionDetails
+
+   5) Property: Lot 1, 500 Farm Lane, Richmond NSW 2753
+      Original Event: subdivision_registered (2023-09-01)
+      ✓ Event type: "subdivision_registered" → "subdivision"
+      ✓ Added subdivisionGroup and subdivisionDetails
+
+   6) Property: Lot 2-6, Farm Lane, Richmond NSW 2753
+      Original Event: subdivision_registered (2023-09-01)
+      ✓ Event type: "subdivision_registered" → "subdivision"
+      ✓ Added subdivisionGroup and subdivisionDetails
+
+--------------------------------------------------------------------------------
+
+18. inherited_land_vacant_pre_cgt_deceased.json
+   Total changes: 3
+
+   1) Property: Lot 15, Rural Road, Wilberforce NSW 2756
+      Original Event: purchase_by_deceased (1978-03-15)
+      ✓ Event type: "purchase_by_deceased" → "purchase"
+
+   2) Property: Lot 15, Rural Road, Wilberforce NSW 2756
+      Original Event: death_of_owner (2022-11-20)
+      ✓ Event type: "death_of_owner" → "status_change"
+
+   3) Property: Lot 15, Rural Road, Wilberforce NSW 2756
+      Original Event: inherited (2023-02-15)
+      ✓ Event type: "inherited" → "ownership_change"
+
+--------------------------------------------------------------------------------
+
+19. inherited_property_2year_rule.json
+   Total changes: 2
+
+   1) Property: 88 Memorial Drive, Toowong QLD 4066
+      Original Event: death_of_owner (2023-08-15)
+      ✓ Event type: "death_of_owner" → "status_change"
+
+   2) Property: 88 Memorial Drive, Toowong QLD 4066
+      Original Event: inherited (2023-10-01)
+      ✓ Event type: "inherited" → "ownership_change"
+
+--------------------------------------------------------------------------------
+
+20. investment_property_divorce_transfer.json
+   Total changes: 2
+
+   1) Property: Unit 15, 200 Investment Parade, Surfers Paradise QLD 4217
+      Original Event: separation (2024-02-01)
+      ✓ Event type: "separation" → "status_change"
+
+   2) Property: Unit 15, 200 Investment Parade, Surfers Paradise QLD 4217
+      Original Event: divorce_transfer (2024-09-01)
+      ✓ Event type: "divorce_transfer" → "ownership_change"
+
+--------------------------------------------------------------------------------
+
+21. joint_sale_during_separation.json
+   Total changes: 1
+
+   1) Property: 92 Separation Street, Hawthorn VIC 3122
+      Original Event: separation (2023-06-15)
+      ✓ Event type: "separation" → "status_change"
+
+--------------------------------------------------------------------------------
+
+22. multiple_beneficiaries.json
+   Total changes: 2
+
+   1) Property: 55 Family Court, Ashgrove QLD 4060
+      Original Event: death_of_owner (2023-07-20)
+      ✓ Event type: "death_of_owner" → "status_change"
+
+   2) Property: 55 Family Court, Ashgrove QLD 4060
+      Original Event: inherited (2023-10-01)
+      ✓ Event type: "inherited" → "ownership_change"
+
+--------------------------------------------------------------------------------
+
+23. pre_cgt_inheritance.json
+   Total changes: 2
+
+   1) Property: 67 Heritage Road, Wahroonga NSW 2076
+      Original Event: death_of_owner (2024-03-20)
+      ✓ Event type: "death_of_owner" → "status_change"
+
+   2) Property: 67 Heritage Road, Wahroonga NSW 2076
+      Original Event: inherited (2024-06-01)
+      ✓ Event type: "inherited" → "ownership_change"
+
+--------------------------------------------------------------------------------
+
+24. pre_cgt_property_with_improvements.json
+   Total changes: 5
+
+   1) Property: 77 Heritage Estate, Hunters Hill NSW 2110
+      Original Event: marriage (1988-06-15)
+      ✓ Event type: "marriage" → "status_change"
+
+   2) Property: 77 Heritage Estate, Hunters Hill NSW 2110
+      Original Event: major_renovation (2005-03-01)
+      ✓ Event type: "major_renovation" → "improvement"
+
+   3) Property: 77 Heritage Estate, Hunters Hill NSW 2110
+      Original Event: separation (2020-08-01)
+      ✓ Event type: "separation" → "status_change"
+
+   4) Property: 77 Heritage Estate, Hunters Hill NSW 2110
+      Original Event: divorce_property_settlement (2021-04-15)
+      ✓ Event type: "divorce_property_settlement" → "ownership_change"
+
+   5) Property: 77 Heritage Estate, Hunters Hill NSW 2110
+      Original Event: spouse_a_moves_out (2021-05-01)
+      ✓ Event type: "spouse_a_moves_out" → "move_out"
+
+--------------------------------------------------------------------------------
+
+25. relationship_breakdown_rollover.json
+   Total changes: 2
+
+   1) Property: 156 Harmony Street, South Yarra VIC 3141
+      Original Event: separation (2018-03-15)
+      ✓ Event type: "separation" → "status_change"
+
+   2) Property: 156 Harmony Street, South Yarra VIC 3141
+      Original Event: divorce_transfer (2019-06-01)
+      ✓ Event type: "divorce_transfer" → "ownership_change"
+
+--------------------------------------------------------------------------------
+
+26. subdivision_build_and_sell.json
+   Total changes: 5
+
+   1) Property: 15 Riverside Crescent, Bulimba QLD 4171
+      Original Event: subdivision_approved (2021-06-15)
+      ✓ Event type: "subdivision_approved" → "subdivision"
+      ✓ Added subdivisionGroup and subdivisionDetails
+
+   2) Property: 15 Riverside Crescent, Bulimba QLD 4171
+      Original Event: subdivision_registered (2021-08-01)
+      ✓ Event type: "subdivision_registered" → "subdivision"
+      ✓ Added subdivisionGroup and subdivisionDetails
+
+   3) Property: 15A Riverside Crescent, Bulimba QLD 4171
+      Original Event: subdivision_registered (2021-08-01)
+      ✓ Event type: "subdivision_registered" → "subdivision"
+      ✓ Added subdivisionGroup and subdivisionDetails
+
+   4) Property: 15A Riverside Crescent, Bulimba QLD 4171
+      Original Event: construction_start (2021-10-01)
+      ✓ Event type: "construction_start" → "building_start"
+
+   5) Property: 15A Riverside Crescent, Bulimba QLD 4171
+      Original Event: construction_complete (2022-08-15)
+      ✓ Event type: "construction_complete" → "building_end"
+
+--------------------------------------------------------------------------------
+
+27. subdivision_main_residence_vacant_land.json
+   Total changes: 2
+
+   1) Property: 28 Panorama Drive, Kenmore QLD 4069
+      Original Event: subdivision_approved (2022-06-01)
+      ✓ Event type: "subdivision_approved" → "subdivision"
+      ✓ Added subdivisionGroup and subdivisionDetails
+
+   2) Property: 28 Panorama Drive, Kenmore QLD 4069
+      Original Event: subdivision_registered (2022-08-15)
+      ✓ Event type: "subdivision_registered" → "subdivision"
+      ✓ Added subdivisionGroup and subdivisionDetails
+
+--------------------------------------------------------------------------------
+
+28. subdivision_multiple_lots_sold.json
+   Total changes: 2
+
+   1) Property: 200 Rural Road, Dural NSW 2158
+      Original Event: subdivision_approved (2023-06-01)
+      ✓ Event type: "subdivision_approved" → "subdivision"
+      ✓ Added subdivisionGroup and subdivisionDetails
+
+   2) Property: 200 Rural Road, Dural NSW 2158
+      Original Event: subdivision_registered (2023-08-15)
+      ✓ Event type: "subdivision_registered" → "subdivision"
+      ✓ Added subdivisionGroup and subdivisionDetails
+
+--------------------------------------------------------------------------------
+
+29. subdivision_pre_cgt_property.json
+   Total changes: 2
+
+   1) Property: 8 Old Farm Road, Dural NSW 2158
+      Original Event: subdivision_approved (2023-04-01)
+      ✓ Event type: "subdivision_approved" → "subdivision"
+      ✓ Added subdivisionGroup and subdivisionDetails
+
+   2) Property: 8 Old Farm Road, Dural NSW 2158
+      Original Event: subdivision_registered (2023-06-15)
+      ✓ Event type: "subdivision_registered" → "subdivision"
+      ✓ Added subdivisionGroup and subdivisionDetails
+
+--------------------------------------------------------------------------------
+
+30. subdivision_retain_dwelling_sell_vacant.json
+   Total changes: 2
+
+   1) Property: 55 Acreage Court, Castle Hill NSW 2154
+      Original Event: subdivision_approved (2024-03-15)
+      ✓ Event type: "subdivision_approved" → "subdivision"
+      ✓ Added subdivisionGroup and subdivisionDetails
+
+   2) Property: 55 Acreage Court, Castle Hill NSW 2154
+      Original Event: subdivision_registered (2024-05-01)
+      ✓ Event type: "subdivision_registered" → "subdivision"
+      ✓ Added subdivisionGroup and subdivisionDetails
+
+--------------------------------------------------------------------------------
+
+31. subdivision_strata_title.json
+   Total changes: 3
+
+   1) Property: 12 Duplex Drive, Randwick NSW 2031
+      Original Event: strata_subdivision (2020-08-01)
+      ✓ Event type: "strata_subdivision" → "subdivision"
+      ✓ Added subdivisionGroup and subdivisionDetails
+
+   2) Property: 12 Duplex Drive, Randwick NSW 2031
+      Original Event: rent_start_unit_b (2020-09-01)
+      ✓ Event type: "rent_start_unit_b" → "rent_start"
+
+   3) Property: 12 Duplex Drive, Randwick NSW 2031
+      Original Event: rent_end_unit_b (2025-06-30)
+      ✓ Event type: "rent_end_unit_b" → "rent_end"
+
+--------------------------------------------------------------------------------
+
+32. transfer_to_family_trust.json
+   Total changes: 1
+
+   1) Property: 45 Investment Lane, Chatswood NSW 2067
+      Original Event: transfer_to_trust (2025-07-15)
+      ✓ Event type: "transfer_to_trust" → "ownership_change"
+
+--------------------------------------------------------------------------------
+
+33. trust_distribution_to_beneficiary.json
+   Total changes: 1
+
+   1) Property: 88 Trust Avenue, Paddington QLD 4064
+      Original Event: distribution_to_beneficiary (2025-06-15)
+      ✓ Event type: "distribution_to_beneficiary" → "ownership_change"
+
+--------------------------------------------------------------------------------
+
+34. two_year_building_rule_eligible.json
+   Total changes: 3
+
+   1) Property: Lot 5, 88 New Build Crescent, Kellyville NSW 2155
+      Original Event: purchase_vacant_land (2022-03-15)
+      ✓ Event type: "purchase_vacant_land" → "purchase"
+
+   2) Property: Lot 5, 88 New Build Crescent, Kellyville NSW 2155
+      Original Event: construction_start (2022-09-01)
+      ✓ Event type: "construction_start" → "building_start"
+
+   3) Property: Lot 5, 88 New Build Crescent, Kellyville NSW 2155
+      Original Event: construction_complete (2023-06-15)
+      ✓ Event type: "construction_complete" → "building_end"
+
+--------------------------------------------------------------------------------
+
+35. two_year_building_rule_exceeded.json
+   Total changes: 3
+
+   1) Property: Lot 12, 55 Delayed Build Road, Box Hill NSW 2765
+      Original Event: purchase_vacant_land (2018-06-20)
+      ✓ Event type: "purchase_vacant_land" → "purchase"
+
+   2) Property: Lot 12, 55 Delayed Build Road, Box Hill NSW 2765
+      Original Event: construction_start (2023-02-01)
+      ✓ Event type: "construction_start" → "building_start"
+
+   3) Property: Lot 12, 55 Delayed Build Road, Box Hill NSW 2765
+      Original Event: construction_complete (2024-01-15)
+      ✓ Event type: "construction_complete" → "building_end"
+
+--------------------------------------------------------------------------------
+
+36. two_year_building_rule_renovation.json
+   Total changes: 3
+
+   1) Property: 22 Knockdown Rebuild Lane, Willoughby NSW 2068
+      Original Event: demolition_start (2021-09-01)
+      ✓ Event type: "demolition_start" → "status_change"
+
+   2) Property: 22 Knockdown Rebuild Lane, Willoughby NSW 2068
+      Original Event: construction_start (2021-10-15)
+      ✓ Event type: "construction_start" → "building_start"
+
+   3) Property: 22 Knockdown Rebuild Lane, Willoughby NSW 2068
+      Original Event: construction_complete (2022-12-01)
+      ✓ Event type: "construction_complete" → "building_end"
+
+--------------------------------------------------------------------------------

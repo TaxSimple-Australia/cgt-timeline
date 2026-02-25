@@ -1,0 +1,35 @@
+{
+  "properties": [
+    {
+      "address": "45 Investment Lane, Chatswood NSW 2067",
+      "property_history": [
+        {
+          "date": "2015-02-20",
+          "event": "purchase",
+          "price": 650000,
+          "stamp_duty": 25000,
+          "purchase_legal_fees": 2500
+        },
+        {
+          "date": "2015-03-01",
+          "event": "rent_start"
+        },
+        {
+          "date": "2025-06-30",
+          "event": "rent_end"
+        },
+        {
+          "date": "2025-07-15",
+          "event": "transfer_to_trust",
+          "market_value": 1100000
+        }
+      ],
+      "notes": "Individual transferring investment property to family discretionary trust for asset protection purposes. Property has never been main residence."
+    }
+  ],
+  "user_query": "I want to transfer my investment property to my family trust for asset protection. Will I have to pay CGT when I make the transfer?",
+  "additional_info": {
+    "australian_resident": true
+  },
+  "llm_provider": "deepseek"
+}

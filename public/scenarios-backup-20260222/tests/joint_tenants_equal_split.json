@@ -1,0 +1,46 @@
+{
+  "properties": [
+    {
+      "address": "15 Beachside Avenue, Cronulla NSW 2230",
+      "property_history": [
+        {
+          "date": "2016-03-15",
+          "event": "purchase",
+          "price": 720000,
+          "stamp_duty": 28000,
+          "purchase_legal_fees": 2800
+        },
+        {
+          "date": "2016-04-01",
+          "event": "rent_start"
+        },
+        {
+          "date": "2025-08-15",
+          "event": "rent_end"
+        },
+        {
+          "date": "2025-09-01",
+          "event": "sale",
+          "price": 1350000,
+          "contract_date": "2025-09-01",
+          "agent_fees": 33750,
+          "legal_fees": 2500
+        }
+      ],
+      "notes": "sold - Investment property owned as joint tenants by Sarah and David (50/50). Never lived in property - always rented."
+    }
+  ],
+  "user_query": "My husband and I own an investment property as joint tenants. We just sold it. How do we split the CGT between us?",
+  "additional_info": {
+    "australian_resident": true,
+    "tax_year": "2025-2026",
+    "ownership_type": "joint_tenants",
+    "owner_1_name": "Sarah",
+    "owner_1_share": 50,
+    "owner_2_name": "David",
+    "owner_2_share": 50,
+    "never_main_residence": true
+  },
+  "llm_provider": "deepseek",
+  "use_claude": true
+}

@@ -1,0 +1,115 @@
+{
+  "properties": [
+    {
+      "id": "prop-batch123-scenario9",
+      "address": "65 Parkview Crescent, Toowong QLD 4066",
+      "property_history": [
+        {
+          "date": "2010-07-01",
+          "event": "purchase",
+          "price": 510000,
+          "stamp_duty": 17850,
+          "title": "Purchase",
+          "checkboxState": {
+            "moveInOnSameDay": true,
+            "purchaseAsVacant": false,
+            "purchaseAsRent": false,
+            "purchaseAsConstruction": false,
+            "purchaseAsBusiness": false,
+            "inheritedProperty": false,
+            "preCGTProperty": false,
+            "partialRental": false,
+            "partialBusiness": false,
+            "mixedUse": false
+          },
+          "costBases": [
+            {
+              "id": "cb-batch123-s9-purchase",
+              "definitionId": "purchase_price",
+              "name": "Purchase Price",
+              "amount": 510000,
+              "category": "element1",
+              "isCustom": false,
+              "description": "The total amount paid to acquire the property on 1 July 2010"
+            },
+            {
+              "id": "cb-batch123-s9-stamp",
+              "definitionId": "stamp_duty",
+              "name": "Stamp Duty",
+              "amount": 17850,
+              "category": "element2",
+              "isCustom": false,
+              "description": "State government transfer duty paid on property acquisition"
+            },
+            {
+              "id": "cb-batch123-s9-legal-purchase",
+              "definitionId": "legal_fees_acquire",
+              "name": "Legal Fees (Acquisition)",
+              "amount": 2400,
+              "category": "element2",
+              "isCustom": false,
+              "description": "Legal fees and conveyancing costs for property purchase"
+            }
+          ],
+          "description": "Property purchased for $510,000"
+        },
+        {
+          "date": "2010-07-01",
+          "event": "move_in",
+          "title": "Move In",
+          "checkboxState": {},
+          "description": "Moved in immediately upon purchase - used as main residence"
+        },
+        {
+          "date": "2024-08-15",
+          "event": "move_out",
+          "title": "Move Out",
+          "checkboxState": {},
+          "description": "Moved out - sold old residence after 136-day overlap with new property (within 6-month limit)"
+        },
+        {
+          "date": "2024-08-15",
+          "event": "sale",
+          "price": 980000,
+          "title": "Sale",
+          "checkboxState": {},
+          "costBases": [
+            {
+              "id": "cb-batch123-s9-agent",
+              "definitionId": "agent_fees",
+              "name": "Real Estate Agent Commission",
+              "amount": 24500,
+              "category": "element5",
+              "isCustom": false,
+              "description": "Commission paid to real estate agent for sale"
+            },
+            {
+              "id": "cb-batch123-s9-legal-sale",
+              "definitionId": "legal_fees_disposal",
+              "name": "Legal Fees (Disposal)",
+              "amount": 2100,
+              "category": "element5",
+              "isCustom": false,
+              "description": "Legal fees for property sale and conveyancing"
+            }
+          ],
+          "description": "Property sold for $980,000"
+        }
+      ],
+      "notes": "Property owned from 1 Jul 2010 to 15 Aug 2024 (14.12 years). Overlapped with new residence for 136 days which is within the 6-month limit under s118-140 ITAA 1997.\n\n**Timeline:**\n- 1 Jul 2010 to 15 Aug 2024: Main residence (14.12 years)\n- Overlap period: 136 days with new property (within 6-month limit)\n\n**Expected Result:**\n- Total capital gain (before exemption): $416,350\n- Main Residence Exemption: 100% (six-month overlap rule applies)\n- **NO CGT PAYABLE**\n\n**ATO Rules Applied:**\n- Section 118-140 ITAA 1997 (Six-Month Overlap Rule)\n- When moving between main residences, both can be treated as main residence for up to 6 months if conditions met",
+      "color": "#10B981",
+      "branch": 0
+    }
+  ],
+  "user_query": "Property at 65 Parkview Crescent, Toowong QLD 4066, sold with 136-day overlap with new property",
+  "additional_info": {
+    "australian_resident": true,
+    "tax_year": "2024-2025",
+    "scenario_number": "Scenario 9",
+    "scenario_title": "Moving Between Main Residences (6-Month Overlap)",
+    "expected_outcome": "NO CGT PAYABLE - 6-month overlap rule applies (s118-140 ITAA 1997)",
+    "overlap_period_days": 136,
+    "overlap_within_limit": true,
+    "subcategory": "Full Exemption"
+  }
+}

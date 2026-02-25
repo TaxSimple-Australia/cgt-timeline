@@ -1,0 +1,12 @@
+{
+  "generatedAt": "2026-02-22T16:14:06.279Z",
+  "stats": {
+    "totalScenarios": 87,
+    "totalProperties": 106,
+    "totalEvents": 553,
+    "scenariosWithIssues": 0,
+    "scenariosClean": 87
+  },
+  "issueTypeCounts": {},
+  "scenariosWithIssues": []
+}

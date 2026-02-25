@@ -1,0 +1,95 @@
+{
+  "properties": [
+    {
+      "address": "15 Riverside Crescent, Bulimba QLD 4171",
+      "original_lot": "Lot 100",
+      "property_history": [
+        {
+          "date": "2015-07-20",
+          "event": "purchase",
+          "price": 890000,
+          "purchase_legal_fees": 3500,
+          "stamp_duty": 32000,
+          "notes": "Investment property - large corner block 900 sqm with existing house"
+        },
+        {
+          "date": "2015-08-01",
+          "event": "rent_start"
+        },
+        {
+          "date": "2021-03-01",
+          "event": "rent_end",
+          "notes": "Ended tenancy to prepare for subdivision"
+        },
+        {
+          "date": "2021-06-15",
+          "event": "subdivision_approved",
+          "description": "Council approved subdivision - Lot 100 (550 sqm with existing house) and Lot 101 (350 sqm vacant)",
+          "subdivision_costs": 52000,
+          "valuation_lot100": 680000,
+          "valuation_lot101": 420000,
+          "notes": "Total value at subdivision: $1,100,000"
+        },
+        {
+          "date": "2021-08-01",
+          "event": "subdivision_registered"
+        },
+        {
+          "date": "2021-09-01",
+          "event": "rent_start",
+          "lot": "Lot 100",
+          "notes": "Re-rented original house on Lot 100"
+        }
+      ],
+      "notes": "Original investment property - retained Lot 100 with existing house (still rented)."
+    },
+    {
+      "address": "15A Riverside Crescent, Bulimba QLD 4171",
+      "original_lot": "Lot 101 (subdivided from Lot 100)",
+      "property_history": [
+        {
+          "date": "2021-08-01",
+          "event": "subdivision_registered",
+          "market_value_at_subdivision": 420000,
+          "apportioned_subdivision_costs": 16600,
+          "notes": "New lot created - CGT acquisition date"
+        },
+        {
+          "date": "2021-10-01",
+          "event": "construction_start",
+          "description": "Commenced building 4-bedroom house"
+        },
+        {
+          "date": "2022-08-15",
+          "event": "construction_complete",
+          "total_construction_cost": 485000,
+          "notes": "Includes: builder contract $420,000, landscaping $25,000, driveway $18,000, council fees $22,000"
+        },
+        {
+          "date": "2022-09-01",
+          "event": "rent_start",
+          "notes": "Rented out new house"
+        },
+        {
+          "date": "2025-06-30",
+          "event": "rent_end"
+        },
+        {
+          "date": "2025-08-15",
+          "event": "sale",
+          "price": 1250000,
+          "contract_date": "2025-08-15",
+          "agent_fees": 31250,
+          "legal_fees": 2800,
+          "notes": "Sold newly built house on subdivided lot"
+        }
+      ],
+      "notes": "New dwelling built on subdivided land."
+    }
+  ],
+  "user_query": "I subdivided my investment property in 2021, built a new house on the vacant lot, and now I've sold it. How do I calculate the CGT? The land was originally part of another property I still own.",
+  "additional_info": {
+    "australian_resident": true,
+    "llm_provider": "deepseek"
+  }
+}

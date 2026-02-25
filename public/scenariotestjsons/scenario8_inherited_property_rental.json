@@ -19,12 +19,35 @@
   "properties": [
     {
       "address": "67 Jacaranda Drive, Indooroopilly QLD 4068",
+      "owners": [
+        {
+          "name": "inheritor",
+          "percentage": 100
+        }
+      ],
       "property_history": [
         {
           "date": "2020-08-15",
-          "event": "inheritance",
+          "event": "ownership_change",
           "market_value": 780000,
-          "description": "Inherited from mother. Property was mother's main residence. Mother purchased in 1985."
+          "description": "Property inherited. Inherited from mother. Property was mother's main residence. Mother purchased in 1985.",
+          "leavingOwners": [
+            "mother"
+          ],
+          "newOwners": [
+            {
+              "name": "inheritor",
+              "percentage": 100
+            }
+          ],
+          "previousOwners": [
+            {
+              "name": "mother",
+              "percentage": 100
+            }
+          ],
+          "ownershipChangeReason": "other",
+          "ownershipChangeReasonOther": "Inheritance"
         },
         {
           "date": "2020-11-01",
@@ -45,6 +68,7 @@
   ],
   "user_query": "I inherited my mother's home in 2020. She lived there her whole life. I rented it out and sold it in 2024. What is my CGT liability?",
   "additional_info": {
-    "australian_resident": true
+    "australian_resident": true,
+    "subcategory": "Inheritance/Death"
   }
 }

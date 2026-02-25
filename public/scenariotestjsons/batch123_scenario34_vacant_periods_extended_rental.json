@@ -1,0 +1,142 @@
+{
+  "properties": [
+    {
+      "id": "prop-batch123-scenario34",
+      "address": "99 Waterfront Way, Hamilton QLD 4007",
+      "property_history": [
+        {
+          "date": "2013-06-01",
+          "event": "purchase",
+          "price": 695000,
+          "stamp_duty": 26775,
+          "title": "Purchase",
+          "checkboxState": {
+            "moveInOnSameDay": true,
+            "purchaseAsVacant": false,
+            "purchaseAsRent": false,
+            "purchaseAsConstruction": false,
+            "purchaseAsBusiness": false,
+            "inheritedProperty": false,
+            "preCGTProperty": false,
+            "partialRental": false,
+            "partialBusiness": false,
+            "mixedUse": false
+          },
+          "costBases": [
+            {
+              "id": "cb-batch123-s34-purchase",
+              "definitionId": "purchase_price",
+              "name": "Purchase Price",
+              "amount": 695000,
+              "category": "element1",
+              "isCustom": false,
+              "description": "The total amount paid to acquire the property on 1 June 2013"
+            },
+            {
+              "id": "cb-batch123-s34-stamp",
+              "definitionId": "stamp_duty",
+              "name": "Stamp Duty",
+              "amount": 26775,
+              "category": "element2",
+              "isCustom": false,
+              "description": "State government transfer duty paid on property acquisition"
+            },
+            {
+              "id": "cb-batch123-s34-legal-purchase",
+              "definitionId": "legal_fees_acquire",
+              "name": "Legal Fees (Acquisition)",
+              "amount": 3100,
+              "category": "element2",
+              "isCustom": false,
+              "description": "Legal fees and conveyancing costs for property purchase"
+            }
+          ],
+          "description": "Property purchased for $695,000"
+        },
+        {
+          "date": "2013-06-01",
+          "event": "move_in",
+          "title": "Move In",
+          "checkboxState": {},
+          "description": "Moved in immediately - main residence"
+        },
+        {
+          "date": "2016-09-01",
+          "event": "move_out",
+          "title": "Move Out",
+          "checkboxState": {},
+          "description": "Moved out - property to be rented"
+        },
+        {
+          "date": "2016-09-01",
+          "event": "rent_start",
+          "title": "Start Rent",
+          "checkboxState": {
+            "partialRental": false,
+            "selectMainResidence": true,
+            "firstUseToProduceIncome": false
+          },
+          "description": "Started renting - First rental period (2 years)"
+        },
+        {
+          "date": "2018-09-01",
+          "event": "rent_end",
+          "title": "End Rent",
+          "checkboxState": {},
+          "description": "Ceased renting - property left vacant for extended period (not producing income)"
+        },
+        {
+          "date": "2020-03-01",
+          "event": "rent_start",
+          "title": "Start Rent",
+          "checkboxState": {
+            "partialRental": false,
+            "selectMainResidence": true,
+            "firstUseToProduceIncome": false
+          },
+          "description": "Started renting again - Second rental period (4.62 years)"
+        },
+        {
+          "date": "2024-10-15",
+          "event": "sale",
+          "price": 1385000,
+          "title": "Sale",
+          "checkboxState": {},
+          "costBases": [
+            {
+              "id": "cb-batch123-s34-agent",
+              "definitionId": "agent_fees",
+              "name": "Real Estate Agent Commission",
+              "amount": 34625,
+              "category": "element5",
+              "isCustom": false,
+              "description": "Commission paid to real estate agent for sale"
+            },
+            {
+              "id": "cb-batch123-s34-legal-sale",
+              "definitionId": "legal_fees_disposal",
+              "name": "Legal Fees (Disposal)",
+              "amount": 2800,
+              "category": "element5",
+              "isCustom": false,
+              "description": "Legal fees for property sale and conveyancing"
+            }
+          ],
+          "description": "Property sold for $1,385,000"
+        }
+      ],
+      "notes": "Property demonstrates that vacant periods (not producing income) don't count against six-year absence rule.\n\n**Timeline:**\n- 1 Jun 2013 to 1 Sep 2016: Main residence (3.25 years)\n- 1 Sep 2016 to 1 Sep 2018: Rented - First rental (2 years) - counts toward 6-year limit\n- 1 Sep 2018 to 1 Mar 2020: Vacant (1.5 years) - **does NOT count** toward 6-year limit\n- 1 Mar 2020 to 15 Oct 2024: Rented - Second rental (4.62 years) - counts toward 6-year limit\n- Total ownership: 11.37 years\n\n**Key Calculations:**\n- Time producing income: 2 + 4.62 = 6.62 years\n- Six-year limit exceeded by 0.62 years\n- Vacant period (1.5 years) does NOT count toward limit\n- Taxable period: 0.62/11.37 years = 5.45%\n- Total capital gain: $617,500\n- After time apportionment and 50% CGT discount\n- **NET CAPITAL GAIN: $16,839**\n\n**Expected Result:**\n- NET CAPITAL GAIN = $16,839\n- Only 0.62 years exceeding six-year limit is taxable\n\n**ATO Rules Applied:**\n- Section 118-145 ITAA 1997 (Six-Year Absence Rule)\n- Only periods producing income count toward six-year limit\n- Vacant periods do NOT count against the limit\n- Section 115-25 ITAA 1997 (50% CGT discount)",
+      "color": "#F59E0B",
+      "branch": 0
+    }
+  ],
+  "user_query": "Property at 99 Waterfront Way, Hamilton QLD 4007, with vacant period between two rental periods",
+  "additional_info": {
+    "australian_resident": true,
+    "tax_year": "2024-2025",
+    "scenario_number": "Scenario 34",
+    "scenario_title": "Vacant Periods Between Rentals with Extended Rental",
+    "expected_outcome": "NET CAPITAL GAIN = $16,839 (only 0.62 years exceeding 6-year limit is taxable)",
+    "subcategory": "Special Circumstances"
+  }
+}

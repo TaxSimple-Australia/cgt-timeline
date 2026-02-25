@@ -179,6 +179,30 @@ export default function TermsPage() {
                       All algorithms, logic flows, "checklists," and interface designs used to determine CGT status are the exclusive intellectual property of CGT BRAIN. You are granted a limited, non-transferable license for personal or internal business use only.
                     </p>
                   </div>
+
+                  <div>
+                    <h3 className="text-xl font-semibold text-white mb-3">6. Privacy and Security</h3>
+                    <p className="leading-relaxed mb-3">
+                      Your privacy is governed by our Privacy Policy, which complies with the Privacy Act 1988.
+                    </p>
+                    <ul className="space-y-3 pl-6">
+                      <li className="flex items-start gap-3">
+                        <span className="text-blue-400 mt-1.5">•</span>
+                        <span><strong className="text-white">Data Handling:</strong> We use industry-standard encryption to protect your financial data.</span>
+                      </li>
+                      <li className="flex items-start gap-3">
+                        <span className="text-blue-400 mt-1.5">•</span>
+                        <span><strong className="text-white">Anonymity:</strong> The app can be used without linking a real identity.</span>
+                      </li>
+                    </ul>
+                  </div>
+
+                  <div>
+                    <h3 className="text-xl font-semibold text-white mb-3">7. Updates to Tax Logic</h3>
+                    <p className="leading-relaxed">
+                      Tax legislation in Australia (including the Income Tax Assessment Act 1997) is subject to frequent amendment. While we endeavour to update the App, we do not guarantee that the App reflects the "real-time" state of the law at every moment.
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>

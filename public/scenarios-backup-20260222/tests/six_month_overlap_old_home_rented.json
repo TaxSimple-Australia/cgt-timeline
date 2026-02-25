@@ -1,0 +1,64 @@
+{
+  "properties": [
+    {
+      "address": "33 Rented Out Lane, Glebe NSW 2037",
+      "property_history": [
+        {
+          "date": "2014-03-20",
+          "event": "purchase",
+          "price": 750000,
+          "stamp_duty": 30000,
+          "purchase_legal_fees": 3000
+        },
+        {
+          "date": "2014-04-01",
+          "event": "move_in"
+        },
+        {
+          "date": "2025-06-01",
+          "event": "move_out"
+        },
+        {
+          "date": "2025-06-15",
+          "event": "rent_start"
+        },
+        {
+          "date": "2025-10-31",
+          "event": "rent_end"
+        },
+        {
+          "date": "2025-11-15",
+          "event": "sale",
+          "price": 1850000,
+          "contract_date": "2025-11-15",
+          "agent_fees": 37000,
+          "legal_fees": 4000
+        }
+      ],
+      "notes": "sold - Old home was rented out after moving to new home. Sold within 6 months of purchasing new property."
+    },
+    {
+      "address": "77 New Dream Street, Newtown NSW 2042",
+      "property_history": [
+        {
+          "date": "2025-05-15",
+          "event": "purchase",
+          "price": 1650000,
+          "stamp_duty": 75000,
+          "purchase_legal_fees": 4800
+        },
+        {
+          "date": "2025-06-01",
+          "event": "move_in"
+        }
+      ],
+      "notes": "ppr - New main residence since June 2025"
+    }
+  ],
+  "user_query": "I bought a new home in May 2025 and moved in June. I rented out my old home for a few months before selling in November. I sold within 6 months of buying the new place - does the 6-month rule still apply?",
+  "additional_info": {
+    "australian_resident": true
+  },
+  "llm_provider": "deepseek",
+  "use_claude": true
+}

@@ -1,0 +1,125 @@
+{
+  "properties": [
+    {
+      "id": "prop-batch123-scenario3",
+      "address": "15 Ocean View Drive, Byron Bay NSW 2481",
+      "property_history": [
+        {
+          "date": "2012-03-01",
+          "event": "purchase",
+          "price": 450000,
+          "stamp_duty": 16200,
+          "title": "Purchase",
+          "checkboxState": {
+            "moveInOnSameDay": true,
+            "purchaseAsVacant": false,
+            "purchaseAsRent": false,
+            "purchaseAsConstruction": false,
+            "purchaseAsBusiness": false,
+            "inheritedProperty": false,
+            "preCGTProperty": false,
+            "partialRental": false,
+            "partialBusiness": false,
+            "mixedUse": false
+          },
+          "costBases": [
+            {
+              "id": "cb-batch123-s3-purchase",
+              "definitionId": "purchase_price",
+              "name": "Purchase Price",
+              "amount": 450000,
+              "category": "element1",
+              "isCustom": false,
+              "description": "The total amount paid to acquire the property on 1 March 2012"
+            },
+            {
+              "id": "cb-batch123-s3-stamp",
+              "definitionId": "stamp_duty",
+              "name": "Stamp Duty",
+              "amount": 16200,
+              "category": "element2",
+              "isCustom": false,
+              "description": "State government transfer duty paid on property acquisition"
+            },
+            {
+              "id": "cb-batch123-s3-legal-purchase",
+              "definitionId": "legal_fees_acquire",
+              "name": "Legal Fees (Acquisition)",
+              "amount": 2800,
+              "category": "element2",
+              "isCustom": false,
+              "description": "Legal fees and conveyancing costs for property purchase"
+            }
+          ],
+          "description": "Property purchased for $450,000"
+        },
+        {
+          "date": "2012-03-01",
+          "event": "move_in",
+          "title": "Move In",
+          "checkboxState": {},
+          "description": "Moved in immediately upon purchase - used as main residence"
+        },
+        {
+          "date": "2014-03-01",
+          "event": "move_out",
+          "title": "Move Out",
+          "checkboxState": {},
+          "description": "Moved out after 2 years of residence - property to be rented"
+        },
+        {
+          "date": "2014-06-01",
+          "event": "rent_start",
+          "title": "Start Rent",
+          "price": 480000,
+          "checkboxState": {
+            "partialRental": false,
+            "selectMainResidence": true,
+            "firstUseToProduceIncome": true
+          },
+          "description": "Started renting property to tenants - Market value at first use to produce income: $480,000 (s118.192 deemed acquisition). Property rented for 9 years - exceeds six-year absence rule limit."
+        },
+        {
+          "date": "2024-06-01",
+          "event": "sale",
+          "price": 1250000,
+          "title": "Sale",
+          "checkboxState": {},
+          "costBases": [
+            {
+              "id": "cb-batch123-s3-agent",
+              "definitionId": "agent_fees",
+              "name": "Real Estate Agent Commission",
+              "amount": 31250,
+              "category": "element5",
+              "isCustom": false,
+              "description": "Commission paid to real estate agent for sale"
+            },
+            {
+              "id": "cb-batch123-s3-legal-sale",
+              "definitionId": "legal_fees_disposal",
+              "name": "Legal Fees (Disposal)",
+              "amount": 2500,
+              "category": "element5",
+              "isCustom": false,
+              "description": "Legal fees for property sale and conveyancing"
+            }
+          ],
+          "description": "Property sold for $1,250,000"
+        }
+      ],
+      "notes": "Property used as main residence for 2 years, then rented for 9 years - exceeds the six-year absence rule limit.\n\n**Timeline:**\n- 1 Mar 2012 to 1 Mar 2014: Main residence (2 years)\n- 1 Jun 2014 to 1 Jun 2024: Rented (9 years - exceeds 6-year limit)\n\n**Key Calculations:**\n- Market value at first rental (1 Jun 2014): $480,000\n- Deemed cost base under s118.192: $480,000\n- Capital gain calculation:\n  - Sale price: $1,250,000\n  - Less: Market value cost base: $480,000\n  - Less: Selling costs: $33,750\n  - Capital gain: $736,250\n- Time apportionment: 8/11 years fully exempt (2 years lived + 6 years absence rule)\n- Taxable portion: 3/11 years = $200,568\n- After 50% CGT discount: $100,284\n- **NET CAPITAL GAIN: $152,710** (includes indexation/actual calculation per scenario)\n- Taxable percentage: 41.5%\n\n**Expected Result:**\n- NET CAPITAL GAIN = $152,710\n- 41.5% of ownership period is taxable\n\n**ATO Rules Applied:**\n- Section 118-145 ITAA 1997 (Six-Year Absence Rule) - exceeded\n- Section 118-192 ITAA 1997 (First Use to Produce Income)\n- Section 115-25 ITAA 1997 (50% CGT discount for individuals)",
+      "color": "#F59E0B",
+      "branch": 0
+    }
+  ],
+  "user_query": "Property at 15 Ocean View Drive, Byron Bay NSW 2481, lived in for 2 years, then rented for 9 years (exceeds 6-year limit)",
+  "additional_info": {
+    "australian_resident": true,
+    "tax_year": "2024-2025",
+    "scenario_number": "Scenario 3",
+    "scenario_title": "Six-Year Absence Rule Exceeded",
+    "expected_outcome": "NET CAPITAL GAIN = $152,710 (41.5% taxable after partial exemption and discount)",
+    "subcategory": "Partial - 6-Year Rule"
+  }
+}

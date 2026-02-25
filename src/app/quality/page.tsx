@@ -119,24 +119,59 @@ export default function QualityPolicyPage() {
 
                   <div>
                     <h3 className="text-xl font-semibold text-white mb-3">Core Quality Principles</h3>
+                    <p className="mb-3 leading-relaxed">
+                      To achieve our mission, we adhere to the following four pillars of quality:
+                    </p>
                     <ul className="space-y-3 pl-6">
                       <li className="flex items-start gap-3">
                         <span className="text-purple-400 mt-1.5">•</span>
-                        <span><strong className="text-white">Regulatory Accuracy:</strong> We ensure our calculation engines are updated in real-time to reflect the latest ATO rulings and legislative changes.</span>
+                        <span><strong className="text-white">Regulatory Accuracy:</strong> We ensure our calculation engines are updated in real-time to reflect the latest Australian Taxation Office (ATO) rulings, tax rates, and legislative changes for the 2025–26 financial year and beyond.</span>
                       </li>
                       <li className="flex items-start gap-3">
                         <span className="text-purple-400 mt-1.5">•</span>
-                        <span><strong className="text-white">Integrity of Logic:</strong> We employ rigorous mathematical verification and "shadow testing" to ensure every CGT event is handled correctly.</span>
+                        <span><strong className="text-white">Integrity of Logic:</strong> We employ rigorous mathematical verification and "shadow testing" (comparing app results against manual expert calculations) to ensure that every CGT event—from simple share sales to complex crypto-asset disposals—is handled correctly.</span>
                       </li>
                       <li className="flex items-start gap-3">
                         <span className="text-purple-400 mt-1.5">•</span>
-                        <span><strong className="text-white">Security & Reliability:</strong> We commit to 99.9% uptime and a "security-first" development lifecycle.</span>
+                        <span><strong className="text-white">Security & Reliability:</strong> Quality means stability. We commit to a 99.9% uptime and a "security-first" development lifecycle, ensuring that user data is never compromised by system errors or vulnerabilities.</span>
                       </li>
                       <li className="flex items-start gap-3">
                         <span className="text-purple-400 mt-1.5">•</span>
-                        <span><strong className="text-white">Continuous Improvement:</strong> We actively solicit feedback from Australian tax professionals and end-users.</span>
+                        <span><strong className="text-white">Continuous Improvement:</strong> We actively solicit feedback from Australian tax professionals and end-users to iteratively enhance our interface and functionality, ensuring the software remains "fit for purpose" in an evolving digital economy.</span>
                       </li>
                     </ul>
+                  </div>
+
+                  <div>
+                    <h3 className="text-xl font-semibold text-white mb-3">Quality Objectives</h3>
+                    <ul className="space-y-3 pl-6">
+                      <li className="flex items-start gap-3">
+                        <span className="text-purple-400 mt-1.5">•</span>
+                        <span><strong className="text-white">Zero-Defect Calculations:</strong> To maintain a 100% accuracy rate in logic-based tax calculations as per current Australian tax law.</span>
+                      </li>
+                      <li className="flex items-start gap-3">
+                        <span className="text-purple-400 mt-1.5">•</span>
+                        <span><strong className="text-white">Responsive Support:</strong> To resolve technical queries or data-entry concerns within 48 business hours.</span>
+                      </li>
+                      <li className="flex items-start gap-3">
+                        <span className="text-purple-400 mt-1.5">•</span>
+                        <span><strong className="text-white">Seamless Integration:</strong> To ensure full compatibility with ATO digital standards and common Australian financial data formats such as CSV and API.</span>
+                      </li>
+                    </ul>
+                  </div>
+
+                  <div>
+                    <h3 className="text-xl font-semibold text-white mb-3">Responsibility</h3>
+                    <p className="leading-relaxed">
+                      Every member of the CGT BRAIN team—from software engineers, accountants to tax analysts—is responsible for the quality of our output. We provide our staff with ongoing training in both Australian tax law and modern software quality assurance (QA) methodologies.
+                    </p>
+                  </div>
+
+                  <div>
+                    <h3 className="text-xl font-semibold text-white mb-3">Review and Accountability</h3>
+                    <p className="leading-relaxed">
+                      This Quality Policy is reviewed annually by our leadership team to ensure it remains aligned with the ATO Digital Service Provider (DSP) Operational Security Framework and the ATO Rules and the evolving needs of the Australian investment community.
+                    </p>
                   </div>
                 </div>
               </div>

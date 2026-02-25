@@ -1,0 +1,129 @@
+{
+  "properties": [
+    {
+      "id": "prop-batch123-scenario26",
+      "address": "223 River Road, Bulimba QLD 4171",
+      "property_history": [
+        {
+          "date": "1982-03-15",
+          "event": "purchase",
+          "price": 85000,
+          "stamp_duty": 2125,
+          "title": "Purchase",
+          "checkboxState": {
+            "moveInOnSameDay": true,
+            "purchaseAsVacant": false,
+            "purchaseAsRent": false,
+            "purchaseAsConstruction": false,
+            "purchaseAsBusiness": false,
+            "inheritedProperty": false,
+            "preCGTProperty": true,
+            "partialRental": false,
+            "partialBusiness": false,
+            "mixedUse": false
+          },
+          "costBases": [
+            {
+              "id": "cb-batch123-s26-purchase",
+              "definitionId": "purchase_price",
+              "name": "Purchase Price",
+              "amount": 85000,
+              "category": "element1",
+              "isCustom": false,
+              "description": "The total amount paid to acquire the property on 15 March 1982 (pre-CGT)"
+            },
+            {
+              "id": "cb-batch123-s26-stamp",
+              "definitionId": "stamp_duty",
+              "name": "Stamp Duty",
+              "amount": 2125,
+              "category": "element2",
+              "isCustom": false,
+              "description": "State government transfer duty paid on property acquisition"
+            },
+            {
+              "id": "cb-batch123-s26-legal-purchase",
+              "definitionId": "legal_fees_acquire",
+              "name": "Legal Fees (Acquisition)",
+              "amount": 850,
+              "category": "element2",
+              "isCustom": false,
+              "description": "Legal fees and conveyancing costs for property purchase"
+            }
+          ],
+          "description": "Property purchased for $85,000 before CGT commencement (20 September 1985)"
+        },
+        {
+          "date": "1982-03-15",
+          "event": "move_in",
+          "title": "Move In",
+          "checkboxState": {},
+          "description": "Moved in immediately - main residence throughout ownership"
+        },
+        {
+          "date": "2010-05-10",
+          "event": "improvement",
+          "price": 180000,
+          "title": "Capital Improvement",
+          "checkboxState": {},
+          "costBases": [
+            {
+              "id": "cb-batch123-s26-major-reno",
+              "definitionId": "renovations",
+              "name": "Major Renovation",
+              "amount": 180000,
+              "category": "element3",
+              "isCustom": false,
+              "description": "Major renovation exceeding 50% of property value at time - second storey addition, complete internal renovation. Market value before improvements: $320,000."
+            }
+          ],
+          "description": "Major renovation costing $180,000 - exceeds 50% of property value ($320,000) at time of improvements. Triggers deemed post-CGT acquisition."
+        },
+        {
+          "date": "2024-08-20",
+          "event": "sale",
+          "price": 1450000,
+          "title": "Sale",
+          "checkboxState": {},
+          "costBases": [
+            {
+              "id": "cb-batch123-s26-agent",
+              "definitionId": "agent_fees",
+              "name": "Real Estate Agent Commission",
+              "amount": 36250,
+              "category": "element5",
+              "isCustom": false,
+              "description": "Commission paid to real estate agent for sale"
+            },
+            {
+              "id": "cb-batch123-s26-legal-sale",
+              "definitionId": "legal_fees_disposal",
+              "name": "Legal Fees (Disposal)",
+              "amount": 3100,
+              "category": "element5",
+              "isCustom": false,
+              "description": "Legal fees for property sale and conveyancing"
+            }
+          ],
+          "description": "Property sold for $1,450,000"
+        }
+      ],
+      "notes": "Property acquired before CGT commencement (20 Sep 1985). Major improvements in 2010 exceeded 50% of property value, triggering deemed post-CGT acquisition.\n\n**Timeline:**\n- 15 Mar 1982: Purchase (pre-CGT)\n- 15 Mar 1982 to 20 Aug 2024: Main residence (42.43 years)\n- 10 May 2010: Major improvements ($180,000) exceed 50% of value ($320,000)\n\n**Key Rules:**\n- Pre-CGT property normally exempt from CGT\n- **EXCEPTION**: Major improvements exceeding 50% of value trigger deemed acquisition\n- Deemed acquisition date: 10 May 2010\n- Cost base becomes: Market value at improvement date ($320,000) + improvements ($180,000) = $500,000\n- Capital gain calculated from deemed acquisition date\n- Property was main residence throughout: **NO CGT PAYABLE**\n\n**Expected Result:**\n- NO CGT PAYABLE - Main residence exemption applies despite major improvements rule\n\n**ATO Rules Applied:**\n- Section 108-70 ITAA 1997 (Major Improvements to Pre-CGT Property)\n- Section 118-110 ITAA 1997 (Main Residence Exemption)\n- Improvements > 50% of value → deemed post-CGT acquisition\n- But main residence exemption still applies if used as main residence",
+      "color": "#10B981",
+      "branch": 0
+    }
+  ],
+  "user_query": "Property at 223 River Road, Bulimba QLD 4171, pre-CGT with major improvements exceeding 50% of value",
+  "additional_info": {
+    "australian_resident": true,
+    "tax_year": "2024-2025",
+    "scenario_number": "Scenario 26",
+    "scenario_title": "Pre-CGT Property with Major Improvements",
+    "expected_outcome": "NO CGT PAYABLE - Main residence exemption applies despite major improvements rule",
+    "pre_cgt_property": true,
+    "major_improvements_trigger": true,
+    "market_value_at_improvements": 320000,
+    "improvement_amount": 180000,
+    "subcategory": "Pre-CGT"
+  }
+}

@@ -59,6 +59,7 @@
   ],
   "user_query": "I bought my home but couldn't move in for 8 months because I was overseas on a work assignment that was arranged before the purchase. I moved in as soon as I returned. What's my CGT situation?",
   "additional_info": {
-    "australian_resident": true
+    "australian_resident": true,
+    "subcategory": "Special Circumstances"
   }
 }

@@ -1,7 +1,7 @@
 {
   "title": "Granny Flat Arrangement",
   "scenario_info": {
-    "name": "Granny Flat Arrangement",
+    "name": "Partial Use - Granny Flat Arrangement",
     "description": "Helen transfers her home to her daughter Isabella in exchange for a granny flat right (right to live in the property for life). Since 1 July 2021, CGT does not apply when creating a granny flat arrangement. Helen's main residence exemption covers the transfer, and Isabella has no CGT liability for granting the granny flat right.",
     "expected_result": {
       "exemption_type": "full",
@@ -65,6 +65,7 @@
   ],
   "user_query": "My mother transferred her house to me in 2022 in exchange for a granny flat arrangement where she could live there for life. She recently passed away and I'm selling. What are the CGT implications?",
   "additional_info": {
-    "australian_resident": true
+    "australian_resident": true,
+    "subcategory": "Partial Use"
   }
 }

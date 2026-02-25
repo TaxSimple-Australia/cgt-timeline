@@ -1,0 +1,180 @@
+{
+  "properties": [
+    {
+      "id": "prop-batch123-scenario5-property1",
+      "address": "78 Rose Street, Brisbane QLD 4000",
+      "property_history": [
+        {
+          "date": "2010-01-01",
+          "event": "purchase",
+          "price": 580000,
+          "stamp_duty": 18600,
+          "title": "Purchase",
+          "checkboxState": {
+            "moveInOnSameDay": true,
+            "purchaseAsVacant": false,
+            "purchaseAsRent": false,
+            "purchaseAsConstruction": false,
+            "purchaseAsBusiness": false,
+            "inheritedProperty": false,
+            "preCGTProperty": false,
+            "partialRental": false,
+            "partialBusiness": false,
+            "mixedUse": false
+          },
+          "costBases": [
+            {
+              "id": "cb-batch123-s5-p1-purchase",
+              "definitionId": "purchase_price",
+              "name": "Purchase Price",
+              "amount": 580000,
+              "category": "element1",
+              "isCustom": false,
+              "description": "The total amount paid to acquire the property on 1 January 2010"
+            },
+            {
+              "id": "cb-batch123-s5-p1-stamp",
+              "definitionId": "stamp_duty",
+              "name": "Stamp Duty",
+              "amount": 18600,
+              "category": "element2",
+              "isCustom": false,
+              "description": "State government transfer duty paid on property acquisition"
+            },
+            {
+              "id": "cb-batch123-s5-p1-legal-purchase",
+              "definitionId": "legal_fees_acquire",
+              "name": "Legal Fees (Acquisition)",
+              "amount": 2500,
+              "category": "element2",
+              "isCustom": false,
+              "description": "Legal fees and conveyancing costs for property purchase"
+            }
+          ],
+          "description": "Property purchased for $580,000 - Old residence"
+        },
+        {
+          "date": "2010-01-01",
+          "event": "move_in",
+          "title": "Move In",
+          "checkboxState": {},
+          "description": "Moved in immediately - used as main residence"
+        },
+        {
+          "date": "2024-10-15",
+          "event": "move_out",
+          "title": "Move Out",
+          "checkboxState": {},
+          "description": "Moved out - sold old residence after 165-day overlap with new property"
+        },
+        {
+          "date": "2024-10-15",
+          "event": "sale",
+          "price": 1120000,
+          "title": "Sale",
+          "checkboxState": {},
+          "costBases": [
+            {
+              "id": "cb-batch123-s5-p1-agent",
+              "definitionId": "agent_fees",
+              "name": "Real Estate Agent Commission",
+              "amount": 28000,
+              "category": "element5",
+              "isCustom": false,
+              "description": "Commission paid to real estate agent for sale"
+            },
+            {
+              "id": "cb-batch123-s5-p1-legal-sale",
+              "definitionId": "legal_fees_disposal",
+              "name": "Legal Fees (Disposal)",
+              "amount": 2200,
+              "category": "element5",
+              "isCustom": false,
+              "description": "Legal fees for property sale and conveyancing"
+            }
+          ],
+          "description": "Old residence sold for $1,120,000"
+        }
+      ],
+      "notes": "**Property 1 - Old Residence**\n\nOwned from 1 Jan 2010 to 15 Oct 2024 (14.79 years). Overlapped with new residence for 165 days (1 May 2024 to 15 Oct 2024) which is within the 6-month limit under s118-140 ITAA 1997.",
+      "color": "#10B981",
+      "branch": 0
+    },
+    {
+      "id": "prop-batch123-scenario5-property2",
+      "address": "33 Mountain View Road, Brisbane QLD 4000",
+      "property_history": [
+        {
+          "date": "2024-05-01",
+          "event": "purchase",
+          "price": 790000,
+          "stamp_duty": 29600,
+          "title": "Purchase",
+          "checkboxState": {
+            "moveInOnSameDay": true,
+            "purchaseAsVacant": false,
+            "purchaseAsRent": false,
+            "purchaseAsConstruction": false,
+            "purchaseAsBusiness": false,
+            "inheritedProperty": false,
+            "preCGTProperty": false,
+            "partialRental": false,
+            "partialBusiness": false,
+            "mixedUse": false
+          },
+          "costBases": [
+            {
+              "id": "cb-batch123-s5-p2-purchase",
+              "definitionId": "purchase_price",
+              "name": "Purchase Price",
+              "amount": 790000,
+              "category": "element1",
+              "isCustom": false,
+              "description": "The total amount paid to acquire the property on 1 May 2024"
+            },
+            {
+              "id": "cb-batch123-s5-p2-stamp",
+              "definitionId": "stamp_duty",
+              "name": "Stamp Duty",
+              "amount": 29600,
+              "category": "element2",
+              "isCustom": false,
+              "description": "State government transfer duty paid on property acquisition"
+            },
+            {
+              "id": "cb-batch123-s5-p2-legal-purchase",
+              "definitionId": "legal_fees_acquire",
+              "name": "Legal Fees (Acquisition)",
+              "amount": 3100,
+              "category": "element2",
+              "isCustom": false,
+              "description": "Legal fees and conveyancing costs for property purchase"
+            }
+          ],
+          "description": "Property purchased for $790,000 - New residence"
+        },
+        {
+          "date": "2024-05-01",
+          "event": "move_in",
+          "title": "Move In",
+          "checkboxState": {},
+          "description": "Moved in immediately - new main residence (overlap with old residence for 165 days)"
+        }
+      ],
+      "notes": "**Property 2 - New Residence**\n\nPurchased 1 May 2024. Moved in while still owning old residence, creating a 165-day overlap period (within 6-month limit).",
+      "color": "#3B82F6",
+      "branch": 1
+    }
+  ],
+  "user_query": "Sold old residence at 78 Rose Street, Brisbane after 14.79 years, purchased new residence at 33 Mountain View Road with 165-day overlap",
+  "additional_info": {
+    "australian_resident": true,
+    "tax_year": "2024-2025",
+    "scenario_number": "Scenario 5",
+    "scenario_title": "Moving Between Main Residences (6-Month Overlap)",
+    "expected_outcome": "NO CGT PAYABLE - 6-month overlap rule applies (s118-140 ITAA 1997)",
+    "overlap_period_days": 165,
+    "overlap_within_limit": true,
+    "subcategory": "Full Exemption"
+  }
+}

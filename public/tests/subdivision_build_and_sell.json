@@ -1,6 +1,7 @@
 {
   "properties": [
     {
+      "id": "prop-subdivision-bs-parent",
       "address": "15 Riverside Crescent, Bulimba QLD 4171",
       "original_lot": "Lot 100",
       "property_history": [
@@ -8,88 +9,230 @@
           "date": "2015-07-20",
           "event": "purchase",
           "price": 890000,
-          "purchase_legal_fees": 3500,
           "stamp_duty": 32000,
+          "title": "Purchase",
+          "checkboxState": {
+            "moveInOnSameDay": false,
+            "purchaseAsVacant": false,
+            "purchaseAsRent": true,
+            "purchaseAsConstruction": false,
+            "purchaseAsBusiness": false,
+            "inheritedProperty": false,
+            "preCGTProperty": false,
+            "partialRental": false,
+            "partialBusiness": false,
+            "mixedUse": false
+          },
+          "costBases": [
+            {
+              "id": "cb-bs-purchase",
+              "definitionId": "purchase_price",
+              "name": "Purchase Price",
+              "amount": 890000,
+              "category": "element1",
+              "isCustom": false,
+              "description": "Investment property - large corner block 900 sqm with existing house"
+            },
+            {
+              "id": "cb-bs-stamp",
+              "definitionId": "stamp_duty",
+              "name": "Stamp Duty",
+              "amount": 32000,
+              "category": "element2",
+              "isCustom": false,
+              "description": "State government transfer duty"
+            },
+            {
+              "id": "cb-bs-legal",
+              "definitionId": "legal_fees_acquire",
+              "name": "Legal Fees (Acquisition)",
+              "amount": 3500,
+              "category": "element2",
+              "isCustom": false,
+              "description": "Legal fees and conveyancing costs"
+            }
+          ],
+          "description": "Investment property - large corner block 900 sqm with existing house",
           "notes": "Investment property - large corner block 900 sqm with existing house"
         },
         {
           "date": "2015-08-01",
-          "event": "rent_start"
+          "event": "rent_start",
+          "title": "Start Rent",
+          "checkboxState": {
+            "partialRental": false,
+            "selectMainResidence": false
+          },
+          "description": "Rented as investment property"
         },
         {
           "date": "2021-03-01",
           "event": "rent_end",
+          "title": "End Rent",
+          "checkboxState": {},
+          "description": "Ended tenancy to prepare for subdivision",
           "notes": "Ended tenancy to prepare for subdivision"
         },
         {
-          "date": "2021-06-15",
-          "event": "subdivision_approved",
-          "description": "Council approved subdivision - Lot 100 (550 sqm with existing house) and Lot 101 (350 sqm vacant)",
-          "subdivision_costs": 52000,
-          "valuation_lot100": 680000,
-          "valuation_lot101": 420000,
-          "notes": "Total value at subdivision: $1,100,000"
-        },
-        {
           "date": "2021-08-01",
-          "event": "subdivision_registered"
-        },
+          "event": "subdivision",
+          "title": "Subdivided",
+          "color": "#EC4899",
+          "subdivisionDetails": {
+            "childPropertyIds": [
+              "prop-subdivision-bs-lot100",
+              "prop-subdivision-bs-lot101"
+            ],
+            "totalLots": 2,
+            "subdivisionCosts": 52000,
+            "lotSizes": {
+              "lot100": "550m² with existing house",
+              "lot101": "350m² vacant"
+            },
+            "approvalDate": "2021-06-15",
+            "registrationDate": "2021-08-01",
+            "valuations": {
+              "lot100": 680000,
+              "lot101": 420000
+            },
+            "notes": "Council approved subdivision - Lot 100 (550 sqm with existing house) and Lot 101 (350 sqm vacant). Total value at subdivision: $1,100,000"
+          },
+          "checkboxState": {},
+          "description": "Subdivision registered - titles issued. Council approved subdivision - Lot 100 (550 sqm with existing house) and Lot 101 (350 sqm vacant)"
+        }
+      ],
+      "notes": "Original investment property - subdivided into Lot 100 (house retained) and Lot 101 (vacant land for development).",
+      "color": "#3B82F6",
+      "branch": 0,
+      "subdivisionGroup": "f5d65b81-06e2-4aa9-82d9-f58dde2d9a13",
+      "subdivisionDate": "2021-08-01"
+    },
+    {
+      "id": "prop-subdivision-bs-lot100",
+      "address": "15 Riverside Crescent, Bulimba QLD 4171",
+      "original_lot": "Lot 100 (retained)",
+      "parentPropertyId": "prop-subdivision-bs-parent",
+      "property_history": [
         {
           "date": "2021-09-01",
           "event": "rent_start",
+          "title": "Start Rent",
+          "checkboxState": {
+            "partialRental": false,
+            "selectMainResidence": false
+          },
+          "description": "Re-rented original house on Lot 100",
           "lot": "Lot 100",
           "notes": "Re-rented original house on Lot 100"
         }
       ],
-      "notes": "Original investment property - retained Lot 100 with existing house (still rented)."
+      "notes": "Lot 100 - Retained with existing house, continued as rental property. Cost base: Apportioned value at subdivision $680,000 + apportioned subdivision costs.",
+      "color": "#3B82F6",
+      "branch": 0,
+      "subdivisionGroup": "f5d65b81-06e2-4aa9-82d9-f58dde2d9a13",
+      "subdivisionDate": "2021-08-01",
+      "isMainLotContinuation": true,
+      "lotNumber": "1",
+      "lotSize": "550m²"
     },
     {
+      "id": "prop-subdivision-bs-lot101",
       "address": "15A Riverside Crescent, Bulimba QLD 4171",
       "original_lot": "Lot 101 (subdivided from Lot 100)",
+      "parentPropertyId": "prop-subdivision-bs-parent",
       "property_history": [
         {
-          "date": "2021-08-01",
-          "event": "subdivision_registered",
-          "market_value_at_subdivision": 420000,
-          "apportioned_subdivision_costs": 16600,
-          "notes": "New lot created - CGT acquisition date"
-        },
-        {
           "date": "2021-10-01",
-          "event": "construction_start",
-          "description": "Commenced building 4-bedroom house"
+          "event": "improvement",
+          "price": 485000,
+          "title": "Construction Start",
+          "checkboxState": {},
+          "costBases": [
+            {
+              "id": "cb-bs-lot101-construction",
+              "definitionId": "construction_costs",
+              "name": "Construction Costs",
+              "amount": 485000,
+              "category": "element3",
+              "isCustom": false,
+              "description": "Building 4-bedroom house. Includes: builder contract $420,000, landscaping $25,000, driveway $18,000, council fees $22,000"
+            }
+          ],
+          "description": "Construction commenced. Commenced building 4-bedroom house"
         },
         {
           "date": "2022-08-15",
-          "event": "construction_complete",
-          "total_construction_cost": 485000,
-          "notes": "Includes: builder contract $420,000, landscaping $25,000, driveway $18,000, council fees $22,000"
+          "event": "status_change",
+          "title": "Construction Complete",
+          "checkboxState": {},
+          "description": "Construction completed",
+          "notes": "Construction completed - total cost $485,000"
         },
         {
           "date": "2022-09-01",
           "event": "rent_start",
+          "title": "Start Rent",
+          "checkboxState": {
+            "partialRental": false,
+            "selectMainResidence": false
+          },
+          "description": "Rented out new house",
           "notes": "Rented out new house"
         },
         {
           "date": "2025-06-30",
-          "event": "rent_end"
+          "event": "rent_end",
+          "title": "End Rent",
+          "checkboxState": {},
+          "description": "Ended rental to prepare for sale"
         },
         {
           "date": "2025-08-15",
           "event": "sale",
           "price": 1250000,
+          "title": "Sale",
+          "checkboxState": {},
+          "costBases": [
+            {
+              "id": "cb-bs-lot101-agent",
+              "definitionId": "agent_fees",
+              "name": "Real Estate Agent Commission",
+              "amount": 31250,
+              "category": "element5",
+              "isCustom": false,
+              "description": "Commission paid to real estate agent for sale"
+            },
+            {
+              "id": "cb-bs-lot101-legal",
+              "definitionId": "legal_fees_disposal",
+              "name": "Legal Fees (Disposal)",
+              "amount": 2800,
+              "category": "element5",
+              "isCustom": false,
+              "description": "Legal fees for property sale and conveyancing"
+            }
+          ],
+          "description": "Sold newly built house on subdivided lot",
           "contract_date": "2025-08-15",
-          "agent_fees": 31250,
-          "legal_fees": 2800,
           "notes": "Sold newly built house on subdivided lot"
         }
       ],
-      "notes": "New dwelling built on subdivided land."
+      "notes": "Lot 101 - Vacant land created from subdivision. New dwelling built and sold. Cost base: Market value at subdivision $420,000 + apportioned subdivision costs $16,600 + construction $485,000.",
+      "color": "#F59E0B",
+      "branch": 1,
+      "subdivisionGroup": "f5d65b81-06e2-4aa9-82d9-f58dde2d9a13",
+      "subdivisionDate": "2021-08-01",
+      "lotNumber": "2",
+      "lotSize": "350m²"
     }
   ],
   "user_query": "I subdivided my investment property in 2021, built a new house on the vacant lot, and now I've sold it. How do I calculate the CGT? The land was originally part of another property I still own.",
   "additional_info": {
     "australian_resident": true,
     "llm_provider": "deepseek"
+  },
+  "scenario_info": {
+    "name": "Subdivision - Build and Sell Vacant Lot",
+    "description": "I subdivided my investment property in 2021, built a new house on the vacant lot, and now I've sold it. How do I calculate the CGT? The land was originally part of another property I still own."
   }
 }

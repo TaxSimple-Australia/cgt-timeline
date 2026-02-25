@@ -1,0 +1,76 @@
+{
+  "title": "Spouses Nominating Different Main Residences",
+  "scenario_info": {
+    "name": "Spouses Nominating Different Main Residences",
+    "description": "Chris and Morgan are married but live in different cities for work. Chris lives in Brisbane and Morgan lives in Sydney. They each nominate their respective dwelling as their main residence. Under s118.170, spouses can claim different main residences, but with limitations on the exemption.",
+    "expected_result": {
+      "exemption_type": "partial",
+      "exemption_percentage": 58.31,
+      "capital_gain": 206200,
+      "taxable_gain": 42982,
+      "notes": "After 50% discount. Only 50% exemption during period of different main residences."
+    },
+    "applicable_rules": [
+      "ITAA97 s118.170: Spouses living in different main residences",
+      "If spouse owns >50% of nominated dwelling, exemption = 50% for period living apart",
+      "Chris owns 100%, so only 50% exemption applies during different MR period",
+      "If Chris owned 50% or less, would get 100% exemption on their share",
+      "ITAA97 s115.25: 50% CGT discount applies"
+    ]
+  },
+  "properties": [
+    {
+      "address": "55 Executive Drive, Brisbane QLD 4000",
+      "property_history": [
+        {
+          "date": "2018-02-01",
+          "event": "purchase",
+          "price": 620000,
+          "stamp_duty": 24800,
+          "purchase_legal_fees": 3800,
+          "description": "Chris's property - 100% ownership"
+        },
+        {
+          "date": "2018-02-01",
+          "event": "move_in",
+          "description": "Chris and Morgan both establish as main residence initially"
+        },
+        {
+          "date": "2019-03-15",
+          "event": "status_change",
+          "description": "Morgan purchases Sydney property and moves there for work. Spouses now have DIFFERENT main residences. Chris's exemption reduced to 50% from this date."
+        },
+        {
+          "date": "2024-10-15",
+          "event": "sale",
+          "price": 880000,
+          "contract_date": "2024-10-15",
+          "agent_fees": 22000,
+          "legal_fees": 3200
+        }
+      ],
+      "notes": "Partial exemption (58.31%). Period 1: Joint main residence (407 days) = 100% exempt. Period 2: Different main residences (2,041 days) = only 50% exempt because Chris owns 100%. Taxable gain after 50% discount: $42,982."
+    },
+    {
+      "address": "120 Harbour Road, Sydney NSW 2000",
+      "property_history": [
+        {
+          "date": "2019-03-15",
+          "event": "purchase",
+          "price": 850000,
+          "description": "Morgan's property - 100% ownership. Morgan nominates this as main residence."
+        },
+        {
+          "date": "2019-03-15",
+          "event": "move_in",
+          "description": "Morgan moves in as main residence"
+        }
+      ],
+      "notes": "Morgan's Sydney property - nominated as Morgan's main residence from 15 March 2019. Not sold in this scenario."
+    }
+  ],
+  "user_query": "My spouse and I live in different cities for work. I own a property in Brisbane and my spouse owns one in Sydney. We each live in our own property. I'm selling the Brisbane property. What's my CGT?",
+  "additional_info": {
+    "australian_resident": true
+  }
+}

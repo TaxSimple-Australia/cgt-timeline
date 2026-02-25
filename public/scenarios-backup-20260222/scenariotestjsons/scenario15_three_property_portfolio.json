@@ -1,0 +1,110 @@
+{
+  "title": "Three Property Portfolio",
+  "scenario_info": {
+    "name": "Multiple Properties with Different CGT Treatments",
+    "description": "Investment portfolio with three properties sold in the same financial year. Each property has different CGT treatment: family home (full MRE), investment unit (no exemption), holiday house (no exemption, mixed use).",
+    "expected_result": {
+      "exemption_type": "mixed",
+      "total_net_capital_gain": 202088,
+      "property_a_gain": 0,
+      "property_b_gain": 57788,
+      "property_c_gain": 144300
+    },
+    "applicable_rules": [
+      "Property A: Full MRE - main residence entire period",
+      "Property B: No exemption - pure investment from day one",
+      "Property C: No exemption - holiday house with occasional rental",
+      "ITAA97 s115.25: 50% CGT discount applies to B and C",
+      "Capital gains aggregated for the financial year"
+    ]
+  },
+  "properties": [
+    {
+      "address": "56 Rosewood Avenue, Clayfield QLD 4011",
+      "property_history": [
+        {
+          "date": "2010-03-01",
+          "event": "purchase",
+          "price": 420000,
+          "stamp_duty": 16800,
+          "purchase_legal_fees": 2100
+        },
+        {
+          "date": "2010-03-01",
+          "event": "move_in",
+          "description": "Established as main residence"
+        },
+        {
+          "date": "2024-02-15",
+          "event": "sale",
+          "price": 890000,
+          "contract_date": "2024-02-15",
+          "agent_fees": 22250,
+          "legal_fees": 2000
+        }
+      ],
+      "notes": "Family home - main residence entire ownership period. Full MRE applies. Net capital gain: $0"
+    },
+    {
+      "address": "Unit 8/120 Brunswick Street, Fortitude Valley QLD 4006",
+      "property_history": [
+        {
+          "date": "2016-06-15",
+          "event": "purchase",
+          "price": 340000,
+          "stamp_duty": 13600,
+          "purchase_legal_fees": 1900
+        },
+        {
+          "date": "2016-06-15",
+          "event": "rent_start",
+          "description": "Rented from day one as pure investment"
+        },
+        {
+          "date": "2024-12-20",
+          "event": "sale",
+          "price": 485000,
+          "contract_date": "2024-12-20",
+          "agent_fees": 12125,
+          "legal_fees": 1800
+        }
+      ],
+      "notes": "Investment unit - rented from day one, never lived in. No MRE. Capital gain: $115,575. After 50% discount: $57,788"
+    },
+    {
+      "address": "14 Hastings Street, Noosa Heads QLD 4567",
+      "property_history": [
+        {
+          "date": "2018-12-01",
+          "event": "purchase",
+          "price": 580000,
+          "stamp_duty": 23200,
+          "purchase_legal_fees": 2700
+        },
+        {
+          "date": "2018-12-01",
+          "event": "status_change",
+          "description": "Used as holiday home - occasional personal use"
+        },
+        {
+          "date": "2021-01-01",
+          "event": "rent_start",
+          "description": "Started renting on Airbnb when not using personally"
+        },
+        {
+          "date": "2024-11-30",
+          "event": "sale",
+          "price": 920000,
+          "contract_date": "2024-11-30",
+          "agent_fees": 23000,
+          "legal_fees": 2500
+        }
+      ],
+      "notes": "Holiday house - not main residence, mixed personal/rental use. No MRE. Capital gain: $288,600. After 50% discount: $144,300"
+    }
+  ],
+  "user_query": "I'm selling three properties in the same year: my family home that I've lived in for 14 years, an investment unit I've had for 8 years, and a holiday house in Noosa that I've had for 6 years. What's my total CGT?",
+  "additional_info": {
+    "australian_resident": true
+  }
+}

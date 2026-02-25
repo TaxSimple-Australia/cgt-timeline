@@ -1,89 +1,416 @@
 {
   "properties": [
     {
-      "address": "Lot 1, 500 Farm Lane, Richmond NSW 2753",
-      "original_lot": "Part of 'Greenacres Farm' - 50 hectares",
+      "id": "prop-farmland-parent",
+      "address": "500 Farm Lane, Richmond NSW 2753",
+      "original_lot": "Greenacres Farm - 50 hectares",
       "property_history": [
         {
           "date": "1992-06-20",
-          "event": "purchase_by_deceased",
+          "event": "purchase",
           "price": 450000,
           "stamp_duty": 15000,
-          "purchase_legal_fees": 3500,
+          "title": "Purchase",
+          "checkboxState": {
+            "moveInOnSameDay": false,
+            "purchaseAsVacant": false,
+            "purchaseAsRent": false,
+            "purchaseAsConstruction": false,
+            "purchaseAsBusiness": false,
+            "inheritedProperty": false,
+            "preCGTProperty": false,
+            "partialRental": false,
+            "partialBusiness": false,
+            "mixedUse": false
+          },
+          "costBases": [
+            {
+              "id": "cb-farm-purchase",
+              "definitionId": "purchase_price",
+              "name": "Purchase Price",
+              "amount": 450000,
+              "category": "element1",
+              "isCustom": false,
+              "description": "Parents purchased working farm with farmhouse. Used as primary production and main residence."
+            },
+            {
+              "id": "cb-farm-stamp",
+              "definitionId": "stamp_duty",
+              "name": "Stamp Duty",
+              "amount": 15000,
+              "category": "element2",
+              "isCustom": false,
+              "description": "State government transfer duty"
+            },
+            {
+              "id": "cb-farm-legal",
+              "definitionId": "legal_fees_acquire",
+              "name": "Legal Fees (Acquisition)",
+              "amount": 3500,
+              "category": "element2",
+              "isCustom": false,
+              "description": "Legal fees and conveyancing costs"
+            }
+          ],
+          "description": "Originally purchased by deceased - working farm with farmhouse",
           "notes": "Parents purchased working farm with farmhouse. Used as primary production and main residence."
         },
         {
           "date": "1992-07-01",
           "event": "move_in",
+          "title": "Move In",
+          "checkboxState": {},
+          "description": "Parents lived in farmhouse, operated cattle farm",
           "notes": "Parents lived in farmhouse, operated cattle farm"
         },
         {
           "date": "2021-03-15",
-          "event": "death_of_owner",
+          "event": "status_change",
+          "title": "Death of Owner",
+          "checkboxState": {},
+          "description": "Father passed (mother predeceased). Farm was their main residence and primary production. Market value at death: $4,200,000",
           "market_value_total_farm": 4200000,
           "notes": "Father passed (mother predeceased). Farm was their main residence and primary production."
         },
         {
           "date": "2021-06-01",
-          "event": "inherited",
-          "beneficiaries": ["Child A 50%", "Child B 50%"],
+          "event": "status_change",
+          "title": "Inheritance",
+          "checkboxState": {},
+          "description": "Property inherited by beneficiaries - Two children inherited farm equally (Child A 50%, Child B 50%)",
+          "beneficiaries": [
+            "Child A 50%",
+            "Child B 50%"
+          ],
           "notes": "Two children inherited farm equally"
         },
         {
-          "date": "2023-08-15",
-          "event": "subdivision_approved",
-          "description": "Subdivided into: Lot 1 (farmhouse + 5ha), Lot 2-6 (5 x 9ha rural residential lots)",
-          "subdivision_costs": 380000,
-          "valuation_lot_1": 1800000,
-          "valuation_lots_2_to_6": 550000,
-          "notes": "Rezoned and subdivided - farmhouse lot retained, 5 lots for sale"
+          "date": "2021-06-01",
+          "event": "ownership_change",
+          "title": "Ownership Transfer",
+          "description": "Property inherited by beneficiaries",
+          "leavingOwners": [
+            "father"
+          ],
+          "newOwners": [
+            {
+              "name": "Child A",
+              "percentage": 50
+            },
+            {
+              "name": "Child B",
+              "percentage": 50
+            }
+          ],
+          "previousOwners": [
+            {
+              "name": "father",
+              "percentage": 100
+            }
+          ],
+          "ownershipChangeReason": "other",
+          "ownershipChangeReasonOther": "Inheritance"
         },
         {
           "date": "2023-09-01",
-          "event": "subdivision_registered"
+          "event": "subdivision",
+          "title": "Subdivided",
+          "color": "#EC4899",
+          "subdivisionDetails": {
+            "childPropertyIds": [
+              "prop-farmland-lot1",
+              "prop-farmland-lot2",
+              "prop-farmland-lot3",
+              "prop-farmland-lot4",
+              "prop-farmland-lot5",
+              "prop-farmland-lot6"
+            ],
+            "totalLots": 6,
+            "subdivisionCosts": 380000,
+            "lotSizes": {
+              "lot1": "Farmhouse + 5ha",
+              "lot2": "9ha rural",
+              "lot3": "9ha rural",
+              "lot4": "9ha rural",
+              "lot5": "9ha rural",
+              "lot6": "9ha rural"
+            },
+            "approvalDate": "2023-08-15",
+            "registrationDate": "2023-09-01",
+            "valuations": {
+              "lot1": 1800000,
+              "lot2": 550000,
+              "lot3": 550000,
+              "lot4": 550000,
+              "lot5": 550000,
+              "lot6": 550000
+            },
+            "notes": "Rezoned and subdivided - farmhouse lot retained, 5 lots for sale. Subdivided into: Lot 1 (farmhouse + 5ha), Lot 2-6 (5 x 9ha rural residential lots)"
+          },
+          "checkboxState": {},
+          "description": "Subdivision registered - titles issued. Subdivided into: Lot 1 (farmhouse + 5ha), Lot 2-6 (5 x 9ha rural residential lots)"
         }
       ],
-      "notes": "Retained Lot 1 - farmhouse still held by beneficiaries."
+      "notes": "Original farm property inherited from parents. Subdivided into 6 lots - Lot 1 retained with farmhouse, Lots 2-6 sold.",
+      "owners": [
+        {
+          "name": "Child A",
+          "percentage": 50
+        },
+        {
+          "name": "Child B",
+          "percentage": 50
+        }
+      ],
+      "color": "#10B981",
+      "branch": 0,
+      "subdivisionGroup": "d956ea87-22bb-4380-988b-ddc5cb2001c6",
+      "subdivisionDate": "2023-09-01"
     },
     {
-      "address": "Lot 2-6, Farm Lane, Richmond NSW 2753",
-      "original_lot": "5 subdivided lots from inherited farm",
+      "id": "prop-farmland-lot1",
+      "address": "Lot 1, 500 Farm Lane, Richmond NSW 2753",
+      "original_lot": "Farmhouse + 5 hectares",
+      "parentPropertyId": "prop-farmland-parent",
+      "property_history": [],
+      "notes": "Lot 1 - Farmhouse retained by beneficiaries. Market value at subdivision: $1,800,000. Still held.",
+      "color": "#10B981",
+      "branch": 0,
+      "subdivisionGroup": "d956ea87-22bb-4380-988b-ddc5cb2001c6",
+      "subdivisionDate": "2023-09-01",
+      "isMainLotContinuation": true,
+      "lotNumber": "1",
+      "lotSize": "5ha"
+    },
+    {
+      "id": "prop-farmland-lot2",
+      "address": "Lot 2, Farm Lane, Richmond NSW 2753",
+      "original_lot": "9 hectare rural residential lot",
+      "parentPropertyId": "prop-farmland-parent",
       "property_history": [
-        {
-          "date": "2023-09-01",
-          "event": "subdivision_registered",
-          "market_value_each_lot": 550000,
-          "total_market_value_5_lots": 2750000,
-          "apportioned_cost_base_per_lot": 287500,
-          "notes": "New CGT assets created on subdivision."
-        },
         {
           "date": "2024-03-15",
           "event": "sale",
-          "lots_sold": 2,
-          "price_per_lot": 620000,
-          "total_sale_price": 1240000,
-          "agent_fees": 31000,
-          "legal_fees": 4500,
-          "notes": "First 2 lots sold - 6 months after subdivision"
-        },
+          "price": 620000,
+          "title": "Sale",
+          "checkboxState": {},
+          "costBases": [
+            {
+              "id": "cb-farm-lot2-agent",
+              "definitionId": "agent_fees",
+              "name": "Real Estate Agent Commission",
+              "amount": 15500,
+              "category": "element5",
+              "isCustom": false,
+              "description": "Commission paid to real estate agent for sale"
+            },
+            {
+              "id": "cb-farm-lot2-legal",
+              "definitionId": "legal_fees_disposal",
+              "name": "Legal Fees (Disposal)",
+              "amount": 2250,
+              "category": "element5",
+              "isCustom": false,
+              "description": "Legal fees for property sale and conveyancing"
+            }
+          ],
+          "description": "Lot 2 sold - 6 months after subdivision. Apportioned cost base: $287,500",
+          "notes": "First lot sold - 6 months after subdivision"
+        }
+      ],
+      "notes": "Lot 2 - 9ha rural residential. Market value at subdivision: $550,000. Sold 2024-03-15.",
+      "color": "#F59E0B",
+      "branch": 1,
+      "subdivisionGroup": "d956ea87-22bb-4380-988b-ddc5cb2001c6",
+      "subdivisionDate": "2023-09-01",
+      "lotNumber": "2",
+      "lotSize": "9ha"
+    },
+    {
+      "id": "prop-farmland-lot3",
+      "address": "Lot 3, Farm Lane, Richmond NSW 2753",
+      "original_lot": "9 hectare rural residential lot",
+      "parentPropertyId": "prop-farmland-parent",
+      "property_history": [
+        {
+          "date": "2024-03-15",
+          "event": "sale",
+          "price": 620000,
+          "title": "Sale",
+          "checkboxState": {},
+          "costBases": [
+            {
+              "id": "cb-farm-lot3-agent",
+              "definitionId": "agent_fees",
+              "name": "Real Estate Agent Commission",
+              "amount": 15500,
+              "category": "element5",
+              "isCustom": false,
+              "description": "Commission paid to real estate agent for sale"
+            },
+            {
+              "id": "cb-farm-lot3-legal",
+              "definitionId": "legal_fees_disposal",
+              "name": "Legal Fees (Disposal)",
+              "amount": 2250,
+              "category": "element5",
+              "isCustom": false,
+              "description": "Legal fees for property sale and conveyancing"
+            }
+          ],
+          "description": "Lot 3 sold - 6 months after subdivision. Apportioned cost base: $287,500",
+          "notes": "Second lot sold - 6 months after subdivision"
+        }
+      ],
+      "notes": "Lot 3 - 9ha rural residential. Market value at subdivision: $550,000. Sold 2024-03-15.",
+      "color": "#F59E0B",
+      "branch": 2,
+      "subdivisionGroup": "d956ea87-22bb-4380-988b-ddc5cb2001c6",
+      "subdivisionDate": "2023-09-01",
+      "lotNumber": "3",
+      "lotSize": "9ha"
+    },
+    {
+      "id": "prop-farmland-lot4",
+      "address": "Lot 4, Farm Lane, Richmond NSW 2753",
+      "original_lot": "9 hectare rural residential lot",
+      "parentPropertyId": "prop-farmland-parent",
+      "property_history": [
         {
           "date": "2025-09-20",
           "event": "sale",
-          "lots_sold": 3,
-          "price_per_lot": 680000,
-          "total_sale_price": 2040000,
-          "agent_fees": 51000,
-          "legal_fees": 6200,
-          "notes": "Remaining 3 lots sold - 2 years after subdivision"
+          "price": 680000,
+          "title": "Sale",
+          "checkboxState": {},
+          "costBases": [
+            {
+              "id": "cb-farm-lot4-agent",
+              "definitionId": "agent_fees",
+              "name": "Real Estate Agent Commission",
+              "amount": 17000,
+              "category": "element5",
+              "isCustom": false,
+              "description": "Commission paid to real estate agent for sale"
+            },
+            {
+              "id": "cb-farm-lot4-legal",
+              "definitionId": "legal_fees_disposal",
+              "name": "Legal Fees (Disposal)",
+              "amount": 2067,
+              "category": "element5",
+              "isCustom": false,
+              "description": "Legal fees for property sale and conveyancing"
+            }
+          ],
+          "description": "Lot 4 sold - 2 years after subdivision. Apportioned cost base: $287,500",
+          "notes": "Third lot sold - 2 years after subdivision"
         }
       ],
-      "notes": "sold - All 5 subdivided lots sold."
+      "notes": "Lot 4 - 9ha rural residential. Market value at subdivision: $550,000. Sold 2025-09-20.",
+      "color": "#F59E0B",
+      "branch": 3,
+      "subdivisionGroup": "d956ea87-22bb-4380-988b-ddc5cb2001c6",
+      "subdivisionDate": "2023-09-01",
+      "lotNumber": "4",
+      "lotSize": "9ha"
+    },
+    {
+      "id": "prop-farmland-lot5",
+      "address": "Lot 5, Farm Lane, Richmond NSW 2753",
+      "original_lot": "9 hectare rural residential lot",
+      "parentPropertyId": "prop-farmland-parent",
+      "property_history": [
+        {
+          "date": "2025-09-20",
+          "event": "sale",
+          "price": 680000,
+          "title": "Sale",
+          "checkboxState": {},
+          "costBases": [
+            {
+              "id": "cb-farm-lot5-agent",
+              "definitionId": "agent_fees",
+              "name": "Real Estate Agent Commission",
+              "amount": 17000,
+              "category": "element5",
+              "isCustom": false,
+              "description": "Commission paid to real estate agent for sale"
+            },
+            {
+              "id": "cb-farm-lot5-legal",
+              "definitionId": "legal_fees_disposal",
+              "name": "Legal Fees (Disposal)",
+              "amount": 2067,
+              "category": "element5",
+              "isCustom": false,
+              "description": "Legal fees for property sale and conveyancing"
+            }
+          ],
+          "description": "Lot 5 sold - 2 years after subdivision. Apportioned cost base: $287,500",
+          "notes": "Fourth lot sold - 2 years after subdivision"
+        }
+      ],
+      "notes": "Lot 5 - 9ha rural residential. Market value at subdivision: $550,000. Sold 2025-09-20.",
+      "color": "#F59E0B",
+      "branch": 4,
+      "subdivisionGroup": "d956ea87-22bb-4380-988b-ddc5cb2001c6",
+      "subdivisionDate": "2023-09-01",
+      "lotNumber": "5",
+      "lotSize": "9ha"
+    },
+    {
+      "id": "prop-farmland-lot6",
+      "address": "Lot 6, Farm Lane, Richmond NSW 2753",
+      "original_lot": "9 hectare rural residential lot",
+      "parentPropertyId": "prop-farmland-parent",
+      "property_history": [
+        {
+          "date": "2025-09-20",
+          "event": "sale",
+          "price": 680000,
+          "title": "Sale",
+          "checkboxState": {},
+          "costBases": [
+            {
+              "id": "cb-farm-lot6-agent",
+              "definitionId": "agent_fees",
+              "name": "Real Estate Agent Commission",
+              "amount": 17000,
+              "category": "element5",
+              "isCustom": false,
+              "description": "Commission paid to real estate agent for sale"
+            },
+            {
+              "id": "cb-farm-lot6-legal",
+              "definitionId": "legal_fees_disposal",
+              "name": "Legal Fees (Disposal)",
+              "amount": 2066,
+              "category": "element5",
+              "isCustom": false,
+              "description": "Legal fees for property sale and conveyancing"
+            }
+          ],
+          "description": "Lot 6 sold - 2 years after subdivision. Apportioned cost base: $287,500",
+          "notes": "Fifth lot sold - 2 years after subdivision"
+        }
+      ],
+      "notes": "Lot 6 - 9ha rural residential. Market value at subdivision: $550,000. Sold 2025-09-20.",
+      "color": "#F59E0B",
+      "branch": 5,
+      "subdivisionGroup": "d956ea87-22bb-4380-988b-ddc5cb2001c6",
+      "subdivisionDate": "2023-09-01",
+      "lotNumber": "6",
+      "lotSize": "9ha"
     }
   ],
   "user_query": "My brother and I inherited our parents' farm when dad died in 2021. We subdivided it into 6 lots - kept the farmhouse lot and sold the other 5 as rural residential blocks. The farm was our parents' home since 1992. How is CGT calculated when we've subdivided inherited property?",
   "additional_info": {
-    "australian_resident": true
+    "australian_resident": true,
+    "subcategory": "Inheritance/Death"
   },
-  "llm_provider": "deepseek"
+  "llm_provider": "deepseek",
+  "scenario_info": {
+    "name": "Subdivision - Inherited Farmland Subdivided and Sold",
+    "description": "My brother and I inherited our parents' farm when dad died in 2021. We subdivided it into 6 lots - kept the farmhouse lot and sold the other 5 as rural residential blocks. The farm was our parents' home since 1992. How is CGT calculated when we've subdivided inherited property?"
+  }
 }

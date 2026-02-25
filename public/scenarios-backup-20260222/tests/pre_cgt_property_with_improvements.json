@@ -1,0 +1,85 @@
+{
+  "properties": [
+    {
+      "address": "77 Heritage Estate, Hunters Hill NSW 2110",
+      "property_history": [
+        {
+          "date": "1983-09-20",
+          "event": "purchase",
+          "price": 180000,
+          "stamp_duty": 5500,
+          "purchase_legal_fees": 1800,
+          "ownership": "sole_owner",
+          "owner": "Spouse A",
+          "notes": "Purchase by Spouse A before marriage"
+        },
+        {
+          "date": "1983-10-15",
+          "event": "move_in"
+        },
+        {
+          "date": "1988-06-15",
+          "event": "marriage"
+        },
+        {
+          "date": "1988-07-01",
+          "event": "ownership_change",
+          "change_type": "add_spouse_to_title",
+          "previous_ownership": "100% Spouse A",
+          "new_ownership": "Joint tenants 50/50",
+          "no_consideration": true,
+          "notes": "Added Spouse B to title after marriage."
+        },
+        {
+          "date": "2005-03-01",
+          "event": "major_renovation",
+          "renovation_cost": 320000,
+          "description": "Major extension and renovation - added second storey",
+          "notes": "Post-CGT improvement adds to cost base"
+        },
+        {
+          "date": "2020-08-01",
+          "event": "separation"
+        },
+        {
+          "date": "2021-04-15",
+          "event": "divorce_property_settlement",
+          "transfer_type": "court_order",
+          "previous_ownership": "Joint tenants 50/50",
+          "new_ownership": "100% Spouse B",
+          "market_value_at_transfer": 4200000,
+          "rollover_applies": true,
+          "notes": "Full property transferred to Spouse B."
+        },
+        {
+          "date": "2021-05-01",
+          "event": "spouse_a_moves_out"
+        },
+        {
+          "date": "2021-06-01",
+          "event": "rent_start",
+          "notes": "Spouse B rented out property after settlement"
+        },
+        {
+          "date": "2025-11-30",
+          "event": "rent_end"
+        },
+        {
+          "date": "2025-12-15",
+          "event": "sale",
+          "price": 5100000,
+          "contract_date": "2025-12-15",
+          "agent_fees": 102000,
+          "legal_fees": 7500
+        }
+      ],
+      "notes": "sold Pre-CGT origin but spouse added post-CGT. Major renovation post-CGT."
+    }
+  ],
+  "user_query": "My ex-husband bought our home in 1983 before we married. He added me to the title in 1988 when we got married. We did a $320K renovation in 2005. In the divorce I got full ownership in 2021, then rented it out. Now I'm selling. This seems incredibly complicated - half is pre-CGT, half isn't, plus the renovation?",
+  "additional_info": {
+    "australian_resident": true
+  },
+  "llm_provider": "deepseek",
+  "use_claude": true
+}

@@ -1,0 +1,146 @@
+{
+  "properties": [
+    {
+      "id": "prop-batch123-scenario37",
+      "address": "67 Garden Street, Windsor QLD 4030",
+      "property_history": [
+        {
+          "date": "2002-11-20",
+          "event": "purchase",
+          "price": 295000,
+          "stamp_duty": 10325,
+          "title": "Purchase",
+          "checkboxState": {
+            "moveInOnSameDay": true,
+            "purchaseAsVacant": false,
+            "purchaseAsRent": false,
+            "purchaseAsConstruction": false,
+            "purchaseAsBusiness": false,
+            "inheritedProperty": false,
+            "preCGTProperty": false,
+            "partialRental": false,
+            "partialBusiness": false,
+            "mixedUse": false
+          },
+          "costBases": [
+            {
+              "id": "cb-batch123-s37-purchase",
+              "definitionId": "purchase_price",
+              "name": "Purchase Price",
+              "amount": 295000,
+              "category": "element1",
+              "isCustom": false,
+              "description": "The total amount paid to acquire the property on 20 November 2002"
+            },
+            {
+              "id": "cb-batch123-s37-stamp",
+              "definitionId": "stamp_duty",
+              "name": "Stamp Duty",
+              "amount": 10325,
+              "category": "element2",
+              "isCustom": false,
+              "description": "State government transfer duty paid on property acquisition"
+            },
+            {
+              "id": "cb-batch123-s37-legal-purchase",
+              "definitionId": "legal_fees_acquire",
+              "name": "Legal Fees (Acquisition)",
+              "amount": 1750,
+              "category": "element2",
+              "isCustom": false,
+              "description": "Legal fees and conveyancing costs for property purchase"
+            }
+          ],
+          "description": "Property purchased for $295,000 by deceased"
+        },
+        {
+          "date": "2002-11-20",
+          "event": "move_in",
+          "title": "Move In",
+          "checkboxState": {},
+          "description": "Deceased moved in immediately - main residence until death"
+        },
+        {
+          "date": "2021-04-15",
+          "event": "status_change",
+          "title": "Status Change",
+          "checkboxState": {},
+          "description": "Death of owner - property passes to beneficiary. Market value at date of death: $785,000. Two-year deceased estate exemption period begins."
+        },
+        {
+          "date": "2021-04-15",
+          "event": "ownership_change",
+          "title": "Ownership Change",
+          "checkboxState": {},
+          "description": "Property inherited from mother by beneficiary",
+          "leavingOwners": [
+            "mother"
+          ],
+          "newOwners": [
+            {
+              "name": "beneficiary",
+              "percentage": 100
+            }
+          ],
+          "previousOwners": [
+            {
+              "name": "mother",
+              "percentage": 100
+            }
+          ],
+          "ownershipChangeReason": "other",
+          "ownershipChangeReasonOther": "Inheritance"
+        },
+        {
+          "date": "2024-02-20",
+          "event": "sale",
+          "price": 825000,
+          "title": "Sale",
+          "checkboxState": {},
+          "costBases": [
+            {
+              "id": "cb-batch123-s37-agent",
+              "definitionId": "agent_fees",
+              "name": "Real Estate Agent Commission",
+              "amount": 20625,
+              "category": "element5",
+              "isCustom": false,
+              "description": "Commission paid to real estate agent for sale"
+            },
+            {
+              "id": "cb-batch123-s37-legal-sale",
+              "definitionId": "legal_fees_disposal",
+              "name": "Legal Fees (Disposal)",
+              "amount": 2250,
+              "category": "element5",
+              "isCustom": false,
+              "description": "Legal fees for property sale and conveyancing"
+            }
+          ],
+          "description": "Property sold by beneficiary for $825,000 - 2 years 10 months after death (COVID extension applies)"
+        }
+      ],
+      "owners": [
+        {
+          "name": "beneficiary",
+          "percentage": 100
+        }
+      ],
+      "notes": "**COVID-19 Extension Period**\n\nProperty was deceased's main residence. Beneficiary sold within extended period due to COVID-19 delays.\n\n**Timeline:**\n- 20 Nov 2002 to 15 Apr 2021: Main residence (deceased) - 18.4 years\n- 15 Apr 2021: Death of owner - property passes to beneficiary\n- 15 Apr 2021 to 20 Feb 2024: Deceased estate period (2.85 years)\n- Sale occurred 10 months beyond normal 2-year limit\n\n**Key Rules:**\n- Normal two-year exemption: 15 Apr 2021 to 15 Apr 2023\n- COVID-19 extension available for delays in selling\n- PCG 2021/4 provides additional time for COVID-affected estates\n- Sale delays attributable to COVID-19 lockdowns and market conditions\n- **NO CGT PAYABLE** - Extended deceased estate exemption applies\n\n**Expected Result:**\n- NO CGT PAYABLE - COVID-19 extended deceased estate exemption (PCG 2021/4)\n- Beneficiary's cost base: Market value at death ($785,000)\n- Capital gain (before exemption): $17,125\n- Full exemption under extended provisions\n\n**ATO Rules Applied:**\n- Section 118-195 ITAA 1997 (Deceased Estate Exemption)\n- PCG 2021/4 (COVID-19 Extension for Deceased Estates)\n- Commissioner exercises discretion for COVID-affected sales\n- Section 128-15 ITAA 1997 (Market value cost base for beneficiary)",
+      "color": "#10B981",
+      "branch": 0
+    }
+  ],
+  "user_query": "COVID-19 Extension Period - Property at 67 Garden Street, Windsor QLD 4030, sold with COVID extension",
+  "additional_info": {
+    "australian_resident": true,
+    "tax_year": "2024-2025",
+    "scenario_number": "Scenario 37",
+    "scenario_title": "Deceased Estate - COVID-19 Extension Period",
+    "expected_outcome": "NO CGT PAYABLE - COVID-19 extended deceased estate exemption applies (PCG 2021/4)",
+    "date_of_death": "2021-04-15",
+    "market_value_at_death": 785000,
+    "covid_extension": true,
+    "subcategory": "Inheritance/Death"
+  }
+}

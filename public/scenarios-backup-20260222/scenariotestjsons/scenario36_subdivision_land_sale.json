@@ -1,0 +1,73 @@
+{
+  "title": "Subdivision and Separate Land Sale",
+  "scenario_info": {
+    "name": "Subdivision and Separate Land Sale",
+    "description": "Karen owns a large block with her main residence. She subdivides and sells the vacant block separately from the dwelling. Because the vacant block is sold separately, it is NOT eligible for the main residence exemption, even though the dwelling block remains exempt.",
+    "expected_result": {
+      "exemption_type": "none",
+      "exemption_percentage": 0,
+      "capital_gain": 10562,
+      "taxable_gain": 5281,
+      "notes": "After 50% discount. Subdivided vacant land sold separately has NO MRE."
+    },
+    "applicable_rules": [
+      "ITAA97 s118.165: Subdivided vacant land NOT exempt when sold separately",
+      "Vacant block is treated as separate CGT asset from subdivision date",
+      "Original cost base must be apportioned between lots",
+      "If sold together with dwelling, full MRE would apply to both lots",
+      "ITAA97 s115.25: 50% CGT discount applies to vacant block"
+    ]
+  },
+  "properties": [
+    {
+      "address": "100 Farmview Road, Kingaroy QLD 4610 - Lot 1 (Dwelling)",
+      "property_history": [
+        {
+          "date": "2010-03-01",
+          "event": "purchase",
+          "price": 192000,
+          "stamp_duty": 6720,
+          "purchase_legal_fees": 1500,
+          "description": "0.8 hectare portion - dwelling block (60% of original)"
+        },
+        {
+          "date": "2010-03-01",
+          "event": "move_in",
+          "description": "Established as main residence on original 1.5ha property"
+        }
+      ],
+      "notes": "Dwelling block (Lot 1). If sold, full MRE would apply. Main residence entire ownership period."
+    },
+    {
+      "address": "100A Farmview Road, Kingaroy QLD 4610 - Lot 2 (Vacant)",
+      "property_history": [
+        {
+          "date": "2010-03-01",
+          "event": "purchase",
+          "price": 128000,
+          "stamp_duty": 4480,
+          "purchase_legal_fees": 833,
+          "description": "0.7 hectare portion - vacant block (40% of original $320,000 purchase)"
+        },
+        {
+          "date": "2022-06-01",
+          "event": "status_change",
+          "description": "Property subdivided. Lot 2 becomes separate CGT asset. Subdivision costs: $8,000"
+        },
+        {
+          "date": "2024-09-15",
+          "event": "sale",
+          "price": 180000,
+          "contract_date": "2024-09-15",
+          "agent_fees": 4500,
+          "legal_fees": 1200
+        }
+      ],
+      "notes": "NO main residence exemption. Vacant block sold separately from dwelling = no MRE under s118.165. Cost base allocated at 40% of original. Capital gain: $10,562. After 50% discount: $5,281."
+    }
+  ],
+  "user_query": "I subdivided my large block and kept the house on one lot. I'm selling the vacant block separately. Do I get the main residence exemption on the vacant lot?",
+  "additional_info": {
+    "australian_resident": true
+  }
+}

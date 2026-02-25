@@ -1,0 +1,156 @@
+{
+  "properties": [
+    {
+      "id": "prop-batch123-scenario23",
+      "address": "38 University Drive, Kelvin Grove QLD 4059",
+      "property_history": [
+        {
+          "date": "2008-09-01",
+          "event": "purchase",
+          "price": 395000,
+          "stamp_duty": 13825,
+          "title": "Purchase",
+          "checkboxState": {
+            "moveInOnSameDay": true,
+            "purchaseAsVacant": false,
+            "purchaseAsRent": false,
+            "purchaseAsConstruction": false,
+            "purchaseAsBusiness": false,
+            "inheritedProperty": false,
+            "preCGTProperty": false,
+            "partialRental": false,
+            "partialBusiness": false,
+            "mixedUse": false
+          },
+          "costBases": [
+            {
+              "id": "cb-batch123-s23-purchase",
+              "definitionId": "purchase_price",
+              "name": "Purchase Price",
+              "amount": 395000,
+              "category": "element1",
+              "isCustom": false,
+              "description": "The total amount paid to acquire the property on 1 September 2008"
+            },
+            {
+              "id": "cb-batch123-s23-stamp",
+              "definitionId": "stamp_duty",
+              "name": "Stamp Duty",
+              "amount": 13825,
+              "category": "element2",
+              "isCustom": false,
+              "description": "State government transfer duty paid on property acquisition"
+            },
+            {
+              "id": "cb-batch123-s23-legal-purchase",
+              "definitionId": "legal_fees_acquire",
+              "name": "Legal Fees (Acquisition)",
+              "amount": 2100,
+              "category": "element2",
+              "isCustom": false,
+              "description": "Legal fees and conveyancing costs for property purchase"
+            }
+          ],
+          "description": "Property purchased for $395,000"
+        },
+        {
+          "date": "2008-09-01",
+          "event": "move_in",
+          "title": "Move In",
+          "checkboxState": {},
+          "description": "Moved in immediately upon purchase - used as main residence"
+        },
+        {
+          "date": "2011-03-01",
+          "event": "move_out",
+          "title": "Move Out",
+          "checkboxState": {},
+          "description": "Moved out after 2.5 years - property to be rented (First absence period)"
+        },
+        {
+          "date": "2011-03-01",
+          "event": "rent_start",
+          "title": "Start Rent",
+          "checkboxState": {
+            "partialRental": false,
+            "selectMainResidence": true,
+            "firstUseToProduceIncome": false
+          },
+          "description": "Started renting - First absence period begins (5 years)"
+        },
+        {
+          "date": "2016-03-01",
+          "event": "rent_end",
+          "title": "End Rent",
+          "checkboxState": {},
+          "description": "Ceased renting after 5 years - moving back in (First absence: 5 years - within 6-year limit)"
+        },
+        {
+          "date": "2016-03-01",
+          "event": "move_in",
+          "title": "Move In",
+          "checkboxState": {},
+          "description": "Moved back in - resets six-year absence rule clock"
+        },
+        {
+          "date": "2018-06-01",
+          "event": "move_out",
+          "title": "Move Out",
+          "checkboxState": {},
+          "description": "Moved out again after 2.25 years - property to be rented again (Second absence period)"
+        },
+        {
+          "date": "2018-06-01",
+          "event": "rent_start",
+          "title": "Start Rent",
+          "checkboxState": {
+            "partialRental": false,
+            "selectMainResidence": true,
+            "firstUseToProduceIncome": false
+          },
+          "description": "Started renting again - Second absence period begins (6.25 years - exceeds limit)"
+        },
+        {
+          "date": "2024-09-01",
+          "event": "sale",
+          "price": 785000,
+          "title": "Sale",
+          "checkboxState": {},
+          "costBases": [
+            {
+              "id": "cb-batch123-s23-agent",
+              "definitionId": "agent_fees",
+              "name": "Real Estate Agent Commission",
+              "amount": 19625,
+              "category": "element5",
+              "isCustom": false,
+              "description": "Commission paid to real estate agent for sale"
+            },
+            {
+              "id": "cb-batch123-s23-legal-sale",
+              "definitionId": "legal_fees_disposal",
+              "name": "Legal Fees (Disposal)",
+              "amount": 2450,
+              "category": "element5",
+              "isCustom": false,
+              "description": "Legal fees for property sale and conveyancing"
+            }
+          ],
+          "description": "Property sold for $785,000"
+        }
+      ],
+      "notes": "Property demonstrates how moving back in resets the six-year absence rule clock, allowing multiple absence periods.\n\n**Timeline:**\n- 1 Sep 2008 to 1 Mar 2011: Main residence (2.5 years)\n- 1 Mar 2011 to 1 Mar 2016: Rented - First absence (5 years - within 6-year limit)\n- 1 Mar 2016 to 1 Jun 2018: Main residence again (2.25 years) - **RESETS CLOCK**\n- 1 Jun 2018 to 1 Sep 2024: Rented - Second absence (6.25 years - exceeds 6-year limit)\n- Total ownership: 16 years\n\n**Key Calculations:**\n- First absence: 5 years (within limit) - fully exempt\n- Moving back in resets the six-year rule\n- Second absence: 6.25 years (0.25 years exceeds limit)\n- Taxable period: 0.25/16 years = 1.56% taxable\n- Total capital gain: $345,000\n- After time apportionment and 50% CGT discount\n- **NET CAPITAL GAIN: $2,692**\n\n**Expected Result:**\n- NET CAPITAL GAIN = $2,692\n- Only 0.25 years (3 months) of the second absence period is taxable\n\n**ATO Rules Applied:**\n- Section 118-145 ITAA 1997 (Six-Year Absence Rule)\n- Moving back in as main residence resets the six-year clock\n- Section 115-25 ITAA 1997 (50% CGT discount)",
+      "color": "#F59E0B",
+      "branch": 0
+    }
+  ],
+  "user_query": "Property at 38 University Drive, Kelvin Grove QLD 4059, multiple absence periods with reset when moved back in",
+  "additional_info": {
+    "australian_resident": true,
+    "tax_year": "2024-2025",
+    "scenario_number": "Scenario 23",
+    "scenario_title": "Six-Year Absence Rule - Multiple Periods with Reset",
+    "expected_outcome": "NET CAPITAL GAIN = $2,692 (only 0.25 years of second absence exceeds 6-year limit)",
+    "subcategory": "Partial - 6-Year Rule"
+  }
+}

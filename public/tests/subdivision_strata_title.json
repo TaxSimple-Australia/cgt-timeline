@@ -1,45 +1,180 @@
 {
   "properties": [
     {
+      "id": "prop-12duplex-parent",
       "address": "12 Duplex Drive, Randwick NSW 2031",
+      "original_lot": "Original duplex property",
       "property_history": [
         {
           "date": "2012-04-10",
           "event": "purchase",
           "price": 920000,
           "stamp_duty": 38000,
-          "purchase_legal_fees": 3500
+          "title": "Purchase",
+          "checkboxState": {
+            "moveInOnSameDay": false,
+            "purchaseAsVacant": false,
+            "purchaseAsRent": false,
+            "purchaseAsConstruction": false,
+            "purchaseAsBusiness": false,
+            "inheritedProperty": false,
+            "preCGTProperty": false,
+            "partialRental": false,
+            "partialBusiness": false,
+            "mixedUse": false
+          },
+          "costBases": [
+            {
+              "id": "cb-12duplex-purchase",
+              "definitionId": "purchase_price",
+              "name": "Purchase Price",
+              "amount": 920000,
+              "category": "element1",
+              "isCustom": false,
+              "description": "Duplex property purchased as main residence"
+            },
+            {
+              "id": "cb-12duplex-stamp",
+              "definitionId": "stamp_duty",
+              "name": "Stamp Duty",
+              "amount": 38000,
+              "category": "element2",
+              "isCustom": false,
+              "description": "State government transfer duty"
+            },
+            {
+              "id": "cb-12duplex-legal",
+              "definitionId": "legal_fees_acquire",
+              "name": "Legal Fees (Acquisition)",
+              "amount": 3500,
+              "category": "element2",
+              "isCustom": false,
+              "description": "Legal fees and conveyancing costs"
+            }
+          ],
+          "description": "Duplex property purchased for $920,000",
+          "notes": "Duplex property purchased for $920,000"
         },
         {
           "date": "2012-05-01",
-          "event": "move_in"
+          "event": "move_in",
+          "title": "Move In",
+          "checkboxState": {},
+          "description": "Moved in - main residence",
+          "notes": "Moved in - main residence"
         },
         {
           "date": "2020-08-01",
-          "event": "strata_subdivision",
-          "subdivision_costs": 35000,
-          "valuation_unit_a": 750000,
-          "valuation_unit_b": 700000,
-          "total_value_at_subdivision": 1450000
-        },
+          "event": "subdivision",
+          "title": "Subdivided",
+          "color": "#EC4899",
+          "subdivisionDetails": {
+            "childPropertyIds": [
+              "prop-12duplex-unitA",
+              "prop-12duplex-unitB"
+            ],
+            "totalLots": 2,
+            "subdivisionCosts": 35000,
+            "lotSizes": {
+              "unitA": "Unit A (duplex side)",
+              "unitB": "Unit B (duplex side)"
+            },
+            "approvalDate": "2020-08-01",
+            "registrationDate": "2020-08-01",
+            "valuations": {
+              "unitA": 750000,
+              "unitB": 700000
+            },
+            "notes": "Strata subdivision registered - duplex converted to strata title. Unit A (owner-occupied) retained. Unit B rented then sold."
+          },
+          "checkboxState": {},
+          "description": "Strata subdivision - duplex converted to strata title. Unit A (owner continues living). Unit B to be rented."
+        }
+      ],
+      "notes": "Duplex property converted to strata title (2 units) in 2020. Unit A retained as main residence. Unit B rented then sold. Market value at subdivision: Unit A $750,000 (51.7%), Unit B $700,000 (48.3%). Subdivision costs: $35,000.",
+      "color": "#10B981",
+      "branch": 0,
+      "subdivisionGroup": "512b0106-cf41-4b24-983e-9cf7ecfb3542",
+      "subdivisionDate": "2020-08-01"
+    },
+    {
+      "id": "prop-12duplex-unitA",
+      "address": "Unit A, 12 Duplex Drive, Randwick NSW 2031",
+      "original_lot": "Unit A (Strata)",
+      "parentPropertyId": "prop-12duplex-parent",
+      "property_history": [],
+      "notes": "Unit A - Strata unit retained as main residence. Owner continues living here. Market value at subdivision: $750,000 (51.7%). Still held.",
+      "color": "#10B981",
+      "branch": 0,
+      "subdivisionGroup": "512b0106-cf41-4b24-983e-9cf7ecfb3542",
+      "subdivisionDate": "2020-08-01",
+      "isMainLotContinuation": true,
+      "lotNumber": "1",
+      "lotSize": "Unit A"
+    },
+    {
+      "id": "prop-12duplex-unitB",
+      "address": "Unit B, 12 Duplex Drive, Randwick NSW 2031",
+      "original_lot": "Unit B (Strata)",
+      "parentPropertyId": "prop-12duplex-parent",
+      "property_history": [
         {
           "date": "2020-09-01",
-          "event": "rent_start_unit_b"
+          "event": "rent_start",
+          "title": "Start Rent",
+          "checkboxState": {
+            "partialRental": false,
+            "selectMainResidence": false
+          },
+          "description": "Started renting Unit B (post-strata subdivision)",
+          "notes": "Started renting Unit B"
         },
         {
           "date": "2025-06-30",
-          "event": "rent_end_unit_b"
+          "event": "rent_end",
+          "title": "End Rent",
+          "checkboxState": {},
+          "description": "Ended renting Unit B to prepare for sale",
+          "notes": "Ended renting Unit B"
         },
         {
           "date": "2025-07-15",
           "event": "sale",
           "price": 820000,
+          "title": "Sale",
+          "checkboxState": {},
+          "costBases": [
+            {
+              "id": "cb-12duplex-unitB-agent",
+              "definitionId": "agent_fees",
+              "name": "Real Estate Agent Commission",
+              "amount": 20500,
+              "category": "element5",
+              "isCustom": false,
+              "description": "Commission paid to real estate agent for sale"
+            },
+            {
+              "id": "cb-12duplex-unitB-legal",
+              "definitionId": "legal_fees_disposal",
+              "name": "Legal Fees (Disposal)",
+              "amount": 2600,
+              "category": "element5",
+              "isCustom": false,
+              "description": "Legal fees for property sale and conveyancing"
+            }
+          ],
+          "description": "Unit B (strata unit) sold for $820,000. Rented for 4.83 years. Cost base apportioned from original duplex.",
           "contract_date": "2025-07-15",
-          "agent_fees": 20500,
-          "legal_fees": 2600
+          "notes": "Strata unit sold after being rented"
         }
       ],
-      "notes": "sold - Duplex converted to strata title 2020. Owner lives in Unit A (main residence). Unit B rented then sold."
+      "notes": "Unit B - Strata unit created from duplex. Market value at subdivision: $700,000 (48.3%). Rented from 2020-09-01 to 2025-06-30 (4.83 years). Sold 2025-07-15.",
+      "color": "#F59E0B",
+      "branch": 1,
+      "subdivisionGroup": "512b0106-cf41-4b24-983e-9cf7ecfb3542",
+      "subdivisionDate": "2020-08-01",
+      "lotNumber": "2",
+      "lotSize": "Unit B"
     }
   ],
   "user_query": "I converted my duplex to strata title in 2020. I live in one unit and rented out the other. I've now sold the rental unit. How do I calculate CGT for the strata unit?",
@@ -47,5 +182,9 @@
     "australian_resident": true
   },
   "llm_provider": "deepseek",
-  "use_claude": true
+  "use_claude": true,
+  "scenario_info": {
+    "name": "Subdivision - Strata Title (Duplex)",
+    "description": "I converted my duplex to strata title in 2020. I live in one unit and rented out the other. I've now sold the rental unit. How do I calculate CGT for the strata unit?"
+  }
 }

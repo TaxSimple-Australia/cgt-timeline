@@ -66,6 +66,7 @@
   ],
   "user_query": "I bought a unit as an investment, rented it for 3.5 years, then moved in for 3 years, then moved out and rented again for 4 years before selling. What is my CGT liability?",
   "additional_info": {
-    "australian_resident": true
+    "australian_resident": true,
+    "subcategory": "Partial - Time Apportionment"
   }
 }

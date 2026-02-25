@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, FolderOpen, FileJson, Loader2, Info, ChevronLeft, Home, Building2, TrendingUp, Search, Filter, FlaskConical, DollarSign, Calendar, MapPin, Clock, HelpCircle, ArrowRight, User, Percent } from 'lucide-react';
+import { X, FolderOpen, FileJson, Loader2, Info, ChevronLeft, Home, Building2, TrendingUp, Search, Filter, FlaskConical, DollarSign, Calendar, MapPin, Clock, HelpCircle, ArrowRight, User, Percent, ChevronDown, ChevronRight } from 'lucide-react';
 import { useTimelineStore } from '@/store/timeline';
 import { cn } from '@/lib/utils';
 
@@ -56,6 +56,7 @@ interface Scenario {
   title: string;
   description: string;
   category: string;
+  subcategory?: string | null;
   scenario_info?: ScenarioInfo;
   propertyCount?: number;
   path?: string;
@@ -71,6 +72,7 @@ interface ScenarioManifest {
   generatedAt: string;
   totalScenarios: number;
   categories: Record<string, number>;
+  subcategories?: Record<string, Record<string, number>>;
   scenarios: Scenario[];
 }
 
@@ -79,13 +81,15 @@ interface ScenarioSelectorModalProps {
   onClose: () => void;
 }
 
-// Category configuration
+// Category configuration - New 7-category system
 const CATEGORIES = [
-  { id: 'all', label: 'All Scenarios', icon: Filter },
-  { id: 'Core Concepts', label: 'Core Concepts', icon: Home },
-  { id: 'Multi-Factor', label: 'Multi-Factor', icon: TrendingUp },
-  { id: 'Special Rules', label: 'Special Rules', icon: Building2 },
-  { id: 'Real-World', label: 'Real-World', icon: FlaskConical },
+  { id: 'all', label: 'All Scenarios', ariaLabel: 'Show all scenarios', icon: Filter },
+  { id: 'Main Residence', label: 'Main Residence', ariaLabel: 'Main residence properties', icon: Home },
+  { id: 'Ownership Changes', label: 'Ownership Changes', ariaLabel: 'Ownership change scenarios', icon: User },
+  { id: 'Subdivision', label: 'Subdivision', ariaLabel: 'Subdivision scenarios', icon: Building2 },
+  { id: 'Multi-Property Portfolios', label: 'Multi-Property', ariaLabel: 'Multi-property portfolios', icon: TrendingUp },
+  { id: 'Foreign Resident', label: 'Foreign Resident', ariaLabel: 'Foreign resident scenarios', icon: MapPin },
+  { id: 'Special Rules & Exemptions', label: 'Special Rules', ariaLabel: 'Special rules and exemptions', icon: FlaskConical },
 ];
 
 // Global cache for manifest - persists across modal opens/closes
@@ -98,8 +102,11 @@ export default function ScenarioSelectorModal({ isOpen, onClose }: ScenarioSelec
   const [mounted, setMounted] = useState(false);
   const [viewingScenario, setViewingScenario] = useState<Scenario | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [selectedSubcategory, setSelectedSubcategory] = useState<string | null>(null);
+  const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
   const [searchQuery, setSearchQuery] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [subcategoryMap, setSubcategoryMap] = useState<Record<string, Record<string, number>>>({});
 
   const { importTimelineData, clearAllData } = useTimelineStore();
 
@@ -114,6 +121,8 @@ export default function ScenarioSelectorModal({ isOpen, onClose }: ScenarioSelec
       // Reset view state when opening
       setViewingScenario(null);
       setSelectedCategory('all');
+      setSelectedSubcategory(null);
+      setExpandedCategories(new Set());
       setSearchQuery('');
       setError(null);
       loadManifest();
@@ -124,6 +133,7 @@ export default function ScenarioSelectorModal({ isOpen, onClose }: ScenarioSelec
     // Use cached manifest if available
     if (manifestCache) {
       setScenarios(manifestCache.scenarios);
+      setSubcategoryMap(manifestCache.subcategories || {});
       setLoading(false);
       console.log('📦 Using cached scenarios manifest');
       return;
@@ -139,6 +149,7 @@ export default function ScenarioSelectorModal({ isOpen, onClose }: ScenarioSelec
       const manifest: ScenarioManifest = await response.json();
       manifestCache = manifest; // Cache for future use
       setScenarios(manifest.scenarios);
+      setSubcategoryMap(manifest.subcategories || {});
       console.log(`✅ Loaded ${manifest.totalScenarios} scenarios from manifest (v${manifest.version})`);
     } catch (err) {
       console.error('❌ Failed to load manifest:', err);
@@ -148,16 +159,17 @@ export default function ScenarioSelectorModal({ isOpen, onClose }: ScenarioSelec
     }
   };
 
-  // Filter scenarios based on category and search
+  // Filter scenarios based on category, subcategory, and search
   const filteredScenarios = useMemo(() => {
     return scenarios.filter(scenario => {
       const matchesCategory = selectedCategory === 'all' || scenario.category === selectedCategory;
+      const matchesSubcategory = !selectedSubcategory || scenario.subcategory === selectedSubcategory;
       const matchesSearch = searchQuery === '' ||
         scenario.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         scenario.description.toLowerCase().includes(searchQuery.toLowerCase());
-      return matchesCategory && matchesSearch;
+      return matchesCategory && matchesSubcategory && matchesSearch;
     });
-  }, [scenarios, selectedCategory, searchQuery]);
+  }, [scenarios, selectedCategory, selectedSubcategory, searchQuery]);
 
   // Get counts per category
   const categoryCounts = useMemo(() => {
@@ -202,16 +214,52 @@ export default function ScenarioSelectorModal({ isOpen, onClose }: ScenarioSelec
     setViewingScenario(null);
   };
 
-  // Get category color
+  // Handle category selection with hierarchical support
+  const handleCategorySelect = (categoryId: string) => {
+    if (categoryId === selectedCategory) {
+      // Toggle expansion if clicking the same category
+      const newExpanded = new Set(expandedCategories);
+      if (newExpanded.has(categoryId)) {
+        newExpanded.delete(categoryId);
+      } else {
+        newExpanded.add(categoryId);
+      }
+      setExpandedCategories(newExpanded);
+    } else {
+      // Select new category
+      setSelectedCategory(categoryId);
+      setSelectedSubcategory(null); // Reset subcategory
+      // Auto-expand if category has subcategories
+      if (subcategoryMap[categoryId]) {
+        const newExpanded = new Set(expandedCategories);
+        newExpanded.add(categoryId);
+        setExpandedCategories(newExpanded);
+      }
+    }
+  };
+
+  // Handle subcategory selection
+  const handleSubcategorySelect = (category: string, subcategory: string) => {
+    if (selectedCategory !== category) {
+      setSelectedCategory(category);
+    }
+    setSelectedSubcategory(selectedSubcategory === subcategory ? null : subcategory);
+  };
+
+  // Get category color - New 7-category system
   const getCategoryColor = (category: string) => {
     switch (category) {
-      case 'Core Concepts':
+      case 'Main Residence':
         return 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400';
-      case 'Multi-Factor':
+      case 'Ownership Changes':
         return 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400';
-      case 'Special Rules':
+      case 'Subdivision':
+        return 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400';
+      case 'Multi-Property Portfolios':
         return 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400';
-      case 'Real-World':
+      case 'Foreign Resident':
+        return 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400';
+      case 'Special Rules & Exemptions':
         return 'bg-cyan-100 text-cyan-700 dark:bg-cyan-900/30 dark:text-cyan-400';
       default:
         return 'bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300';
@@ -269,40 +317,9 @@ export default function ScenarioSelectorModal({ isOpen, onClose }: ScenarioSelec
                 {/* Category Tabs and Search */}
                 {!viewingScenario && !loading && (
                   <div className="px-6 py-3 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50">
-                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-                      {/* Category Tabs */}
-                      <div className="flex items-center gap-2 flex-wrap">
-                        {CATEGORIES.map((cat) => {
-                          const Icon = cat.icon;
-                          const isActive = selectedCategory === cat.id;
-                          return (
-                            <button
-                              key={cat.id}
-                              onClick={() => setSelectedCategory(cat.id)}
-                              className={cn(
-                                'flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-all',
-                                isActive
-                                  ? 'bg-blue-500 text-white shadow-md'
-                                  : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-600'
-                              )}
-                            >
-                              <Icon className="w-4 h-4" />
-                              <span>{cat.label}</span>
-                              <span className={cn(
-                                'px-1.5 py-0.5 rounded-full text-xs',
-                                isActive
-                                  ? 'bg-white/20 text-white'
-                                  : 'bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400'
-                              )}>
-                                {categoryCounts[cat.id] || 0}
-                              </span>
-                            </button>
-                          );
-                        })}
-                      </div>
-
+                    <div className="flex flex-col gap-3">
                       {/* Search */}
-                      <div className="relative w-full sm:w-64">
+                      <div className="relative w-full">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                         <input
                           type="text"
@@ -311,6 +328,105 @@ export default function ScenarioSelectorModal({ isOpen, onClose }: ScenarioSelec
                           onChange={(e) => setSearchQuery(e.target.value)}
                           className="w-full pl-9 pr-4 py-2 text-sm bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500"
                         />
+                      </div>
+
+                      {/* Category Tabs with Hierarchical Subcategories */}
+                      <div className="flex flex-col gap-2">
+                        {/* Main Category Tabs */}
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          {CATEGORIES.map((cat) => {
+                            const Icon = cat.icon;
+                            const isActive = selectedCategory === cat.id;
+                            const hasSubcategories = subcategoryMap[cat.id] && Object.keys(subcategoryMap[cat.id]).length > 0;
+                            const isExpanded = expandedCategories.has(cat.id);
+
+                            return (
+                              <button
+                                key={cat.id}
+                                onClick={() => handleCategorySelect(cat.id)}
+                                aria-label={cat.ariaLabel}
+                                title={cat.label}
+                                className={cn(
+                                  'flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-sm font-medium transition-all',
+                                  isActive
+                                    ? 'bg-blue-500 text-white shadow-md'
+                                    : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-600'
+                                )}
+                              >
+                                <Icon className="w-4 h-4" />
+                                <span className="hidden md:inline">{cat.label}</span>
+                                <span className={cn(
+                                  'px-1.5 py-0.5 rounded-full text-xs',
+                                  isActive
+                                    ? 'bg-white/20 text-white'
+                                    : 'bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400'
+                                )}>
+                                  {categoryCounts[cat.id] || 0}
+                                </span>
+                                {hasSubcategories && cat.id !== 'all' && (
+                                  <motion.div
+                                    initial={false}
+                                    animate={{ rotate: isExpanded && isActive ? 180 : 0 }}
+                                    transition={{ duration: 0.2 }}
+                                  >
+                                    <ChevronDown className="w-3.5 h-3.5" />
+                                  </motion.div>
+                                )}
+                              </button>
+                            );
+                          })}
+                        </div>
+
+                        {/* Subcategory Pills - Show when category is expanded */}
+                        <AnimatePresence>
+                          {CATEGORIES.map((cat) => {
+                            const isExpanded = expandedCategories.has(cat.id) && selectedCategory === cat.id;
+                            const subcategories = subcategoryMap[cat.id];
+
+                            if (!isExpanded || !subcategories) return null;
+
+                            return (
+                              <motion.div
+                                key={`subcats-${cat.id}`}
+                                initial={{ height: 0, opacity: 0 }}
+                                animate={{ height: 'auto', opacity: 1 }}
+                                exit={{ height: 0, opacity: 0 }}
+                                transition={{ duration: 0.2 }}
+                                className="overflow-hidden pl-4"
+                              >
+                                <div className="flex items-center gap-2 flex-wrap pt-2 border-l-2 border-blue-300 dark:border-blue-700 pl-3">
+                                  {Object.entries(subcategories).map(([subcatName, count]) => {
+                                    const isSubcatActive = selectedSubcategory === subcatName;
+
+                                    return (
+                                      <button
+                                        key={subcatName}
+                                        onClick={() => handleSubcategorySelect(cat.id, subcatName)}
+                                        className={cn(
+                                          'flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium transition-all',
+                                          isSubcatActive
+                                            ? 'bg-blue-400 text-white shadow-sm'
+                                            : 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600 border border-slate-200 dark:border-slate-600'
+                                        )}
+                                      >
+                                        <ChevronRight className="w-3 h-3" />
+                                        <span>{subcatName}</span>
+                                        <span className={cn(
+                                          'px-1 py-0.5 rounded text-xs',
+                                          isSubcatActive
+                                            ? 'bg-white/20 text-white'
+                                            : 'bg-slate-200 dark:bg-slate-600 text-slate-500 dark:text-slate-400'
+                                        )}>
+                                          {count}
+                                        </span>
+                                      </button>
+                                    );
+                                  })}
+                                </div>
+                              </motion.div>
+                            );
+                          })}
+                        </AnimatePresence>
                       </div>
                     </div>
                   </div>

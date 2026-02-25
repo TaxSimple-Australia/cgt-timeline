@@ -1,0 +1,45 @@
+{
+  "properties": [
+    {
+      "address": "Lot 15, Rural Road, Wilberforce NSW 2756",
+      "property_history": [
+        {
+          "date": "1978-03-15",
+          "event": "purchase_by_deceased",
+          "price": 25000,
+          "purchase_legal_fees": 800,
+          "notes": "Father purchased vacant rural land - never developed or built on it."
+        },
+        {
+          "date": "2022-11-20",
+          "event": "death_of_owner",
+          "market_value_at_death": 680000,
+          "notes": "Father passed away. Land was never his main residence (vacant land)."
+        },
+        {
+          "date": "2023-02-15",
+          "event": "inherited",
+          "beneficiary": "Son",
+          "notes": "Inherited under will."
+        },
+        {
+          "date": "2025-08-20",
+          "event": "sale",
+          "price": 780000,
+          "contract_date": "2025-08-20",
+          "agent_fees": 19500,
+          "legal_fees": 2800,
+          "notes": "Sold within 2 years of death"
+        }
+      ],
+      "notes": "sold - Inherited vacant land. Father owned pre-CGT (1978). Never developed."
+    }
+  ],
+  "user_query": "My father bought vacant land in 1978 for $25,000 and never built on it. He passed away in 2022 and I inherited it. I've now sold it for $780,000. Since the land was bought before CGT, is it still exempt? I heard there's a 2-year rule for inherited property.",
+  "additional_info": {
+    "australian_resident": true
+  },
+  "llm_provider": "deepseek",
+  "use_claude": true
+ 
+}

@@ -1,0 +1,51 @@
+{
+  "properties": [
+    {
+      "address": "12 Duplex Drive, Randwick NSW 2031",
+      "property_history": [
+        {
+          "date": "2012-04-10",
+          "event": "purchase",
+          "price": 920000,
+          "stamp_duty": 38000,
+          "purchase_legal_fees": 3500
+        },
+        {
+          "date": "2012-05-01",
+          "event": "move_in"
+        },
+        {
+          "date": "2020-08-01",
+          "event": "strata_subdivision",
+          "subdivision_costs": 35000,
+          "valuation_unit_a": 750000,
+          "valuation_unit_b": 700000,
+          "total_value_at_subdivision": 1450000
+        },
+        {
+          "date": "2020-09-01",
+          "event": "rent_start_unit_b"
+        },
+        {
+          "date": "2025-06-30",
+          "event": "rent_end_unit_b"
+        },
+        {
+          "date": "2025-07-15",
+          "event": "sale",
+          "price": 820000,
+          "contract_date": "2025-07-15",
+          "agent_fees": 20500,
+          "legal_fees": 2600
+        }
+      ],
+      "notes": "sold - Duplex converted to strata title 2020. Owner lives in Unit A (main residence). Unit B rented then sold."
+    }
+  ],
+  "user_query": "I converted my duplex to strata title in 2020. I live in one unit and rented out the other. I've now sold the rental unit. How do I calculate CGT for the strata unit?",
+  "additional_info": {
+    "australian_resident": true
+  },
+  "llm_provider": "deepseek",
+  "use_claude": true
+}

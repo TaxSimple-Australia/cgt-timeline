@@ -1,0 +1,86 @@
+{
+  "title": "Couple Marries with Separate Properties",
+  "scenario_info": {
+    "name": "Couple with Separate Properties Before Marriage",
+    "description": "Alex and Sam each own a home before they get married. After cohabitation, they can only claim one property as main residence. Alex's property becomes partially taxable.",
+    "expected_result": {
+      "exemption_type": "partial",
+      "exemption_percentage": 50.68,
+      "taxable_proportion": 49.32,
+      "notes": "From cohabitation date, couple must choose ONE main residence"
+    },
+    "applicable_rules": [
+      "Couples can only claim ONE main residence at any time",
+      "From cohabitation (1 Mar 2020), must choose which property is MR",
+      "Alex's property: MR for 1,705 days before cohabitation",
+      "Alex's property: NOT MR for 1,660 days after cohabitation",
+      "Total ownership: 3,365 days",
+      "ITAA97 s115.25: 50% CGT discount applies"
+    ]
+  },
+  "properties": [
+    {
+      "address": "18 Oxford Street, Bulimba QLD 4171",
+      "property_history": [
+        {
+          "date": "2015-07-01",
+          "event": "purchase",
+          "price": 580000,
+          "stamp_duty": 23200,
+          "purchase_legal_fees": 2900
+        },
+        {
+          "date": "2015-07-01",
+          "event": "move_in",
+          "description": "Alex established as main residence"
+        },
+        {
+          "date": "2020-03-01",
+          "event": "move_out",
+          "description": "Alex moves in with Sam - couple chooses Sam's property as joint MR"
+        },
+        {
+          "date": "2020-03-01",
+          "event": "rent_start",
+          "description": "Alex's property now rented"
+        },
+        {
+          "date": "2024-09-15",
+          "event": "sale",
+          "price": 920000,
+          "contract_date": "2024-09-15",
+          "agent_fees": 23000,
+          "legal_fees": 2600
+        }
+      ],
+      "notes": "Alex's property before marriage. From cohabitation, couple claimed Sam's property as MR, so six-year rule cannot apply here."
+    },
+    {
+      "address": "42 Moray Street, New Farm QLD 4005",
+      "property_history": [
+        {
+          "date": "2017-01-15",
+          "event": "purchase",
+          "price": 650000,
+          "stamp_duty": 26000,
+          "purchase_legal_fees": 3100
+        },
+        {
+          "date": "2017-01-15",
+          "event": "move_in",
+          "description": "Sam established as main residence"
+        },
+        {
+          "date": "2020-03-01",
+          "event": "status_change",
+          "description": "Alex moves in - becomes couple's joint main residence"
+        }
+      ],
+      "notes": "Sam's property - continues as couple's main residence after marriage. Not being sold."
+    }
+  ],
+  "user_query": "Alex and Sam each owned a home before getting together. When Alex moved in with Sam in March 2020, they chose Sam's place as their main residence. Alex then rented out and sold the Bulimba property. What is the CGT on Alex's property?",
+  "additional_info": {
+    "australian_resident": true
+  }
+}

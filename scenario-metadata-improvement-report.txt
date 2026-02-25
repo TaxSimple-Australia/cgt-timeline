@@ -1,0 +1,209 @@
+================================================================================
+SCENARIO METADATA IMPROVEMENT REPORT
+Generated: 2026-02-22T16:56:33.514Z
+================================================================================
+
+SUMMARY
+--------------------------------------------------------------------------------
+Total Scenarios Scanned:     87
+Scenarios Updated:           49
+Scenarios Skipped:           38
+Titles Improved:             49
+Descriptions Added:          47
+
+DETAILED CHANGES
+--------------------------------------------------------------------------------
+
+1. new_scenario_1_full_main_residence.json
+   Title: "Full Main Residence" → "Full Main Residence"
+   Description: Added from user_query
+
+2. new_scenario_2_six_year_within.json
+   Title: "Six Year Within" → "Six Year Within"
+   Description: Added from user_query
+
+3. new_scenario_3_six_year_exceeded.json
+   Title: "Six Year Exceeded" → "Six Year Exceeded"
+   Description: Added from user_query
+
+4. new_scenario_4_rental_first.json
+   Title: "Rental First" → "Six-Year Absence Rule - Within Limit"
+   Description: Added from user_query
+
+5. new_scenario_5_moving_between_residences.json
+   Title: "Moving Between Residences" → "Moving Between Main Residences"
+   Description: Added from user_query
+
+6. scenario1_full_main_residence_exemption.json
+   Title: "Full Main Residence Exemption" → "Full Main Residence Exemption"
+
+7. scenario28_granny_flat_arrangement.json
+   Title: "Granny Flat Arrangement" → "Partial Use - Granny Flat Arrangement"
+
+8. aged_care_main_residence.json
+   Title: "Aged Care Main Residence" → "Aged Care - Indefinite Absence Exemption"
+   Description: Added from user_query
+
+9. airbnb_investment_only.json
+   Title: "Airbnb Investment Only" → "Airbnb - Investment Property"
+   Description: Added from user_query
+
+10. airbnb_spare_room.json
+   Title: "Airbnb Spare Room" → "Partial Use - Airbnb Spare Room"
+   Description: Added from user_query
+
+11. bare_trust_no_cgt.json
+   Title: "Bare Trust No Cgt" → "Bare Trust - No CGT Event"
+   Description: Added from user_query
+
+12. compulsory_acquisition_rollover.json
+   Title: "Compulsory Acquisition Rollover" → "Compulsory Acquisition Rollover"
+   Description: Added from user_query
+
+13. death_of_joint_owner.json
+   Title: "Death Of Joint Owner" → "Inherited Property"
+   Description: Added from user_query
+
+14. defacto_breakdown_rollover.json
+   Title: "Defacto Breakdown Rollover" → "Relationship Breakdown - CGT Rollover"
+   Description: Added from user_query
+
+15. divorce_complex_mre_then_rented_after_transfer.json
+   Title: "Divorce Complex Mre Then Rented After Transfer" → "Six-Year Absence Rule - Within Limit"
+   Description: Added from user_query
+
+16. executor_sale_before_distribution.json
+   Title: "Executor Sale Before Distribution" → "Executor Sale Before Distribution"
+   Description: Added from user_query
+
+17. first_use_overseas_posting.json
+   Title: "First Use Overseas Posting" → "Six-Year Absence Rule - Within Limit"
+   Description: Added from user_query
+
+18. inherited_land_built_dwelling_then_sold.json
+   Title: "Inherited Land Built Dwelling Then Sold" → "Inherited Land - Vacant Pre-CGT"
+   Description: Added from user_query
+
+19. inherited_land_farmland_subdivided_sold.json
+   Title: "Inherited Land Farmland Subdivided Sold" → "Subdivision - Farmland Subdivided and Sold"
+   Description: Added from user_query
+
+20. inherited_land_vacant_pre_cgt_deceased.json
+   Title: "Inherited Land Vacant Pre Cgt Deceased" → "Inheritance - Pre-CGT Property"
+   Description: Added from user_query
+
+21. inherited_property_2year_rule.json
+   Title: "Inherited Property 2year Rule" → "Six-Year Absence Rule - Within Limit"
+   Description: Added from user_query
+
+22. investment_property_divorce_transfer.json
+   Title: "Investment Property Divorce Transfer" → "Six-Year Absence Rule Exceeded"
+   Description: Added from user_query
+
+23. joint_ownership_main_residence_choice.json
+   Title: "Joint Ownership Main Residence Choice" → "Six-Year Absence Rule - Within Limit"
+   Description: Added from user_query
+
+24. joint_sale_during_separation.json
+   Title: "Joint Sale During Separation" → "Relationship Breakdown - Property Transfer"
+   Description: Added from user_query
+
+25. joint_tenants_equal_split.json
+   Title: "Joint Tenants Equal Split" → "Six-Year Absence Rule Exceeded"
+   Description: Added from user_query
+
+26. main_residence_land_exceeds_2ha.json
+   Title: "Main Residence Land Exceeds 2ha" → "Large Rural Property - Land Exceeding 2 Hectares"
+   Description: Added from user_query
+
+27. mortgagee_sale_foreclosure.json
+   Title: "Mortgagee Sale Foreclosure" → "Six-Year Absence Rule - Within Limit"
+   Description: Added from user_query
+
+28. multiple_beneficiaries.json
+   Title: "Multiple Beneficiaries" → "Six-Year Absence Rule - Within Limit"
+   Description: Added from user_query
+
+29. pre_cgt_inheritance.json
+   Title: "Pre Cgt Inheritance" → "Six-Year Absence Rule - Within Limit"
+   Description: Added from user_query
+
+30. pre_cgt_property_with_improvements.json
+   Title: "Pre Cgt Property With Improvements" → "Six-Year Absence Rule - Within Limit"
+   Description: Added from user_query
+
+31. relationship_breakdown_rollover.json
+   Title: "Relationship Breakdown Rollover" → "Six-Year Absence Rule - Within Limit"
+   Description: Added from user_query
+
+32. six_month_overlap_old_home_rented.json
+   Title: "Six Month Overlap Old Home Rented" → "Six-Year Absence Rule - Within Limit"
+   Description: Added from user_query
+
+33. six_year_rule_exceeded.json
+   Title: "Six Year Rule Exceeded" → "Six-Year Absence Rule Exceeded"
+   Description: Added from user_query
+
+34. six_year_rule_multiple_absences.json
+   Title: "Six Year Rule Multiple Absences" → "Six-Year Absence Rule - Within Limit"
+   Description: Added from user_query
+
+35. six_year_rule_within_limit.json
+   Title: "Six Year Rule Within Limit" → "Six-Year Absence Rule - Within Limit"
+   Description: Added from user_query
+
+36. subdivision_build_and_sell.json
+   Title: "Subdivision Build And Sell" → "Six-Year Absence Rule - Within Limit"
+   Description: Added from user_query
+
+37. subdivision_main_residence_vacant_land.json
+   Title: "Subdivision Main Residence Vacant Land" → "Subdivision - Vacant Land Sold Separately"
+   Description: Added from user_query
+
+38. subdivision_multiple_lots_sold.json
+   Title: "Subdivision Multiple Lots Sold" → "Property Subdivision"
+   Description: Added from user_query
+
+39. subdivision_pre_cgt_property.json
+   Title: "Subdivision Pre Cgt Property" → "Subdivision - Pre-CGT Property"
+   Description: Added from user_query
+
+40. subdivision_retain_dwelling_sell_vacant.json
+   Title: "Subdivision Retain Dwelling Sell Vacant" → "Property Subdivision"
+   Description: Added from user_query
+
+41. subdivision_strata_title.json
+   Title: "Subdivision Strata Title" → "Six-Year Absence Rule - Within Limit"
+   Description: Added from user_query
+
+42. tenants_in_common_unequal.json
+   Title: "Tenants In Common Unequal" → "Six-Year Absence Rule Exceeded"
+   Description: Added from user_query
+
+43. time_apportionment_multiple_periods.json
+   Title: "Time Apportionment Multiple Periods" → "Six-Year Absence Rule - Within Limit"
+   Description: Added from user_query
+
+44. time_apportionment_with_absence_rule.json
+   Title: "Time Apportionment With Absence Rule" → "Six-Year Absence Rule Exceeded"
+   Description: Added from user_query
+
+45. transfer_to_family_trust.json
+   Title: "Transfer To Family Trust" → "Six-Year Absence Rule Exceeded"
+   Description: Added from user_query
+
+46. trust_distribution_to_beneficiary.json
+   Title: "Trust Distribution To Beneficiary" → "Six-Year Absence Rule Exceeded"
+   Description: Added from user_query
+
+47. two_year_building_rule_eligible.json
+   Title: "Two Year Building Rule Eligible" → "Construction and Main Residence"
+   Description: Added from user_query
+
+48. two_year_building_rule_exceeded.json
+   Title: "Two Year Building Rule Exceeded" → "Construction and Main Residence"
+   Description: Added from user_query
+
+49. two_year_building_rule_renovation.json
+   Title: "Two Year Building Rule Renovation" → "Construction and Main Residence"
+   Description: Added from user_query

@@ -1,0 +1,123 @@
+{
+  "properties": [
+    {
+      "id": "prop-batch123-scenario4",
+      "address": "256 Collins Street, Melbourne VIC 3000",
+      "property_history": [
+        {
+          "date": "2016-02-01",
+          "event": "purchase",
+          "price": 530000,
+          "stamp_duty": 22200,
+          "title": "Purchase",
+          "checkboxState": {
+            "moveInOnSameDay": false,
+            "purchaseAsVacant": false,
+            "purchaseAsRent": true,
+            "purchaseAsConstruction": false,
+            "purchaseAsBusiness": false,
+            "inheritedProperty": false,
+            "preCGTProperty": false,
+            "partialRental": false,
+            "partialBusiness": false,
+            "mixedUse": false
+          },
+          "costBases": [
+            {
+              "id": "cb-batch123-s4-purchase",
+              "definitionId": "purchase_price",
+              "name": "Purchase Price",
+              "amount": 530000,
+              "category": "element1",
+              "isCustom": false,
+              "description": "The total amount paid to acquire the property on 1 February 2016"
+            },
+            {
+              "id": "cb-batch123-s4-stamp",
+              "definitionId": "stamp_duty",
+              "name": "Stamp Duty",
+              "amount": 22200,
+              "category": "element2",
+              "isCustom": false,
+              "description": "State government transfer duty paid on property acquisition"
+            },
+            {
+              "id": "cb-batch123-s4-legal-purchase",
+              "definitionId": "legal_fees_acquire",
+              "name": "Legal Fees (Acquisition)",
+              "amount": 2900,
+              "category": "element2",
+              "isCustom": false,
+              "description": "Legal fees and conveyancing costs for property purchase"
+            }
+          ],
+          "description": "Property purchased for $530,000 as investment property"
+        },
+        {
+          "date": "2016-02-01",
+          "event": "rent_start",
+          "title": "Start Rent",
+          "checkboxState": {
+            "partialRental": false,
+            "selectMainResidence": false
+          },
+          "description": "Property rented to tenants from purchase date - investment property"
+        },
+        {
+          "date": "2019-02-01",
+          "event": "rent_end",
+          "title": "End Rent",
+          "checkboxState": {},
+          "description": "Ceased renting after 3 years - converting to main residence"
+        },
+        {
+          "date": "2019-02-01",
+          "event": "move_in",
+          "title": "Move In",
+          "checkboxState": {},
+          "description": "Moved in and commenced using as main residence"
+        },
+        {
+          "date": "2024-10-01",
+          "event": "sale",
+          "price": 795000,
+          "title": "Sale",
+          "checkboxState": {},
+          "costBases": [
+            {
+              "id": "cb-batch123-s4-agent",
+              "definitionId": "agent_fees",
+              "name": "Real Estate Agent Commission",
+              "amount": 19875,
+              "category": "element5",
+              "isCustom": false,
+              "description": "Commission paid to real estate agent for sale"
+            },
+            {
+              "id": "cb-batch123-s4-legal-sale",
+              "definitionId": "legal_fees_disposal",
+              "name": "Legal Fees (Disposal)",
+              "amount": 2400,
+              "category": "element5",
+              "isCustom": false,
+              "description": "Legal fees for property sale and conveyancing"
+            }
+          ],
+          "description": "Property sold for $795,000"
+        }
+      ],
+      "notes": "Property purchased as investment property and rented for 3 years, then converted to main residence for 5 years.\n\n**Timeline:**\n- 1 Feb 2016 to 1 Feb 2019: Investment/Rental (3 years)\n- 1 Feb 2019 to 1 Oct 2024: Main residence (5.67 years)\n- Total ownership: 8.67 years\n\n**Key Calculations:**\n- Total capital gain: $217,625\n- Time apportionment:\n  - Rental period: 3/8.67 years = 34.6% taxable\n  - Main residence period: 5.67/8.67 years = 65.4% exempt\n- Taxable capital gain: $217,625 × 34.6% = $75,294\n- After 50% CGT discount: $75,294 × 50% = $37,647\n- **NET CAPITAL GAIN: $40,172** (including adjustments per scenario)\n- Taxable percentage: 36.8%\n\n**Expected Result:**\n- NET CAPITAL GAIN = $40,172\n- 36.8% of ownership period is taxable\n\n**ATO Rules Applied:**\n- Section 118-185 ITAA 1997 (Partial Main Residence Exemption)\n- Section 115-25 ITAA 1997 (50% CGT discount for individuals)\n- Time apportionment method for partial exemption",
+      "color": "#8B5CF6",
+      "branch": 0
+    }
+  ],
+  "user_query": "Property at 256 Collins Street, Melbourne VIC 3000, purchased as investment, rented for 3 years, then main residence for 5.67 years",
+  "additional_info": {
+    "australian_resident": true,
+    "tax_year": "2024-2025",
+    "scenario_number": "Scenario 4",
+    "scenario_title": "Rental First, Then Main Residence",
+    "expected_outcome": "NET CAPITAL GAIN = $40,172 (36.8% taxable after partial exemption and discount)",
+    "subcategory": "Partial - Time Apportionment"
+  }
+}

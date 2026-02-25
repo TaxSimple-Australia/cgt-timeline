@@ -1,0 +1,56 @@
+{
+  "properties": [
+    {
+      "address": "Unit 15, 200 Investment Parade, Surfers Paradise QLD 4217",
+      "property_history": [
+        {
+          "date": "2016-11-15",
+          "event": "purchase",
+          "price": 420000,
+          "stamp_duty": 14000,
+          "purchase_legal_fees": 2000
+        },
+        {
+          "date": "2016-12-01",
+          "event": "rent_start"
+        },
+        {
+          "date": "2024-02-01",
+          "event": "separation"
+        },
+        {
+          "date": "2024-09-01",
+          "event": "divorce_transfer",
+          "market_value": 580000
+        },
+        {
+          "date": "2025-06-30",
+          "event": "rent_end"
+        },
+        {
+          "date": "2025-07-15",
+          "event": "sale",
+          "price": 620000,
+          "contract_date": "2025-07-15",
+          "agent_fees": 15500,
+          "legal_fees": 2200
+        }
+      ],
+      "notes": "sold - Investment unit (never main residence) owned by husband transferred to wife in divorce settlement. Wife continued renting then sold."
+    }
+  ],
+  "user_query": "I received an investment property in my divorce settlement. It was always rented - never our home. I've now sold it. My ex bought it in 2016 and transferred it to me in 2024. How do I calculate CGT?",
+  "additional_info": {
+    "australian_resident": true,
+    "tax_year": "2025-2026",
+    "relationship_breakdown_transfer": true,
+    "transfer_under": "court_order",
+    "transfer_date": "2024-09-01",
+    "market_value_at_transfer": 580000,
+    "rollover_applies": true,
+    "never_main_residence": true,
+    "always_investment": true
+  },
+  "llm_provider": "deepseek",
+  "use_claude": true
+}

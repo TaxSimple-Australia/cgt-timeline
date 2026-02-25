@@ -1,0 +1,114 @@
+{
+  "properties": [
+    {
+      "id": "prop-batch123-scenario32",
+      "address": "88 Pacific Highway, Coolangatta QLD 4225",
+      "property_history": [
+        {
+          "date": "2010-03-10",
+          "event": "purchase",
+          "price": 445000,
+          "stamp_duty": 16425,
+          "title": "Purchase",
+          "checkboxState": {
+            "moveInOnSameDay": true,
+            "purchaseAsVacant": false,
+            "purchaseAsRent": false,
+            "purchaseAsConstruction": false,
+            "purchaseAsBusiness": false,
+            "inheritedProperty": false,
+            "preCGTProperty": false,
+            "partialRental": false,
+            "partialBusiness": false,
+            "mixedUse": false
+          },
+          "costBases": [
+            {
+              "id": "cb-batch123-s32-purchase",
+              "definitionId": "purchase_price",
+              "name": "Purchase Price",
+              "amount": 445000,
+              "category": "element1",
+              "isCustom": false,
+              "description": "The total amount paid to acquire the property on 10 March 2010"
+            },
+            {
+              "id": "cb-batch123-s32-stamp",
+              "definitionId": "stamp_duty",
+              "name": "Stamp Duty",
+              "amount": 16425,
+              "category": "element2",
+              "isCustom": false,
+              "description": "State government transfer duty paid on property acquisition"
+            },
+            {
+              "id": "cb-batch123-s32-legal-purchase",
+              "definitionId": "legal_fees_acquire",
+              "name": "Legal Fees (Acquisition)",
+              "amount": 2300,
+              "category": "element2",
+              "isCustom": false,
+              "description": "Legal fees and conveyancing costs for property purchase"
+            }
+          ],
+          "description": "Property purchased for $445,000 before 8 May 2012 while Australian resident"
+        },
+        {
+          "date": "2010-03-10",
+          "event": "move_in",
+          "title": "Move In",
+          "checkboxState": {},
+          "description": "Moved in immediately - main residence while Australian resident"
+        },
+        {
+          "date": "2018-06-20",
+          "event": "status_change",
+          "title": "Status Change",
+          "checkboxState": {},
+          "description": "Became foreign resident for tax purposes - moved to Singapore. Grandfathered under pre-8 May 2012 rules (no life event required). Property not rented. Market value: $625,000"
+        },
+        {
+          "date": "2024-11-10",
+          "event": "sale",
+          "price": 895000,
+          "title": "Sale",
+          "checkboxState": {},
+          "costBases": [
+            {
+              "id": "cb-batch123-s32-agent",
+              "definitionId": "agent_fees",
+              "name": "Real Estate Agent Commission",
+              "amount": 22375,
+              "category": "element5",
+              "isCustom": false,
+              "description": "Commission paid to real estate agent for sale"
+            },
+            {
+              "id": "cb-batch123-s32-legal-sale",
+              "definitionId": "legal_fees_disposal",
+              "name": "Legal Fees (Disposal)",
+              "amount": 2200,
+              "category": "element5",
+              "isCustom": false,
+              "description": "Legal fees for property sale and conveyancing"
+            }
+          ],
+          "description": "Property sold for $895,000"
+        }
+      ],
+      "notes": "**Pre-8 May 2012 Grandfathering**\n\nProperty purchased before 8 May 2012. Became foreign resident later - grandfathered under old rules.\n\n**Timeline:**\n- 10 Mar 2010 to 20 Jun 2018: Main residence (Australian resident) - 8.28 years\n- 20 Jun 2018: Became foreign resident (moved to Singapore)\n- 20 Jun 2018 to 10 Nov 2024: Foreign resident period (6.39 years)\n- Property not rented - kept available\n- Total ownership: 14.67 years\n\n**Key Rules:**\n- Property acquired **before 8 May 2012**\n- Grandfathered under old foreign resident rules\n- Main residence exemption available without life event requirement\n- Property must not be used to produce income\n- Six-year absence rule applies (not exceeded)\n- **NO CGT PAYABLE** - Grandfathered exemption applies\n\n**Expected Result:**\n- NO CGT PAYABLE - Pre-8 May 2012 grandfathering provisions apply\n- Total capital gain (before exemption): $406,700\n- Full exemption (property not rented, within 6-year rule)\n\n**ATO Rules Applied:**\n- Section 118-145 ITAA 1997 (Six-Year Absence Rule)\n- TD 2019/20 (Foreign Resident Main Residence Exemption)\n- Pre-8 May 2012 grandfathering provisions\n- No life event required for properties acquired before threshold date",
+      "color": "#10B981",
+      "branch": 0
+    }
+  ],
+  "user_query": "Pre-8 May 2012 Grandfathering - Property at 88 Pacific Highway, Coolangatta QLD 4225, purchased before 8 May 2012",
+  "additional_info": {
+    "australian_resident": false,
+    "tax_year": "2024-2025",
+    "scenario_number": "Scenario 32",
+    "scenario_title": "Foreign Resident - Pre-8 May 2012 Grandfathering",
+    "expected_outcome": "NO CGT PAYABLE - Pre-8 May 2012 grandfathering applies (TD 2019/20)",
+    "foreign_resident_from": "2018-06-20",
+    "grandfathered": true
+  }
+}

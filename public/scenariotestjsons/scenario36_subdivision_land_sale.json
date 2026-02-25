@@ -20,54 +20,166 @@
   },
   "properties": [
     {
-      "address": "100 Farmview Road, Kingaroy QLD 4610 - Lot 1 (Dwelling)",
+      "id": "farmview-parent-2010",
+      "address": "100 Farmview Road, Kingaroy QLD 4610",
+      "original_lot": "Original 1.5 hectare property",
+      "subdivisionGroup": "farmview-subdivision-2022",
+      "subdivisionDate": "2022-06-01",
+      "branch": 0,
+      "color": "#10B981",
       "property_history": [
         {
           "date": "2010-03-01",
           "event": "purchase",
-          "price": 192000,
-          "stamp_duty": 6720,
-          "purchase_legal_fees": 1500,
-          "description": "0.8 hectare portion - dwelling block (60% of original)"
+          "price": 320000,
+          "stamp_duty": 11200,
+          "title": "Purchase",
+          "checkboxState": {
+            "moveInOnSameDay": true,
+            "purchaseAsVacant": false,
+            "purchaseAsRent": false,
+            "purchaseAsConstruction": false,
+            "purchaseAsBusiness": false,
+            "inheritedProperty": false,
+            "preCGTProperty": false,
+            "partialRental": false,
+            "partialBusiness": false,
+            "mixedUse": false
+          },
+          "costBases": [
+            {
+              "id": "cb-farmview-purchase",
+              "definitionId": "purchase_price",
+              "name": "Purchase Price",
+              "amount": 320000,
+              "category": "element1",
+              "isCustom": false,
+              "description": "Original 1.5 hectare property with dwelling"
+            },
+            {
+              "id": "cb-farmview-stamp",
+              "definitionId": "stamp_duty",
+              "name": "Stamp Duty",
+              "amount": 11200,
+              "category": "element2",
+              "isCustom": false,
+              "description": "State government transfer duty"
+            },
+            {
+              "id": "cb-farmview-legal",
+              "definitionId": "legal_fees_acquire",
+              "name": "Legal Fees (Acquisition)",
+              "amount": 2333,
+              "category": "element2",
+              "isCustom": false,
+              "description": "Legal fees and conveyancing costs"
+            }
+          ],
+          "description": "Original 1.5 hectare property - total purchase $320,000",
+          "notes": "Original 1.5 hectare property - total purchase $320,000"
         },
         {
           "date": "2010-03-01",
           "event": "move_in",
-          "description": "Established as main residence on original 1.5ha property"
-        }
-      ],
-      "notes": "Dwelling block (Lot 1). If sold, full MRE would apply. Main residence entire ownership period."
-    },
-    {
-      "address": "100A Farmview Road, Kingaroy QLD 4610 - Lot 2 (Vacant)",
-      "property_history": [
-        {
-          "date": "2010-03-01",
-          "event": "purchase",
-          "price": 128000,
-          "stamp_duty": 4480,
-          "purchase_legal_fees": 833,
-          "description": "0.7 hectare portion - vacant block (40% of original $320,000 purchase)"
+          "title": "Move In",
+          "checkboxState": {},
+          "description": "Established as main residence on original 1.5ha property",
+          "notes": "Established as main residence on original 1.5ha property"
         },
         {
           "date": "2022-06-01",
-          "event": "status_change",
-          "description": "Property subdivided. Lot 2 becomes separate CGT asset. Subdivision costs: $8,000"
-        },
+          "event": "subdivision",
+          "title": "Subdivided",
+          "color": "#EC4899",
+          "subdivisionDetails": {
+            "childPropertyIds": [
+              "farmview-lot1-dwelling",
+              "farmview-lot2-vacant"
+            ],
+            "totalLots": 2,
+            "subdivisionCosts": 8000,
+            "lotSizes": {
+              "lot1": "0.8ha with dwelling",
+              "lot2": "0.7ha vacant"
+            },
+            "approvalDate": "2022-06-01",
+            "registrationDate": "2022-06-01",
+            "valuations": {
+              "lot1": 192000,
+              "lot2": 128000
+            },
+            "notes": "Original 1.5ha subdivided into 2 lots. Cost base apportioned 60% dwelling / 40% vacant. Lot 1 (dwelling) retained. Lot 2 (vacant) sold separately."
+          },
+          "checkboxState": {},
+          "description": "Property subdivided into Lot 1 (0.8ha with dwelling) and Lot 2 (0.7ha vacant). Lot 2 becomes separate CGT asset. Subdivision costs: $8,000"
+        }
+      ],
+      "notes": "Original 1.5ha property subdivided in 2022 into Lot 1 (0.8ha with dwelling, retained) and Lot 2 (0.7ha vacant, sold). Owner continues to live in dwelling on Lot 1. Cost base apportioned 60%/40%. Subdivision costs: $8,000."
+    },
+    {
+      "id": "farmview-lot1-dwelling",
+      "address": "Lot 1, 100 Farmview Road, Kingaroy QLD 4610",
+      "original_lot": "Lot 1 (Dwelling)",
+      "parentPropertyId": "farmview-parent-2010",
+      "subdivisionGroup": "farmview-subdivision-2022",
+      "subdivisionDate": "2022-06-01",
+      "branch": 0,
+      "color": "#10B981",
+      "lotNumber": "1",
+      "lotSize": "0.8ha",
+      "isMainLotContinuation": true,
+      "property_history": [],
+      "notes": "Lot 1 - Dwelling block (0.8ha). Owner continues living here. Full main residence exemption would apply if sold. Cost base allocated: 60% of original = $192,000. Still held."
+    },
+    {
+      "id": "farmview-lot2-vacant",
+      "address": "Lot 2, 100A Farmview Road, Kingaroy QLD 4610",
+      "original_lot": "Lot 2 (Vacant)",
+      "parentPropertyId": "farmview-parent-2010",
+      "subdivisionGroup": "farmview-subdivision-2022",
+      "subdivisionDate": "2022-06-01",
+      "branch": 1,
+      "color": "#F59E0B",
+      "lotNumber": "2",
+      "lotSize": "0.7ha",
+      "property_history": [
         {
           "date": "2024-09-15",
           "event": "sale",
           "price": 180000,
+          "title": "Sale",
+          "checkboxState": {},
+          "costBases": [
+            {
+              "id": "cb-farmview-lot2-agent",
+              "definitionId": "agent_fees",
+              "name": "Real Estate Agent Commission",
+              "amount": 4500,
+              "category": "element5",
+              "isCustom": false,
+              "description": "Commission paid to real estate agent for sale"
+            },
+            {
+              "id": "cb-farmview-lot2-legal",
+              "definitionId": "legal_fees_disposal",
+              "name": "Legal Fees (Disposal)",
+              "amount": 1200,
+              "category": "element5",
+              "isCustom": false,
+              "description": "Legal fees for property sale and conveyancing"
+            }
+          ],
+          "description": "Lot 2 (vacant land) sold for $180,000. NO main residence exemption - sold separately from dwelling. Cost base: $128,000 (40% of original).",
           "contract_date": "2024-09-15",
-          "agent_fees": 4500,
-          "legal_fees": 1200
+          "notes": "Vacant block sold separately - no MRE under s118.165"
         }
       ],
-      "notes": "NO main residence exemption. Vacant block sold separately from dwelling = no MRE under s118.165. Cost base allocated at 40% of original. Capital gain: $10,562. After 50% discount: $5,281."
+      "notes": "Lot 2 - Vacant land (0.7ha). NO main residence exemption - vacant block sold separately from dwelling (s118.165 ITAA97). Cost base allocated: 40% of original = $128,000. Sold 2024-09-15. Expected capital gain: $10,562. After 50% discount: $5,281."
     }
   ],
   "user_query": "I subdivided my large block and kept the house on one lot. I'm selling the vacant block separately. Do I get the main residence exemption on the vacant lot?",
   "additional_info": {
     "australian_resident": true
-  }
+  },
+  "llm_provider": "deepseek"
 }

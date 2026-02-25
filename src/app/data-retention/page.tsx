@@ -111,7 +111,14 @@ export default function DataRetentionPage() {
               <div className="relative">
                 <div className="space-y-6 text-slate-300">
                   <div>
-                    <h3 className="text-xl font-semibold text-white mb-3">Statutory Retention Periods</h3>
+                    <h3 className="text-xl font-semibold text-white mb-3">1. Retention Overview</h3>
+                    <p className="leading-relaxed">
+                      We retain your data only for as long as is necessary to provide our services, comply with Australian legal obligations, resolve disputes, and enforce our agreements. Because CGT BRAIN handles tax-related information, our retention periods are primarily driven by the requirements of the Australian Taxation Office (ATO).
+                    </p>
+                  </div>
+
+                  <div>
+                    <h3 className="text-xl font-semibold text-white mb-3">2. Statutory Retention Periods</h3>
                     <p className="mb-4 leading-relaxed">In accordance with Australian tax and corporate law, the following retention schedules apply:</p>
 
                     <div className="overflow-x-auto">
@@ -154,7 +161,56 @@ export default function DataRetentionPage() {
                     </div>
                   </div>
 
-                  <div className="bg-red-500/10 border-l-4 border-red-500 p-4 rounded-lg">
+                  <div>
+                    <h3 className="text-xl font-semibold text-white mb-3">3. Account Closure and "Soft Deletion"</h3>
+                    <p className="mb-3 leading-relaxed">When you choose to close your account:</p>
+                    <ul className="space-y-3 pl-6">
+                      <li className="flex items-start gap-3">
+                        <span className="text-green-400 mt-1.5">•</span>
+                        <span><strong className="text-white">Immediate Access Cessation:</strong> Your ability to log in and view data will be revoked immediately.</span>
+                      </li>
+                      <li className="flex items-start gap-3">
+                        <span className="text-green-400 mt-1.5">•</span>
+                        <span><strong className="text-white">De-identification:</strong> We will remove your personal identifiers (e.g., name, phone number) from our active marketing and customer service databases within 30 days.</span>
+                      </li>
+                      <li className="flex items-start gap-3">
+                        <span className="text-green-400 mt-1.5">•</span>
+                        <span><strong className="text-white">Secure Archival:</strong> Your financial transaction data will be moved to an encrypted "Cold Storage" archive. This data is not used for any commercial purpose and is held solely to fulfill statutory tax record-keeping requirements or to assist you in the event of an ATO audit.</span>
+                      </li>
+                    </ul>
+                  </div>
+
+                  <div>
+                    <h3 className="text-xl font-semibold text-white mb-3">4. Right to Erasure (Deletion Requests)</h3>
+                    <p className="mb-3 leading-relaxed">You may request the deletion of your data at any time. However, please note:</p>
+                    <ul className="space-y-3 pl-6">
+                      <li className="flex items-start gap-3">
+                        <span className="text-green-400 mt-1.5">•</span>
+                        <span><strong className="text-white">Legal Overrides:</strong> Under Australian Privacy Principle 11.2, we are not required to destroy or de-identify information if we are "required by or under an Australian law" to retain it.</span>
+                      </li>
+                      <li className="flex items-start gap-3">
+                        <span className="text-green-400 mt-1.5">•</span>
+                        <span><strong className="text-white">Refusal of Deletion:</strong> If you request deletion of records related to an asset sold within the last 5 years, we may refuse the request to ensure you remain compliant with the ATO. In such cases, we will provide you with a written explanation for the refusal.</span>
+                      </li>
+                    </ul>
+                  </div>
+
+                  <div>
+                    <h3 className="text-xl font-semibold text-white mb-3">5. Secure Disposal Methods</h3>
+                    <p className="mb-3 leading-relaxed">Once the statutory retention period has expired:</p>
+                    <ul className="space-y-3 pl-6">
+                      <li className="flex items-start gap-3">
+                        <span className="text-green-400 mt-1.5">•</span>
+                        <span><strong className="text-white">Digital Deletion:</strong> Data is purged using secure software deletion methods that ensure the information cannot be reconstructed.</span>
+                      </li>
+                      <li className="flex items-start gap-3">
+                        <span className="text-green-400 mt-1.5">•</span>
+                        <span><strong className="text-white">Third-Party Providers:</strong> We ensure our cloud service providers (e.g., AWS/Azure Australia) adhere to the same permanent disposal standards.</span>
+                      </li>
+                    </ul>
+                  </div>
+
+                  <div className="bg-red-500/10 border-l-4 border-red-500 p-4 rounded-lg mt-6">
                     <div className="flex items-start gap-3">
                       <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
                       <div>

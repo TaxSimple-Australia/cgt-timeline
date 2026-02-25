@@ -1,0 +1,152 @@
+{
+  "properties": [
+    {
+      "id": "prop-batch123-scenario25",
+      "address": "56 Willow Grove, New Farm QLD 4005",
+      "property_history": [
+        {
+          "date": "2005-08-20",
+          "event": "purchase",
+          "price": 425000,
+          "stamp_duty": 15700,
+          "title": "Purchase",
+          "checkboxState": {
+            "moveInOnSameDay": true,
+            "purchaseAsVacant": false,
+            "purchaseAsRent": false,
+            "purchaseAsConstruction": false,
+            "purchaseAsBusiness": false,
+            "inheritedProperty": false,
+            "preCGTProperty": false,
+            "partialRental": false,
+            "partialBusiness": false,
+            "mixedUse": false
+          },
+          "costBases": [
+            {
+              "id": "cb-batch123-s25-purchase",
+              "definitionId": "purchase_price",
+              "name": "Purchase Price",
+              "amount": 425000,
+              "category": "element1",
+              "isCustom": false,
+              "description": "The total amount paid to acquire the property on 20 August 2005"
+            },
+            {
+              "id": "cb-batch123-s25-stamp",
+              "definitionId": "stamp_duty",
+              "name": "Stamp Duty",
+              "amount": 15700,
+              "category": "element2",
+              "isCustom": false,
+              "description": "State government transfer duty paid on property acquisition"
+            },
+            {
+              "id": "cb-batch123-s25-legal-purchase",
+              "definitionId": "legal_fees_acquire",
+              "name": "Legal Fees (Acquisition)",
+              "amount": 2400,
+              "category": "element2",
+              "isCustom": false,
+              "description": "Legal fees and conveyancing costs for property purchase"
+            }
+          ],
+          "description": "Property purchased for $425,000 by deceased"
+        },
+        {
+          "date": "2005-08-20",
+          "event": "move_in",
+          "title": "Move In",
+          "checkboxState": {},
+          "description": "Deceased moved in immediately - main residence until death"
+        },
+        {
+          "date": "2022-11-25",
+          "event": "status_change",
+          "title": "Status Change",
+          "checkboxState": {},
+          "description": "Death of owner - property passes to beneficiary. Market value at date of death: $890,000."
+        },
+        {
+          "date": "2022-11-25",
+          "event": "ownership_change",
+          "title": "Ownership Change",
+          "checkboxState": {},
+          "description": "Property inherited from father by Sarah",
+          "leavingOwners": [
+            "father"
+          ],
+          "newOwners": [
+            {
+              "name": "Sarah",
+              "percentage": 100
+            }
+          ],
+          "previousOwners": [
+            {
+              "name": "father",
+              "percentage": 100
+            }
+          ],
+          "ownershipChangeReason": "other",
+          "ownershipChangeReasonOther": "Inheritance"
+        },
+        {
+          "date": "2023-02-01",
+          "event": "move_in",
+          "title": "Move In",
+          "checkboxState": {},
+          "description": "Beneficiary moved in and commenced using as main residence (2 months after death)"
+        },
+        {
+          "date": "2024-10-15",
+          "event": "sale",
+          "price": 935000,
+          "title": "Sale",
+          "checkboxState": {},
+          "costBases": [
+            {
+              "id": "cb-batch123-s25-agent",
+              "definitionId": "agent_fees",
+              "name": "Real Estate Agent Commission",
+              "amount": 23375,
+              "category": "element5",
+              "isCustom": false,
+              "description": "Commission paid to real estate agent for sale"
+            },
+            {
+              "id": "cb-batch123-s25-legal-sale",
+              "definitionId": "legal_fees_disposal",
+              "name": "Legal Fees (Disposal)",
+              "amount": 2350,
+              "category": "element5",
+              "isCustom": false,
+              "description": "Legal fees for property sale and conveyancing"
+            }
+          ],
+          "description": "Property sold by beneficiary for $935,000"
+        }
+      ],
+      "owners": [
+        {
+          "name": "Sarah",
+          "percentage": 100
+        }
+      ],
+      "notes": "**Beneficiary Moves In**\n\nInherited property where beneficiary moved in and used as main residence before selling.\n\n**Timeline:**\n- 20 Aug 2005 to 25 Nov 2022: Main residence (deceased) - 17.27 years\n- 25 Nov 2022: Death of owner - property passes to beneficiary at market value $890,000\n- 25 Nov 2022 to 1 Feb 2023: Estate period (2.2 months)\n- 1 Feb 2023 to 15 Oct 2024: Beneficiary's main residence (1.71 years)\n\n**Key Calculations:**\n- Beneficiary's cost base: Market value at death = $890,000\n- Capital gain for beneficiary: $935,000 - $890,000 - $25,725 = $19,275\n- Beneficiary used as main residence: Full exemption applies\n- **NO CGT PAYABLE** - Beneficiary's main residence exemption\n\n**Expected Result:**\n- NO CGT PAYABLE - Property was beneficiary's main residence\n\n**ATO Rules Applied:**\n- Section 128-15 ITAA 1997 (Market value cost base for beneficiary)\n- Section 118-110 ITAA 1997 (Main Residence Exemption)\n- Beneficiary entitled to main residence exemption for period they lived in property",
+      "color": "#10B981",
+      "branch": 0
+    }
+  ],
+  "user_query": "Beneficiary Moves In - Property at 56 Willow Grove, New Farm QLD 4005, inherited and beneficiary moved in before selling",
+  "additional_info": {
+    "australian_resident": true,
+    "tax_year": "2024-2025",
+    "scenario_number": "Scenario 25",
+    "scenario_title": "Deceased Estate - Beneficiary Moves In",
+    "expected_outcome": "NO CGT PAYABLE - Beneficiary's main residence exemption applies",
+    "date_of_death": "2022-11-25",
+    "market_value_at_death": 890000,
+    "subcategory": "Inheritance/Death"
+  }
+}

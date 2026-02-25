@@ -79,6 +79,7 @@
   ],
   "user_query": "I've rented my home for 8 years but there were two vacant periods between tenants (3 months and 2 months). The property was always available for rent during those times. Does the 6-year rule still apply?",
   "additional_info": {
-    "australian_resident": true
+    "australian_resident": true,
+    "subcategory": "Special Circumstances"
   }
 }

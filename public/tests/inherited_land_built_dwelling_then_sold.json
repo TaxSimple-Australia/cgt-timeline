@@ -5,34 +5,55 @@
       "property_history": [
         {
           "date": "2005-09-15",
-          "event": "purchase_by_deceased",
+          "event": "purchase",
           "price": 380000,
           "stamp_duty": 13500,
           "purchase_legal_fees": 2200,
-          "notes": "Grandmother purchased vacant block intending to build retirement home. Never built due to health issues."
+          "notes": "Grandmother purchased vacant block intending to build retirement home. Never built due to health issues.",
+          "description": "Originally purchased by deceased"
         },
         {
           "date": "2020-07-10",
-          "event": "death_of_owner",
+          "event": "status_change",
           "market_value_at_death": 920000,
-          "notes": "Grandmother passed away. Land was still vacant"
+          "notes": "Grandmother passed away. Land was still vacant",
+          "description": "Death of property owner"
         },
         {
           "date": "2020-10-15",
-          "event": "inherited",
+          "event": "ownership_change",
           "beneficiary": "Granddaughter",
-          "notes": "Sole beneficiary inherited vacant land"
+          "notes": "Sole beneficiary inherited vacant land",
+          "description": "Property inherited by beneficiary",
+          "leavingOwners": [
+            "father"
+          ],
+          "newOwners": [
+            {
+              "name": "child",
+              "percentage": 100
+            }
+          ],
+          "previousOwners": [
+            {
+              "name": "father",
+              "percentage": 100
+            }
+          ],
+          "ownershipChangeReason": "other",
+          "ownershipChangeReasonOther": "Inheritance"
         },
         {
           "date": "2021-06-01",
-          "event": "construction_start",
-          "description": "Beneficiary built family home on inherited land",
+          "event": "building_start",
+          "description": "Construction commenced. Beneficiary built family home on inherited land",
           "notes": "Decided to build and live in property"
         },
         {
           "date": "2022-04-15",
-          "event": "construction_complete",
-          "construction_cost": 580000
+          "event": "building_end",
+          "construction_cost": 580000,
+          "description": "Construction completed"
         },
         {
           "date": "2022-05-01",
@@ -52,13 +73,24 @@
           "event": "move_out"
         }
       ],
-      "notes": "sold - Inherited vacant land, beneficiary built home and lived in it. Complex CGT: Land inherited (cost base = MV at death), building added to cost base. Partial MRE from move-in date only."
+      "notes": "sold - Inherited vacant land, beneficiary built home and lived in it. Complex CGT: Land inherited (cost base = MV at death), building added to cost base. Partial MRE from move-in date only.",
+      "owners": [
+        {
+          "name": "child",
+          "percentage": 100
+        }
+      ]
     }
   ],
   "user_query": "I inherited vacant land from my grandmother in 2020. She'd owned it since 2005 but never built on it. I built a house and moved in during 2022, and I've now sold. How is CGT calculated when I've added a building to inherited land and then lived in it?",
   "additional_info": {
-    "australian_resident": true
+    "australian_resident": true,
+    "subcategory": "Inheritance/Death"
   },
   "llm_provider": "deepseek",
-  "use_claude": true
+  "use_claude": true,
+  "scenario_info": {
+    "name": "Inherited Land - Vacant Pre-CGT",
+    "description": "I inherited vacant land from my grandmother in 2020. She'd owned it since 2005 but never built on it. I built a house and moved in during 2022, and I've now sold. How is CGT calculated when I've added a building to inherited land and then lived in it?"
+  }
 }

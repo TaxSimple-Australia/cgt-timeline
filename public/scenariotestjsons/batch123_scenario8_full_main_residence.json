@@ -1,0 +1,106 @@
+{
+  "properties": [
+    {
+      "id": "prop-batch123-scenario8",
+      "address": "18 Riverside Terrace, Newstead QLD 4006",
+      "property_history": [
+        {
+          "date": "2014-06-01",
+          "event": "purchase",
+          "price": 545000,
+          "stamp_duty": 20350,
+          "title": "Purchase",
+          "checkboxState": {
+            "moveInOnSameDay": true,
+            "purchaseAsVacant": false,
+            "purchaseAsRent": false,
+            "purchaseAsConstruction": false,
+            "purchaseAsBusiness": false,
+            "inheritedProperty": false,
+            "preCGTProperty": false,
+            "partialRental": false,
+            "partialBusiness": false,
+            "mixedUse": false
+          },
+          "costBases": [
+            {
+              "id": "cb-batch123-s8-purchase",
+              "definitionId": "purchase_price",
+              "name": "Purchase Price",
+              "amount": 545000,
+              "category": "element1",
+              "isCustom": false,
+              "description": "The total amount paid to acquire the property on 1 June 2014"
+            },
+            {
+              "id": "cb-batch123-s8-stamp",
+              "definitionId": "stamp_duty",
+              "name": "Stamp Duty",
+              "amount": 20350,
+              "category": "element2",
+              "isCustom": false,
+              "description": "State government transfer duty paid on property acquisition"
+            },
+            {
+              "id": "cb-batch123-s8-legal-purchase",
+              "definitionId": "legal_fees_acquire",
+              "name": "Legal Fees (Acquisition)",
+              "amount": 2600,
+              "category": "element2",
+              "isCustom": false,
+              "description": "Legal fees and conveyancing costs for property purchase"
+            }
+          ],
+          "description": "Property purchased for $545,000"
+        },
+        {
+          "date": "2014-06-01",
+          "event": "move_in",
+          "title": "Move In",
+          "checkboxState": {},
+          "description": "Moved in immediately upon purchase - used as main residence"
+        },
+        {
+          "date": "2024-09-15",
+          "event": "sale",
+          "price": 1020000,
+          "title": "Sale",
+          "checkboxState": {},
+          "costBases": [
+            {
+              "id": "cb-batch123-s8-agent",
+              "definitionId": "agent_fees",
+              "name": "Real Estate Agent Commission",
+              "amount": 25500,
+              "category": "element5",
+              "isCustom": false,
+              "description": "Commission paid to real estate agent for sale"
+            },
+            {
+              "id": "cb-batch123-s8-legal-sale",
+              "definitionId": "legal_fees_disposal",
+              "name": "Legal Fees (Disposal)",
+              "amount": 2300,
+              "category": "element5",
+              "isCustom": false,
+              "description": "Legal fees for property sale and conveyancing"
+            }
+          ],
+          "description": "Property sold for $1,020,000"
+        }
+      ],
+      "notes": "Property used exclusively as main residence throughout entire ownership period (1 June 2014 to 15 September 2024).\n\n**Expected Result:**\n- Total capital gain (before exemption): $424,250\n- Main Residence Exemption: 100% (entire ownership)\n- **NO CGT PAYABLE** - Full main residence exemption applies\n\n**ATO Rules Applied:**\n- Section 118-110 ITAA 1997 (Main Residence Exemption)\n- Property used exclusively as main residence from purchase to sale",
+      "color": "#10B981",
+      "branch": 0
+    }
+  ],
+  "user_query": "Property at 18 Riverside Terrace, Newstead QLD 4006, purchased 1 June 2014 for $545,000, used exclusively as main residence, sold 15 September 2024 for $1,020,000",
+  "additional_info": {
+    "australian_resident": true,
+    "tax_year": "2024-2025",
+    "scenario_number": "Scenario 8",
+    "scenario_title": "Full Main Residence Exemption",
+    "expected_outcome": "NO CGT PAYABLE - Full main residence exemption applies",
+    "subcategory": "Full Exemption"
+  }
+}

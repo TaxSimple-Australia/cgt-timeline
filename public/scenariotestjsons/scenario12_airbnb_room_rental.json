@@ -37,7 +37,11 @@
         {
           "date": "2019-01-01",
           "event": "rent_start",
-          "description": "Started renting spare room on Airbnb. Room: 18sqm exclusive, 45sqm shared areas. Total home: 180sqm."
+          "description": "Started renting spare room on Airbnb. Room: 18sqm exclusive, 45sqm shared areas. Total home: 180sqm.",
+          "floorAreaData": {
+            "rental": 18,
+            "shared": 45
+          }
         },
         {
           "date": "2023-12-31",
@@ -58,6 +62,7 @@
   ],
   "user_query": "I lived in my home for 8 years but rented out a spare room on Airbnb for 5 of those years. The room was 18sqm and guests shared 45sqm of common areas. Total home is 180sqm. What is my CGT liability?",
   "additional_info": {
-    "australian_resident": true
+    "australian_resident": true,
+    "subcategory": "Partial Use"
   }
 }

@@ -1,0 +1,123 @@
+{
+  "properties": [
+    {
+      "id": "prop-batch123-scenario6",
+      "address": "55 Panorama Drive, Surfers Paradise QLD 4217",
+      "property_history": [
+        {
+          "date": "2016-03-01",
+          "event": "purchase",
+          "price": 720000,
+          "stamp_duty": 27000,
+          "title": "Purchase",
+          "checkboxState": {
+            "moveInOnSameDay": true,
+            "purchaseAsVacant": false,
+            "purchaseAsRent": false,
+            "purchaseAsConstruction": false,
+            "purchaseAsBusiness": false,
+            "inheritedProperty": false,
+            "preCGTProperty": false,
+            "partialRental": false,
+            "partialBusiness": false,
+            "mixedUse": false
+          },
+          "costBases": [
+            {
+              "id": "cb-batch123-s6-purchase",
+              "definitionId": "purchase_price",
+              "name": "Purchase Price",
+              "amount": 720000,
+              "category": "element1",
+              "isCustom": false,
+              "description": "The total amount paid to acquire the property on 1 March 2016"
+            },
+            {
+              "id": "cb-batch123-s6-stamp",
+              "definitionId": "stamp_duty",
+              "name": "Stamp Duty",
+              "amount": 27000,
+              "category": "element2",
+              "isCustom": false,
+              "description": "State government transfer duty paid on property acquisition"
+            },
+            {
+              "id": "cb-batch123-s6-legal-purchase",
+              "definitionId": "legal_fees_acquire",
+              "name": "Legal Fees (Acquisition)",
+              "amount": 3000,
+              "category": "element2",
+              "isCustom": false,
+              "description": "Legal fees and conveyancing costs for property purchase"
+            }
+          ],
+          "description": "Property purchased for $720,000"
+        },
+        {
+          "date": "2016-03-01",
+          "event": "move_in",
+          "title": "Move In",
+          "checkboxState": {},
+          "description": "Moved in immediately upon purchase - used as main residence"
+        },
+        {
+          "date": "2019-03-01",
+          "event": "move_out",
+          "title": "Move Out",
+          "checkboxState": {},
+          "description": "Moved out after 3 years of residence - property to be rented"
+        },
+        {
+          "date": "2019-03-01",
+          "event": "rent_start",
+          "title": "Start Rent",
+          "checkboxState": {
+            "partialRental": false,
+            "selectMainResidence": true
+          },
+          "description": "Started renting property to tenants - treating as main residence under six-year absence rule"
+        },
+        {
+          "date": "2024-11-01",
+          "event": "sale",
+          "price": 1350000,
+          "title": "Sale",
+          "checkboxState": {},
+          "costBases": [
+            {
+              "id": "cb-batch123-s6-agent",
+              "definitionId": "agent_fees",
+              "name": "Real Estate Agent Commission",
+              "amount": 33750,
+              "category": "element5",
+              "isCustom": false,
+              "description": "Commission paid to real estate agent for sale"
+            },
+            {
+              "id": "cb-batch123-s6-legal-sale",
+              "definitionId": "legal_fees_disposal",
+              "name": "Legal Fees (Disposal)",
+              "amount": 2700,
+              "category": "element5",
+              "isCustom": false,
+              "description": "Legal fees for property sale and conveyancing"
+            }
+          ],
+          "description": "Property sold for $1,350,000"
+        }
+      ],
+      "notes": "Property used as main residence for 3 years, then rented for approximately 5.67 years while treating as main residence under the six-year absence rule.\n\n**Timeline:**\n- 1 Mar 2016 to 1 Mar 2019: Main residence (3 years)\n- 1 Mar 2019 to 1 Nov 2024: Rented (5.67 years - within 6-year limit)\n\n**Expected Result:**\n- Total capital gain: $563,550\n- Six-year absence rule applies (s118.145 ITAA 1997)\n- Main Residence Exemption: 100%\n- **NO CGT PAYABLE**\n\n**ATO Rules Applied:**\n- Section 118-145 ITAA 1997 (Six-Year Absence Rule)\n- Property can continue to be treated as main residence for up to 6 years while rented, provided no other property is claimed as main residence",
+      "color": "#10B981",
+      "branch": 0
+    }
+  ],
+  "user_query": "Property at 55 Panorama Drive, Surfers Paradise QLD 4217, lived in for 3 years, then rented for 5.67 years",
+  "additional_info": {
+    "australian_resident": true,
+    "tax_year": "2024-2025",
+    "scenario_number": "Scenario 6",
+    "scenario_title": "Six-Year Absence Rule (Within 6 Years)",
+    "expected_outcome": "NO CGT PAYABLE - Six-year absence rule applies",
+    "subcategory": "Partial - 6-Year Rule"
+  }
+}

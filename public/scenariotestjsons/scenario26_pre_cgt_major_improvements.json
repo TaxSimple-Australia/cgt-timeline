@@ -54,6 +54,7 @@
   ],
   "user_query": "I bought my home in 1982 before CGT started. I did a major $250,000 renovation in 2015. Now I'm selling for $680,000. Is any part taxable?",
   "additional_info": {
-    "australian_resident": true
+    "australian_resident": true,
+    "subcategory": "Pre-CGT"
   }
 }

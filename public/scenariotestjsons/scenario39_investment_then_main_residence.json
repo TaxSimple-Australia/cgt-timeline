@@ -59,6 +59,7 @@
   ],
   "user_query": "I bought an investment property and rented it for 3 years. Then I moved in and lived there for 2 years as my main residence. Now I'm selling. Can I use the six-year rule?",
   "additional_info": {
-    "australian_resident": true
+    "australian_resident": true,
+    "subcategory": "Partial - Time Apportionment"
   }
 }

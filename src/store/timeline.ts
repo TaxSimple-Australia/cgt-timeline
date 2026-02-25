@@ -2315,7 +2315,7 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
           parentPropertyId: prop.parentPropertyId,
           subdivisionDate: safeParseDate(prop.subdivisionDate),
           subdivisionGroup: prop.subdivisionGroup,
-          lotNumber: prop.lotNumber,
+          lotNumber: prop.lotNumber && !prop.lotNumber.startsWith('Lot ') ? `Lot ${prop.lotNumber}` : prop.lotNumber,
           lotSize: prop.lotSize,
           initialCostBase: prop.initialCostBase,
           isMainLotContinuation: prop.isMainLotContinuation,
@@ -2464,7 +2464,20 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
           const propertyEvents: TimelineEvent[] = [];
 
           if (prop.property_history && Array.isArray(prop.property_history)) {
-            prop.property_history.forEach((historyItem: any, eventIndex: number) => {
+            // First pass: separate status_change items from regular events
+            // status_change events are contextual metadata (deaths, separations, business use changes)
+            // that should be merged into nearby events rather than displayed as timeline circles
+            const regularHistory: any[] = [];
+            const statusChangeHistory: any[] = [];
+            prop.property_history.forEach((historyItem: any) => {
+              if (historyItem.event === 'status_change') {
+                statusChangeHistory.push(historyItem);
+              } else {
+                regularHistory.push(historyItem);
+              }
+            });
+
+            regularHistory.forEach((historyItem: any, eventIndex: number) => {
               const eventDate = new Date(historyItem.date);
               const eventType = historyItem.event as EventType;
 
@@ -2570,7 +2583,7 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
                 date: eventDate,
                 title: historyItem.title || eventType.replace('_', ' '),
                 amount: calculatedAmount,
-                description: historyItem.description,
+                description: historyItem.description || historyItem.subdivisionDetails?.notes || '',
                 position: 0,
                 color: eventColors[eventType] || '#3B82F6',
                 contractDate: historyItem.contract_date ? new Date(historyItem.contract_date) : undefined,
@@ -2624,6 +2637,105 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
 
               propertyEvents.push(event);
             });
+
+            // Post-process: Detect partial rental from scenario data and populate mixed-use fields
+            // This enables the "(Mixed Use)" subtitle for imported scenario JSONs
+            const purchaseEvt = propertyEvents.find(e => e.type === 'purchase');
+            const hasMoveInEvt = propertyEvents.some(e => e.type === 'move_in');
+
+            if (purchaseEvt && hasMoveInEvt && !purchaseEvt.livingUsePercentage && !purchaseEvt.rentalUsePercentage) {
+              for (let i = 0; i < propertyEvents.length; i++) {
+                const evt = propertyEvents[i];
+                if (evt.type !== 'rent_start') continue;
+
+                // Find the corresponding raw history item for floor_area_percentage
+                const rawItem = regularHistory.find((h: any) =>
+                  h.event === 'rent_start' && new Date(h.date).getTime() === evt.date.getTime()
+                );
+
+                const floorAreaPct = rawItem?.floor_area_percentage;
+                const floorData = evt.floorAreaData as any;
+
+                if (floorAreaPct || floorData) {
+                  let rentalPct = 0;
+
+                  if (floorAreaPct) {
+                    rentalPct = floorAreaPct;
+                  } else if (floorData) {
+                    const exclusiveArea = floorData.exclusive || floorData.rental || 0;
+                    const sharedArea = floorData.shared || 0;
+                    const totalArea = floorData.total || 0;
+                    if (totalArea > 0) {
+                      rentalPct = Math.round(((exclusiveArea / totalArea) * 100) + ((sharedArea / totalArea) * 50));
+                    } else if (exclusiveArea > 0 || sharedArea > 0) {
+                      rentalPct = 20;
+                    }
+                  }
+
+                  if (rentalPct > 0) {
+                    purchaseEvt.livingUsePercentage = 100 - rentalPct;
+                    purchaseEvt.rentalUsePercentage = rentalPct;
+                    purchaseEvt.checkboxState = {
+                      ...purchaseEvt.checkboxState,
+                      purchaseAsMixedUse: true,
+                    };
+                    break;
+                  }
+                }
+              }
+            }
+
+            // Second pass: merge status_change descriptions into nearest events
+            // This preserves ALL data for the model while removing visual clutter from the timeline
+            if (statusChangeHistory.length > 0 && propertyEvents.length > 0) {
+              statusChangeHistory.forEach((sc: any) => {
+                const scDate = new Date(sc.date).getTime();
+
+                // Build comprehensive description from all status_change fields
+                const parts: string[] = [];
+                if (sc.title && sc.title !== 'Status Change') parts.push(`[${sc.title}]`);
+                if (sc.description) parts.push(sc.description);
+                if (sc.notes) parts.push(sc.notes);
+                if (sc.market_value) parts.push(`Market value at time: $${Number(sc.market_value).toLocaleString()}`);
+                if (sc.market_value_at_death) parts.push(`Market value at death: $${Number(sc.market_value_at_death).toLocaleString()}`);
+                if (sc.new_status) parts.push(`Status changed to: ${sc.new_status}`);
+                const scText = parts.join('. ');
+                if (!scText) return; // Skip empty status_changes
+
+                // Find the closest event by date
+                let closestEvent = propertyEvents[0];
+                let closestDiff = Math.abs(new Date(propertyEvents[0].date).getTime() - scDate);
+                for (let i = 1; i < propertyEvents.length; i++) {
+                  const diff = Math.abs(new Date(propertyEvents[i].date).getTime() - scDate);
+                  if (diff < closestDiff) {
+                    closestDiff = diff;
+                    closestEvent = propertyEvents[i];
+                  }
+                }
+
+                // Append status_change info to the closest event's description
+                const dateStr = sc.date ? ` (${sc.date})` : '';
+                const mergedText = `[Status context${dateStr}: ${scText}]`;
+                closestEvent.description = closestEvent.description
+                  ? `${closestEvent.description}. ${mergedText}`
+                  : mergedText;
+              });
+            } else if (statusChangeHistory.length > 0 && propertyEvents.length === 0) {
+              // No other events exist — append all status_change data to property notes
+              const allStatusText = statusChangeHistory.map((sc: any) => {
+                const parts: string[] = [];
+                if (sc.date) parts.push(sc.date);
+                if (sc.title && sc.title !== 'Status Change') parts.push(sc.title);
+                if (sc.description) parts.push(sc.description);
+                if (sc.notes) parts.push(sc.notes);
+                if (sc.market_value) parts.push(`Market value: $${Number(sc.market_value).toLocaleString()}`);
+                if (sc.market_value_at_death) parts.push(`Market value at death: $${Number(sc.market_value_at_death).toLocaleString()}`);
+                return parts.join(' - ');
+              }).join('; ');
+              prop.notes = prop.notes
+                ? `${prop.notes}. Status changes: ${allStatusText}`
+                : `Status changes: ${allStatusText}`;
+            }
           }
 
           // Create property
@@ -2645,12 +2757,24 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
             parentPropertyId: prop.parentPropertyId,
             subdivisionDate: prop.subdivisionDate ? new Date(prop.subdivisionDate) : undefined,
             subdivisionGroup: prop.subdivisionGroup,
-            lotNumber: prop.lotNumber,
+            lotNumber: prop.lotNumber && !prop.lotNumber.startsWith('Lot ') ? `Lot ${prop.lotNumber}` : prop.lotNumber,
             lotSize: prop.lotSize,
             allocationPercentage: prop.allocationPercentage,
             initialCostBase: prop.initialCostBase,
             isMainLotContinuation: prop.isMainLotContinuation,
           };
+
+          // Auto-apply ownership from ownership_change events if property doesn't have owners
+          if (!property.owners || property.owners.length === 0) {
+            // Sort ownership_change events chronologically and apply the last one's newOwners
+            const ownershipEvents = propertyEvents
+              .filter(e => e.type === 'ownership_change' && e.newOwners && e.newOwners.length > 0)
+              .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+            if (ownershipEvents.length > 0) {
+              const lastOwnershipEvent = ownershipEvents[ownershipEvents.length - 1];
+              property.owners = lastOwnershipEvent.newOwners;
+            }
+          }
 
           importedProperties.push(property);
           importedEvents.push(...propertyEvents);
@@ -2677,6 +2801,178 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
           });
         }
       }
+
+      // ========== FORMAT 2 SUBDIVISION CONVERSION ==========
+      // Detect and convert Format 2 subdivisions (only parent property with subdivision events)
+      // to Format 1 (parent + child properties)
+      const subdivisionGroupsProcessed = new Set<string>();
+
+      importedProperties.forEach(property => {
+        const propertyEvents = importedEvents.filter(e => e.propertyId === property.id);
+        const subdivisionEvents = propertyEvents.filter(e =>
+          e.type === 'subdivision' &&
+          e.subdivisionDetails?.subdivisionGroup &&
+          !subdivisionGroupsProcessed.has(e.subdivisionDetails.subdivisionGroup)
+        );
+
+        subdivisionEvents.forEach(subdivEvent => {
+          const subdivisionGroup = subdivEvent.subdivisionDetails?.subdivisionGroup;
+          if (!subdivisionGroup) return;
+
+          // Check if child properties already exist for this subdivision group
+          const hasChildProperties = importedProperties.some(p =>
+            p.subdivisionGroup === subdivisionGroup && p.parentPropertyId === property.id
+          );
+
+          if (hasChildProperties) {
+            // Format 1: Already has child properties, skip conversion
+            subdivisionGroupsProcessed.add(subdivisionGroup);
+            return;
+          }
+
+          // Format 2: No child properties found - need to auto-generate them
+          console.log(`🔍 Detected Format 2 subdivision: ${property.name || property.address}`);
+
+          // Extract valuation data from the subdivision event
+          // Look for fields like valuation_lot1_with_dwelling, valuation_lot2_vacant, etc.
+          const subdivEventRaw = importedEvents.find(e => e === subdivEvent);
+          const eventData: any = subdivEventRaw || {};
+
+          // Collect all valuation fields
+          const valuations: Array<{lotNumber: number, value: number, hasDwelling: boolean}> = [];
+          Object.keys(eventData).forEach(key => {
+            const match = key.match(/^valuation_lot(\d+)_?(.*)?$/i);
+            if (match && typeof eventData[key] === 'number') {
+              const lotNum = parseInt(match[1]);
+              const suffix = match[2] || '';
+              valuations.push({
+                lotNumber: lotNum,
+                value: eventData[key],
+                hasDwelling: suffix.toLowerCase().includes('dwelling') || suffix.toLowerCase().includes('house')
+              });
+            }
+          });
+
+          // Sort by lot number
+          valuations.sort((a, b) => a.lotNumber - b.lotNumber);
+
+          if (valuations.length === 0) {
+            console.warn(`⚠️ No valuation data found for subdivision, skipping auto-generation`);
+            return;
+          }
+
+          // Calculate total valuation
+          const totalValuation = eventData.total_value_at_subdivision ||
+                                 valuations.reduce((sum, v) => sum + v.value, 0);
+
+          // Get subdivision costs
+          const subdivisionCosts = eventData.subdivision_costs || 0;
+
+          // Calculate parent's cost base before subdivision
+          const parentPurchasePrice = property.purchasePrice || 0;
+          const parentImprovements = importedEvents
+            .filter(e => e.propertyId === property.id && e.type === 'improvement' && e.date < subdivEvent.date)
+            .reduce((sum, e) => sum + (e.amount || 0), 0);
+          const parentCostBase = parentPurchasePrice + parentImprovements;
+
+          // Create child properties
+          const childProperties: Property[] = valuations.map((valuation, index) => {
+            const isMainLot = index === 0;
+            const lotName = `Lot ${valuation.lotNumber}`;
+
+            // Calculate allocation percentage based on valuation
+            const allocationPercentage = (valuation.value / totalValuation) * 100;
+
+            // Calculate allocated cost base (proportional to valuation)
+            const baseCostAllocation = (parentCostBase * allocationPercentage) / 100;
+            const feeAllocation = subdivisionCosts / valuations.length;
+            const allocatedCostBase = baseCostAllocation + feeAllocation;
+
+            // Generate new property ID
+            const childId = `${property.id}-${index}`;
+
+            return {
+              id: childId,
+              name: lotName,
+              address: lotName,
+              color: propertyColors[(importedProperties.length + index) % propertyColors.length],
+              branch: importedProperties.length + index,
+              parentPropertyId: property.id,
+              subdivisionDate: subdivEvent.date,
+              subdivisionGroup,
+              lotNumber: lotName,
+              lotSize: undefined, // Not available in Format 2
+              allocationPercentage,
+              purchasePrice: allocatedCostBase,
+              purchaseDate: isMainLot ? property.purchaseDate : subdivEvent.date,
+              owners: property.owners,
+              isMainLotContinuation: isMainLot,
+              notes: property.notes,
+            };
+          });
+
+          // Get parent events before subdivision to copy to Lot 1
+          const parentEventsBeforeSubdivision = importedEvents.filter(
+            e => e.propertyId === property.id && e.date < subdivEvent.date
+          );
+
+          // Create copies of parent events for Lot 1 (remove financial data)
+          const lot1Id = childProperties[0]?.id;
+          const copiedEventsForLot1: TimelineEvent[] = lot1Id
+            ? parentEventsBeforeSubdivision.map(event => {
+                const { amount, costBases, ...eventWithoutFinancials } = event;
+                return {
+                  ...eventWithoutFinancials,
+                  id: `event-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
+                  propertyId: lot1Id,
+                };
+              })
+            : [];
+
+          // Update subdivision event with full details
+          if (subdivEvent.subdivisionDetails) {
+            subdivEvent.subdivisionDetails.parentPropertyId = property.id;
+            subdivEvent.subdivisionDetails.childProperties = childProperties.map((cp, i) => ({
+              id: cp.id,
+              name: cp.name,
+              lotSize: cp.lotSize,
+              allocationPercentage: cp.allocationPercentage,
+              allocatedCostBase: cp.purchasePrice,
+            }));
+            subdivEvent.subdivisionDetails.totalLots = childProperties.length;
+            subdivEvent.subdivisionDetails.allocationMethod = 'by_valuation';
+            subdivEvent.subdivisionDetails.costBreakdown = {
+              totalValuation,
+              valuations: valuations.map(v => ({
+                lot: v.lotNumber,
+                value: v.value,
+                hasDwelling: v.hasDwelling
+              })),
+              subdivisionCosts,
+            };
+          }
+
+          // Update parent property
+          const parentIndex = importedProperties.findIndex(p => p.id === property.id);
+          if (parentIndex >= 0) {
+            importedProperties[parentIndex] = {
+              ...importedProperties[parentIndex],
+              subdivisionDate: subdivEvent.date,
+              subdivisionGroup,
+            };
+          }
+
+          // Add child properties and their events
+          importedProperties.push(...childProperties);
+          importedEvents.push(...copiedEventsForLot1);
+
+          subdivisionGroupsProcessed.add(subdivisionGroup);
+
+          console.log(`✅ Auto-generated ${childProperties.length} child properties for Format 2 subdivision`);
+          console.log(`📊 Valuations: ${valuations.map(v => `Lot ${v.lotNumber}: $${v.value.toLocaleString()}`).join(', ')}`);
+        });
+      });
+      // ========== END FORMAT 2 CONVERSION ==========
 
       // Migrate market valuation from move_out to rent_start events
       // For each property, find move_out events with marketValuation and corresponding rent_start events

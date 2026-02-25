@@ -95,6 +95,7 @@ export default function TermsAcceptanceModal({ onAccept }: TermsAcceptanceModalP
       icon: FileText,
       checked: termsChecked,
       setChecked: setTermsChecked,
+      hasLink: true,
     },
     {
       id: 'privacy',
@@ -104,6 +105,7 @@ export default function TermsAcceptanceModal({ onAccept }: TermsAcceptanceModalP
       icon: Shield,
       checked: privacyChecked,
       setChecked: setPrivacyChecked,
+      hasLink: true,
     },
     {
       id: 'collection',
@@ -113,6 +115,7 @@ export default function TermsAcceptanceModal({ onAccept }: TermsAcceptanceModalP
       icon: Bell,
       checked: collectionChecked,
       setChecked: setCollectionChecked,
+      hasLink: true,
     },
   ];
 
@@ -159,10 +162,19 @@ export default function TermsAcceptanceModal({ onAccept }: TermsAcceptanceModalP
                 <div className="space-y-3">
                   {legalItems.map((item) => {
                     const Icon = item.icon;
+                    const isWarning = item.isWarning || false;
+                    const accentColor = isWarning ? 'amber' : 'cyan';
+
                     return (
                       <div
                         key={item.id}
-                        className="flex items-start gap-3 p-3 rounded-xl bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 transition-all hover:border-cyan-500/50"
+                        className={`
+                          flex items-start gap-3 p-3 rounded-xl border transition-all
+                          ${isWarning
+                            ? 'bg-amber-50 dark:bg-amber-900/10 border-amber-200 dark:border-amber-800 hover:border-amber-500/50'
+                            : 'bg-slate-50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-700 hover:border-cyan-500/50'
+                          }
+                        `}
                       >
                         {/* Checkbox */}
                         <button
@@ -170,8 +182,12 @@ export default function TermsAcceptanceModal({ onAccept }: TermsAcceptanceModalP
                           className={`
                             flex-shrink-0 w-6 h-6 rounded-md border-2 transition-all flex items-center justify-center mt-0.5
                             ${item.checked
-                              ? 'bg-cyan-500 border-cyan-500'
-                              : 'border-slate-300 dark:border-slate-600 hover:border-cyan-500/50'
+                              ? isWarning
+                                ? 'bg-amber-500 border-amber-500'
+                                : 'bg-cyan-500 border-cyan-500'
+                              : isWarning
+                                ? 'border-amber-300 dark:border-amber-600 hover:border-amber-500/50'
+                                : 'border-slate-300 dark:border-slate-600 hover:border-cyan-500/50'
                             }
                           `}
                         >
@@ -181,26 +197,28 @@ export default function TermsAcceptanceModal({ onAccept }: TermsAcceptanceModalP
                         {/* Content */}
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2">
-                            <Icon className="w-4 h-4 text-cyan-500" />
-                            <span className="font-medium text-slate-900 dark:text-white">
+                            <Icon className={`w-4 h-4 ${isWarning ? 'text-amber-500' : 'text-cyan-500'}`} />
+                            <span className={`font-medium ${isWarning ? 'text-amber-900 dark:text-amber-200' : 'text-slate-900 dark:text-white'}`}>
                               {item.label}
                             </span>
                           </div>
-                          <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
+                          <p className={`text-sm mt-0.5 ${isWarning ? 'text-amber-700 dark:text-amber-300' : 'text-slate-500 dark:text-slate-400'}`}>
                             {item.description}
                           </p>
                         </div>
 
-                        {/* Link */}
-                        <Link
-                          href={item.href}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex-shrink-0 p-2 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
-                          title={`Read ${item.label}`}
-                        >
-                          <ExternalLink className="w-4 h-4 text-slate-400 hover:text-cyan-500" />
-                        </Link>
+                        {/* Link (only if hasLink) */}
+                        {item.hasLink && (
+                          <Link
+                            href={item.href}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex-shrink-0 p-2 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+                            title={`Read ${item.label}`}
+                          >
+                            <ExternalLink className="w-4 h-4 text-slate-400 hover:text-cyan-500" />
+                          </Link>
+                        )}
                       </div>
                     );
                   })}

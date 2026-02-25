@@ -1,0 +1,123 @@
+{
+  "properties": [
+    {
+      "id": "prop-batch123-scenario2",
+      "address": "88 Harbour Street, Sydney NSW 2000",
+      "property_history": [
+        {
+          "date": "2015-07-01",
+          "event": "purchase",
+          "price": 850000,
+          "stamp_duty": 33000,
+          "title": "Purchase",
+          "checkboxState": {
+            "moveInOnSameDay": true,
+            "purchaseAsVacant": false,
+            "purchaseAsRent": false,
+            "purchaseAsConstruction": false,
+            "purchaseAsBusiness": false,
+            "inheritedProperty": false,
+            "preCGTProperty": false,
+            "partialRental": false,
+            "partialBusiness": false,
+            "mixedUse": false
+          },
+          "costBases": [
+            {
+              "id": "cb-batch123-s2-purchase",
+              "definitionId": "purchase_price",
+              "name": "Purchase Price",
+              "amount": 850000,
+              "category": "element1",
+              "isCustom": false,
+              "description": "The total amount paid to acquire the property on 1 July 2015"
+            },
+            {
+              "id": "cb-batch123-s2-stamp",
+              "definitionId": "stamp_duty",
+              "name": "Stamp Duty",
+              "amount": 33000,
+              "category": "element2",
+              "isCustom": false,
+              "description": "State government transfer duty paid on property acquisition"
+            },
+            {
+              "id": "cb-batch123-s2-legal-purchase",
+              "definitionId": "legal_fees_acquire",
+              "name": "Legal Fees (Acquisition)",
+              "amount": 3200,
+              "category": "element2",
+              "isCustom": false,
+              "description": "Legal fees and conveyancing costs for property purchase"
+            }
+          ],
+          "description": "Property purchased for $850,000"
+        },
+        {
+          "date": "2015-07-01",
+          "event": "move_in",
+          "title": "Move In",
+          "checkboxState": {},
+          "description": "Moved in immediately upon purchase - used as main residence"
+        },
+        {
+          "date": "2019-07-01",
+          "event": "move_out",
+          "title": "Move Out",
+          "checkboxState": {},
+          "description": "Moved out after 4 years of residence - property to be rented"
+        },
+        {
+          "date": "2019-07-01",
+          "event": "rent_start",
+          "title": "Start Rent",
+          "checkboxState": {
+            "partialRental": false,
+            "selectMainResidence": true
+          },
+          "description": "Started renting property to tenants - treating as main residence under six-year absence rule"
+        },
+        {
+          "date": "2024-08-15",
+          "event": "sale",
+          "price": 1580000,
+          "title": "Sale",
+          "checkboxState": {},
+          "costBases": [
+            {
+              "id": "cb-batch123-s2-agent",
+              "definitionId": "agent_fees",
+              "name": "Real Estate Agent Commission",
+              "amount": 39500,
+              "category": "element5",
+              "isCustom": false,
+              "description": "Commission paid to real estate agent for sale"
+            },
+            {
+              "id": "cb-batch123-s2-legal-sale",
+              "definitionId": "legal_fees_disposal",
+              "name": "Legal Fees (Disposal)",
+              "amount": 2800,
+              "category": "element5",
+              "isCustom": false,
+              "description": "Legal fees for property sale and conveyancing"
+            }
+          ],
+          "description": "Property sold for $1,580,000"
+        }
+      ],
+      "notes": "Property used as main residence for 4 years, then rented for approximately 5.12 years while treating as main residence under the six-year absence rule.\n\n**Timeline:**\n- 1 Jul 2015 to 1 Jul 2019: Main residence (4 years)\n- 1 Jul 2019 to 15 Aug 2024: Rented (5.12 years - within 6-year limit)\n\n**Expected Result:**\n- Total capital gain: $685,500\n- Six-year absence rule applies (s118.145 ITAA 1997)\n- Main Residence Exemption: 100%\n- **NO CGT PAYABLE**\n\n**ATO Rules Applied:**\n- Section 118-145 ITAA 1997 (Six-Year Absence Rule)\n- Property can continue to be treated as main residence for up to 6 years while rented, provided no other property is claimed as main residence",
+      "color": "#3B82F6",
+      "branch": 0
+    }
+  ],
+  "user_query": "Property at 88 Harbour Street, Sydney NSW 2000, lived in for 4 years, then rented for 5.12 years",
+  "additional_info": {
+    "australian_resident": true,
+    "tax_year": "2024-2025",
+    "scenario_number": "Scenario 2",
+    "scenario_title": "Six-Year Absence Rule (Within 6 Years)",
+    "expected_outcome": "NO CGT PAYABLE - Six-year absence rule applies",
+    "subcategory": "Partial - 6-Year Rule"
+  }
+}

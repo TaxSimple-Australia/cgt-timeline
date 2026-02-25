@@ -57,7 +57,8 @@
   ],
   "user_query": "I bought a new home in May 2025 and moved in June. I rented out my old home for a few months before selling in November. I sold within 6 months of buying the new place - does the 6-month rule still apply?",
   "additional_info": {
-    "australian_resident": true
+    "australian_resident": true,
+    "subcategory": "Special Circumstances"
   },
   "llm_provider": "deepseek",
   "use_claude": true,

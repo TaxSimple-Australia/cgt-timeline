@@ -78,7 +78,10 @@
           "title": "Inheritance",
           "checkboxState": {},
           "description": "Property inherited by beneficiaries - Two children inherited farm equally (Child A 50%, Child B 50%)",
-          "beneficiaries": ["Child A 50%", "Child B 50%"],
+          "beneficiaries": [
+            "Child A 50%",
+            "Child B 50%"
+          ],
           "notes": "Two children inherited farm equally"
         },
         {
@@ -86,9 +89,25 @@
           "event": "ownership_change",
           "title": "Ownership Transfer",
           "description": "Property inherited by beneficiaries",
-          "leavingOwners": ["father"],
-          "newOwners": [{"name": "Child A", "percentage": 50}, {"name": "Child B", "percentage": 50}],
-          "previousOwners": [{"name": "father", "percentage": 100}],
+          "leavingOwners": [
+            "father"
+          ],
+          "newOwners": [
+            {
+              "name": "Child A",
+              "percentage": 50
+            },
+            {
+              "name": "Child B",
+              "percentage": 50
+            }
+          ],
+          "previousOwners": [
+            {
+              "name": "father",
+              "percentage": 100
+            }
+          ],
           "ownershipChangeReason": "other",
           "ownershipChangeReasonOther": "Inheritance"
         },
@@ -133,7 +152,16 @@
         }
       ],
       "notes": "Original farm property inherited from parents. Subdivided into 6 lots - Lot 1 retained with farmhouse, Lots 2-6 sold.",
-      "owners": [{"name": "Child A", "percentage": 50}, {"name": "Child B", "percentage": 50}],
+      "owners": [
+        {
+          "name": "Child A",
+          "percentage": 50
+        },
+        {
+          "name": "Child B",
+          "percentage": 50
+        }
+      ],
       "color": "#10B981",
       "branch": 0,
       "subdivisionGroup": "d956ea87-22bb-4380-988b-ddc5cb2001c6",
@@ -377,7 +405,8 @@
   ],
   "user_query": "My brother and I inherited our parents' farm when dad died in 2021. We subdivided it into 6 lots - kept the farmhouse lot and sold the other 5 as rural residential blocks. The farm was our parents' home since 1992. How is CGT calculated when we've subdivided inherited property?",
   "additional_info": {
-    "australian_resident": true
+    "australian_resident": true,
+    "subcategory": "Inheritance/Death"
   },
   "llm_provider": "deepseek",
   "scenario_info": {

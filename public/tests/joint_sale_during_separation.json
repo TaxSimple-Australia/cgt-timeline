@@ -45,7 +45,8 @@
     "owner_2_share": 50,
     "separation_date": "2023-06-15",
     "sale_during_separation": true,
-    "divorce_not_finalised": true
+    "divorce_not_finalised": true,
+    "subcategory": "Relationships"
   },
   "llm_provider": "deepseek",
   "use_claude": true,

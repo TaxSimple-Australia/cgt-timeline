@@ -32,7 +32,8 @@
   ],
   "user_query": "I'm selling my rural property which is 5 hectares. The house and gardens use about 1.5 hectares. I've lived here since 2012. Does the whole property get the main residence exemption or only part of it?",
   "additional_info": {
-    "australian_resident": true
+    "australian_resident": true,
+    "subcategory": "Special Circumstances"
   },
   "llm_provider": "deepseek",
   "use_claude": true,

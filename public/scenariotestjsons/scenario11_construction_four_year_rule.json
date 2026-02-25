@@ -59,6 +59,7 @@
   ],
   "user_query": "I bought vacant land in 2020, built a home which was completed in late 2022, moved in January 2023, and sold in 2024. Do I qualify for the main residence exemption?",
   "additional_info": {
-    "australian_resident": true
+    "australian_resident": true,
+    "subcategory": "Construction Rules"
   }
 }

@@ -106,18 +106,18 @@
           "description": "Property sold for $1,350,000"
         }
       ],
-      "notes": "**Batch 1,2,3 - Scenario 6: Six-Year Absence Rule (Within 6 Years)**\n\nProperty used as main residence for 3 years, then rented for approximately 5.67 years while treating as main residence under the six-year absence rule.\n\n**Timeline:**\n- 1 Mar 2016 to 1 Mar 2019: Main residence (3 years)\n- 1 Mar 2019 to 1 Nov 2024: Rented (5.67 years - within 6-year limit)\n\n**Expected Result:**\n- Total capital gain: $563,550\n- Six-year absence rule applies (s118.145 ITAA 1997)\n- Main Residence Exemption: 100%\n- **NO CGT PAYABLE**\n\n**ATO Rules Applied:**\n- Section 118-145 ITAA 1997 (Six-Year Absence Rule)\n- Property can continue to be treated as main residence for up to 6 years while rented, provided no other property is claimed as main residence",
+      "notes": "Property used as main residence for 3 years, then rented for approximately 5.67 years while treating as main residence under the six-year absence rule.\n\n**Timeline:**\n- 1 Mar 2016 to 1 Mar 2019: Main residence (3 years)\n- 1 Mar 2019 to 1 Nov 2024: Rented (5.67 years - within 6-year limit)\n\n**Expected Result:**\n- Total capital gain: $563,550\n- Six-year absence rule applies (s118.145 ITAA 1997)\n- Main Residence Exemption: 100%\n- **NO CGT PAYABLE**\n\n**ATO Rules Applied:**\n- Section 118-145 ITAA 1997 (Six-Year Absence Rule)\n- Property can continue to be treated as main residence for up to 6 years while rented, provided no other property is claimed as main residence",
       "color": "#10B981",
       "branch": 0
     }
   ],
-  "user_query": "Batch 1,2,3 - Scenario 6: Six-Year Absence Rule (Within 6 Years) - Property at 55 Panorama Drive, Surfers Paradise QLD 4217, lived in for 3 years, then rented for 5.67 years",
+  "user_query": "Property at 55 Panorama Drive, Surfers Paradise QLD 4217, lived in for 3 years, then rented for 5.67 years",
   "additional_info": {
     "australian_resident": true,
     "tax_year": "2024-2025",
-    "scenario_batch": "Batch 1,2,3",
     "scenario_number": "Scenario 6",
     "scenario_title": "Six-Year Absence Rule (Within 6 Years)",
-    "expected_outcome": "NO CGT PAYABLE - Six-year absence rule applies"
+    "expected_outcome": "NO CGT PAYABLE - Six-year absence rule applies",
+    "subcategory": "Partial - 6-Year Rule"
   }
 }

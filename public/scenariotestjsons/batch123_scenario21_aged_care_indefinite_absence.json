@@ -115,18 +115,18 @@
           "description": "Property sold for $520,000"
         }
       ],
-      "notes": "**Batch 1,2,3 - Scenario 21: Aged Care Entry with Indefinite Absence**\n\nProperty was main residence for 17 years, then left vacant (not rented) for 7 years while in aged care before selling.\n\n**Timeline:**\n- 1 Mar 2000 to 1 Apr 2017: Main residence (17 years)\n- 1 Apr 2017 to 15 Aug 2024: Vacant while in aged care (7.4 years - not rented)\n\n**Expected Result:**\n- Under s118.145, property continues to be treated as main residence indefinitely when not used to produce income\n- Property left vacant (not rented) = indefinite exemption\n- **NO CGT PAYABLE**\n\n**ATO Rules Applied:**\n- Section 118.145 ITAA 1997 (Indefinite Absence Rule)\n- Property can be treated as main residence indefinitely when not rented\n- No limit on how long the property can be vacant",
+      "notes": "Property was main residence for 17 years, then left vacant (not rented) for 7 years while in aged care before selling.\n\n**Timeline:**\n- 1 Mar 2000 to 1 Apr 2017: Main residence (17 years)\n- 1 Apr 2017 to 15 Aug 2024: Vacant while in aged care (7.4 years - not rented)\n\n**Expected Result:**\n- Under s118.145, property continues to be treated as main residence indefinitely when not used to produce income\n- Property left vacant (not rented) = indefinite exemption\n- **NO CGT PAYABLE**\n\n**ATO Rules Applied:**\n- Section 118.145 ITAA 1997 (Indefinite Absence Rule)\n- Property can be treated as main residence indefinitely when not rented\n- No limit on how long the property can be vacant",
       "color": "#10B981",
       "branch": 0
     }
   ],
-  "user_query": "Batch 1,2,3 - Scenario 21: Aged Care Entry with Indefinite Absence - Property at 15 Magnolia Street, Toowoomba QLD 4350, lived in for 17 years, then vacant for 7 years while in aged care",
+  "user_query": "Property at 15 Magnolia Street, Toowoomba QLD 4350, lived in for 17 years, then vacant for 7 years while in aged care",
   "additional_info": {
     "australian_resident": true,
     "tax_year": "2024-2025",
-    "scenario_batch": "Batch 1,2,3",
     "scenario_number": "Scenario 21",
     "scenario_title": "Aged Care Entry with Indefinite Absence",
-    "expected_outcome": "NO CGT PAYABLE - Indefinite absence rule applies (property not income producing)"
+    "expected_outcome": "NO CGT PAYABLE - Indefinite absence rule applies (property not income producing)",
+    "subcategory": "Special Circumstances"
   }
 }

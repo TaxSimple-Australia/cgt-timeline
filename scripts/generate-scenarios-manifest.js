@@ -40,7 +40,6 @@ const SCENARIO_CONFIG = [
   { filename: 'inherited_property_2year_rule.json', displayTitle: 'Inherited Property - 2 Year Rule', category: 'Ownership Changes', path: 'tests' },
   { filename: 'investment_property_divorce_transfer.json', displayTitle: 'Investment Property - Divorce Transfer', category: 'Ownership Changes', path: 'tests' },
   { filename: 'joint_sale_during_separation.json', displayTitle: 'Joint Sale During Separation', category: 'Ownership Changes', path: 'tests' },
-  { filename: 'mortgagee_sale_foreclosure.json', displayTitle: 'Mortgagee Sale - Foreclosure', category: 'Ownership Changes', path: 'tests' },
   { filename: 'multiple_beneficiaries.json', displayTitle: 'Multiple Beneficiaries', category: 'Ownership Changes', path: 'tests' },
   { filename: 'pre_cgt_inheritance.json', displayTitle: 'Pre-CGT Inheritance', category: 'Ownership Changes', path: 'tests' },
   { filename: 'pre_cgt_property_with_improvements.json', displayTitle: 'Pre-CGT Property with Improvements', category: 'Ownership Changes', path: 'tests' },
@@ -68,7 +67,6 @@ const SCENARIO_CONFIG = [
   { filename: 'joint_ownership_main_residence_choice.json', displayTitle: 'Joint Ownership - MR Choice', category: 'Multi-Property Portfolios', path: 'tests' },
 
   // === Foreign Resident ===
-  { filename: 'scenario14_foreign_resident_period.json', displayTitle: 'Foreign Resident Period Impact', category: 'Foreign Resident' },
   { filename: 'scenario31_foreign_resident_life_event.json', displayTitle: 'Foreign Resident Life Event', category: 'Foreign Resident' },
   { filename: 'scenario32_pre_may_2012_foreign.json', displayTitle: 'Pre-9 May 2012 Foreign Residency', category: 'Foreign Resident' },
 
@@ -78,23 +76,16 @@ const SCENARIO_CONFIG = [
   { filename: 'scenario26_pre_cgt_major_improvements.json', displayTitle: 'Pre-CGT with Major Improvements', category: 'Special Rules & Exemptions' },
   { filename: 'scenario27_large_rural_property.json', displayTitle: 'Large Rural Property (>2 Hectares)', category: 'Special Rules & Exemptions' },
   { filename: 'scenario28_granny_flat_arrangement.json', displayTitle: 'Granny Flat Arrangement', category: 'Special Rules & Exemptions' },
-  { filename: 'scenario30_home_office_business.json', displayTitle: 'Home Office Business Use', category: 'Special Rules & Exemptions' },
-  { filename: 'scenario35_four_year_construction.json', displayTitle: '4-Year Construction Rule Exceeded', category: 'Special Rules & Exemptions' },
-  { filename: 'scenario38_small_business_15_year.json', displayTitle: 'Small Business 15-Year Exemption', category: 'Special Rules & Exemptions' },
   // Special Rules test scenarios
   { filename: 'airbnb_investment_only.json', displayTitle: 'Airbnb - Investment Only', category: 'Special Rules & Exemptions', path: 'tests' },
   { filename: 'airbnb_spare_room.json', displayTitle: 'Airbnb - Spare Room', category: 'Special Rules & Exemptions', path: 'tests' },
   { filename: 'bare_trust_no_cgt.json', displayTitle: 'Bare Trust - No CGT', category: 'Special Rules & Exemptions', path: 'tests' },
-  { filename: 'compulsory_acquisition_rollover.json', displayTitle: 'Compulsory Acquisition Rollover', category: 'Special Rules & Exemptions', path: 'tests' },
   { filename: 'joint_tenants_equal_split.json', displayTitle: 'Joint Tenants - Equal Split', category: 'Special Rules & Exemptions', path: 'tests' },
-  { filename: 'tenants_in_common_unequal.json', displayTitle: 'Tenants in Common - Unequal', category: 'Special Rules & Exemptions', path: 'tests' },
-  { filename: 'two_year_building_rule_eligible.json', displayTitle: '2-Year Building Rule - Eligible', category: 'Special Rules & Exemptions', path: 'tests' },
   { filename: 'two_year_building_rule_exceeded.json', displayTitle: '2-Year Building Rule - Exceeded', category: 'Special Rules & Exemptions', path: 'tests' },
   { filename: 'two_year_building_rule_renovation.json', displayTitle: '2-Year Building Rule - Renovation', category: 'Special Rules & Exemptions', path: 'tests' },
 
   // === Batch 123 Scenarios (canonical versions) ===
   // Main Residence batch scenarios
-  { filename: 'batch123_scenario1_full_main_residence_exemption.json', displayTitle: 'Full Main Residence Exemption', category: 'Main Residence' },
   { filename: 'batch123_scenario2_six_year_within.json', displayTitle: '6-Year Absence Rule (Within Limit)', category: 'Main Residence' },
   { filename: 'batch123_scenario3_six_year_exceeded.json', displayTitle: '6-Year Absence Rule (Exceeded)', category: 'Main Residence' },
   { filename: 'batch123_scenario4_rental_first.json', displayTitle: 'Rental First, Then Main Residence', category: 'Main Residence' },
@@ -105,30 +96,28 @@ const SCENARIO_CONFIG = [
   { filename: 'batch123_scenario9_moving_between_residences.json', displayTitle: 'Moving Between Residences (Variant B)', category: 'Main Residence' },
   { filename: 'batch123_scenario10_rental_first.json', displayTitle: 'Rental First (Variant B)', category: 'Main Residence' },
   { filename: 'batch123_scenario21_aged_care_indefinite_absence.json', displayTitle: 'Aged Care - Indefinite Absence', category: 'Main Residence' },
-  { filename: 'batch123_scenario22_delayed_move_in_work.json', displayTitle: 'Delayed Move-In (Batch 123)', category: 'Main Residence' },
-  { filename: 'batch123_scenario23_six_year_periods_reset.json', displayTitle: '6-Year Periods Reset (Batch 123)', category: 'Main Residence' },
-  { filename: 'batch123_scenario34_vacant_periods_extended_rental.json', displayTitle: 'Vacant Periods (Batch 123)', category: 'Main Residence' },
-  { filename: 'batch123_scenario39_investment_then_main_residence.json', displayTitle: 'Investment Then MR (Batch 123)', category: 'Main Residence' },
+  { filename: 'batch123_scenario22_delayed_move_in_work.json', displayTitle: 'Delayed Move-In (Work Assignment)', category: 'Main Residence' },
+  { filename: 'batch123_scenario23_six_year_periods_reset.json', displayTitle: '6-Year Periods Reset', category: 'Main Residence' },
+  { filename: 'batch123_scenario34_vacant_periods_extended_rental.json', displayTitle: 'Vacant Periods During Extended Rental', category: 'Main Residence' },
+  { filename: 'batch123_scenario39_investment_then_main_residence.json', displayTitle: 'Investment Then Main Residence', category: 'Main Residence' },
   // Ownership Changes batch scenarios
   { filename: 'batch123_scenario24_deceased_estate_two_years.json', displayTitle: 'Deceased Estate (Within 2 Years)', category: 'Ownership Changes' },
   { filename: 'batch123_scenario25_beneficiary_moves_in.json', displayTitle: 'Beneficiary Moves Into Inherited Property', category: 'Ownership Changes' },
   { filename: 'batch123_scenario29_relationship_breakdown.json', displayTitle: 'Relationship Breakdown Rollover', category: 'Ownership Changes' },
   { filename: 'batch123_scenario37_deceased_estate_covid.json', displayTitle: 'Deceased Estate - COVID Extension', category: 'Ownership Changes' },
   // Special Rules & Exemptions batch scenarios
-  { filename: 'batch123_scenario26_pre_cgt_major_improvements.json', displayTitle: 'Pre-CGT Improvements (Batch 123)', category: 'Special Rules & Exemptions' },
-  { filename: 'batch123_scenario27_large_rural_property.json', displayTitle: 'Large Rural Property (Batch 123)', category: 'Special Rules & Exemptions' },
-  { filename: 'batch123_scenario28_granny_flat_arrangement.json', displayTitle: 'Granny Flat (Batch 123)', category: 'Special Rules & Exemptions' },
-  { filename: 'batch123_scenario30_home_office_business.json', displayTitle: 'Home Office (Batch 123)', category: 'Special Rules & Exemptions' },
-  { filename: 'batch123_scenario35_four_year_construction.json', displayTitle: '4-Year Construction (Batch 123)', category: 'Special Rules & Exemptions' },
-  { filename: 'batch123_scenario38_small_business_15_year.json', displayTitle: 'Small Business 15yr (Batch 123)', category: 'Special Rules & Exemptions' },
+  { filename: 'batch123_scenario26_pre_cgt_major_improvements.json', displayTitle: 'Pre-CGT with Major Improvements', category: 'Special Rules & Exemptions' },
+  { filename: 'batch123_scenario27_large_rural_property.json', displayTitle: 'Large Rural Property (>2 Hectares)', category: 'Special Rules & Exemptions' },
+  { filename: 'batch123_scenario28_granny_flat_arrangement.json', displayTitle: 'Granny Flat Arrangement', category: 'Special Rules & Exemptions' },
+  { filename: 'batch123_scenario30_home_office_business.json', displayTitle: 'Home Office Business Use', category: 'Special Rules & Exemptions' },
+  { filename: 'batch123_scenario35_four_year_construction.json', displayTitle: '4-Year Construction Rule', category: 'Special Rules & Exemptions' },
+  { filename: 'batch123_scenario38_small_business_15_year.json', displayTitle: 'Small Business 15-Year Exemption', category: 'Special Rules & Exemptions' },
   // Foreign Resident batch scenarios
-  { filename: 'batch123_scenario31_foreign_resident_life_event.json', displayTitle: 'Foreign Resident Life Event (Batch 123)', category: 'Foreign Resident' },
-  { filename: 'batch123_scenario32_pre_may_2012_foreign.json', displayTitle: 'Pre-2012 Foreign (Batch 123)', category: 'Foreign Resident' },
+  { filename: 'batch123_scenario32_pre_may_2012_foreign.json', displayTitle: 'Pre-9 May 2012 Foreign Residency', category: 'Foreign Resident' },
   // Multi-Property Portfolios batch scenarios
-  { filename: 'batch123_scenario33_spouses_different_residences.json', displayTitle: 'Spouses Different MR (Batch 123)', category: 'Multi-Property Portfolios' },
+  { filename: 'batch123_scenario33_spouses_different_residences.json', displayTitle: 'Spouses - Different Main Residences', category: 'Multi-Property Portfolios' },
   { filename: 'batch123_scenario40_four_property_portfolio.json', displayTitle: 'Four Property Portfolio', category: 'Multi-Property Portfolios' },
   // Subdivision batch scenarios
-  { filename: 'batch123_scenario36_subdivision_land_sale.json', displayTitle: 'Subdivision (Batch 123)', category: 'Subdivision' },
 ];
 
 const publicDir = path.join(__dirname, '..', 'public');
@@ -299,6 +288,7 @@ async function generateManifest() {
         title: config.displayTitle,
         description: scenarioInfo?.description || data.user_query || 'No description available',
         category: config.category,
+        subcategory: data.additional_info?.subcategory || null,
         propertyCount: data.properties?.length || 0,
         // Include scenario_info for detail view
         scenario_info: scenarioInfo ? {
@@ -332,10 +322,26 @@ async function generateManifest() {
     'Special Rules & Exemptions',
   ];
 
-  // Generate manifest
+  // Generate manifest with category and subcategory counts
   const categories = {};
+  const subcategories = {};
+
   for (const name of categoryNames) {
-    categories[name] = scenarios.filter(s => s.category === name).length;
+    const categoryScenarios = scenarios.filter(s => s.category === name);
+    categories[name] = categoryScenarios.length;
+
+    // Track subcategories for hierarchical categories
+    const subcategoryMap = {};
+    for (const scenario of categoryScenarios) {
+      if (scenario.subcategory) {
+        subcategoryMap[scenario.subcategory] = (subcategoryMap[scenario.subcategory] || 0) + 1;
+      }
+    }
+
+    // Only include subcategories if there are any
+    if (Object.keys(subcategoryMap).length > 0) {
+      subcategories[name] = subcategoryMap;
+    }
   }
 
   const manifest = {
@@ -343,6 +349,7 @@ async function generateManifest() {
     generatedAt: new Date().toISOString(),
     totalScenarios: scenarios.length,
     categories,
+    subcategories,
     scenarios,
   };
 
@@ -358,6 +365,12 @@ async function generateManifest() {
   console.log(`   📦 Categories:`);
   Object.entries(manifest.categories).forEach(([cat, count]) => {
     console.log(`      - ${cat}: ${count}`);
+    // Show subcategories if they exist
+    if (manifest.subcategories[cat]) {
+      Object.entries(manifest.subcategories[cat]).forEach(([subcat, subcount]) => {
+        console.log(`         └─ ${subcat}: ${subcount}`);
+      });
+    }
   });
 }
 

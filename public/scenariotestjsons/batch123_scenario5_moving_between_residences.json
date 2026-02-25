@@ -166,15 +166,15 @@
       "branch": 1
     }
   ],
-  "user_query": "Batch 1,2,3 - Scenario 5: Moving Between Main Residences (6-Month Overlap) - Sold old residence at 78 Rose Street, Brisbane after 14.79 years, purchased new residence at 33 Mountain View Road with 165-day overlap",
+  "user_query": "Sold old residence at 78 Rose Street, Brisbane after 14.79 years, purchased new residence at 33 Mountain View Road with 165-day overlap",
   "additional_info": {
     "australian_resident": true,
     "tax_year": "2024-2025",
-    "scenario_batch": "Batch 1,2,3",
     "scenario_number": "Scenario 5",
     "scenario_title": "Moving Between Main Residences (6-Month Overlap)",
     "expected_outcome": "NO CGT PAYABLE - 6-month overlap rule applies (s118-140 ITAA 1997)",
     "overlap_period_days": 165,
-    "overlap_within_limit": true
+    "overlap_within_limit": true,
+    "subcategory": "Full Exemption"
   }
 }

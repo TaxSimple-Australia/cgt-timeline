@@ -69,7 +69,12 @@
           "title": "Subdivided",
           "color": "#EC4899",
           "subdivisionDetails": {
-            "childPropertyIds": ["prop-200rural-lot1", "prop-200rural-lot2", "prop-200rural-lot3", "prop-200rural-lot4"],
+            "childPropertyIds": [
+              "prop-200rural-lot1",
+              "prop-200rural-lot2",
+              "prop-200rural-lot3",
+              "prop-200rural-lot4"
+            ],
             "totalLots": 4,
             "subdivisionCosts": 120000,
             "lotSizes": {

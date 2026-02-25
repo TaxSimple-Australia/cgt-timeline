@@ -108,18 +108,18 @@
           "description": "Property sold for $1,250,000"
         }
       ],
-      "notes": "**Batch 1,2,3 - Scenario 3: Six-Year Absence Rule Exceeded**\n\nProperty used as main residence for 2 years, then rented for 9 years - exceeds the six-year absence rule limit.\n\n**Timeline:**\n- 1 Mar 2012 to 1 Mar 2014: Main residence (2 years)\n- 1 Jun 2014 to 1 Jun 2024: Rented (9 years - exceeds 6-year limit)\n\n**Key Calculations:**\n- Market value at first rental (1 Jun 2014): $480,000\n- Deemed cost base under s118.192: $480,000\n- Capital gain calculation:\n  - Sale price: $1,250,000\n  - Less: Market value cost base: $480,000\n  - Less: Selling costs: $33,750\n  - Capital gain: $736,250\n- Time apportionment: 8/11 years fully exempt (2 years lived + 6 years absence rule)\n- Taxable portion: 3/11 years = $200,568\n- After 50% CGT discount: $100,284\n- **NET CAPITAL GAIN: $152,710** (includes indexation/actual calculation per scenario)\n- Taxable percentage: 41.5%\n\n**Expected Result:**\n- NET CAPITAL GAIN = $152,710\n- 41.5% of ownership period is taxable\n\n**ATO Rules Applied:**\n- Section 118-145 ITAA 1997 (Six-Year Absence Rule) - exceeded\n- Section 118-192 ITAA 1997 (First Use to Produce Income)\n- Section 115-25 ITAA 1997 (50% CGT discount for individuals)",
+      "notes": "Property used as main residence for 2 years, then rented for 9 years - exceeds the six-year absence rule limit.\n\n**Timeline:**\n- 1 Mar 2012 to 1 Mar 2014: Main residence (2 years)\n- 1 Jun 2014 to 1 Jun 2024: Rented (9 years - exceeds 6-year limit)\n\n**Key Calculations:**\n- Market value at first rental (1 Jun 2014): $480,000\n- Deemed cost base under s118.192: $480,000\n- Capital gain calculation:\n  - Sale price: $1,250,000\n  - Less: Market value cost base: $480,000\n  - Less: Selling costs: $33,750\n  - Capital gain: $736,250\n- Time apportionment: 8/11 years fully exempt (2 years lived + 6 years absence rule)\n- Taxable portion: 3/11 years = $200,568\n- After 50% CGT discount: $100,284\n- **NET CAPITAL GAIN: $152,710** (includes indexation/actual calculation per scenario)\n- Taxable percentage: 41.5%\n\n**Expected Result:**\n- NET CAPITAL GAIN = $152,710\n- 41.5% of ownership period is taxable\n\n**ATO Rules Applied:**\n- Section 118-145 ITAA 1997 (Six-Year Absence Rule) - exceeded\n- Section 118-192 ITAA 1997 (First Use to Produce Income)\n- Section 115-25 ITAA 1997 (50% CGT discount for individuals)",
       "color": "#F59E0B",
       "branch": 0
     }
   ],
-  "user_query": "Batch 1,2,3 - Scenario 3: Six-Year Absence Rule Exceeded - Property at 15 Ocean View Drive, Byron Bay NSW 2481, lived in for 2 years, then rented for 9 years (exceeds 6-year limit)",
+  "user_query": "Property at 15 Ocean View Drive, Byron Bay NSW 2481, lived in for 2 years, then rented for 9 years (exceeds 6-year limit)",
   "additional_info": {
     "australian_resident": true,
     "tax_year": "2024-2025",
-    "scenario_batch": "Batch 1,2,3",
     "scenario_number": "Scenario 3",
     "scenario_title": "Six-Year Absence Rule Exceeded",
-    "expected_outcome": "NET CAPITAL GAIN = $152,710 (41.5% taxable after partial exemption and discount)"
+    "expected_outcome": "NET CAPITAL GAIN = $152,710 (41.5% taxable after partial exemption and discount)",
+    "subcategory": "Partial - 6-Year Rule"
   }
 }

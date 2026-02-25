@@ -43,7 +43,8 @@
   ],
   "user_query": "I've been renting my spare room on Airbnb for years while I live in the house. The spare room is about 20% of the floor area. How does this affect my main residence exemption?",
   "additional_info": {
-    "australian_resident": true
+    "australian_resident": true,
+    "subcategory": "Partial Use"
   },
   "llm_provider": "deepseek",
   "use_claude": true,

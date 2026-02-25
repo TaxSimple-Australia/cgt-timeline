@@ -56,7 +56,8 @@
   ],
   "user_query": "I moved in and out of my property several times over the years. I lived there 2008-2012, rented it 2012-2016, moved back 2016-2020, then rented again 2020-2025. How do I calculate the exempt and taxable portions?",
   "additional_info": {
-    "australian_resident": true
+    "australian_resident": true,
+    "subcategory": "Partial - Time Apportionment"
   },
   "llm_provider": "deepseek",
   "use_claude": true,

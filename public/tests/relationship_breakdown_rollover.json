@@ -2,7 +2,12 @@
   "properties": [
     {
       "address": "156 Harmony Street, South Yarra VIC 3141",
-      "owners": [{"name": "transferee", "percentage": 100}],
+      "owners": [
+        {
+          "name": "transferee",
+          "percentage": 100
+        }
+      ],
       "property_history": [
         {
           "date": "2010-09-01",
@@ -29,9 +34,25 @@
           "event": "ownership_change",
           "market_value": 920000,
           "description": "Property transferred as part of divorce settlement",
-          "leavingOwners": ["partner A"],
-          "newOwners": [{"name": "transferee", "percentage": 100}],
-          "previousOwners": [{"name": "partner A", "percentage": 50}, {"name": "partner B", "percentage": 50}],
+          "leavingOwners": [
+            "partner A"
+          ],
+          "newOwners": [
+            {
+              "name": "transferee",
+              "percentage": 100
+            }
+          ],
+          "previousOwners": [
+            {
+              "name": "partner A",
+              "percentage": 50
+            },
+            {
+              "name": "partner B",
+              "percentage": 50
+            }
+          ],
           "ownershipChangeReason": "divorce"
         },
         {
@@ -62,7 +83,8 @@
   "user_query": "I received my ex-husband's share of our home in our 2019 divorce settlement. I've now sold the property. How do I calculate CGT? We bought it together in 2010?",
   "additional_info": {
     "australian_resident": true,
-    "tax_year": "2025-2026"
+    "tax_year": "2025-2026",
+    "subcategory": "Relationships"
   },
   "llm_provider": "deepseek",
   "use_claude": true,

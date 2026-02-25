@@ -79,7 +79,10 @@
           "title": "Subdivided",
           "color": "#EC4899",
           "subdivisionDetails": {
-            "childPropertyIds": ["prop-subdivision-bs-lot100", "prop-subdivision-bs-lot101"],
+            "childPropertyIds": [
+              "prop-subdivision-bs-lot100",
+              "prop-subdivision-bs-lot101"
+            ],
             "totalLots": 2,
             "subdivisionCosts": 52000,
             "lotSizes": {

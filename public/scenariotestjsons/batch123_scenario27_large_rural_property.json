@@ -89,21 +89,21 @@
           "description": "Property sold for $2,400,000"
         }
       ],
-      "notes": "**Batch 1,2,3 - Scenario 27: Large Rural Property Exceeding 2 Hectares**\n\nRural property with 5.8 hectares of land - exceeds the 2 hectare limit for automatic full main residence exemption.\n\n**Timeline:**\n- 15 Jan 2012 to 30 Sep 2024: Main residence (12.71 years)\n- Total land area: 5.8 hectares (58,000 m²)\n- Exempt area: 2 hectares (20,000 m²) - dwelling + curtilage\n- Taxable area: 3.8 hectares (38,000 m²)\n\n**Key Calculations:**\n- Total capital gain: $1,088,500\n- Area apportionment:\n  - Exempt: 2 ha / 5.8 ha = 34.5%\n  - Taxable: 3.8 ha / 5.8 ha = 65.5%\n- Taxable capital gain: $1,088,500 × 65.5% = $713,000\n- After 50% CGT discount: $713,000 × 50% = $356,500\n- **NET CAPITAL GAIN: $356,500**\n\n**Expected Result:**\n- NET CAPITAL GAIN = $356,500\n- 65.5% of capital gain is taxable (land exceeding 2 hectares)\n\n**ATO Rules Applied:**\n- Section 118-120 ITAA 1997 (Adjacent Land)\n- Main residence exemption limited to 2 hectares unless larger area has use and enjoyment character\n- Section 115-25 ITAA 1997 (50% CGT discount)\n- Area apportionment method applied",
+      "notes": "**exceeds the 2 hectare limit for automatic full main residence exemption.\n\n**Timeline:**\n- 15 Jan 2012 to 30 Sep 2024: Main residence (12.71 years)\n- Total land area: 5.8 hectares (58,000 m²)\n- Exempt area: 2 hectares (20,000 m²) - dwelling + curtilage\n- Taxable area: 3.8 hectares (38,000 m²)\n\n**Key Calculations:**\n- Total capital gain: $1,088,500\n- Area apportionment:\n  - Exempt: 2 ha / 5.8 ha = 34.5%\n  - Taxable: 3.8 ha / 5.8 ha = 65.5%\n- Taxable capital gain: $1,088,500 × 65.5% = $713,000\n- After 50% CGT discount: $713,000 × 50% = $356,500\n- **NET CAPITAL GAIN: $356,500**\n\n**Expected Result:**\n- NET CAPITAL GAIN = $356,500\n- 65.5% of capital gain is taxable (land exceeding 2 hectares)\n\n**ATO Rules Applied:**\n- Section 118-120 ITAA 1997 (Adjacent Land)\n- Main residence exemption limited to 2 hectares unless larger area has use and enjoyment character\n- Section 115-25 ITAA 1997 (50% CGT discount)\n- Area apportionment method applied",
       "color": "#F59E0B",
       "branch": 0
     }
   ],
-  "user_query": "Batch 1,2,3 - Scenario 27: Large Rural Property Exceeding 2 Hectares - Property at 1250 Rural Road, Samford Valley QLD 4520, 5.8 hectares rural property",
+  "user_query": "Property at 1250 Rural Road, Samford Valley QLD 4520, 5.8 hectares rural property",
   "additional_info": {
     "australian_resident": true,
     "tax_year": "2024-2025",
-    "scenario_batch": "Batch 1,2,3",
     "scenario_number": "Scenario 27",
     "scenario_title": "Large Rural Property Exceeding 2 Hectares",
     "expected_outcome": "NET CAPITAL GAIN = $356,500 (65.5% taxable - land exceeding 2 hectares)",
     "total_land_area_hectares": 5.8,
     "exempt_area_hectares": 2.0,
-    "taxable_area_hectares": 3.8
+    "taxable_area_hectares": 3.8,
+    "subcategory": "Partial Use"
   }
 }

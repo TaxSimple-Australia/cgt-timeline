@@ -1,14 +1,33 @@
 {
   "version": "1.0.0",
-  "generatedAt": "2026-02-24T21:16:15.777Z",
-  "totalScenarios": 96,
+  "generatedAt": "2026-02-25T02:01:54.754Z",
+  "totalScenarios": 85,
   "categories": {
-    "Main Residence": 30,
-    "Ownership Changes": 22,
-    "Subdivision": 8,
+    "Main Residence": 29,
+    "Ownership Changes": 21,
+    "Subdivision": 7,
     "Multi-Property Portfolios": 8,
-    "Foreign Resident": 5,
-    "Special Rules & Exemptions": 23
+    "Foreign Resident": 3,
+    "Special Rules & Exemptions": 17
+  },
+  "subcategories": {
+    "Main Residence": {
+      "Partial - 6-Year Rule": 10,
+      "Partial - Time Apportionment": 7,
+      "Special Circumstances": 8,
+      "Full Exemption": 4
+    },
+    "Ownership Changes": {
+      "Inheritance/Death": 13,
+      "Relationships": 6,
+      "Trust & Entity": 2
+    },
+    "Special Rules & Exemptions": {
+      "Construction Rules": 4,
+      "Partial Use": 8,
+      "Pre-CGT": 2,
+      "Other": 3
+    }
   },
   "scenarios": [
     {
@@ -18,6 +37,7 @@
       "title": "Multiple Absence Periods",
       "description": "Ian owns a Sydney home and is posted to different cities for work over 30 years. He rents out Sydney during absences, buys/sells other properties, but never claims MRE on them. The combined rental periods exceed 6 years.",
       "category": "Main Residence",
+      "subcategory": "Partial - 6-Year Rule",
       "propertyCount": 3,
       "scenario_info": {
         "name": "Multiple Absence Periods (ATO Example 80)",
@@ -221,6 +241,7 @@
       "title": "Investment → Main Residence → Rental",
       "description": "Michael buys an investment property, later moves in as main residence, then moves out and rents again. The six-year rule does NOT apply because property was rented before becoming main residence.",
       "category": "Main Residence",
+      "subcategory": "Partial - Time Apportionment",
       "propertyCount": 1,
       "scenario_info": {
         "name": "Complex Pattern: Rental-PPR-Rental",
@@ -350,6 +371,7 @@
       "title": "Delayed Move-In (Work Assignment)",
       "description": "Anthony purchases a home but cannot move in immediately due to a work assignment overseas that was arranged before the purchase. He moves in 8 months after purchase when his assignment ends. Because the delay was due to unforeseen work circumstances, the dwelling is treated as his main residence from the acquisition date.",
       "category": "Main Residence",
+      "subcategory": "Special Circumstances",
       "propertyCount": 1,
       "scenario_info": {
         "name": "Delayed Move-In Due to Work Assignment",
@@ -450,6 +472,7 @@
       "title": "Multiple 6-Year Periods Reset",
       "description": "Rebecca purchases a home, lives in it for 5 years, rents it out for 4 years while working overseas, moves back in for 2 years, then rents it again for 5 years before selling. Because she genuinely moved back in and re-established the property as her main residence, she is entitled to a new 6-year period for the second rental. The full main residence exemption applies.",
       "category": "Main Residence",
+      "subcategory": "Partial - 6-Year Rule",
       "propertyCount": 1,
       "scenario_info": {
         "name": "Multiple Six-Year Periods Reset",
@@ -594,6 +617,7 @@
       "title": "Vacant Periods During Rental",
       "description": "Michelle rents her main residence for 8 years with two vacant periods when tenants change. The vacant periods count towards the 6-year limit when the property is available for rent. Total rental period exceeds 6 years, resulting in partial exemption.",
       "category": "Main Residence",
+      "subcategory": "Special Circumstances",
       "propertyCount": 1,
       "scenario_info": {
         "name": "Vacant Periods During Extended Rental",
@@ -726,6 +750,7 @@
       "title": "Investment Then Main Residence",
       "description": "Amanda purchases an investment property and rents it out for 3 years. She then moves in and lives there as her main residence for 2 years before selling. The six-year absence rule does NOT apply because the property was an investment first. Only the period as main residence qualifies for exemption.",
       "category": "Main Residence",
+      "subcategory": "Partial - Time Apportionment",
       "propertyCount": 1,
       "scenario_info": {
         "name": "Investment Property Becomes Main Residence Then Sold",
@@ -839,6 +864,7 @@
       "title": "Aged Care - Main Residence",
       "description": "I moved into an aged care home 5 years ago. My old house has been sitting empty ever since - I never rented it out. I'm now selling it to pay for my care. Do I still get the main residence exemption even though I haven't lived there for years?",
       "category": "Main Residence",
+      "subcategory": "Full Exemption",
       "propertyCount": 1,
       "scenario_info": {
         "name": "Aged Care - Indefinite Absence Exemption"
@@ -926,6 +952,7 @@
       "title": "First Use - Overseas Posting",
       "description": "I moved overseas for work in 2019 and rented out my Sydney home. I rented accommodation in Singapore - never bought property there. I've now sold after 6 years.first use rule apply to me?",
       "category": "Main Residence",
+      "subcategory": "Special Circumstances",
       "propertyCount": 1,
       "scenario_info": {
         "name": "Six-Year Absence Rule - Within Limit"
@@ -1036,6 +1063,7 @@
       "title": "Main Residence - Land Exceeds 2ha",
       "description": "I'm selling my rural property which is 5 hectares. The house and gardens use about 1.5 hectares. I've lived here since 2012. Does the whole property get the main residence exemption or only part of it?",
       "category": "Main Residence",
+      "subcategory": "Special Circumstances",
       "propertyCount": 1,
       "scenario_info": {
         "name": "Large Rural Property - Land Exceeding 2 Hectares"
@@ -1122,6 +1150,7 @@
       "title": "6-Month Overlap - Old Home Rented",
       "description": "I bought a new home in May 2025 and moved in June. I rented out my old home for a few months before selling in November. I sold within 6 months of buying the new place - does the 6-month rule still apply?",
       "category": "Main Residence",
+      "subcategory": "Special Circumstances",
       "propertyCount": 2,
       "scenario_info": {
         "name": "Six-Year Absence Rule - Within Limit"
@@ -1268,6 +1297,7 @@
       "title": "6-Year Rule Exceeded",
       "description": "I lived in my home for 5 years then rented it for over 10 years. I exceeded the 6-year rule. How do I calculate the partial exemption for the years beyond 6?",
       "category": "Main Residence",
+      "subcategory": "Partial - 6-Year Rule",
       "propertyCount": 1,
       "scenario_info": {
         "name": "Six-Year Absence Rule Exceeded"
@@ -1378,6 +1408,7 @@
       "title": "6-Year Rule - Multiple Absences",
       "description": "I moved in and out of my home multiple times. First absence was 4 years (2011-2015), then I moved back for 3 years, then absent again for 7 years. Does each absence get its own 6-year rule?",
       "category": "Main Residence",
+      "subcategory": "Partial - 6-Year Rule",
       "propertyCount": 1,
       "scenario_info": {
         "name": "Six-Year Absence Rule - Within Limit"
@@ -1516,6 +1547,7 @@
       "title": "6-Year Rule Within Limit",
       "description": "I lived in my home for 5 years then rented it out for 5.5 years while renting elsewhere. I never owned another home. I'm selling now - do I get the full main residence exemption under the 6-year rule?",
       "category": "Main Residence",
+      "subcategory": "Partial - 6-Year Rule",
       "propertyCount": 1,
       "scenario_info": {
         "name": "Six-Year Absence Rule - Within Limit"
@@ -1626,6 +1658,7 @@
       "title": "Time Apportionment - Multiple Periods",
       "description": "I moved in and out of my property several times over the years. I lived there 2008-2012, rented it 2012-2016, moved back 2016-2020, then rented again 2020-2025. How do I calculate the exempt and taxable portions?",
       "category": "Main Residence",
+      "subcategory": "Partial - Time Apportionment",
       "propertyCount": 1,
       "scenario_info": {
         "name": "Six-Year Absence Rule - Within Limit"
@@ -1764,6 +1797,7 @@
       "title": "Time Apportionment with Absence Rule",
       "description": "I lived in my home for 5 years then rented it for 8 years. I know the 6-year rule gives me 6 years of exemption while absent. But I was away for 8 years. How do I calculate the partial exemption?",
       "category": "Main Residence",
+      "subcategory": "Partial - Time Apportionment",
       "propertyCount": 1,
       "scenario_info": {
         "name": "Six-Year Absence Rule Exceeded"
@@ -1874,6 +1908,7 @@
       "title": "Inherited Property with Rental",
       "description": "Emma inherits her mother's home (which was mum's main residence) and then rents it out before selling more than 2 years after the date of death.",
       "category": "Ownership Changes",
+      "subcategory": "Inheritance/Death",
       "propertyCount": 1,
       "scenario_info": {
         "name": "Inherited Property Then Rented",
@@ -1947,6 +1982,7 @@
       "title": "Death of Joint Owner",
       "description": "My husband and I owned our home as joint tenants. He passed away in 2022 and I automatically became the sole owner. I'm now selling the property. Do I pay CGT on his share that I inherited?",
       "category": "Ownership Changes",
+      "subcategory": "Inheritance/Death",
       "propertyCount": 1,
       "scenario_info": {
         "name": "Inherited Property"
@@ -2033,6 +2069,7 @@
       "title": "De Facto Breakdown Rollover",
       "description": "My de facto partner and I separated after 8 years. The house was in his name but got transferred to me under a binding financial agreement. I lived in it for another 2 years then sold. How is the CGT calculated?",
       "category": "Ownership Changes",
+      "subcategory": "Relationships",
       "propertyCount": 1,
       "scenario_info": {
         "name": "Relationship Breakdown - CGT Rollover"
@@ -2119,6 +2156,7 @@
       "title": "Divorce - MRE Then Rented After Transfer",
       "description": "My ex-wife and I bought our home in 2010. We separated in 2019, I moved out in 2020, and she got full ownership in 2021. She lived there until mid-2021 then moved interstate and rented it out for 4 years before selling. How does the CGT work when she's changed the use after the divorce transfer?",
       "category": "Ownership Changes",
+      "subcategory": "Relationships",
       "propertyCount": 1,
       "scenario_info": {
         "name": "Six-Year Absence Rule - Within Limit"
@@ -2236,6 +2274,7 @@
       "title": "Executor Sale Before Distribution",
       "description": "I'm the executor of my mother's estate. She lived in her house for 20 years until she passed. I'm selling it now (within 2 years of her death) before distributing the proceeds to myself as sole beneficiary. What's the CGT situation?",
       "category": "Ownership Changes",
+      "subcategory": "Inheritance/Death",
       "propertyCount": 1,
       "scenario_info": {
         "name": "Executor Sale Before Distribution"
@@ -2310,6 +2349,7 @@
       "title": "Inherited Land - Built Dwelling Then Sold",
       "description": "I inherited vacant land from my grandmother in 2020. She'd owned it since 2005 but never built on it. I built a house and moved in during 2022, and I've now sold. How is CGT calculated when I've added a building to inherited land and then lived in it?",
       "category": "Ownership Changes",
+      "subcategory": "Inheritance/Death",
       "propertyCount": 1,
       "scenario_info": {
         "name": "Inherited Land - Vacant Pre-CGT"
@@ -2396,6 +2436,7 @@
       "title": "Inherited Farmland - Subdivided & Sold",
       "description": "My brother and I inherited our parents' farm when dad died in 2021. We subdivided it into 6 lots - kept the farmhouse lot and sold the other 5 as rural residential blocks. The farm was our parents' home since 1992. How is CGT calculated when we've subdivided inherited property?",
       "category": "Ownership Changes",
+      "subcategory": "Inheritance/Death",
       "propertyCount": 7,
       "scenario_info": {
         "name": "Subdivision - Inherited Farmland Subdivided and Sold"
@@ -2583,6 +2624,7 @@
       "title": "Inherited Vacant Land - Pre-CGT Deceased",
       "description": "My father bought vacant land in 1978 for $25,000 and never built on it. He passed away in 2022 and I inherited it. I've now sold it for $780,000. Since the land was bought before CGT, is it still exempt? I heard there's a 2-year rule for inherited property.",
       "category": "Ownership Changes",
+      "subcategory": "Inheritance/Death",
       "propertyCount": 1,
       "scenario_info": {
         "name": "Inheritance - Pre-CGT Property"
@@ -2645,6 +2687,7 @@
       "title": "Inherited Property - 2 Year Rule",
       "description": "My mother passed away in August 2023 and I inherited her home. I rented it out for about 20 months and then sold it in July 2025. Do I have to pay CGT?",
       "category": "Ownership Changes",
+      "subcategory": "Inheritance/Death",
       "propertyCount": 1,
       "scenario_info": {
         "name": "Six-Year Absence Rule - Within Limit"
@@ -2743,6 +2786,7 @@
       "title": "Investment Property - Divorce Transfer",
       "description": "I received an investment property in my divorce settlement. It was always rented - never our home. I've now sold it. My ex bought it in 2016 and transferred it to me in 2024. How do I calculate CGT?",
       "category": "Ownership Changes",
+      "subcategory": "Relationships",
       "propertyCount": 1,
       "scenario_info": {
         "name": "Six-Year Absence Rule Exceeded"
@@ -2829,6 +2873,7 @@
       "title": "Joint Sale During Separation",
       "description": "My husband and I separated in 2023. We owned our home jointly 50/50. Instead of one of us keeping it, we decided to sell. I moved out when we separated but he stayed until the sale. How do we each handle the CGT?",
       "category": "Ownership Changes",
+      "subcategory": "Relationships",
       "propertyCount": 1,
       "scenario_info": {
         "name": "Relationship Breakdown - Property Transfer"
@@ -2909,122 +2954,13 @@
       "australianResident": true
     },
     {
-      "id": "tests/mortgagee_sale_foreclosure.json",
-      "filename": "mortgagee_sale_foreclosure.json",
-      "path": "tests",
-      "title": "Mortgagee Sale - Foreclosure",
-      "description": "I couldn't keep up with my mortgage payments and the bank foreclosed on my property. It was my home for 3 years then I rented it out for a few years before the bank sold it. Do I still have to pay CGT even though I lost the property?",
-      "category": "Ownership Changes",
-      "propertyCount": 1,
-      "scenario_info": {
-        "name": "Six-Year Absence Rule - Within Limit"
-      },
-      "propertyDetails": {
-        "properties": [
-          {
-            "address": "88 Distress Street, Bankstown NSW 2200",
-            "shortAddress": "88 Distress Street",
-            "purchasePrice": "$680,000",
-            "purchaseDate": "10 Aug 2019",
-            "salePrice": "$720,000",
-            "saleDate": "15 Apr 2025",
-            "keyEvents": [
-              {
-                "date": "10 Aug 2019",
-                "event": "Purchased",
-                "price": "$680,000"
-              },
-              {
-                "date": "1 Sept 2019",
-                "event": "Moved In",
-                "price": null
-              },
-              {
-                "date": "1 June 2022",
-                "event": "Moved Out",
-                "price": null
-              },
-              {
-                "date": "15 June 2022",
-                "event": "Started Renting",
-                "price": null
-              },
-              {
-                "date": "1 Feb 2025",
-                "event": "Stopped Renting",
-                "price": null
-              },
-              {
-                "date": "15 Apr 2025",
-                "event": "Sold",
-                "price": "$720,000"
-              }
-            ],
-            "notes": "sold - Owner defaulted on mortgage. Bank foreclosed and sold property as mortgagee in possession. Property was main residence 2019-2022, then rented 2022-2025. Sold under mortgagee sale.",
-            "holdingYears": 5.7
-          }
-        ],
-        "financialSummary": {
-          "totalPurchaseValue": "$680,000",
-          "totalSaleValue": "$720,000",
-          "totalGain": "$40,000",
-          "holdingPeriodYears": 5.7
-        },
-        "timeline": [
-          {
-            "date": "2019-08-10",
-            "displayDate": "10 Aug 2019",
-            "event": "Purchased",
-            "property": "88 Distress Street",
-            "price": "$680,000"
-          },
-          {
-            "date": "2019-09-01",
-            "displayDate": "1 Sept 2019",
-            "event": "Moved In",
-            "property": "88 Distress Street",
-            "price": null
-          },
-          {
-            "date": "2022-06-01",
-            "displayDate": "1 June 2022",
-            "event": "Moved Out",
-            "property": "88 Distress Street",
-            "price": null
-          },
-          {
-            "date": "2022-06-15",
-            "displayDate": "15 June 2022",
-            "event": "Started Renting",
-            "property": "88 Distress Street",
-            "price": null
-          },
-          {
-            "date": "2025-02-01",
-            "displayDate": "1 Feb 2025",
-            "event": "Stopped Renting",
-            "property": "88 Distress Street",
-            "price": null
-          },
-          {
-            "date": "2025-04-15",
-            "displayDate": "15 Apr 2025",
-            "event": "Sold",
-            "property": "88 Distress Street",
-            "price": "$720,000"
-          }
-        ]
-      },
-      "userQuery": "I couldn't keep up with my mortgage payments and the bank foreclosed on my property. It was my home for 3 years then I rented it out for a few years before the bank sold it. Do I still have to pay CGT even though I lost the property?",
-      "australianResident": true
-    },
-    {
       "id": "tests/multiple_beneficiaries.json",
       "filename": "multiple_beneficiaries.json",
       "path": "tests",
       "title": "Multiple Beneficiaries",
       "description": "My father passed away in 2023 and left his home to me and my 2 siblings equally. We rented it out and now we're selling it more than 2 years after his death. How do we each calculate CGT?",
       "category": "Ownership Changes",
+      "subcategory": "Inheritance/Death",
       "propertyCount": 1,
       "scenario_info": {
         "name": "Six-Year Absence Rule - Within Limit"
@@ -3123,6 +3059,7 @@
       "title": "Pre-CGT Inheritance",
       "description": "I inherited my father's house which he bought in 1978. He lived there his whole life until he passed. I rented it for a while then sold it. Since it was pre-CGT, is it still exempt?",
       "category": "Ownership Changes",
+      "subcategory": "Inheritance/Death",
       "propertyCount": 1,
       "scenario_info": {
         "name": "Six-Year Absence Rule - Within Limit"
@@ -3221,6 +3158,7 @@
       "title": "Pre-CGT Property with Improvements",
       "description": "My ex-husband bought our home in 1983 before we married. He added me to the title in 1988 when we got married. We did a $320K renovation in 2005. In the divorce I got full ownership in 2021, then rented it out. Now I'm selling. This seems incredibly complicated - half is pre-CGT, half isn't, plus the renovation?",
       "category": "Ownership Changes",
+      "subcategory": "Inheritance/Death",
       "propertyCount": 1,
       "scenario_info": {
         "name": "Six-Year Absence Rule - Within Limit"
@@ -3338,6 +3276,7 @@
       "title": "Relationship Breakdown Rollover",
       "description": "I received my ex-husband's share of our home in our 2019 divorce settlement. I've now sold the property. How do I calculate CGT? We bought it together in 2010?",
       "category": "Ownership Changes",
+      "subcategory": "Relationships",
       "propertyCount": 1,
       "scenario_info": {
         "name": "Six-Year Absence Rule - Within Limit"
@@ -3455,6 +3394,7 @@
       "title": "Transfer to Family Trust",
       "description": "I want to transfer my investment property to my family trust for asset protection. Will I have to pay CGT when I make the transfer?",
       "category": "Ownership Changes",
+      "subcategory": "Trust & Entity",
       "propertyCount": 1,
       "scenario_info": {
         "name": "Six-Year Absence Rule Exceeded"
@@ -3529,6 +3469,7 @@
       "title": "Trust Distribution to Beneficiary",
       "description": "Our family trust owns an investment property. Instead of selling it, we want to distribute the property directly to my daughter who is a beneficiary. What are the CGT implications?",
       "category": "Ownership Changes",
+      "subcategory": "Trust & Entity",
       "propertyCount": 1,
       "scenario_info": {
         "name": "Six-Year Absence Rule Exceeded"
@@ -3603,6 +3544,7 @@
       "title": "Subdivision - Separate Land Sale",
       "description": "Karen owns a large block with her main residence. She subdivides and sells the vacant block separately from the dwelling. Because the vacant block is sold separately, it is NOT eligible for the main residence exemption, even though the dwelling block remains exempt.",
       "category": "Subdivision",
+      "subcategory": null,
       "propertyCount": 3,
       "scenario_info": {
         "name": "Subdivision and Separate Land Sale",
@@ -3712,6 +3654,7 @@
       "title": "Subdivision - Build & Sell",
       "description": "I subdivided my investment property in 2021, built a new house on the vacant lot, and now I've sold it. How do I calculate the CGT? The land was originally part of another property I still own.",
       "category": "Subdivision",
+      "subcategory": null,
       "propertyCount": 3,
       "scenario_info": {
         "name": "Subdivision - Build and Sell Vacant Lot"
@@ -3868,6 +3811,7 @@
       "title": "Subdivision - MR Vacant Land",
       "description": "I subdivided my backyard in 2022 and now I'm selling the vacant block. I still live in my house on the other lot. Do I have to pay CGT on the vacant land sale even though it was part of my home?",
       "category": "Subdivision",
+      "subcategory": null,
       "propertyCount": 3,
       "scenario_info": {
         "name": "Subdivision - Vacant Land Sold Separately"
@@ -3963,6 +3907,7 @@
       "title": "Subdivision - Multiple Lots Sold",
       "description": "I subdivided my 5-acre property into 4 lots. I kept the lot with my house and sold the other 3 vacant lots over different years. How do I calculate CGT for each lot sold?",
       "category": "Subdivision",
+      "subcategory": null,
       "propertyCount": 5,
       "scenario_info": {
         "name": "Subdivision - Multiple Lots Sold Over Time"
@@ -4104,6 +4049,7 @@
       "title": "Subdivision - Pre-CGT Property",
       "description": "I bought this property in 1979 . I've subdivided it and sold two of the new blocks. Is it all exempt because the original property was pre-CGT?",
       "category": "Subdivision",
+      "subcategory": null,
       "propertyCount": 4,
       "scenario_info": {
         "name": "Subdivision - Pre-CGT Property"
@@ -4222,6 +4168,7 @@
       "title": "Subdivision - Retain Dwelling, Sell Vacant",
       "description": "I subdivided my property last year. I kept the lot with my house and sold the vacant block. I still live in my house. How is CGT calculated on the vacant block I sold?",
       "category": "Subdivision",
+      "subcategory": null,
       "propertyCount": 3,
       "scenario_info": {
         "name": "Subdivision - Retain Dwelling, Sell Vacant"
@@ -4317,6 +4264,7 @@
       "title": "Subdivision - Strata Title",
       "description": "I converted my duplex to strata title in 2020. I live in one unit and rented out the other. I've now sold the rental unit. How do I calculate CGT for the strata unit?",
       "category": "Subdivision",
+      "subcategory": null,
       "propertyCount": 3,
       "scenario_info": {
         "name": "Subdivision - Strata Title (Duplex)"
@@ -4436,6 +4384,7 @@
       "title": "Two Properties - Strategic MRE Choice",
       "description": "David owns two properties and must strategically choose which one to claim the main residence exemption on. He lived in a beach house first, then moved to a city apartment. The beach house was rented for exactly 6 years.",
       "category": "Multi-Property Portfolios",
+      "subcategory": null,
       "propertyCount": 2,
       "scenario_info": {
         "name": "Two Properties with Strategic MRE Decision",
@@ -4593,6 +4542,7 @@
       "title": "6-Month Overlap Rule Exceeded",
       "description": "Jennifer buys a new home before selling her old one, but takes 8.5 months to sell the old home, exceeding the 6-month overlap allowance by 74 days.",
       "category": "Multi-Property Portfolios",
+      "subcategory": null,
       "propertyCount": 2,
       "scenario_info": {
         "name": "Moving Between Homes - Overlap Exceeded",
@@ -4728,6 +4678,7 @@
       "title": "Couple with Separate Properties",
       "description": "Alex and Sam each own a home before they get married. After cohabitation, they can only claim one property as main residence. Alex's property becomes partially taxable.",
       "category": "Multi-Property Portfolios",
+      "subcategory": null,
       "propertyCount": 2,
       "scenario_info": {
         "name": "Couple with Separate Properties Before Marriage",
@@ -4876,6 +4827,7 @@
       "title": "Three Property Portfolio",
       "description": "Investment portfolio with three properties sold in the same financial year. Each property has different CGT treatment: family home (full MRE), investment unit (no exemption), holiday house (no exemption, mixed use).",
       "category": "Multi-Property Portfolios",
+      "subcategory": null,
       "propertyCount": 3,
       "scenario_info": {
         "name": "Multiple Properties with Different CGT Treatments",
@@ -5060,6 +5012,7 @@
       "title": "Spouses - Different Main Residences",
       "description": "Chris and Morgan are married but live in different cities for work. Chris lives in Brisbane and Morgan lives in Sydney. They each nominate their respective dwelling as their main residence. Under s118.170, spouses can claim different main residences, but with limitations on the exemption.",
       "category": "Multi-Property Portfolios",
+      "subcategory": null,
       "propertyCount": 2,
       "scenario_info": {
         "name": "Spouses Nominating Different Main Residences",
@@ -5127,7 +5080,7 @@
               }
             ],
             "notes": "Morgan's Sydney property - nominated as Morgan's main residence from 15 March 2019. Not sold in this scenario.",
-            "holdingYears": 6.9
+            "holdingYears": 7
           }
         ],
         "financialSummary": {
@@ -5184,6 +5137,7 @@
       "title": "Joint Ownership - MR Choice",
       "description": "What is the CGT for Anna and Mark on their properties? Anna owned both a flat and a townhouse (jointly with Mark) from 2001-02-05 to 2002-03-11. How does the main residence choice affect their CGT?",
       "category": "Multi-Property Portfolios",
+      "subcategory": null,
       "propertyCount": 2,
       "scenario_info": {
         "name": "Six-Year Absence Rule - Within Limit"
@@ -5348,142 +5302,13 @@
       "australianResident": true
     },
     {
-      "id": "scenariotestjsons/scenario14_foreign_resident_period.json",
-      "filename": "scenario14_foreign_resident_period.json",
-      "path": "scenariotestjsons",
-      "title": "Foreign Resident Period Impact",
-      "description": "Lisa is an Australian resident who moves to Singapore for work for 4 years, becoming a foreign resident for tax purposes. She rents her Australian home, then returns before selling.",
-      "category": "Foreign Resident",
-      "propertyCount": 1,
-      "scenario_info": {
-        "name": "Australian Who Moves Overseas Then Returns",
-        "expected_result": {
-          "exemption_type": "full",
-          "exemption_percentage": 100,
-          "capital_gain": 0,
-          "notes": "Six-year rule applies. Since Lisa returned before selling, she is Australian resident at sale and can claim MRE."
-        },
-        "applicable_rules": [
-          "ITAA97 s118.145: Six-year absence rule applies (rental = 4 years < 6 years)",
-          "Lisa was foreign resident for 4 years but RETURNED before sale",
-          "Since Australian resident at time of sale, MRE available",
-          "CGT discount would be reduced for foreign resident period if gain was taxable",
-          "Full MRE means no CGT payable regardless"
-        ]
-      },
-      "propertyDetails": {
-        "properties": [
-          {
-            "address": "7 Parkview Crescent, Taringa QLD 4068",
-            "shortAddress": "7 Parkview Crescent",
-            "purchasePrice": "$495,000",
-            "purchaseDate": "1 Aug 2013",
-            "salePrice": "$810,000",
-            "saleDate": "15 Nov 2024",
-            "keyEvents": [
-              {
-                "date": "1 Aug 2013",
-                "event": "Purchased",
-                "price": "$495,000"
-              },
-              {
-                "date": "1 Aug 2013",
-                "event": "Moved In",
-                "price": null
-              },
-              {
-                "date": "1 July 2018",
-                "event": "Moved Out",
-                "price": null
-              },
-              {
-                "date": "1 July 2018",
-                "event": "Started Renting",
-                "price": null
-              },
-              {
-                "date": "30 June 2022",
-                "event": "Stopped Renting",
-                "price": null
-              },
-              {
-                "date": "1 July 2022",
-                "event": "Moved In",
-                "price": null
-              }
-            ],
-            "notes": "Owner was foreign resident from July 2018 to June 2022 (4 years). Returned to Australia before selling, so MRE available. Six-year rule applies (4 years rental < 6 years).",
-            "holdingYears": 11.3
-          }
-        ],
-        "financialSummary": {
-          "totalPurchaseValue": "$495,000",
-          "totalSaleValue": "$810,000",
-          "totalGain": "$315,000",
-          "holdingPeriodYears": 11.3
-        },
-        "timeline": [
-          {
-            "date": "2013-08-01",
-            "displayDate": "1 Aug 2013",
-            "event": "Purchased",
-            "property": "7 Parkview Crescent",
-            "price": "$495,000"
-          },
-          {
-            "date": "2013-08-01",
-            "displayDate": "1 Aug 2013",
-            "event": "Moved In",
-            "property": "7 Parkview Crescent",
-            "price": null
-          },
-          {
-            "date": "2018-07-01",
-            "displayDate": "1 July 2018",
-            "event": "Moved Out",
-            "property": "7 Parkview Crescent",
-            "price": null
-          },
-          {
-            "date": "2018-07-01",
-            "displayDate": "1 July 2018",
-            "event": "Started Renting",
-            "property": "7 Parkview Crescent",
-            "price": null
-          },
-          {
-            "date": "2022-06-30",
-            "displayDate": "30 June 2022",
-            "event": "Stopped Renting",
-            "property": "7 Parkview Crescent",
-            "price": null
-          },
-          {
-            "date": "2022-07-01",
-            "displayDate": "1 July 2022",
-            "event": "Moved In",
-            "property": "7 Parkview Crescent",
-            "price": null
-          },
-          {
-            "date": "2024-11-15",
-            "displayDate": "15 Nov 2024",
-            "event": "Sold",
-            "property": "7 Parkview Crescent",
-            "price": "$810,000"
-          }
-        ]
-      },
-      "userQuery": "I moved to Singapore for work in 2018 and rented out my Australian home for 4 years. I returned to Australia in 2022 and sold in 2024. What is my CGT position?",
-      "australianResident": true
-    },
-    {
       "id": "scenariotestjsons/scenario31_foreign_resident_life_event.json",
       "filename": "scenario31_foreign_resident_life_event.json",
       "path": "scenariotestjsons",
       "title": "Foreign Resident Life Event",
       "description": "Jessica moved to the UK in 2019 and became a foreign resident for tax purposes. In 2023, her husband passed away. Under the life event exception, she has 6 years from the date of his death to sell her Australian main residence and claim the main residence exemption, despite being a foreign resident.",
       "category": "Foreign Resident",
+      "subcategory": null,
       "propertyCount": 1,
       "scenario_info": {
         "name": "Foreign Resident Life Event Exception",
@@ -5597,6 +5422,7 @@
       "title": "Pre-9 May 2012 Foreign Residency",
       "description": "Andrew owned his main residence since 2008 and became a foreign resident from 2015-2020. He returned to Australia and sold in 2024. Because he owned the property before 9 May 2012 and was a resident on that date, special rules apply. The six-year absence rule covers the rental, so full MRE applies.",
       "category": "Foreign Resident",
+      "subcategory": null,
       "propertyCount": 1,
       "scenario_info": {
         "name": "Pre-9 May 2012 Property with Foreign Residency",
@@ -5729,6 +5555,7 @@
       "title": "Construction & 4-Year Building Rule",
       "description": "Robert buys vacant land and builds his dream home. Construction takes 2.6 years. The 4-year construction rule allows the land to be treated as main residence from purchase.",
       "category": "Special Rules & Exemptions",
+      "subcategory": "Construction Rules",
       "propertyCount": 1,
       "scenario_info": {
         "name": "4-Year Construction Rule Application",
@@ -5828,6 +5655,7 @@
       "title": "Partial Use - Airbnb Room Rental",
       "description": "Sophie lives in her home but rents out a spare room on Airbnb for 5 years. The interest deductibility test applies, requiring floor area apportionment.",
       "category": "Special Rules & Exemptions",
+      "subcategory": "Partial Use",
       "propertyCount": 1,
       "scenario_info": {
         "name": "Home with Airbnb Room Rental",
@@ -5940,6 +5768,7 @@
       "title": "Pre-CGT with Major Improvements",
       "description": "George purchased a property in 1982 (before CGT commenced on 20 September 1985). In 2015, he undertook a major renovation costing $250,000. He sells the property in 2024. While the original property is exempt as a pre-CGT asset, the major capital improvement is a separate CGT asset. However, since it was his main residence, both are exempt.",
       "category": "Special Rules & Exemptions",
+      "subcategory": "Pre-CGT",
       "propertyCount": 1,
       "scenario_info": {
         "name": "Pre-CGT Property with Major Post-CGT Improvements",
@@ -6041,6 +5870,7 @@
       "title": "Large Rural Property (>2 Hectares)",
       "description": "Patricia owns a 5-hectare rural property where she has lived for 15 years. The main residence exemption only applies to the dwelling and up to 2 hectares of adjacent land used for private purposes. She must choose which 2 hectares to include, with the remaining 3 hectares subject to CGT.",
       "category": "Special Rules & Exemptions",
+      "subcategory": "Partial Use",
       "propertyCount": 1,
       "scenario_info": {
         "name": "Large Rural Property Exceeding Two Hectares",
@@ -6141,6 +5971,7 @@
       "title": "Granny Flat Arrangement",
       "description": "Helen transfers her home to her daughter Isabella in exchange for a granny flat right (right to live in the property for life). Since 1 July 2021, CGT does not apply when creating a granny flat arrangement. Helen's main residence exemption covers the transfer, and Isabella has no CGT liability for granting the granny flat right.",
       "category": "Special Rules & Exemptions",
+      "subcategory": "Partial Use",
       "propertyCount": 1,
       "scenario_info": {
         "name": "Partial Use - Granny Flat Arrangement",
@@ -6236,281 +6067,13 @@
       "australianResident": true
     },
     {
-      "id": "scenariotestjsons/scenario30_home_office_business.json",
-      "filename": "scenario30_home_office_business.json",
-      "path": "scenariotestjsons",
-      "title": "Home Office Business Use",
-      "description": "Daniel works from home and has used 15% of his home exclusively for his photography business for the past 6 years. When he sells the property, the business-use portion is not eligible for the full main residence exemption under the interest deductibility test.",
-      "category": "Special Rules & Exemptions",
-      "propertyCount": 1,
-      "scenario_info": {
-        "name": "Home Office Business Use",
-        "expected_result": {
-          "exemption_type": "partial",
-          "exemption_percentage": 88.33,
-          "capital_gain": 223000,
-          "taxable_gain": 13012,
-          "notes": "After 50% CGT discount. 11.67% taxable (15% floor area x 77.79% time)."
-        },
-        "applicable_rules": [
-          "ITAA97 s118.190: Interest deductibility test",
-          "Part of home used for income-producing purposes (business)",
-          "Taxable proportion = Floor area % x Time proportion",
-          "Business use of 15% for 77.79% of ownership = 11.67% taxable",
-          "ITAA97 s115.25: 50% CGT discount applies to taxable portion",
-          "Note: Different from Airbnb room rental - this is exclusive business use"
-        ]
-      },
-      "propertyDetails": {
-        "properties": [
-          {
-            "address": "33 Enterprise Street, Townsville QLD 4810",
-            "shortAddress": "33 Enterprise Street",
-            "purchasePrice": "$420,000",
-            "purchaseDate": "1 Jan 2016",
-            "salePrice": "$680,000",
-            "saleDate": "31 Dec 2024",
-            "keyEvents": [
-              {
-                "date": "1 Jan 2016",
-                "event": "Purchased",
-                "price": "$420,000"
-              },
-              {
-                "date": "1 Jan 2016",
-                "event": "Moved In",
-                "price": null
-              },
-              {
-                "date": "31 Dec 2024",
-                "event": "Sold",
-                "price": "$680,000"
-              }
-            ],
-            "notes": "Partial exemption (88.33%). Business use of 15% floor area for 7 years (77.79% of 9-year ownership). Taxable portion = 15% x 77.79% = 11.67%. Capital gain $223,000. Taxable: $26,024. After 50% discount: $13,012.",
-            "holdingYears": 9
-          }
-        ],
-        "financialSummary": {
-          "totalPurchaseValue": "$420,000",
-          "totalSaleValue": "$680,000",
-          "totalGain": "$260,000",
-          "holdingPeriodYears": 9
-        },
-        "timeline": [
-          {
-            "date": "2016-01-01",
-            "displayDate": "1 Jan 2016",
-            "event": "Purchased",
-            "property": "33 Enterprise Street",
-            "price": "$420,000"
-          },
-          {
-            "date": "2016-01-01",
-            "displayDate": "1 Jan 2016",
-            "event": "Moved In",
-            "property": "33 Enterprise Street",
-            "price": null
-          },
-          {
-            "date": "2024-12-31",
-            "displayDate": "31 Dec 2024",
-            "event": "Sold",
-            "property": "33 Enterprise Street",
-            "price": "$680,000"
-          }
-        ]
-      },
-      "userQuery": "I've used 15% of my home exclusively for my photography business for the past 7 years. I've claimed deductions for that portion. Now I'm selling. What's my CGT position?",
-      "australianResident": true
-    },
-    {
-      "id": "scenariotestjsons/scenario35_four_year_construction.json",
-      "filename": "scenario35_four_year_construction.json",
-      "path": "scenariotestjsons",
-      "title": "4-Year Construction Rule Exceeded",
-      "description": "Brian purchases vacant land and builds his home, but construction takes 5 years due to delays. Because the 4-year construction rule is exceeded, the land can only be treated as his main residence for the 4 years immediately before the completed dwelling became his main residence.",
-      "category": "Special Rules & Exemptions",
-      "propertyCount": 1,
-      "scenario_info": {
-        "name": "Four-Year Construction Rule Exceeded",
-        "expected_result": {
-          "exemption_type": "partial",
-          "exemption_percentage": 85.54,
-          "capital_gain": 184500,
-          "taxable_gain": 13340,
-          "notes": "After 50% discount. First year of land ownership not covered by 4-year rule."
-        },
-        "applicable_rules": [
-          "ITAA97 s118.150: 4-year construction rule",
-          "If construction exceeds 4 years, MRE only applies for 4 years before completion",
-          "Land was not MR for first year (excess beyond 4-year limit)",
-          "ITAA97 s118.185: Partial exemption applies",
-          "14.46% of gain is taxable (first year of land ownership)",
-          "ITAA97 s115.25: 50% CGT discount applies"
-        ]
-      },
-      "propertyDetails": {
-        "properties": [
-          {
-            "address": "15 Hillside Estate, Warwick QLD 4370",
-            "shortAddress": "15 Hillside Estate",
-            "purchasePrice": "$150,000",
-            "purchaseDate": "1 Jan 2018",
-            "salePrice": "$680,000",
-            "saleDate": "30 Nov 2024",
-            "keyEvents": [
-              {
-                "date": "1 Jan 2018",
-                "event": "Purchased",
-                "price": "$150,000"
-              },
-              {
-                "date": "15 Dec 2022",
-                "event": "Improvement",
-                "price": "$320,000"
-              },
-              {
-                "date": "1 Jan 2023",
-                "event": "Moved In",
-                "price": null
-              },
-              {
-                "date": "30 Nov 2024",
-                "event": "Sold",
-                "price": "$680,000"
-              }
-            ],
-            "notes": "Partial exemption (85.54%). Construction took 5 years, exceeding the 4-year rule. Land treated as main residence only from 1 Jan 2019 (4 years before move-in). First year of ownership (2018) is not covered = 14.46% taxable. Taxable gain after 50% discount: $13,340.",
-            "holdingYears": 6.9
-          }
-        ],
-        "financialSummary": {
-          "totalPurchaseValue": "$150,000",
-          "totalSaleValue": "$680,000",
-          "totalGain": "$530,000",
-          "holdingPeriodYears": 6.9
-        },
-        "timeline": [
-          {
-            "date": "2018-01-01",
-            "displayDate": "1 Jan 2018",
-            "event": "Purchased",
-            "property": "15 Hillside Estate",
-            "price": "$150,000"
-          },
-          {
-            "date": "2022-12-15",
-            "displayDate": "15 Dec 2022",
-            "event": "Improvement",
-            "property": "15 Hillside Estate",
-            "price": "$320,000"
-          },
-          {
-            "date": "2023-01-01",
-            "displayDate": "1 Jan 2023",
-            "event": "Moved In",
-            "property": "15 Hillside Estate",
-            "price": null
-          },
-          {
-            "date": "2024-11-30",
-            "displayDate": "30 Nov 2024",
-            "event": "Sold",
-            "property": "15 Hillside Estate",
-            "price": "$680,000"
-          }
-        ]
-      },
-      "userQuery": "I bought vacant land in 2018 and built my home, but construction took 5 years due to delays. I finally moved in at the start of 2023. Now I'm selling. What's my CGT position?",
-      "australianResident": true
-    },
-    {
-      "id": "scenariotestjsons/scenario38_small_business_15_year.json",
-      "filename": "scenario38_small_business_15_year.json",
-      "path": "scenariotestjsons",
-      "title": "Small Business 15-Year Exemption",
-      "description": "David operates a photography studio from a commercial property he has owned for 16 years. He sells the property and qualifies for the small business 15-year exemption, which allows him to disregard the entire capital gain. He also contributes part of the proceeds to superannuation.",
-      "category": "Special Rules & Exemptions",
-      "propertyCount": 1,
-      "scenario_info": {
-        "name": "Small Business CGT Concessions - 15-Year Exemption",
-        "expected_result": {
-          "exemption_type": "full",
-          "exemption_percentage": 100,
-          "capital_gain": 309700,
-          "taxable_gain": 0,
-          "cgt_payable": 0,
-          "notes": "15-year exemption - entire capital gain disregarded. Can contribute to super under CGT cap."
-        },
-        "applicable_rules": [
-          "ITAA97 Subdiv 152-B: 15-year exemption",
-          "Must own active asset for 15+ continuous years",
-          "Must be 55+ or retiring/permanently incapacitated",
-          "Entire capital gain exempt (not just reduced)",
-          "ITAA97 s292.100: CGT cap for super contributions",
-          "Exempt amount can be contributed to super under CGT cap",
-          "2024-25 lifetime CGT cap: $1,780,000"
-        ]
-      },
-      "propertyDetails": {
-        "properties": [
-          {
-            "address": "55 Commercial Street, Nambour QLD 4560",
-            "shortAddress": "55 Commercial Street",
-            "purchasePrice": "$280,000",
-            "purchaseDate": "1 Jan 2008",
-            "salePrice": "$620,000",
-            "saleDate": "15 Dec 2024",
-            "keyEvents": [
-              {
-                "date": "1 Jan 2008",
-                "event": "Purchased",
-                "price": "$280,000"
-              },
-              {
-                "date": "15 Dec 2024",
-                "event": "Sold",
-                "price": "$620,000"
-              }
-            ],
-            "notes": "Full exemption under small business 15-year rule. Owned active asset for 16.9 years. David is 58 years old. Meets all conditions: active asset 15+ years, age 55+, small business entity. Gain of $309,700 fully exempt. Can contribute exempt amount to super under CGT cap.",
-            "holdingYears": 17
-          }
-        ],
-        "financialSummary": {
-          "totalPurchaseValue": "$280,000",
-          "totalSaleValue": "$620,000",
-          "totalGain": "$340,000",
-          "holdingPeriodYears": 17
-        },
-        "timeline": [
-          {
-            "date": "2008-01-01",
-            "displayDate": "1 Jan 2008",
-            "event": "Purchased",
-            "property": "55 Commercial Street",
-            "price": "$280,000"
-          },
-          {
-            "date": "2024-12-15",
-            "displayDate": "15 Dec 2024",
-            "event": "Sold",
-            "property": "55 Commercial Street",
-            "price": "$620,000"
-          }
-        ]
-      },
-      "userQuery": "I've run my photography studio from my commercial property for 16 years. I'm 58 and selling the property. Do I qualify for the small business CGT concessions?",
-      "australianResident": true
-    },
-    {
       "id": "tests/airbnb_investment_only.json",
       "filename": "airbnb_investment_only.json",
       "path": "tests",
       "title": "Airbnb - Investment Only",
       "description": "I bought a holiday apartment in 2019 purely for Airbnb - I never lived in it. I'm selling now. Is it just treated like any other investment property for CGT?",
       "category": "Special Rules & Exemptions",
+      "subcategory": "Partial Use",
       "propertyCount": 1,
       "scenario_info": {
         "name": "Airbnb - Investment Property"
@@ -6597,6 +6160,7 @@
       "title": "Airbnb - Spare Room",
       "description": "I've been renting my spare room on Airbnb for years while I live in the house. The spare room is about 20% of the floor area. How does this affect my main residence exemption?",
       "category": "Special Rules & Exemptions",
+      "subcategory": "Partial Use",
       "propertyCount": 1,
       "scenario_info": {
         "name": "Partial Use - Airbnb Spare Room"
@@ -6707,6 +6271,7 @@
       "title": "Bare Trust - No CGT",
       "description": "My property is held in a bare trust where I'm the sole beneficiary with absolute entitlement. The trustee is selling it but I've lived in it as my home since purchase. Do I get the main residence exemption even though I don't hold legal title?",
       "category": "Special Rules & Exemptions",
+      "subcategory": "Other",
       "propertyCount": 1,
       "scenario_info": {
         "name": "Bare Trust - No CGT Event"
@@ -6787,86 +6352,13 @@
       "australianResident": true
     },
     {
-      "id": "tests/compulsory_acquisition_rollover.json",
-      "filename": "compulsory_acquisition_rollover.json",
-      "path": "tests",
-      "title": "Compulsory Acquisition Rollover",
-      "description": "The government compulsorily acquired my investment property for a road project. I received $980,000 compensation. I want to buy another investment property with the money. Can I defer the CGT?",
-      "category": "Special Rules & Exemptions",
-      "propertyCount": 1,
-      "scenario_info": {
-        "name": "Compulsory Acquisition Rollover"
-      },
-      "propertyDetails": {
-        "properties": [
-          {
-            "address": "45 Highway Reserve, Parramatta NSW 2150",
-            "shortAddress": "45 Highway Reserve",
-            "purchasePrice": "$520,000",
-            "purchaseDate": "20 June 2012",
-            "salePrice": "$980,000",
-            "saleDate": "1 Mar 2025",
-            "keyEvents": [
-              {
-                "date": "20 June 2012",
-                "event": "Purchased",
-                "price": "$520,000"
-              },
-              {
-                "date": "1 July 2012",
-                "event": "Started Renting",
-                "price": null
-              },
-              {
-                "date": "1 Mar 2025",
-                "event": "Sold",
-                "price": "$980,000"
-              }
-            ],
-            "notes": "Investment property compulsorily acquired for road widening project. Owner received $980,000 compensation. Planning to buy replacement investment property within 12 months.",
-            "holdingYears": 12.7
-          }
-        ],
-        "financialSummary": {
-          "totalPurchaseValue": "$520,000",
-          "totalSaleValue": "$980,000",
-          "totalGain": "$460,000",
-          "holdingPeriodYears": 12.7
-        },
-        "timeline": [
-          {
-            "date": "2012-06-20",
-            "displayDate": "20 June 2012",
-            "event": "Purchased",
-            "property": "45 Highway Reserve",
-            "price": "$520,000"
-          },
-          {
-            "date": "2012-07-01",
-            "displayDate": "1 July 2012",
-            "event": "Started Renting",
-            "property": "45 Highway Reserve",
-            "price": null
-          },
-          {
-            "date": "2025-03-01",
-            "displayDate": "1 Mar 2025",
-            "event": "Sold",
-            "property": "45 Highway Reserve",
-            "price": "$980,000"
-          }
-        ]
-      },
-      "userQuery": "The government compulsorily acquired my investment property for a road project. I received $980,000 compensation. I want to buy another investment property with the money. Can I defer the CGT?",
-      "australianResident": true
-    },
-    {
       "id": "tests/joint_tenants_equal_split.json",
       "filename": "joint_tenants_equal_split.json",
       "path": "tests",
       "title": "Joint Tenants - Equal Split",
       "description": "My husband and I own an investment property as joint tenants. We just sold it. How do we split the CGT between us?",
       "category": "Special Rules & Exemptions",
+      "subcategory": "Other",
       "propertyCount": 1,
       "scenario_info": {
         "name": "Six-Year Absence Rule Exceeded"
@@ -6947,184 +6439,13 @@
       "australianResident": true
     },
     {
-      "id": "tests/tenants_in_common_unequal.json",
-      "filename": "tenants_in_common_unequal.json",
-      "path": "tests",
-      "title": "Tenants in Common - Unequal",
-      "description": "My sister and I bought an investment unit together as tenants in common. I own 70% and she owns 30%. We've sold it - how do we each calculate our CGT?",
-      "category": "Special Rules & Exemptions",
-      "propertyCount": 1,
-      "scenario_info": {
-        "name": "Six-Year Absence Rule Exceeded"
-      },
-      "propertyDetails": {
-        "properties": [
-          {
-            "address": "Unit 8, 45 Collins Street, Melbourne VIC 3000",
-            "shortAddress": "Unit 8",
-            "purchasePrice": "$580,000",
-            "purchaseDate": "20 July 2018",
-            "salePrice": "$820,000",
-            "saleDate": "15 Dec 2025",
-            "keyEvents": [
-              {
-                "date": "20 July 2018",
-                "event": "Purchased",
-                "price": "$580,000"
-              },
-              {
-                "date": "1 Aug 2018",
-                "event": "Started Renting",
-                "price": null
-              },
-              {
-                "date": "30 Nov 2025",
-                "event": "Stopped Renting",
-                "price": null
-              },
-              {
-                "date": "15 Dec 2025",
-                "event": "Sold",
-                "price": "$820,000"
-              }
-            ],
-            "notes": "sold - Investment unit owned as tenants in common - Brother 70%, Sister 30%. Never main residence for either owner.",
-            "holdingYears": 7.4
-          }
-        ],
-        "financialSummary": {
-          "totalPurchaseValue": "$580,000",
-          "totalSaleValue": "$820,000",
-          "totalGain": "$240,000",
-          "holdingPeriodYears": 7.4
-        },
-        "timeline": [
-          {
-            "date": "2018-07-20",
-            "displayDate": "20 July 2018",
-            "event": "Purchased",
-            "property": "Unit 8",
-            "price": "$580,000"
-          },
-          {
-            "date": "2018-08-01",
-            "displayDate": "1 Aug 2018",
-            "event": "Started Renting",
-            "property": "Unit 8",
-            "price": null
-          },
-          {
-            "date": "2025-11-30",
-            "displayDate": "30 Nov 2025",
-            "event": "Stopped Renting",
-            "property": "Unit 8",
-            "price": null
-          },
-          {
-            "date": "2025-12-15",
-            "displayDate": "15 Dec 2025",
-            "event": "Sold",
-            "property": "Unit 8",
-            "price": "$820,000"
-          }
-        ]
-      },
-      "userQuery": "My sister and I bought an investment unit together as tenants in common. I own 70% and she owns 30%. We've sold it - how do we each calculate our CGT?",
-      "australianResident": true
-    },
-    {
-      "id": "tests/two_year_building_rule_eligible.json",
-      "filename": "two_year_building_rule_eligible.json",
-      "path": "tests",
-      "title": "2-Year Building Rule - Eligible",
-      "description": "I bought vacant land in March 2022, built a house, and moved in July 2023 - about 16 months after buying the land. I'm selling now. Can I get the main residence exemption from when I bought the land?",
-      "category": "Special Rules & Exemptions",
-      "propertyCount": 1,
-      "scenario_info": {
-        "name": "Construction and Main Residence"
-      },
-      "propertyDetails": {
-        "properties": [
-          {
-            "address": "Lot 5, 88 New Build Crescent, Kellyville NSW 2155",
-            "shortAddress": "Lot 5",
-            "purchasePrice": "$650,000",
-            "purchaseDate": "15 Mar 2022",
-            "salePrice": "$1,450,000",
-            "saleDate": "1 Oct 2025",
-            "keyEvents": [
-              {
-                "date": "15 Mar 2022",
-                "event": "Purchased",
-                "price": "$650,000"
-              },
-              {
-                "date": "1 July 2023",
-                "event": "Moved In",
-                "price": null
-              },
-              {
-                "date": "1 Oct 2025",
-                "event": "Sold",
-                "price": "$1,450,000"
-              },
-              {
-                "date": "1 Oct 2025",
-                "event": "Moved Out",
-                "price": null
-              }
-            ],
-            "notes": "sold - Vacant land purchased, house built and moved in within 2 years.",
-            "holdingYears": 3.5
-          }
-        ],
-        "financialSummary": {
-          "totalPurchaseValue": "$650,000",
-          "totalSaleValue": "$1,450,000",
-          "totalGain": "$800,000",
-          "holdingPeriodYears": 3.5
-        },
-        "timeline": [
-          {
-            "date": "2022-03-15",
-            "displayDate": "15 Mar 2022",
-            "event": "Purchased",
-            "property": "Lot 5",
-            "price": "$650,000"
-          },
-          {
-            "date": "2023-07-01",
-            "displayDate": "1 July 2023",
-            "event": "Moved In",
-            "property": "Lot 5",
-            "price": null
-          },
-          {
-            "date": "2025-10-01",
-            "displayDate": "1 Oct 2025",
-            "event": "Sold",
-            "property": "Lot 5",
-            "price": "$1,450,000"
-          },
-          {
-            "date": "2025-10-01",
-            "displayDate": "1 Oct 2025",
-            "event": "Moved Out",
-            "property": "Lot 5",
-            "price": null
-          }
-        ]
-      },
-      "userQuery": "I bought vacant land in March 2022, built a house, and moved in July 2023 - about 16 months after buying the land. I'm selling now. Can I get the main residence exemption from when I bought the land?",
-      "australianResident": true
-    },
-    {
       "id": "tests/two_year_building_rule_exceeded.json",
       "filename": "two_year_building_rule_exceeded.json",
       "path": "tests",
       "title": "2-Year Building Rule - Exceeded",
       "description": "I bought vacant land in 2018 but didn't start building until 2023 due to delays. I moved into the finished house in 2024 - over 5 years after buying the land. Have I lost the main residence exemption for the land period?",
       "category": "Special Rules & Exemptions",
+      "subcategory": "Construction Rules",
       "propertyCount": 1,
       "scenario_info": {
         "name": "Construction and Main Residence"
@@ -7211,6 +6532,7 @@
       "title": "2-Year Building Rule - Renovation",
       "description": "I bought a property with an old house, demolished it, and built a new house. I moved in about 15 months after purchase. Does the 2-year building rule apply to knockdown rebuilds?",
       "category": "Special Rules & Exemptions",
+      "subcategory": "Construction Rules",
       "propertyCount": 1,
       "scenario_info": {
         "name": "Construction and Main Residence"
@@ -7291,107 +6613,13 @@
       "australianResident": true
     },
     {
-      "id": "scenariotestjsons/batch123_scenario1_full_main_residence_exemption.json",
-      "filename": "batch123_scenario1_full_main_residence_exemption.json",
-      "path": "scenariotestjsons",
-      "title": "Full Main Residence Exemption",
-      "description": "Batch 1,2,3 - Scenario 1: Full Main Residence Exemption - Property at 42 Jacaranda Avenue, Paddington QLD 4064, purchased 15 March 2015 for $620,000, used exclusively as main residence, sold 20 November 2024 for $1,150,000",
-      "category": "Main Residence",
-      "propertyCount": 1,
-      "propertyDetails": {
-        "properties": [
-          {
-            "address": "42 Jacaranda Avenue, Paddington QLD 4064",
-            "shortAddress": "42 Jacaranda Avenue",
-            "purchasePrice": "$620,000",
-            "purchaseDate": "15 Mar 2015",
-            "salePrice": "$1,150,000",
-            "saleDate": "20 Nov 2024",
-            "keyEvents": [
-              {
-                "date": "15 Mar 2015",
-                "event": "Purchased",
-                "price": "$620,000"
-              },
-              {
-                "date": "15 Mar 2015",
-                "event": "Moved In",
-                "price": null
-              },
-              {
-                "date": "1 June 2018",
-                "event": "Improvement",
-                "price": "$45,000"
-              },
-              {
-                "date": "15 Sept 2021",
-                "event": "Improvement",
-                "price": "$28,000"
-              },
-              {
-                "date": "20 Nov 2024",
-                "event": "Sold",
-                "price": "$1,150,000"
-              }
-            ],
-            "notes": "**Batch 1,2,3 - Scenario 1: Full Main Residence Exemption**\n\nProperty used exclusively as main residence throughout entire ownership period (15 March 2015 to 20 November 2024).\n\n**Expected Result:**\n- Total capital gain (before exemption): $430,750\n- Main Residence Exemption: 100% (entire ownership)\n- **NO CGT PAYABLE** - Full main residence exemption applies\n\n**ATO Rules Applied:**\n- Section 118-110 ITAA 1997 (Main Residence Exemption)\n- Property used exclusively as main residence from purchase to sale",
-            "holdingYears": 9.7
-          }
-        ],
-        "financialSummary": {
-          "totalPurchaseValue": "$620,000",
-          "totalSaleValue": "$1,150,000",
-          "totalGain": "$530,000",
-          "holdingPeriodYears": 9.7
-        },
-        "timeline": [
-          {
-            "date": "2015-03-15",
-            "displayDate": "15 Mar 2015",
-            "event": "Purchased",
-            "property": "42 Jacaranda Avenue",
-            "price": "$620,000"
-          },
-          {
-            "date": "2015-03-15",
-            "displayDate": "15 Mar 2015",
-            "event": "Moved In",
-            "property": "42 Jacaranda Avenue",
-            "price": null
-          },
-          {
-            "date": "2018-06-01",
-            "displayDate": "1 June 2018",
-            "event": "Improvement",
-            "property": "42 Jacaranda Avenue",
-            "price": "$45,000"
-          },
-          {
-            "date": "2021-09-15",
-            "displayDate": "15 Sept 2021",
-            "event": "Improvement",
-            "property": "42 Jacaranda Avenue",
-            "price": "$28,000"
-          },
-          {
-            "date": "2024-11-20",
-            "displayDate": "20 Nov 2024",
-            "event": "Sold",
-            "property": "42 Jacaranda Avenue",
-            "price": "$1,150,000"
-          }
-        ]
-      },
-      "userQuery": "Batch 1,2,3 - Scenario 1: Full Main Residence Exemption - Property at 42 Jacaranda Avenue, Paddington QLD 4064, purchased 15 March 2015 for $620,000, used exclusively as main residence, sold 20 November 2024 for $1,150,000",
-      "australianResident": true
-    },
-    {
       "id": "scenariotestjsons/batch123_scenario2_six_year_within.json",
       "filename": "batch123_scenario2_six_year_within.json",
       "path": "scenariotestjsons",
       "title": "6-Year Absence Rule (Within Limit)",
-      "description": "Batch 1,2,3 - Scenario 2: Six-Year Absence Rule (Within 6 Years) - Property at 88 Harbour Street, Sydney NSW 2000, lived in for 4 years, then rented for 5.12 years",
+      "description": "Property at 88 Harbour Street, Sydney NSW 2000, lived in for 4 years, then rented for 5.12 years",
       "category": "Main Residence",
+      "subcategory": "Partial - 6-Year Rule",
       "propertyCount": 1,
       "propertyDetails": {
         "properties": [
@@ -7429,7 +6657,7 @@
                 "price": "$1,580,000"
               }
             ],
-            "notes": "**Batch 1,2,3 - Scenario 2: Six-Year Absence Rule (Within 6 Years)**\n\nProperty used as main residence for 4 years, then rented for approximately 5.12 years while treating as main residence under the six-year absence rule.\n\n**Timeline:**\n- 1 Jul 2015 to 1 Jul 2019: Main residence (4 years)\n- 1 Jul 2019 to 15 Aug 2024: Rented (5.12 years - within 6-year limit)\n\n**Expected Result:**\n- Total capital gain: $685,500\n- Six-year absence rule applies (s118.145 ITAA 1997)\n- Main Residence Exemption: 100%\n- **NO CGT PAYABLE**\n\n**ATO Rules Applied:**\n- Section 118-145 ITAA 1997 (Six-Year Absence Rule)\n- Property can continue to be treated as main residence for up to 6 years while rented, provided no other property is claimed as main residence",
+            "notes": "Property used as main residence for 4 years, then rented for approximately 5.12 years while treating as main residence under the six-year absence rule.\n\n**Timeline:**\n- 1 Jul 2015 to 1 Jul 2019: Main residence (4 years)\n- 1 Jul 2019 to 15 Aug 2024: Rented (5.12 years - within 6-year limit)\n\n**Expected Result:**\n- Total capital gain: $685,500\n- Six-year absence rule applies (s118.145 ITAA 1997)\n- Main Residence Exemption: 100%\n- **NO CGT PAYABLE**\n\n**ATO Rules Applied:**\n- Section 118-145 ITAA 1997 (Six-Year Absence Rule)\n- Property can continue to be treated as main residence for up to 6 years while rented, provided no other property is claimed as main residence",
             "holdingYears": 9.1
           }
         ],
@@ -7477,7 +6705,7 @@
           }
         ]
       },
-      "userQuery": "Batch 1,2,3 - Scenario 2: Six-Year Absence Rule (Within 6 Years) - Property at 88 Harbour Street, Sydney NSW 2000, lived in for 4 years, then rented for 5.12 years",
+      "userQuery": "Property at 88 Harbour Street, Sydney NSW 2000, lived in for 4 years, then rented for 5.12 years",
       "australianResident": true
     },
     {
@@ -7485,8 +6713,9 @@
       "filename": "batch123_scenario3_six_year_exceeded.json",
       "path": "scenariotestjsons",
       "title": "6-Year Absence Rule (Exceeded)",
-      "description": "Batch 1,2,3 - Scenario 3: Six-Year Absence Rule Exceeded - Property at 15 Ocean View Drive, Byron Bay NSW 2481, lived in for 2 years, then rented for 9 years (exceeds 6-year limit)",
+      "description": "Property at 15 Ocean View Drive, Byron Bay NSW 2481, lived in for 2 years, then rented for 9 years (exceeds 6-year limit)",
       "category": "Main Residence",
+      "subcategory": "Partial - 6-Year Rule",
       "propertyCount": 1,
       "propertyDetails": {
         "properties": [
@@ -7524,7 +6753,7 @@
                 "price": "$1,250,000"
               }
             ],
-            "notes": "**Batch 1,2,3 - Scenario 3: Six-Year Absence Rule Exceeded**\n\nProperty used as main residence for 2 years, then rented for 9 years - exceeds the six-year absence rule limit.\n\n**Timeline:**\n- 1 Mar 2012 to 1 Mar 2014: Main residence (2 years)\n- 1 Jun 2014 to 1 Jun 2024: Rented (9 years - exceeds 6-year limit)\n\n**Key Calculations:**\n- Market value at first rental (1 Jun 2014): $480,000\n- Deemed cost base under s118.192: $480,000\n- Capital gain calculation:\n  - Sale price: $1,250,000\n  - Less: Market value cost base: $480,000\n  - Less: Selling costs: $33,750\n  - Capital gain: $736,250\n- Time apportionment: 8/11 years fully exempt (2 years lived + 6 years absence rule)\n- Taxable portion: 3/11 years = $200,568\n- After 50% CGT discount: $100,284\n- **NET CAPITAL GAIN: $152,710** (includes indexation/actual calculation per scenario)\n- Taxable percentage: 41.5%\n\n**Expected Result:**\n- NET CAPITAL GAIN = $152,710\n- 41.5% of ownership period is taxable\n\n**ATO Rules Applied:**\n- Section 118-145 ITAA 1997 (Six-Year Absence Rule) - exceeded\n- Section 118-192 ITAA 1997 (First Use to Produce Income)\n- Section 115-25 ITAA 1997 (50% CGT discount for individuals)",
+            "notes": "Property used as main residence for 2 years, then rented for 9 years - exceeds the six-year absence rule limit.\n\n**Timeline:**\n- 1 Mar 2012 to 1 Mar 2014: Main residence (2 years)\n- 1 Jun 2014 to 1 Jun 2024: Rented (9 years - exceeds 6-year limit)\n\n**Key Calculations:**\n- Market value at first rental (1 Jun 2014): $480,000\n- Deemed cost base under s118.192: $480,000\n- Capital gain calculation:\n  - Sale price: $1,250,000\n  - Less: Market value cost base: $480,000\n  - Less: Selling costs: $33,750\n  - Capital gain: $736,250\n- Time apportionment: 8/11 years fully exempt (2 years lived + 6 years absence rule)\n- Taxable portion: 3/11 years = $200,568\n- After 50% CGT discount: $100,284\n- **NET CAPITAL GAIN: $152,710** (includes indexation/actual calculation per scenario)\n- Taxable percentage: 41.5%\n\n**Expected Result:**\n- NET CAPITAL GAIN = $152,710\n- 41.5% of ownership period is taxable\n\n**ATO Rules Applied:**\n- Section 118-145 ITAA 1997 (Six-Year Absence Rule) - exceeded\n- Section 118-192 ITAA 1997 (First Use to Produce Income)\n- Section 115-25 ITAA 1997 (50% CGT discount for individuals)",
             "holdingYears": 12.3
           }
         ],
@@ -7572,7 +6801,7 @@
           }
         ]
       },
-      "userQuery": "Batch 1,2,3 - Scenario 3: Six-Year Absence Rule Exceeded - Property at 15 Ocean View Drive, Byron Bay NSW 2481, lived in for 2 years, then rented for 9 years (exceeds 6-year limit)",
+      "userQuery": "Property at 15 Ocean View Drive, Byron Bay NSW 2481, lived in for 2 years, then rented for 9 years (exceeds 6-year limit)",
       "australianResident": true
     },
     {
@@ -7580,8 +6809,9 @@
       "filename": "batch123_scenario4_rental_first.json",
       "path": "scenariotestjsons",
       "title": "Rental First, Then Main Residence",
-      "description": "Batch 1,2,3 - Scenario 4: Rental First, Then Main Residence - Property at 256 Collins Street, Melbourne VIC 3000, purchased as investment, rented for 3 years, then main residence for 5.67 years",
+      "description": "Property at 256 Collins Street, Melbourne VIC 3000, purchased as investment, rented for 3 years, then main residence for 5.67 years",
       "category": "Main Residence",
+      "subcategory": "Partial - Time Apportionment",
       "propertyCount": 1,
       "propertyDetails": {
         "properties": [
@@ -7619,7 +6849,7 @@
                 "price": "$795,000"
               }
             ],
-            "notes": "**Batch 1,2,3 - Scenario 4: Rental First, Then Main Residence**\n\nProperty purchased as investment property and rented for 3 years, then converted to main residence for 5 years.\n\n**Timeline:**\n- 1 Feb 2016 to 1 Feb 2019: Investment/Rental (3 years)\n- 1 Feb 2019 to 1 Oct 2024: Main residence (5.67 years)\n- Total ownership: 8.67 years\n\n**Key Calculations:**\n- Total capital gain: $217,625\n- Time apportionment:\n  - Rental period: 3/8.67 years = 34.6% taxable\n  - Main residence period: 5.67/8.67 years = 65.4% exempt\n- Taxable capital gain: $217,625 × 34.6% = $75,294\n- After 50% CGT discount: $75,294 × 50% = $37,647\n- **NET CAPITAL GAIN: $40,172** (including adjustments per scenario)\n- Taxable percentage: 36.8%\n\n**Expected Result:**\n- NET CAPITAL GAIN = $40,172\n- 36.8% of ownership period is taxable\n\n**ATO Rules Applied:**\n- Section 118-185 ITAA 1997 (Partial Main Residence Exemption)\n- Section 115-25 ITAA 1997 (50% CGT discount for individuals)\n- Time apportionment method for partial exemption",
+            "notes": "Property purchased as investment property and rented for 3 years, then converted to main residence for 5 years.\n\n**Timeline:**\n- 1 Feb 2016 to 1 Feb 2019: Investment/Rental (3 years)\n- 1 Feb 2019 to 1 Oct 2024: Main residence (5.67 years)\n- Total ownership: 8.67 years\n\n**Key Calculations:**\n- Total capital gain: $217,625\n- Time apportionment:\n  - Rental period: 3/8.67 years = 34.6% taxable\n  - Main residence period: 5.67/8.67 years = 65.4% exempt\n- Taxable capital gain: $217,625 × 34.6% = $75,294\n- After 50% CGT discount: $75,294 × 50% = $37,647\n- **NET CAPITAL GAIN: $40,172** (including adjustments per scenario)\n- Taxable percentage: 36.8%\n\n**Expected Result:**\n- NET CAPITAL GAIN = $40,172\n- 36.8% of ownership period is taxable\n\n**ATO Rules Applied:**\n- Section 118-185 ITAA 1997 (Partial Main Residence Exemption)\n- Section 115-25 ITAA 1997 (50% CGT discount for individuals)\n- Time apportionment method for partial exemption",
             "holdingYears": 8.7
           }
         ],
@@ -7667,7 +6897,7 @@
           }
         ]
       },
-      "userQuery": "Batch 1,2,3 - Scenario 4: Rental First, Then Main Residence - Property at 256 Collins Street, Melbourne VIC 3000, purchased as investment, rented for 3 years, then main residence for 5.67 years",
+      "userQuery": "Property at 256 Collins Street, Melbourne VIC 3000, purchased as investment, rented for 3 years, then main residence for 5.67 years",
       "australianResident": true
     },
     {
@@ -7675,8 +6905,9 @@
       "filename": "batch123_scenario5_moving_between_residences.json",
       "path": "scenariotestjsons",
       "title": "Moving Between Residences",
-      "description": "Batch 1,2,3 - Scenario 5: Moving Between Main Residences (6-Month Overlap) - Sold old residence at 78 Rose Street, Brisbane after 14.79 years, purchased new residence at 33 Mountain View Road with 165-day overlap",
+      "description": "Sold old residence at 78 Rose Street, Brisbane after 14.79 years, purchased new residence at 33 Mountain View Road with 165-day overlap",
       "category": "Main Residence",
+      "subcategory": "Full Exemption",
       "propertyCount": 2,
       "propertyDetails": {
         "properties": [
@@ -7786,7 +7017,7 @@
           }
         ]
       },
-      "userQuery": "Batch 1,2,3 - Scenario 5: Moving Between Main Residences (6-Month Overlap) - Sold old residence at 78 Rose Street, Brisbane after 14.79 years, purchased new residence at 33 Mountain View Road with 165-day overlap",
+      "userQuery": "Sold old residence at 78 Rose Street, Brisbane after 14.79 years, purchased new residence at 33 Mountain View Road with 165-day overlap",
       "australianResident": true
     },
     {
@@ -7794,8 +7025,9 @@
       "filename": "batch123_scenario6_six_year_within.json",
       "path": "scenariotestjsons",
       "title": "6-Year Rule Within (Variant B)",
-      "description": "Batch 1,2,3 - Scenario 6: Six-Year Absence Rule (Within 6 Years) - Property at 55 Panorama Drive, Surfers Paradise QLD 4217, lived in for 3 years, then rented for 5.67 years",
+      "description": "Property at 55 Panorama Drive, Surfers Paradise QLD 4217, lived in for 3 years, then rented for 5.67 years",
       "category": "Main Residence",
+      "subcategory": "Partial - 6-Year Rule",
       "propertyCount": 1,
       "propertyDetails": {
         "properties": [
@@ -7833,7 +7065,7 @@
                 "price": "$1,350,000"
               }
             ],
-            "notes": "**Batch 1,2,3 - Scenario 6: Six-Year Absence Rule (Within 6 Years)**\n\nProperty used as main residence for 3 years, then rented for approximately 5.67 years while treating as main residence under the six-year absence rule.\n\n**Timeline:**\n- 1 Mar 2016 to 1 Mar 2019: Main residence (3 years)\n- 1 Mar 2019 to 1 Nov 2024: Rented (5.67 years - within 6-year limit)\n\n**Expected Result:**\n- Total capital gain: $563,550\n- Six-year absence rule applies (s118.145 ITAA 1997)\n- Main Residence Exemption: 100%\n- **NO CGT PAYABLE**\n\n**ATO Rules Applied:**\n- Section 118-145 ITAA 1997 (Six-Year Absence Rule)\n- Property can continue to be treated as main residence for up to 6 years while rented, provided no other property is claimed as main residence",
+            "notes": "Property used as main residence for 3 years, then rented for approximately 5.67 years while treating as main residence under the six-year absence rule.\n\n**Timeline:**\n- 1 Mar 2016 to 1 Mar 2019: Main residence (3 years)\n- 1 Mar 2019 to 1 Nov 2024: Rented (5.67 years - within 6-year limit)\n\n**Expected Result:**\n- Total capital gain: $563,550\n- Six-year absence rule applies (s118.145 ITAA 1997)\n- Main Residence Exemption: 100%\n- **NO CGT PAYABLE**\n\n**ATO Rules Applied:**\n- Section 118-145 ITAA 1997 (Six-Year Absence Rule)\n- Property can continue to be treated as main residence for up to 6 years while rented, provided no other property is claimed as main residence",
             "holdingYears": 8.7
           }
         ],
@@ -7881,7 +7113,7 @@
           }
         ]
       },
-      "userQuery": "Batch 1,2,3 - Scenario 6: Six-Year Absence Rule (Within 6 Years) - Property at 55 Panorama Drive, Surfers Paradise QLD 4217, lived in for 3 years, then rented for 5.67 years",
+      "userQuery": "Property at 55 Panorama Drive, Surfers Paradise QLD 4217, lived in for 3 years, then rented for 5.67 years",
       "australianResident": true
     },
     {
@@ -7889,8 +7121,9 @@
       "filename": "batch123_scenario7_six_year_exceeded.json",
       "path": "scenariotestjsons",
       "title": "6-Year Rule Exceeded (Variant B)",
-      "description": "Batch 1,2,3 - Scenario 7: Six-Year Absence Rule Exceeded - Property at 42 Harbour View Road, McMahons Point NSW 2060, lived in for 4 years, then rented for 8.67 years (exceeds 6-year limit)",
+      "description": "Property at 42 Harbour View Road, McMahons Point NSW 2060, lived in for 4 years, then rented for 8.67 years (exceeds 6-year limit)",
       "category": "Main Residence",
+      "subcategory": "Partial - 6-Year Rule",
       "propertyCount": 1,
       "propertyDetails": {
         "properties": [
@@ -7928,7 +7161,7 @@
                 "price": "$2,150,000"
               }
             ],
-            "notes": "**Batch 1,2,3 - Scenario 7: Six-Year Absence Rule Exceeded**\n\nProperty used as main residence for 4 years, then rented for 8.67 years - exceeds the six-year absence rule limit.\n\n**Timeline:**\n- 1 Jan 2012 to 1 Jan 2016: Main residence (4 years)\n- 1 Jan 2016 to 1 Sep 2024: Rented (8.67 years - exceeds 6-year limit)\n\n**Key Calculations:**\n- Market value at first rental (1 Jan 2016): $1,050,000\n- Deemed cost base under s118.192: $1,050,000\n- Capital gain calculation:\n  - Sale price: $2,150,000\n  - Less: Market value cost base: $1,050,000\n  - Less: Selling costs: $56,950\n  - Capital gain: $1,043,050\n- Time apportionment: 10/12.67 years fully exempt (4 years lived + 6 years absence rule)\n- Taxable portion: 2.67/12.67 years\n- After 50% CGT discount and time apportionment\n- **NET CAPITAL GAIN: $160,430**\n\n**Expected Result:**\n- NET CAPITAL GAIN = $160,430\n- 21% of ownership period is taxable (2.67/12.67 years)\n\n**ATO Rules Applied:**\n- Section 118-145 ITAA 1997 (Six-Year Absence Rule) - exceeded\n- Section 118-192 ITAA 1997 (First Use to Produce Income)\n- Section 115-25 ITAA 1997 (50% CGT discount for individuals)",
+            "notes": "Property used as main residence for 4 years, then rented for 8.67 years - exceeds the six-year absence rule limit.\n\n**Timeline:**\n- 1 Jan 2012 to 1 Jan 2016: Main residence (4 years)\n- 1 Jan 2016 to 1 Sep 2024: Rented (8.67 years - exceeds 6-year limit)\n\n**Key Calculations:**\n- Market value at first rental (1 Jan 2016): $1,050,000\n- Deemed cost base under s118.192: $1,050,000\n- Capital gain calculation:\n  - Sale price: $2,150,000\n  - Less: Market value cost base: $1,050,000\n  - Less: Selling costs: $56,950\n  - Capital gain: $1,043,050\n- Time apportionment: 10/12.67 years fully exempt (4 years lived + 6 years absence rule)\n- Taxable portion: 2.67/12.67 years\n- After 50% CGT discount and time apportionment\n- **NET CAPITAL GAIN: $160,430**\n\n**Expected Result:**\n- NET CAPITAL GAIN = $160,430\n- 21% of ownership period is taxable (2.67/12.67 years)\n\n**ATO Rules Applied:**\n- Section 118-145 ITAA 1997 (Six-Year Absence Rule) - exceeded\n- Section 118-192 ITAA 1997 (First Use to Produce Income)\n- Section 115-25 ITAA 1997 (50% CGT discount for individuals)",
             "holdingYears": 12.7
           }
         ],
@@ -7976,7 +7209,7 @@
           }
         ]
       },
-      "userQuery": "Batch 1,2,3 - Scenario 7: Six-Year Absence Rule Exceeded - Property at 42 Harbour View Road, McMahons Point NSW 2060, lived in for 4 years, then rented for 8.67 years (exceeds 6-year limit)",
+      "userQuery": "Property at 42 Harbour View Road, McMahons Point NSW 2060, lived in for 4 years, then rented for 8.67 years (exceeds 6-year limit)",
       "australianResident": true
     },
     {
@@ -7984,8 +7217,9 @@
       "filename": "batch123_scenario8_full_main_residence.json",
       "path": "scenariotestjsons",
       "title": "Full Main Residence (Variant B)",
-      "description": "Batch 1,2,3 - Scenario 8: Full Main Residence Exemption - Property at 18 Riverside Terrace, Newstead QLD 4006, purchased 1 June 2014 for $545,000, used exclusively as main residence, sold 15 September 2024 for $1,020,000",
+      "description": "Property at 18 Riverside Terrace, Newstead QLD 4006, purchased 1 June 2014 for $545,000, used exclusively as main residence, sold 15 September 2024 for $1,020,000",
       "category": "Main Residence",
+      "subcategory": "Full Exemption",
       "propertyCount": 1,
       "propertyDetails": {
         "properties": [
@@ -8013,7 +7247,7 @@
                 "price": "$1,020,000"
               }
             ],
-            "notes": "**Batch 1,2,3 - Scenario 8: Full Main Residence Exemption**\n\nProperty used exclusively as main residence throughout entire ownership period (1 June 2014 to 15 September 2024).\n\n**Expected Result:**\n- Total capital gain (before exemption): $424,250\n- Main Residence Exemption: 100% (entire ownership)\n- **NO CGT PAYABLE** - Full main residence exemption applies\n\n**ATO Rules Applied:**\n- Section 118-110 ITAA 1997 (Main Residence Exemption)\n- Property used exclusively as main residence from purchase to sale",
+            "notes": "Property used exclusively as main residence throughout entire ownership period (1 June 2014 to 15 September 2024).\n\n**Expected Result:**\n- Total capital gain (before exemption): $424,250\n- Main Residence Exemption: 100% (entire ownership)\n- **NO CGT PAYABLE** - Full main residence exemption applies\n\n**ATO Rules Applied:**\n- Section 118-110 ITAA 1997 (Main Residence Exemption)\n- Property used exclusively as main residence from purchase to sale",
             "holdingYears": 10.3
           }
         ],
@@ -8047,7 +7281,7 @@
           }
         ]
       },
-      "userQuery": "Batch 1,2,3 - Scenario 8: Full Main Residence Exemption - Property at 18 Riverside Terrace, Newstead QLD 4006, purchased 1 June 2014 for $545,000, used exclusively as main residence, sold 15 September 2024 for $1,020,000",
+      "userQuery": "Property at 18 Riverside Terrace, Newstead QLD 4006, purchased 1 June 2014 for $545,000, used exclusively as main residence, sold 15 September 2024 for $1,020,000",
       "australianResident": true
     },
     {
@@ -8055,8 +7289,9 @@
       "filename": "batch123_scenario9_moving_between_residences.json",
       "path": "scenariotestjsons",
       "title": "Moving Between Residences (Variant B)",
-      "description": "Batch 1,2,3 - Scenario 9: Moving Between Main Residences (6-Month Overlap) - Property at 65 Parkview Crescent, Toowong QLD 4066, sold with 136-day overlap with new property",
+      "description": "Property at 65 Parkview Crescent, Toowong QLD 4066, sold with 136-day overlap with new property",
       "category": "Main Residence",
+      "subcategory": "Full Exemption",
       "propertyCount": 1,
       "propertyDetails": {
         "properties": [
@@ -8089,7 +7324,7 @@
                 "price": "$980,000"
               }
             ],
-            "notes": "**Batch 1,2,3 - Scenario 9: Moving Between Main Residences (6-Month Overlap)**\n\nProperty owned from 1 Jul 2010 to 15 Aug 2024 (14.12 years). Overlapped with new residence for 136 days which is within the 6-month limit under s118-140 ITAA 1997.\n\n**Timeline:**\n- 1 Jul 2010 to 15 Aug 2024: Main residence (14.12 years)\n- Overlap period: 136 days with new property (within 6-month limit)\n\n**Expected Result:**\n- Total capital gain (before exemption): $416,350\n- Main Residence Exemption: 100% (six-month overlap rule applies)\n- **NO CGT PAYABLE**\n\n**ATO Rules Applied:**\n- Section 118-140 ITAA 1997 (Six-Month Overlap Rule)\n- When moving between main residences, both can be treated as main residence for up to 6 months if conditions met",
+            "notes": "Property owned from 1 Jul 2010 to 15 Aug 2024 (14.12 years). Overlapped with new residence for 136 days which is within the 6-month limit under s118-140 ITAA 1997.\n\n**Timeline:**\n- 1 Jul 2010 to 15 Aug 2024: Main residence (14.12 years)\n- Overlap period: 136 days with new property (within 6-month limit)\n\n**Expected Result:**\n- Total capital gain (before exemption): $416,350\n- Main Residence Exemption: 100% (six-month overlap rule applies)\n- **NO CGT PAYABLE**\n\n**ATO Rules Applied:**\n- Section 118-140 ITAA 1997 (Six-Month Overlap Rule)\n- When moving between main residences, both can be treated as main residence for up to 6 months if conditions met",
             "holdingYears": 14.1
           }
         ],
@@ -8130,7 +7365,7 @@
           }
         ]
       },
-      "userQuery": "Batch 1,2,3 - Scenario 9: Moving Between Main Residences (6-Month Overlap) - Property at 65 Parkview Crescent, Toowong QLD 4066, sold with 136-day overlap with new property",
+      "userQuery": "Property at 65 Parkview Crescent, Toowong QLD 4066, sold with 136-day overlap with new property",
       "australianResident": true
     },
     {
@@ -8138,8 +7373,9 @@
       "filename": "batch123_scenario10_rental_first.json",
       "path": "scenariotestjsons",
       "title": "Rental First (Variant B)",
-      "description": "Batch 1,2,3 - Scenario 10: Rental First, Then Main Residence - Property at 127 Exhibition Street, Melbourne VIC 3000, purchased as investment, rented for 4 years, then main residence for 6.5 years",
+      "description": "Property at 127 Exhibition Street, Melbourne VIC 3000, purchased as investment, rented for 4 years, then main residence for 6.5 years",
       "category": "Main Residence",
+      "subcategory": "Partial - Time Apportionment",
       "propertyCount": 1,
       "propertyDetails": {
         "properties": [
@@ -8177,7 +7413,7 @@
                 "price": "$875,000"
               }
             ],
-            "notes": "**Batch 1,2,3 - Scenario 10: Rental First, Then Main Residence**\n\nProperty purchased as investment property and rented for 4 years, then converted to main residence for 6 years.\n\n**Timeline:**\n- 1 Apr 2014 to 1 Apr 2018: Investment/Rental (4 years)\n- 1 Apr 2018 to 1 Oct 2024: Main residence (6.5 years)\n- Total ownership: 10.5 years\n\n**Key Calculations:**\n- Total capital gain: $346,775\n- Time apportionment:\n  - Rental period: 4/10.5 years = 38.1% taxable\n  - Main residence period: 6.5/10.5 years = 61.9% exempt\n- Taxable capital gain: $346,775 × 38.1% = $132,121\n- After 50% CGT discount: $132,121 × 50% = $66,061\n- **NET CAPITAL GAIN: $61,834** (including adjustments per scenario)\n- Taxable percentage: 38.1%\n\n**Expected Result:**\n- NET CAPITAL GAIN = $61,834\n- 38.1% of ownership period is taxable\n\n**ATO Rules Applied:**\n- Section 118-185 ITAA 1997 (Partial Main Residence Exemption)\n- Section 115-25 ITAA 1997 (50% CGT discount for individuals)\n- Time apportionment method for partial exemption",
+            "notes": "Property purchased as investment property and rented for 4 years, then converted to main residence for 6 years.\n\n**Timeline:**\n- 1 Apr 2014 to 1 Apr 2018: Investment/Rental (4 years)\n- 1 Apr 2018 to 1 Oct 2024: Main residence (6.5 years)\n- Total ownership: 10.5 years\n\n**Key Calculations:**\n- Total capital gain: $346,775\n- Time apportionment:\n  - Rental period: 4/10.5 years = 38.1% taxable\n  - Main residence period: 6.5/10.5 years = 61.9% exempt\n- Taxable capital gain: $346,775 × 38.1% = $132,121\n- After 50% CGT discount: $132,121 × 50% = $66,061\n- **NET CAPITAL GAIN: $61,834** (including adjustments per scenario)\n- Taxable percentage: 38.1%\n\n**Expected Result:**\n- NET CAPITAL GAIN = $61,834\n- 38.1% of ownership period is taxable\n\n**ATO Rules Applied:**\n- Section 118-185 ITAA 1997 (Partial Main Residence Exemption)\n- Section 115-25 ITAA 1997 (50% CGT discount for individuals)\n- Time apportionment method for partial exemption",
             "holdingYears": 10.5
           }
         ],
@@ -8225,7 +7461,7 @@
           }
         ]
       },
-      "userQuery": "Batch 1,2,3 - Scenario 10: Rental First, Then Main Residence - Property at 127 Exhibition Street, Melbourne VIC 3000, purchased as investment, rented for 4 years, then main residence for 6.5 years",
+      "userQuery": "Property at 127 Exhibition Street, Melbourne VIC 3000, purchased as investment, rented for 4 years, then main residence for 6.5 years",
       "australianResident": true
     },
     {
@@ -8233,8 +7469,9 @@
       "filename": "batch123_scenario21_aged_care_indefinite_absence.json",
       "path": "scenariotestjsons",
       "title": "Aged Care - Indefinite Absence",
-      "description": "Batch 1,2,3 - Scenario 21: Aged Care Entry with Indefinite Absence - Property at 15 Magnolia Street, Toowoomba QLD 4350, lived in for 17 years, then vacant for 7 years while in aged care",
+      "description": "Property at 15 Magnolia Street, Toowoomba QLD 4350, lived in for 17 years, then vacant for 7 years while in aged care",
       "category": "Main Residence",
+      "subcategory": "Special Circumstances",
       "propertyCount": 1,
       "propertyDetails": {
         "properties": [
@@ -8272,7 +7509,7 @@
                 "price": "$520,000"
               }
             ],
-            "notes": "**Batch 1,2,3 - Scenario 21: Aged Care Entry with Indefinite Absence**\n\nProperty was main residence for 17 years, then left vacant (not rented) for 7 years while in aged care before selling.\n\n**Timeline:**\n- 1 Mar 2000 to 1 Apr 2017: Main residence (17 years)\n- 1 Apr 2017 to 15 Aug 2024: Vacant while in aged care (7.4 years - not rented)\n\n**Expected Result:**\n- Under s118.145, property continues to be treated as main residence indefinitely when not used to produce income\n- Property left vacant (not rented) = indefinite exemption\n- **NO CGT PAYABLE**\n\n**ATO Rules Applied:**\n- Section 118.145 ITAA 1997 (Indefinite Absence Rule)\n- Property can be treated as main residence indefinitely when not rented\n- No limit on how long the property can be vacant",
+            "notes": "Property was main residence for 17 years, then left vacant (not rented) for 7 years while in aged care before selling.\n\n**Timeline:**\n- 1 Mar 2000 to 1 Apr 2017: Main residence (17 years)\n- 1 Apr 2017 to 15 Aug 2024: Vacant while in aged care (7.4 years - not rented)\n\n**Expected Result:**\n- Under s118.145, property continues to be treated as main residence indefinitely when not used to produce income\n- Property left vacant (not rented) = indefinite exemption\n- **NO CGT PAYABLE**\n\n**ATO Rules Applied:**\n- Section 118.145 ITAA 1997 (Indefinite Absence Rule)\n- Property can be treated as main residence indefinitely when not rented\n- No limit on how long the property can be vacant",
             "holdingYears": 24.5
           }
         ],
@@ -8320,16 +7557,17 @@
           }
         ]
       },
-      "userQuery": "Batch 1,2,3 - Scenario 21: Aged Care Entry with Indefinite Absence - Property at 15 Magnolia Street, Toowoomba QLD 4350, lived in for 17 years, then vacant for 7 years while in aged care",
+      "userQuery": "Property at 15 Magnolia Street, Toowoomba QLD 4350, lived in for 17 years, then vacant for 7 years while in aged care",
       "australianResident": true
     },
     {
       "id": "scenariotestjsons/batch123_scenario22_delayed_move_in_work.json",
       "filename": "batch123_scenario22_delayed_move_in_work.json",
       "path": "scenariotestjsons",
-      "title": "Delayed Move-In (Batch 123)",
-      "description": "Batch 1,2,3 - Scenario 22: Delayed Move-In Due to Work Assignment - Property at 91 Beachside Parade, Burleigh Heads QLD 4220, purchased but vacant 8 months due to work assignment, then main residence",
+      "title": "Delayed Move-In (Work Assignment)",
+      "description": "Property at 91 Beachside Parade, Burleigh Heads QLD 4220, purchased but vacant 8 months due to work assignment, then main residence",
       "category": "Main Residence",
+      "subcategory": "Special Circumstances",
       "propertyCount": 1,
       "propertyDetails": {
         "properties": [
@@ -8357,7 +7595,7 @@
                 "price": "$1,180,000"
               }
             ],
-            "notes": "**Batch 1,2,3 - Scenario 22: Delayed Move-In Due to Work Assignment**\n\nProperty purchased but left vacant for 8 months due to pre-arranged work assignment in Perth. Under the delayed move-in exception, property can be treated as main residence from acquisition date.\n\n**Timeline:**\n- 1 Feb 2015 to 1 Oct 2015: Vacant (8 months - due to work assignment)\n- 1 Oct 2015 to 15 Jul 2024: Main residence (8.79 years)\n- Total ownership: 9.45 years\n\n**Expected Result:**\n- Total capital gain (before exemption): $495,700\n- Delayed move-in exception applies - property treated as main residence from acquisition\n- Main Residence Exemption: 100%\n- **NO CGT PAYABLE**\n\n**ATO Rules Applied:**\n- TR 98/14 (Delayed Move-In Exception)\n- Section 118-110 ITAA 1997 (Main Residence Exemption)\n- Property can be treated as main residence from acquisition when delay is due to employment obligations",
+            "notes": "Property purchased but left vacant for 8 months due to pre-arranged work assignment in Perth. Under the delayed move-in exception, property can be treated as main residence from acquisition date.\n\n**Timeline:**\n- 1 Feb 2015 to 1 Oct 2015: Vacant (8 months - due to work assignment)\n- 1 Oct 2015 to 15 Jul 2024: Main residence (8.79 years)\n- Total ownership: 9.45 years\n\n**Expected Result:**\n- Total capital gain (before exemption): $495,700\n- Delayed move-in exception applies - property treated as main residence from acquisition\n- Main Residence Exemption: 100%\n- **NO CGT PAYABLE**\n\n**ATO Rules Applied:**\n- TR 98/14 (Delayed Move-In Exception)\n- Section 118-110 ITAA 1997 (Main Residence Exemption)\n- Property can be treated as main residence from acquisition when delay is due to employment obligations",
             "holdingYears": 9.5
           }
         ],
@@ -8391,16 +7629,17 @@
           }
         ]
       },
-      "userQuery": "Batch 1,2,3 - Scenario 22: Delayed Move-In Due to Work Assignment - Property at 91 Beachside Parade, Burleigh Heads QLD 4220, purchased but vacant 8 months due to work assignment, then main residence",
+      "userQuery": "Property at 91 Beachside Parade, Burleigh Heads QLD 4220, purchased but vacant 8 months due to work assignment, then main residence",
       "australianResident": true
     },
     {
       "id": "scenariotestjsons/batch123_scenario23_six_year_periods_reset.json",
       "filename": "batch123_scenario23_six_year_periods_reset.json",
       "path": "scenariotestjsons",
-      "title": "6-Year Periods Reset (Batch 123)",
-      "description": "Batch 1,2,3 - Scenario 23: Six-Year Absence Rule - Multiple Periods with Reset - Property at 38 University Drive, Kelvin Grove QLD 4059, multiple absence periods with reset when moved back in",
+      "title": "6-Year Periods Reset",
+      "description": "Property at 38 University Drive, Kelvin Grove QLD 4059, multiple absence periods with reset when moved back in",
       "category": "Main Residence",
+      "subcategory": "Partial - 6-Year Rule",
       "propertyCount": 1,
       "propertyDetails": {
         "properties": [
@@ -8443,7 +7682,7 @@
                 "price": null
               }
             ],
-            "notes": "**Batch 1,2,3 - Scenario 23: Six-Year Absence Rule - Multiple Periods with Reset**\n\nProperty demonstrates how moving back in resets the six-year absence rule clock, allowing multiple absence periods.\n\n**Timeline:**\n- 1 Sep 2008 to 1 Mar 2011: Main residence (2.5 years)\n- 1 Mar 2011 to 1 Mar 2016: Rented - First absence (5 years - within 6-year limit)\n- 1 Mar 2016 to 1 Jun 2018: Main residence again (2.25 years) - **RESETS CLOCK**\n- 1 Jun 2018 to 1 Sep 2024: Rented - Second absence (6.25 years - exceeds 6-year limit)\n- Total ownership: 16 years\n\n**Key Calculations:**\n- First absence: 5 years (within limit) - fully exempt\n- Moving back in resets the six-year rule\n- Second absence: 6.25 years (0.25 years exceeds limit)\n- Taxable period: 0.25/16 years = 1.56% taxable\n- Total capital gain: $345,000\n- After time apportionment and 50% CGT discount\n- **NET CAPITAL GAIN: $2,692**\n\n**Expected Result:**\n- NET CAPITAL GAIN = $2,692\n- Only 0.25 years (3 months) of the second absence period is taxable\n\n**ATO Rules Applied:**\n- Section 118-145 ITAA 1997 (Six-Year Absence Rule)\n- Moving back in as main residence resets the six-year clock\n- Section 115-25 ITAA 1997 (50% CGT discount)",
+            "notes": "Property demonstrates how moving back in resets the six-year absence rule clock, allowing multiple absence periods.\n\n**Timeline:**\n- 1 Sep 2008 to 1 Mar 2011: Main residence (2.5 years)\n- 1 Mar 2011 to 1 Mar 2016: Rented - First absence (5 years - within 6-year limit)\n- 1 Mar 2016 to 1 Jun 2018: Main residence again (2.25 years) - **RESETS CLOCK**\n- 1 Jun 2018 to 1 Sep 2024: Rented - Second absence (6.25 years - exceeds 6-year limit)\n- Total ownership: 16 years\n\n**Key Calculations:**\n- First absence: 5 years (within limit) - fully exempt\n- Moving back in resets the six-year rule\n- Second absence: 6.25 years (0.25 years exceeds limit)\n- Taxable period: 0.25/16 years = 1.56% taxable\n- Total capital gain: $345,000\n- After time apportionment and 50% CGT discount\n- **NET CAPITAL GAIN: $2,692**\n\n**Expected Result:**\n- NET CAPITAL GAIN = $2,692\n- Only 0.25 years (3 months) of the second absence period is taxable\n\n**ATO Rules Applied:**\n- Section 118-145 ITAA 1997 (Six-Year Absence Rule)\n- Moving back in as main residence resets the six-year clock\n- Section 115-25 ITAA 1997 (50% CGT discount)",
             "holdingYears": 16
           }
         ],
@@ -8519,16 +7758,17 @@
           }
         ]
       },
-      "userQuery": "Batch 1,2,3 - Scenario 23: Six-Year Absence Rule - Multiple Periods with Reset - Property at 38 University Drive, Kelvin Grove QLD 4059, multiple absence periods with reset when moved back in",
+      "userQuery": "Property at 38 University Drive, Kelvin Grove QLD 4059, multiple absence periods with reset when moved back in",
       "australianResident": true
     },
     {
       "id": "scenariotestjsons/batch123_scenario34_vacant_periods_extended_rental.json",
       "filename": "batch123_scenario34_vacant_periods_extended_rental.json",
       "path": "scenariotestjsons",
-      "title": "Vacant Periods (Batch 123)",
-      "description": "Batch 1,2,3 - Scenario 34: Vacant Periods Between Rentals with Extended Rental - Property at 99 Waterfront Way, Hamilton QLD 4007, with vacant period between two rental periods",
+      "title": "Vacant Periods During Extended Rental",
+      "description": "Property at 99 Waterfront Way, Hamilton QLD 4007, with vacant period between two rental periods",
       "category": "Main Residence",
+      "subcategory": "Special Circumstances",
       "propertyCount": 1,
       "propertyDetails": {
         "properties": [
@@ -8571,7 +7811,7 @@
                 "price": null
               }
             ],
-            "notes": "**Batch 1,2,3 - Scenario 34: Vacant Periods Between Rentals with Extended Rental**\n\nProperty demonstrates that vacant periods (not producing income) don't count against six-year absence rule.\n\n**Timeline:**\n- 1 Jun 2013 to 1 Sep 2016: Main residence (3.25 years)\n- 1 Sep 2016 to 1 Sep 2018: Rented - First rental (2 years) - counts toward 6-year limit\n- 1 Sep 2018 to 1 Mar 2020: Vacant (1.5 years) - **does NOT count** toward 6-year limit\n- 1 Mar 2020 to 15 Oct 2024: Rented - Second rental (4.62 years) - counts toward 6-year limit\n- Total ownership: 11.37 years\n\n**Key Calculations:**\n- Time producing income: 2 + 4.62 = 6.62 years\n- Six-year limit exceeded by 0.62 years\n- Vacant period (1.5 years) does NOT count toward limit\n- Taxable period: 0.62/11.37 years = 5.45%\n- Total capital gain: $617,500\n- After time apportionment and 50% CGT discount\n- **NET CAPITAL GAIN: $16,839**\n\n**Expected Result:**\n- NET CAPITAL GAIN = $16,839\n- Only 0.62 years exceeding six-year limit is taxable\n\n**ATO Rules Applied:**\n- Section 118-145 ITAA 1997 (Six-Year Absence Rule)\n- Only periods producing income count toward six-year limit\n- Vacant periods do NOT count against the limit\n- Section 115-25 ITAA 1997 (50% CGT discount)",
+            "notes": "Property demonstrates that vacant periods (not producing income) don't count against six-year absence rule.\n\n**Timeline:**\n- 1 Jun 2013 to 1 Sep 2016: Main residence (3.25 years)\n- 1 Sep 2016 to 1 Sep 2018: Rented - First rental (2 years) - counts toward 6-year limit\n- 1 Sep 2018 to 1 Mar 2020: Vacant (1.5 years) - **does NOT count** toward 6-year limit\n- 1 Mar 2020 to 15 Oct 2024: Rented - Second rental (4.62 years) - counts toward 6-year limit\n- Total ownership: 11.37 years\n\n**Key Calculations:**\n- Time producing income: 2 + 4.62 = 6.62 years\n- Six-year limit exceeded by 0.62 years\n- Vacant period (1.5 years) does NOT count toward limit\n- Taxable period: 0.62/11.37 years = 5.45%\n- Total capital gain: $617,500\n- After time apportionment and 50% CGT discount\n- **NET CAPITAL GAIN: $16,839**\n\n**Expected Result:**\n- NET CAPITAL GAIN = $16,839\n- Only 0.62 years exceeding six-year limit is taxable\n\n**ATO Rules Applied:**\n- Section 118-145 ITAA 1997 (Six-Year Absence Rule)\n- Only periods producing income count toward six-year limit\n- Vacant periods do NOT count against the limit\n- Section 115-25 ITAA 1997 (50% CGT discount)",
             "holdingYears": 11.4
           }
         ],
@@ -8633,16 +7873,17 @@
           }
         ]
       },
-      "userQuery": "Batch 1,2,3 - Scenario 34: Vacant Periods Between Rentals with Extended Rental - Property at 99 Waterfront Way, Hamilton QLD 4007, with vacant period between two rental periods",
+      "userQuery": "Property at 99 Waterfront Way, Hamilton QLD 4007, with vacant period between two rental periods",
       "australianResident": true
     },
     {
       "id": "scenariotestjsons/batch123_scenario39_investment_then_main_residence.json",
       "filename": "batch123_scenario39_investment_then_main_residence.json",
       "path": "scenariotestjsons",
-      "title": "Investment Then MR (Batch 123)",
-      "description": "Batch 1,2,3 - Scenario 39: Investment Property Then Main Residence - Property at 88 Parkland Drive, Paddington QLD 4064, investment property first, then converted to main residence",
+      "title": "Investment Then Main Residence",
+      "description": "Property at 88 Parkland Drive, Paddington QLD 4064, investment property first, then converted to main residence",
       "category": "Main Residence",
+      "subcategory": "Partial - Time Apportionment",
       "propertyCount": 1,
       "propertyDetails": {
         "properties": [
@@ -8680,7 +7921,7 @@
                 "price": "$1,150,000"
               }
             ],
-            "notes": "**Batch 1,2,3 - Scenario 39: Investment Property Then Main Residence**\n\nProperty purchased as investment, rented, then converted to main residence. Cannot use six-year absence rule.\n\n**Timeline:**\n- 1 Sep 2015 to 30 Jun 2019: Rental/Investment (3.83 years) - taxable\n- 30 Jun 2019 to 15 Nov 2024: Main residence (5.38 years) - exempt\n- Total ownership: 9.21 years\n\n**Key Calculations:**\n- Total capital gain: $462,650\n- Time apportionment:\n  - Investment period: 3.83/9.21 years = 41.6% taxable\n  - Main residence period: 5.38/9.21 years = 58.4% exempt\n- Six-year absence rule DOES NOT apply (property must be main residence before renting)\n- Taxable capital gain: $462,650 × 41.6% = $192,462\n- After 50% CGT discount: $192,462 × 50% = $96,231\n- **NET CAPITAL GAIN: $96,231**\n\n**Expected Result:**\n- NET CAPITAL GAIN = $96,231\n- 41.6% of ownership period is taxable (investment period)\n\n**ATO Rules Applied:**\n- Section 118-185 ITAA 1997 (Partial Main Residence Exemption)\n- Section 118-145 ITAA 1997 (Six-Year Rule - NOT applicable)\n- Six-year absence rule only applies if property was main residence BEFORE being rented\n- Section 115-25 ITAA 1997 (50% CGT discount)\n- Time apportionment method",
+            "notes": "Property purchased as investment, rented, then converted to main residence. Cannot use six-year absence rule.\n\n**Timeline:**\n- 1 Sep 2015 to 30 Jun 2019: Rental/Investment (3.83 years) - taxable\n- 30 Jun 2019 to 15 Nov 2024: Main residence (5.38 years) - exempt\n- Total ownership: 9.21 years\n\n**Key Calculations:**\n- Total capital gain: $462,650\n- Time apportionment:\n  - Investment period: 3.83/9.21 years = 41.6% taxable\n  - Main residence period: 5.38/9.21 years = 58.4% exempt\n- Six-year absence rule DOES NOT apply (property must be main residence before renting)\n- Taxable capital gain: $462,650 × 41.6% = $192,462\n- After 50% CGT discount: $192,462 × 50% = $96,231\n- **NET CAPITAL GAIN: $96,231**\n\n**Expected Result:**\n- NET CAPITAL GAIN = $96,231\n- 41.6% of ownership period is taxable (investment period)\n\n**ATO Rules Applied:**\n- Section 118-185 ITAA 1997 (Partial Main Residence Exemption)\n- Section 118-145 ITAA 1997 (Six-Year Rule - NOT applicable)\n- Six-year absence rule only applies if property was main residence BEFORE being rented\n- Section 115-25 ITAA 1997 (50% CGT discount)\n- Time apportionment method",
             "holdingYears": 9.2
           }
         ],
@@ -8728,7 +7969,7 @@
           }
         ]
       },
-      "userQuery": "Batch 1,2,3 - Scenario 39: Investment Property Then Main Residence - Property at 88 Parkland Drive, Paddington QLD 4064, investment property first, then converted to main residence",
+      "userQuery": "Property at 88 Parkland Drive, Paddington QLD 4064, investment property first, then converted to main residence",
       "australianResident": true
     },
     {
@@ -8736,8 +7977,9 @@
       "filename": "batch123_scenario24_deceased_estate_two_years.json",
       "path": "scenariotestjsons",
       "title": "Deceased Estate (Within 2 Years)",
-      "description": "Batch 1,2,3 - Scenario 24: Deceased Estate - Two-Year Exemption - Property at 127 Heritage Street, Ashgrove QLD 4060, inherited and sold within 2 years",
+      "description": "Two-Year Exemption - Property at 127 Heritage Street, Ashgrove QLD 4060, inherited and sold within 2 years",
       "category": "Ownership Changes",
+      "subcategory": "Inheritance/Death",
       "propertyCount": 1,
       "propertyDetails": {
         "properties": [
@@ -8765,7 +8007,7 @@
                 "price": "$715,000"
               }
             ],
-            "notes": "**Batch 1,2,3 - Scenario 24: Deceased Estate - Two-Year Exemption**\n\nProperty was deceased's main residence. Beneficiary sold within 2 years of death, qualifying for full main residence exemption.\n\n**Timeline:**\n- 15 Jun 1995 to 10 Mar 2023: Main residence (deceased) - 27.73 years\n- 10 Mar 2023: Death of owner - property passes to beneficiary\n- 10 Mar 2023 to 15 Nov 2024: Deceased estate period (1.69 years - within 2-year limit)\n\n**Key Rules:**\n- Beneficiary's cost base: Market value at date of death ($685,000)\n- Beneficiary sold within 2 years: Qualifies for full main residence exemption\n- Capital gain for beneficiary: $715,000 - $685,000 - $20,075 = $9,925\n- **NO CGT PAYABLE** - Two-year deceased estate exemption applies\n\n**Expected Result:**\n- NO CGT PAYABLE - Two-year deceased estate exemption (s118-195 ITAA 1997)\n\n**ATO Rules Applied:**\n- Section 118-195 ITAA 1997 (Deceased Estate Exemption)\n- If beneficiary sells within 2 years of death, main residence exemption continues\n- Section 128-15 ITAA 1997 (Market value cost base for beneficiary)",
+            "notes": "**Two-Year Exemption**\n\nProperty was deceased's main residence. Beneficiary sold within 2 years of death, qualifying for full main residence exemption.\n\n**Timeline:**\n- 15 Jun 1995 to 10 Mar 2023: Main residence (deceased) - 27.73 years\n- 10 Mar 2023: Death of owner - property passes to beneficiary\n- 10 Mar 2023 to 15 Nov 2024: Deceased estate period (1.69 years - within 2-year limit)\n\n**Key Rules:**\n- Beneficiary's cost base: Market value at date of death ($685,000)\n- Beneficiary sold within 2 years: Qualifies for full main residence exemption\n- Capital gain for beneficiary: $715,000 - $685,000 - $20,075 = $9,925\n- **NO CGT PAYABLE** - Two-year deceased estate exemption applies\n\n**Expected Result:**\n- NO CGT PAYABLE - Two-year deceased estate exemption (s118-195 ITAA 1997)\n\n**ATO Rules Applied:**\n- Section 118-195 ITAA 1997 (Deceased Estate Exemption)\n- If beneficiary sells within 2 years of death, main residence exemption continues\n- Section 128-15 ITAA 1997 (Market value cost base for beneficiary)",
             "holdingYears": 29.4
           }
         ],
@@ -8799,7 +8041,7 @@
           }
         ]
       },
-      "userQuery": "Batch 1,2,3 - Scenario 24: Deceased Estate - Two-Year Exemption - Property at 127 Heritage Street, Ashgrove QLD 4060, inherited and sold within 2 years",
+      "userQuery": "Two-Year Exemption - Property at 127 Heritage Street, Ashgrove QLD 4060, inherited and sold within 2 years",
       "australianResident": true
     },
     {
@@ -8807,8 +8049,9 @@
       "filename": "batch123_scenario25_beneficiary_moves_in.json",
       "path": "scenariotestjsons",
       "title": "Beneficiary Moves Into Inherited Property",
-      "description": "Batch 1,2,3 - Scenario 25: Deceased Estate - Beneficiary Moves In - Property at 56 Willow Grove, New Farm QLD 4005, inherited and beneficiary moved in before selling",
+      "description": "Beneficiary Moves In - Property at 56 Willow Grove, New Farm QLD 4005, inherited and beneficiary moved in before selling",
       "category": "Ownership Changes",
+      "subcategory": "Inheritance/Death",
       "propertyCount": 1,
       "propertyDetails": {
         "properties": [
@@ -8841,7 +8084,7 @@
                 "price": "$935,000"
               }
             ],
-            "notes": "**Batch 1,2,3 - Scenario 25: Deceased Estate - Beneficiary Moves In**\n\nInherited property where beneficiary moved in and used as main residence before selling.\n\n**Timeline:**\n- 20 Aug 2005 to 25 Nov 2022: Main residence (deceased) - 17.27 years\n- 25 Nov 2022: Death of owner - property passes to beneficiary at market value $890,000\n- 25 Nov 2022 to 1 Feb 2023: Estate period (2.2 months)\n- 1 Feb 2023 to 15 Oct 2024: Beneficiary's main residence (1.71 years)\n\n**Key Calculations:**\n- Beneficiary's cost base: Market value at death = $890,000\n- Capital gain for beneficiary: $935,000 - $890,000 - $25,725 = $19,275\n- Beneficiary used as main residence: Full exemption applies\n- **NO CGT PAYABLE** - Beneficiary's main residence exemption\n\n**Expected Result:**\n- NO CGT PAYABLE - Property was beneficiary's main residence\n\n**ATO Rules Applied:**\n- Section 128-15 ITAA 1997 (Market value cost base for beneficiary)\n- Section 118-110 ITAA 1997 (Main Residence Exemption)\n- Beneficiary entitled to main residence exemption for period they lived in property",
+            "notes": "**Beneficiary Moves In**\n\nInherited property where beneficiary moved in and used as main residence before selling.\n\n**Timeline:**\n- 20 Aug 2005 to 25 Nov 2022: Main residence (deceased) - 17.27 years\n- 25 Nov 2022: Death of owner - property passes to beneficiary at market value $890,000\n- 25 Nov 2022 to 1 Feb 2023: Estate period (2.2 months)\n- 1 Feb 2023 to 15 Oct 2024: Beneficiary's main residence (1.71 years)\n\n**Key Calculations:**\n- Beneficiary's cost base: Market value at death = $890,000\n- Capital gain for beneficiary: $935,000 - $890,000 - $25,725 = $19,275\n- Beneficiary used as main residence: Full exemption applies\n- **NO CGT PAYABLE** - Beneficiary's main residence exemption\n\n**Expected Result:**\n- NO CGT PAYABLE - Property was beneficiary's main residence\n\n**ATO Rules Applied:**\n- Section 128-15 ITAA 1997 (Market value cost base for beneficiary)\n- Section 118-110 ITAA 1997 (Main Residence Exemption)\n- Beneficiary entitled to main residence exemption for period they lived in property",
             "holdingYears": 19.2
           }
         ],
@@ -8882,7 +8125,7 @@
           }
         ]
       },
-      "userQuery": "Batch 1,2,3 - Scenario 25: Deceased Estate - Beneficiary Moves In - Property at 56 Willow Grove, New Farm QLD 4005, inherited and beneficiary moved in before selling",
+      "userQuery": "Beneficiary Moves In - Property at 56 Willow Grove, New Farm QLD 4005, inherited and beneficiary moved in before selling",
       "australianResident": true
     },
     {
@@ -8890,8 +8133,9 @@
       "filename": "batch123_scenario29_relationship_breakdown.json",
       "path": "scenariotestjsons",
       "title": "Relationship Breakdown Rollover",
-      "description": "Batch 1,2,3 - Scenario 29: Relationship Breakdown with Rollover Relief - Property at 156 Bayside Avenue, Wynnum QLD 4178, transferred under Family Court order",
+      "description": "Property at 156 Bayside Avenue, Wynnum QLD 4178, transferred under Family Court order",
       "category": "Ownership Changes",
+      "subcategory": "Relationships",
       "propertyCount": 1,
       "propertyDetails": {
         "properties": [
@@ -8919,7 +8163,7 @@
                 "price": "$925,000"
               }
             ],
-            "notes": "**Batch 1,2,3 - Scenario 29: Relationship Breakdown with Rollover Relief**\n\nJoint property, relationship breakdown, transfer to one partner under Family Court order with rollover relief.\n\n**Timeline:**\n- 20 Sep 2014 to 15 Mar 2021: Main residence (couple) - 6.48 years\n- 15 Mar 2021: Relationship breakdown, one partner moves out\n- 30 Jun 2023: Transfer to remaining partner (rollover relief)\n- 30 Jun 2023 to 20 Nov 2024: Main residence (remaining partner) - 1.39 years\n\n**Key Rules:**\n- Rollover relief under s126-5 ITAA 1997\n- Transferee (remaining partner) inherits transferor's cost base\n- No CGT event on transfer under court order\n- Remaining partner's cost base: Original joint cost base ($536,825)\n- Property was main residence throughout for remaining partner\n- **NO CGT PAYABLE** - Full main residence exemption\n\n**Expected Result:**\n- NO CGT PAYABLE - Main residence exemption applies\n- Capital gain (before exemption): $360,650\n- Full exemption for remaining partner\n\n**ATO Rules Applied:**\n- Section 126-5 ITAA 1997 (Rollover Relief - Marriage/Relationship Breakdown)\n- Section 118-110 ITAA 1997 (Main Residence Exemption)\n- Transferee continues with transferor's cost base\n- Property was main residence for remaining partner throughout",
+            "notes": "Joint property, relationship breakdown, transfer to one partner under Family Court order with rollover relief.\n\n**Timeline:**\n- 20 Sep 2014 to 15 Mar 2021: Main residence (couple) - 6.48 years\n- 15 Mar 2021: Relationship breakdown, one partner moves out\n- 30 Jun 2023: Transfer to remaining partner (rollover relief)\n- 30 Jun 2023 to 20 Nov 2024: Main residence (remaining partner) - 1.39 years\n\n**Key Rules:**\n- Rollover relief under s126-5 ITAA 1997\n- Transferee (remaining partner) inherits transferor's cost base\n- No CGT event on transfer under court order\n- Remaining partner's cost base: Original joint cost base ($536,825)\n- Property was main residence throughout for remaining partner\n- **NO CGT PAYABLE** - Full main residence exemption\n\n**Expected Result:**\n- NO CGT PAYABLE - Main residence exemption applies\n- Capital gain (before exemption): $360,650\n- Full exemption for remaining partner\n\n**ATO Rules Applied:**\n- Section 126-5 ITAA 1997 (Rollover Relief - Marriage/Relationship Breakdown)\n- Section 118-110 ITAA 1997 (Main Residence Exemption)\n- Transferee continues with transferor's cost base\n- Property was main residence for remaining partner throughout",
             "holdingYears": 10.2
           }
         ],
@@ -8953,7 +8197,7 @@
           }
         ]
       },
-      "userQuery": "Batch 1,2,3 - Scenario 29: Relationship Breakdown with Rollover Relief - Property at 156 Bayside Avenue, Wynnum QLD 4178, transferred under Family Court order",
+      "userQuery": "Property at 156 Bayside Avenue, Wynnum QLD 4178, transferred under Family Court order",
       "australianResident": true
     },
     {
@@ -8961,8 +8205,9 @@
       "filename": "batch123_scenario37_deceased_estate_covid.json",
       "path": "scenariotestjsons",
       "title": "Deceased Estate - COVID Extension",
-      "description": "Batch 1,2,3 - Scenario 37: Deceased Estate - COVID-19 Extension Period - Property at 67 Garden Street, Windsor QLD 4030, sold with COVID extension",
+      "description": "COVID-19 Extension Period - Property at 67 Garden Street, Windsor QLD 4030, sold with COVID extension",
       "category": "Ownership Changes",
+      "subcategory": "Inheritance/Death",
       "propertyCount": 1,
       "propertyDetails": {
         "properties": [
@@ -8990,7 +8235,7 @@
                 "price": "$825,000"
               }
             ],
-            "notes": "**Batch 1,2,3 - Scenario 37: Deceased Estate - COVID-19 Extension Period**\n\nProperty was deceased's main residence. Beneficiary sold within extended period due to COVID-19 delays.\n\n**Timeline:**\n- 20 Nov 2002 to 15 Apr 2021: Main residence (deceased) - 18.4 years\n- 15 Apr 2021: Death of owner - property passes to beneficiary\n- 15 Apr 2021 to 20 Feb 2024: Deceased estate period (2.85 years)\n- Sale occurred 10 months beyond normal 2-year limit\n\n**Key Rules:**\n- Normal two-year exemption: 15 Apr 2021 to 15 Apr 2023\n- COVID-19 extension available for delays in selling\n- PCG 2021/4 provides additional time for COVID-affected estates\n- Sale delays attributable to COVID-19 lockdowns and market conditions\n- **NO CGT PAYABLE** - Extended deceased estate exemption applies\n\n**Expected Result:**\n- NO CGT PAYABLE - COVID-19 extended deceased estate exemption (PCG 2021/4)\n- Beneficiary's cost base: Market value at death ($785,000)\n- Capital gain (before exemption): $17,125\n- Full exemption under extended provisions\n\n**ATO Rules Applied:**\n- Section 118-195 ITAA 1997 (Deceased Estate Exemption)\n- PCG 2021/4 (COVID-19 Extension for Deceased Estates)\n- Commissioner exercises discretion for COVID-affected sales\n- Section 128-15 ITAA 1997 (Market value cost base for beneficiary)",
+            "notes": "**COVID-19 Extension Period**\n\nProperty was deceased's main residence. Beneficiary sold within extended period due to COVID-19 delays.\n\n**Timeline:**\n- 20 Nov 2002 to 15 Apr 2021: Main residence (deceased) - 18.4 years\n- 15 Apr 2021: Death of owner - property passes to beneficiary\n- 15 Apr 2021 to 20 Feb 2024: Deceased estate period (2.85 years)\n- Sale occurred 10 months beyond normal 2-year limit\n\n**Key Rules:**\n- Normal two-year exemption: 15 Apr 2021 to 15 Apr 2023\n- COVID-19 extension available for delays in selling\n- PCG 2021/4 provides additional time for COVID-affected estates\n- Sale delays attributable to COVID-19 lockdowns and market conditions\n- **NO CGT PAYABLE** - Extended deceased estate exemption applies\n\n**Expected Result:**\n- NO CGT PAYABLE - COVID-19 extended deceased estate exemption (PCG 2021/4)\n- Beneficiary's cost base: Market value at death ($785,000)\n- Capital gain (before exemption): $17,125\n- Full exemption under extended provisions\n\n**ATO Rules Applied:**\n- Section 118-195 ITAA 1997 (Deceased Estate Exemption)\n- PCG 2021/4 (COVID-19 Extension for Deceased Estates)\n- Commissioner exercises discretion for COVID-affected sales\n- Section 128-15 ITAA 1997 (Market value cost base for beneficiary)",
             "holdingYears": 21.3
           }
         ],
@@ -9024,16 +8269,17 @@
           }
         ]
       },
-      "userQuery": "Batch 1,2,3 - Scenario 37: Deceased Estate - COVID-19 Extension Period - Property at 67 Garden Street, Windsor QLD 4030, sold with COVID extension",
+      "userQuery": "COVID-19 Extension Period - Property at 67 Garden Street, Windsor QLD 4030, sold with COVID extension",
       "australianResident": true
     },
     {
       "id": "scenariotestjsons/batch123_scenario26_pre_cgt_major_improvements.json",
       "filename": "batch123_scenario26_pre_cgt_major_improvements.json",
       "path": "scenariotestjsons",
-      "title": "Pre-CGT Improvements (Batch 123)",
-      "description": "Batch 1,2,3 - Scenario 26: Pre-CGT Property with Major Improvements - Property at 223 River Road, Bulimba QLD 4171, pre-CGT with major improvements exceeding 50% of value",
+      "title": "Pre-CGT with Major Improvements",
+      "description": "Property at 223 River Road, Bulimba QLD 4171, pre-CGT with major improvements exceeding 50% of value",
       "category": "Special Rules & Exemptions",
+      "subcategory": "Pre-CGT",
       "propertyCount": 1,
       "propertyDetails": {
         "properties": [
@@ -9066,7 +8312,7 @@
                 "price": "$1,450,000"
               }
             ],
-            "notes": "**Batch 1,2,3 - Scenario 26: Pre-CGT Property with Major Improvements**\n\nProperty acquired before CGT commencement (20 Sep 1985). Major improvements in 2010 exceeded 50% of property value, triggering deemed post-CGT acquisition.\n\n**Timeline:**\n- 15 Mar 1982: Purchase (pre-CGT)\n- 15 Mar 1982 to 20 Aug 2024: Main residence (42.43 years)\n- 10 May 2010: Major improvements ($180,000) exceed 50% of value ($320,000)\n\n**Key Rules:**\n- Pre-CGT property normally exempt from CGT\n- **EXCEPTION**: Major improvements exceeding 50% of value trigger deemed acquisition\n- Deemed acquisition date: 10 May 2010\n- Cost base becomes: Market value at improvement date ($320,000) + improvements ($180,000) = $500,000\n- Capital gain calculated from deemed acquisition date\n- Property was main residence throughout: **NO CGT PAYABLE**\n\n**Expected Result:**\n- NO CGT PAYABLE - Main residence exemption applies despite major improvements rule\n\n**ATO Rules Applied:**\n- Section 108-70 ITAA 1997 (Major Improvements to Pre-CGT Property)\n- Section 118-110 ITAA 1997 (Main Residence Exemption)\n- Improvements > 50% of value → deemed post-CGT acquisition\n- But main residence exemption still applies if used as main residence",
+            "notes": "Property acquired before CGT commencement (20 Sep 1985). Major improvements in 2010 exceeded 50% of property value, triggering deemed post-CGT acquisition.\n\n**Timeline:**\n- 15 Mar 1982: Purchase (pre-CGT)\n- 15 Mar 1982 to 20 Aug 2024: Main residence (42.43 years)\n- 10 May 2010: Major improvements ($180,000) exceed 50% of value ($320,000)\n\n**Key Rules:**\n- Pre-CGT property normally exempt from CGT\n- **EXCEPTION**: Major improvements exceeding 50% of value trigger deemed acquisition\n- Deemed acquisition date: 10 May 2010\n- Cost base becomes: Market value at improvement date ($320,000) + improvements ($180,000) = $500,000\n- Capital gain calculated from deemed acquisition date\n- Property was main residence throughout: **NO CGT PAYABLE**\n\n**Expected Result:**\n- NO CGT PAYABLE - Main residence exemption applies despite major improvements rule\n\n**ATO Rules Applied:**\n- Section 108-70 ITAA 1997 (Major Improvements to Pre-CGT Property)\n- Section 118-110 ITAA 1997 (Main Residence Exemption)\n- Improvements > 50% of value → deemed post-CGT acquisition\n- But main residence exemption still applies if used as main residence",
             "holdingYears": 42.4
           }
         ],
@@ -9107,16 +8353,17 @@
           }
         ]
       },
-      "userQuery": "Batch 1,2,3 - Scenario 26: Pre-CGT Property with Major Improvements - Property at 223 River Road, Bulimba QLD 4171, pre-CGT with major improvements exceeding 50% of value",
+      "userQuery": "Property at 223 River Road, Bulimba QLD 4171, pre-CGT with major improvements exceeding 50% of value",
       "australianResident": true
     },
     {
       "id": "scenariotestjsons/batch123_scenario27_large_rural_property.json",
       "filename": "batch123_scenario27_large_rural_property.json",
       "path": "scenariotestjsons",
-      "title": "Large Rural Property (Batch 123)",
-      "description": "Batch 1,2,3 - Scenario 27: Large Rural Property Exceeding 2 Hectares - Property at 1250 Rural Road, Samford Valley QLD 4520, 5.8 hectares rural property",
+      "title": "Large Rural Property (>2 Hectares)",
+      "description": "Property at 1250 Rural Road, Samford Valley QLD 4520, 5.8 hectares rural property",
       "category": "Special Rules & Exemptions",
+      "subcategory": "Partial Use",
       "propertyCount": 1,
       "propertyDetails": {
         "properties": [
@@ -9144,7 +8391,7 @@
                 "price": "$2,400,000"
               }
             ],
-            "notes": "**Batch 1,2,3 - Scenario 27: Large Rural Property Exceeding 2 Hectares**\n\nRural property with 5.8 hectares of land - exceeds the 2 hectare limit for automatic full main residence exemption.\n\n**Timeline:**\n- 15 Jan 2012 to 30 Sep 2024: Main residence (12.71 years)\n- Total land area: 5.8 hectares (58,000 m²)\n- Exempt area: 2 hectares (20,000 m²) - dwelling + curtilage\n- Taxable area: 3.8 hectares (38,000 m²)\n\n**Key Calculations:**\n- Total capital gain: $1,088,500\n- Area apportionment:\n  - Exempt: 2 ha / 5.8 ha = 34.5%\n  - Taxable: 3.8 ha / 5.8 ha = 65.5%\n- Taxable capital gain: $1,088,500 × 65.5% = $713,000\n- After 50% CGT discount: $713,000 × 50% = $356,500\n- **NET CAPITAL GAIN: $356,500**\n\n**Expected Result:**\n- NET CAPITAL GAIN = $356,500\n- 65.5% of capital gain is taxable (land exceeding 2 hectares)\n\n**ATO Rules Applied:**\n- Section 118-120 ITAA 1997 (Adjacent Land)\n- Main residence exemption limited to 2 hectares unless larger area has use and enjoyment character\n- Section 115-25 ITAA 1997 (50% CGT discount)\n- Area apportionment method applied",
+            "notes": "**exceeds the 2 hectare limit for automatic full main residence exemption.\n\n**Timeline:**\n- 15 Jan 2012 to 30 Sep 2024: Main residence (12.71 years)\n- Total land area: 5.8 hectares (58,000 m²)\n- Exempt area: 2 hectares (20,000 m²) - dwelling + curtilage\n- Taxable area: 3.8 hectares (38,000 m²)\n\n**Key Calculations:**\n- Total capital gain: $1,088,500\n- Area apportionment:\n  - Exempt: 2 ha / 5.8 ha = 34.5%\n  - Taxable: 3.8 ha / 5.8 ha = 65.5%\n- Taxable capital gain: $1,088,500 × 65.5% = $713,000\n- After 50% CGT discount: $713,000 × 50% = $356,500\n- **NET CAPITAL GAIN: $356,500**\n\n**Expected Result:**\n- NET CAPITAL GAIN = $356,500\n- 65.5% of capital gain is taxable (land exceeding 2 hectares)\n\n**ATO Rules Applied:**\n- Section 118-120 ITAA 1997 (Adjacent Land)\n- Main residence exemption limited to 2 hectares unless larger area has use and enjoyment character\n- Section 115-25 ITAA 1997 (50% CGT discount)\n- Area apportionment method applied",
             "holdingYears": 12.7
           }
         ],
@@ -9178,16 +8425,17 @@
           }
         ]
       },
-      "userQuery": "Batch 1,2,3 - Scenario 27: Large Rural Property Exceeding 2 Hectares - Property at 1250 Rural Road, Samford Valley QLD 4520, 5.8 hectares rural property",
+      "userQuery": "Property at 1250 Rural Road, Samford Valley QLD 4520, 5.8 hectares rural property",
       "australianResident": true
     },
     {
       "id": "scenariotestjsons/batch123_scenario28_granny_flat_arrangement.json",
       "filename": "batch123_scenario28_granny_flat_arrangement.json",
       "path": "scenariotestjsons",
-      "title": "Granny Flat (Batch 123)",
-      "description": "Batch 1,2,3 - Scenario 28: Granny Flat Arrangement - Property at 88 Elm Street, Indooroopilly QLD 4068, with granny flat for elderly parent under formal arrangement",
+      "title": "Granny Flat Arrangement",
+      "description": "Property at 88 Elm Street, Indooroopilly QLD 4068, with granny flat for elderly parent under formal arrangement",
       "category": "Special Rules & Exemptions",
+      "subcategory": "Partial Use",
       "propertyCount": 1,
       "propertyDetails": {
         "properties": [
@@ -9220,7 +8468,7 @@
                 "price": "$1,150,000"
               }
             ],
-            "notes": "**Batch 1,2,3 - Scenario 28: Granny Flat Arrangement**\n\nProperty with granny flat built for elderly parent under formal written granny flat arrangement. No rent charged.\n\n**Timeline:**\n- 1 Apr 2010 to 10 Oct 2024: Main residence (14.53 years)\n- 15 Jun 2015: Granny flat constructed ($95,000)\n- Elderly parent lived in granny flat under written agreement (no rent)\n\n**Key Rules:**\n- Granny flat arrangement under written agreement\n- No rent charged to parent\n- Property can still qualify for full main residence exemption\n- Granny flat is ancillary to main dwelling\n- **NO CGT PAYABLE** - Full main residence exemption applies\n\n**Expected Result:**\n- NO CGT PAYABLE - Granny flat arrangement doesn't affect main residence exemption\n- Total capital gain (before exemption): $443,450\n- Full exemption applies\n\n**ATO Rules Applied:**\n- Section 118-110 ITAA 1997 (Main Residence Exemption)\n- TD 2004/26 (Granny Flat Arrangements)\n- Formal written granny flat arrangement doesn't constitute income-producing use\n- Property remains eligible for full main residence exemption",
+            "notes": "Property with granny flat built for elderly parent under formal written granny flat arrangement. No rent charged.\n\n**Timeline:**\n- 1 Apr 2010 to 10 Oct 2024: Main residence (14.53 years)\n- 15 Jun 2015: Granny flat constructed ($95,000)\n- Elderly parent lived in granny flat under written agreement (no rent)\n\n**Key Rules:**\n- Granny flat arrangement under written agreement\n- No rent charged to parent\n- Property can still qualify for full main residence exemption\n- Granny flat is ancillary to main dwelling\n- **NO CGT PAYABLE** - Full main residence exemption applies\n\n**Expected Result:**\n- NO CGT PAYABLE - Granny flat arrangement doesn't affect main residence exemption\n- Total capital gain (before exemption): $443,450\n- Full exemption applies\n\n**ATO Rules Applied:**\n- Section 118-110 ITAA 1997 (Main Residence Exemption)\n- TD 2004/26 (Granny Flat Arrangements)\n- Formal written granny flat arrangement doesn't constitute income-producing use\n- Property remains eligible for full main residence exemption",
             "holdingYears": 14.5
           }
         ],
@@ -9261,16 +8509,17 @@
           }
         ]
       },
-      "userQuery": "Batch 1,2,3 - Scenario 28: Granny Flat Arrangement - Property at 88 Elm Street, Indooroopilly QLD 4068, with granny flat for elderly parent under formal arrangement",
+      "userQuery": "Property at 88 Elm Street, Indooroopilly QLD 4068, with granny flat for elderly parent under formal arrangement",
       "australianResident": true
     },
     {
       "id": "scenariotestjsons/batch123_scenario30_home_office_business.json",
       "filename": "batch123_scenario30_home_office_business.json",
       "path": "scenariotestjsons",
-      "title": "Home Office (Batch 123)",
-      "description": "Batch 1,2,3 - Scenario 30: Home Office Business Use - Property at 72 Carlton Terrace, Manly QLD 4179, with 20% business use for home office",
+      "title": "Home Office Business Use",
+      "description": "Property at 72 Carlton Terrace, Manly QLD 4179, with 20% business use for home office",
       "category": "Special Rules & Exemptions",
+      "subcategory": "Partial Use",
       "propertyCount": 1,
       "propertyDetails": {
         "properties": [
@@ -9298,7 +8547,7 @@
                 "price": "$1,280,000"
               }
             ],
-            "notes": "**Batch 1,2,3 - Scenario 30: Home Office Business Use**\n\nProperty used as main residence with one room (20% floor area) used for business from 2018. Home office expenses claimed.\n\n**Timeline:**\n- 1 Jul 2016 to 1 Jan 2018: Full main residence (1.5 years)\n- 1 Jan 2018 to 1 Oct 2024: Main residence + home office (6.75 years)\n  - 80% main residence\n  - 20% business use (claimed home office expenses)\n- Total ownership: 8.25 years\n\n**Key Calculations:**\n- Total capital gain: $559,825\n- Business use portion: 20% × 6.75/8.25 years = 16.36% taxable\n- Main residence portion: 83.64% exempt\n- Taxable capital gain: $559,825 × 16.36% = $91,587\n- After 50% CGT discount: $91,587 × 50% = $45,794\n- **NET CAPITAL GAIN: $45,794**\n\n**Expected Result:**\n- NET CAPITAL GAIN = $45,794\n- 16.36% of capital gain is taxable (business use proportion)\n\n**ATO Rules Applied:**\n- Section 118-190 ITAA 1997 (Business Use of Dwelling)\n- When part of home used for business and expenses claimed, that portion not exempt\n- Area × time apportionment method\n- Section 115-25 ITAA 1997 (50% CGT discount)",
+            "notes": "Property used as main residence with one room (20% floor area) used for business from 2018. Home office expenses claimed.\n\n**Timeline:**\n- 1 Jul 2016 to 1 Jan 2018: Full main residence (1.5 years)\n- 1 Jan 2018 to 1 Oct 2024: Main residence + home office (6.75 years)\n  - 80% main residence\n  - 20% business use (claimed home office expenses)\n- Total ownership: 8.25 years\n\n**Key Calculations:**\n- Total capital gain: $559,825\n- Business use portion: 20% × 6.75/8.25 years = 16.36% taxable\n- Main residence portion: 83.64% exempt\n- Taxable capital gain: $559,825 × 16.36% = $91,587\n- After 50% CGT discount: $91,587 × 50% = $45,794\n- **NET CAPITAL GAIN: $45,794**\n\n**Expected Result:**\n- NET CAPITAL GAIN = $45,794\n- 16.36% of capital gain is taxable (business use proportion)\n\n**ATO Rules Applied:**\n- Section 118-190 ITAA 1997 (Business Use of Dwelling)\n- When part of home used for business and expenses claimed, that portion not exempt\n- Area × time apportionment method\n- Section 115-25 ITAA 1997 (50% CGT discount)",
             "holdingYears": 8.3
           }
         ],
@@ -9332,16 +8581,17 @@
           }
         ]
       },
-      "userQuery": "Batch 1,2,3 - Scenario 30: Home Office Business Use - Property at 72 Carlton Terrace, Manly QLD 4179, with 20% business use for home office",
+      "userQuery": "Property at 72 Carlton Terrace, Manly QLD 4179, with 20% business use for home office",
       "australianResident": true
     },
     {
       "id": "scenariotestjsons/batch123_scenario35_four_year_construction.json",
       "filename": "batch123_scenario35_four_year_construction.json",
       "path": "scenariotestjsons",
-      "title": "4-Year Construction (Batch 123)",
-      "description": "Batch 1,2,3 - Scenario 35: Four-Year Construction Rule - Vacant land at Lot 42 Hillside Crescent, Chapel Hill QLD 4069, dwelling constructed and moved in within 4 years",
+      "title": "4-Year Construction Rule",
+      "description": "Vacant land at Lot 42 Hillside Crescent, Chapel Hill QLD 4069, dwelling constructed and moved in within 4 years",
       "category": "Special Rules & Exemptions",
+      "subcategory": "Construction Rules",
       "propertyCount": 1,
       "propertyDetails": {
         "properties": [
@@ -9374,7 +8624,7 @@
                 "price": "$1,650,000"
               }
             ],
-            "notes": "**Batch 1,2,3 - Scenario 35: Four-Year Construction Rule**\n\nVacant land purchased and dwelling constructed. Moved in within 4 years of land purchase - qualifies for backdating.\n\n**Timeline:**\n- 15 Feb 2019: Vacant land purchased\n- 1 Jun 2019: Construction commenced\n- 15 Apr 2023: Construction completed, moved in (3.87 years from land purchase)\n- 15 Apr 2023 to 30 Sep 2024: Main residence (1.46 years)\n- Total ownership: 5.62 years\n\n**Key Rules:**\n- Four-year construction rule applies (s118-150 ITAA 1997)\n- Moved in within 4 years of land purchase (3.87 years)\n- Property treated as main residence from land acquisition date (15 Feb 2019)\n- **NO CGT PAYABLE** - Full main residence exemption from land acquisition\n\n**Expected Result:**\n- NO CGT PAYABLE - Four-year construction rule applies\n- Total capital gain (before exemption): $690,000\n- Full exemption (property treated as main residence from land purchase)\n\n**ATO Rules Applied:**\n- Section 118-150 ITAA 1997 (Four-Year Construction Rule)\n- If dwelling constructed and occupied within 4 years, backdated to land acquisition\n- Property treated as main residence from land purchase date",
+            "notes": "Vacant land purchased and dwelling constructed. Moved in within 4 years of land purchase - qualifies for backdating.\n\n**Timeline:**\n- 15 Feb 2019: Vacant land purchased\n- 1 Jun 2019: Construction commenced\n- 15 Apr 2023: Construction completed, moved in (3.87 years from land purchase)\n- 15 Apr 2023 to 30 Sep 2024: Main residence (1.46 years)\n- Total ownership: 5.62 years\n\n**Key Rules:**\n- Four-year construction rule applies (s118-150 ITAA 1997)\n- Moved in within 4 years of land purchase (3.87 years)\n- Property treated as main residence from land acquisition date (15 Feb 2019)\n- **NO CGT PAYABLE** - Full main residence exemption from land acquisition\n\n**Expected Result:**\n- NO CGT PAYABLE - Four-year construction rule applies\n- Total capital gain (before exemption): $690,000\n- Full exemption (property treated as main residence from land purchase)\n\n**ATO Rules Applied:**\n- Section 118-150 ITAA 1997 (Four-Year Construction Rule)\n- If dwelling constructed and occupied within 4 years, backdated to land acquisition\n- Property treated as main residence from land purchase date",
             "holdingYears": 5.6
           }
         ],
@@ -9415,16 +8665,17 @@
           }
         ]
       },
-      "userQuery": "Batch 1,2,3 - Scenario 35: Four-Year Construction Rule - Vacant land at Lot 42 Hillside Crescent, Chapel Hill QLD 4069, dwelling constructed and moved in within 4 years",
+      "userQuery": "Vacant land at Lot 42 Hillside Crescent, Chapel Hill QLD 4069, dwelling constructed and moved in within 4 years",
       "australianResident": true
     },
     {
       "id": "scenariotestjsons/batch123_scenario38_small_business_15_year.json",
       "filename": "batch123_scenario38_small_business_15_year.json",
       "path": "scenariotestjsons",
-      "title": "Small Business 15yr (Batch 123)",
-      "description": "Batch 1,2,3 - Scenario 38: Small Business 15-Year Exemption - Property at 234 Commercial Road, Newstead QLD 4006, business property held 18 years, owner 58 retiring",
+      "title": "Small Business 15-Year Exemption",
+      "description": "Property at 234 Commercial Road, Newstead QLD 4006, business property held 18 years, owner 58 retiring",
       "category": "Special Rules & Exemptions",
+      "subcategory": "Other",
       "propertyCount": 1,
       "propertyDetails": {
         "properties": [
@@ -9447,7 +8698,7 @@
                 "price": "$1,285,000"
               }
             ],
-            "notes": "**Batch 1,2,3 - Scenario 38: Small Business 15-Year Exemption**\n\nBusiness property held for over 15 years as active asset. Qualifies for small business 15-year exemption.\n\n**Timeline:**\n- 1 Jul 2006 to 30 Sep 2024: Business use (café) - 18.25 years\n- Continuous active asset of small business\n- Owner aged 58 at sale (over 55)\n- Retiring and permanently ceasing business\n\n**Key Conditions Met:**\n- Active asset of small business for > 15 years\n- Owner over 55 years old at time of CGT event\n- Retiring and permanently ceasing business\n- Satisfies basic conditions (CGT small business entity)\n- **NO CGT PAYABLE** - Full exemption under 15-year rule\n\n**Expected Result:**\n- NO CGT PAYABLE - Small business 15-year exemption (Subdivision 152-B)\n- Total capital gain (before exemption): $806,975\n- Full exemption - no CGT payable\n\n**ATO Rules Applied:**\n- Subdivision 152-B ITAA 1997 (Small Business 15-Year Exemption)\n- Section 152-10 (Basic conditions for relief)\n- Active asset held for at least 15 years\n- Owner 55+ and retiring\n- CGT proceeds exempt (no limit on exemption amount)",
+            "notes": "Business property held for over 15 years as active asset. Qualifies for small business 15-year exemption.\n\n**Timeline:**\n- 1 Jul 2006 to 30 Sep 2024: Business use (café) - 18.25 years\n- Continuous active asset of small business\n- Owner aged 58 at sale (over 55)\n- Retiring and permanently ceasing business\n\n**Key Conditions Met:**\n- Active asset of small business for > 15 years\n- Owner over 55 years old at time of CGT event\n- Retiring and permanently ceasing business\n- Satisfies basic conditions (CGT small business entity)\n- **NO CGT PAYABLE** - Full exemption under 15-year rule\n\n**Expected Result:**\n- NO CGT PAYABLE - Small business 15-year exemption (Subdivision 152-B)\n- Total capital gain (before exemption): $806,975\n- Full exemption - no CGT payable\n\n**ATO Rules Applied:**\n- Subdivision 152-B ITAA 1997 (Small Business 15-Year Exemption)\n- Section 152-10 (Basic conditions for relief)\n- Active asset held for at least 15 years\n- Owner 55+ and retiring\n- CGT proceeds exempt (no limit on exemption amount)",
             "holdingYears": 18.3
           }
         ],
@@ -9474,87 +8725,17 @@
           }
         ]
       },
-      "userQuery": "Batch 1,2,3 - Scenario 38: Small Business 15-Year Exemption - Property at 234 Commercial Road, Newstead QLD 4006, business property held 18 years, owner 58 retiring",
+      "userQuery": "Property at 234 Commercial Road, Newstead QLD 4006, business property held 18 years, owner 58 retiring",
       "australianResident": true
-    },
-    {
-      "id": "scenariotestjsons/batch123_scenario31_foreign_resident_life_event.json",
-      "filename": "batch123_scenario31_foreign_resident_life_event.json",
-      "path": "scenariotestjsons",
-      "title": "Foreign Resident Life Event (Batch 123)",
-      "description": "Batch 1,2,3 - Scenario 31: Foreign Resident - Life Event Exception - Property at 245 Skyline Drive, Sunshine Beach QLD 4567, became foreign resident due to work overseas",
-      "category": "Foreign Resident",
-      "propertyCount": 1,
-      "propertyDetails": {
-        "properties": [
-          {
-            "address": "245 Skyline Drive, Sunshine Beach QLD 4567",
-            "shortAddress": "245 Skyline Drive",
-            "purchasePrice": "$925,000",
-            "purchaseDate": "15 May 2015",
-            "salePrice": "$1,680,000",
-            "saleDate": "15 Sept 2024",
-            "keyEvents": [
-              {
-                "date": "15 May 2015",
-                "event": "Purchased",
-                "price": "$925,000"
-              },
-              {
-                "date": "15 May 2015",
-                "event": "Moved In",
-                "price": null
-              },
-              {
-                "date": "15 Sept 2024",
-                "event": "Sold",
-                "price": "$1,680,000"
-              }
-            ],
-            "notes": "**Batch 1,2,3 - Scenario 31: Foreign Resident - Life Event Exception**\n\nAustralian purchased property, became foreign resident due to work overseas. Eligible for life event exception.\n\n**Timeline:**\n- 15 May 2015 to 1 Aug 2020: Main residence (Australian resident) - 5.21 years\n- 1 Aug 2020: Became foreign resident (work overseas - life event)\n- 1 Aug 2020 to 15 Sep 2024: Foreign resident period (4.12 years)\n- Property not rented - kept available for use\n- Total ownership: 9.33 years\n\n**Key Rules:**\n- Post-9 May 2017: Foreign residents generally not eligible for main residence exemption\n- **EXCEPTION**: Life event (employment overseas) allows continued exemption\n- Property must not be rented (income-producing)\n- Must have been main residence before becoming foreign resident\n- Absence from Australia < 6 years qualifies\n- **NO CGT PAYABLE** - Life event exception applies\n\n**Expected Result:**\n- NO CGT PAYABLE - Foreign resident life event exception applies\n- Total capital gain (before exemption): $666,325\n- Full exemption under life event provisions\n\n**ATO Rules Applied:**\n- Section 118-145 ITAA 1997 (Absence from Dwelling)\n- TD 2019/20 (Foreign Resident Main Residence Exemption)\n- Life event exception for employment overseas\n- Property not used to produce income",
-            "holdingYears": 9.3
-          }
-        ],
-        "financialSummary": {
-          "totalPurchaseValue": "$925,000",
-          "totalSaleValue": "$1,680,000",
-          "totalGain": "$755,000",
-          "holdingPeriodYears": 9.3
-        },
-        "timeline": [
-          {
-            "date": "2015-05-15",
-            "displayDate": "15 May 2015",
-            "event": "Purchased",
-            "property": "245 Skyline Drive",
-            "price": "$925,000"
-          },
-          {
-            "date": "2015-05-15",
-            "displayDate": "15 May 2015",
-            "event": "Moved In",
-            "property": "245 Skyline Drive",
-            "price": null
-          },
-          {
-            "date": "2024-09-15",
-            "displayDate": "15 Sept 2024",
-            "event": "Sold",
-            "property": "245 Skyline Drive",
-            "price": "$1,680,000"
-          }
-        ]
-      },
-      "userQuery": "Batch 1,2,3 - Scenario 31: Foreign Resident - Life Event Exception - Property at 245 Skyline Drive, Sunshine Beach QLD 4567, became foreign resident due to work overseas",
-      "australianResident": false
     },
     {
       "id": "scenariotestjsons/batch123_scenario32_pre_may_2012_foreign.json",
       "filename": "batch123_scenario32_pre_may_2012_foreign.json",
       "path": "scenariotestjsons",
-      "title": "Pre-2012 Foreign (Batch 123)",
-      "description": "Batch 1,2,3 - Scenario 32: Foreign Resident - Pre-8 May 2012 Grandfathering - Property at 88 Pacific Highway, Coolangatta QLD 4225, purchased before 8 May 2012",
+      "title": "Pre-9 May 2012 Foreign Residency",
+      "description": "Pre-8 May 2012 Grandfathering - Property at 88 Pacific Highway, Coolangatta QLD 4225, purchased before 8 May 2012",
       "category": "Foreign Resident",
+      "subcategory": null,
       "propertyCount": 1,
       "propertyDetails": {
         "properties": [
@@ -9582,7 +8763,7 @@
                 "price": "$895,000"
               }
             ],
-            "notes": "**Batch 1,2,3 - Scenario 32: Foreign Resident - Pre-8 May 2012 Grandfathering**\n\nProperty purchased before 8 May 2012. Became foreign resident later - grandfathered under old rules.\n\n**Timeline:**\n- 10 Mar 2010 to 20 Jun 2018: Main residence (Australian resident) - 8.28 years\n- 20 Jun 2018: Became foreign resident (moved to Singapore)\n- 20 Jun 2018 to 10 Nov 2024: Foreign resident period (6.39 years)\n- Property not rented - kept available\n- Total ownership: 14.67 years\n\n**Key Rules:**\n- Property acquired **before 8 May 2012**\n- Grandfathered under old foreign resident rules\n- Main residence exemption available without life event requirement\n- Property must not be used to produce income\n- Six-year absence rule applies (not exceeded)\n- **NO CGT PAYABLE** - Grandfathered exemption applies\n\n**Expected Result:**\n- NO CGT PAYABLE - Pre-8 May 2012 grandfathering provisions apply\n- Total capital gain (before exemption): $406,700\n- Full exemption (property not rented, within 6-year rule)\n\n**ATO Rules Applied:**\n- Section 118-145 ITAA 1997 (Six-Year Absence Rule)\n- TD 2019/20 (Foreign Resident Main Residence Exemption)\n- Pre-8 May 2012 grandfathering provisions\n- No life event required for properties acquired before threshold date",
+            "notes": "**Pre-8 May 2012 Grandfathering**\n\nProperty purchased before 8 May 2012. Became foreign resident later - grandfathered under old rules.\n\n**Timeline:**\n- 10 Mar 2010 to 20 Jun 2018: Main residence (Australian resident) - 8.28 years\n- 20 Jun 2018: Became foreign resident (moved to Singapore)\n- 20 Jun 2018 to 10 Nov 2024: Foreign resident period (6.39 years)\n- Property not rented - kept available\n- Total ownership: 14.67 years\n\n**Key Rules:**\n- Property acquired **before 8 May 2012**\n- Grandfathered under old foreign resident rules\n- Main residence exemption available without life event requirement\n- Property must not be used to produce income\n- Six-year absence rule applies (not exceeded)\n- **NO CGT PAYABLE** - Grandfathered exemption applies\n\n**Expected Result:**\n- NO CGT PAYABLE - Pre-8 May 2012 grandfathering provisions apply\n- Total capital gain (before exemption): $406,700\n- Full exemption (property not rented, within 6-year rule)\n\n**ATO Rules Applied:**\n- Section 118-145 ITAA 1997 (Six-Year Absence Rule)\n- TD 2019/20 (Foreign Resident Main Residence Exemption)\n- Pre-8 May 2012 grandfathering provisions\n- No life event required for properties acquired before threshold date",
             "holdingYears": 14.7
           }
         ],
@@ -9616,16 +8797,17 @@
           }
         ]
       },
-      "userQuery": "Batch 1,2,3 - Scenario 32: Foreign Resident - Pre-8 May 2012 Grandfathering - Property at 88 Pacific Highway, Coolangatta QLD 4225, purchased before 8 May 2012",
+      "userQuery": "Pre-8 May 2012 Grandfathering - Property at 88 Pacific Highway, Coolangatta QLD 4225, purchased before 8 May 2012",
       "australianResident": false
     },
     {
       "id": "scenariotestjsons/batch123_scenario33_spouses_different_residences.json",
       "filename": "batch123_scenario33_spouses_different_residences.json",
       "path": "scenariotestjsons",
-      "title": "Spouses Different MR (Batch 123)",
-      "description": "Batch 1,2,3 - Scenario 33: Spouses with Different Main Residences - Two properties: Spouse 1 at 42 Northshore Boulevard, Murarrie; Spouse 2 at 156 Creek Road, Cannon Hill",
+      "title": "Spouses - Different Main Residences",
+      "description": "Two properties: Spouse 1 at 42 Northshore Boulevard, Murarrie; Spouse 2 at 156 Creek Road, Cannon Hill",
       "category": "Multi-Property Portfolios",
+      "subcategory": null,
       "propertyCount": 2,
       "propertyDetails": {
         "properties": [
@@ -9653,7 +8835,7 @@
                 "price": "$815,000"
               }
             ],
-            "notes": "**Batch 1,2,3 - Scenario 33: Spouses with Different Main Residences (Spouse 1)**\n\nSpouse 1's property at Murarrie. Couple has separate main residences due to work in different cities.\n\n**Timeline:**\n- 1 Feb 2018 to 20 Oct 2024: Spouse 1's main residence (6.72 years)\n- Spouse 2 lives separately at Cannon Hill property (work in different city)\n\n**Key Rules:**\n- Spouses can nominate different main residences under s118-110(2)\n- Applicable from 1 July 2018 (change in law)\n- Spouse 1 treats Murarrie property as main residence\n- **NO CGT PAYABLE** - Full main residence exemption for Spouse 1\n\n**Expected Result:**\n- NO CGT PAYABLE - Spouse 1's main residence exemption applies\n- Total capital gain (before exemption): $270,525\n- Full exemption\n\n**ATO Rules Applied:**\n- Section 118-110(2) ITAA 1997 (Separate Main Residences for Spouses)\n- From 1 July 2018, spouses can have different main residences\n- Each spouse entitled to exemption for their nominated residence",
+            "notes": "Spouse 1's property at Murarrie. Couple has separate main residences due to work in different cities.\n\n**Timeline:**\n- 1 Feb 2018 to 20 Oct 2024: Spouse 1's main residence (6.72 years)\n- Spouse 2 lives separately at Cannon Hill property (work in different city)\n\n**Key Rules:**\n- Spouses can nominate different main residences under s118-110(2)\n- Applicable from 1 July 2018 (change in law)\n- Spouse 1 treats Murarrie property as main residence\n- **NO CGT PAYABLE** - Full main residence exemption for Spouse 1\n\n**Expected Result:**\n- NO CGT PAYABLE - Spouse 1's main residence exemption applies\n- Total capital gain (before exemption): $270,525\n- Full exemption\n\n**ATO Rules Applied:**\n- Section 118-110(2) ITAA 1997 (Separate Main Residences for Spouses)\n- From 1 July 2018, spouses can have different main residences\n- Each spouse entitled to exemption for their nominated residence",
             "holdingYears": 6.7
           },
           {
@@ -9680,7 +8862,7 @@
                 "price": "$765,000"
               }
             ],
-            "notes": "**Batch 1,2,3 - Scenario 33: Spouses with Different Main Residences (Spouse 2)**\n\nSpouse 2's property at Cannon Hill. Couple has separate main residences due to work in different cities.\n\n**Timeline:**\n- 15 Mar 2018 to 5 Nov 2024: Spouse 2's main residence (6.64 years)\n- Spouse 1 lives separately at Murarrie property (work in different city)\n\n**Key Rules:**\n- Spouses can nominate different main residences under s118-110(2)\n- Applicable from 1 July 2018 (change in law)\n- Spouse 2 treats Cannon Hill property as main residence\n- **NO CGT PAYABLE** - Full main residence exemption for Spouse 2\n\n**Expected Result:**\n- NO CGT PAYABLE - Spouse 2's main residence exemption applies\n- Total capital gain (before exemption): $237,525\n- Full exemption\n\n**ATO Rules Applied:**\n- Section 118-110(2) ITAA 1997 (Separate Main Residences for Spouses)\n- From 1 July 2018, spouses can have different main residences\n- Each spouse entitled to exemption for their nominated residence",
+            "notes": "Spouse 2's property at Cannon Hill. Couple has separate main residences due to work in different cities.\n\n**Timeline:**\n- 15 Mar 2018 to 5 Nov 2024: Spouse 2's main residence (6.64 years)\n- Spouse 1 lives separately at Murarrie property (work in different city)\n\n**Key Rules:**\n- Spouses can nominate different main residences under s118-110(2)\n- Applicable from 1 July 2018 (change in law)\n- Spouse 2 treats Cannon Hill property as main residence\n- **NO CGT PAYABLE** - Full main residence exemption for Spouse 2\n\n**Expected Result:**\n- NO CGT PAYABLE - Spouse 2's main residence exemption applies\n- Total capital gain (before exemption): $237,525\n- Full exemption\n\n**ATO Rules Applied:**\n- Section 118-110(2) ITAA 1997 (Separate Main Residences for Spouses)\n- From 1 July 2018, spouses can have different main residences\n- Each spouse entitled to exemption for their nominated residence",
             "holdingYears": 6.6
           }
         ],
@@ -9735,7 +8917,7 @@
           }
         ]
       },
-      "userQuery": "Batch 1,2,3 - Scenario 33: Spouses with Different Main Residences - Two properties: Spouse 1 at 42 Northshore Boulevard, Murarrie; Spouse 2 at 156 Creek Road, Cannon Hill",
+      "userQuery": "Two properties: Spouse 1 at 42 Northshore Boulevard, Murarrie; Spouse 2 at 156 Creek Road, Cannon Hill",
       "australianResident": true
     },
     {
@@ -9743,8 +8925,9 @@
       "filename": "batch123_scenario40_four_property_portfolio.json",
       "path": "scenariotestjsons",
       "title": "Four Property Portfolio",
-      "description": "Batch 1,2,3 - Scenario 40: Four Property Portfolio with Mixed Use - Multiple properties: (1) Main residence then rented, (2) Investment property, (3) Investment property, (4) New main residence",
+      "description": "Multiple properties: (1) Main residence then rented, (2) Investment property, (3) Investment property, (4) New main residence",
       "category": "Multi-Property Portfolios",
+      "subcategory": null,
       "propertyCount": 4,
       "propertyDetails": {
         "properties": [
@@ -9946,125 +9129,7 @@
           }
         ]
       },
-      "userQuery": "Batch 1,2,3 - Scenario 40: Four Property Portfolio with Mixed Use - Multiple properties: (1) Main residence then rented, (2) Investment property, (3) Investment property, (4) New main residence",
-      "australianResident": true
-    },
-    {
-      "id": "scenariotestjsons/batch123_scenario36_subdivision_land_sale.json",
-      "filename": "batch123_scenario36_subdivision_land_sale.json",
-      "path": "scenariotestjsons",
-      "title": "Subdivision (Batch 123)",
-      "description": "Batch 1,2,3 - Scenario 36: Subdivision - Main Residence with Land Sale - Property at 125 Riverside Drive, Taringa QLD 4068, subdivided into two lots",
-      "category": "Subdivision",
-      "propertyCount": 3,
-      "propertyDetails": {
-        "properties": [
-          {
-            "address": "125 Riverside Drive, Taringa QLD 4068",
-            "shortAddress": "125 Riverside Drive",
-            "purchasePrice": "$625,000",
-            "purchaseDate": "10 May 2008",
-            "salePrice": null,
-            "saleDate": null,
-            "keyEvents": [
-              {
-                "date": "10 May 2008",
-                "event": "Purchased",
-                "price": "$625,000"
-              },
-              {
-                "date": "10 May 2008",
-                "event": "Moved In",
-                "price": null
-              }
-            ],
-            "notes": "**Batch 1,2,3 - Scenario 36: Subdivision - Main Residence Retained (Lot 1)**\n\nLarge property subdivided. Lot 1 (dwelling) retained and sold - full main residence exemption.\n\n**Timeline:**\n- 10 May 2008 to 20 Oct 2024: Main residence (16.45 years)\n- 15 Mar 2022: Subdivision registered (property split into 2 lots)\n- Lot 1: Dwelling + 1000m² land (retained and sold)\n- Lot 2: 1000m² vacant land (sold separately - see Lot 2)\n\n**Key Rules:**\n- Lot 1 contains dwelling and was main residence throughout\n- Subdivision of main residence property\n- Cost base allocation: 50% of original cost ($651,600 × 50% = $325,800)\n- Plus 50% of subdivision costs ($45,000 × 50% = $22,500)\n- **NO CGT PAYABLE** - Full main residence exemption for lot with dwelling\n\n**Expected Result:**\n- NO CGT PAYABLE - Lot 1 qualifies for full main residence exemption\n- Total capital gain (before exemption): $1,189,300\n- Full exemption applies\n\n**ATO Rules Applied:**\n- Section 118-110 ITAA 1997 (Main Residence Exemption)\n- TR 97/11 (Subdivision of Main Residence)\n- Lot containing dwelling eligible for full exemption",
-            "holdingYears": 17.8
-          },
-          {
-            "address": "125 Riverside Drive, Taringa QLD 4068",
-            "shortAddress": "125 Riverside Drive",
-            "purchasePrice": null,
-            "purchaseDate": null,
-            "salePrice": "$1,580,000",
-            "saleDate": "20 Oct 2024",
-            "keyEvents": [
-              {
-                "date": "20 Oct 2024",
-                "event": "Sold",
-                "price": "$1,580,000"
-              }
-            ],
-            "notes": "**Batch 1,2,3 - Scenario 36: Subdivision - Main Residence Retained (Lot 1)**\n\nLot 1 contains the dwelling and continues as main residence after subdivision.\n\n**Key Rules:**\n- Lot 1 contains dwelling and was main residence throughout\n- Cost base allocation: 50% of original cost ($651,600 × 50% = $325,800)\n- Plus 50% of subdivision costs ($45,000 × 50% = $22,500)\n- **NO CGT PAYABLE** - Full main residence exemption for lot with dwelling"
-          },
-          {
-            "address": "125A Riverside Drive, Taringa QLD 4068",
-            "shortAddress": "125A Riverside Drive",
-            "purchasePrice": "$348,300",
-            "purchaseDate": "15 Mar 2022",
-            "salePrice": "$685,000",
-            "saleDate": "10 July 2024",
-            "keyEvents": [
-              {
-                "date": "15 Mar 2022",
-                "event": "Purchased",
-                "price": "$348,300"
-              },
-              {
-                "date": "10 July 2024",
-                "event": "Sold",
-                "price": "$685,000"
-              }
-            ],
-            "notes": "**Batch 1,2,3 - Scenario 36: Subdivision - Vacant Land Sold (Lot 2)**\n\nVacant land created from subdivision of main residence - partial exemption applies.\n\n**Timeline:**\n- 15 Mar 2022: Lot created from subdivision (1000m² vacant land)\n- 15 Mar 2022 to 10 Jul 2024: Vacant land held (2.32 years)\n- Deemed acquisition date: 15 Mar 2022\n\n**Key Calculations:**\n- Allocated cost base: $325,800 (50% of original)\n- Subdivision costs: $22,500 (50% of total)\n- Total cost base: $348,300\n- Sale price: $685,000\n- Selling costs: $19,225\n- Capital gain: $317,475\n- Partial main residence exemption available (adjacent land rules)\n- After partial exemption and 50% CGT discount\n- **NET CAPITAL GAIN: $52,913**\n\n**Expected Result:**\n- NET CAPITAL GAIN = $52,913\n- Partial exemption applies for period property was main residence (up to subdivision)\n\n**ATO Rules Applied:**\n- TR 97/11 (Subdivision of Main Residence)\n- Section 118-120 ITAA 1997 (Adjacent Land)\n- Partial exemption for period land was part of main residence\n- Section 115-25 ITAA 1997 (50% CGT discount)",
-            "holdingYears": 2.3
-          }
-        ],
-        "financialSummary": {
-          "totalPurchaseValue": "$973,300",
-          "totalSaleValue": "$2,265,000",
-          "totalGain": "$1,291,700",
-          "holdingPeriodYears": 16.4
-        },
-        "timeline": [
-          {
-            "date": "2008-05-10",
-            "displayDate": "10 May 2008",
-            "event": "Purchased",
-            "property": "125 Riverside Drive",
-            "price": "$625,000"
-          },
-          {
-            "date": "2008-05-10",
-            "displayDate": "10 May 2008",
-            "event": "Moved In",
-            "property": "125 Riverside Drive",
-            "price": null
-          },
-          {
-            "date": "2022-03-15",
-            "displayDate": "15 Mar 2022",
-            "event": "Purchased",
-            "property": "125A Riverside Drive",
-            "price": "$348,300"
-          },
-          {
-            "date": "2024-07-10",
-            "displayDate": "10 July 2024",
-            "event": "Sold",
-            "property": "125A Riverside Drive",
-            "price": "$685,000"
-          },
-          {
-            "date": "2024-10-20",
-            "displayDate": "20 Oct 2024",
-            "event": "Sold",
-            "property": "125 Riverside Drive",
-            "price": "$1,580,000"
-          }
-        ]
-      },
-      "userQuery": "Batch 1,2,3 - Scenario 36: Subdivision - Main Residence with Land Sale - Property at 125 Riverside Drive, Taringa QLD 4068, subdivided into two lots",
+      "userQuery": "Multiple properties: (1) Main residence then rented, (2) Investment property, (3) Investment property, (4) New main residence",
       "australianResident": true
     }
   ]

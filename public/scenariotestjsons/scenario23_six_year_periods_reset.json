@@ -77,6 +77,7 @@
   ],
   "user_query": "I rented my home for 4 years, moved back in for 2 years, then rented it again for 5 years before selling. That's 9 years of rental total. Is my six-year rule exceeded?",
   "additional_info": {
-    "australian_resident": true
+    "australian_resident": true,
+    "subcategory": "Partial - 6-Year Rule"
   }
 }

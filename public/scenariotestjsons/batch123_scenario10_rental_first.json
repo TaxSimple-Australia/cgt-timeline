@@ -106,18 +106,18 @@
           "description": "Property sold for $875,000"
         }
       ],
-      "notes": "**Batch 1,2,3 - Scenario 10: Rental First, Then Main Residence**\n\nProperty purchased as investment property and rented for 4 years, then converted to main residence for 6 years.\n\n**Timeline:**\n- 1 Apr 2014 to 1 Apr 2018: Investment/Rental (4 years)\n- 1 Apr 2018 to 1 Oct 2024: Main residence (6.5 years)\n- Total ownership: 10.5 years\n\n**Key Calculations:**\n- Total capital gain: $346,775\n- Time apportionment:\n  - Rental period: 4/10.5 years = 38.1% taxable\n  - Main residence period: 6.5/10.5 years = 61.9% exempt\n- Taxable capital gain: $346,775 × 38.1% = $132,121\n- After 50% CGT discount: $132,121 × 50% = $66,061\n- **NET CAPITAL GAIN: $61,834** (including adjustments per scenario)\n- Taxable percentage: 38.1%\n\n**Expected Result:**\n- NET CAPITAL GAIN = $61,834\n- 38.1% of ownership period is taxable\n\n**ATO Rules Applied:**\n- Section 118-185 ITAA 1997 (Partial Main Residence Exemption)\n- Section 115-25 ITAA 1997 (50% CGT discount for individuals)\n- Time apportionment method for partial exemption",
+      "notes": "Property purchased as investment property and rented for 4 years, then converted to main residence for 6 years.\n\n**Timeline:**\n- 1 Apr 2014 to 1 Apr 2018: Investment/Rental (4 years)\n- 1 Apr 2018 to 1 Oct 2024: Main residence (6.5 years)\n- Total ownership: 10.5 years\n\n**Key Calculations:**\n- Total capital gain: $346,775\n- Time apportionment:\n  - Rental period: 4/10.5 years = 38.1% taxable\n  - Main residence period: 6.5/10.5 years = 61.9% exempt\n- Taxable capital gain: $346,775 × 38.1% = $132,121\n- After 50% CGT discount: $132,121 × 50% = $66,061\n- **NET CAPITAL GAIN: $61,834** (including adjustments per scenario)\n- Taxable percentage: 38.1%\n\n**Expected Result:**\n- NET CAPITAL GAIN = $61,834\n- 38.1% of ownership period is taxable\n\n**ATO Rules Applied:**\n- Section 118-185 ITAA 1997 (Partial Main Residence Exemption)\n- Section 115-25 ITAA 1997 (50% CGT discount for individuals)\n- Time apportionment method for partial exemption",
       "color": "#8B5CF6",
       "branch": 0
     }
   ],
-  "user_query": "Batch 1,2,3 - Scenario 10: Rental First, Then Main Residence - Property at 127 Exhibition Street, Melbourne VIC 3000, purchased as investment, rented for 4 years, then main residence for 6.5 years",
+  "user_query": "Property at 127 Exhibition Street, Melbourne VIC 3000, purchased as investment, rented for 4 years, then main residence for 6.5 years",
   "additional_info": {
     "australian_resident": true,
     "tax_year": "2024-2025",
-    "scenario_batch": "Batch 1,2,3",
     "scenario_number": "Scenario 10",
     "scenario_title": "Rental First, Then Main Residence",
-    "expected_outcome": "NET CAPITAL GAIN = $61,834 (38.1% taxable after partial exemption and discount)"
+    "expected_outcome": "NET CAPITAL GAIN = $61,834 (38.1% taxable after partial exemption and discount)",
+    "subcategory": "Partial - Time Apportionment"
   }
 }

@@ -69,7 +69,10 @@
           "title": "Subdivided",
           "color": "#EC4899",
           "subdivisionDetails": {
-            "childPropertyIds": ["prop-55acreage-lotA", "prop-55acreage-lotB"],
+            "childPropertyIds": [
+              "prop-55acreage-lotA",
+              "prop-55acreage-lotB"
+            ],
             "totalLots": 2,
             "subdivisionCosts": 65000,
             "lotSizes": {

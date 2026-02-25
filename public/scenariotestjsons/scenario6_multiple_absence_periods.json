@@ -130,6 +130,7 @@
   ],
   "user_query": "I owned my Sydney home for 30 years but rented it out during two work relocations totaling 7 years. I also bought and sold properties in Brisbane and Melbourne but never claimed MRE on them. What is my CGT position?",
   "additional_info": {
-    "australian_resident": true
+    "australian_resident": true,
+    "subcategory": "Partial - 6-Year Rule"
   }
 }

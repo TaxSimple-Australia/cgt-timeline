@@ -56,7 +56,8 @@
   ],
   "user_query": "I moved in and out of my home multiple times. First absence was 4 years (2011-2015), then I moved back for 3 years, then absent again for 7 years. Does each absence get its own 6-year rule?",
   "additional_info": {
-    "australian_resident": true
+    "australian_resident": true,
+    "subcategory": "Partial - 6-Year Rule"
   },
   "llm_provider": "deepseek",
   "use_claude": true,

@@ -69,7 +69,10 @@
           "title": "Subdivided",
           "color": "#EC4899",
           "subdivisionDetails": {
-            "childPropertyIds": ["prop-12duplex-unitA", "prop-12duplex-unitB"],
+            "childPropertyIds": [
+              "prop-12duplex-unitA",
+              "prop-12duplex-unitB"
+            ],
             "totalLots": 2,
             "subdivisionCosts": 35000,
             "lotSizes": {

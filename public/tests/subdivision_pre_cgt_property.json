@@ -69,7 +69,11 @@
           "title": "Subdivided",
           "color": "#EC4899",
           "subdivisionDetails": {
-            "childPropertyIds": ["prop-8oldfarm-lotA", "prop-8oldfarm-lotB", "prop-8oldfarm-lotC"],
+            "childPropertyIds": [
+              "prop-8oldfarm-lotA",
+              "prop-8oldfarm-lotB",
+              "prop-8oldfarm-lotC"
+            ],
             "totalLots": 3,
             "subdivisionCosts": 85000,
             "lotSizes": {

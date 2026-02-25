@@ -89,7 +89,7 @@
           "description": "Property sold for $815,000"
         }
       ],
-      "notes": "**Batch 1,2,3 - Scenario 33: Spouses with Different Main Residences (Spouse 1)**\n\nSpouse 1's property at Murarrie. Couple has separate main residences due to work in different cities.\n\n**Timeline:**\n- 1 Feb 2018 to 20 Oct 2024: Spouse 1's main residence (6.72 years)\n- Spouse 2 lives separately at Cannon Hill property (work in different city)\n\n**Key Rules:**\n- Spouses can nominate different main residences under s118-110(2)\n- Applicable from 1 July 2018 (change in law)\n- Spouse 1 treats Murarrie property as main residence\n- **NO CGT PAYABLE** - Full main residence exemption for Spouse 1\n\n**Expected Result:**\n- NO CGT PAYABLE - Spouse 1's main residence exemption applies\n- Total capital gain (before exemption): $270,525\n- Full exemption\n\n**ATO Rules Applied:**\n- Section 118-110(2) ITAA 1997 (Separate Main Residences for Spouses)\n- From 1 July 2018, spouses can have different main residences\n- Each spouse entitled to exemption for their nominated residence",
+      "notes": "Spouse 1's property at Murarrie. Couple has separate main residences due to work in different cities.\n\n**Timeline:**\n- 1 Feb 2018 to 20 Oct 2024: Spouse 1's main residence (6.72 years)\n- Spouse 2 lives separately at Cannon Hill property (work in different city)\n\n**Key Rules:**\n- Spouses can nominate different main residences under s118-110(2)\n- Applicable from 1 July 2018 (change in law)\n- Spouse 1 treats Murarrie property as main residence\n- **NO CGT PAYABLE** - Full main residence exemption for Spouse 1\n\n**Expected Result:**\n- NO CGT PAYABLE - Spouse 1's main residence exemption applies\n- Total capital gain (before exemption): $270,525\n- Full exemption\n\n**ATO Rules Applied:**\n- Section 118-110(2) ITAA 1997 (Separate Main Residences for Spouses)\n- From 1 July 2018, spouses can have different main residences\n- Each spouse entitled to exemption for their nominated residence",
       "color": "#10B981",
       "branch": 0
     },
@@ -182,16 +182,15 @@
           "description": "Property sold for $765,000"
         }
       ],
-      "notes": "**Batch 1,2,3 - Scenario 33: Spouses with Different Main Residences (Spouse 2)**\n\nSpouse 2's property at Cannon Hill. Couple has separate main residences due to work in different cities.\n\n**Timeline:**\n- 15 Mar 2018 to 5 Nov 2024: Spouse 2's main residence (6.64 years)\n- Spouse 1 lives separately at Murarrie property (work in different city)\n\n**Key Rules:**\n- Spouses can nominate different main residences under s118-110(2)\n- Applicable from 1 July 2018 (change in law)\n- Spouse 2 treats Cannon Hill property as main residence\n- **NO CGT PAYABLE** - Full main residence exemption for Spouse 2\n\n**Expected Result:**\n- NO CGT PAYABLE - Spouse 2's main residence exemption applies\n- Total capital gain (before exemption): $237,525\n- Full exemption\n\n**ATO Rules Applied:**\n- Section 118-110(2) ITAA 1997 (Separate Main Residences for Spouses)\n- From 1 July 2018, spouses can have different main residences\n- Each spouse entitled to exemption for their nominated residence",
+      "notes": "Spouse 2's property at Cannon Hill. Couple has separate main residences due to work in different cities.\n\n**Timeline:**\n- 15 Mar 2018 to 5 Nov 2024: Spouse 2's main residence (6.64 years)\n- Spouse 1 lives separately at Murarrie property (work in different city)\n\n**Key Rules:**\n- Spouses can nominate different main residences under s118-110(2)\n- Applicable from 1 July 2018 (change in law)\n- Spouse 2 treats Cannon Hill property as main residence\n- **NO CGT PAYABLE** - Full main residence exemption for Spouse 2\n\n**Expected Result:**\n- NO CGT PAYABLE - Spouse 2's main residence exemption applies\n- Total capital gain (before exemption): $237,525\n- Full exemption\n\n**ATO Rules Applied:**\n- Section 118-110(2) ITAA 1997 (Separate Main Residences for Spouses)\n- From 1 July 2018, spouses can have different main residences\n- Each spouse entitled to exemption for their nominated residence",
       "color": "#10B981",
       "branch": 1
     }
   ],
-  "user_query": "Batch 1,2,3 - Scenario 33: Spouses with Different Main Residences - Two properties: Spouse 1 at 42 Northshore Boulevard, Murarrie; Spouse 2 at 156 Creek Road, Cannon Hill",
+  "user_query": "Two properties: Spouse 1 at 42 Northshore Boulevard, Murarrie; Spouse 2 at 156 Creek Road, Cannon Hill",
   "additional_info": {
     "australian_resident": true,
     "tax_year": "2024-2025",
-    "scenario_batch": "Batch 1,2,3",
     "scenario_number": "Scenario 33",
     "scenario_title": "Spouses with Different Main Residences",
     "expected_outcome": "NO CGT PAYABLE for both properties - Separate main residence exemptions apply (s118-110(2) ITAA 1997)"

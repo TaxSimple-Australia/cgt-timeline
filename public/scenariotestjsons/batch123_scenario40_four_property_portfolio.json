@@ -397,11 +397,10 @@
       "branch": 3
     }
   ],
-  "user_query": "Batch 1,2,3 - Scenario 40: Four Property Portfolio with Mixed Use - Multiple properties: (1) Main residence then rented, (2) Investment property, (3) Investment property, (4) New main residence",
+  "user_query": "Multiple properties: (1) Main residence then rented, (2) Investment property, (3) Investment property, (4) New main residence",
   "additional_info": {
     "australian_resident": true,
     "tax_year": "2024-2025",
-    "scenario_batch": "Batch 1,2,3",
     "scenario_number": "Scenario 40",
     "scenario_title": "Four Property Portfolio with Mixed Use",
     "expected_outcome": "Property 1: NO CGT; Property 2: NET GAIN $111,263; Property 3: NET GAIN $98,850; Property 4: NO CGT. Total portfolio net capital gain: $210,113"

@@ -65,6 +65,7 @@
   ],
   "user_query": "My mother transferred her house to me in 2022 in exchange for a granny flat arrangement where she could live there for life. She recently passed away and I'm selling. What are the CGT implications?",
   "additional_info": {
-    "australian_resident": true
+    "australian_resident": true,
+    "subcategory": "Partial Use"
   }
 }

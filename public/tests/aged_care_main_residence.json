@@ -38,7 +38,8 @@
   "user_query": "I moved into an aged care home 5 years ago. My old house has been sitting empty ever since - I never rented it out. I'm now selling it to pay for my care. Do I still get the main residence exemption even though I haven't lived there for years?",
   "additional_info": {
     "australian_resident": true,
-    "marginal_tax_rate": 0.37
+    "marginal_tax_rate": 0.37,
+    "subcategory": "Full Exemption"
   },
   "llm_provider": "deepseek",
   "use_claude": true,

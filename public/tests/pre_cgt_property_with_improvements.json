@@ -2,7 +2,12 @@
   "properties": [
     {
       "address": "77 Heritage Estate, Hunters Hill NSW 2110",
-      "owners": [{"name": "husband", "percentage": 100}],
+      "owners": [
+        {
+          "name": "husband",
+          "percentage": 100
+        }
+      ],
       "property_history": [
         {
           "date": "1983-09-20",
@@ -32,8 +37,22 @@
           "no_consideration": true,
           "notes": "Added Spouse B to title after marriage.",
           "leavingOwners": [],
-          "newOwners": [{"name": "husband", "percentage": 50}, {"name": "wife", "percentage": 50}],
-          "previousOwners": [{"name": "husband", "percentage": 100}],
+          "newOwners": [
+            {
+              "name": "husband",
+              "percentage": 50
+            },
+            {
+              "name": "wife",
+              "percentage": 50
+            }
+          ],
+          "previousOwners": [
+            {
+              "name": "husband",
+              "percentage": 100
+            }
+          ],
           "ownershipChangeReason": "other",
           "ownershipChangeReasonOther": "Added spouse to title"
         },
@@ -59,9 +78,25 @@
           "rollover_applies": true,
           "notes": "Full property transferred to Spouse B.",
           "description": "Divorce property settlement - ownership transfer",
-          "leavingOwners": ["wife"],
-          "newOwners": [{"name": "husband", "percentage": 100}],
-          "previousOwners": [{"name": "husband", "percentage": 50}, {"name": "wife", "percentage": 50}],
+          "leavingOwners": [
+            "wife"
+          ],
+          "newOwners": [
+            {
+              "name": "husband",
+              "percentage": 100
+            }
+          ],
+          "previousOwners": [
+            {
+              "name": "husband",
+              "percentage": 50
+            },
+            {
+              "name": "wife",
+              "percentage": 50
+            }
+          ],
           "ownershipChangeReason": "divorce"
         },
         {
@@ -92,7 +127,8 @@
   ],
   "user_query": "My ex-husband bought our home in 1983 before we married. He added me to the title in 1988 when we got married. We did a $320K renovation in 2005. In the divorce I got full ownership in 2021, then rented it out. Now I'm selling. This seems incredibly complicated - half is pre-CGT, half isn't, plus the renovation?",
   "additional_info": {
-    "australian_resident": true
+    "australian_resident": true,
+    "subcategory": "Inheritance/Death"
   },
   "llm_provider": "deepseek",
   "use_claude": true,

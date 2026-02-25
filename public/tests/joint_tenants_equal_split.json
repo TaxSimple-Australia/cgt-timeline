@@ -39,7 +39,8 @@
     "owner_1_share": 50,
     "owner_2_name": "David",
     "owner_2_share": 50,
-    "never_main_residence": true
+    "never_main_residence": true,
+    "subcategory": "Other"
   },
   "llm_provider": "deepseek",
   "use_claude": true,

@@ -41,7 +41,8 @@
   ],
   "user_query": "I lived in my home for 5 years then rented it out for 5.5 years while renting elsewhere. I never owned another home. I'm selling now - do I get the full main residence exemption under the 6-year rule?",
   "additional_info": {
-    "australian_resident": true
+    "australian_resident": true,
+    "subcategory": "Partial - 6-Year Rule"
   },
   "llm_provider": "deepseek",
   "use_claude": true,

@@ -69,7 +69,10 @@
           "title": "Subdivided",
           "color": "#EC4899",
           "subdivisionDetails": {
-            "childPropertyIds": ["prop-28panorama-lot1", "prop-28panorama-lot2"],
+            "childPropertyIds": [
+              "prop-28panorama-lot1",
+              "prop-28panorama-lot2"
+            ],
             "totalLots": 2,
             "subdivisionCosts": 45000,
             "lotSizes": {

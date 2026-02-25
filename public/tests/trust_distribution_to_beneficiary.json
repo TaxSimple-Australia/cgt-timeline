@@ -30,7 +30,8 @@
   ],
   "user_query": "Our family trust owns an investment property. Instead of selling it, we want to distribute the property directly to my daughter who is a beneficiary. What are the CGT implications?",
   "additional_info": {
-    "australian_resident": true
+    "australian_resident": true,
+    "subcategory": "Trust & Entity"
   },
   "llm_provider": "deepseek",
   "scenario_info": {

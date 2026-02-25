@@ -92,7 +92,10 @@
           "title": "Subdivided",
           "color": "#EC4899",
           "subdivisionDetails": {
-            "childPropertyIds": ["farmview-lot1-dwelling", "farmview-lot2-vacant"],
+            "childPropertyIds": [
+              "farmview-lot1-dwelling",
+              "farmview-lot2-vacant"
+            ],
             "totalLots": 2,
             "subdivisionCosts": 8000,
             "lotSizes": {

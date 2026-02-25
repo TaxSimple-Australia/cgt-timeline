@@ -38,7 +38,8 @@
     "beneficiary_absolutely_entitled": true,
     "beneficial_owner": "John",
     "always_main_residence": true,
-    "look_through_applies": true
+    "look_through_applies": true,
+    "subcategory": "Other"
   },
   "llm_provider": "deepseek",
   "use_claude": true,

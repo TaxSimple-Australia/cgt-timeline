@@ -106,18 +106,18 @@
           "description": "Property sold for $1,150,000"
         }
       ],
-      "notes": "**Batch 1,2,3 - Scenario 39: Investment Property Then Main Residence**\n\nProperty purchased as investment, rented, then converted to main residence. Cannot use six-year absence rule.\n\n**Timeline:**\n- 1 Sep 2015 to 30 Jun 2019: Rental/Investment (3.83 years) - taxable\n- 30 Jun 2019 to 15 Nov 2024: Main residence (5.38 years) - exempt\n- Total ownership: 9.21 years\n\n**Key Calculations:**\n- Total capital gain: $462,650\n- Time apportionment:\n  - Investment period: 3.83/9.21 years = 41.6% taxable\n  - Main residence period: 5.38/9.21 years = 58.4% exempt\n- Six-year absence rule DOES NOT apply (property must be main residence before renting)\n- Taxable capital gain: $462,650 × 41.6% = $192,462\n- After 50% CGT discount: $192,462 × 50% = $96,231\n- **NET CAPITAL GAIN: $96,231**\n\n**Expected Result:**\n- NET CAPITAL GAIN = $96,231\n- 41.6% of ownership period is taxable (investment period)\n\n**ATO Rules Applied:**\n- Section 118-185 ITAA 1997 (Partial Main Residence Exemption)\n- Section 118-145 ITAA 1997 (Six-Year Rule - NOT applicable)\n- Six-year absence rule only applies if property was main residence BEFORE being rented\n- Section 115-25 ITAA 1997 (50% CGT discount)\n- Time apportionment method",
+      "notes": "Property purchased as investment, rented, then converted to main residence. Cannot use six-year absence rule.\n\n**Timeline:**\n- 1 Sep 2015 to 30 Jun 2019: Rental/Investment (3.83 years) - taxable\n- 30 Jun 2019 to 15 Nov 2024: Main residence (5.38 years) - exempt\n- Total ownership: 9.21 years\n\n**Key Calculations:**\n- Total capital gain: $462,650\n- Time apportionment:\n  - Investment period: 3.83/9.21 years = 41.6% taxable\n  - Main residence period: 5.38/9.21 years = 58.4% exempt\n- Six-year absence rule DOES NOT apply (property must be main residence before renting)\n- Taxable capital gain: $462,650 × 41.6% = $192,462\n- After 50% CGT discount: $192,462 × 50% = $96,231\n- **NET CAPITAL GAIN: $96,231**\n\n**Expected Result:**\n- NET CAPITAL GAIN = $96,231\n- 41.6% of ownership period is taxable (investment period)\n\n**ATO Rules Applied:**\n- Section 118-185 ITAA 1997 (Partial Main Residence Exemption)\n- Section 118-145 ITAA 1997 (Six-Year Rule - NOT applicable)\n- Six-year absence rule only applies if property was main residence BEFORE being rented\n- Section 115-25 ITAA 1997 (50% CGT discount)\n- Time apportionment method",
       "color": "#F59E0B",
       "branch": 0
     }
   ],
-  "user_query": "Batch 1,2,3 - Scenario 39: Investment Property Then Main Residence - Property at 88 Parkland Drive, Paddington QLD 4064, investment property first, then converted to main residence",
+  "user_query": "Property at 88 Parkland Drive, Paddington QLD 4064, investment property first, then converted to main residence",
   "additional_info": {
     "australian_resident": true,
     "tax_year": "2024-2025",
-    "scenario_batch": "Batch 1,2,3",
     "scenario_number": "Scenario 39",
     "scenario_title": "Investment Property Then Main Residence",
-    "expected_outcome": "NET CAPITAL GAIN = $96,231 (41.6% taxable - six-year rule does not apply)"
+    "expected_outcome": "NET CAPITAL GAIN = $96,231 (41.6% taxable - six-year rule does not apply)",
+    "subcategory": "Partial - Time Apportionment"
   }
 }

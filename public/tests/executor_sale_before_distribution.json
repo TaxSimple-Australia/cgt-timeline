@@ -24,9 +24,21 @@
           "date": "2024-11-15",
           "event": "ownership_change",
           "description": "Executor assumes management of estate",
-          "leavingOwners": ["owner"],
-          "newOwners": [{"name": "executor", "percentage": 100}],
-          "previousOwners": [{"name": "owner", "percentage": 100}],
+          "leavingOwners": [
+            "owner"
+          ],
+          "newOwners": [
+            {
+              "name": "executor",
+              "percentage": 100
+            }
+          ],
+          "previousOwners": [
+            {
+              "name": "owner",
+              "percentage": 100
+            }
+          ],
           "ownershipChangeReason": "other",
           "ownershipChangeReasonOther": "Death of owner"
         },
@@ -40,7 +52,12 @@
         }
       ],
       "notes": "sold - Executor selling deceased's main residence before distributing to beneficiaries. Deceased lived in property from 2005 until death. Sale within 2 years of death. Beneficiary is sole child.",
-      "owners": [{"name": "executor", "percentage": 100}]
+      "owners": [
+        {
+          "name": "executor",
+          "percentage": 100
+        }
+      ]
     }
   ],
   "user_query": "I'm the executor of my mother's estate. She lived in her house for 20 years until she passed. I'm selling it now (within 2 years of her death) before distributing the proceeds to myself as sole beneficiary. What's the CGT situation?",
@@ -53,7 +70,8 @@
     "date_of_death": "2024-11-15",
     "market_value_at_death": 1850000,
     "sold_within_2_years": true,
-    "sole_beneficiary": true
+    "sole_beneficiary": true,
+    "subcategory": "Inheritance/Death"
   },
   "llm_provider": "deepseek",
   "use_claude": true,

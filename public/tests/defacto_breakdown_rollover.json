@@ -24,9 +24,25 @@
           "event": "ownership_change",
           "market_value": 1150000,
           "description": "Property transferred to de facto partner",
-          "leavingOwners": ["partner A"],
-          "newOwners": [{"name": "transferee", "percentage": 100}],
-          "previousOwners": [{"name": "partner A", "percentage": 50}, {"name": "partner B", "percentage": 50}],
+          "leavingOwners": [
+            "partner A"
+          ],
+          "newOwners": [
+            {
+              "name": "transferee",
+              "percentage": 100
+            }
+          ],
+          "previousOwners": [
+            {
+              "name": "partner A",
+              "percentage": 50
+            },
+            {
+              "name": "partner B",
+              "percentage": 50
+            }
+          ],
           "ownershipChangeReason": "divorce"
         },
         {
@@ -43,7 +59,12 @@
         }
       ],
       "notes": "sold - De facto couple (8 years together) separated 2022. Property was in Partner A's name, transferred to Partner B under binding financial agreement 2023. Partner B continued living there then sold 2025.",
-      "owners": [{"name": "transferee", "percentage": 100}]
+      "owners": [
+        {
+          "name": "transferee",
+          "percentage": 100
+        }
+      ]
     }
   ],
   "user_query": "My de facto partner and I separated after 8 years. The house was in his name but got transferred to me under a binding financial agreement. I lived in it for another 2 years then sold. How is the CGT calculated?",
@@ -56,7 +77,8 @@
     "transfer_under": "binding_financial_agreement",
     "transfer_date": "2023-03-15",
     "market_value_at_transfer": 1150000,
-    "rollover_applies": true
+    "rollover_applies": true,
+    "subcategory": "Relationships"
   },
   "llm_provider": "deepseek",
   "use_claude": true,

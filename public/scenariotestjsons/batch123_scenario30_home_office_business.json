@@ -96,20 +96,20 @@
           "description": "Property sold for $1,280,000"
         }
       ],
-      "notes": "**Batch 1,2,3 - Scenario 30: Home Office Business Use**\n\nProperty used as main residence with one room (20% floor area) used for business from 2018. Home office expenses claimed.\n\n**Timeline:**\n- 1 Jul 2016 to 1 Jan 2018: Full main residence (1.5 years)\n- 1 Jan 2018 to 1 Oct 2024: Main residence + home office (6.75 years)\n  - 80% main residence\n  - 20% business use (claimed home office expenses)\n- Total ownership: 8.25 years\n\n**Key Calculations:**\n- Total capital gain: $559,825\n- Business use portion: 20% × 6.75/8.25 years = 16.36% taxable\n- Main residence portion: 83.64% exempt\n- Taxable capital gain: $559,825 × 16.36% = $91,587\n- After 50% CGT discount: $91,587 × 50% = $45,794\n- **NET CAPITAL GAIN: $45,794**\n\n**Expected Result:**\n- NET CAPITAL GAIN = $45,794\n- 16.36% of capital gain is taxable (business use proportion)\n\n**ATO Rules Applied:**\n- Section 118-190 ITAA 1997 (Business Use of Dwelling)\n- When part of home used for business and expenses claimed, that portion not exempt\n- Area × time apportionment method\n- Section 115-25 ITAA 1997 (50% CGT discount)",
+      "notes": "Property used as main residence with one room (20% floor area) used for business from 2018. Home office expenses claimed.\n\n**Timeline:**\n- 1 Jul 2016 to 1 Jan 2018: Full main residence (1.5 years)\n- 1 Jan 2018 to 1 Oct 2024: Main residence + home office (6.75 years)\n  - 80% main residence\n  - 20% business use (claimed home office expenses)\n- Total ownership: 8.25 years\n\n**Key Calculations:**\n- Total capital gain: $559,825\n- Business use portion: 20% × 6.75/8.25 years = 16.36% taxable\n- Main residence portion: 83.64% exempt\n- Taxable capital gain: $559,825 × 16.36% = $91,587\n- After 50% CGT discount: $91,587 × 50% = $45,794\n- **NET CAPITAL GAIN: $45,794**\n\n**Expected Result:**\n- NET CAPITAL GAIN = $45,794\n- 16.36% of capital gain is taxable (business use proportion)\n\n**ATO Rules Applied:**\n- Section 118-190 ITAA 1997 (Business Use of Dwelling)\n- When part of home used for business and expenses claimed, that portion not exempt\n- Area × time apportionment method\n- Section 115-25 ITAA 1997 (50% CGT discount)",
       "color": "#F59E0B",
       "branch": 0
     }
   ],
-  "user_query": "Batch 1,2,3 - Scenario 30: Home Office Business Use - Property at 72 Carlton Terrace, Manly QLD 4179, with 20% business use for home office",
+  "user_query": "Property at 72 Carlton Terrace, Manly QLD 4179, with 20% business use for home office",
   "additional_info": {
     "australian_resident": true,
     "tax_year": "2024-2025",
-    "scenario_batch": "Batch 1,2,3",
     "scenario_number": "Scenario 30",
     "scenario_title": "Home Office Business Use",
     "expected_outcome": "NET CAPITAL GAIN = $45,794 (16.36% taxable - business use portion)",
     "business_use_percentage": 20,
-    "business_use_start_date": "2018-01-01"
+    "business_use_start_date": "2018-01-01",
+    "subcategory": "Partial Use"
   }
 }

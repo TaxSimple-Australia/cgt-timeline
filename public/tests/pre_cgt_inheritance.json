@@ -2,7 +2,12 @@
   "properties": [
     {
       "address": "67 Heritage Road, Wahroonga NSW 2076",
-      "owners": [{"name": "child", "percentage": 100}],
+      "owners": [
+        {
+          "name": "child",
+          "percentage": 100
+        }
+      ],
       "property_history": [
         {
           "date": "1978-06-15",
@@ -25,9 +30,21 @@
           "date": "2024-06-01",
           "event": "ownership_change",
           "description": "Property inherited by beneficiary",
-          "leavingOwners": ["parent"],
-          "newOwners": [{"name": "child", "percentage": 100}],
-          "previousOwners": [{"name": "parent", "percentage": 100}],
+          "leavingOwners": [
+            "parent"
+          ],
+          "newOwners": [
+            {
+              "name": "child",
+              "percentage": 100
+            }
+          ],
+          "previousOwners": [
+            {
+              "name": "parent",
+              "percentage": 100
+            }
+          ],
           "ownershipChangeReason": "other",
           "ownershipChangeReasonOther": "Inheritance"
         },
@@ -60,7 +77,8 @@
     "original_acquisition_date": "1978-06-15",
     "date_of_death": "2024-03-20",
     "market_value_at_death": 2400000,
-    "deceased_main_residence": true
+    "deceased_main_residence": true,
+    "subcategory": "Inheritance/Death"
   },
   "llm_provider": "deepseek",
   "use_claude": true,

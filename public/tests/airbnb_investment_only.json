@@ -34,7 +34,8 @@
   ],
   "user_query": "I bought a holiday apartment in 2019 purely for Airbnb - I never lived in it. I'm selling now. Is it just treated like any other investment property for CGT?",
   "additional_info": {
-    "australian_resident": true
+    "australian_resident": true,
+    "subcategory": "Partial Use"
   },
   "llm_provider": "deepseek",
   "use_claude": true,

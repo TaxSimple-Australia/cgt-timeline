@@ -2,7 +2,12 @@
   "properties": [
     {
       "address": "88 Memorial Drive, Toowong QLD 4066",
-      "owners": [{"name": "child", "percentage": 100}],
+      "owners": [
+        {
+          "name": "child",
+          "percentage": 100
+        }
+      ],
       "property_history": [
         {
           "date": "1995-04-20",
@@ -25,9 +30,21 @@
           "date": "2023-10-01",
           "event": "ownership_change",
           "description": "Property inherited by beneficiary",
-          "leavingOwners": ["parent"],
-          "newOwners": [{"name": "child", "percentage": 100}],
-          "previousOwners": [{"name": "parent", "percentage": 100}],
+          "leavingOwners": [
+            "parent"
+          ],
+          "newOwners": [
+            {
+              "name": "child",
+              "percentage": 100
+            }
+          ],
+          "previousOwners": [
+            {
+              "name": "parent",
+              "percentage": 100
+            }
+          ],
           "ownershipChangeReason": "other",
           "ownershipChangeReasonOther": "Inheritance"
         },
@@ -53,7 +70,8 @@
   ],
   "user_query": "My mother passed away in August 2023 and I inherited her home. I rented it out for about 20 months and then sold it in July 2025. Do I have to pay CGT?",
   "additional_info": {
-    "australian_resident": true
+    "australian_resident": true,
+    "subcategory": "Inheritance/Death"
   },
   "llm_provider": "deepseek",
   "use_claude": true,

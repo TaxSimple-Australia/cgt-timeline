@@ -496,10 +496,15 @@ function HomeContent() {
 
   // Handler for re-submitting after all verification issues are resolved
   const handleResubmitWithResolutions = async () => {
+    // Defensive guard: only proceed if there are actually resolved alerts to send
+    const resolvedAlerts = verificationAlerts.filter(a => a.resolved && a.userResponse);
+    if (resolvedAlerts.length === 0) {
+      console.warn('⚠️ handleResubmitWithResolutions called with no resolved alerts — aborting');
+      return;
+    }
+
     console.log('📤 Re-submitting with resolved verification alerts');
-    console.log('📊 Current verification alerts:', verificationAlerts);
-    console.log('📊 Properties:', properties.length);
-    console.log('📊 Events:', events.length);
+    console.log('📊 Resolved alerts:', resolvedAlerts.length, 'of', verificationAlerts.length);
 
     setIsLoading(true);
     setError(null);
@@ -509,25 +514,24 @@ function HomeContent() {
       // Transform timeline data to API format
       const apiData = transformTimelineToAPIFormat(properties, events, undefined, undefined);
 
-      // Build verification_responses matching the backend's expected format exactly.
-      // Key requirements (confirmed from API sample):
-      //   - Field name is "gap_id" (not "question_id")
-      //   - For main residence questions, property_address is the COMBINED string
+      // Build verification_responses — only resolved alerts, matching backend format exactly.
+      // Confirmed from API sample:
+      //   - Field name is "gap_id" (the real backend matching key)
+      //   - For main residence questions, property_address stays as the COMBINED string
       //     e.g. "Property A & Property B" — do NOT split it
-      //   - For gap questions, property_address is a single address (unchanged)
-      const verificationsData = verificationAlerts.map((alert) => {
+      //   - For gap questions, property_address is a single address
+      const verificationsData = resolvedAlerts.map((alert) => {
         const verification: any = {
-          property_address: alert.propertyAddress, // keep combined "A & B" intact for main residence
+          property_address: alert.propertyAddress,
           issue_period: {
             start_date: alert.startDate,
             end_date: alert.endDate,
           },
-          resolution_question: alert.resolutionText,
+          resolution_question: alert.resolutionText || alert.clarificationQuestion || '',
           user_response: alert.userResponse,
-          resolved_at: alert.resolvedAt,
         };
 
-        // Use gap_id — this is the field name the backend matches on
+        // gap_id is the field the backend matches on; only set if present
         if (alert.questionId) {
           verification.gap_id = alert.questionId;
         }
@@ -537,8 +541,8 @@ function HomeContent() {
 
       console.log('✅ TIMELINE alerts converted to verification_responses:', {
         totalAlerts: verificationAlerts.length,
-        resolvedAlerts: verificationAlerts.filter(a => a.resolved).length,
-        alertsWithQuestionId: verificationAlerts.filter(a => a.questionId).length,
+        resolvedAlerts: resolvedAlerts.length,
+        alertsWithGapId: resolvedAlerts.filter(a => a.questionId).length,
         verificationsData: JSON.stringify(verificationsData, null, 2),
       });
 
@@ -560,11 +564,14 @@ function HomeContent() {
         console.log('🌐 Calling CGT API with verified responses...');
         console.log(`🤖 Using LLM Provider: ${selectedLLMProvider}`);
 
-        // Call the Next.js API route with verification responses
+        // Call the Next.js API route with verification responses.
+        // x-resubmit-with-responses tells route.ts to skip the needsClarification
+        // re-wrapping so the backend's final analysis passes through directly.
         const response = await fetch('/api/calculate-cgt', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
+            'x-resubmit-with-responses': 'true',
           },
           body: JSON.stringify({ ...requestData, llmProvider: selectedLLMProvider }),
         });

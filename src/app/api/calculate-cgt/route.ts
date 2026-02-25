@@ -14,6 +14,12 @@ export async function POST(request: NextRequest) {
     // Extract LLM provider from the request (default to 'claude')
     const llmProvider: string = body.llmProvider || 'claude';
 
+    // Detect re-submissions that already include user's verification_responses.
+    // When this flag is set we skip the needsClarification re-wrapping so the
+    // backend's final analysis (which may still echo verification_failed fields
+    // from the first round) is passed straight through to the client.
+    const isResubmitWithResponses = request.headers.get('x-resubmit-with-responses') === 'true';
+
     // Remove internal fields from the payload before sending to external API
     const { llmProvider: __, ...apiPayload } = body;
 
@@ -28,6 +34,7 @@ export async function POST(request: NextRequest) {
 
     console.log(`🤖 LLM Provider: ${llmProvider}`);
     console.log(`🔗 Calling CGT Model API: ${API_URL}`);
+    console.log(`🔄 Is re-submission with responses: ${isResubmitWithResponses}`);
     console.log('📤 Request payload:', JSON.stringify(finalPayload, null, 2));
 
     // Call the CGT Model API
@@ -54,6 +61,12 @@ export async function POST(request: NextRequest) {
     // ============================================================================
     // CHECK FOR CLARIFICATION/GAP RESPONSES - Handle MULTIPLE formats from BOTH endpoints
     // ============================================================================
+    // IMPORTANT: This block is SKIPPED for re-submissions (isResubmitWithResponses === true).
+    // The backend often echoes verification_failed fields even in its final analysis response
+    // (after processing the user's answers). If we re-wrap those responses here, the client
+    // loops forever. Instead, let the client's own stillNeedsClarification check decide
+    // whether a genuine new round of questions is needed.
+    //
     // Format 1: { success: false, needs_clarification: true, clarification_questions: [...] }
     // Format 2: { status: 'verification_failed', verification: { clarification_questions: [...] } }
     // Format 3: { needs_clarification: true, clarification_questions: [...] } (success may be undefined)
@@ -61,144 +74,147 @@ export async function POST(request: NextRequest) {
     // Format 5: Has properties with verification_status === 'failed'
     // Format 6: Has gaps array or timeline_gaps
 
-    // Check for gap indicators
-    const hasFailedProperties = Array.isArray(data.properties) &&
-      data.properties.some((p: any) => p.verification_status === 'failed');
+    if (!isResubmitWithResponses) {
+      // Check for gap indicators
+      const hasFailedProperties = Array.isArray(data.properties) &&
+        data.properties.some((p: any) => p.verification_status === 'failed');
 
-    const needsClarification =
-      (data.success === false && data.needs_clarification === true) ||
-      (data.needs_clarification === true) ||
-      (data.status === 'verification_failed') ||
-      (data.summary?.requires_clarification === true) ||
-      hasFailedProperties;
+      const needsClarification =
+        (data.success === false && data.needs_clarification === true) ||
+        (data.needs_clarification === true) ||
+        (data.status === 'verification_failed') ||
+        (data.summary?.requires_clarification === true) ||
+        hasFailedProperties;
 
-    // Get clarification questions from various possible locations
-    let rawQuestions: any[] =
-      data.clarification_questions ||
-      data.verification?.clarification_questions ||
-      data.gaps ||
-      data.timeline_gaps ||
-      [];
+      // Get clarification questions from various possible locations
+      let rawQuestions: any[] =
+        data.clarification_questions ||
+        data.verification?.clarification_questions ||
+        data.gaps ||
+        data.timeline_gaps ||
+        [];
 
-    // If no questions found but we have failed properties, try to extract from property issues
-    if (rawQuestions.length === 0 && hasFailedProperties) {
-      console.log('🔍 Extracting questions from failed properties...');
-      rawQuestions = [];
-      data.properties.forEach((prop: any) => {
-        if (prop.verification_status === 'failed' && prop.issues) {
-          prop.issues.forEach((issue: any) => {
-            rawQuestions.push({
-              question: issue.clarification_question || issue.question || issue.message || 'Please clarify this period',
-              property_address: prop.property_address || prop.address,
-              period: issue.affected_period || issue.period || {},
-              options: issue.options || issue.possible_answers || [],
-              severity: issue.severity || 'warning'
+      // If no questions found but we have failed properties, try to extract from property issues
+      if (rawQuestions.length === 0 && hasFailedProperties) {
+        console.log('🔍 Extracting questions from failed properties...');
+        rawQuestions = [];
+        data.properties.forEach((prop: any) => {
+          if (prop.verification_status === 'failed' && prop.issues) {
+            prop.issues.forEach((issue: any) => {
+              rawQuestions.push({
+                question: issue.clarification_question || issue.question || issue.message || 'Please clarify this period',
+                property_address: prop.property_address || prop.address,
+                period: issue.affected_period || issue.period || {},
+                options: issue.options || issue.possible_answers || [],
+                severity: issue.severity || 'warning'
+              });
             });
-          });
-        }
-      });
-      console.log(`📋 Extracted ${rawQuestions.length} questions from failed properties`);
-    }
+          }
+        });
+        console.log(`📋 Extracted ${rawQuestions.length} questions from failed properties`);
+      }
 
-    // Also check verification.issues for gap-related issues
-    if (rawQuestions.length === 0 && data.verification?.issues?.length > 0) {
-      console.log('🔍 Extracting questions from verification.issues...');
-      rawQuestions = data.verification.issues
-        .filter((issue: any) => issue.type === 'gap' || issue.requires_clarification)
-        .map((issue: any) => ({
-          question: issue.clarification_question || issue.question || issue.message,
-          property_address: issue.property_address,
-          period: issue.affected_period || issue.period || {},
-          options: issue.options || issue.possible_answers || [],
-          severity: issue.severity || 'warning'
-        }));
-      console.log(`📋 Extracted ${rawQuestions.length} questions from verification.issues`);
-    }
+      // Also check verification.issues for gap-related issues
+      if (rawQuestions.length === 0 && data.verification?.issues?.length > 0) {
+        console.log('🔍 Extracting questions from verification.issues...');
+        rawQuestions = data.verification.issues
+          .filter((issue: any) => issue.type === 'gap' || issue.requires_clarification)
+          .map((issue: any) => ({
+            question: issue.clarification_question || issue.question || issue.message,
+            property_address: issue.property_address,
+            period: issue.affected_period || issue.period || {},
+            options: issue.options || issue.possible_answers || [],
+            severity: issue.severity || 'warning'
+          }));
+        console.log(`📋 Extracted ${rawQuestions.length} questions from verification.issues`);
+      }
 
-    if (needsClarification && rawQuestions.length > 0) {
-      console.log('⚠️ Clarification needed:', rawQuestions.length, 'questions');
-      console.log('📋 Raw questions format:', JSON.stringify(rawQuestions[0], null, 2));
+      if (needsClarification && rawQuestions.length > 0) {
+        console.log('⚠️ Clarification needed:', rawQuestions.length, 'questions');
+        console.log('📋 Raw questions format:', JSON.stringify(rawQuestions[0], null, 2));
 
-      // Transform clarification questions to GapQuestionsPanel format
-      // Handle different question formats from different endpoints
-      const transformedQuestions = rawQuestions.map((q: any) => {
-        // Handle period in different formats
-        const period = q.period || {};
-        const startDate = period.start_date || period.start || '';
-        const endDate = period.end_date || period.end || '';
-        const days = period.days || 0;
+        // Transform clarification questions to GapQuestionsPanel format
+        // Handle different question formats from different endpoints
+        const transformedQuestions = rawQuestions.map((q: any) => {
+          // Handle period in different formats
+          const period = q.period || {};
+          const startDate = period.start_date || period.start || '';
+          const endDate = period.end_date || period.end || '';
+          const days = period.days || 0;
 
-        // Handle property address in different formats
-        const propertyAddress = q.property_address ||
-          (q.properties_involved && q.properties_involved[0]) ||
-          '';
+          // Handle property address in different formats
+          const propertyAddress = q.property_address ||
+            (q.properties_involved && q.properties_involved[0]) ||
+            '';
 
-        // Handle properties_involved - might be array or need to create from property_address
-        const propertiesInvolved = q.properties_involved ||
-          (q.property_address ? [q.property_address] : []);
+          // Handle properties_involved - might be array or need to create from property_address
+          const propertiesInvolved = q.properties_involved ||
+            (q.property_address ? [q.property_address] : []);
 
-        return {
-          question: q.question || '',
-          type: q.type || 'clarification',
-          properties_involved: propertiesInvolved,
-          period: {
-            start: startDate,
-            end: endDate,
-            days: days
-          },
-          possible_answers: q.possible_answers || q.options || [],
-          severity: q.severity || 'info',
-          // Generate consistent question_id from property and period if not provided by API
-          question_id: q.question_id || `${propertyAddress}-${startDate}-${endDate}`
-        };
-      });
+          return {
+            question: q.question || '',
+            type: q.type || 'clarification',
+            properties_involved: propertiesInvolved,
+            period: {
+              start: startDate,
+              end: endDate,
+              days: days
+            },
+            possible_answers: q.possible_answers || q.options || [],
+            severity: q.severity || 'info',
+            // Preserve the real gap_id from the backend — this is the matching key for re-submissions.
+            // Also expose it as question_id for backwards compatibility with other code paths.
+            gap_id: q.gap_id || null,
+            question_id: q.question_id || q.gap_id || `${propertyAddress}-${startDate}-${endDate}`
+          };
+        });
 
-      console.log('📋 Transformed questions:', JSON.stringify(transformedQuestions, null, 2));
+        console.log('📋 Transformed questions:', JSON.stringify(transformedQuestions, null, 2));
 
-      // Transform to verification_failed format for compatibility with CGTAnalysisDisplay
-      // Also include the original clarification_questions at top level for extractVerificationAlerts
-      return NextResponse.json({
-        success: true,
-        data: {
-          status: 'verification_failed',
-          // Include at top level for extractVerificationAlerts compatibility
-          clarification_questions: transformedQuestions,
-          verification: {
-            clarification_questions: transformedQuestions,
-            issues: data.verification?.issues || []
-          },
-          summary: {
-            total_properties: transformedQuestions.length,
-            requires_clarification: true,
-            properties_passed: 0,
-            properties_failed: transformedQuestions.length
-          },
-          // Preserve any analysis text that came with the response
-          analysis: data.analysis
-        }
-      });
-    }
-
-    // Handle case where clarification is needed but we couldn't extract specific questions
-    // This ensures the UI still knows there's an issue that needs attention
-    if (needsClarification && rawQuestions.length === 0) {
-      console.log('⚠️ Clarification needed but no specific questions found - passing through with verification_failed status');
-
-      // If the response already has status: 'verification_failed', pass it through
-      // Otherwise, wrap it to ensure the UI can handle it
-      if (data.status !== 'verification_failed') {
+        // Transform to verification_failed format for compatibility with CGTAnalysisDisplay
+        // Also include the original clarification_questions at top level for extractVerificationAlerts
         return NextResponse.json({
           success: true,
           data: {
-            ...data,
             status: 'verification_failed',
+            // Include at top level for extractVerificationAlerts compatibility
+            clarification_questions: transformedQuestions,
+            verification: {
+              clarification_questions: transformedQuestions,
+              issues: data.verification?.issues || []
+            },
             summary: {
-              ...data.summary,
-              requires_clarification: true
-            }
+              total_properties: transformedQuestions.length,
+              requires_clarification: true,
+              properties_passed: 0,
+              properties_failed: transformedQuestions.length
+            },
+            // Preserve any analysis text that came with the response
+            analysis: data.analysis
           }
         });
       }
+
+      // Handle case where clarification is needed but we couldn't extract specific questions
+      if (needsClarification && rawQuestions.length === 0) {
+        console.log('⚠️ Clarification needed but no specific questions found - passing through with verification_failed status');
+
+        if (data.status !== 'verification_failed') {
+          return NextResponse.json({
+            success: true,
+            data: {
+              ...data,
+              status: 'verification_failed',
+              summary: {
+                ...data.summary,
+                requires_clarification: true
+              }
+            }
+          });
+        }
+      }
+    } else {
+      console.log('🔄 Re-submission with responses: skipping clarification re-wrapping, passing backend response through directly');
     }
 
     // Check if the API returned an error response

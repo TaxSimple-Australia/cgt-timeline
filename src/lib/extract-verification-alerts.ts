@@ -135,7 +135,8 @@ export function extractVerificationAlerts(
             clarificationQuestion: question,
             possibleAnswers,
             severity: 'warning',
-            questionId: cq.question_id, // Preserve question_id from API
+            // Prefer gap_id (the real backend matching key) over question_id (synthetic fallback)
+            questionId: cq.gap_id || cq.question_id || undefined,
           };
 
           console.log('✅ Created TIMELINE alert from clarification question:', {

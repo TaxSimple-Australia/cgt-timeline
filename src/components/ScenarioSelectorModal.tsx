@@ -775,7 +775,7 @@ export default function ScenarioSelectorModal({ isOpen, onClose }: ScenarioSelec
                     /* Scenario Grid View */
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                       {filteredScenarios.map((scenario, index) => {
-                        const globalIndex = scenarios.findIndex(s => s.id === scenario.id) + 1;
+                        const globalIndex = index + 1;
                         const isLoading = loadingScenario === scenario.id;
                         const isDisabled = loadingScenario !== null && !isLoading;
 

@@ -509,89 +509,40 @@ function HomeContent() {
       // Transform timeline data to API format
       const apiData = transformTimelineToAPIFormat(properties, events, undefined, undefined);
 
-      // Inject main residence declarations into property notes before re-submitting.
-      // The backend re-runs its main residence detection on raw timeline data and does not
-      // honour verification_responses for PPR conflicts — so we encode the user's answer
-      // directly into the property notes so the LLM sees it during re-analysis.
-      const resolvedMainResidenceAlerts = verificationAlerts.filter(alert =>
-        alert.resolved &&
-        alert.userResponse &&
-        (alert.clarificationQuestion?.toLowerCase().includes('main residence') ||
-         alert.resolutionText?.toLowerCase().includes('main residence'))
-      );
+      // Build verification_responses — one entry per individual property address.
+      // This mirrors exactly how gap responses work: the backend expects one response
+      // per property_address as it appears in the original properties_involved array.
+      // For multi-property questions (e.g. main residence with "A & B" combined, or
+      // two separate entries), we expand each alert into one response per address so
+      // the backend can match each property independently.
+      const verificationsData: any[] = [];
+      verificationAlerts.forEach((alert) => {
+        // Split combined addresses like "Property A & Property B" into individual ones.
+        // For single-property alerts (gap questions) this produces a one-element array
+        // so behaviour is identical to the previous code.
+        const addresses = alert.propertyAddress
+          .split(/\s*&\s*/)
+          .map((s: string) => s.trim())
+          .filter(Boolean);
 
-      if (resolvedMainResidenceAlerts.length > 0) {
-        console.log('🏠 Injecting main residence declarations into property notes:', resolvedMainResidenceAlerts.length);
+        addresses.forEach((addr: string) => {
+          const verification: any = {
+            property_address: addr,
+            issue_period: {
+              start_date: alert.startDate,
+              end_date: alert.endDate,
+            },
+            resolution_question: alert.resolutionText,
+            user_response: alert.userResponse,
+            resolved_at: alert.resolvedAt,
+          };
 
-        resolvedMainResidenceAlerts.forEach(alert => {
-          // Parse all involved property addresses (handles combined "A & B" strings)
-          const involvedAddresses = alert.propertyAddress
-            .split(/\s*&\s*/)
-            .map((s: string) => s.trim())
-            .filter(Boolean);
+          if (alert.questionId) {
+            verification.question_id = alert.questionId;
+          }
 
-          const userSelectedAddress = (alert.userResponse || '').toLowerCase();
-
-          involvedAddresses.forEach(involvedAddr => {
-            // Find the matching property in the API payload
-            const apiProp = (apiData.properties as any[]).find((p: any) => {
-              const pAddr = p.address.toLowerCase();
-              const invAddr = involvedAddr.toLowerCase();
-              return pAddr.includes(invAddr) || invAddr.includes(pAddr);
-            });
-
-            if (apiProp) {
-              // Determine if this specific property was declared as the main residence
-              const invAddrLower = involvedAddr.toLowerCase();
-              const isSelected =
-                userSelectedAddress.includes(invAddrLower) ||
-                invAddrLower.includes(userSelectedAddress) ||
-                // Partial name match (first word of address in userResponse)
-                invAddrLower.split(',')[0].trim().split(' ').some(
-                  (word: string) => word.length > 3 && userSelectedAddress.includes(word.toLowerCase())
-                );
-
-              const declaration = isSelected
-                ? `\n=== MAIN RESIDENCE DECLARATION (USER CONFIRMED) ===\nFor the period ${alert.startDate} to ${alert.endDate}: USER DECLARED this property IS the main residence (principal place of residence). The user's exact answer was: "${alert.userResponse}". Do NOT request further clarification about the main residence for this period — the user has already answered.`
-                : `\n=== MAIN RESIDENCE DECLARATION (USER CONFIRMED) ===\nFor the period ${alert.startDate} to ${alert.endDate}: USER DECLARED this property was NOT the main residence. The user selected "${alert.userResponse}" as the main residence instead. Do NOT request further clarification about this period.`;
-
-              apiProp.notes = (apiProp.notes || '') + declaration;
-              console.log(`🏠 Injected main residence note into "${apiProp.address}": ${isSelected ? 'IS main residence' : 'NOT main residence'}`);
-            }
-          });
+          verificationsData.push(verification);
         });
-
-        // Also attach structured declarations at top level for APIs that support it
-        (apiData as any).main_residence_declarations = resolvedMainResidenceAlerts.map(alert => ({
-          period: { start: alert.startDate, end: alert.endDate },
-          question: alert.clarificationQuestion,
-          user_response: alert.userResponse,
-          properties_involved: alert.propertyAddress.split(/\s*&\s*/).map((s: string) => s.trim()),
-          question_id: alert.questionId,
-        }));
-
-        console.log('✅ Main residence declarations injected into payload');
-      }
-
-      // Add verification responses to API data
-      const verificationsData = verificationAlerts.map((alert) => {
-        const verification: any = {
-          property_address: alert.propertyAddress,
-          issue_period: {
-            start_date: alert.startDate,
-            end_date: alert.endDate,
-          },
-          resolution_question: alert.resolutionText,
-          user_response: alert.userResponse,
-          resolved_at: alert.resolvedAt,
-        };
-
-        // Include question_id if available
-        if (alert.questionId) {
-          verification.question_id = alert.questionId;
-        }
-
-        return verification;
       });
 
       console.log('✅ TIMELINE alerts converted to verification_responses:', {

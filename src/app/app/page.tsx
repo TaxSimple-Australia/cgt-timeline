@@ -509,40 +509,30 @@ function HomeContent() {
       // Transform timeline data to API format
       const apiData = transformTimelineToAPIFormat(properties, events, undefined, undefined);
 
-      // Build verification_responses — one entry per individual property address.
-      // This mirrors exactly how gap responses work: the backend expects one response
-      // per property_address as it appears in the original properties_involved array.
-      // For multi-property questions (e.g. main residence with "A & B" combined, or
-      // two separate entries), we expand each alert into one response per address so
-      // the backend can match each property independently.
-      const verificationsData: any[] = [];
-      verificationAlerts.forEach((alert) => {
-        // Split combined addresses like "Property A & Property B" into individual ones.
-        // For single-property alerts (gap questions) this produces a one-element array
-        // so behaviour is identical to the previous code.
-        const addresses = alert.propertyAddress
-          .split(/\s*&\s*/)
-          .map((s: string) => s.trim())
-          .filter(Boolean);
+      // Build verification_responses matching the backend's expected format exactly.
+      // Key requirements (confirmed from API sample):
+      //   - Field name is "gap_id" (not "question_id")
+      //   - For main residence questions, property_address is the COMBINED string
+      //     e.g. "Property A & Property B" — do NOT split it
+      //   - For gap questions, property_address is a single address (unchanged)
+      const verificationsData = verificationAlerts.map((alert) => {
+        const verification: any = {
+          property_address: alert.propertyAddress, // keep combined "A & B" intact for main residence
+          issue_period: {
+            start_date: alert.startDate,
+            end_date: alert.endDate,
+          },
+          resolution_question: alert.resolutionText,
+          user_response: alert.userResponse,
+          resolved_at: alert.resolvedAt,
+        };
 
-        addresses.forEach((addr: string) => {
-          const verification: any = {
-            property_address: addr,
-            issue_period: {
-              start_date: alert.startDate,
-              end_date: alert.endDate,
-            },
-            resolution_question: alert.resolutionText,
-            user_response: alert.userResponse,
-            resolved_at: alert.resolvedAt,
-          };
+        // Use gap_id — this is the field name the backend matches on
+        if (alert.questionId) {
+          verification.gap_id = alert.questionId;
+        }
 
-          if (alert.questionId) {
-            verification.question_id = alert.questionId;
-          }
-
-          verificationsData.push(verification);
-        });
+        return verification;
       });
 
       console.log('✅ TIMELINE alerts converted to verification_responses:', {

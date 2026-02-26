@@ -201,8 +201,13 @@ export default function PropertyBranch({
   // Filter out status_change events with newStatus="vacant" BEFORE calculating offsets
   // This ensures remaining events don't get stacking offsets from hidden events
   // (data remains intact for backend purposes - status bands still show "Vacant" label)
+  // Also filter out hidden mixed-use companion move_in events
   const eventsForRendering = eventsWithTiers.filter(event => {
     if (event.type === 'status_change' && (event as any).newStatus === 'vacant') {
+      return false;
+    }
+    // Hide mixed-use companion move_in events (exist for API but not rendered)
+    if (event.type === 'move_in' && event.isHiddenMixedUseCompanion) {
       return false;
     }
     return true;

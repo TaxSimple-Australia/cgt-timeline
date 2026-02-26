@@ -73,16 +73,6 @@ export default function EventCardView({
       return '(Land)';
     }
 
-    // Check for mixed use
-    const hasLiving = event.livingUsePercentage && event.livingUsePercentage > 0;
-    const hasRental = event.rentalUsePercentage && event.rentalUsePercentage > 0;
-    const hasBusiness = event.businessUsePercentage && event.businessUsePercentage > 0;
-
-    const usageCount = [hasLiving, hasRental, hasBusiness].filter(Boolean).length;
-    if (usageCount > 1) {
-      return '(Mixed Use)';
-    }
-
     return '';
   };
 

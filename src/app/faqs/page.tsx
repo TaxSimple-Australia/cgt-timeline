@@ -193,8 +193,8 @@ export default function FAQsPage() {
             </p>
             <p className="text-slate-400">
               Contact our support team at{' '}
-              <a href="mailto:support@cgtbrain.com.au" className="text-cyan-400 hover:text-cyan-300 underline transition-colors font-medium">
-                support@cgtbrain.com.au
+              <a href="mailto:info@cgtbrain.com.au" className="text-cyan-400 hover:text-cyan-300 underline transition-colors font-medium">
+                info@cgtbrain.com.au
               </a>
             </p>
           </motion.div>

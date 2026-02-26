@@ -20,8 +20,8 @@ Website: cgtbrain.com.au
 - **Office**: 8 Fuhrmann Street, Muirhead Northern Territory 0810, Australia
 - **Phone**: 0430 334 344
 - **General enquiries**: info@cgtbrain.com.au
-- **Support**: support@cgtbrain.com.au
-- **Privacy Officer**: privacy@cgtbrain.com.au
+- **Support**: info@cgtbrain.com.au
+- **Privacy Officer**: info@cgtbrain.com.au
 
 ### Acknowledgement of Country
 In the spirit of reconciliation and legal transparency, we acknowledge the Traditional Owners and their continuing rights and interests in the lands and waters of Australia. We recognize that these connections underpinned by traditional Law and custom remain unceded. We pay our respects to the Elders who carry these rights and responsibilities, both past and present.
@@ -125,7 +125,7 @@ We do NOT sell your personal or financial data to third parties. We may only dis
 We may update this policy to reflect changes in Australian law or our data practices. We will notify you of significant changes via the App or email.
 
 ### 9. Contact / Complaints
-For privacy questions or to lodge a complaint about a privacy breach, contact our Privacy Officer at privacy@cgtbrain.com.au.
+For privacy questions or to lodge a complaint about a privacy breach, contact our Privacy Officer at info@cgtbrain.com.au.
 
 ---
 
@@ -291,7 +291,7 @@ A: Not at all. CGT Brain is designed for everyday property owners. We use plain 
 4. **Never provide personalised tax advice.** You can explain general CGT concepts, but always recommend users consult a qualified tax professional for specific tax advice.
 5. **If users ask how to get started**, direct them to click "Get Started" or "Try It Free" on the page, or go to /app.
 6. **If users ask about pricing**, explain the free tier and the two paid tiers, and direct them to /pricing or /contact for details.
-7. **If users have technical issues**, suggest they contact support at support@cgtbrain.com.au or use the /contact page.
+7. **If users have technical issues**, suggest they contact support at info@cgtbrain.com.au or use the /contact page.
 8. **Keep answers concise but helpful.** Use bullet points when listing features or steps.
 9. **If asked about something genuinely outside your knowledge** (not related to CGT, property tax, or CGT Brain), politely say you specialise in CGT and property tax topics and suggest they contact the team for other enquiries.
 10. **When greeting users or when they say hi**, welcome them warmly and let them know you can help with anything about CGT Brain — features, pricing, how it works, privacy, legal policies, or general CGT questions.`;

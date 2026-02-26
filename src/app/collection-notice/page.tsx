@@ -114,8 +114,8 @@ export default function CollectionNoticePage() {
                     <h3 className="text-xl font-semibold text-white mb-3">1. Who is collecting your information?</h3>
                     <p className="leading-relaxed">
                       Your personal and financial information is collected by CGT BRAIN. You can contact our Privacy Officer at{' '}
-                      <a href="mailto:privacy@cgtbrain.com.au" className="text-cyan-400 hover:text-cyan-300 underline">
-                        privacy@cgtbrain.com.au
+                      <a href="mailto:info@cgtbrain.com.au" className="text-cyan-400 hover:text-cyan-300 underline">
+                        info@cgtbrain.com.au
                       </a>{' '}
                       or{' '}
                       <a href="tel:+61430334344" className="text-cyan-400 hover:text-cyan-300 underline">

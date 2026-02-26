@@ -19,7 +19,8 @@ import {
   ChevronLeft,
   Gift,
   Users,
-  Split
+  Split,
+  Percent
 } from 'lucide-react';
 import { PropertyStatus } from '@/store/timeline';
 import SubdivisionModal from './SubdivisionModal';
@@ -39,6 +40,8 @@ const eventTypes: { type: EventType; label: string; icon: React.ReactNode; color
   { type: 'move_out', label: 'Move Out', icon: <Package className="w-4 h-4" />, color: '#EF4444' },
   { type: 'rent_start', label: 'Start Rent', icon: <DollarSign className="w-4 h-4" />, color: '#F59E0B' },
   { type: 'rent_end', label: 'End Rent', icon: <DollarSign className="w-4 h-4" />, color: '#F97316' },
+  { type: 'mixed_use_start', label: 'Mixed-Use Start', icon: <Percent className="w-4 h-4" />, color: '#F59E0B' },
+  { type: 'mixed_use_end', label: 'Mixed-Use End', icon: <X className="w-4 h-4" />, color: '#6B7280' },
   { type: 'building_start', label: 'Building Start', icon: <Building2 className="w-4 h-4" />, color: '#F97316' },
   { type: 'building_end', label: 'Building End', icon: <Building2 className="w-4 h-4" />, color: '#FB923C' },
   { type: 'improvement', label: 'Improvement', icon: <Hammer className="w-4 h-4" />, color: '#06B6D4' },
@@ -293,8 +296,8 @@ export default function QuickAddMenu({ position, timelinePosition, onClose, pres
       return;
     }
 
-    // Events that don't have amounts
-    const noAmountEvents = ['move_in', 'move_out'];
+    // Events that don't have amounts (configured elsewhere)
+    const noAmountEvents = ['move_in', 'move_out', 'mixed_use_start', 'mixed_use_end'];
 
     addEvent({
       propertyId: property.id,

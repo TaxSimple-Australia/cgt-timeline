@@ -111,7 +111,8 @@ export default function PropertyStatusBands({
     startPos: number,
     endPos: number,
     status: PropertyStatus,
-    key: string
+    key: string,
+    customLabel?: string
   ) => {
     const width = endPos - startPos;
 
@@ -173,6 +174,7 @@ export default function PropertyStatusBands({
           const bandCenterPos = startPos + width / 2;
           const hasNearbyEvents = hasEventsNearby(bandCenterPos);
           const labelYOffset = hasNearbyEvents ? -24 : -12; // Push label just above circles if events nearby
+          const label = customLabel || statusLabels[status];
 
           return (
             <text
@@ -186,7 +188,7 @@ export default function PropertyStatusBands({
                 transition: 'all 0.2s ease'
               }}
             >
-              {statusLabels[status]}
+              {label}
             </text>
           );
         })()}
@@ -253,19 +255,38 @@ export default function PropertyStatusBands({
 
         const width = endPos - startPos;
 
+        // Check if this period started with a mixed_use_start event or purchase with mixed-use
+        const mixedUseEvent = events.find(e =>
+          (e.type === 'mixed_use_start' || e.type === 'purchase') &&
+          e.date.getTime() === period.startDate.getTime() &&
+          (e.livingUsePercentage || e.rentalUsePercentage || e.businessUsePercentage)
+        );
+
+        let customLabel: string | undefined;
+        if (mixedUseEvent) {
+          const living = mixedUseEvent.livingUsePercentage || 0;
+          const rental = mixedUseEvent.rentalUsePercentage || 0;
+          const business = mixedUseEvent.businessUsePercentage || 0;
+
+          // Only show mixed-use label if we have actual percentages
+          if (living + rental + business > 0) {
+            customLabel = 'Mixed';
+          }
+        }
+
         // Check if this period spans the subdivision date - if so, split into two bands
         if (subdivisionPosition !== null && startPos < subdivisionPosition && endPos > subdivisionPosition) {
           // Split the band at subdivision position
           return (
             <React.Fragment key={`status-${index}`}>
-              {renderStatusBand(startPos, subdivisionPosition, period.status, `status-${index}-before`)}
-              {renderStatusBand(subdivisionPosition, endPos, period.status, `status-${index}-after`)}
+              {renderStatusBand(startPos, subdivisionPosition, period.status, `status-${index}-before`, customLabel)}
+              {renderStatusBand(subdivisionPosition, endPos, period.status, `status-${index}-after`, customLabel)}
             </React.Fragment>
           );
         }
 
         // Render single band (no subdivision split)
-        return renderStatusBand(startPos, endPos, period.status, `status-${index}`);
+        return renderStatusBand(startPos, endPos, period.status, `status-${index}`, customLabel);
       })}
     </g>
   );

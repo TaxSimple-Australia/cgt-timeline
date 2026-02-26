@@ -52,7 +52,7 @@ export default function BookDemoPage() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          to: 'demo@taxsimple.com.au',
+          to: 'info@cgtbrain.com.au',
           subject: `Demo Request from ${formData.name}`,
           text: `
 Demo Request Details:

@@ -264,8 +264,13 @@ export function transformTimelineToAPIFormat(
 
         // Add start dates if available
         const dateParts: string[] = [];
-        if (living > 0 && event.mixedUseMoveInDate) {
-          dateParts.push(`owner moved in ${format(event.mixedUseMoveInDate, 'dd MMM yyyy')}`);
+        if (living > 0) {
+          if (event.mixedUseMoveInDate) {
+            dateParts.push(`owner moved in ${format(event.mixedUseMoveInDate, 'dd MMM yyyy')}`);
+          } else {
+            // If living % > 0 but no explicit move-in date, assume moved in on purchase date
+            dateParts.push(`owner moved in on purchase date`);
+          }
         }
         if (rental > 0 && event.rentalUseStartDate) {
           dateParts.push(`rental use started ${format(event.rentalUseStartDate, 'dd MMM yyyy')}`);
@@ -764,7 +769,30 @@ export function transformTimelineToAPIFormat(
         const living = event.livingUsePercentage || 0;
         const rental = event.rentalUsePercentage || 0;
         const business = event.businessUsePercentage || 0;
-        structuredData.push(`${eventDate} - MIXED USE: Living=${living}%, Rental=${rental}%, Business=${business}%${event.mixedUseMoveInDate ? ' | Move In=' + sanitizeDateForAPI(event.mixedUseMoveInDate) : ''}${event.rentalUseStartDate ? ' | Rental Start=' + sanitizeDateForAPI(event.rentalUseStartDate) : ''}${event.businessUseStartDate ? ' | Business Start=' + sanitizeDateForAPI(event.businessUseStartDate) : ''}`);
+
+        // Build structured data string
+        let structuredText = `${eventDate} - MIXED USE: Living=${living}%, Rental=${rental}%, Business=${business}%`;
+
+        // Add move-in info if living % > 0
+        if (living > 0) {
+          if (event.mixedUseMoveInDate) {
+            structuredText += ' | Move In=' + sanitizeDateForAPI(event.mixedUseMoveInDate);
+          } else {
+            structuredText += ' | Owner Moved In=On Purchase Date';
+          }
+        }
+
+        // Add rental start date if available
+        if (event.rentalUseStartDate) {
+          structuredText += ' | Rental Start=' + sanitizeDateForAPI(event.rentalUseStartDate);
+        }
+
+        // Add business start date if available
+        if (event.businessUseStartDate) {
+          structuredText += ' | Business Start=' + sanitizeDateForAPI(event.businessUseStartDate);
+        }
+
+        structuredData.push(structuredText);
       }
       
       // Ownership changes

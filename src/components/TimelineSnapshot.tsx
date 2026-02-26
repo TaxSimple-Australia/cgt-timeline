@@ -5,14 +5,18 @@ import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import html2canvas from 'html2canvas';
 import {
-  Camera, X, Download
+  Camera, X, Download, BarChart3, CalendarDays
 } from 'lucide-react';
 import { useTimelineStore, Property, TimelineEvent, EventType } from '@/store/timeline';
 import { format } from 'date-fns';
 import GanttChartView from './timeline-viz/snapshot/GanttChartView';
+import StatusPeriodsView from './timeline-viz/snapshot/StatusPeriodsView';
+
+type SnapshotViewMode = 'gantt' | 'status-periods';
 
 export default function TimelineSnapshot() {
   const [isOpen, setIsOpen] = useState(false);
+  const [viewMode, setViewMode] = useState<SnapshotViewMode>('gantt');
   const [clickedEvent, setClickedEvent] = useState<{ event: TimelineEvent; property: Property; clientX: number; clientY: number } | null>(null);
   const [hoveredProperty, setHoveredProperty] = useState<Property | null>(null);
   const [hoveredPropertyElement, setHoveredPropertyElement] = useState<{ property: Property; rect: DOMRect } | null>(null);
@@ -295,6 +299,39 @@ export default function TimelineSnapshot() {
                     </div>
                   </div>
                   <div className="flex items-center gap-2" data-html2canvas-ignore="true">
+                    {/* View Toggle Buttons - Hidden from export */}
+                    <div className="flex items-center gap-1 bg-slate-200 dark:bg-slate-700 rounded-lg p-1 mr-2">
+                      <button
+                        onClick={() => setViewMode('gantt')}
+                        className={`p-2 rounded-md transition-all ${
+                          viewMode === 'gantt'
+                            ? 'bg-white dark:bg-slate-800 shadow-sm'
+                            : 'hover:bg-slate-300 dark:hover:bg-slate-600'
+                        }`}
+                        title="Timeline View"
+                      >
+                        <CalendarDays className={`w-4 h-4 ${
+                          viewMode === 'gantt'
+                            ? 'text-blue-600 dark:text-blue-400'
+                            : 'text-slate-600 dark:text-slate-400'
+                        }`} />
+                      </button>
+                      <button
+                        onClick={() => setViewMode('status-periods')}
+                        className={`p-2 rounded-md transition-all ${
+                          viewMode === 'status-periods'
+                            ? 'bg-white dark:bg-slate-800 shadow-sm'
+                            : 'hover:bg-slate-300 dark:hover:bg-slate-600'
+                        }`}
+                        title="Status Periods View"
+                      >
+                        <BarChart3 className={`w-4 h-4 ${
+                          viewMode === 'status-periods'
+                            ? 'text-blue-600 dark:text-blue-400'
+                            : 'text-slate-600 dark:text-slate-400'
+                        }`} />
+                      </button>
+                    </div>
                     {/* Download Button - Hidden from export */}
                     <button
                       onClick={handleDownload}
@@ -324,10 +361,10 @@ export default function TimelineSnapshot() {
                 </div>
 
                 {/* Snapshot Content */}
-                <div className="flex-1 overflow-auto rounded-b-[10px]">
+                <div className="flex-1 overflow-auto rounded-b-[10px] bg-slate-950">
                   <div
                     data-snapshot-content="true"
-                    className="relative bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-800 dark:to-slate-900 p-8 min-h-full"
+                    className="relative p-8 min-h-full"
                     onClick={() => {
                       // Close popup when clicking background
                       if (clickedEvent) {
@@ -335,13 +372,22 @@ export default function TimelineSnapshot() {
                       }
                     }}
                   >
-                  {/* Gantt Chart View */}
-                  <GanttChartView
-                    properties={properties}
-                    events={events}
-                    absoluteStart={absoluteStart}
-                    absoluteEnd={absoluteEnd}
-                  />
+                  {/* Conditional View Rendering */}
+                  {viewMode === 'gantt' ? (
+                    <GanttChartView
+                      properties={properties}
+                      events={events}
+                      absoluteStart={absoluteStart}
+                      absoluteEnd={absoluteEnd}
+                    />
+                  ) : (
+                    <StatusPeriodsView
+                      properties={properties}
+                      events={events}
+                      absoluteStart={absoluteStart}
+                      absoluteEnd={absoluteEnd}
+                    />
+                  )}
                 </div>
               </div>
             </div>

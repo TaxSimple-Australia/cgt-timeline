@@ -49,11 +49,6 @@ export default function EventCircle({ event, cx, cy, color, onClick, tier = 0, z
 
     // For stacked purchase events, incorporate subtitle into title to avoid overlap
     if (event.type === 'purchase' && verticalOffset !== 0) {
-      const hasLiving = event.livingUsePercentage && event.livingUsePercentage > 0;
-      const hasRental = event.rentalUsePercentage && event.rentalUsePercentage > 0;
-      const hasBusiness = event.businessUsePercentage && event.businessUsePercentage > 0;
-      const usageCount = [hasLiving, hasRental, hasBusiness].filter(Boolean).length;
-      if (usageCount > 1) return `${event.title} | Mixed`;
       if (event.isLandOnly) return `${event.title} | Land`;
     }
 
@@ -68,16 +63,6 @@ export default function EventCircle({ event, cx, cy, color, onClick, tier = 0, z
     // Check for land
     if (event.isLandOnly) {
       return '(Land)';
-    }
-
-    // Check for mixed use
-    const hasLiving = event.livingUsePercentage && event.livingUsePercentage > 0;
-    const hasRental = event.rentalUsePercentage && event.rentalUsePercentage > 0;
-    const hasBusiness = event.businessUsePercentage && event.businessUsePercentage > 0;
-
-    const usageCount = [hasLiving, hasRental, hasBusiness].filter(Boolean).length;
-    if (usageCount > 1) {
-      return '(Mixed Use)';
     }
 
     return '';

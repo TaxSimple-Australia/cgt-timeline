@@ -32,6 +32,8 @@ export type EventType =
   | 'subdivision'   // Property subdivision into multiple lots
   | 'living_in_rental_start'  // Start living in rental property
   | 'living_in_rental_end'    // Stop living in rental property
+  | 'mixed_use_start'   // Start a mixed-use period with specified percentages
+  | 'mixed_use_end'     // End mixed-use period
   | 'custom';       // User-defined custom event for any situation
 
 export type PropertyStatus =
@@ -197,6 +199,9 @@ export interface TimelineEvent {
   // For synthetic "Not Sold" markers - appreciation/future value
   appreciationValue?: number;      // Future/appreciation value
   appreciationDate?: Date;         // Date for appreciation value
+
+  // For hidden companion events (not rendered on timeline but sent to API)
+  isHiddenMixedUseCompanion?: boolean;  // true for move_in events auto-created by mixed-use purchases
 }
 
 export interface Property {
@@ -464,6 +469,8 @@ const eventColors: Record<EventType, string> = {
   subdivision: '#EC4899',    // Pink - Property subdivision
   living_in_rental_start: '#EC4899',  // Pink - Start living in rental
   living_in_rental_end: '#DB2777',    // Darker pink - Stop living in rental
+  mixed_use_start: '#F59E0B',   // Amber - Start mixed-use period
+  mixed_use_end: '#6B7280',     // Gray - End mixed-use period
   custom: '#6B7280',         // Gray - Custom event (user can change)
 };
 
@@ -573,12 +580,14 @@ export const calculateStatusPeriods = (events: TimelineEvent[]): StatusPeriod[] 
     'rent_end': 2,
     'living_in_rental_end': 2,
     'building_end': 2,
+    'mixed_use_end': 2,
 
     // Priority 3 - Active use events (establish new status)
     'move_in': 4,
     'rent_start': 4,
     'living_in_rental_start': 4,
     'building_start': 4,
+    'mixed_use_start': 4,
 
     // Priority 5 - Explicit user overrides
     'status_change': 5,
@@ -656,6 +665,28 @@ export const calculateStatusPeriods = (events: TimelineEvent[]): StatusPeriod[] 
         break;
       case 'living_in_rental_end':
         // No longer living in rental - property becomes vacant
+        newStatus = 'vacant';
+        break;
+      case 'mixed_use_start':
+        // Mixed-use period begins - determine dominant use for status band
+        // Status is based on the highest percentage
+        const living = event.livingUsePercentage || 0;
+        const rental = event.rentalUsePercentage || 0;
+        const business = event.businessUsePercentage || 0;
+
+        // Determine dominant use type
+        if (living >= rental && living >= business && living > 0) {
+          newStatus = 'ppr'; // Living is dominant
+        } else if (rental >= living && rental >= business && rental > 0) {
+          newStatus = 'rental'; // Rental is dominant
+        } else if (business > 0) {
+          newStatus = 'ppr'; // Business use treated as PPR-related
+        } else {
+          newStatus = 'vacant'; // No percentages set (shouldn't happen)
+        }
+        break;
+      case 'mixed_use_end':
+        // End of mixed-use period - property becomes vacant until next status event
         newStatus = 'vacant';
         break;
       case 'sale':
@@ -1701,6 +1732,26 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
           const p3 = findParent('rent_end', 'rentEndAsVacant');
           if (p3) parentUpdates.push({ parentId: p3.id, checkboxKey: 'rentEndAsVacant' });
         }
+
+        if (eventToDelete.type === 'mixed_use_start') {
+          // Companion of: purchase.purchaseAsMixedUse
+          const parent = findParent('purchase', 'purchaseAsMixedUse');
+          if (parent) {
+            parentUpdates.push({ parentId: parent.id, checkboxKey: 'purchaseAsMixedUse' });
+
+            // Also clean up hidden move_in companion if it exists
+            const hiddenMoveIn = state.events.find(
+              (e) =>
+                e.propertyId === deletedPropId &&
+                e.type === 'move_in' &&
+                e.isHiddenMixedUseCompanion &&
+                e.date.getTime() === deletedDate
+            );
+            if (hiddenMoveIn) {
+              relatedEventsToDelete.push(hiddenMoveIn.id);
+            }
+          }
+        }
       }
 
       if (parentUpdates.length > 0) {
@@ -1878,6 +1929,10 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
         const hasLivingPercentage = event.livingUsePercentage && event.livingUsePercentage > 0;
         const hasOnlyRentalPercentage = event.rentalUsePercentage && event.rentalUsePercentage > 0 && (!event.livingUsePercentage || event.livingUsePercentage === 0);
 
+        // Always move the visible mixed_use_start companion
+        findAndMoveCompanion('mixed_use_start', 'purchaseAsMixedUse');
+
+        // Move hidden companions
         if (hasLivingPercentage && !checkboxState.moveInOnSameDay) {
           findAndMoveCompanion('move_in', 'purchaseAsMixedUse (living)');
         } else if (hasOnlyRentalPercentage) {

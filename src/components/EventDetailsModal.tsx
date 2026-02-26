@@ -37,6 +37,8 @@ const eventTypeOptions = [
   { type: 'move_out' as const, label: 'Move Out', color: '#EF4444' },
   { type: 'rent_start' as const, label: 'Start Rent', color: '#F59E0B' },
   { type: 'rent_end' as const, label: 'End Rent', color: '#F97316' },
+  { type: 'mixed_use_start' as const, label: 'Mixed-Use Start', color: '#F59E0B' },
+  { type: 'mixed_use_end' as const, label: 'Mixed-Use End', color: '#6B7280' },
   { type: 'improvement' as const, label: 'Improvement', color: '#06B6D4' },
   { type: 'building_start' as const, label: 'Building Start', color: '#F97316' },
   { type: 'building_end' as const, label: 'Building End', color: '#FB923C' },
@@ -313,7 +315,7 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
   const [livingUsePercentage, setLivingUsePercentage] = useState(event.livingUsePercentage?.toString() || '');
   const [rentalUsePercentage, setRentalUsePercentage] = useState(event.rentalUsePercentage?.toString() || '');
   const [mixedBusinessUsePercentage, setMixedBusinessUsePercentage] = useState(
-    event.type === 'purchase' && event.businessUsePercentage ? event.businessUsePercentage.toString() : ''
+    event.businessUsePercentage ? event.businessUsePercentage.toString() : ''
   );
 
   // Mixed-use start dates
@@ -880,6 +882,29 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
         updates.mixedUseMoveInDate = undefined;
       }
 
+      // Save percentages for mixed_use_start events (no checkbox needed)
+      if (eventType === 'mixed_use_start') {
+        const living = parseFloat(livingUsePercentage) || 0;
+        const rental = parseFloat(rentalUsePercentage) || 0;
+        const business = parseFloat(mixedBusinessUsePercentage) || 0;
+        const total = living + rental + business;
+
+        // Validate that total equals 100% before saving
+        if (total !== 100) {
+          showWarning(
+            'Invalid percentages',
+            `Mixed-Use percentages must total 100%. Current total: ${total.toFixed(1)}%`
+          );
+          setIsSaving(false);
+          return;
+        }
+
+        // Save the percentages
+        updates.livingUsePercentage = living > 0 ? living : undefined;
+        updates.rentalUsePercentage = rental > 0 ? rental : undefined;
+        updates.businessUsePercentage = business > 0 ? business : undefined;
+      }
+
       // NEW: Ownership Change validation and data (including Inherit events)
       if (eventType === 'ownership_change' || eventType === 'refinance') {
         // Validate that at least one leaving owner is selected
@@ -1130,167 +1155,129 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
       }
 
       // Handle Mixed-Use companion events for purchase
-      // This creates appropriate move_in or rent_start events based on living/rental percentages
+      // Create a mixed_use_start event with the percentages
       if (event.type === 'purchase' && purchaseAsMixedUse) {
         const living = parseFloat(livingUsePercentage) || 0;
         const rental = parseFloat(rentalUsePercentage) || 0;
+        const business = parseFloat(mixedBusinessUsePercentage) || 0;
 
-        // Scenario A: Mixed-Use + Move in on same day - already handled by moveInOnSameDay logic above
+        // Check if mixed_use_start event already exists on purchase date
+        const freshEvents = useTimelineStore.getState().events;
+        const existingMixedUseStart = freshEvents.find(
+          (e) =>
+            e.propertyId === event.propertyId &&
+            e.type === 'mixed_use_start' &&
+            e.date.getTime() === parsedDate.getTime()
+        );
 
-        // Scenario B: Mixed-Use + Living % + NOT same day + has move-in date
-        // Create move_in event on the specified mixedUseMoveInDate
-        if (living > 0 && !moveInOnSameDay && parsedMixedUseMoveInDate) {
-          const mixedUseMoveInTimestamp = parsedMixedUseMoveInDate.getTime();
+        // Only create if checkbox became true AND no existing companion
+        if (checkboxBecameTrue('purchaseAsMixedUse') && !existingMixedUseStart) {
+          // Create mixed_use_start event
+          addEvent({
+            propertyId: event.propertyId,
+            type: 'mixed_use_start',
+            date: parsedDate,
+            title: 'Mixed-Use Start',
+            position: event.position,
+            color: '#F59E0B',
+            livingUsePercentage: living > 0 ? living : undefined,
+            rentalUsePercentage: rental > 0 ? rental : undefined,
+            businessUsePercentage: business > 0 ? business : undefined,
+          });
 
-          // Use fresh store state (not stale closure) to check for existing events
-          const freshEventsB = useTimelineStore.getState().events;
-          const existingMixedUseMoveIn = freshEventsB.find(
-            (e) =>
-              e.propertyId === event.propertyId &&
-              e.type === 'move_in' &&
-              e.date.getTime() === mixedUseMoveInTimestamp
-          );
+          // If living % > 0, also create a hidden move_in event for the API/backend
+          if (living > 0) {
+            const freshEventsForMoveIn = useTimelineStore.getState().events;
+            const existingHiddenMoveIn = freshEventsForMoveIn.find(
+              (e) =>
+                e.propertyId === event.propertyId &&
+                e.type === 'move_in' &&
+                e.isHiddenMixedUseCompanion &&
+                e.date.getTime() === parsedDate.getTime()
+            );
 
-          if (!existingMixedUseMoveIn) {
-            // Delete any old move_in on a different date that was created by mixed-use
-            const oldMoveInDate = event.mixedUseMoveInDate;
-            if (oldMoveInDate && oldMoveInDate.getTime() !== mixedUseMoveInTimestamp) {
-              const oldMixedUseMoveIn = freshEventsB.find(
-                (e) =>
-                  e.propertyId === event.propertyId &&
-                  e.type === 'move_in' &&
-                  e.date.getTime() === oldMoveInDate.getTime()
-              );
-              if (oldMixedUseMoveIn) {
-                deleteEvent(oldMixedUseMoveIn.id);
-              }
-            }
-
-            addEvent({
-              propertyId: event.propertyId,
-              type: 'move_in',
-              date: parsedMixedUseMoveInDate,
-              title: 'Move In',
-              position: event.position,
-              color: '#10B981',
-            });
-          }
-        }
-
-        // Scenario C: Mixed-Use with only rental % (0% living) and rental % > 0
-        // Create rent_start event on purchase date ONLY when no rental start date OR it equals purchase date
-        if (living === 0 && rental > 0) {
-          const rentalStartOnPurchaseDate = !parsedRentalUseStartDate ||
-            parsedRentalUseStartDate.getTime() === parsedDate.getTime();
-
-          if (rentalStartOnPurchaseDate) {
-            const existingRentOnPurchase = findCompanion('rent_start');
-
-            // Only create if didn't already exist via purchaseAsRent
-            if (!existingRentOnPurchase && checkboxBecameTrue('purchaseAsMixedUse')) {
+            if (!existingHiddenMoveIn) {
               addEvent({
                 propertyId: event.propertyId,
-                type: 'rent_start',
+                type: 'move_in',
                 date: parsedDate,
-                title: 'Start Rent',
+                title: 'Move In',
                 position: event.position,
-                color: '#F59E0B',
+                color: '#10B981',
+                isHiddenMixedUseCompanion: true, // Mark as hidden so it's filtered from rendering
               });
             }
           }
         }
 
-        // Scenario D: Mixed-Use with rental % > 0 AND a specific rental start date different from purchase date
-        // Create rent_start event on the specified rentalUseStartDate
-        if (rental > 0 && parsedRentalUseStartDate) {
-          const rentalUseStartTimestamp = parsedRentalUseStartDate.getTime();
-          const purchaseTimestamp = parsedDate.getTime();
+        // Don't return - let it fall through to cleanup section
+      }
 
-          // Only if rental start date is DIFFERENT from purchase date
-          if (rentalUseStartTimestamp !== purchaseTimestamp) {
-            // Use fresh store state (not stale closure) to check for existing events
-            const freshEventsD = useTimelineStore.getState().events;
-            const existingRentalUseRentStart = freshEventsD.find(
-              (e) =>
-                e.propertyId === event.propertyId &&
-                e.type === 'rent_start' &&
-                e.date.getTime() === rentalUseStartTimestamp
-            );
 
-            if (!existingRentalUseRentStart) {
-              // Delete any old rent_start on a different date that was created by mixed-use
-              const oldRentalStartDate = event.rentalUseStartDate;
-              if (oldRentalStartDate && oldRentalStartDate.getTime() !== purchaseTimestamp && oldRentalStartDate.getTime() !== rentalUseStartTimestamp) {
-                const oldMixedUseRentStart = freshEventsD.find(
-                  (e) =>
-                    e.propertyId === event.propertyId &&
-                    e.type === 'rent_start' &&
-                    e.date.getTime() === oldRentalStartDate.getTime()
-                );
-                if (oldMixedUseRentStart) {
-                  deleteEvent(oldMixedUseRentStart.id);
-                }
-              }
+      // Clean up mixed_use_start companion event if Mixed-Use is unchecked
+      if (event.type === 'purchase' && originalCheckboxState?.purchaseAsMixedUse && !purchaseAsMixedUse) {
+        // User unchecked the Mixed-Use checkbox, remove the companion mixed_use_start event
+        const freshEventsCleanup = useTimelineStore.getState().events;
+        const oldMixedUseStart = freshEventsCleanup.find(
+          (e) =>
+            e.propertyId === event.propertyId &&
+            e.type === 'mixed_use_start' &&
+            e.date.getTime() === parsedDate.getTime()
+        );
+        if (oldMixedUseStart) {
+          deleteEvent(oldMixedUseStart.id);
+        }
 
-              addEvent({
-                propertyId: event.propertyId,
-                type: 'rent_start',
-                date: parsedRentalUseStartDate,
-                title: 'Start Rent',
-                position: event.position,
-                color: '#F59E0B',
-              });
-            }
-          }
+        // Also remove the hidden move_in event if it exists
+        const oldHiddenMoveIn = freshEventsCleanup.find(
+          (e) =>
+            e.propertyId === event.propertyId &&
+            e.type === 'move_in' &&
+            e.isHiddenMixedUseCompanion &&
+            e.date.getTime() === parsedDate.getTime()
+        );
+        if (oldHiddenMoveIn) {
+          deleteEvent(oldHiddenMoveIn.id);
         }
       }
 
-      // Clean up mixed-use move_in companion if Mixed-Use is unchecked or living % becomes 0
-      const previousMixedUseMoveInDate = event.mixedUseMoveInDate;
-      if (event.type === 'purchase' && originalCheckboxState?.purchaseAsMixedUse && previousMixedUseMoveInDate) {
-        const shouldRemoveMixedUseMoveIn =
-          !purchaseAsMixedUse || // Mixed-Use was unchecked
-          (parseFloat(livingUsePercentage) || 0) === 0 || // Living % is now 0
-          moveInOnSameDay; // User now wants to move in same day (handled elsewhere)
+      // Clean up hidden move_in if living% changed to 0 (but mixed-use still checked)
+      if (event.type === 'purchase' && purchaseAsMixedUse) {
+        const living = parseFloat(livingUsePercentage) || 0;
+        const rental = parseFloat(rentalUsePercentage) || 0;
+        const business = parseFloat(mixedBusinessUsePercentage) || 0;
+        const hadLivingBefore = event.livingUsePercentage && event.livingUsePercentage > 0;
 
-        if (shouldRemoveMixedUseMoveIn) {
-          const freshEventsCleanupMoveIn = useTimelineStore.getState().events;
-          const oldMixedUseMoveIn = freshEventsCleanupMoveIn.find(
+        // If living% is now 0 but was > 0 before, delete hidden move_in
+        if (living === 0 && hadLivingBefore) {
+          const freshEventsCleanup = useTimelineStore.getState().events;
+          const oldHiddenMoveIn = freshEventsCleanup.find(
             (e) =>
               e.propertyId === event.propertyId &&
               e.type === 'move_in' &&
-              e.date.getTime() === previousMixedUseMoveInDate.getTime()
+              e.isHiddenMixedUseCompanion &&
+              e.date.getTime() === parsedDate.getTime()
           );
-          if (oldMixedUseMoveIn) {
-            deleteEvent(oldMixedUseMoveIn.id);
+          if (oldHiddenMoveIn) {
+            deleteEvent(oldHiddenMoveIn.id);
           }
         }
-      }
 
-      // Clean up mixed-use rent_start companion if Mixed-Use is unchecked or rental % becomes 0
-      const previousRentalUseStartDate = event.rentalUseStartDate;
-      if (event.type === 'purchase' && originalCheckboxState?.purchaseAsMixedUse && previousRentalUseStartDate) {
-        const purchaseTimestamp = parsedDate.getTime();
-
-        // Only clean up if the rental start date was different from purchase date
-        // (rent_start on purchase date is handled by purchaseAsRent logic)
-        if (previousRentalUseStartDate.getTime() !== purchaseTimestamp) {
-          const shouldRemoveMixedUseRentStart =
-            !purchaseAsMixedUse || // Mixed-Use was unchecked
-            (parseFloat(rentalUsePercentage) || 0) === 0; // Rental % is now 0
-
-          if (shouldRemoveMixedUseRentStart) {
-            const freshEventsCleanupRent = useTimelineStore.getState().events;
-            const oldMixedUseRentStart = freshEventsCleanupRent.find(
-              (e) =>
-                e.propertyId === event.propertyId &&
-                e.type === 'rent_start' &&
-                e.date.getTime() === previousRentalUseStartDate.getTime()
-            );
-            if (oldMixedUseRentStart) {
-              deleteEvent(oldMixedUseRentStart.id);
-            }
-          }
+        // Sync percentages to mixed_use_start companion if it exists
+        const freshEvents = useTimelineStore.getState().events;
+        const mixedUseStart = freshEvents.find(
+          (e) =>
+            e.propertyId === event.propertyId &&
+            e.type === 'mixed_use_start' &&
+            e.date.getTime() === parsedDate.getTime()
+        );
+        if (mixedUseStart) {
+          // Update the mixed_use_start event with new percentages
+          updateEvent(mixedUseStart.id, {
+            livingUsePercentage: living > 0 ? living : undefined,
+            rentalUsePercentage: rental > 0 ? rental : undefined,
+            businessUsePercentage: business > 0 ? business : undefined,
+          });
         }
       }
 
@@ -1908,20 +1895,20 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
                         type="checkbox"
                         id="moveInOnSameDay"
                         checked={moveInOnSameDay}
+                        disabled={purchaseAsMixedUse}
                         onChange={(e) => {
                           setMoveInOnSameDay(e.target.checked);
                           if (e.target.checked) {
-                            // Only clear mutually exclusive options (not Mixed-Use)
                             setPurchaseAsVacant(false);
                             setPurchaseAsRent(false);
-                            // Mixed-Use can be combined with Move-In - don't clear it
+                            setPurchaseAsMixedUse(false);
                           }
                         }}
-                        className="w-4 h-4 text-blue-600 bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 rounded focus:ring-2 focus:ring-blue-500 cursor-pointer"
+                        className="w-4 h-4 text-blue-600 bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 rounded focus:ring-2 focus:ring-blue-500 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                       />
                       <label
                         htmlFor="moveInOnSameDay"
-                        className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300 cursor-pointer"
+                        className={`flex items-center gap-2 text-sm font-medium cursor-pointer ${purchaseAsMixedUse ? 'text-slate-400 dark:text-slate-500 cursor-not-allowed' : 'text-slate-700 dark:text-slate-300'}`}
                       >
                         <Home className="w-4 h-4" />
                         Move in on same day (Main Residence)
@@ -1936,6 +1923,7 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
                       type="checkbox"
                       id="purchaseAsVacant"
                       checked={purchaseAsVacant}
+                      disabled={purchaseAsMixedUse}
                       onChange={(e) => {
                         setPurchaseAsVacant(e.target.checked);
                         if (e.target.checked) {
@@ -1944,11 +1932,11 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
                           setPurchaseAsMixedUse(false);
                         }
                       }}
-                      className="w-4 h-4 text-blue-600 bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 rounded focus:ring-2 focus:ring-blue-500 cursor-pointer"
+                      className="w-4 h-4 text-blue-600 bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 rounded focus:ring-2 focus:ring-blue-500 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                     />
                     <label
                       htmlFor="purchaseAsVacant"
-                      className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300 cursor-pointer"
+                      className={`flex items-center gap-2 text-sm font-medium cursor-pointer ${purchaseAsMixedUse ? 'text-slate-400 dark:text-slate-500 cursor-not-allowed' : 'text-slate-700 dark:text-slate-300'}`}
                     >
                       <Building2 className="w-4 h-4" />
                       Purchase as vacant
@@ -1961,6 +1949,7 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
                       type="checkbox"
                       id="purchaseAsRent"
                       checked={purchaseAsRent}
+                      disabled={purchaseAsMixedUse}
                       onChange={(e) => {
                         setPurchaseAsRent(e.target.checked);
                         if (e.target.checked) {
@@ -1969,11 +1958,11 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
                           setPurchaseAsMixedUse(false);
                         }
                       }}
-                      className="w-4 h-4 text-blue-600 bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 rounded focus:ring-2 focus:ring-blue-500 cursor-pointer"
+                      className="w-4 h-4 text-blue-600 bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 rounded focus:ring-2 focus:ring-blue-500 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                     />
                     <label
                       htmlFor="purchaseAsRent"
-                      className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300 cursor-pointer"
+                      className={`flex items-center gap-2 text-sm font-medium cursor-pointer ${purchaseAsMixedUse ? 'text-slate-400 dark:text-slate-500 cursor-not-allowed' : 'text-slate-700 dark:text-slate-300'}`}
                     >
                       <Key className="w-4 h-4" />
                       Purchase and rent out (Investment Property)
@@ -1990,10 +1979,10 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
                         onChange={(e) => {
                           setPurchaseAsMixedUse(e.target.checked);
                           if (e.target.checked) {
-                            // Only clear mutually exclusive options (not Move-In)
+                            // Clear all mutually exclusive status options
+                            setMoveInOnSameDay(false);
                             setPurchaseAsVacant(false);
                             setPurchaseAsRent(false);
-                            // Move-In can be combined with Mixed-Use - don't clear it
                           }
                         }}
                         className="w-4 h-4 text-blue-600 bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 rounded focus:ring-2 focus:ring-blue-500 cursor-pointer"
@@ -2037,77 +2026,6 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
                               className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                               placeholder="e.g., 40"
                             />
-
-                            {/* Move-in date for Mixed-Use - only shown if living % > 0 AND "Move in on same day" is NOT checked */}
-                            {parseFloat(livingUsePercentage) > 0 && !moveInOnSameDay && (
-                              <div className="mt-3 p-3 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
-                                <label className="block text-xs font-medium text-green-700 dark:text-green-400 mb-1.5">
-                                  When did you move in?
-                                </label>
-                                <div className="flex items-center gap-2">
-                                  <input
-                                    type="text"
-                                    value={mixedUseMoveInDateInput}
-                                    onChange={(e) => {
-                                      const input = e.target.value;
-                                      setMixedUseMoveInDateInput(input);
-
-                                      const parsed = parseDateFlexible(input);
-                                      if (parsed) {
-                                        setParsedMixedUseMoveInDate(parsed);
-                                        setMixedUseMoveInDateError('');
-                                      } else if (input.trim()) {
-                                        setMixedUseMoveInDateError('Invalid date format');
-                                        setParsedMixedUseMoveInDate(null);
-                                      } else {
-                                        setMixedUseMoveInDateError('');
-                                        setParsedMixedUseMoveInDate(null);
-                                      }
-                                    }}
-                                    className={cn(
-                                      "w-full px-3 py-2 text-sm border rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100",
-                                      mixedUseMoveInDateError
-                                        ? "border-red-500 focus:ring-red-500"
-                                        : "border-slate-300 dark:border-slate-600 focus:ring-blue-500"
-                                    )}
-                                    placeholder={DATE_FORMAT_PLACEHOLDER}
-                                  />
-                                  <div className="relative inline-block">
-                                    <div className="px-3 py-2 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 hover:bg-slate-50 dark:hover:bg-slate-600 rounded-lg transition-colors cursor-pointer">
-                                      <Calendar className="w-4 h-4 text-slate-600 dark:text-slate-400 pointer-events-none" />
-                                    </div>
-                                    <input
-                                      ref={mixedUseMoveInDateRef}
-                                      type="date"
-                                      value={parsedMixedUseMoveInDate ? format(parsedMixedUseMoveInDate, 'yyyy-MM-dd') : ''}
-                                      onChange={(e) => {
-                                        const newDate = e.target.value;
-                                        if (newDate) {
-                                          const parsed = new Date(newDate);
-                                          setMixedUseMoveInDateInput(format(parsed, 'dd/MM/yyyy'));
-                                          setParsedMixedUseMoveInDate(parsed);
-                                          setMixedUseMoveInDateError('');
-                                        }
-                                      }}
-                                      onClick={(e) => { e.stopPropagation(); try { (e.target as HTMLInputElement).showPicker(); } catch {} }}
-                                      className="absolute inset-0 opacity-0 cursor-pointer z-10"
-                                    />
-                                  </div>
-                                </div>
-                                {mixedUseMoveInDateError && (
-                                  <p className="mt-1 text-xs text-red-500">{mixedUseMoveInDateError}</p>
-                                )}
-                                {parsedMixedUseMoveInDate && !mixedUseMoveInDateError && (
-                                  <div className="flex items-center gap-2 text-xs text-green-600 dark:text-green-400 mt-1">
-                                    <CheckCircle className="w-3 h-3 flex-shrink-0" />
-                                    <span>{formatDateDisplay(parsedMixedUseMoveInDate)}</span>
-                                  </div>
-                                )}
-                                <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
-                                  Enter the date you started living in the property (if different from purchase date)
-                                </p>
-                              </div>
-                            )}
                           </div>
 
                           {/* Rental percentage */}
@@ -2126,74 +2044,6 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
                               className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                               placeholder="e.g., 50"
                             />
-
-                            {/* Rental use start date - only shown if rental % > 0 */}
-                            {parseFloat(rentalUsePercentage) > 0 && (
-                              <div className="mt-3">
-                                <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1.5">
-                                  Date rental use started
-                                </label>
-                                <div className="flex items-center gap-2">
-                                  <input
-                                    type="text"
-                                    value={rentalUseStartDateInput}
-                                    onChange={(e) => {
-                                      const input = e.target.value;
-                                      setRentalUseStartDateInput(input);
-
-                                      const parsed = parseDateFlexible(input);
-                                      if (parsed) {
-                                        setParsedRentalUseStartDate(parsed);
-                                        setRentalUseDateError('');
-                                      } else if (input.trim()) {
-                                        setRentalUseDateError('Invalid date format');
-                                        setParsedRentalUseStartDate(null);
-                                      } else {
-                                        setRentalUseDateError('');
-                                        setParsedRentalUseStartDate(null);
-                                      }
-                                    }}
-                                    className={cn(
-                                      "w-full px-3 py-2 text-sm border rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100",
-                                      rentalUseDateError
-                                        ? "border-red-500 focus:ring-red-500"
-                                        : "border-slate-300 dark:border-slate-600 focus:ring-blue-500"
-                                    )}
-                                    placeholder={DATE_FORMAT_PLACEHOLDER}
-                                  />
-                                  <div className="relative inline-block">
-                                    <div className="px-3 py-2 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 hover:bg-slate-50 dark:hover:bg-slate-600 rounded-lg transition-colors cursor-pointer">
-                                      <Calendar className="w-4 h-4 text-slate-600 dark:text-slate-400 pointer-events-none" />
-                                    </div>
-                                    <input
-                                      ref={rentalUseStartDateRef}
-                                      type="date"
-                                      value={parsedRentalUseStartDate ? format(parsedRentalUseStartDate, 'yyyy-MM-dd') : ''}
-                                      onChange={(e) => {
-                                        const newDate = e.target.value;
-                                        if (newDate) {
-                                          const parsed = new Date(newDate);
-                                          setRentalUseStartDateInput(format(parsed, 'dd/MM/yyyy'));
-                                          setParsedRentalUseStartDate(parsed);
-                                          setRentalUseDateError('');
-                                        }
-                                      }}
-                                      onClick={(e) => { e.stopPropagation(); try { (e.target as HTMLInputElement).showPicker(); } catch {} }}
-                                      className="absolute inset-0 opacity-0 cursor-pointer z-10"
-                                    />
-                                  </div>
-                                </div>
-                                {rentalUseDateError && (
-                                  <p className="mt-1 text-xs text-red-500">{rentalUseDateError}</p>
-                                )}
-                                {parsedRentalUseStartDate && !rentalUseDateError && (
-                                  <div className="flex items-center gap-2 text-xs text-green-600 dark:text-green-400 mt-1">
-                                    <CheckCircle className="w-3 h-3 flex-shrink-0" />
-                                    <span>{formatDateDisplay(parsedRentalUseStartDate)}</span>
-                                  </div>
-                                )}
-                              </div>
-                            )}
                           </div>
 
                           {/* Business percentage */}
@@ -2212,74 +2062,6 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
                               className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                               placeholder="e.g., 10"
                             />
-
-                            {/* Business use start date - only shown if business % > 0 */}
-                            {parseFloat(mixedBusinessUsePercentage) > 0 && (
-                              <div className="mt-3">
-                                <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1.5">
-                                  Date business use started
-                                </label>
-                                <div className="flex items-center gap-2">
-                                  <input
-                                    type="text"
-                                    value={businessUseStartDateInput}
-                                    onChange={(e) => {
-                                      const input = e.target.value;
-                                      setBusinessUseStartDateInput(input);
-
-                                      const parsed = parseDateFlexible(input);
-                                      if (parsed) {
-                                        setParsedBusinessUseStartDate(parsed);
-                                        setBusinessUseDateError('');
-                                      } else if (input.trim()) {
-                                        setBusinessUseDateError('Invalid date format');
-                                        setParsedBusinessUseStartDate(null);
-                                      } else {
-                                        setBusinessUseDateError('');
-                                        setParsedBusinessUseStartDate(null);
-                                      }
-                                    }}
-                                    className={cn(
-                                      "w-full px-3 py-2 text-sm border rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100",
-                                      businessUseDateError
-                                        ? "border-red-500 focus:ring-red-500"
-                                        : "border-slate-300 dark:border-slate-600 focus:ring-blue-500"
-                                    )}
-                                    placeholder={DATE_FORMAT_PLACEHOLDER}
-                                  />
-                                  <div className="relative inline-block">
-                                    <div className="px-3 py-2 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 hover:bg-slate-50 dark:hover:bg-slate-600 rounded-lg transition-colors cursor-pointer">
-                                      <Calendar className="w-4 h-4 text-slate-600 dark:text-slate-400 pointer-events-none" />
-                                    </div>
-                                    <input
-                                      ref={businessUseStartDateRef}
-                                      type="date"
-                                      value={parsedBusinessUseStartDate ? format(parsedBusinessUseStartDate, 'yyyy-MM-dd') : ''}
-                                      onChange={(e) => {
-                                        const newDate = e.target.value;
-                                        if (newDate) {
-                                          const parsed = new Date(newDate);
-                                          setBusinessUseStartDateInput(format(parsed, 'dd/MM/yyyy'));
-                                          setParsedBusinessUseStartDate(parsed);
-                                          setBusinessUseDateError('');
-                                        }
-                                      }}
-                                      onClick={(e) => { e.stopPropagation(); try { (e.target as HTMLInputElement).showPicker(); } catch {} }}
-                                      className="absolute inset-0 opacity-0 cursor-pointer z-10"
-                                    />
-                                  </div>
-                                </div>
-                                {businessUseDateError && (
-                                  <p className="mt-1 text-xs text-red-500">{businessUseDateError}</p>
-                                )}
-                                {parsedBusinessUseStartDate && !businessUseDateError && (
-                                  <div className="flex items-center gap-2 text-xs text-green-600 dark:text-green-400 mt-1">
-                                    <CheckCircle className="w-3 h-3 flex-shrink-0" />
-                                    <span>{formatDateDisplay(parsedBusinessUseStartDate)}</span>
-                                  </div>
-                                )}
-                              </div>
-                            )}
                           </div>
 
                           {/* Total validation display */}
@@ -2326,6 +2108,112 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
 
                 </div>
               )}
+
+              {/* Mixed-Use Start - Configure percentages */}
+              {eventType === 'mixed_use_start' && (
+                <div className="space-y-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200 dark:border-purple-800 p-4">
+                  <div className="flex items-center gap-2 text-sm font-medium text-purple-700 dark:text-purple-300 mb-2">
+                    <Percent className="w-4 h-4" />
+                    <span>Mixed-Use Configuration</span>
+                  </div>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mb-3">
+                    Specify the percentage of each use type (must total 100%)
+                  </p>
+
+                  {/* Living/Owner-occupied percentage */}
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                      Living (Owner-occupied) %
+                    </label>
+                    <input
+                      type="number"
+                      min="0"
+                      max="100"
+                      step="0.1"
+                      value={livingUsePercentage}
+                      onChange={(e) => setLivingUsePercentage(e.target.value)}
+                      onWheel={(e) => e.currentTarget.blur()}
+                      className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="e.g., 40"
+                    />
+                  </div>
+
+                  {/* Rental percentage */}
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                      Rental %
+                    </label>
+                    <input
+                      type="number"
+                      min="0"
+                      max="100"
+                      step="0.1"
+                      value={rentalUsePercentage}
+                      onChange={(e) => setRentalUsePercentage(e.target.value)}
+                      onWheel={(e) => e.currentTarget.blur()}
+                      className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="e.g., 50"
+                    />
+                  </div>
+
+                  {/* Business percentage */}
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                      Business Use %
+                    </label>
+                    <input
+                      type="number"
+                      min="0"
+                      max="100"
+                      step="0.1"
+                      value={mixedBusinessUsePercentage}
+                      onChange={(e) => setMixedBusinessUsePercentage(e.target.value)}
+                      onWheel={(e) => e.currentTarget.blur()}
+                      className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="e.g., 10"
+                    />
+                  </div>
+
+                  {/* Total validation display */}
+                  {(() => {
+                    const living = parseFloat(livingUsePercentage) || 0;
+                    const rental = parseFloat(rentalUsePercentage) || 0;
+                    const business = parseFloat(mixedBusinessUsePercentage) || 0;
+                    const total = living + rental + business;
+                    const isValid = total === 100;
+                    const isEmpty = total === 0;
+
+                    if (isEmpty) {
+                      return (
+                        <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
+                          <AlertCircle className="w-4 h-4" />
+                          <span>Enter percentages above</span>
+                        </div>
+                      );
+                    }
+
+                    return (
+                      <div className={cn(
+                        "flex items-center gap-2 text-xs font-medium",
+                        isValid ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"
+                      )}>
+                        {isValid ? (
+                          <>
+                            <CheckCircle2 className="w-4 h-4" />
+                            <span>Total: {total.toFixed(1)}% ✓</span>
+                          </>
+                        ) : (
+                          <>
+                            <AlertCircle className="w-4 h-4" />
+                            <span>Total: {total.toFixed(1)}% (must equal 100%)</span>
+                          </>
+                        )}
+                      </div>
+                    );
+                  })()}
+                </div>
+              )}
+
             </div>
 
             {/* Financial Details Section - Only for specific event types (not purchase, sale, improvements, building start/end, inherit, subdivision, or Not Sold markers) */}
@@ -2340,7 +2228,9 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
              eventType !== 'improvement' &&
              eventType !== 'building_start' &&
              eventType !== 'refinance' &&
-             eventType !== 'subdivision' && (
+             eventType !== 'subdivision' &&
+             eventType !== 'mixed_use_start' &&
+             eventType !== 'mixed_use_end' && (
               <div className="space-y-4 pt-2">
                 {/* Single Amount Input */}
                 <div>

@@ -98,6 +98,10 @@ function HomeContent() {
   // AI Timeline Builder state
   const [isAIBuilderOpen, setIsAIBuilderOpen] = useState(false);
 
+  // Accumulate verification_responses across multi-round clarification so each
+  // resubmit includes ALL previous answers (backend may be stateless).
+  const accumulatedResponsesRef = useRef<any[]>([]);
+
   /**
    * Store AI response in sessionStorage for admin access
    * (CCH verification is now done manually from Admin portal)
@@ -323,6 +327,7 @@ function HomeContent() {
     setIsLoading(true);
     setError(null);
     setShowAnalysis(true); // Show analysis panel immediately to display loading progress
+    accumulatedResponsesRef.current = []; // Fresh analysis — reset accumulated answers
 
     try {
       // Debug: Log sale events before transformation
@@ -539,17 +544,24 @@ function HomeContent() {
         return verification;
       });
 
+      // Merge with accumulated responses from previous rounds so the backend
+      // receives ALL answers, not just the latest round's.
+      const allVerificationsData = [...accumulatedResponsesRef.current, ...verificationsData];
+
       console.log('✅ TIMELINE alerts converted to verification_responses:', {
         totalAlerts: verificationAlerts.length,
         resolvedAlerts: resolvedAlerts.length,
         alertsWithGapId: resolvedAlerts.filter(a => a.questionId).length,
-        verificationsData: JSON.stringify(verificationsData, null, 2),
+        previousRoundAnswers: accumulatedResponsesRef.current.length,
+        thisRoundAnswers: verificationsData.length,
+        totalAnswers: allVerificationsData.length,
+        verificationsData: JSON.stringify(allVerificationsData, null, 2),
       });
 
-      // Include verifications in the request
+      // Include ALL verifications (accumulated + current) in the request
       const requestData = {
         ...apiData,
-        verification_responses: verificationsData,
+        verification_responses: allVerificationsData,
       };
 
       console.log('📤 Sending resolved data to API:', requestData);
@@ -633,6 +645,8 @@ function HomeContent() {
         if (innerData.verification?.issues) {
           setValidationIssues(innerData.verification.issues, properties);
         }
+        // Remember all answers so far for the next round
+        accumulatedResponsesRef.current = allVerificationsData;
         setShowAllResolvedPopup(false);
         setShowAnalysis(false);
         setAnalysisData(null);
@@ -642,6 +656,7 @@ function HomeContent() {
 
       // Clear old verification alerts since they've been resolved
       clearVerificationAlerts();
+      accumulatedResponsesRef.current = []; // All rounds complete — reset
       setShowAllResolvedPopup(false);
 
       // Set validation issues in store if present
@@ -715,10 +730,13 @@ function HomeContent() {
         return verification;
       });
 
-      // Add gap answers to the request
+      // Merge with accumulated responses from previous rounds
+      const allVerificationsData = [...accumulatedResponsesRef.current, ...verificationsData];
+
+      // Add all gap answers to the request
       const requestData = {
         ...apiData,
-        verification_responses: verificationsData,
+        verification_responses: allVerificationsData,
       };
 
       console.log('📤 Sending data with gap clarifications to API:');
@@ -788,12 +806,15 @@ function HomeContent() {
 
         // DON'T set analysisData - we want ONLY timeline alerts, not panel questions
         setAnalysisData(null);
+        // Remember all answers so far for the next round
+        accumulatedResponsesRef.current = allVerificationsData;
         console.log('⚠️ Still have verification alerts - closing panel to show alerts on timeline ONLY');
         setShowAnalysis(false);
       } else {
         // Analysis is complete - no more clarifications needed
         console.log('✅ Analysis successful after gap clarifications - no more clarifications needed');
         setVerificationAlerts([]); // Clear any previous alerts
+        accumulatedResponsesRef.current = []; // All rounds complete — reset
         // Store the FULL response (not just inner data) to preserve sources and metadata
         setAnalysisData(fullResponse);
         setAIResponse(fullResponse); // Also save to store for sharing

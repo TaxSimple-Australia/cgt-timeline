@@ -2,7 +2,8 @@
 
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MessageCircle, X, Send, Loader2 } from 'lucide-react';
+import { X, Send, Loader2 } from 'lucide-react';
+import Image from 'next/image';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -159,12 +160,18 @@ export default function LandingChatWidget() {
             exit={{ scale: 0, opacity: 0 }}
             transition={{ type: 'spring', stiffness: 260, damping: 20 }}
             onClick={handleOpen}
-            className={`fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 text-white shadow-lg shadow-cyan-500/25 hover:shadow-cyan-500/40 hover:scale-105 transition-all duration-200 flex items-center justify-center ${
+            className={`fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full border-[3px] border-purple-500 p-0.5 bg-transparent shadow-lg shadow-purple-500/25 hover:shadow-purple-500/40 hover:scale-105 transition-all duration-200 ${
               !hasBeenOpened ? 'animate-pulse' : ''
             }`}
             aria-label="Open chat"
           >
-            <MessageCircle className="w-6 h-6" />
+            <Image
+              src="/cgt-mascot-avatar.png"
+              alt="CGT Brain Assistant"
+              width={56}
+              height={56}
+              className="w-full h-full rounded-full object-contain"
+            />
           </motion.button>
         )}
       </AnimatePresence>

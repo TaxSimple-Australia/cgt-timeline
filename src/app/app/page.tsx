@@ -705,12 +705,11 @@ function HomeContent() {
           },
           resolution_question: answer.question,
           user_response: answer.answer,
-          resolved_at: new Date().toISOString(),
         };
 
-        // Include question_id if provided (API uses this for matching)
+        // gap_id is the field the backend matches on; only set if present
         if (answer.question_id) {
-          verification.question_id = answer.question_id;
+          verification.gap_id = answer.question_id;
         }
 
         return verification;
@@ -728,11 +727,14 @@ function HomeContent() {
       console.log('📋 Full Request Payload:', JSON.stringify(requestData, null, 2));
       console.log(`🤖 Using LLM Provider: ${selectedLLMProvider}`);
 
-      // Call the Next.js API route with clarification answers included
+      // Call the Next.js API route with clarification answers included.
+      // x-resubmit-with-responses tells route.ts to skip the needsClarification
+      // re-wrapping so the backend's final analysis passes through directly.
       const response = await fetch('/api/calculate-cgt', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'x-resubmit-with-responses': 'true',
         },
         body: JSON.stringify({ ...requestData, llmProvider: selectedLLMProvider }),
       });
@@ -759,17 +761,19 @@ function HomeContent() {
         console.warn('⚠️ Response format not fully recognized, attempting to display anyway');
       }
 
-      // Check if API still needs clarification - handle multiple response formats
-      const stillNeedsClarification =
-        result.data?.needs_clarification === true ||
-        result.data?.summary?.requires_clarification === true ||
-        result.data?.status === "verification_failed";
-
       // Store the FULL response including sources, query, etc.
       const fullResponse = result.data;
       const innerData = result.data.data || result.data;
       console.log('📊 Gap retry: Full response keys:', Object.keys(fullResponse || {}));
       console.log('📊 Gap retry: Has sources?:', !!fullResponse?.sources);
+
+      // Check if API still needs clarification - handle multiple response formats
+      // Mirror the same check used in handleResubmitWithResolutions
+      const stillNeedsClarification =
+        innerData?.needs_clarification === true ||
+        fullResponse?.needs_clarification === true ||
+        innerData?.summary?.requires_clarification === true ||
+        innerData?.status === 'verification_failed';
 
       if (stillNeedsClarification) {
         // Extract verification alerts for remaining issues

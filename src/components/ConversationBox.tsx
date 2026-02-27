@@ -117,7 +117,7 @@ export default function ConversationBox({
                 style={{ marginTop: '8px' }}
               >
                 {/* Wrapper with Purple Border */}
-                <div className="w-full h-full rounded-full border-[3px] border-purple-500 p-0.5 bg-transparent
+                <div className="w-full h-full rounded-full border-[3px] border-purple-500 p-0.5 bg-white
                               transition-all duration-300 group-hover:shadow-lg group-hover:shadow-purple-500/50 group-hover:border-purple-400">
                   {/* Mascot Image */}
                   <motion.img

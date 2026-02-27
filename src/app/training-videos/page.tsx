@@ -502,46 +502,6 @@ export default function TrainingVideosPage() {
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-slate-800/30">
-        <div className="max-w-4xl mx-auto text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="p-8 sm:p-12 bg-gradient-to-br from-cyan-500/10 to-blue-500/10 border border-cyan-500/20 rounded-2xl"
-          >
-            <h2 className="text-3xl font-bold text-white mb-4">
-              Need Personalized Training?
-            </h2>
-            <p className="text-lg text-slate-300 mb-8 max-w-2xl mx-auto">
-              Book a one-on-one training session with our experts to get customized
-              guidance for your specific needs.
-            </p>
-            <div className="flex flex-wrap items-center justify-center gap-4">
-              <Link href="/book-demo">
-                <Button
-                  size="lg"
-                  className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white shadow-lg shadow-cyan-500/30"
-                >
-                  Book Training Session
-                </Button>
-              </Link>
-              <Link href="/contact">
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="border-cyan-500/30 text-cyan-400 hover:bg-cyan-500/10 hover:border-cyan-500/50"
-                >
-                  Contact Support
-                </Button>
-              </Link>
-            </div>
-          </motion.div>
-        </div>
-      </section>
-
       <LandingFooter />
 
       {/* Fullscreen Video Player */}

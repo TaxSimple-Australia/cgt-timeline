@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { Send, Loader2, HelpCircle, X, Sparkles, ChevronUp } from 'lucide-react';
+import { Send, Loader2, X, Sparkles, ChevronUp } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface Message {
@@ -91,21 +91,50 @@ export default function ConversationBox({
       <div className="flex flex-col items-center gap-2">
         <AnimatePresence mode="wait">
           {!isOpen ? (
-            // Collapsed: Question Mark Button
-            <motion.button
-              key="collapsed"
-              initial={{ scale: 0, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0, opacity: 0 }}
-              transition={{ duration: 0.2, type: 'spring', stiffness: 300, damping: 25 }}
-              onClick={handleOpen}
-              className="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700
-                       text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300
-                       flex items-center justify-center group hover:scale-110 active:scale-95"
-              aria-label="Ask a question about your CGT"
-            >
-              <HelpCircle className="w-5 h-5 group-hover:rotate-12 transition-transform duration-300" />
-            </motion.button>
+            // Collapsed: Mascot Button with Label
+            <div className="flex flex-col items-center gap-0.5 group">
+              {/* Text Label - Shows on Hover */}
+              <div
+                className="px-3 py-1 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm
+                         rounded-full shadow-md border border-gray-200 dark:border-gray-700
+                         opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+              >
+                <span className="text-xs font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">
+                  Ask me!
+                </span>
+              </div>
+
+              {/* Mascot Button - No Background */}
+              <motion.button
+                key="collapsed"
+                initial={{ scale: 0, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0, opacity: 0 }}
+                transition={{ duration: 0.2, type: 'spring', stiffness: 300, damping: 25 }}
+                onClick={handleOpen}
+                className="relative w-14 h-14 hover:scale-110 active:scale-95 transition-transform duration-300"
+                aria-label="Ask me anything about your CGT!"
+                style={{ marginTop: '8px' }}
+              >
+                {/* Wrapper with Purple Border */}
+                <div className="w-full h-full rounded-full border-[3px] border-purple-500 p-0.5 bg-transparent
+                              transition-all duration-300 group-hover:shadow-lg group-hover:shadow-purple-500/50 group-hover:border-purple-400">
+                  {/* Mascot Image */}
+                  <motion.img
+                    src="/cgt-mascot-avatar.png"
+                    alt="CGT Brain Assistant"
+                    className="w-full h-full object-contain filter drop-shadow-xl"
+                    whileHover={{
+                      scale: 1.08
+                    }}
+                    transition={{
+                      duration: 0.3,
+                      ease: "easeOut"
+                    }}
+                  />
+                </div>
+              </motion.button>
+            </div>
           ) : (
           // Expanded: Input Form
           <motion.div

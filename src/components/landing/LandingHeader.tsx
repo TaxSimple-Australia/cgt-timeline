@@ -25,6 +25,7 @@ export default function LandingHeader() {
 
   const navLinks = [
     { label: 'About', id: 'about', type: 'link' as const, href: '/about-us' },
+    { label: 'Pricing', id: 'pricing', type: 'link' as const, href: '/pricing' },
     { label: 'Training', id: 'training', type: 'link' as const, href: '/training-videos' },
     { label: 'FAQ', id: 'faq', type: 'link' as const, href: '/faqs' },
     { label: 'Contact', id: 'contact', type: 'link' as const, href: '/contact' },

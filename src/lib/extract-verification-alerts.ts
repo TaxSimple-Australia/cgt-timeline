@@ -112,11 +112,15 @@ export function extractVerificationAlerts(
     // This ensures each gap is only assigned to the properties listed in properties_involved
     clarificationQuestions.forEach((cq: any, index: number) => {
       const question = cq.question || '';
-      const possibleAnswers = cq.possible_answers || [];
+      const possibleAnswers = cq.possible_answers || cq.options || [];
       const period = cq.period || {};
-      const propertiesInvolved = cq.properties_involved || [];
+      const propertiesInvolved = cq.properties_involved ||
+        (cq.property_address ? [cq.property_address] : []);
 
-      if (!question || propertiesInvolved.length === 0 || !period.start || !period.end) {
+      const periodStart = period.start || period.start_date || '';
+      const periodEnd = period.end || period.end_date || '';
+
+      if (!question || propertiesInvolved.length === 0 || !periodStart || !periodEnd) {
         return; // Skip incomplete questions
       }
 
@@ -129,8 +133,8 @@ export function extractVerificationAlerts(
             id: `alert-cq-${Date.now()}-${index}-${propIndex}`,
             propertyAddress,
             propertyId: matchedProperty.id,
-            startDate: period.start,
-            endDate: period.end,
+            startDate: periodStart,
+            endDate: periodEnd,
             resolutionText: question,
             clarificationQuestion: question,
             possibleAnswers,

@@ -160,7 +160,7 @@ export default function LandingChatWidget() {
             exit={{ scale: 0, opacity: 0 }}
             transition={{ type: 'spring', stiffness: 260, damping: 20 }}
             onClick={handleOpen}
-            className={`fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full border-[3px] border-purple-500 p-0.5 bg-transparent shadow-lg shadow-purple-500/25 hover:shadow-purple-500/40 hover:scale-105 transition-all duration-200 ${
+            className={`fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full border-[3px] border-purple-500 p-0.5 bg-white shadow-lg shadow-purple-500/25 hover:shadow-purple-500/40 hover:scale-105 transition-all duration-200 ${
               !hasBeenOpened ? 'animate-pulse' : ''
             }`}
             aria-label="Open chat"

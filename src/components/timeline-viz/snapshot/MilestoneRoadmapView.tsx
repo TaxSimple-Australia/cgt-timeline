@@ -29,6 +29,8 @@ const getEventAbbreviation = (eventType: EventType): string => {
     subdivision: 'SD',
     living_in_rental_start: 'LS',
     living_in_rental_end: 'LE',
+    mixed_use_start: 'MS',
+    mixed_use_end: 'ME',
     custom: 'CU',
   };
   return abbreviations[eventType] || 'EV';
@@ -51,6 +53,8 @@ const getEventTypeLabel = (eventType: EventType): string => {
     subdivision: 'Subdivision',
     living_in_rental_start: 'Living in Rental Start',
     living_in_rental_end: 'Living in Rental End',
+    mixed_use_start: 'Mixed Use Start',
+    mixed_use_end: 'Mixed Use End',
     custom: 'Custom Event',
   };
   return labels[eventType] || eventType;

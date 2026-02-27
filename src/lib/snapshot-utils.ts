@@ -39,6 +39,8 @@ export const calculatePortfolioStats = (
     subdivision: 0,
     living_in_rental_start: 0,
     living_in_rental_end: 0,
+    mixed_use_start: 0,
+    mixed_use_end: 0,
     custom: 0,
   };
 
@@ -173,6 +175,8 @@ export const getEventIcon = (type: EventType): string => {
     subdivision: '✂️',
     living_in_rental_start: '🏡',
     living_in_rental_end: '🚪',
+    mixed_use_start: '🔀',
+    mixed_use_end: '🔀',
     custom: '⭐',
   };
 
@@ -199,6 +203,8 @@ export const getShortEventName = (type: EventType): string => {
     subdivision: 'Subdivision',
     living_in_rental_start: 'Living Start',
     living_in_rental_end: 'Living End',
+    mixed_use_start: 'Mixed Start',
+    mixed_use_end: 'Mixed End',
     custom: 'Custom',
   };
 
@@ -225,6 +231,8 @@ export const getFullEventName = (type: EventType): string => {
     subdivision: 'Property Subdivision',
     living_in_rental_start: 'Living in Rental Started',
     living_in_rental_end: 'Living in Rental Ended',
+    mixed_use_start: 'Mixed Use Started',
+    mixed_use_end: 'Mixed Use Ended',
     custom: 'Custom Event',
   };
 

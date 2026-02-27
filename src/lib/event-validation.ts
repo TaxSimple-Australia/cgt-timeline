@@ -83,6 +83,8 @@ function getEventLabel(type: EventType): string {
     living_in_rental_end: 'Living in Rental End',
     ownership_change: 'Ownership Change',
     subdivision: 'Subdivision',
+    mixed_use_start: 'Mixed Use Start',
+    mixed_use_end: 'Mixed Use End',
     custom: 'Custom Event',
   };
 

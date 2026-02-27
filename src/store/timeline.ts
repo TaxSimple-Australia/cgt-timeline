@@ -1663,6 +1663,7 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
       // find and uncheck the parent's checkbox that created it.
       // This covers all 8 checkbox-companion relationships.
       const parentUpdates: Array<{ parentId: string; checkboxKey: string }> = [];
+      const relatedEventsToDelete: string[] = [];
 
       if (eventToDelete) {
         const deletedDate = eventToDelete.date.getTime();
@@ -1759,7 +1760,7 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
         const parentIds = new Set(parentUpdates.map(u => u.parentId));
         set((state) => ({
           events: state.events
-            .filter((e) => e.id !== id)
+            .filter((e) => e.id !== id && !relatedEventsToDelete.includes(e.id))
             .map((e) => {
               if (!parentIds.has(e.id)) return e;
               const updates = parentUpdates.filter(u => u.parentId === e.id);

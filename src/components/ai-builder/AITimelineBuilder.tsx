@@ -396,8 +396,8 @@ export default function AITimelineBuilder({ isOpen, onClose }: AITimelineBuilder
         )}>
           <div className="flex items-center gap-2">
             {!isMinimized && (
-              <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
-                <MessageSquare className="w-4 h-4 text-white" />
+              <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center">
+                <MessageSquare className="w-4 h-4 text-purple-600" />
               </div>
             )}
             <div>

@@ -1,19 +1,21 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
-import { motion } from 'framer-motion';
-import { Check, Sparkles, Shield, Zap } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Check, Sparkles, Shield, Zap, ChevronDown } from 'lucide-react';
 import LandingHeader from '@/components/landing/LandingHeader';
 import LandingFooter from '@/components/landing/LandingFooter';
+import { cn } from '@/lib/utils';
 
 export default function PricingPage() {
-  const plans = [
+  const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(null);
+  const reportOptions = [
     {
       name: 'Free',
       price: '0',
       period: 'forever',
-      description: 'Perfect for getting started',
+      description: 'Unlimited timeline planning',
       icon: Zap,
       iconColor: 'text-cyan-400',
       features: [
@@ -32,18 +34,19 @@ export default function PricingPage() {
     {
       name: 'Standard',
       price: '9.99',
-      period: 'month',
-      description: 'AI-powered CGT analysis',
+      period: 'report',
+      description: 'Professional CGT reports on demand',
       icon: Sparkles,
       iconColor: 'text-purple-400',
       features: [
         'Everything in Free',
+        'First 5 reports free',
         'AI-powered CGT calculations',
         'Detailed cost base breakdowns',
         'Main residence exemption analysis',
         'Scenario modeling',
       ],
-      cta: 'Start Free Trial',
+      cta: 'Get Your First Report',
       ctaLink: '/',
       popular: true,
       gradient: 'from-purple-500/10 to-pink-500/10',
@@ -53,8 +56,8 @@ export default function PricingPage() {
     {
       name: 'Premium',
       price: '19.99',
-      period: 'month',
-      description: 'Professional tax agent review',
+      period: 'report',
+      description: 'Expert-reviewed, ATO-ready reports',
       icon: Shield,
       iconColor: 'text-blue-400',
       features: [
@@ -104,13 +107,13 @@ export default function PricingPage() {
               </span>
             </h1>
             <p className="text-xl text-slate-400 max-w-3xl mx-auto">
-              Choose the perfect plan for your property portfolio. Start free, upgrade as you grow.
+              Build unlimited timelines for free. Only pay when you need a professional CGT report.
             </p>
           </motion.div>
 
           {/* Pricing Cards */}
           <div className="grid md:grid-cols-3 gap-8 max-w-7xl mx-auto mb-20">
-            {plans.map((plan, index) => {
+            {reportOptions.map((plan, index) => {
               const Icon = plan.icon;
               return (
                 <motion.div
@@ -192,21 +195,115 @@ export default function PricingPage() {
               Frequently Asked Questions
             </h2>
 
-            <div className="space-y-6">
-              <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-xl p-6">
-                <h3 className="text-lg font-semibold text-white mb-2">Can I switch plans later?</h3>
-                <p className="text-slate-400">Yes! You can upgrade or downgrade your plan at any time. Changes take effect immediately.</p>
-              </div>
+            <div className="space-y-3">
+              {[
+                {
+                  question: 'How does pay-per-report work?',
+                  answer: "There's no subscription required. Build unlimited timelines for free using our visual timeline builder. When you need a professional CGT calculation, simply choose Standard ($9.99) or Premium ($19.99) for that specific report. Your first 5 Standard reports are completely free."
+                },
+                {
+                  question: 'Can I try it before paying?',
+                  answer: 'Absolutely! The visual timeline builder, property tracking, and all planning features are 100% free forever. Plus, you get your first 5 Standard reports at no cost. You only pay when you need additional AI-powered CGT reports.'
+                },
+                {
+                  question: "What's the difference between Standard and Premium reports?",
+                  answer: 'Standard ($9.99) includes AI-powered CGT calculations, detailed cost base breakdowns, and scenario modeling. Premium ($19.99) adds professional tax agent review, compliance certification, ATO-ready documentation, and priority support.'
+                },
+                {
+                  question: 'What payment methods do you accept?',
+                  answer: 'We accept all major credit cards and PayPal. Payment is processed securely at the time you generate each report.'
+                }
+              ].map((faq, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{
+                    duration: 0.4,
+                    delay: index * 0.08,
+                    ease: [0.4, 0.0, 0.2, 1]
+                  }}
+                  className="relative group"
+                >
+                  {/* Subtle hover glow */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/0 via-cyan-500/5 to-blue-500/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-xl pointer-events-none" />
 
-              <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-xl p-6">
-                <h3 className="text-lg font-semibold text-white mb-2">Is there a free trial?</h3>
-                <p className="text-slate-400">Yes! Standard and Premium plans come with a 14-day free trial. No credit card required.</p>
-              </div>
+                  <div
+                    className={cn(
+                      "relative bg-slate-800/50 backdrop-blur-sm rounded-xl overflow-hidden transition-all duration-300",
+                      openFaqIndex === index
+                        ? "border border-cyan-500/30 shadow-[0_0_30px_rgba(6,182,212,0.15)]"
+                        : "border border-slate-700/50 hover:border-slate-600/70"
+                    )}
+                  >
+                    <button
+                      onClick={() => setOpenFaqIndex(openFaqIndex === index ? null : index)}
+                      className={cn(
+                        "relative w-full p-6 text-left flex items-center justify-between transition-all duration-300 ease-out",
+                        "hover:bg-slate-700/40 active:scale-[0.99]",
+                        "focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900",
+                        openFaqIndex === index && "bg-slate-700/20"
+                      )}
+                      aria-expanded={openFaqIndex === index}
+                      aria-controls={`faq-answer-${index}`}
+                      tabIndex={0}
+                    >
+                      <div className="flex items-center flex-1 pr-4">
+                        {/* Number indicator */}
+                        <span className={cn(
+                          "inline-flex items-center justify-center w-7 h-7 rounded-full text-sm font-medium mr-4 transition-all duration-300 flex-shrink-0",
+                          openFaqIndex === index
+                            ? "bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-lg shadow-cyan-500/30"
+                            : "bg-slate-700/50 text-slate-400 group-hover:bg-slate-600/50 group-hover:text-slate-300"
+                        )}>
+                          {index + 1}
+                        </span>
 
-              <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-xl p-6">
-                <h3 className="text-lg font-semibold text-white mb-2">What payment methods do you accept?</h3>
-                <p className="text-slate-400">We accept all major credit cards, PayPal, and bank transfers for annual subscriptions.</p>
-              </div>
+                        <h3 className={cn(
+                          "text-lg sm:text-xl font-semibold transition-colors duration-300 leading-tight",
+                          openFaqIndex === index
+                            ? "text-transparent bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text"
+                            : "text-white group-hover:text-cyan-100"
+                        )}>
+                          {faq.question}
+                        </h3>
+                      </div>
+
+                      {/* Icon with circular background */}
+                      <div className={cn(
+                        "flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300",
+                        openFaqIndex === index
+                          ? "bg-cyan-500/20 text-cyan-400 rotate-180 shadow-inner"
+                          : "bg-slate-700/50 text-slate-400 group-hover:bg-slate-600/50 group-hover:text-slate-300"
+                      )}>
+                        <ChevronDown className="w-4 h-4" />
+                      </div>
+                    </button>
+
+                    <AnimatePresence mode="wait">
+                      {openFaqIndex === index && (
+                        <motion.div
+                          initial={{ height: 0, opacity: 0, y: -10 }}
+                          animate={{ height: 'auto', opacity: 1, y: 0 }}
+                          exit={{ height: 0, opacity: 0, y: -10 }}
+                          transition={{
+                            height: { duration: 0.35, ease: [0.4, 0.0, 0.2, 1] },
+                            opacity: { duration: 0.25, ease: 'easeOut' },
+                            y: { duration: 0.3, ease: [0.4, 0.0, 0.2, 1] }
+                          }}
+                          className="overflow-hidden border-t border-slate-700/50"
+                          id={`faq-answer-${index}`}
+                          role="region"
+                        >
+                          <p className="px-6 py-5 ml-11 text-slate-300 text-[15px] leading-relaxed">
+                            {faq.answer}
+                          </p>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                </motion.div>
+              ))}
             </div>
           </motion.div>
 
@@ -219,7 +316,7 @@ export default function PricingPage() {
           >
             <div className="inline-flex flex-col items-center gap-4 p-8 bg-gradient-to-br from-cyan-500/10 to-blue-500/10 border border-cyan-500/20 rounded-2xl">
               <h3 className="text-2xl font-bold text-white">Still have questions?</h3>
-              <p className="text-slate-400">Our team is here to help you choose the right plan.</p>
+              <p className="text-slate-400">Our team is here to help you choose the right report option.</p>
               <Link href="/contact">
                 <button className="px-8 py-3 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white font-semibold rounded-xl shadow-lg shadow-cyan-500/30 transition-all">
                   Contact Sales

@@ -23,6 +23,9 @@ function generateCGTContextNotes(event: TimelineEvent): string {
     if (cs.moveOutAsRent) notes.push("Property became rental after move-out");
     if (cs.rentEndAsVacant) notes.push("Property became vacant after rental ended");
     if (cs.rentEndAsMoveIn) notes.push("Owner moved in after rental ended");
+    if (cs.mixedUseEndAsVacant) notes.push("Property became vacant after mixed-use ended");
+    if (cs.mixedUseEndAsRental) notes.push("Property became rental after mixed-use ended");
+    if (cs.mixedUseEndAsOwnerMoveIn) notes.push("Owner moved in after mixed-use ended");
     if (cs.hasBusinessUse) notes.push("Property has business/home office use");
     if (cs.hasPartialRental) notes.push("Property has partial rental arrangement");
     if (cs.isNonResident) notes.push("Owner is non-resident for tax purposes (no CGT discount)");
@@ -224,6 +227,11 @@ export function transformTimelineToAPIFormat(
         // Add previous year losses for sale events
         if (event.previousYearLosses !== undefined && event.previousYearLosses > 0) {
           historyEvent.previous_year_losses = event.previousYearLosses;
+        }
+
+        // Add total income from other sources for sale events
+        if (event.totalIncomeFromOtherSources !== undefined && event.totalIncomeFromOtherSources > 0) {
+          historyEvent.total_income_from_other_sources = event.totalIncomeFromOtherSources;
         }
       } else if (event.contractDate) {
         // For other event types, only include if explicitly set

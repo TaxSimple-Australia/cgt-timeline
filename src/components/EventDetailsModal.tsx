@@ -245,6 +245,63 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
     return false;
   });
 
+  // Mixed use end status checkboxes (for mixed_use_end events)
+  const [mixedUseEndAsVacant, setMixedUseEndAsVacant] = useState(() => {
+    // First check if checkbox state is persisted
+    if (event.checkboxState?.mixedUseEndAsVacant !== undefined) {
+      return event.checkboxState.mixedUseEndAsVacant;
+    }
+    // Fallback: Check if a status_change (vacant) event exists on the same date as this mixed_use_end
+    if (event.type === 'mixed_use_end') {
+      const mixedUseEndDate = event.date.getTime();
+      const existingVacant = events.find(
+        (e) =>
+          e.propertyId === event.propertyId &&
+          e.type === 'status_change' &&
+          e.newStatus === 'vacant' &&
+          e.date.getTime() === mixedUseEndDate
+      );
+      return !!existingVacant;
+    }
+    return false;
+  });
+  const [mixedUseEndAsRental, setMixedUseEndAsRental] = useState(() => {
+    // First check if checkbox state is persisted
+    if (event.checkboxState?.mixedUseEndAsRental !== undefined) {
+      return event.checkboxState.mixedUseEndAsRental;
+    }
+    // Fallback: Check if a rent_start event exists on the same date as this mixed_use_end
+    if (event.type === 'mixed_use_end') {
+      const mixedUseEndDate = event.date.getTime();
+      const existingRent = events.find(
+        (e) =>
+          e.propertyId === event.propertyId &&
+          e.type === 'rent_start' &&
+          e.date.getTime() === mixedUseEndDate
+      );
+      return !!existingRent;
+    }
+    return false;
+  });
+  const [mixedUseEndAsOwnerMoveIn, setMixedUseEndAsOwnerMoveIn] = useState(() => {
+    // First check if checkbox state is persisted
+    if (event.checkboxState?.mixedUseEndAsOwnerMoveIn !== undefined) {
+      return event.checkboxState.mixedUseEndAsOwnerMoveIn;
+    }
+    // Fallback: Check if a move_in event exists on the same date as this mixed_use_end
+    if (event.type === 'mixed_use_end') {
+      const mixedUseEndDate = event.date.getTime();
+      const existingMoveIn = events.find(
+        (e) =>
+          e.propertyId === event.propertyId &&
+          e.type === 'move_in' &&
+          e.date.getTime() === mixedUseEndDate
+      );
+      return !!existingMoveIn;
+    }
+    return false;
+  });
+
   // Sale event - Non-resident status (unchecked = resident by default)
   const [isNonResident, setIsNonResident] = useState(() => {
     // First check if checkbox state is persisted
@@ -279,6 +336,9 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
     return !!event.division43Deductions;
   });
   const [division43Deductions, setDivision43Deductions] = useState(event.division43Deductions?.toString() || '');
+
+  // Sale event - Total income from other sources
+  const [totalIncomeFromOtherSources, setTotalIncomeFromOtherSources] = useState(event.totalIncomeFromOtherSources?.toString() || '');
 
   // NEW: Business use / usage splits (Gilbert's contextual approach)
   const [hasBusinessUse, setHasBusinessUse] = useState(() => {
@@ -752,6 +812,13 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
         } else {
           updates.division43Deductions = undefined;
         }
+
+        // Total income from other sources
+        if (totalIncomeFromOtherSources && !isNaN(parseFloat(totalIncomeFromOtherSources))) {
+          updates.totalIncomeFromOtherSources = parseFloat(totalIncomeFromOtherSources);
+        } else {
+          updates.totalIncomeFromOtherSources = undefined;
+        }
       } else if (event.type === 'improvement') {
         // For improvement events, always calculate from cost bases (validation ensures at least one exists)
         const totalCostBases = costBases.reduce((sum, cb) => sum + cb.amount, 0);
@@ -1019,6 +1086,9 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
         moveOutAsRent,
         rentEndAsVacant,
         rentEndAsMoveIn,
+        mixedUseEndAsVacant,
+        mixedUseEndAsRental,
+        mixedUseEndAsOwnerMoveIn,
         hasBusinessUse,
         hasPartialRental,
         isNonResident,
@@ -1359,6 +1429,67 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
             });
           }
         } else if (originalCheckboxState?.rentEndAsMoveIn && existingMoveIn) {
+          deleteEvent(existingMoveIn.id);
+        }
+      }
+
+      // Handle "mixed use end as vacant" companion event
+      if (event.type === 'mixed_use_end') {
+        const existingVacant = findCompanion('status_change', 'vacant');
+
+        if (mixedUseEndAsVacant) {
+          if (checkboxBecameTrue('mixedUseEndAsVacant') && !existingVacant) {
+            addEvent({
+              propertyId: event.propertyId,
+              type: 'status_change',
+              date: parsedDate,
+              title: 'Status: Vacant',
+              newStatus: 'vacant',
+              position: event.position,
+              color: '#A855F7',
+            });
+          }
+        } else if (originalCheckboxState?.mixedUseEndAsVacant && existingVacant) {
+          deleteEvent(existingVacant.id);
+        }
+      }
+
+      // Handle "mixed use end as rental" companion event
+      if (event.type === 'mixed_use_end') {
+        const existingRent = findCompanion('rent_start');
+
+        if (mixedUseEndAsRental) {
+          if (checkboxBecameTrue('mixedUseEndAsRental') && !existingRent) {
+            addEvent({
+              propertyId: event.propertyId,
+              type: 'rent_start',
+              date: parsedDate,
+              title: 'Start Rent',
+              position: event.position,
+              color: '#F59E0B',
+            });
+          }
+        } else if (originalCheckboxState?.mixedUseEndAsRental && existingRent) {
+          deleteEvent(existingRent.id);
+        }
+      }
+
+      // Handle "mixed use end as owner move in" companion event
+      if (event.type === 'mixed_use_end') {
+        const existingMoveIn = findCompanion('move_in');
+
+        if (mixedUseEndAsOwnerMoveIn) {
+          if (checkboxBecameTrue('mixedUseEndAsOwnerMoveIn') && !existingMoveIn) {
+            addEvent({
+              propertyId: event.propertyId,
+              type: 'move_in',
+              date: parsedDate,
+              title: 'Move In',
+              position: event.position,
+              color: '#10B981',
+            });
+          }
+        } else if (originalCheckboxState?.mixedUseEndAsOwnerMoveIn && existingMoveIn) {
           deleteEvent(existingMoveIn.id);
         }
       }
@@ -2329,6 +2460,28 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
                   </p>
                 </div>
 
+                {/* Total Income from Other Sources */}
+                <div className="mt-4">
+                  <label className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                    <DollarSign className="w-4 h-4" />
+                    Total income from other sources
+                  </label>
+                  <div className="relative">
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400">$</span>
+                    <input
+                      type="number"
+                      value={totalIncomeFromOtherSources}
+                      onChange={(e) => setTotalIncomeFromOtherSources(e.target.value)}
+                      onWheel={(e) => e.currentTarget.blur()}
+                      placeholder="0.00"
+                      className="w-full pl-8 pr-4 py-2.5 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                  </div>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                    Include salary, rental income, business income, etc. for the financial year
+                  </p>
+                </div>
+
                 {/* Tax Deductions Section - Division 40 & 43 */}
                 <div className="mt-4 p-4 bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg space-y-4">
                   <h4 className="text-sm font-semibold text-purple-900 dark:text-purple-200 mb-3">
@@ -2553,6 +2706,89 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
                     >
                       <Key className="w-4 h-4" />
                       Move out as rental/investment
+                    </label>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Mixed Use End Event - Status Options */}
+            {eventType === 'mixed_use_end' && (
+              <div className="space-y-4 pt-2 border-t border-slate-200 dark:border-slate-700">
+                <div className="space-y-3">
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                    Set property status after mixed-use ends:
+                  </p>
+
+                  {/* End as vacant checkbox */}
+                  <div className="flex items-center gap-3 p-4 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800">
+                    <input
+                      type="checkbox"
+                      id="mixedUseEndAsVacant"
+                      checked={mixedUseEndAsVacant}
+                      onChange={(e) => {
+                        setMixedUseEndAsVacant(e.target.checked);
+                        if (e.target.checked) {
+                          setMixedUseEndAsRental(false);
+                          setMixedUseEndAsOwnerMoveIn(false);
+                        }
+                      }}
+                      className="w-4 h-4 text-blue-600 bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 rounded focus:ring-2 focus:ring-blue-500 cursor-pointer"
+                    />
+                    <label
+                      htmlFor="mixedUseEndAsVacant"
+                      className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300 cursor-pointer"
+                    >
+                      <Building2 className="w-4 h-4" />
+                      End as vacant
+                    </label>
+                  </div>
+
+                  {/* End as rental checkbox */}
+                  <div className="flex items-center gap-3 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                    <input
+                      type="checkbox"
+                      id="mixedUseEndAsRental"
+                      checked={mixedUseEndAsRental}
+                      onChange={(e) => {
+                        setMixedUseEndAsRental(e.target.checked);
+                        if (e.target.checked) {
+                          setMixedUseEndAsVacant(false);
+                          setMixedUseEndAsOwnerMoveIn(false);
+                        }
+                      }}
+                      className="w-4 h-4 text-blue-600 bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 rounded focus:ring-2 focus:ring-blue-500 cursor-pointer"
+                    />
+                    <label
+                      htmlFor="mixedUseEndAsRental"
+                      className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300 cursor-pointer"
+                    >
+                      <Key className="w-4 h-4" />
+                      End as rental/investment
+                    </label>
+                  </div>
+
+                  {/* Owner moves in checkbox */}
+                  <div className="flex items-center gap-3 p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
+                    <input
+                      type="checkbox"
+                      id="mixedUseEndAsOwnerMoveIn"
+                      checked={mixedUseEndAsOwnerMoveIn}
+                      onChange={(e) => {
+                        setMixedUseEndAsOwnerMoveIn(e.target.checked);
+                        if (e.target.checked) {
+                          setMixedUseEndAsVacant(false);
+                          setMixedUseEndAsRental(false);
+                        }
+                      }}
+                      className="w-4 h-4 text-blue-600 bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 rounded focus:ring-2 focus:ring-blue-500 cursor-pointer"
+                    />
+                    <label
+                      htmlFor="mixedUseEndAsOwnerMoveIn"
+                      className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300 cursor-pointer"
+                    >
+                      <Home className="w-4 h-4" />
+                      Owner moves in
                     </label>
                   </div>
                 </div>

@@ -44,6 +44,9 @@ export interface PropertyHistoryEvent {
   accountant_fees_purchase?: number;
   tax_agent_fees_sale?: number;
 
+  // Sale event - Total income from other sources (for marginal tax rate)
+  total_income_from_other_sources?: number;
+
   // Sale event - Australian resident status for CGT
   is_resident?: boolean;
 

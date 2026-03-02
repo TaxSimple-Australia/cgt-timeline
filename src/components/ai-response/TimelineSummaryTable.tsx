@@ -21,7 +21,7 @@ export default function TimelineSummaryTable({
       {/* Section Title */}
       <div className="flex items-center gap-2">
         <span className="text-lg font-bold text-teal-700 dark:text-teal-400">
-          📊 Section 1: Summary
+          📊 Summary
         </span>
       </div>
 

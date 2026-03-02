@@ -105,9 +105,11 @@ export interface TimelineEvent {
     moveOutAsRent?: boolean;          // Move Out: Move out as rent start
     rentEndAsVacant?: boolean;        // Rent End: Rent end as vacant
     rentEndAsMoveIn?: boolean;        // Rent End: Rent end as move in
-    mixedUseEndAsVacant?: boolean;    // Mixed Use End: End as vacant
-    mixedUseEndAsRental?: boolean;    // Mixed Use End: End as rental
-    mixedUseEndAsOwnerMoveIn?: boolean; // Mixed Use End: Owner moves in
+    mixedUseEndContinueLiving?: boolean;   // Mixed Use End: Continue living in property
+    mixedUseEndContinueRental?: boolean;   // Mixed Use End: Continue rental use
+    mixedUseEndContinueBusiness?: boolean; // Mixed Use End: Continue business use
+    mixedUseEndAsVacant?: boolean;         // Mixed Use End: End all uses (vacant)
+    createdByMixedUseEnd?: boolean;        // Internal: Mark mixed_use_start created by mixed_use_end
     hasBusinessUse?: boolean;         // Purchase: Has business use percentage
     hasPartialRental?: boolean;       // Purchase: Has partial rental percentage
     isNonResident?: boolean;          // Sale: Non-resident status
@@ -1689,7 +1691,7 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
         };
 
         if (eventToDelete.type === 'move_in') {
-          // Could be companion of: purchase.moveInOnSameDay, rent_end.rentEndAsMoveIn, purchase.purchaseAsMixedUse, mixed_use_end.mixedUseEndAsOwnerMoveIn
+          // Could be companion of: purchase.moveInOnSameDay, rent_end.rentEndAsMoveIn, purchase.purchaseAsMixedUse, mixed_use_end (living or business)
           const p1 = findParent('purchase', 'moveInOnSameDay');
           if (p1) parentUpdates.push({ parentId: p1.id, checkboxKey: 'moveInOnSameDay' });
 
@@ -1709,12 +1711,16 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
             parentUpdates.push({ parentId: p3.id, checkboxKey: 'purchaseAsMixedUse' });
           }
 
-          const p4 = findParent('mixed_use_end', 'mixedUseEndAsOwnerMoveIn');
-          if (p4) parentUpdates.push({ parentId: p4.id, checkboxKey: 'mixedUseEndAsOwnerMoveIn' });
+          // mixed_use_end: could be living or business use
+          const p4Living = findParent('mixed_use_end', 'mixedUseEndContinueLiving');
+          if (p4Living) parentUpdates.push({ parentId: p4Living.id, checkboxKey: 'mixedUseEndContinueLiving' });
+
+          const p4Business = findParent('mixed_use_end', 'mixedUseEndContinueBusiness');
+          if (p4Business) parentUpdates.push({ parentId: p4Business.id, checkboxKey: 'mixedUseEndContinueBusiness' });
         }
 
         if (eventToDelete.type === 'rent_start') {
-          // Could be companion of: purchase.purchaseAsRent, move_out.moveOutAsRent, purchase.purchaseAsMixedUse, mixed_use_end.mixedUseEndAsRental
+          // Could be companion of: purchase.purchaseAsRent, move_out.moveOutAsRent, purchase.purchaseAsMixedUse, mixed_use_end.mixedUseEndContinueRental
           const p1 = findParent('purchase', 'purchaseAsRent');
           if (p1) parentUpdates.push({ parentId: p1.id, checkboxKey: 'purchaseAsRent' });
 
@@ -1727,8 +1733,8 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
             parentUpdates.push({ parentId: p3.id, checkboxKey: 'purchaseAsMixedUse' });
           }
 
-          const p4 = findParent('mixed_use_end', 'mixedUseEndAsRental');
-          if (p4) parentUpdates.push({ parentId: p4.id, checkboxKey: 'mixedUseEndAsRental' });
+          const p4 = findParent('mixed_use_end', 'mixedUseEndContinueRental');
+          if (p4) parentUpdates.push({ parentId: p4.id, checkboxKey: 'mixedUseEndContinueRental' });
         }
 
         if (eventToDelete.type === 'status_change' && eventToDelete.newStatus === 'vacant') {
@@ -1747,10 +1753,12 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
         }
 
         if (eventToDelete.type === 'mixed_use_start') {
-          // Companion of: purchase.purchaseAsMixedUse
-          const parent = findParent('purchase', 'purchaseAsMixedUse');
-          if (parent) {
-            parentUpdates.push({ parentId: parent.id, checkboxKey: 'purchaseAsMixedUse' });
+          // Companion of: purchase.purchaseAsMixedUse OR mixed_use_end (multi-select continuation)
+
+          // Check if created by purchase
+          const purchaseParent = findParent('purchase', 'purchaseAsMixedUse');
+          if (purchaseParent) {
+            parentUpdates.push({ parentId: purchaseParent.id, checkboxKey: 'purchaseAsMixedUse' });
 
             // Also clean up hidden move_in companion if it exists
             const hiddenMoveIn = state.events.find(
@@ -1763,6 +1771,29 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
             if (hiddenMoveIn) {
               // Delete this companion after the parent deletion completes
               setTimeout(() => get().deleteEvent(hiddenMoveIn.id), 0);
+            }
+          }
+
+          // Check if created by mixed_use_end (multi-select)
+          const mixedUseEndParent = state.events.find(
+            (e) =>
+              e.propertyId === deletedPropId &&
+              e.type === 'mixed_use_end' &&
+              e.date.getTime() === deletedDate &&
+              (e.checkboxState?.mixedUseEndContinueLiving ||
+               e.checkboxState?.mixedUseEndContinueRental ||
+               e.checkboxState?.mixedUseEndContinueBusiness)
+          );
+          if (mixedUseEndParent) {
+            // Uncheck all continue checkboxes since the companion is deleted
+            if (mixedUseEndParent.checkboxState?.mixedUseEndContinueLiving) {
+              parentUpdates.push({ parentId: mixedUseEndParent.id, checkboxKey: 'mixedUseEndContinueLiving' });
+            }
+            if (mixedUseEndParent.checkboxState?.mixedUseEndContinueRental) {
+              parentUpdates.push({ parentId: mixedUseEndParent.id, checkboxKey: 'mixedUseEndContinueRental' });
+            }
+            if (mixedUseEndParent.checkboxState?.mixedUseEndContinueBusiness) {
+              parentUpdates.push({ parentId: mixedUseEndParent.id, checkboxKey: 'mixedUseEndContinueBusiness' });
             }
           }
         }
@@ -1941,14 +1972,39 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
         findAndMoveCompanion('status_change', 'mixedUseEndAsVacant', (e) => e.newStatus === 'vacant');
       }
 
-      // GROUP 3B: Events that create rent_start (for mixed_use_end)
-      if (event.type === 'mixed_use_end' && checkboxState.mixedUseEndAsRental) {
-        findAndMoveCompanion('rent_start', 'mixedUseEndAsRental');
-      }
+      // GROUP 3B: mixed_use_end multi-select companions
+      if (event.type === 'mixed_use_end') {
+        // Move rent_start companion if continuing rental only
+        if (checkboxState.mixedUseEndContinueRental) {
+          findAndMoveCompanion('rent_start', 'mixedUseEndContinueRental');
+        }
+        // Move move_in companion if continuing living/business only
+        if (checkboxState.mixedUseEndContinueLiving || checkboxState.mixedUseEndContinueBusiness) {
+          findAndMoveCompanion('move_in', 'mixedUseEndContinueLiving');
+        }
+        // Move new mixed_use_start companion if multiple uses continue
+        const companionMixedUseStart = currentState.events.find(
+          (e) =>
+            e.propertyId === event.propertyId &&
+            e.type === 'mixed_use_start' &&
+            e.date.getTime() === originalDate.getTime() &&
+            e.checkboxState?.createdByMixedUseEnd === true
+        );
+        if (companionMixedUseStart) {
+          console.log(`🔗 Moving linked mixed_use_start event with mixed_use_end:`, {
+            parentId: event.id,
+            companionId: companionMixedUseStart.id,
+            oldDate: originalDate,
+            newDate,
+          });
 
-      // GROUP 3C: Events that create move_in (for mixed_use_end)
-      if (event.type === 'mixed_use_end' && checkboxState.mixedUseEndAsOwnerMoveIn) {
-        findAndMoveCompanion('move_in', 'mixedUseEndAsOwnerMoveIn');
+          set((state) => ({
+            events: state.events.map((e) => {
+              if (e.id !== companionMixedUseStart.id) return e;
+              return { ...e, position: newPosition, date: newDate };
+            }),
+          }));
+        }
       }
 
       // GROUP 4: Mixed-use (special case - purchase only)

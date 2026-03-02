@@ -50,6 +50,9 @@ export interface PropertyHistoryEvent {
   // Sale event - Previous year capital losses to offset CGT
   previous_year_losses?: number;
 
+  // Sale event - Total income from other sources for the financial year
+  total_income_from_other_sources?: number;
+
   // Element 3: Holding/Ownership Costs
   land_tax?: number;
   council_rates?: number;

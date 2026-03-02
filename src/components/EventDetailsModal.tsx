@@ -246,31 +246,31 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
   });
 
   // Mixed use end status checkboxes (for mixed_use_end events)
-  const [mixedUseEndAsVacant, setMixedUseEndAsVacant] = useState(() => {
-    // First check if checkbox state is persisted
-    if (event.checkboxState?.mixedUseEndAsVacant !== undefined) {
-      return event.checkboxState.mixedUseEndAsVacant;
+  // Mixed-Use End - Multi-select checkboxes for which uses continue
+  const [mixedUseEndContinueLiving, setMixedUseEndContinueLiving] = useState(() => {
+    // Check persisted state first
+    if (event.checkboxState?.mixedUseEndContinueLiving !== undefined) {
+      return event.checkboxState.mixedUseEndContinueLiving;
     }
-    // Fallback: Check if a status_change (vacant) event exists on the same date as this mixed_use_end
+    // Fallback: Check if move_in exists (indicates user chose to continue living as 100% PPR)
     if (event.type === 'mixed_use_end') {
       const mixedUseEndDate = event.date.getTime();
-      const existingVacant = events.find(
+      const existingMoveIn = events.find(
         (e) =>
           e.propertyId === event.propertyId &&
-          e.type === 'status_change' &&
-          e.newStatus === 'vacant' &&
-          e.date.getTime() === mixedUseEndDate
+          e.type === 'move_in' &&
+          e.date.getTime() === mixedUseEndDate &&
+          !e.isHiddenMixedUseCompanion
       );
-      return !!existingVacant;
+      return !!existingMoveIn;
     }
     return false;
   });
-  const [mixedUseEndAsRental, setMixedUseEndAsRental] = useState(() => {
-    // First check if checkbox state is persisted
-    if (event.checkboxState?.mixedUseEndAsRental !== undefined) {
-      return event.checkboxState.mixedUseEndAsRental;
+  const [mixedUseEndContinueRental, setMixedUseEndContinueRental] = useState(() => {
+    if (event.checkboxState?.mixedUseEndContinueRental !== undefined) {
+      return event.checkboxState.mixedUseEndContinueRental;
     }
-    // Fallback: Check if a rent_start event exists on the same date as this mixed_use_end
+    // Fallback: Check if rent_start exists (indicates user chose to continue rental as 100%)
     if (event.type === 'mixed_use_end') {
       const mixedUseEndDate = event.date.getTime();
       const existingRent = events.find(
@@ -283,21 +283,28 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
     }
     return false;
   });
-  const [mixedUseEndAsOwnerMoveIn, setMixedUseEndAsOwnerMoveIn] = useState(() => {
-    // First check if checkbox state is persisted
-    if (event.checkboxState?.mixedUseEndAsOwnerMoveIn !== undefined) {
-      return event.checkboxState.mixedUseEndAsOwnerMoveIn;
+  const [mixedUseEndContinueBusiness, setMixedUseEndContinueBusiness] = useState(() => {
+    if (event.checkboxState?.mixedUseEndContinueBusiness !== undefined) {
+      return event.checkboxState.mixedUseEndContinueBusiness;
     }
-    // Fallback: Check if a move_in event exists on the same date as this mixed_use_end
+    // No direct fallback event for business-only continuation (would be move_in, but ambiguous)
+    return false;
+  });
+  const [mixedUseEndAsVacant, setMixedUseEndAsVacant] = useState(() => {
+    if (event.checkboxState?.mixedUseEndAsVacant !== undefined) {
+      return event.checkboxState.mixedUseEndAsVacant;
+    }
+    // Fallback: Check if status_change (vacant) exists
     if (event.type === 'mixed_use_end') {
       const mixedUseEndDate = event.date.getTime();
-      const existingMoveIn = events.find(
+      const existingVacant = events.find(
         (e) =>
           e.propertyId === event.propertyId &&
-          e.type === 'move_in' &&
+          e.type === 'status_change' &&
+          e.newStatus === 'vacant' &&
           e.date.getTime() === mixedUseEndDate
       );
-      return !!existingMoveIn;
+      return !!existingVacant;
     }
     return false;
   });
@@ -460,6 +467,25 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
   const propertyHasMoveIn = events.some(
     e => e.propertyId === event.propertyId && e.type === 'move_in'
   );
+
+  // Helper: Find the corresponding mixed_use_start event for this mixed_use_end
+  const findMixedUseStart = () => {
+    if (event.type !== 'mixed_use_end') return null;
+
+    // Find the most recent mixed_use_start event before this mixed_use_end for the same property
+    const mixedUseStarts = events.filter(
+      e => e.propertyId === event.propertyId && e.type === 'mixed_use_start'
+    ).sort((a, b) => b.date.getTime() - a.date.getTime()); // Sort descending
+
+    // Return the first one that's before or on the same date as this mixed_use_end
+    return mixedUseStarts.find(e => e.date.getTime() <= event.date.getTime()) || null;
+  };
+
+  // Get mixed-use start percentages for dynamic checkbox display
+  const mixedUseStart = event.type === 'mixed_use_end' ? findMixedUseStart() : null;
+  const originalLivingPercent = mixedUseStart?.livingUsePercentage || 0;
+  const originalRentalPercent = mixedUseStart?.rentalUsePercentage || 0;
+  const originalBusinessPercent = mixedUseStart?.businessUsePercentage || 0;
 
   // Appreciation / Future Value fields (for Not Sold markers)
   const [appreciationValue, setAppreciationValue] = useState(event.appreciationValue?.toString() || '');
@@ -1086,9 +1112,10 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
         moveOutAsRent,
         rentEndAsVacant,
         rentEndAsMoveIn,
+        mixedUseEndContinueLiving,
+        mixedUseEndContinueRental,
+        mixedUseEndContinueBusiness,
         mixedUseEndAsVacant,
-        mixedUseEndAsRental,
-        mixedUseEndAsOwnerMoveIn,
         hasBusinessUse,
         hasPartialRental,
         isNonResident,
@@ -1433,12 +1460,54 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
         }
       }
 
-      // Handle "mixed use end as vacant" companion event
+      // Handle mixed_use_end multi-select companion events
       if (event.type === 'mixed_use_end') {
-        const existingVacant = findCompanion('status_change', 'vacant');
+        // Count how many "continue" checkboxes are selected
+        const continueCount = [mixedUseEndContinueLiving, mixedUseEndContinueRental, mixedUseEndContinueBusiness].filter(Boolean).length;
 
+        // Find existing companion events
+        const existingVacant = findCompanion('status_change', 'vacant');
+        const existingRent = findCompanion('rent_start');
+        const existingMoveIn = events.find(
+          (e) =>
+            e.propertyId === event.propertyId &&
+            e.type === 'move_in' &&
+            e.date.getTime() === parsedDate.getTime() &&
+            !e.isHiddenMixedUseCompanion
+        );
+        const existingMixedUseStart = events.find(
+          (e) =>
+            e.propertyId === event.propertyId &&
+            e.type === 'mixed_use_start' &&
+            e.date.getTime() === parsedDate.getTime() &&
+            e.checkboxState?.createdByMixedUseEnd === true
+        );
+
+        // Clean up old companions that are no longer valid
+        if (existingVacant && !mixedUseEndAsVacant) {
+          deleteEvent(existingVacant.id);
+        }
+        if (existingRent && continueCount !== 1) {
+          // Only keep rent_start if exactly 1 checkbox (Continue rental only)
+          if (!mixedUseEndContinueRental || continueCount > 1) {
+            deleteEvent(existingRent.id);
+          }
+        }
+        if (existingMoveIn && continueCount !== 1) {
+          // Only keep move_in if exactly 1 checkbox (Continue living/business only)
+          if (!(mixedUseEndContinueLiving || mixedUseEndContinueBusiness) || continueCount > 1) {
+            deleteEvent(existingMoveIn.id);
+          }
+        }
+        if (existingMixedUseStart && continueCount <= 1) {
+          // Only keep mixed_use_start if 2+ checkboxes
+          deleteEvent(existingMixedUseStart.id);
+        }
+
+        // Create new companions based on current selection
         if (mixedUseEndAsVacant) {
-          if (checkboxBecameTrue('mixedUseEndAsVacant') && !existingVacant) {
+          // End all uses → Create status_change (vacant)
+          if (!existingVacant) {
             addEvent({
               propertyId: event.propertyId,
               type: 'status_change',
@@ -1449,17 +1518,18 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
               color: '#A855F7',
             });
           }
-        } else if (originalCheckboxState?.mixedUseEndAsVacant && existingVacant) {
-          deleteEvent(existingVacant.id);
-        }
-      }
-
-      // Handle "mixed use end as rental" companion event
-      if (event.type === 'mixed_use_end') {
-        const existingRent = findCompanion('rent_start');
-
-        if (mixedUseEndAsRental) {
-          if (checkboxBecameTrue('mixedUseEndAsRental') && !existingRent) {
+        } else if (continueCount === 1) {
+          // Exactly one use continues → Create single-use event
+          if (mixedUseEndContinueLiving && !existingMoveIn) {
+            addEvent({
+              propertyId: event.propertyId,
+              type: 'move_in',
+              date: parsedDate,
+              title: 'Move In',
+              position: event.position,
+              color: '#10B981',
+            });
+          } else if (mixedUseEndContinueRental && !existingRent) {
             addEvent({
               propertyId: event.propertyId,
               type: 'rent_start',
@@ -1468,18 +1538,8 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
               position: event.position,
               color: '#F59E0B',
             });
-          }
-        } else if (originalCheckboxState?.mixedUseEndAsRental && existingRent) {
-          deleteEvent(existingRent.id);
-        }
-      }
-
-      // Handle "mixed use end as owner move in" companion event
-      if (event.type === 'mixed_use_end') {
-        const existingMoveIn = findCompanion('move_in');
-
-        if (mixedUseEndAsOwnerMoveIn) {
-          if (checkboxBecameTrue('mixedUseEndAsOwnerMoveIn') && !existingMoveIn) {
+          } else if (mixedUseEndContinueBusiness && !existingMoveIn) {
+            // Business-only treated as main residence
             addEvent({
               propertyId: event.propertyId,
               type: 'move_in',
@@ -1489,8 +1549,69 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
               color: '#10B981',
             });
           }
-        } else if (originalCheckboxState?.mixedUseEndAsOwnerMoveIn && existingMoveIn) {
-          deleteEvent(existingMoveIn.id);
+        } else if (continueCount >= 2) {
+          // Multiple uses continue → Create new mixed_use_start with rescaled percentages
+          const selectedLiving = mixedUseEndContinueLiving ? originalLivingPercent : 0;
+          const selectedRental = mixedUseEndContinueRental ? originalRentalPercent : 0;
+          const selectedBusiness = mixedUseEndContinueBusiness ? originalBusinessPercent : 0;
+          const total = selectedLiving + selectedRental + selectedBusiness;
+
+          if (total > 0 && !existingMixedUseStart) {
+            // Rescale percentages to sum to 100%
+            const rescaledLiving = (selectedLiving / total) * 100;
+            const rescaledRental = (selectedRental / total) * 100;
+            const rescaledBusiness = (selectedBusiness / total) * 100;
+
+            addEvent({
+              propertyId: event.propertyId,
+              type: 'mixed_use_start',
+              date: parsedDate,
+              title: 'Mixed-Use Start',
+              position: event.position,
+              color: '#F59E0B',
+              livingUsePercentage: rescaledLiving > 0 ? rescaledLiving : undefined,
+              rentalUsePercentage: rescaledRental > 0 ? rescaledRental : undefined,
+              businessUsePercentage: rescaledBusiness > 0 ? rescaledBusiness : undefined,
+              checkboxState: {
+                createdByMixedUseEnd: true, // Mark so we can identify and delete it later
+              },
+            });
+
+            // If rescaled living > 0, also create hidden move_in companion
+            if (rescaledLiving > 0) {
+              const hiddenMoveIn = events.find(
+                (e) =>
+                  e.propertyId === event.propertyId &&
+                  e.type === 'move_in' &&
+                  e.isHiddenMixedUseCompanion &&
+                  e.date.getTime() === parsedDate.getTime()
+              );
+              if (!hiddenMoveIn) {
+                addEvent({
+                  propertyId: event.propertyId,
+                  type: 'move_in',
+                  date: parsedDate,
+                  title: 'Move In',
+                  position: event.position,
+                  color: '#10B981',
+                  isHiddenMixedUseCompanion: true,
+                });
+              }
+            }
+          }
+        } else if (continueCount === 0 && !mixedUseEndAsVacant) {
+          // No checkboxes selected → Default to vacant
+          if (!existingVacant) {
+            addEvent({
+              propertyId: event.propertyId,
+              type: 'status_change',
+              date: parsedDate,
+              title: 'Status: Vacant',
+              newStatus: 'vacant',
+              position: event.position,
+              color: '#A855F7',
+            });
+          }
         }
       }
 
@@ -2712,15 +2833,98 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
               </div>
             )}
 
-            {/* Mixed Use End Event - Status Options */}
+            {/* Mixed Use End Event - Multi-Select Status Options */}
             {eventType === 'mixed_use_end' && (
               <div className="space-y-4 pt-2 border-t border-slate-200 dark:border-slate-700">
                 <div className="space-y-3">
                   <p className="text-xs text-slate-500 dark:text-slate-400">
-                    Set property status after mixed-use ends:
+                    Which uses continue after mixed-use ends? (Select one or more)
                   </p>
+                  {mixedUseStart && (
+                    <p className="text-xs text-slate-400 dark:text-slate-500 italic">
+                      Original: {originalLivingPercent}% living, {originalRentalPercent}% rental, {originalBusinessPercent}% business
+                    </p>
+                  )}
 
-                  {/* End as vacant checkbox */}
+                  {/* Continue living in property (only show if living% > 0) */}
+                  {originalLivingPercent > 0 && (
+                    <div className="flex items-center gap-3 p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
+                      <input
+                        type="checkbox"
+                        id="mixedUseEndContinueLiving"
+                        checked={mixedUseEndContinueLiving}
+                        onChange={(e) => {
+                          setMixedUseEndContinueLiving(e.target.checked);
+                          if (e.target.checked) {
+                            setMixedUseEndAsVacant(false); // Can't be vacant if continuing living
+                          }
+                        }}
+                        disabled={mixedUseEndAsVacant}
+                        className="w-4 h-4 text-blue-600 bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 rounded focus:ring-2 focus:ring-blue-500 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                      />
+                      <label
+                        htmlFor="mixedUseEndContinueLiving"
+                        className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300 cursor-pointer"
+                      >
+                        <Home className="w-4 h-4" />
+                        Continue living in property ({originalLivingPercent}%)
+                      </label>
+                    </div>
+                  )}
+
+                  {/* Continue rental use (only show if rental% > 0) */}
+                  {originalRentalPercent > 0 && (
+                    <div className="flex items-center gap-3 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                      <input
+                        type="checkbox"
+                        id="mixedUseEndContinueRental"
+                        checked={mixedUseEndContinueRental}
+                        onChange={(e) => {
+                          setMixedUseEndContinueRental(e.target.checked);
+                          if (e.target.checked) {
+                            setMixedUseEndAsVacant(false);
+                          }
+                        }}
+                        disabled={mixedUseEndAsVacant}
+                        className="w-4 h-4 text-blue-600 bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 rounded focus:ring-2 focus:ring-blue-500 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                      />
+                      <label
+                        htmlFor="mixedUseEndContinueRental"
+                        className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300 cursor-pointer"
+                      >
+                        <Key className="w-4 h-4" />
+                        Continue rental use ({originalRentalPercent}%)
+                      </label>
+                    </div>
+                  )}
+
+                  {/* Continue business use (only show if business% > 0) */}
+                  {originalBusinessPercent > 0 && (
+                    <div className="flex items-center gap-3 p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200 dark:border-purple-800">
+                      <input
+                        type="checkbox"
+                        id="mixedUseEndContinueBusiness"
+                        checked={mixedUseEndContinueBusiness}
+                        onChange={(e) => {
+                          setMixedUseEndContinueBusiness(e.target.checked);
+                          if (e.target.checked) {
+                            setMixedUseEndAsVacant(false);
+                          }
+                        }}
+                        disabled={mixedUseEndAsVacant}
+                        className="w-4 h-4 text-blue-600 bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 rounded focus:ring-2 focus:ring-blue-500 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                      />
+                      <label
+                        htmlFor="mixedUseEndContinueBusiness"
+                        className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300 cursor-pointer"
+                      >
+                        <Briefcase className="w-4 h-4" />
+                        Continue business use ({originalBusinessPercent}%)
+                      </label>
+                    </div>
+                  )}
+
+                  {/* End all uses (vacant) - exclusive option */}
                   <div className="flex items-center gap-3 p-4 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800">
                     <input
                       type="checkbox"
@@ -2729,8 +2933,10 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
                       onChange={(e) => {
                         setMixedUseEndAsVacant(e.target.checked);
                         if (e.target.checked) {
-                          setMixedUseEndAsRental(false);
-                          setMixedUseEndAsOwnerMoveIn(false);
+                          // Uncheck all "continue" options (this is exclusive)
+                          setMixedUseEndContinueLiving(false);
+                          setMixedUseEndContinueRental(false);
+                          setMixedUseEndContinueBusiness(false);
                         }
                       }}
                       className="w-4 h-4 text-blue-600 bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 rounded focus:ring-2 focus:ring-blue-500 cursor-pointer"
@@ -2740,55 +2946,7 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
                       className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300 cursor-pointer"
                     >
                       <Building2 className="w-4 h-4" />
-                      End as vacant
-                    </label>
-                  </div>
-
-                  {/* End as rental checkbox */}
-                  <div className="flex items-center gap-3 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
-                    <input
-                      type="checkbox"
-                      id="mixedUseEndAsRental"
-                      checked={mixedUseEndAsRental}
-                      onChange={(e) => {
-                        setMixedUseEndAsRental(e.target.checked);
-                        if (e.target.checked) {
-                          setMixedUseEndAsVacant(false);
-                          setMixedUseEndAsOwnerMoveIn(false);
-                        }
-                      }}
-                      className="w-4 h-4 text-blue-600 bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 rounded focus:ring-2 focus:ring-blue-500 cursor-pointer"
-                    />
-                    <label
-                      htmlFor="mixedUseEndAsRental"
-                      className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300 cursor-pointer"
-                    >
-                      <Key className="w-4 h-4" />
-                      End as rental/investment
-                    </label>
-                  </div>
-
-                  {/* Owner moves in checkbox */}
-                  <div className="flex items-center gap-3 p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
-                    <input
-                      type="checkbox"
-                      id="mixedUseEndAsOwnerMoveIn"
-                      checked={mixedUseEndAsOwnerMoveIn}
-                      onChange={(e) => {
-                        setMixedUseEndAsOwnerMoveIn(e.target.checked);
-                        if (e.target.checked) {
-                          setMixedUseEndAsVacant(false);
-                          setMixedUseEndAsRental(false);
-                        }
-                      }}
-                      className="w-4 h-4 text-blue-600 bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 rounded focus:ring-2 focus:ring-blue-500 cursor-pointer"
-                    />
-                    <label
-                      htmlFor="mixedUseEndAsOwnerMoveIn"
-                      className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300 cursor-pointer"
-                    >
-                      <Home className="w-4 h-4" />
-                      Owner moves in
+                      End all uses (vacant)
                     </label>
                   </div>
                 </div>

@@ -23,9 +23,15 @@ function generateCGTContextNotes(event: TimelineEvent): string {
     if (cs.moveOutAsRent) notes.push("Property became rental after move-out");
     if (cs.rentEndAsVacant) notes.push("Property became vacant after rental ended");
     if (cs.rentEndAsMoveIn) notes.push("Owner moved in after rental ended");
+    // Mixed-use end outcomes (multi-select support)
     if (cs.mixedUseEndAsVacant) notes.push("Property became vacant after mixed-use ended");
-    if (cs.mixedUseEndAsRental) notes.push("Property became rental after mixed-use ended");
-    if (cs.mixedUseEndAsOwnerMoveIn) notes.push("Owner moved in after mixed-use ended");
+    if (cs.mixedUseEndContinueLiving && cs.mixedUseEndContinueRental) notes.push("Mixed-use ended: continuing living + rental use");
+    if (cs.mixedUseEndContinueLiving && cs.mixedUseEndContinueBusiness) notes.push("Mixed-use ended: continuing living + business use");
+    if (cs.mixedUseEndContinueRental && cs.mixedUseEndContinueBusiness) notes.push("Mixed-use ended: continuing rental + business use");
+    if (cs.mixedUseEndContinueLiving && cs.mixedUseEndContinueRental && cs.mixedUseEndContinueBusiness) notes.push("Mixed-use ended: continuing all three uses (living + rental + business)");
+    if (cs.mixedUseEndContinueLiving && !cs.mixedUseEndContinueRental && !cs.mixedUseEndContinueBusiness) notes.push("Mixed-use ended: became 100% main residence");
+    if (cs.mixedUseEndContinueRental && !cs.mixedUseEndContinueLiving && !cs.mixedUseEndContinueBusiness) notes.push("Mixed-use ended: became 100% rental");
+    if (cs.mixedUseEndContinueBusiness && !cs.mixedUseEndContinueLiving && !cs.mixedUseEndContinueRental) notes.push("Mixed-use ended: became 100% business use");
     if (cs.hasBusinessUse) notes.push("Property has business/home office use");
     if (cs.hasPartialRental) notes.push("Property has partial rental arrangement");
     if (cs.isNonResident) notes.push("Owner is non-resident for tax purposes (no CGT discount)");

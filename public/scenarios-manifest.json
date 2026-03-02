@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "generatedAt": "2026-02-25T02:01:54.754Z",
+  "generatedAt": "2026-03-01T21:03:25.676Z",
   "totalScenarios": 85,
   "categories": {
     "Main Residence": 29,
@@ -3838,7 +3838,7 @@
               }
             ],
             "notes": "Original 1200m² property subdivided into Lot 1 (650 sqm with dwelling, retained) and Lot 2 (550 sqm vacant land, sold). Market value at subdivision: Lot 1 $720,000 (60%), Lot 2 $480,000 (40%). Subdivision costs: $45,000.",
-            "holdingYears": 17.9
+            "holdingYears": 18
           },
           {
             "address": "Lot 1, 28 Panorama Drive, Kenmore QLD 4069",

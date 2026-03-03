@@ -18,13 +18,6 @@ export default function TimelineSummaryTable({
 
   return (
     <div className="space-y-4">
-      {/* Section Title */}
-      <div className="flex items-center gap-2">
-        <span className="text-lg font-bold text-teal-700 dark:text-teal-400">
-          📊 Summary
-        </span>
-      </div>
-
       {/* Narrative Summary */}
       {narrativeSummary && (
         <div className="p-4 bg-teal-50 dark:bg-teal-900/20 border border-teal-200 dark:border-teal-700 rounded-lg">

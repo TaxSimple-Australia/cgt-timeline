@@ -136,7 +136,8 @@ export function transformTimelineToAPIFormat(
   properties: TimelineProperty[],
   events: TimelineEvent[],
   customQuery?: string,
-  verificationAlerts?: VerificationAlert[]
+  verificationAlerts?: VerificationAlert[],
+  marginalTaxRate?: number
 ) {
   const apiProperties: Property[] = properties.map((property) => {
     // Get all events for this property
@@ -237,7 +238,7 @@ export function transformTimelineToAPIFormat(
 
         // Add total income from other sources for sale events
         if (event.totalIncomeFromOtherSources !== undefined && event.totalIncomeFromOtherSources > 0) {
-          historyEvent.total_income_from_other_sources = event.totalIncomeFromOtherSources;
+          historyEvent.other_income = event.totalIncomeFromOtherSources;
         }
       } else if (event.contractDate) {
         // For other event types, only include if explicitly set
@@ -936,6 +937,7 @@ export function transformTimelineToAPIFormat(
       australian_resident: true,
       other_property_owned: properties.length > 1,
       land_size_hectares: landSizeHectares,
+      marginal_tax_rate: marginalTaxRate ?? 37,
     },
   };
 

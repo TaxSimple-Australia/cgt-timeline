@@ -84,7 +84,7 @@ export async function POST(request: NextRequest) {
               <table width="600" cellpadding="0" cellspacing="0" style="background-color: #FFFFFF; border-radius: 16px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); overflow: hidden;">
                 <!-- Header -->
                 <tr>
-                  <td style="background: linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%); padding: 40px 40px 30px;">
+                  <td style="background: linear-gradient(135deg, #10B981 0%, #059669 100%); padding: 40px 40px 30px;">
                     <table width="100%" cellpadding="0" cellspacing="0">
                       <tr>
                         <td>
@@ -98,8 +98,8 @@ export async function POST(request: NextRequest) {
                         <td align="right" style="vertical-align: middle;">
                           <table cellpadding="0" cellspacing="0" border="0">
                             <tr>
-                              <td style="width: 60px; height: 60px; background: rgba(255,255,255,0.15); border-radius: 12px; text-align: center; vertical-align: middle;">
-                                <span style="font-size: 28px; line-height: 60px;">&#129504;</span>
+                              <td style="width: 60px; height: 60px; background: rgba(255,255,255,0.15); border-radius: 12px; text-align: center; vertical-align: middle; padding: 8px;">
+                                <img src="https://cgtbrain.com.au/logos/logo-20-dark.png" alt="CGT Brain Logo" style="width: 44px; height: 44px; display: block;" />
                               </td>
                             </tr>
                           </table>
@@ -124,7 +124,7 @@ export async function POST(request: NextRequest) {
                       <tr>
                         <td align="center">
                           <a href="${shareLink}"
-                             style="display: inline-block; background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%); color: #FFFFFF; text-decoration: none; padding: 16px 40px; border-radius: 10px; font-size: 16px; font-weight: 600; box-shadow: 0 4px 14px rgba(59, 130, 246, 0.4);">
+                             style="display: inline-block; background: linear-gradient(135deg, #10B981 0%, #059669 100%); color: #FFFFFF; text-decoration: none; padding: 16px 40px; border-radius: 10px; font-size: 16px; font-weight: 600; box-shadow: 0 4px 14px rgba(16, 185, 129, 0.4);">
                             View Your Timeline →
                           </a>
                         </td>
@@ -160,11 +160,11 @@ export async function POST(request: NextRequest) {
                     </div>
 
                     <!-- Link Box -->
-                    <div style="background: #EFF6FF; border: 1px solid #BFDBFE; border-radius: 8px; padding: 16px; margin: 24px 0;">
-                      <p style="margin: 0 0 8px; color: #1E40AF; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
+                    <div style="background: #ECFDF5; border: 1px solid #A7F3D0; border-radius: 8px; padding: 16px; margin: 24px 0;">
+                      <p style="margin: 0 0 8px; color: #065F46; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
                         Direct Link
                       </p>
-                      <p style="margin: 0; color: #3B82F6; font-size: 13px; word-break: break-all;">
+                      <p style="margin: 0; color: #10B981; font-size: 13px; word-break: break-all;">
                         ${shareLink}
                       </p>
                     </div>
@@ -188,7 +188,7 @@ export async function POST(request: NextRequest) {
                         </td>
                         <td align="right">
                           <p style="margin: 0; color: #9CA3AF; font-size: 12px;">
-                            Powered by <strong style="color: #3B82F6;">CGT Brain AI</strong>
+                            Powered by <strong style="color: #10B981;">CGT Brain AI</strong>
                           </p>
                         </td>
                       </tr>

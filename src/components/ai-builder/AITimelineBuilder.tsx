@@ -57,7 +57,7 @@ export default function AITimelineBuilder({ isOpen, onClose }: AITimelineBuilder
     checked: false,
   });
   const [aiBuilderProviders, setAiBuilderProviders] = useState<Record<string, string>>({});
-  const [aiBuilderSelectedProvider, setAiBuilderSelectedProvider] = useState<string>('deepseek');
+  const [aiBuilderSelectedProvider, setAiBuilderSelectedProvider] = useState<string>('gemini');
 
   // Panel resizing state
   const [panelWidth, setPanelWidth] = useState(DEFAULT_WIDTH);
@@ -84,7 +84,7 @@ export default function AITimelineBuilder({ isOpen, onClose }: AITimelineBuilder
         const data = await response.json();
         console.log('AI Builder providers:', data);
         setAiBuilderProviders(data.providers || {});
-        setAiBuilderSelectedProvider(data.default || 'deepseek');
+        setAiBuilderSelectedProvider(data.default || 'gemini');
       } catch (error) {
         console.error('Failed to fetch AI Builder providers:', error);
         // Fallback to Deepseek

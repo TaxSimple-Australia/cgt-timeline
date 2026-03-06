@@ -20,8 +20,8 @@ export async function GET() {
     }
   }
 
-  // Determine default provider - Deepseek is preferred
-  const preferredOrder = ['deepseek', 'claude', 'gemini', 'gpt4'];
+  // Determine default provider - Gemini is preferred for AI Timeline Builder
+  const preferredOrder = ['gemini', 'deepseek', 'claude', 'gpt4'];
   for (const id of preferredOrder) {
     if (id in availableProviders) {
       defaultProvider = id;

@@ -773,8 +773,8 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
     analysisDisplayMode: 'auto', // Default: auto-detect based on response type
 
     // LLM Provider Initial State
-    selectedLLMProvider: 'google', // Default provider (prefer Gemini)
-    availableLLMProviders: { google: 'Google' }, // Default fallback
+    selectedLLMProvider: 'deepseek', // Default provider (prefer Deepseek)
+    availableLLMProviders: { deepseek: 'Deepseek' }, // Default fallback
     isLoadingProviders: false,
 
     // AI Feedback Initial State
@@ -3260,14 +3260,14 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
       console.log('✅ LLM providers fetched:', data);
 
       // Determine the selected provider:
-      // 1. Prefer 'google' (Gemini) if available
+      // 1. Prefer 'deepseek' if available
       // 2. Otherwise keep current selection if it's in the list
       // 3. Fall back to API default
       const currentSelection = get().selectedLLMProvider;
       let selectedProvider: string;
 
-      if ('google' in data.providers) {
-        selectedProvider = 'google';
+      if ('deepseek' in data.providers) {
+        selectedProvider = 'deepseek';
       } else if (currentSelection in data.providers) {
         selectedProvider = currentSelection;
       } else {

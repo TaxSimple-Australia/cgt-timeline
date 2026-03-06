@@ -88,16 +88,16 @@ export class LLMFactory {
   }
 
   /**
-   * Get the default provider (first available, preferring deepseek)
+   * Get the default provider (first available, preferring Gemini for AI Builder)
    */
   static getDefaultProviderId(): string {
-    const preferred = ['deepseek', 'claude', 'gpt4', 'gemini'];
+    const preferred = ['gemini', 'deepseek', 'claude', 'gpt4'];
     for (const id of preferred) {
       if (this.isProviderAvailable(id)) {
         return id;
       }
     }
-    return 'deepseek'; // Fallback
+    return 'gemini'; // Fallback
   }
 
   /**

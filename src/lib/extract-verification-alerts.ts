@@ -120,44 +120,74 @@ export function extractVerificationAlerts(
       const periodStart = period.start || period.start_date || '';
       const periodEnd = period.end || period.end_date || '';
 
-      if (!question || propertiesInvolved.length === 0 || !periodStart || !periodEnd) {
-        return; // Skip incomplete questions
+      if (!question || propertiesInvolved.length === 0) {
+        return; // Skip questions with no text or no properties
       }
 
-      // Create an alert for EACH property involved in this gap
-      propertiesInvolved.forEach((propertyAddress: string, propIndex: number) => {
-        const matchedProperty = matchPropertyByAddress(propertyAddress);
-
-        if (matchedProperty) {
-          const alert: VerificationAlert = {
-            id: `alert-cq-${Date.now()}-${index}-${propIndex}`,
-            propertyAddress,
-            propertyId: matchedProperty.id,
-            startDate: periodStart,
-            endDate: periodEnd,
-            resolutionText: question,
-            clarificationQuestion: question,
-            possibleAnswers,
-            severity: 'warning',
-            // Prefer gap_id (the real backend matching key) over question_id (synthetic fallback)
-            questionId: cq.gap_id || cq.question_id || undefined,
-          };
-
-          console.log('✅ Created TIMELINE alert from clarification question:', {
-            alertId: alert.id,
-            questionId: alert.questionId,
-            propertyAddress: alert.propertyAddress,
-            propertyId: alert.propertyId,
-            startDate: alert.startDate,
-            endDate: alert.endDate,
-            question: alert.clarificationQuestion,
-            possibleAnswers: alert.possibleAnswers,
-            matchedProperty: { id: matchedProperty.id, name: matchedProperty.name, address: matchedProperty.address },
-          });
-          alerts.push(alert);
+      // Resolve "All properties" to actual timeline properties; otherwise match by address
+      const resolvedProperties: Array<{ address: string; property: Property }> = [];
+      propertiesInvolved.forEach((propertyAddress: string) => {
+        if (propertyAddress.toLowerCase() === 'all properties') {
+          // Global question — assign to first timeline property so the alert renders
+          if (timelineProperties.length > 0) {
+            const p = timelineProperties[0];
+            resolvedProperties.push({ address: `${p.name}, ${p.address}`, property: p });
+          }
         } else {
-          console.warn('⚠️ Could not match property from clarification question:', propertyAddress);
+          const match = matchPropertyByAddress(propertyAddress);
+          if (match) {
+            resolvedProperties.push({ address: propertyAddress, property: match });
+          } else {
+            console.warn('⚠️ Could not match property from clarification question:', propertyAddress);
+          }
         }
+      });
+
+      // Create an alert for each resolved property
+      resolvedProperties.forEach(({ address, property: matchedProperty }, propIndex) => {
+        // For questions without period dates (e.g. income clarification),
+        // derive fallback dates from the property so the alert bar renders on the timeline.
+        let alertStart = periodStart;
+        let alertEnd = periodEnd;
+
+        if (!alertStart || !alertEnd) {
+          const purchaseDate = matchedProperty.purchaseDate
+            ? new Date(matchedProperty.purchaseDate).toISOString().split('T')[0]
+            : '';
+          const saleDate = matchedProperty.saleDate
+            ? new Date(matchedProperty.saleDate).toISOString().split('T')[0]
+            : '';
+          const today = new Date().toISOString().split('T')[0];
+          alertStart = alertStart || purchaseDate || today;
+          alertEnd = alertEnd || saleDate || today;
+        }
+
+        const alert: VerificationAlert = {
+          id: `alert-cq-${Date.now()}-${index}-${propIndex}`,
+          propertyAddress: address,
+          propertyId: matchedProperty.id,
+          startDate: alertStart,
+          endDate: alertEnd,
+          resolutionText: question,
+          clarificationQuestion: question,
+          possibleAnswers,
+          severity: 'warning',
+          // Prefer gap_id (the real backend matching key) over question_id (synthetic fallback)
+          questionId: cq.gap_id || cq.question_id || undefined,
+        };
+
+        console.log('✅ Created TIMELINE alert from clarification question:', {
+          alertId: alert.id,
+          questionId: alert.questionId,
+          propertyAddress: alert.propertyAddress,
+          propertyId: alert.propertyId,
+          startDate: alert.startDate,
+          endDate: alert.endDate,
+          question: alert.clarificationQuestion,
+          possibleAnswers: alert.possibleAnswers,
+          matchedProperty: { id: matchedProperty.id, name: matchedProperty.name, address: matchedProperty.address },
+        });
+        alerts.push(alert);
       });
     });
 

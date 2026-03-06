@@ -285,7 +285,7 @@ export default function LandingFooter() {
               Acknowledgment
             </h3>
             <p className="text-slate-400 text-sm leading-relaxed">
-              In the spirit of reconciliation and legal transparency, we acknowledge the Traditional Owners and their continuing rights and interests in the lands and waters of Australia. We recognize that these connections underpinned by traditional Law and custom remain unceded. We pay our respects to the Elders who carry these rights and responsibilities, both past and present.
+              We acknowledge the Traditional Owners and Custodians of Country throughout Australia and their continuing connection to land, waters and community. We pay our respects to them, their cultures, and Elders past and present.
             </p>
           </div>
         </div>

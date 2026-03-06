@@ -89,7 +89,9 @@ export default function DetailedCalculationSection({
   const costBaseItems = property.cost_base_items || [];
   const calculationSteps = property.calculation_steps || [];
   const summary = property.calculation_summary;
-  const taxBrackets = summary?.tax_on_cgt?.all_brackets || [];
+  const taxOnCGT = summary?.tax_on_cgt;
+  const taxBrackets = taxOnCGT?.all_brackets || [];
+  const cgtBrackets = taxOnCGT?.cgt_bracket_breakdown?.filter(b => b.cgt_amount_in_bracket != null) || [];
 
   return (
     <div className="space-y-6">
@@ -282,51 +284,171 @@ export default function DetailedCalculationSection({
         </div>
       )}
 
-      {/* Estimated Tax on CGT */}
-      {taxBrackets.length > 0 && (
-        <div className="space-y-2">
+      {/* Tax on CGT */}
+      {taxOnCGT && (
+        <div className="space-y-3">
           <h4 className="text-sm font-bold text-gray-800 dark:text-gray-200">
-            Estimated Tax on CGT (2024-25 Rates)
+            Tax Impact of Capital Gain{taxOnCGT.financial_year ? ` (FY ${taxOnCGT.financial_year})` : ''}
           </h4>
-          <p className="text-xs text-gray-600 dark:text-gray-400">
-            Tax on your net capital gain of <span className="font-semibold">{formatAmount(summary?.net_capital_gain)}</span> at each marginal rate:
-          </p>
-          <div className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden p-4 bg-white dark:bg-gray-800">
-            {/* Grid of tax bracket cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              {taxBrackets.map((bracket, index) => (
-                <div
-                  key={index}
-                  className="flex flex-col p-3 border border-amber-200 dark:border-amber-700 rounded-lg bg-amber-50/50 dark:bg-amber-900/10 hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-colors"
-                >
-                  {/* Income range */}
-                  <span className="text-xs text-gray-600 dark:text-gray-400 mb-2">
-                    {bracket.income_to
-                      ? `$${formatNumber(bracket.income_from)} – $${formatNumber(bracket.income_to)}`
-                      : `$${formatNumber(bracket.income_from)}+`}
+
+          {/* Income Summary */}
+          {(taxOnCGT.other_income || taxOnCGT.total_taxable_income) && (
+            <div className="grid grid-cols-3 gap-3">
+              <div className="p-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-center">
+                <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Other Income</p>
+                <p className="text-sm font-mono font-bold text-gray-900 dark:text-gray-100 tabular-nums">
+                  {formatAmount(taxOnCGT.other_income)}
+                </p>
+              </div>
+              <div className="p-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-center">
+                <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Net Capital Gain</p>
+                <p className="text-sm font-mono font-bold text-green-700 dark:text-green-400 tabular-nums">
+                  + {formatAmount(taxOnCGT.net_capital_gain)}
+                </p>
+              </div>
+              <div className="p-3 bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-700 rounded-lg text-center">
+                <p className="text-xs text-purple-600 dark:text-purple-400 mb-1">Total Taxable Income</p>
+                <p className="text-sm font-mono font-bold text-purple-900 dark:text-purple-100 tabular-nums">
+                  {formatAmount(taxOnCGT.total_taxable_income)}
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* Tax Calculation Breakdown */}
+          {taxOnCGT.cgt_tax_impact && (
+            <div className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+              <div className="divide-y divide-gray-100 dark:divide-gray-700">
+                <div className="flex items-center justify-between px-4 py-3 bg-white dark:bg-gray-800">
+                  <span className="text-sm text-gray-700 dark:text-gray-300">
+                    Tax on total income ({formatAmount(taxOnCGT.total_taxable_income)})
                   </span>
-
-                  {/* Rate badge */}
-                  <div className="mb-2">
-                    <span className="inline-block px-3 py-1.5 bg-amber-100 dark:bg-amber-900/40 text-amber-900 dark:text-amber-100 font-mono font-semibold text-lg rounded tabular-nums">
-                      {bracket.marginal_rate}%
-                    </span>
-                  </div>
-
-                  {/* Tax amount */}
-                  <span className="text-base font-mono font-bold text-gray-900 dark:text-gray-100 tabular-nums">
-                    {formatAmount(bracket.tax_amount)}
+                  <span className="text-sm font-mono font-semibold text-gray-900 dark:text-gray-100 tabular-nums">
+                    {formatAmount(taxOnCGT.tax_on_total_income)}
                   </span>
                 </div>
-              ))}
+                <div className="flex items-center justify-between px-4 py-3 bg-white dark:bg-gray-800">
+                  <span className="text-sm text-gray-700 dark:text-gray-300">
+                    Less: Tax on other income alone ({formatAmount(taxOnCGT.other_income)})
+                  </span>
+                  <span className="text-sm font-mono font-semibold text-red-600 dark:text-red-400 tabular-nums">
+                    ({formatAmount(taxOnCGT.tax_on_other_income)})
+                  </span>
+                </div>
+              </div>
+              <div className="flex items-center justify-between px-4 py-4 bg-amber-100 dark:bg-amber-900/40 border-t-2 border-amber-400 dark:border-amber-600">
+                <span className="text-base font-bold text-amber-900 dark:text-amber-100">
+                  Tax Attributable to CGT
+                </span>
+                <div className="text-right">
+                  <span className="text-lg font-mono font-bold text-amber-900 dark:text-amber-100 tabular-nums">
+                    {formatAmount(taxOnCGT.cgt_tax_impact)}
+                  </span>
+                  {taxOnCGT.effective_cgt_rate && (
+                    <span className="ml-2 text-xs font-semibold text-amber-700 dark:text-amber-300">
+                      (effective {taxOnCGT.effective_cgt_rate}%)
+                    </span>
+                  )}
+                </div>
+              </div>
             </div>
-          </div>
-          <div className="p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-lg">
-            <p className="text-xs text-amber-900 dark:text-amber-100">
-              Your marginal rate depends on your total taxable income (including this capital gain).
-              The rates above do not include the 2% Medicare levy.
-            </p>
-          </div>
+          )}
+
+          {/* CGT Bracket Breakdown */}
+          {cgtBrackets.length > 0 && (
+            <div className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+              <div className="px-4 py-2.5 bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
+                <span className="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wide">
+                  CGT Bracket Breakdown
+                </span>
+              </div>
+              <div className="divide-y divide-gray-100 dark:divide-gray-700">
+                {cgtBrackets.map((bracket, index) => (
+                  <div key={index} className="flex items-center justify-between px-4 py-3 bg-white dark:bg-gray-800">
+                    <div className="flex items-center gap-3">
+                      <span className="inline-block px-2 py-0.5 bg-amber-100 dark:bg-amber-900/40 text-amber-900 dark:text-amber-100 font-mono font-semibold text-sm rounded tabular-nums">
+                        {bracket.marginal_rate}%
+                      </span>
+                      <span className="text-sm text-gray-600 dark:text-gray-400">
+                        {bracket.income_to
+                          ? `$${formatNumber(bracket.income_from)} – $${formatNumber(bracket.income_to)}`
+                          : `$${formatNumber(bracket.income_from)}+`}
+                      </span>
+                    </div>
+                    <div className="text-right">
+                      <span className="text-sm font-mono font-bold text-gray-900 dark:text-gray-100 tabular-nums">
+                        {formatAmount(bracket.tax_amount)}
+                      </span>
+                      {bracket.cgt_amount_in_bracket && (
+                        <span className="block text-xs text-gray-500 dark:text-gray-400 font-mono tabular-nums">
+                          on {formatAmount(bracket.cgt_amount_in_bracket)}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* User Marginal Rate Comparison */}
+          {taxOnCGT.user_marginal_rate && taxOnCGT.user_tax_amount && taxOnCGT.effective_cgt_rate &&
+           String(taxOnCGT.user_marginal_rate) !== String(taxOnCGT.effective_cgt_rate) && (
+            <div className="p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg">
+              <p className="text-xs text-blue-900 dark:text-blue-100">
+                <span className="font-semibold">Note:</span> At your stated marginal rate of {taxOnCGT.user_marginal_rate}%, the tax would be{' '}
+                <span className="font-mono font-semibold">{formatAmount(taxOnCGT.user_tax_amount)}</span>.
+                However, adding the capital gain to your other income pushes it into the {taxOnCGT.effective_cgt_rate}% bracket,
+                resulting in an actual tax of <span className="font-mono font-semibold">{formatAmount(taxOnCGT.cgt_tax_impact)}</span>.
+              </p>
+            </div>
+          )}
+
+          {/* Full Progressive Tax Table */}
+          {taxBrackets.length > 0 && (
+            <div className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+              <div className="px-4 py-2.5 bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
+                <span className="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wide">
+                  Progressive Tax Brackets{taxOnCGT.financial_year ? ` (${taxOnCGT.financial_year})` : ''}
+                </span>
+              </div>
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="bg-gray-50 dark:bg-gray-900 text-gray-600 dark:text-gray-400 text-xs uppercase">
+                    <th className="px-4 py-2 text-left font-semibold">Income Range</th>
+                    <th className="px-4 py-2 text-right font-semibold">Rate</th>
+                    <th className="px-4 py-2 text-right font-semibold">Tax</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
+                  {taxBrackets.map((bracket, index) => (
+                    <tr key={index} className="bg-white dark:bg-gray-800">
+                      <td className="px-4 py-2.5 text-gray-700 dark:text-gray-300">
+                        {bracket.income_to
+                          ? `$${formatNumber(bracket.income_from)} – $${formatNumber(bracket.income_to)}`
+                          : `$${formatNumber(bracket.income_from)}+`}
+                      </td>
+                      <td className="px-4 py-2.5 text-right font-mono tabular-nums text-gray-900 dark:text-gray-100">
+                        {bracket.marginal_rate}%
+                      </td>
+                      <td className="px-4 py-2.5 text-right font-mono font-semibold tabular-nums text-gray-900 dark:text-gray-100">
+                        {formatAmount(bracket.tax_amount)}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          {/* Note */}
+          {taxOnCGT.note && (
+            <div className="p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-lg">
+              <p className="text-xs text-amber-900 dark:text-amber-100">
+                {taxOnCGT.note}
+              </p>
+            </div>
+          )}
         </div>
       )}
     </div>

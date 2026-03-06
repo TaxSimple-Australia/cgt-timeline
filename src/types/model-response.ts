@@ -240,10 +240,31 @@ export interface TaxBracket {
   income_to: number | null;
   marginal_rate: number;
   tax_amount: number;
+  cgt_amount_in_bracket?: string | number | null;
+}
+
+export interface CGTBracketBreakdown {
+  marginal_rate: string | number;
+  tax_amount: string | number;
+  income_from: number;
+  income_to: number | null;
+  cgt_amount_in_bracket: string | number | null;
 }
 
 export interface TaxOnCGT {
+  net_capital_gain?: string | number;
+  other_income?: string | number;
+  total_taxable_income?: string | number;
+  tax_on_other_income?: string | number;
+  tax_on_total_income?: string | number;
+  cgt_tax_impact?: string | number;
+  effective_cgt_rate?: string | number;
+  cgt_bracket_breakdown?: CGTBracketBreakdown[];
+  user_marginal_rate?: string | number;
+  user_tax_amount?: string | number;
   all_brackets: TaxBracket[];
+  financial_year?: string;
+  note?: string;
 }
 
 export interface CalculationSummary {

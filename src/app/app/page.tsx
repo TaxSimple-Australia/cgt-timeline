@@ -405,6 +405,11 @@ function HomeContent() {
         console.log('🚨 Extracted alerts (needs clarification):', alerts);
         setVerificationAlerts(alerts);
 
+        // Auto-open the first alert modal so the user sees the question immediately
+        if (alerts.length > 0) {
+          setSelectedAlertForModal(alerts[0].id);
+        }
+
         // Set validation issues in store if present
         if (innerData.verification?.issues) {
           setValidationIssues(innerData.verification.issues, properties);
@@ -642,6 +647,9 @@ function HomeContent() {
         console.log('⚠️ Re-submit: API still needs clarification — extracting new alerts');
         const newAlerts = extractVerificationAlerts(innerData, properties);
         setVerificationAlerts(newAlerts);
+        if (newAlerts.length > 0) {
+          setSelectedAlertForModal(newAlerts[0].id);
+        }
         if (innerData.verification?.issues) {
           setValidationIssues(innerData.verification.issues, properties);
         }
@@ -798,6 +806,9 @@ function HomeContent() {
         const alerts = extractVerificationAlerts(innerData, properties);
         console.log('🚨 Extracted alerts after retry (still needs clarification):', alerts);
         setVerificationAlerts(alerts);
+        if (alerts.length > 0) {
+          setSelectedAlertForModal(alerts[0].id);
+        }
 
         // Set validation issues in store if present
         if (innerData.verification?.issues) {

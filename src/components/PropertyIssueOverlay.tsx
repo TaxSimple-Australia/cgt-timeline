@@ -207,9 +207,11 @@ export default function PropertyIssueOverlay({
                   <h3 className="font-semibold text-gray-900 dark:text-gray-100">
                     {alert.propertyAddress}
                   </h3>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                    Affected Period: {formatDate(alert.startDate)} → {formatDate(alert.endDate)}
-                  </p>
+                  {alert.startDate && alert.endDate && alert.startDate !== alert.endDate && (
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                      Affected Period: {formatDate(alert.startDate)} → {formatDate(alert.endDate)}
+                    </p>
+                  )}
                 </div>
                 <div
                   className={`px-3 py-1 rounded-full text-xs font-semibold ${

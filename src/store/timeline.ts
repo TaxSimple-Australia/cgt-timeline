@@ -320,6 +320,10 @@ interface TimelineState {
   // Terms & Conditions State
   hasAcceptedTerms: boolean; // Whether user has accepted T&C
 
+  // Active Scenario State
+  activeScenarioId: string | null; // ID of currently loaded saved scenario (null when none)
+  setActiveScenarioId: (id: string | null) => void;
+
   // Actions
   addProperty: (property: Omit<Property, 'id' | 'branch'>) => void;
   updateProperty: (id: string, property: Partial<Property>) => void;
@@ -797,6 +801,9 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
 
     // Terms & Conditions initial state
     hasAcceptedTerms: (typeof window !== 'undefined' && localStorage.getItem('cgtBrain_termsAccepted') === 'true') || false,
+
+    // Active Scenario initial state
+    activeScenarioId: null,
 
     // Sticky Notes initial state
     timelineStickyNotes: [],
@@ -2424,6 +2431,8 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
       timelineStickyNotes: [],
       analysisStickyNotes: [],
       savedAnalysis: null,
+      // Clear active scenario
+      activeScenarioId: null,
     });
   },
 
@@ -3745,6 +3754,11 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
         localStorage.removeItem('cgtBrain_termsAccepted');
       }
     }
+  },
+
+  // Active Scenario Actions
+  setActiveScenarioId: (id: string | null) => {
+    set({ activeScenarioId: id });
   },
 
   // Subdivision Collapse Actions

@@ -6,6 +6,7 @@ import { format } from 'date-fns';
 import { useTimelineStore } from '@/store/timeline';
 import SettingsModal from './SettingsModal';
 import ScenarioSelectorModal from './ScenarioSelectorModal';
+import MyScenariosSelectorModal from './MyScenariosSelectorModal';
 import { ShareLinkButton, AddStickyNoteButton } from './sticky-notes';
 import {
   ZoomIn,
@@ -27,10 +28,16 @@ import {
   Share2,
   Plus,
   Undo2,
-  Redo2
+  Redo2,
+  Save,
+  Pencil,
+  RefreshCw
 } from 'lucide-react';
 import { showSuccess, showError } from '@/lib/toast-helpers';
 import { useEnhancedStore } from '@/store/storeEnhancer';
+import { buildScenarioData, updateScenarioData, updateScenario, getSavedScenario } from '@/lib/saved-scenarios';
+import { extractMetadataFromReport } from '@/lib/extract-report-metadata';
+import SaveScenarioModal from './SaveScenarioModal';
 
 interface TimelineControlsProps {
   /** Reference to the timeline container for sticky note positioning */
@@ -41,7 +48,10 @@ export default function TimelineControls({ timelineContainerRef }: TimelineContr
   const router = useRouter();
   const [showSettings, setShowSettings] = useState(false);
   const [showScenarioSelector, setShowScenarioSelector] = useState(false);
+  const [showMyScenarios, setShowMyScenarios] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
+  const [showSaveScenarioModal, setShowSaveScenarioModal] = useState(false);
+  const [editingScenarioId, setEditingScenarioId] = useState<string | null>(null);
   const [panSliderValue, setPanSliderValue] = useState(0);
   const [isPanning, setIsPanning] = useState(false);
 
@@ -66,7 +76,9 @@ export default function TimelineControls({ timelineContainerRef }: TimelineContr
     eventDisplayMode,
     toggleEventDisplayMode,
     openNotesModal,
-    timelineNotes
+    timelineNotes,
+    activeScenarioId,
+    setActiveScenarioId
   } = useTimelineStore();
 
   // Undo/Redo state from enhanced store
@@ -121,199 +133,7 @@ export default function TimelineControls({ timelineContainerRef }: TimelineContr
   const handlePanEnd = () => setIsPanning(false);
 
   const handleExport = () => {
-    const exportData = {
-      properties: properties.map(property => {
-        const propertyEvents = events
-          .filter(e => e.propertyId === property.id)
-          .sort((a, b) => a.date.getTime() - b.date.getTime());
-
-        const property_history = propertyEvents.map(event => {
-          const historyItem: any = {
-            date: format(event.date, 'yyyy-MM-dd'),
-            event: event.type,
-          };
-
-          if (event.costBases && event.costBases.length > 0) {
-            const costBaseToApiFieldMap: Record<string, string> = {
-              'purchase_price': 'price',
-              'sale_price': 'price',
-              'land_price': 'land_price',
-              'building_price': 'building_price',
-              'stamp_duty': 'stamp_duty',
-              'purchase_legal_fees': 'purchase_legal_fees',
-              'conveyancing_fees': 'conveyancing_fees',
-              'conveyancing_fees_purchase': 'conveyancing_fees',
-              'conveyancing_fees_sale': 'conveyancing_fees',
-              'valuation_fees': 'valuation_fees',
-              'building_inspection': 'building_inspection',
-              'pest_inspection': 'pest_inspection',
-              'purchase_agent_fees': 'purchase_agent_fees',
-              'title_legal_fees': 'title_legal_fees',
-              'loan_establishment': 'loan_establishment',
-              'loan_application_fees': 'loan_application_fees',
-              'mortgage_insurance': 'mortgage_insurance',
-              'mortgage_discharge_fees': 'mortgage_discharge_fees',
-              'survey_fees': 'survey_fees',
-              'search_fees': 'search_fees',
-              'accountant_fees_purchase': 'accountant_fees_purchase',
-              'tax_agent_fees_sale': 'tax_agent_fees_sale',
-              'sale_agent_fees': 'agent_fees',
-              'sale_legal_fees': 'legal_fees',
-              'advertising_costs': 'advertising_costs',
-              'staging_costs': 'staging_costs',
-              'auction_costs': 'auction_costs',
-              'auction_fees': 'auction_fees',
-              // Element 3: Holding Costs
-              'land_tax': 'land_tax',
-              'council_rates': 'council_rates',
-              'water_rates': 'water_rates',
-              'insurance': 'insurance',
-              'body_corporate_fees': 'body_corporate_fees',
-              'interest_on_borrowings': 'interest_on_borrowings',
-              'maintenance_costs': 'maintenance_costs',
-              'emergency_services_levy': 'emergency_services_levy',
-              // Element 5: Title Costs
-              'boundary_dispute': 'boundary_dispute',
-              'title_insurance': 'title_insurance',
-              'easement_costs': 'easement_costs',
-              'caveat_costs': 'caveat_costs',
-              'partition_action': 'partition_action',
-              'adverse_possession_defense': 'adverse_possession_defense',
-              // Element 4: Improvement types
-              'renovation_whole_house': 'improvement_cost',
-              'renovation_kitchen': 'improvement_cost',
-              'renovation_bathroom': 'improvement_cost',
-              'extension': 'improvement_cost',
-              'swimming_pool': 'improvement_cost',
-              'landscaping': 'improvement_cost',
-              'landscaping_major': 'improvement_cost',
-              'garage_carport': 'improvement_cost',
-              'garage': 'improvement_cost',
-              'fencing': 'improvement_cost',
-              'deck_patio': 'improvement_cost',
-              'hvac_system': 'improvement_cost',
-              'solar_panels': 'improvement_cost',
-              'structural_changes': 'improvement_cost',
-              'disability_modifications': 'improvement_cost',
-              'water_tank': 'improvement_cost',
-              'shed_outbuilding': 'improvement_cost',
-              'shed': 'improvement_cost',
-            };
-
-            event.costBases.forEach(cb => {
-              const apiField = costBaseToApiFieldMap[cb.definitionId];
-              if (apiField) {
-                historyItem[apiField] = cb.amount;
-              } else {
-                console.warn(`⚠️ Cost base '${cb.definitionId}' not mapped for JSON export (amount: ${cb.amount})`);
-              }
-            });
-
-            if (event.type === 'improvement' && !historyItem.price) {
-              const totalCost = event.costBases.reduce((sum, cb) => sum + cb.amount, 0);
-              if (totalCost > 0) {
-                historyItem.price = totalCost;
-              }
-            }
-          } else {
-            if (event.amount) {
-              historyItem.price = event.amount;
-            }
-          }
-
-          if (event.landPrice !== undefined) historyItem.land_price = event.landPrice;
-          if (event.buildingPrice !== undefined) historyItem.building_price = event.buildingPrice;
-          if (event.title) historyItem.title = event.title;
-          if (event.description) historyItem.description = event.description;
-          if (event.isPPR) historyItem.is_ppr = event.isPPR;
-          if (event.contractDate) historyItem.contract_date = format(event.contractDate, 'yyyy-MM-dd');
-          if (event.settlementDate) historyItem.settlement_date = format(event.settlementDate, 'yyyy-MM-dd');
-          if (event.newStatus) historyItem.new_status = event.newStatus;
-          if (event.marketValuation !== undefined) historyItem.market_value = event.marketValuation;
-
-          // Mixed-use percentages and dates
-          if (event.checkboxState) historyItem.checkboxState = event.checkboxState;
-          if (event.livingUsePercentage !== undefined) historyItem.livingUsePercentage = event.livingUsePercentage;
-          if (event.rentalUsePercentage !== undefined) historyItem.rentalUsePercentage = event.rentalUsePercentage;
-          if (event.businessUsePercentage !== undefined) historyItem.businessUsePercentage = event.businessUsePercentage;
-          if (event.mixedUseMoveInDate) historyItem.mixedUseMoveInDate = format(event.mixedUseMoveInDate, 'yyyy-MM-dd');
-          if (event.rentalUseStartDate) historyItem.rentalUseStartDate = format(event.rentalUseStartDate, 'yyyy-MM-dd');
-          if (event.businessUseStartDate) historyItem.businessUseStartDate = format(event.businessUseStartDate, 'yyyy-MM-dd');
-          if (event.floorAreaData) historyItem.floorAreaData = event.floorAreaData;
-
-          // CGT flags and property details
-          if (event.overTwoHectares) historyItem.overTwoHectares = event.overTwoHectares;
-          if (event.isLandOnly) historyItem.isLandOnly = event.isLandOnly;
-          if (event.hectares !== undefined) historyItem.hectares = event.hectares;
-          if (event.capitalProceedsType) historyItem.capitalProceedsType = event.capitalProceedsType;
-          if (event.exemptionType) historyItem.exemptionType = event.exemptionType;
-          if (event.isResident !== undefined) historyItem.isResident = event.isResident;
-          if (event.previousYearLosses) historyItem.previousYearLosses = event.previousYearLosses;
-          if (event.affectsStatus) historyItem.affectsStatus = event.affectsStatus;
-
-          // Ownership change data
-          if (event.leavingOwners) historyItem.leavingOwners = event.leavingOwners;
-          if (event.newOwners) historyItem.newOwners = event.newOwners;
-          if (event.ownershipChangeReason) historyItem.ownershipChangeReason = event.ownershipChangeReason;
-          if (event.ownershipChangeReasonOther) historyItem.ownershipChangeReasonOther = event.ownershipChangeReasonOther;
-          if (event.previousOwners) historyItem.previousOwners = event.previousOwners;
-
-          // Construction dates
-          if (event.constructionStartDate) historyItem.constructionStartDate = format(event.constructionStartDate, 'yyyy-MM-dd');
-          if (event.constructionEndDate) historyItem.constructionEndDate = format(event.constructionEndDate, 'yyyy-MM-dd');
-
-          // Division 40 & 43 tax deductions
-          if (event.division40Assets !== undefined) historyItem.division40Assets = event.division40Assets;
-          if (event.division43Deductions !== undefined) historyItem.division43Deductions = event.division43Deductions;
-
-          // Appreciation/future value
-          if (event.appreciationValue !== undefined) historyItem.appreciationValue = event.appreciationValue;
-          if (event.appreciationDate) historyItem.appreciationDate = format(event.appreciationDate, 'yyyy-MM-dd');
-
-          // Subdivision details
-          if (event.subdivisionDetails) historyItem.subdivisionDetails = event.subdivisionDetails;
-
-          // Preserve costBases array structure (includes custom cost bases, descriptions, IDs)
-          if (event.costBases && event.costBases.length > 0) {
-            historyItem.costBases = event.costBases;
-          }
-
-          // Depreciating assets value (Division 40 - not included in CGT cost base)
-          if (event.depreciatingAssetsValue !== undefined) {
-            historyItem.depreciatingAssetsValue = event.depreciatingAssetsValue;
-          }
-
-          return historyItem;
-        });
-
-        return {
-          id: property.id,
-          address: `${property.name}${property.address ? ', ' + property.address : ''}`,
-          property_history,
-          notes: property.currentStatus || 'No notes',
-          // Property metadata
-          color: property.color,
-          isRental: property.isRental,
-          owners: property.owners,
-          currentValue: property.currentValue,
-          branch: property.branch,
-          // Subdivision fields
-          parentPropertyId: property.parentPropertyId,
-          subdivisionDate: property.subdivisionDate ? format(property.subdivisionDate, 'yyyy-MM-dd') : undefined,
-          subdivisionGroup: property.subdivisionGroup,
-          lotNumber: property.lotNumber,
-          lotSize: property.lotSize,
-          allocationPercentage: property.allocationPercentage,
-          initialCostBase: property.initialCostBase,
-          isMainLotContinuation: property.isMainLotContinuation,
-        };
-      }),
-      user_query: "Please analyze my property portfolio with accurate CGT calculations including all cost base elements.",
-      additional_info: {
-        australian_resident: true,
-        tax_year: new Date().getFullYear() + "-" + (new Date().getFullYear() + 1),
-      }
-    };
+    const exportData = buildScenarioData(properties, events);
 
     const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
@@ -324,6 +144,51 @@ export default function TimelineControls({ timelineContainerRef }: TimelineContr
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
+  };
+
+  const handleSaveAsScenario = () => {
+    setEditingScenarioId(null);
+    setShowSaveScenarioModal(true);
+  };
+
+  const handleEditScenario = () => {
+    if (activeScenarioId) {
+      setEditingScenarioId(activeScenarioId);
+      setShowSaveScenarioModal(true);
+    }
+  };
+
+  const handleUpdateScenario = () => {
+    if (!activeScenarioId) return;
+    const storeState = useTimelineStore.getState();
+    if (storeState.aiResponse) storeState.saveCurrentAnalysis();
+    const scenarioData = storeState.exportShareableData();
+    const updated = updateScenarioData(activeScenarioId, scenarioData);
+
+    // Also update metadata from current report if available
+    const { aiResponse } = storeState;
+    if (aiResponse) {
+      const extracted = extractMetadataFromReport(aiResponse);
+      if (extracted.expectedResult || extracted.applicableRules) {
+        updateScenario(activeScenarioId, {
+          ...(extracted.expectedResult && { expectedResult: extracted.expectedResult }),
+          ...(extracted.applicableRules && { applicableRules: extracted.applicableRules }),
+          ...(extracted.description && { description: extracted.description }),
+        });
+      }
+    }
+
+    if (updated) {
+      showSuccess('Scenario updated');
+    } else {
+      showError('Failed to update scenario');
+    }
+  };
+
+  const handleScenarioSaved = (scenarioId: string) => {
+    setActiveScenarioId(scenarioId);
+    setShowSaveScenarioModal(false);
+    showSuccess('Scenario saved');
   };
 
   const handleImport = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -529,6 +394,22 @@ export default function TimelineControls({ timelineContainerRef }: TimelineContr
               <input type="file" accept=".json" onChange={handleImport} className="hidden" />
             </label>
 
+            {/* Save Scenario Buttons */}
+            {activeScenarioId ? (
+              <>
+                <IconButton onClick={handleUpdateScenario} title="Update Scenario">
+                  <RefreshCw className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-green-600 dark:text-green-400" />
+                </IconButton>
+                <IconButton onClick={handleEditScenario} title="Edit Scenario Metadata">
+                  <Pencil className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-blue-600 dark:text-blue-400" />
+                </IconButton>
+              </>
+            ) : (
+              <IconButton onClick={handleSaveAsScenario} title="Save as Scenario" variant="gradient">
+                <Save className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-600 dark:text-emerald-400" />
+              </IconButton>
+            )}
+
             {/* Share Link Button */}
             <ShareLinkButton variant="toolbar" includeAnalysis={true} />
 
@@ -537,6 +418,14 @@ export default function TimelineControls({ timelineContainerRef }: TimelineContr
 
             <IconButton onClick={() => setShowScenarioSelector(true)} title="Load Scenario" variant="gradient">
               <FolderOpen className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-purple-600 dark:text-purple-400" />
+            </IconButton>
+
+            <IconButton
+              onClick={() => setShowMyScenarios(true)}
+              title="My Scenarios"
+              className="hover:scale-105 bg-gradient-to-r from-emerald-500/10 via-teal-500/10 to-cyan-500/10 hover:from-emerald-500/20 hover:via-teal-500/20 hover:to-cyan-500/20 dark:from-emerald-500/20 dark:via-teal-500/20 dark:to-cyan-500/20 dark:hover:from-emerald-500/30 dark:hover:via-teal-500/30 dark:hover:to-cyan-500/30 border border-emerald-200/50 dark:border-emerald-500/30"
+            >
+              <Save className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-600 dark:text-emerald-400" />
             </IconButton>
 
             <IconButton onClick={clearAllData} title="Clear All Data" variant="danger">
@@ -674,6 +563,14 @@ export default function TimelineControls({ timelineContainerRef }: TimelineContr
             </button>
 
             <button
+              onClick={() => { setShowMyScenarios(true); setShowMobileMenu(false); }}
+              className="flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-emerald-50 dark:hover:bg-emerald-900/20"
+            >
+              <Save className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+              <span className="text-[10px] text-emerald-600 dark:text-emerald-400">My Saved</span>
+            </button>
+
+            <button
               onClick={() => { clearAllData(); setShowMobileMenu(false); }}
               className="flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20"
             >
@@ -744,6 +641,18 @@ export default function TimelineControls({ timelineContainerRef }: TimelineContr
       <ScenarioSelectorModal
         isOpen={showScenarioSelector}
         onClose={() => setShowScenarioSelector(false)}
+      />
+
+      <MyScenariosSelectorModal
+        isOpen={showMyScenarios}
+        onClose={() => setShowMyScenarios(false)}
+      />
+
+      <SaveScenarioModal
+        isOpen={showSaveScenarioModal}
+        onClose={() => setShowSaveScenarioModal(false)}
+        onSaved={handleScenarioSaved}
+        editingScenarioId={editingScenarioId}
       />
     </>
   );

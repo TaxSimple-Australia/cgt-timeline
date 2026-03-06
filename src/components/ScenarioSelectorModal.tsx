@@ -81,7 +81,7 @@ interface ScenarioSelectorModalProps {
   onClose: () => void;
 }
 
-// Category configuration - New 7-category system
+// Category configuration - 7-category system
 const CATEGORIES = [
   { id: 'all', label: 'All Scenarios', ariaLabel: 'Show all scenarios', icon: Filter },
   { id: 'Main Residence', label: 'Main Residence', ariaLabel: 'Main residence properties', icon: Home },
@@ -130,27 +130,23 @@ export default function ScenarioSelectorModal({ isOpen, onClose }: ScenarioSelec
   }, [isOpen]);
 
   const loadManifest = async () => {
-    // Use cached manifest if available
-    if (manifestCache) {
-      setScenarios(manifestCache.scenarios);
-      setSubcategoryMap(manifestCache.subcategories || {});
-      setLoading(false);
-      console.log('📦 Using cached scenarios manifest');
-      return;
-    }
-
     setLoading(true);
     try {
-      const response = await fetch('/scenarios-manifest.json');
-      if (!response.ok) {
-        throw new Error('Failed to load scenarios manifest');
+      if (manifestCache) {
+        setScenarios(manifestCache.scenarios);
+        setSubcategoryMap(manifestCache.subcategories || {});
+        console.log('📦 Using cached scenarios manifest');
+      } else {
+        const response = await fetch('/scenarios-manifest.json');
+        if (!response.ok) {
+          throw new Error('Failed to load scenarios manifest');
+        }
+        const manifest: ScenarioManifest = await response.json();
+        manifestCache = manifest;
+        setScenarios(manifest.scenarios);
+        setSubcategoryMap(manifest.subcategories || {});
+        console.log(`✅ Loaded ${manifest.totalScenarios} scenarios from manifest (v${manifest.version})`);
       }
-
-      const manifest: ScenarioManifest = await response.json();
-      manifestCache = manifest; // Cache for future use
-      setScenarios(manifest.scenarios);
-      setSubcategoryMap(manifest.subcategories || {});
-      console.log(`✅ Loaded ${manifest.totalScenarios} scenarios from manifest (v${manifest.version})`);
     } catch (err) {
       console.error('❌ Failed to load manifest:', err);
       setError('Failed to load scenarios. Please try again.');
@@ -194,8 +190,8 @@ export default function ScenarioSelectorModal({ isOpen, onClose }: ScenarioSelec
       clearAllData();
       await new Promise(resolve => setTimeout(resolve, 100));
       importTimelineData(data);
-
       console.log(`✅ Loaded scenario: ${scenario.title}`);
+
       onClose();
     } catch (error) {
       console.error('❌ Failed to load scenario:', error);
@@ -745,24 +741,26 @@ export default function ScenarioSelectorModal({ isOpen, onClose }: ScenarioSelec
                         </div>
                       )}
 
-                      {/* Load button */}
-                      <button
-                        onClick={() => handleSelectScenario(viewingScenario)}
-                        disabled={loadingScenario !== null}
-                        className="w-full py-3 px-4 bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white font-semibold rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg shadow-purple-500/20 hover:shadow-purple-500/40"
-                      >
-                        {loadingScenario === viewingScenario.id ? (
-                          <>
-                            <Loader2 className="w-5 h-5 animate-spin" />
-                            Loading...
-                          </>
-                        ) : (
-                          <>
-                            <FolderOpen className="w-5 h-5" />
-                            Load This Scenario
-                          </>
-                        )}
-                      </button>
+                      {/* Action buttons */}
+                      <div className="flex gap-3">
+                        <button
+                          onClick={() => handleSelectScenario(viewingScenario)}
+                          disabled={loadingScenario !== null}
+                          className="flex-1 py-3 px-4 bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white font-semibold rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg shadow-purple-500/20 hover:shadow-purple-500/40"
+                        >
+                          {loadingScenario === viewingScenario.id ? (
+                            <>
+                              <Loader2 className="w-5 h-5 animate-spin" />
+                              Loading...
+                            </>
+                          ) : (
+                            <>
+                              <FolderOpen className="w-5 h-5" />
+                              Load This Scenario
+                            </>
+                          )}
+                        </button>
+                      </div>
                     </motion.div>
                   ) : filteredScenarios.length === 0 ? (
                     <div className="text-center py-12">

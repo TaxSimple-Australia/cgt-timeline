@@ -77,6 +77,7 @@ function HomeContent() {
     aiResponse,
     setAIResponse,
     marginalTaxRate,
+    activeScenarioId,
   } = useTimelineStore();
   const { setValidationIssues, clearValidationIssues, setApiConnected } = useValidationStore();
   const [showAnalysis, setShowAnalysis] = useState(false);
@@ -204,6 +205,15 @@ function HomeContent() {
       setIsLoadingShare(false);
     }
   }
+
+  // Auto-show analysis when a saved scenario with analysis is loaded
+  useEffect(() => {
+    if (activeScenarioId && savedAnalysis?.response && !analysisData && !showAnalysis) {
+      console.log('📊 Saved scenario has analysis - auto-showing');
+      setAnalysisData(savedAnalysis.response);
+      setShowAnalysis(true);
+    }
+  }, [activeScenarioId, savedAnalysis]);
 
   // NOTE: Demo data loading disabled - app starts with empty timeline
   // Users can manually load demo data or use the AI Timeline Builder

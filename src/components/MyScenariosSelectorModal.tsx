@@ -219,7 +219,7 @@ export default function MyScenariosSelectorModal({ isOpen, onClose }: MyScenario
                     </div>
                     <div>
                       <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100">
-                        My Scenarios
+                        Example Scenarios
                       </h2>
                       <p className="text-sm text-slate-500 dark:text-slate-400">
                         Your saved CGT scenarios

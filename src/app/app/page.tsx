@@ -948,7 +948,7 @@ function HomeContent() {
             {/* Toggle Header */}
             <div className="flex-shrink-0 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 px-6 py-3 flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Sparkles className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+                <img src="/robot_new_transparent.webp" alt="CGT Brain AI" className="w-6 h-6 object-contain" />
                 <h2 className="font-semibold text-gray-900 dark:text-gray-100">
                   CGT Analysis Results
                 </h2>

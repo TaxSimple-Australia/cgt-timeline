@@ -117,13 +117,13 @@ export default function ConversationBox({
                 style={{ marginTop: '8px' }}
               >
                 {/* Wrapper with Purple Border */}
-                <div className="w-full h-full rounded-full border-[3px] border-purple-500 p-0.5 bg-white
+                <div className="w-full h-full rounded-full border-[1.5px] border-purple-500 overflow-hidden
                               transition-all duration-300 group-hover:shadow-lg group-hover:shadow-purple-500/50 group-hover:border-purple-400">
                   {/* Mascot Image */}
                   <motion.img
-                    src="/cgt-mascot-avatar.png"
+                    src="/robot_new_transparent.webp"
                     alt="CGT Brain Assistant"
-                    className="w-full h-full object-contain filter drop-shadow-xl"
+                    className="w-full h-full object-cover scale-125 filter drop-shadow-xl"
                     whileHover={{
                       scale: 1.08
                     }}

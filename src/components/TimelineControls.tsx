@@ -417,7 +417,7 @@ export default function TimelineControls({ timelineContainerRef }: TimelineContr
 
             <IconButton
               onClick={() => setShowMyScenarios(true)}
-              title="My Scenarios"
+              title="Example Scenarios"
               className="hover:scale-105 bg-gradient-to-r from-emerald-500/10 via-teal-500/10 to-cyan-500/10 hover:from-emerald-500/20 hover:via-teal-500/20 hover:to-cyan-500/20 dark:from-emerald-500/20 dark:via-teal-500/20 dark:to-cyan-500/20 dark:hover:from-emerald-500/30 dark:hover:via-teal-500/30 dark:hover:to-cyan-500/30 border border-emerald-200/50 dark:border-emerald-500/30"
             >
               <FolderOpen className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-600 dark:text-emerald-400" />

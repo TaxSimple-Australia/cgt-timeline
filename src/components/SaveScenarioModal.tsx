@@ -3,17 +3,17 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Save, ChevronDown, ChevronUp, Plus, Tag, Zap } from 'lucide-react';
+import { X, Save, ChevronDown, ChevronUp, Plus, Tag, Zap, Loader2 } from 'lucide-react';
 import { useTimelineStore } from '@/store/timeline';
 import { cn } from '@/lib/utils';
 import { extractMetadataFromReport } from '@/lib/extract-report-metadata';
 import {
-  buildScenarioData,
   saveScenario,
   updateScenario,
   getSavedScenario,
   getUsedCategories,
   getUsedSubcategories,
+  getAllSavedScenarios,
   SavedScenarioMetadata,
   SavedScenario,
 } from '@/lib/saved-scenarios';
@@ -39,6 +39,8 @@ export default function SaveScenarioModal({ isOpen, onClose, onSaved, editingSce
   const { properties, events, aiResponse } = useTimelineStore();
   const [mounted, setMounted] = useState(false);
   const [populatedFlash, setPopulatedFlash] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [cachedScenarios, setCachedScenarios] = useState<SavedScenario[]>([]);
 
   // Form state
   const [title, setTitle] = useState('');
@@ -70,32 +72,37 @@ export default function SaveScenarioModal({ isOpen, onClose, onSaved, editingSce
     return () => setMounted(false);
   }, []);
 
-  // Load editing scenario data
+  // Load editing scenario data + fetch cached scenarios for category suggestions
   useEffect(() => {
     if (isOpen) {
+      // Fetch all scenarios for category/subcategory suggestions
+      getAllSavedScenarios().then(setCachedScenarios).catch(() => {});
+
       if (editingScenarioId) {
-        const scenario = getSavedScenario(editingScenarioId);
-        if (scenario) {
-          setTitle(scenario.title);
-          setDescription(scenario.description || '');
-          setCategory(scenario.category || '');
-          setSubcategory(scenario.subcategory || '');
-          setTags(scenario.tags || []);
-          setUserQuery(scenario.userQuery || '');
-          setApplicableRules(scenario.applicableRules || []);
-          if (scenario.expectedResult) {
-            setShowExpectedResult(true);
-            setExemptionType(scenario.expectedResult.exemption_type || '');
-            setExemptionPercentage(scenario.expectedResult.exemption_percentage?.toString() || '');
-            setCapitalGain(scenario.expectedResult.capital_gain?.toString() || '');
-            setTaxableGain(scenario.expectedResult.taxable_gain?.toString() || '');
-            setNetCapitalGain(scenario.expectedResult.net_capital_gain?.toString() || '');
-            setCgtPayable(scenario.expectedResult.cgt_payable?.toString() || '');
-            setExpectedNotes(scenario.expectedResult.notes || '');
-          } else {
-            resetExpectedResult();
+        (async () => {
+          const scenario = await getSavedScenario(editingScenarioId);
+          if (scenario) {
+            setTitle(scenario.title);
+            setDescription(scenario.description || '');
+            setCategory(scenario.category || '');
+            setSubcategory(scenario.subcategory || '');
+            setTags(scenario.tags || []);
+            setUserQuery(scenario.userQuery || '');
+            setApplicableRules(scenario.applicableRules || []);
+            if (scenario.expectedResult) {
+              setShowExpectedResult(true);
+              setExemptionType(scenario.expectedResult.exemption_type || '');
+              setExemptionPercentage(scenario.expectedResult.exemption_percentage?.toString() || '');
+              setCapitalGain(scenario.expectedResult.capital_gain?.toString() || '');
+              setTaxableGain(scenario.expectedResult.taxable_gain?.toString() || '');
+              setNetCapitalGain(scenario.expectedResult.net_capital_gain?.toString() || '');
+              setCgtPayable(scenario.expectedResult.cgt_payable?.toString() || '');
+              setExpectedNotes(scenario.expectedResult.notes || '');
+            } else {
+              resetExpectedResult();
+            }
           }
-        }
+        })();
       } else {
         // Create mode — reset form
         setTitle('');
@@ -125,10 +132,10 @@ export default function SaveScenarioModal({ isOpen, onClose, onSaved, editingSce
 
   // Category suggestions: merge static + saved
   const allCategories = useMemo(() => {
-    const saved = getUsedCategories();
+    const saved = getUsedCategories(cachedScenarios);
     const merged = new Set([...STATIC_CATEGORIES, ...saved]);
     return Array.from(merged).sort();
-  }, [isOpen]);
+  }, [cachedScenarios]);
 
   const filteredCategories = useMemo(() => {
     if (!category) return allCategories;
@@ -137,8 +144,8 @@ export default function SaveScenarioModal({ isOpen, onClose, onSaved, editingSce
 
   // Subcategory suggestions based on selected category
   const allSubcategories = useMemo(() => {
-    return getUsedSubcategories(category || undefined);
-  }, [category, isOpen]);
+    return getUsedSubcategories(cachedScenarios, category || undefined);
+  }, [category, cachedScenarios]);
 
   const filteredSubcategories = useMemo(() => {
     if (!subcategory) return allSubcategories;
@@ -225,47 +232,56 @@ export default function SaveScenarioModal({ isOpen, onClose, onSaved, editingSce
     setApplicableRules(applicableRules.filter(r => r !== rule));
   };
 
-  const handleSubmit = () => {
-    if (!title.trim()) return;
+  const handleSubmit = async () => {
+    if (!title.trim() || isSaving) return;
 
-    const metadata: SavedScenarioMetadata = {
-      title: title.trim(),
-      description: description.trim(),
-      category: category.trim(),
-      subcategory: subcategory.trim() || undefined,
-      tags: tags.length > 0 ? tags : undefined,
-      userQuery: userQuery.trim() || undefined,
-      applicableRules: applicableRules.length > 0 ? applicableRules : undefined,
-    };
+    setIsSaving(true);
+    try {
+      const metadata: SavedScenarioMetadata = {
+        title: title.trim(),
+        description: description.trim(),
+        category: category.trim(),
+        subcategory: subcategory.trim() || undefined,
+        tags: tags.length > 0 ? tags : undefined,
+        userQuery: userQuery.trim() || undefined,
+        applicableRules: applicableRules.length > 0 ? applicableRules : undefined,
+      };
 
-    // Build expected result if any field is filled
-    if (showExpectedResult) {
-      const result: any = {};
-      if (exemptionType) result.exemption_type = exemptionType;
-      if (exemptionPercentage) result.exemption_percentage = parseFloat(exemptionPercentage);
-      if (capitalGain) result.capital_gain = parseFloat(capitalGain);
-      if (taxableGain) result.taxable_gain = parseFloat(taxableGain);
-      if (netCapitalGain) result.net_capital_gain = parseFloat(netCapitalGain);
-      if (cgtPayable) result.cgt_payable = parseFloat(cgtPayable);
-      if (expectedNotes) result.notes = expectedNotes;
-      if (Object.keys(result).length > 0) {
-        metadata.expectedResult = result;
+      // Build expected result if any field is filled
+      if (showExpectedResult) {
+        const result: any = {};
+        if (exemptionType) result.exemption_type = exemptionType;
+        if (exemptionPercentage) result.exemption_percentage = parseFloat(exemptionPercentage);
+        if (capitalGain) result.capital_gain = parseFloat(capitalGain);
+        if (taxableGain) result.taxable_gain = parseFloat(taxableGain);
+        if (netCapitalGain) result.net_capital_gain = parseFloat(netCapitalGain);
+        if (cgtPayable) result.cgt_payable = parseFloat(cgtPayable);
+        if (expectedNotes) result.notes = expectedNotes;
+        if (Object.keys(result).length > 0) {
+          metadata.expectedResult = result;
+        }
       }
-    }
 
-    if (editingScenarioId) {
-      // Update metadata only (timeline data stays the same unless "Update Scenario" was clicked)
-      const updated = updateScenario(editingScenarioId, metadata);
-      if (updated) {
-        onSaved(editingScenarioId);
+      if (editingScenarioId) {
+        // Update metadata only (timeline data stays the same unless "Update Scenario" was clicked)
+        const updated = await updateScenario(editingScenarioId, metadata);
+        if (updated) {
+          onSaved(editingScenarioId);
+        }
+      } else {
+        // Create new scenario — use exportShareableData to capture full state including analysis
+        const { exportShareableData, saveCurrentAnalysis, aiResponse: currentAI } = useTimelineStore.getState();
+        if (currentAI) saveCurrentAnalysis();
+        const scenarioData = exportShareableData();
+        const saved = await saveScenario(metadata, scenarioData);
+        if (saved) {
+          onSaved(saved.id);
+        }
       }
-    } else {
-      // Create new scenario — use exportShareableData to capture full state including analysis
-      const { exportShareableData, saveCurrentAnalysis, aiResponse: currentAI } = useTimelineStore.getState();
-      if (currentAI) saveCurrentAnalysis();
-      const scenarioData = exportShareableData();
-      const saved = saveScenario(metadata, scenarioData);
-      onSaved(saved.id);
+    } catch (error) {
+      console.error('❌ Failed to save scenario:', error);
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -581,11 +597,15 @@ export default function SaveScenarioModal({ isOpen, onClose, onSaved, editingSce
                     </button>
                     <button
                       onClick={handleSubmit}
-                      disabled={!title.trim()}
+                      disabled={!title.trim() || isSaving}
                       className="px-5 py-2 text-sm font-medium bg-gradient-to-r from-emerald-500 to-blue-500 hover:from-emerald-600 hover:to-blue-600 text-white rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                     >
-                      <Save className="w-4 h-4" />
-                      {editingScenarioId ? 'Update Metadata' : 'Save Scenario'}
+                      {isSaving ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <Save className="w-4 h-4" />
+                      )}
+                      {isSaving ? 'Saving...' : editingScenarioId ? 'Update Metadata' : 'Save Scenario'}
                     </button>
                   </div>
                 </div>

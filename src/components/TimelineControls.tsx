@@ -158,29 +158,34 @@ export default function TimelineControls({ timelineContainerRef }: TimelineContr
     }
   };
 
-  const handleUpdateScenario = () => {
+  const handleUpdateScenario = async () => {
     if (!activeScenarioId) return;
-    const storeState = useTimelineStore.getState();
-    if (storeState.aiResponse) storeState.saveCurrentAnalysis();
-    const scenarioData = storeState.exportShareableData();
-    const updated = updateScenarioData(activeScenarioId, scenarioData);
+    try {
+      const storeState = useTimelineStore.getState();
+      if (storeState.aiResponse) storeState.saveCurrentAnalysis();
+      const scenarioData = storeState.exportShareableData();
+      const updated = await updateScenarioData(activeScenarioId, scenarioData);
 
-    // Also update metadata from current report if available
-    const { aiResponse } = storeState;
-    if (aiResponse) {
-      const extracted = extractMetadataFromReport(aiResponse);
-      if (extracted.expectedResult || extracted.applicableRules) {
-        updateScenario(activeScenarioId, {
-          ...(extracted.expectedResult && { expectedResult: extracted.expectedResult }),
-          ...(extracted.applicableRules && { applicableRules: extracted.applicableRules }),
-          ...(extracted.description && { description: extracted.description }),
-        });
+      // Also update metadata from current report if available
+      const { aiResponse } = storeState;
+      if (aiResponse) {
+        const extracted = extractMetadataFromReport(aiResponse);
+        if (extracted.expectedResult || extracted.applicableRules) {
+          await updateScenario(activeScenarioId, {
+            ...(extracted.expectedResult && { expectedResult: extracted.expectedResult }),
+            ...(extracted.applicableRules && { applicableRules: extracted.applicableRules }),
+            ...(extracted.description && { description: extracted.description }),
+          });
+        }
       }
-    }
 
-    if (updated) {
-      showSuccess('Scenario updated');
-    } else {
+      if (updated) {
+        showSuccess('Scenario updated');
+      } else {
+        showError('Failed to update scenario');
+      }
+    } catch (err) {
+      console.error('❌ Failed to update scenario:', err);
       showError('Failed to update scenario');
     }
   };

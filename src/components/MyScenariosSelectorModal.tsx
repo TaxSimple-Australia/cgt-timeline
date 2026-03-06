@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, FolderOpen, Loader2, Search, Filter, Building2, Trash2, Pencil, Info, ChevronLeft, Percent, FileJson, HelpCircle, Save, Zap } from 'lucide-react';
 import { useTimelineStore } from '@/store/timeline';
 import { cn } from '@/lib/utils';
-import { getAllSavedScenarios, deleteSavedScenario, updateScenario, type SavedScenario } from '@/lib/saved-scenarios';
+import { getAllSavedScenarios, deleteSavedScenario, updateScenario, migrateLocalScenarios, type SavedScenario } from '@/lib/saved-scenarios';
 import { extractMetadataFromReport } from '@/lib/extract-report-metadata';
 import SaveScenarioModal from './SaveScenarioModal';
 
@@ -25,6 +25,8 @@ export default function MyScenariosSelectorModal({ isOpen, onClose }: MyScenario
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
   const [showEditModal, setShowEditModal] = useState(false);
   const [editingScenarioId, setEditingScenarioId] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [migrationMessage, setMigrationMessage] = useState<string | null>(null);
 
   const { importTimelineData, importShareableData, clearAllData, setActiveScenarioId, activeScenarioId, aiResponse } = useTimelineStore();
 
@@ -39,13 +41,30 @@ export default function MyScenariosSelectorModal({ isOpen, onClose }: MyScenario
       setSelectedCategory('all');
       setSearchQuery('');
       setDeleteConfirmId(null);
-      loadScenarios();
+      setMigrationMessage(null);
+      loadScenarios(true);
     }
   }, [isOpen]);
 
-  const loadScenarios = () => {
-    const saved = getAllSavedScenarios();
-    setScenarios(saved);
+  const loadScenarios = async (checkMigration = false) => {
+    setIsLoading(true);
+    try {
+      // Auto-migrate localStorage scenarios on first load
+      if (checkMigration) {
+        const migrated = await migrateLocalScenarios();
+        if (migrated > 0) {
+          setMigrationMessage(`Migrated ${migrated} scenario${migrated > 1 ? 's' : ''} to cloud storage`);
+          setTimeout(() => setMigrationMessage(null), 5000);
+        }
+      }
+
+      const saved = await getAllSavedScenarios();
+      setScenarios(saved);
+    } catch (err) {
+      console.error('❌ Failed to load scenarios:', err);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   // Build dynamic category tabs from saved scenarios
@@ -100,9 +119,11 @@ export default function MyScenariosSelectorModal({ isOpen, onClose }: MyScenario
     }
   };
 
-  const handleDeleteScenario = (scenarioId: string) => {
-    deleteSavedScenario(scenarioId);
-    setScenarios(prev => prev.filter(s => s.id !== scenarioId));
+  const handleDeleteScenario = async (scenarioId: string) => {
+    const success = await deleteSavedScenario(scenarioId);
+    if (success) {
+      setScenarios(prev => prev.filter(s => s.id !== scenarioId));
+    }
     setDeleteConfirmId(null);
     if (viewingScenario?.id === scenarioId) {
       setViewingScenario(null);
@@ -116,17 +137,17 @@ export default function MyScenariosSelectorModal({ isOpen, onClose }: MyScenario
     ((aiResponse as any)?.properties?.length > 0 && (aiResponse as any)?.properties?.[0]?.property_address)
   );
 
-  const handleUpdateFromReport = (scenarioId: string) => {
+  const handleUpdateFromReport = async (scenarioId: string) => {
     if (!aiResponse) return;
     const extracted = extractMetadataFromReport(aiResponse);
     if (extracted.expectedResult || extracted.applicableRules || extracted.description) {
-      const updated = updateScenario(scenarioId, {
+      const updated = await updateScenario(scenarioId, {
         ...(extracted.expectedResult && { expectedResult: extracted.expectedResult }),
         ...(extracted.applicableRules && { applicableRules: extracted.applicableRules }),
         ...(extracted.description && { description: extracted.description }),
       });
       if (updated) {
-        loadScenarios();
+        await loadScenarios();
         // Refresh detail view if viewing this scenario
         if (viewingScenario?.id === scenarioId) {
           setViewingScenario(updated);
@@ -140,10 +161,10 @@ export default function MyScenariosSelectorModal({ isOpen, onClose }: MyScenario
     setShowEditModal(true);
   };
 
-  const handleScenarioEdited = () => {
+  const handleScenarioEdited = async () => {
     setShowEditModal(false);
     setEditingScenarioId(null);
-    loadScenarios();
+    await loadScenarios();
   };
 
   const getCategoryColor = (category: string) => {
@@ -281,9 +302,20 @@ export default function MyScenariosSelectorModal({ isOpen, onClose }: MyScenario
                   </div>
                 )}
 
+                {/* Migration Toast */}
+                {migrationMessage && (
+                  <div className="px-6 py-2 bg-emerald-50 dark:bg-emerald-900/30 border-b border-emerald-200 dark:border-emerald-800">
+                    <p className="text-sm text-emerald-700 dark:text-emerald-300 text-center">{migrationMessage}</p>
+                  </div>
+                )}
+
                 {/* Content - Scrollable */}
                 <div className="flex-1 overflow-y-auto p-4 sm:p-6">
-                  {viewingScenario ? (
+                  {isLoading ? (
+                    <div className="flex items-center justify-center py-16">
+                      <Loader2 className="w-8 h-8 animate-spin text-emerald-500" />
+                    </div>
+                  ) : viewingScenario ? (
                     /* Detail View */
                     <motion.div
                       initial={{ opacity: 0, x: 20 }}

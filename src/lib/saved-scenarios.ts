@@ -32,96 +32,156 @@ export interface SavedScenario extends SavedScenarioMetadata {
 
 // ===== Constants =====
 
-const STORAGE_KEY = 'cgt-brain-saved-scenarios';
+const LOCAL_STORAGE_KEY = 'cgt-brain-saved-scenarios';
 
-// ===== CRUD Operations =====
+// ===== CRUD Operations (async, server-backed) =====
 
-export function getAllSavedScenarios(): SavedScenario[] {
+export async function getAllSavedScenarios(): Promise<SavedScenario[]> {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return [];
-    const scenarios: SavedScenario[] = JSON.parse(raw);
-    return scenarios.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
+    const res = await fetch('/api/scenarios');
+    const data = await res.json();
+    if (!data.success) throw new Error(data.error || 'Failed to fetch');
+    return data.scenarios;
   } catch (err) {
-    console.error('❌ Failed to read saved scenarios:', err);
+    console.error('❌ Failed to fetch saved scenarios:', err);
     return [];
   }
 }
 
-export function getSavedScenario(id: string): SavedScenario | null {
-  const all = getAllSavedScenarios();
-  return all.find(s => s.id === id) || null;
+export async function getSavedScenario(id: string): Promise<SavedScenario | null> {
+  try {
+    const res = await fetch(`/api/scenarios/${id}`);
+    if (!res.ok) return null;
+    const data = await res.json();
+    if (!data.success) return null;
+    return data.scenario;
+  } catch (err) {
+    console.error('❌ Failed to fetch scenario:', err);
+    return null;
+  }
 }
 
-export function saveScenario(metadata: SavedScenarioMetadata, scenarioData: any): SavedScenario {
-  const now = new Date().toISOString();
-  const scenario: SavedScenario = {
-    ...metadata,
-    id: `saved-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-    scenarioData,
-    createdAt: now,
-    updatedAt: now,
-  };
-
-  const all = getAllSavedScenarios();
-  all.push(scenario);
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(all));
-  console.log(`✅ Saved scenario: ${scenario.title} (${scenario.id})`);
-  return scenario;
+export async function saveScenario(metadata: SavedScenarioMetadata, scenarioData: any): Promise<SavedScenario | null> {
+  try {
+    const res = await fetch('/api/scenarios', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ metadata, scenarioData }),
+    });
+    const data = await res.json();
+    if (!data.success) throw new Error(data.error || 'Failed to save');
+    console.log(`✅ Saved scenario: ${data.scenario.title} (${data.scenario.id})`);
+    return data.scenario;
+  } catch (err) {
+    console.error('❌ Failed to save scenario:', err);
+    return null;
+  }
 }
 
-export function updateScenario(id: string, updates: Partial<SavedScenarioMetadata>): SavedScenario | null {
-  const all = getAllSavedScenarios();
-  const idx = all.findIndex(s => s.id === id);
-  if (idx === -1) return null;
-
-  all[idx] = {
-    ...all[idx],
-    ...updates,
-    updatedAt: new Date().toISOString(),
-  };
-
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(all));
-  console.log(`✅ Updated scenario metadata: ${all[idx].title}`);
-  return all[idx];
+export async function updateScenario(id: string, updates: Partial<SavedScenarioMetadata>): Promise<SavedScenario | null> {
+  try {
+    const res = await fetch(`/api/scenarios/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ metadata: updates }),
+    });
+    const data = await res.json();
+    if (!data.success) return null;
+    console.log(`✅ Updated scenario metadata: ${data.scenario.title}`);
+    return data.scenario;
+  } catch (err) {
+    console.error('❌ Failed to update scenario:', err);
+    return null;
+  }
 }
 
-export function updateScenarioData(id: string, scenarioData: any): SavedScenario | null {
-  const all = getAllSavedScenarios();
-  const idx = all.findIndex(s => s.id === id);
-  if (idx === -1) return null;
-
-  all[idx] = {
-    ...all[idx],
-    scenarioData,
-    updatedAt: new Date().toISOString(),
-  };
-
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(all));
-  console.log(`✅ Updated scenario data: ${all[idx].title}`);
-  return all[idx];
+export async function updateScenarioData(id: string, scenarioData: any): Promise<SavedScenario | null> {
+  try {
+    const res = await fetch(`/api/scenarios/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ scenarioData }),
+    });
+    const data = await res.json();
+    if (!data.success) return null;
+    console.log(`✅ Updated scenario data: ${data.scenario.title}`);
+    return data.scenario;
+  } catch (err) {
+    console.error('❌ Failed to update scenario data:', err);
+    return null;
+  }
 }
 
-export function deleteSavedScenario(id: string): void {
-  const all = getAllSavedScenarios();
-  const filtered = all.filter(s => s.id !== id);
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
-  console.log(`🗑️ Deleted scenario: ${id}`);
+export async function deleteSavedScenario(id: string): Promise<boolean> {
+  try {
+    const res = await fetch(`/api/scenarios/${id}`, { method: 'DELETE' });
+    const data = await res.json();
+    if (!data.success) return false;
+    console.log(`🗑️ Deleted scenario: ${id}`);
+    return true;
+  } catch (err) {
+    console.error('❌ Failed to delete scenario:', err);
+    return false;
+  }
 }
 
-// ===== Category Helpers =====
+// ===== Category Helpers (derived from fetched data) =====
 
-export function getUsedCategories(): string[] {
-  const all = getAllSavedScenarios();
-  const categories = new Set(all.map(s => s.category).filter(Boolean));
+export function getUsedCategories(scenarios: SavedScenario[]): string[] {
+  const categories = new Set(scenarios.map(s => s.category).filter(Boolean));
   return Array.from(categories).sort();
 }
 
-export function getUsedSubcategories(category?: string): string[] {
-  const all = getAllSavedScenarios();
-  const filtered = category ? all.filter(s => s.category === category) : all;
+export function getUsedSubcategories(scenarios: SavedScenario[], category?: string): string[] {
+  const filtered = category ? scenarios.filter(s => s.category === category) : scenarios;
   const subcategories = new Set(filtered.map(s => s.subcategory).filter((s): s is string => !!s));
   return Array.from(subcategories).sort();
+}
+
+// ===== Migration =====
+
+/**
+ * Migrate scenarios from localStorage to server.
+ * Returns the number of successfully migrated scenarios.
+ */
+export async function migrateLocalScenarios(): Promise<number> {
+  if (typeof window === 'undefined') return 0;
+
+  const raw = localStorage.getItem(LOCAL_STORAGE_KEY);
+  if (!raw) return 0;
+
+  let localScenarios: SavedScenario[];
+  try {
+    localScenarios = JSON.parse(raw);
+  } catch {
+    return 0;
+  }
+
+  if (!Array.isArray(localScenarios) || localScenarios.length === 0) return 0;
+
+  let migrated = 0;
+  for (const scenario of localScenarios) {
+    const metadata: SavedScenarioMetadata = {
+      title: scenario.title,
+      description: scenario.description,
+      category: scenario.category,
+      subcategory: scenario.subcategory,
+      tags: scenario.tags,
+      expectedResult: scenario.expectedResult,
+      applicableRules: scenario.applicableRules,
+      userQuery: scenario.userQuery,
+    };
+
+    const saved = await saveScenario(metadata, scenario.scenarioData);
+    if (saved) migrated++;
+  }
+
+  if (migrated > 0) {
+    localStorage.removeItem(LOCAL_STORAGE_KEY);
+    console.log(`✅ Migrated ${migrated}/${localScenarios.length} scenarios to server`);
+  }
+
+  return migrated;
 }
 
 // ===== Build Scenario Data =====

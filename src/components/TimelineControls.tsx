@@ -285,16 +285,6 @@ export default function TimelineControls({ timelineContainerRef }: TimelineContr
             <span className="sm:hidden">CGT</span>
           </h1>
 
-          {/* Stats - Hide on very small screens */}
-          <div className="hidden md:flex items-center gap-1.5 lg:gap-2 border-l border-slate-200 dark:border-slate-700 pl-2 lg:pl-4">
-            <span className="text-xs lg:text-sm text-slate-500 dark:text-slate-400 whitespace-nowrap">
-              {properties.length} <span className="hidden lg:inline">{properties.length === 1 ? 'Property' : 'Properties'}</span><span className="lg:hidden">P</span>
-            </span>
-            <span className="text-slate-300 dark:text-slate-600">•</span>
-            <span className="text-xs lg:text-sm text-slate-500 dark:text-slate-400 whitespace-nowrap">
-              {events.length} <span className="hidden lg:inline">{events.length === 1 ? 'Event' : 'Events'}</span><span className="lg:hidden">E</span>
-            </span>
-          </div>
         </div>
 
         {/* Center Section - Timeline Navigation (Hidden on small screens) */}
@@ -425,7 +415,7 @@ export default function TimelineControls({ timelineContainerRef }: TimelineContr
               title="My Scenarios"
               className="hover:scale-105 bg-gradient-to-r from-emerald-500/10 via-teal-500/10 to-cyan-500/10 hover:from-emerald-500/20 hover:via-teal-500/20 hover:to-cyan-500/20 dark:from-emerald-500/20 dark:via-teal-500/20 dark:to-cyan-500/20 dark:hover:from-emerald-500/30 dark:hover:via-teal-500/30 dark:hover:to-cyan-500/30 border border-emerald-200/50 dark:border-emerald-500/30"
             >
-              <Save className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-600 dark:text-emerald-400" />
+              <FolderOpen className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-600 dark:text-emerald-400" />
             </IconButton>
 
             <IconButton onClick={clearAllData} title="Clear All Data" variant="danger">
@@ -566,7 +556,7 @@ export default function TimelineControls({ timelineContainerRef }: TimelineContr
               onClick={() => { setShowMyScenarios(true); setShowMobileMenu(false); }}
               className="flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-emerald-50 dark:hover:bg-emerald-900/20"
             >
-              <Save className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+              <FolderOpen className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
               <span className="text-[10px] text-emerald-600 dark:text-emerald-400">My Saved</span>
             </button>
 
@@ -614,12 +604,7 @@ export default function TimelineControls({ timelineContainerRef }: TimelineContr
               <span className="text-[10px] text-slate-600 dark:text-slate-400">Settings</span>
             </button>
 
-            <div className="flex flex-col items-center gap-1 p-2">
-              <div className="text-xs font-medium text-slate-500 dark:text-slate-400">
-                {properties.length}P / {events.length}E
-              </div>
-              <span className="text-[10px] text-slate-400 dark:text-slate-500">Data</span>
-            </div>
+
           </div>
         </div>
       )}

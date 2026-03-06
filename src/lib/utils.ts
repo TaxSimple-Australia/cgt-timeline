@@ -114,15 +114,22 @@ export function generateTimelineMarkers(
   if (daysDiff >= 3650) {
     const startYear = startDate.getFullYear();
     const endYear = endDate.getFullYear();
+    const yearCount = endYear - startYear + 1;
+    let step = 1;
+    if (yearCount > 40) step = 10;
+    else if (yearCount > 20) step = 5;
+    else if (yearCount > 10) step = 2;
 
     for (let year = startYear; year <= endYear; year++) {
       const date = new Date(year, 0, 1);
       if (date >= startDate && date <= endDate) {
+        const isLabelYear = year % step === 0;
         markers.push({
           date,
           position: dateToPosition(date, startDate, endDate),
-          label: year.toString(),
+          label: isLabelYear ? year.toString() : '',
           type: 'year',
+          isMinor: !isLabelYear,
         });
       }
     }
@@ -131,15 +138,20 @@ export function generateTimelineMarkers(
   else if (daysDiff >= 1825) {
     const startYear = startDate.getFullYear();
     const endYear = endDate.getFullYear();
+    const yearCount = endYear - startYear + 1;
+    let step = 1;
+    if (yearCount > 10) step = 2;
 
     for (let year = startYear; year <= endYear; year++) {
       const date = new Date(year, 0, 1);
       if (date >= startDate && date <= endDate) {
+        const isLabelYear = year % step === 0;
         markers.push({
           date,
           position: dateToPosition(date, startDate, endDate),
-          label: year.toString(),
+          label: isLabelYear ? year.toString() : '',
           type: 'year',
+          isMinor: !isLabelYear,
         });
       }
     }

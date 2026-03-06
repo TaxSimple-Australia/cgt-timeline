@@ -49,6 +49,16 @@ export default function PropertyIssueOverlay({
 
   const cleanedQuestion = extractQuestion(questionText);
 
+  // Detect if this is a monetary/amount question (e.g. income, cost, value)
+  const isAmountQuestion = !!(
+    alert.questionId?.includes('income') ||
+    alert.questionId?.includes('amount') ||
+    /total.*income|how much|annual.*income|taxable.*income/i.test(questionText)
+  );
+
+  // Whether the free-form input path is active (no predefined answers)
+  const isFreeFormInput = !possibleAnswers || possibleAnswers.length === 0;
+
   // Reset state when alert changes
   useEffect(() => {
     setSelectedAnswer('');
@@ -304,20 +314,53 @@ export default function PropertyIssueOverlay({
                     </div>
                   </button>
                 </div>
+              ) : isAmountQuestion ? (
+                // Show currency input for income/amount questions
+                <div className="max-w-xs">
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-base text-gray-500 dark:text-gray-400 font-medium">$</span>
+                    <input
+                      type="text"
+                      inputMode="decimal"
+                      placeholder="e.g. 85000"
+                      value={customAnswer}
+                      onChange={(e) => {
+                        const sanitized = e.target.value.replace(/[^0-9.]/g, '');
+                        setCustomAnswer(sanitized);
+                        setSelectedAnswer('custom');
+                        setError(null);
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' && customAnswer.trim()) {
+                          onResolve(alert.id, `$${customAnswer.trim()}`);
+                        }
+                      }}
+                      disabled={isSubmitting}
+                      autoFocus
+                      className="w-full pl-8 pr-4 py-3 rounded-lg border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:border-purple-600 focus:ring-2 focus:ring-purple-600/20 outline-none transition-all font-mono tabular-nums"
+                    />
+                  </div>
+                </div>
               ) : (
-                // Show textarea if no options parsed
+                // Show text input for other free-form questions
                 <div>
-                  <textarea
+                  <input
+                    type="text"
                     value={customAnswer}
                     onChange={(e) => {
                       setCustomAnswer(e.target.value);
                       setSelectedAnswer('custom');
                       setError(null);
                     }}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && customAnswer.trim()) {
+                        onResolve(alert.id, customAnswer.trim());
+                      }
+                    }}
                     disabled={isSubmitting}
+                    autoFocus
                     placeholder="Enter your answer here..."
-                    rows={4}
-                    className="w-full px-4 py-3 rounded-lg border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:border-purple-600 focus:ring-2 focus:ring-purple-600/20 outline-none transition-all resize-none"
+                    className="w-full px-4 py-3 rounded-lg border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:border-purple-600 focus:ring-2 focus:ring-purple-600/20 outline-none transition-all"
                   />
                 </div>
               )}
@@ -408,16 +451,23 @@ export default function PropertyIssueOverlay({
 
           {/* Footer */}
           <div className="px-6 py-4 bg-gray-50 dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 flex items-center justify-between">
-            {showCustomInput || showMarketValueInput ? (
+            {showCustomInput || showMarketValueInput || isFreeFormInput ? (
               <>
                 <p className="text-sm text-gray-600 dark:text-gray-400">
                   Your answer will help us provide accurate CGT analysis
                 </p>
                 <button
-                  onClick={showMarketValueInput ? handleMarketValueSubmit : handleSubmit}
-                  disabled={isSubmitting || (showCustomInput && !customAnswer.trim()) || (showMarketValueInput && !marketValue.trim())}
+                  onClick={showMarketValueInput ? handleMarketValueSubmit : isFreeFormInput ? () => {
+                    const answer = isAmountQuestion ? `$${customAnswer.trim()}` : customAnswer.trim();
+                    if (answer && answer !== '$') {
+                      onResolve(alert.id, answer);
+                    } else {
+                      setError('Please enter your answer');
+                    }
+                  } : handleSubmit}
+                  disabled={isSubmitting || !customAnswer.trim()}
                   className={`px-6 py-2.5 rounded-lg font-semibold transition-all flex items-center gap-2 ${
-                    isSubmitting || (showCustomInput && !customAnswer.trim()) || (showMarketValueInput && !marketValue.trim())
+                    isSubmitting || !customAnswer.trim()
                       ? 'bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed'
                       : 'bg-gradient-to-r from-purple-600 to-blue-600 text-white hover:from-purple-700 hover:to-blue-700 shadow-lg hover:shadow-xl'
                   }`}

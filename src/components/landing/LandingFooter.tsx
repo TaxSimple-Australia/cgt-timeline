@@ -110,7 +110,7 @@ export default function LandingFooter() {
               {/* First row - 4 icons: TikTok, Vimeo, X, Instagram */}
               <div className="flex items-center gap-4 justify-center">
                 <a
-                  href="#"
+                  href="https://www.tiktok.com/@cgtbrainai"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-slate-400 hover:text-white transition-colors"
@@ -121,7 +121,7 @@ export default function LandingFooter() {
                   </svg>
                 </a>
                 <a
-                  href="#"
+                  href="https://vimeo.com/cgtbrainai"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-slate-400 hover:text-white transition-colors"
@@ -132,7 +132,7 @@ export default function LandingFooter() {
                   </svg>
                 </a>
                 <a
-                  href="#"
+                  href="https://x.com/cgtbrainai"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-slate-400 hover:text-white transition-colors"
@@ -143,7 +143,7 @@ export default function LandingFooter() {
                   </svg>
                 </a>
                 <a
-                  href="#"
+                  href="https://www.instagram.com/cgtbrainai/"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-slate-400 hover:text-white transition-colors"
@@ -156,7 +156,7 @@ export default function LandingFooter() {
               {/* Second row - 3 icons: Facebook, LinkedIn, YouTube */}
               <div className="flex items-center gap-4 justify-center">
                 <a
-                  href="#"
+                  href="https://www.facebook.com/profile.php?id=61580878777527"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-slate-400 hover:text-white transition-colors"
@@ -165,7 +165,7 @@ export default function LandingFooter() {
                   <Facebook className="w-5 h-5" />
                 </a>
                 <a
-                  href="#"
+                  href="https://www.linkedin.com/in/cgt-brain-ai-9a23423b4/"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-slate-400 hover:text-white transition-colors"
@@ -306,18 +306,17 @@ export default function LandingFooter() {
       {/* Copyright Bar */}
       <div className="border-t border-slate-800 bg-slate-950">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+          <div className="flex flex-wrap justify-center items-center gap-x-4 gap-y-2">
             <button
               onClick={() => setShowCopyrightModal(true)}
               className="text-slate-500 hover:text-slate-300 text-sm transition-colors cursor-pointer"
             >
               Copyright © CGT Brain AI 2026. All rights reserved.
             </button>
-            <div className="flex flex-wrap justify-center items-center gap-2 text-sm text-slate-500">
-              <span>ABN: 79 684 289 843</span>
-              <span>•</span>
-              <span>Registered Tax Agent: 26205217</span>
-            </div>
+            <span className="text-slate-600 text-sm">|</span>
+            <span className="text-sm text-slate-500">ABN: 79 684 289 843</span>
+            <span className="text-slate-600 text-sm">•</span>
+            <span className="text-sm text-slate-500">Registered Tax Agent: 26205217</span>
           </div>
         </div>
       </div>

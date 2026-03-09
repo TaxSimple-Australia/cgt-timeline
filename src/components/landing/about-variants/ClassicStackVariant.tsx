@@ -10,7 +10,7 @@ import {
 
 export default function ClassicStackVariant() {
   return (
-    <section className="relative py-24 px-4 bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950">
+    <section className="relative py-24 px-4 bg-gradient-to-b from-white dark:from-slate-950 via-gray-50 dark:via-slate-900 to-white dark:to-slate-950">
       <div className="max-w-7xl mx-auto">
 
         {/* Hero with mascot */}
@@ -27,7 +27,7 @@ export default function ClassicStackVariant() {
                 Redefining Property Tax Compliance
               </span>
             </h1>
-            <p className="text-slate-300 text-xl max-w-3xl leading-relaxed">
+            <p className="text-gray-600 dark:text-slate-300 text-xl max-w-3xl leading-relaxed">
               Selling a property is a milestone — navigating Australian Capital Gains Tax shouldn&apos;t take away from that achievement. CGT Brain AI provides homeowners with absolute clarity on their tax exemptions.
             </p>
           </div>
@@ -54,10 +54,10 @@ export default function ClassicStackVariant() {
           transition={{ duration: 0.5, delay: 0.1 }}
           className="mb-24"
         >
-          <h2 className="text-3xl md:text-4xl font-bold text-white text-center mb-12">
+          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white text-center mb-12">
             Why Choose CGT Brain AI?
           </h2>
-          <div className="flex flex-col md:flex-row divide-y md:divide-y-0 md:divide-x divide-slate-700/50">
+          <div className="flex flex-col md:flex-row divide-y md:divide-y-0 md:divide-x divide-gray-300/50 dark:divide-slate-700/50">
             {[
               { icon: Shield, title: 'Confidence', text: 'We turn complex ATO legislation into actionable insights you can trust. Every calculation is backed by Australian tax law and expert verification.' },
               { icon: Zap, title: 'Speed', text: 'Our AI-first approach drastically reduces the time it takes to reach a tax determination — from weeks to minutes.' },
@@ -74,8 +74,8 @@ export default function ClassicStackVariant() {
                 <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center mb-6 mx-auto group-hover:scale-110 transition-transform">
                   <item.icon className="w-7 h-7 text-white" />
                 </div>
-                <h3 className="text-2xl font-bold text-white mb-4">{item.title}</h3>
-                <p className="text-slate-300 leading-relaxed">{item.text}</p>
+                <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">{item.title}</h3>
+                <p className="text-gray-600 dark:text-slate-300 leading-relaxed">{item.text}</p>
               </motion.div>
             ))}
           </div>
@@ -92,7 +92,7 @@ export default function ClassicStackVariant() {
           transition={{ duration: 0.5, delay: 0.2 }}
           className="mb-24"
         >
-          <h2 className="text-3xl md:text-4xl font-bold text-white text-center mb-12">
+          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white text-center mb-12">
             AI + Human Partnership
           </h2>
 
@@ -105,7 +105,7 @@ export default function ClassicStackVariant() {
             className="mb-12"
           >
             <blockquote className="border-l-4 border-cyan-500 pl-6 py-2 max-w-6xl mx-auto">
-              <p className="text-slate-400 leading-relaxed text-justify italic">
+              <p className="text-gray-500 dark:text-slate-400 leading-relaxed text-justify italic">
                 The conversation around AI often focuses on replacement. However, at CGT Brain AI, we focus on amplification. We have redesigned the workflow of property tax advice to be more agile and data-rich, yet our core remains unchanged; human-led and specialist-verified. We operate under a strict mandate that no AI response is final until it has been vetted by a tax specialist who assumes full responsibility and indemnity. By combining the efficiency of CGT Brain AI with our established, specialist-led review process, we provide a level of accuracy and security that technology alone cannot achieve.
               </p>
             </blockquote>
@@ -118,13 +118,13 @@ export default function ClassicStackVariant() {
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: 0.3 }}
-              className="bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-2xl p-8 hover:border-cyan-500/50 transition-all"
+              className="bg-gray-100/50 dark:bg-slate-800/50 backdrop-blur-sm border border-gray-300 dark:border-slate-700 rounded-2xl p-8 hover:border-cyan-500/50 transition-all"
             >
               <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center mb-6">
                 <Brain className="w-7 h-7 text-white" />
               </div>
-              <h3 className="text-2xl font-bold text-white mb-6">AI-Powered Intelligence</h3>
-              <ul className="space-y-3 text-slate-300">
+              <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">AI-Powered Intelligence</h3>
+              <ul className="space-y-3 text-gray-600 dark:text-slate-300">
                 {[
                   'Process complex property histories in seconds',
                   'Cross-reference against thousands of ATO tax rulings',
@@ -146,13 +146,13 @@ export default function ClassicStackVariant() {
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: 0.4 }}
-              className="bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-2xl p-8 hover:border-cyan-500/50 transition-all"
+              className="bg-gray-100/50 dark:bg-slate-800/50 backdrop-blur-sm border border-gray-300 dark:border-slate-700 rounded-2xl p-8 hover:border-cyan-500/50 transition-all"
             >
               <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center mb-6">
                 <Shield className="w-7 h-7 text-white" />
               </div>
-              <h3 className="text-2xl font-bold text-white mb-6">Expert Human Oversight</h3>
-              <ul className="space-y-3 text-slate-300">
+              <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Expert Human Oversight</h3>
+              <ul className="space-y-3 text-gray-600 dark:text-slate-300">
                 {[
                   'Qualified Australian tax accountants review every analysis',
                   'Apply professional judgment to complex scenarios',
@@ -181,10 +181,10 @@ export default function ClassicStackVariant() {
           transition={{ duration: 0.5, delay: 0.2 }}
           className="mb-16"
         >
-          <h2 className="text-3xl md:text-4xl font-bold text-white text-center mb-4">
+          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white text-center mb-4">
             How It Works
           </h2>
-          <p className="text-slate-400 text-center max-w-2xl mx-auto mb-12">
+          <p className="text-gray-500 dark:text-slate-400 text-center max-w-2xl mx-auto mb-12">
             Three simple steps to tax certainty
           </p>
 
@@ -224,12 +224,12 @@ export default function ClassicStackVariant() {
                     <div className="w-20 h-20 rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center">
                       <step.icon className="w-9 h-9 text-white" />
                     </div>
-                    <div className="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-slate-900 border-2 border-cyan-400 flex items-center justify-center text-sm font-bold text-cyan-400">
+                    <div className="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-gray-50 dark:bg-slate-900 border-2 border-cyan-400 flex items-center justify-center text-sm font-bold text-cyan-400">
                       {step.num}
                     </div>
                   </div>
-                  <h3 className="text-xl font-bold text-white mb-3">{step.title}</h3>
-                  <ul className="space-y-2 text-sm text-slate-400">
+                  <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3">{step.title}</h3>
+                  <ul className="space-y-2 text-sm text-gray-500 dark:text-slate-400">
                     {step.bullets.map((b) => (
                       <li key={b} className="flex items-start gap-2">
                         <CheckCircle2 className="w-4 h-4 text-cyan-500 flex-shrink-0 mt-0.5" />

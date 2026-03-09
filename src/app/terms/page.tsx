@@ -26,9 +26,9 @@ export default function TermsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-900 relative overflow-hidden">
+    <div className="min-h-screen bg-gray-50 dark:bg-slate-900 relative overflow-hidden">
       {/* Animated background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+      <div className="absolute inset-0 bg-gradient-to-br from-gray-50 dark:from-slate-900 via-gray-100 dark:via-slate-800 to-gray-50 dark:to-slate-900">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(6,182,212,0.1),transparent_50%)]" />
       </div>
 
@@ -40,7 +40,7 @@ export default function TermsPage() {
       <div className="absolute bottom-20 right-10 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl" />
 
       {/* Scroll progress bar */}
-      <div className="fixed top-0 left-0 right-0 h-1 bg-slate-800 z-[60]">
+      <div className="fixed top-0 left-0 right-0 h-1 bg-gray-100 dark:bg-slate-800 z-[60]">
         <div
           className="h-full bg-gradient-to-r from-blue-500 to-purple-500 transition-all duration-300"
           style={{ width: `${scrollProgress}%` }}
@@ -48,7 +48,7 @@ export default function TermsPage() {
       </div>
 
       {/* Header */}
-      <header className="fixed top-0 left-0 right-0 bg-slate-900/95 backdrop-blur-md border-b border-slate-800 z-50">
+      <header className="fixed top-0 left-0 right-0 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-gray-200 dark:border-slate-800 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <Link href="/" className="flex-shrink-0">
@@ -58,7 +58,7 @@ export default function TermsPage() {
             </Link>
             <Link
               href="/"
-              className="text-sm text-slate-400 hover:text-cyan-400 transition-colors flex items-center gap-2"
+              className="text-sm text-gray-500 dark:text-slate-400 hover:text-cyan-400 transition-colors flex items-center gap-2"
             >
               ← Back to Home
             </Link>
@@ -93,7 +93,7 @@ export default function TermsPage() {
                 Terms and Conditions
               </span>
             </h1>
-            <p className="text-lg text-slate-400 max-w-2xl mx-auto">
+            <p className="text-lg text-gray-500 dark:text-slate-400 max-w-2xl mx-auto">
               Please read these terms carefully before using CGT Brain AI Timeline
             </p>
           </motion.div>
@@ -105,13 +105,13 @@ export default function TermsPage() {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="mb-8"
           >
-            <div className="bg-slate-800/50 backdrop-blur-sm border border-blue-500/20 rounded-2xl p-8 shadow-xl relative overflow-hidden">
+            <div className="bg-gray-100/50 dark:bg-slate-800/50 backdrop-blur-sm border border-blue-500/20 rounded-2xl p-8 shadow-xl relative overflow-hidden">
               <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-transparent to-purple-500/10 rounded-2xl" />
 
               <div className="relative">
-                <div className="space-y-6 text-slate-300">
+                <div className="space-y-6 text-gray-600 dark:text-slate-300">
                   <div>
-                    <h3 className="text-xl font-semibold text-white mb-3">1. Introduction and Scope</h3>
+                    <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">1. Introduction and Scope</h3>
                     <p className="leading-relaxed">
                       These Terms and Conditions (the "Terms") govern your access to and use of CGT BRAIN. By downloading, accessing, or using the App, you agree to be bound by these Terms and the Laws of Australia.
                     </p>
@@ -138,25 +138,25 @@ export default function TermsPage() {
                   </div>
 
                   <div>
-                    <h3 className="text-xl font-semibold text-white mb-3">3. User Responsibilities and Inputs</h3>
+                    <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">3. User Responsibilities and Inputs</h3>
                     <ul className="space-y-3 pl-6">
                       <li className="flex items-start gap-3">
                         <span className="text-blue-400 mt-1.5">•</span>
-                        <span><strong className="text-white">Data Accuracy:</strong> The accuracy of any assessment regarding CGT exemptions is strictly dependent on the data you provide. You warrant that all information entered is true and correct.</span>
+                        <span><strong className="text-gray-900 dark:text-white">Data Accuracy:</strong> The accuracy of any assessment regarding CGT exemptions is strictly dependent on the data you provide. You warrant that all information entered is true and correct.</span>
                       </li>
                       <li className="flex items-start gap-3">
                         <span className="text-blue-400 mt-1.5">•</span>
-                        <span><strong className="text-white">Record Keeping:</strong> You acknowledge that under Australian law, you are responsible for maintaining primary records (receipts, contracts) to support your tax positions for at least 5 years.</span>
+                        <span><strong className="text-gray-900 dark:text-white">Record Keeping:</strong> You acknowledge that under Australian law, you are responsible for maintaining primary records (receipts, contracts) to support your tax positions for at least 5 years.</span>
                       </li>
                     </ul>
                   </div>
 
                   <div>
-                    <h3 className="text-xl font-semibold text-white mb-3">4. Australian Consumer Law (ACL)</h3>
+                    <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">4. Australian Consumer Law (ACL)</h3>
                     <p className="mb-3 leading-relaxed">
-                      <strong className="text-white">Consumer Guarantees:</strong> Our services come with guarantees that cannot be excluded under the Australian Consumer Law. Nothing in these Terms excludes, restricts, or modifies any right or remedy you have under the Competition and Consumer Act 2010 (Cth).
+                      <strong className="text-gray-900 dark:text-white">Consumer Guarantees:</strong> Our services come with guarantees that cannot be excluded under the Australian Consumer Law. Nothing in these Terms excludes, restricts, or modifies any right or remedy you have under the Competition and Consumer Act 2010 (Cth).
                     </p>
-                    <p className="mb-3 leading-relaxed"><strong className="text-white">Limitation of Liability:</strong> To the maximum extent permitted by law, CGT BRAIN is not liable for:</p>
+                    <p className="mb-3 leading-relaxed"><strong className="text-gray-900 dark:text-white">Limitation of Liability:</strong> To the maximum extent permitted by law, CGT BRAIN is not liable for:</p>
                     <ul className="space-y-3 pl-6">
                       <li className="flex items-start gap-3">
                         <span className="text-blue-400 mt-1.5">•</span>
@@ -174,31 +174,31 @@ export default function TermsPage() {
                   </div>
 
                   <div>
-                    <h3 className="text-xl font-semibold text-white mb-3">5. Intellectual Property</h3>
+                    <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">5. Intellectual Property</h3>
                     <p className="leading-relaxed">
                       All algorithms, logic flows, "checklists," and interface designs used to determine CGT status are the exclusive intellectual property of CGT BRAIN. You are granted a limited, non-transferable license for personal or internal business use only.
                     </p>
                   </div>
 
                   <div>
-                    <h3 className="text-xl font-semibold text-white mb-3">6. Privacy and Security</h3>
+                    <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">6. Privacy and Security</h3>
                     <p className="leading-relaxed mb-3">
                       Your privacy is governed by our Privacy Policy, which complies with the Privacy Act 1988.
                     </p>
                     <ul className="space-y-3 pl-6">
                       <li className="flex items-start gap-3">
                         <span className="text-blue-400 mt-1.5">•</span>
-                        <span><strong className="text-white">Data Handling:</strong> We use industry-standard encryption to protect your financial data.</span>
+                        <span><strong className="text-gray-900 dark:text-white">Data Handling:</strong> We use industry-standard encryption to protect your financial data.</span>
                       </li>
                       <li className="flex items-start gap-3">
                         <span className="text-blue-400 mt-1.5">•</span>
-                        <span><strong className="text-white">Anonymity:</strong> The app can be used without linking a real identity.</span>
+                        <span><strong className="text-gray-900 dark:text-white">Anonymity:</strong> The app can be used without linking a real identity.</span>
                       </li>
                     </ul>
                   </div>
 
                   <div>
-                    <h3 className="text-xl font-semibold text-white mb-3">7. Updates to Tax Logic</h3>
+                    <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">7. Updates to Tax Logic</h3>
                     <p className="leading-relaxed">
                       Tax legislation in Australia (including the Income Tax Assessment Act 1997) is subject to frequent amendment. While we endeavour to update the App, we do not guarantee that the App reflects the "real-time" state of the law at every moment.
                     </p>
@@ -217,14 +217,14 @@ export default function TermsPage() {
           >
             <Link
               href="/privacy"
-              className="group flex items-center gap-2 px-6 py-3 bg-slate-800/50 backdrop-blur-sm border border-blue-500/30 hover:border-blue-500/50 rounded-full text-slate-300 hover:text-white transition-all duration-300 hover:scale-105"
+              className="group flex items-center gap-2 px-6 py-3 bg-gray-100/50 dark:bg-slate-800/50 backdrop-blur-sm border border-blue-500/30 hover:border-blue-500/50 rounded-full text-gray-600 dark:text-slate-300 hover:text-gray-900 dark:hover:text-white transition-all duration-300 hover:scale-105"
             >
               <ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform duration-300" />
               <span className="text-sm font-medium">Previous: Privacy Policy</span>
             </Link>
             <Link
               href="/data-retention"
-              className="group flex items-center gap-2 px-6 py-3 bg-slate-800/50 backdrop-blur-sm border border-blue-500/30 hover:border-blue-500/50 rounded-full text-slate-300 hover:text-white transition-all duration-300 hover:scale-105"
+              className="group flex items-center gap-2 px-6 py-3 bg-gray-100/50 dark:bg-slate-800/50 backdrop-blur-sm border border-blue-500/30 hover:border-blue-500/50 rounded-full text-gray-600 dark:text-slate-300 hover:text-gray-900 dark:hover:text-white transition-all duration-300 hover:scale-105"
             >
               <span className="text-sm font-medium">Next: Data Retention</span>
               <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" />
@@ -265,9 +265,9 @@ export default function TermsPage() {
       </AnimatePresence>
 
       {/* Footer */}
-      <footer className="relative z-10 bg-slate-900/90 backdrop-blur-sm border-t border-slate-800 mt-24">
+      <footer className="relative z-10 bg-white/90 dark:bg-slate-900/90 backdrop-blur-sm border-t border-gray-200 dark:border-slate-800 mt-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="text-center text-sm text-slate-400">
+          <div className="text-center text-sm text-gray-500 dark:text-slate-400">
             <p>&copy; {new Date().getFullYear()} CGT Brain. All rights reserved.</p>
             <p className="mt-2">CGT Brain AI Timeline - Capital Gains Tax Analysis Tool</p>
           </div>

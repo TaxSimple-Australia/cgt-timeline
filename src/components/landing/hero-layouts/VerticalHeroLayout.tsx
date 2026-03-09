@@ -14,7 +14,7 @@ export default function VerticalHeroLayout() {
   return (
     <>
       {/* Animated gradient background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+      <div className="absolute inset-0 bg-gradient-to-br from-gray-50 via-gray-100 to-gray-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(6,182,212,0.1),transparent_50%)]" />
       </div>
 
@@ -39,9 +39,9 @@ export default function VerticalHeroLayout() {
           transition={{ duration: 0.5 }}
           className="flex items-center justify-center gap-4 mb-8"
         >
-          <div className="h-px w-12 bg-gradient-to-r from-transparent to-slate-600" />
-          <span className="text-[10px] tracking-[0.3em] text-slate-400 font-light uppercase">CGT Brain AI Timeline</span>
-          <div className="h-px w-12 bg-gradient-to-l from-transparent to-slate-600" />
+          <div className="h-px w-12 bg-gradient-to-r from-transparent to-gray-400 dark:to-slate-600" />
+          <span className="text-[10px] tracking-[0.3em] text-gray-500 dark:text-slate-400 font-light uppercase">CGT Brain AI Timeline</span>
+          <div className="h-px w-12 bg-gradient-to-l from-transparent to-gray-400 dark:to-slate-600" />
         </motion.div>
 
         {/* Headline */}
@@ -49,7 +49,7 @@ export default function VerticalHeroLayout() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.1 }}
-          className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-6 leading-tight"
+          className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white mb-6 leading-tight"
         >
           Calculate Your Residential Capital Gains Tax
           <br />
@@ -63,7 +63,7 @@ export default function VerticalHeroLayout() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.2 }}
-          className="text-base md:text-lg lg:text-xl text-slate-300 mb-12 max-w-3xl mx-auto leading-relaxed"
+          className="text-base md:text-lg lg:text-xl text-gray-600 dark:text-slate-300 mb-12 max-w-3xl mx-auto leading-relaxed"
         >
           Visualize your property timeline, track every cost, and get AI-powered CGT analysis—all in one intuitive platform.
         </motion.p>
@@ -85,7 +85,7 @@ export default function VerticalHeroLayout() {
           </Button>
 
           <Link href="#how-it-works">
-            <Button variant="outline" size="lg" className="border-slate-600 text-slate-300 hover:bg-slate-800 hover:text-white px-8 py-6 text-lg">
+            <Button variant="outline" size="lg" className="border-gray-300 dark:border-slate-600 text-gray-600 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-white px-8 py-6 text-lg">
               See How It Works
             </Button>
           </Link>
@@ -96,7 +96,7 @@ export default function VerticalHeroLayout() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5, delay: 0.5 }}
-          className="mt-8 text-slate-400 text-xs italic"
+          className="mt-8 text-gray-500 dark:text-slate-400 text-xs italic"
         >
           <p>Trusted by property investors and tax professionals across Australia</p>
         </motion.div>
@@ -108,12 +108,12 @@ export default function VerticalHeroLayout() {
           transition={{ duration: 0.7, delay: 0.6 }}
           className="mt-10 relative z-30 mb-[-120px]"
         >
-          <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-slate-800/50 to-slate-900/50 backdrop-blur-sm border border-cyan-500/70 shadow-2xl shadow-cyan-500/80 p-2">
+          <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-gray-100/50 to-gray-50/50 dark:from-slate-800/50 dark:to-slate-900/50 backdrop-blur-sm border border-cyan-500/70 shadow-2xl shadow-cyan-500/80 p-2">
             {/* Glowing border effect */}
             <div className="absolute -inset-[1px] bg-gradient-to-r from-cyan-500 via-blue-500 to-cyan-500 rounded-2xl opacity-0 blur-sm group-hover:opacity-100 transition-opacity duration-500" />
 
             {/* Inner container */}
-            <div className="relative bg-slate-900/90 rounded-xl overflow-hidden">
+            <div className="relative bg-gray-50/90 dark:bg-slate-900/90 rounded-xl overflow-hidden">
               {/* Timeline Screenshot */}
               <div className="aspect-video relative">
                 <Image
@@ -150,13 +150,13 @@ export default function VerticalHeroLayout() {
         className="absolute right-8 md:right-16 lg:right-24 hidden lg:block animate-gentle-float z-40"
         style={{ top: 'calc(16rem + 240px)' }}
       >
-        <div className="bg-slate-800/40 backdrop-blur-xl border border-cyan-500/30 rounded-2xl p-4 shadow-lg shadow-cyan-500/20 hover:shadow-cyan-500/40 transition-shadow">
+        <div className="bg-gray-100/40 dark:bg-slate-800/40 backdrop-blur-xl border border-cyan-500/30 rounded-2xl p-4 shadow-lg shadow-cyan-500/20 hover:shadow-cyan-500/40 transition-shadow">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-gradient-to-br from-cyan-500/20 to-blue-500/20 rounded-lg">
               <Sparkles className="w-5 h-5 text-cyan-400" />
             </div>
             <div>
-              <p className="text-white font-semibold text-sm">AI-Powered Analysis</p>
+              <p className="text-gray-900 dark:text-white font-semibold text-sm">AI-Powered Analysis</p>
               <p className="text-cyan-400 text-xs">Smart CGT calculations</p>
             </div>
           </div>
@@ -171,13 +171,13 @@ export default function VerticalHeroLayout() {
         className="absolute bottom-40 left-8 md:left-16 lg:left-24 hidden md:block animate-gentle-float-alt z-40"
         style={{ animationDelay: '2s' }}
       >
-        <div className="bg-slate-800/40 backdrop-blur-xl border border-purple-500/30 rounded-2xl p-4 shadow-lg shadow-purple-500/20 hover:shadow-purple-500/40 transition-shadow">
+        <div className="bg-gray-100/40 dark:bg-slate-800/40 backdrop-blur-xl border border-purple-500/30 rounded-2xl p-4 shadow-lg shadow-purple-500/20 hover:shadow-purple-500/40 transition-shadow">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-lg">
               <FileText className="w-5 h-5 text-purple-400" />
             </div>
             <div>
-              <p className="text-white font-semibold text-sm">PDF Export</p>
+              <p className="text-gray-900 dark:text-white font-semibold text-sm">PDF Export</p>
               <p className="text-purple-400 text-xs">Professional reports</p>
             </div>
           </div>

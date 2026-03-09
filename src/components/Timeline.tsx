@@ -15,6 +15,7 @@ import TimelineSnapshot from './TimelineSnapshot';
 import { StickyNotesLayer, ShareLinkButton, AddStickyNoteButton } from './sticky-notes';
 import SubdivisionSplitVisual from './SubdivisionSplitVisual';
 import { calculateBranchPositions, calculateSubdivisionConnections } from '@/lib/subdivision-helpers';
+import { useThemeSync } from '@/hooks/useThemeSync';
 // import ResidenceGapOverlay from './ResidenceGapOverlay'; // REMOVED: Duplicate of GilbertBranch VerificationAlertBar
 
 // Extend Window interface for global sticky note drag flag
@@ -31,6 +32,7 @@ interface TimelineProps {
 }
 
 export default function Timeline({ className, onAlertClick, onOpenAIBuilder }: TimelineProps) {
+  useThemeSync();
   const timelineRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [draggedEventId, setDraggedEventId] = useState<string | null>(null);

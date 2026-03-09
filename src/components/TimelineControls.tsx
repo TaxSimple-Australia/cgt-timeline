@@ -33,6 +33,7 @@ import {
   Pencil,
   RefreshCw
 } from 'lucide-react';
+import { useTheme } from 'next-themes';
 import { showSuccess, showError } from '@/lib/toast-helpers';
 import { useEnhancedStore } from '@/store/storeEnhancer';
 import { buildScenarioData, updateScenarioData, updateScenario, getSavedScenario } from '@/lib/saved-scenarios';
@@ -46,6 +47,7 @@ interface TimelineControlsProps {
 
 export default function TimelineControls({ timelineContainerRef }: TimelineControlsProps) {
   const router = useRouter();
+  const { theme: nextTheme, setTheme: setNextTheme } = useTheme();
   const [showSettings, setShowSettings] = useState(false);
   const [showScenarioSelector, setShowScenarioSelector] = useState(false);
   const [showMyScenarios, setShowMyScenarios] = useState(false);
@@ -71,8 +73,6 @@ export default function TimelineControls({ timelineContainerRef }: TimelineContr
     absoluteStart,
     absoluteEnd,
     panToPosition,
-    theme,
-    toggleTheme,
     eventDisplayMode,
     toggleEventDisplayMode,
     openNotesModal,
@@ -435,8 +435,8 @@ export default function TimelineControls({ timelineContainerRef }: TimelineContr
               )}
             </IconButton>
 
-            <IconButton onClick={toggleTheme} title={theme === 'dark' ? "Light Mode" : "Dark Mode"}>
-              {theme === 'dark' ? (
+            <IconButton onClick={() => setNextTheme(nextTheme === 'dark' ? 'light' : 'dark')} title={nextTheme === 'dark' ? "Light Mode" : "Dark Mode"}>
+              {nextTheme === 'dark' ? (
                 <Sun className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-600 dark:text-slate-300" />
               ) : (
                 <Moon className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-600 dark:text-slate-300" />
@@ -588,16 +588,16 @@ export default function TimelineControls({ timelineContainerRef }: TimelineContr
             </button>
 
             <button
-              onClick={() => { toggleTheme(); setShowMobileMenu(false); }}
+              onClick={() => { setNextTheme(nextTheme === 'dark' ? 'light' : 'dark'); setShowMobileMenu(false); }}
               className="flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
             >
-              {theme === 'dark' ? (
+              {nextTheme === 'dark' ? (
                 <Sun className="w-5 h-5 text-slate-600 dark:text-slate-400" />
               ) : (
                 <Moon className="w-5 h-5 text-slate-600 dark:text-slate-400" />
               )}
               <span className="text-[10px] text-slate-600 dark:text-slate-400">
-                {theme === 'dark' ? 'Light' : 'Dark'}
+                {nextTheme === 'dark' ? 'Light' : 'Dark'}
               </span>
             </button>
 

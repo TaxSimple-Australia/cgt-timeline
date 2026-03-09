@@ -63,7 +63,7 @@ export default function ContactPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900">
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 dark:from-slate-900 via-gray-100 dark:via-slate-800 to-gray-50 dark:to-slate-900">
       <LandingHeader />
 
       {/* Contact Section */}
@@ -76,10 +76,10 @@ export default function ContactPage() {
             transition={{ duration: 0.6 }}
             className="text-center mb-16"
           >
-            <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
+            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">
               Get in Touch
             </h1>
-            <p className="text-lg text-slate-300">
+            <p className="text-lg text-gray-600 dark:text-slate-300">
               We're here to help with any questions about CGT Brain
             </p>
           </motion.div>
@@ -91,14 +91,14 @@ export default function ContactPage() {
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
-              className="bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-xl p-8"
+              className="bg-gray-100/50 dark:bg-slate-800/50 backdrop-blur-sm border border-gray-300 dark:border-slate-700 rounded-xl p-8"
             >
-              <h2 className="text-2xl font-bold text-white mb-6">CONTACT US</h2>
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">CONTACT US</h2>
               <form onSubmit={handleSubmit} className="space-y-6">
                 {/* Name Fields */}
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label htmlFor="firstName" className="block text-sm font-medium text-slate-300 mb-2">
+                    <label htmlFor="firstName" className="block text-sm font-medium text-gray-600 dark:text-slate-300 mb-2">
                       First Name <span className="text-red-400">*</span>
                     </label>
                     <input
@@ -108,12 +108,12 @@ export default function ContactPage() {
                       required
                       value={formData.firstName}
                       onChange={handleChange}
-                      className="w-full px-4 py-2.5 bg-slate-900/50 border border-slate-600 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition"
+                      className="w-full px-4 py-2.5 bg-white/50 dark:bg-slate-900/50 border border-gray-300 dark:border-slate-600 rounded-lg text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition"
                       placeholder="John"
                     />
                   </div>
                   <div>
-                    <label htmlFor="lastName" className="block text-sm font-medium text-slate-300 mb-2">
+                    <label htmlFor="lastName" className="block text-sm font-medium text-gray-600 dark:text-slate-300 mb-2">
                       Last Name <span className="text-red-400">*</span>
                     </label>
                     <input
@@ -123,7 +123,7 @@ export default function ContactPage() {
                       required
                       value={formData.lastName}
                       onChange={handleChange}
-                      className="w-full px-4 py-2.5 bg-slate-900/50 border border-slate-600 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition"
+                      className="w-full px-4 py-2.5 bg-white/50 dark:bg-slate-900/50 border border-gray-300 dark:border-slate-600 rounded-lg text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition"
                       placeholder="Smith"
                     />
                   </div>
@@ -131,7 +131,7 @@ export default function ContactPage() {
 
                 {/* Agency/Organization */}
                 <div>
-                  <label htmlFor="organization" className="block text-sm font-medium text-slate-300 mb-2">
+                  <label htmlFor="organization" className="block text-sm font-medium text-gray-600 dark:text-slate-300 mb-2">
                     Agency/Organization <span className="text-red-400">*</span>
                   </label>
                   <input
@@ -141,14 +141,14 @@ export default function ContactPage() {
                     required
                     value={formData.organization}
                     onChange={handleChange}
-                    className="w-full px-4 py-2.5 bg-slate-900/50 border border-slate-600 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition"
+                    className="w-full px-4 py-2.5 bg-white/50 dark:bg-slate-900/50 border border-gray-300 dark:border-slate-600 rounded-lg text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition"
                     placeholder="Your company or organization"
                   />
                 </div>
 
                 {/* Phone */}
                 <div>
-                  <label htmlFor="phone" className="block text-sm font-medium text-slate-300 mb-2">
+                  <label htmlFor="phone" className="block text-sm font-medium text-gray-600 dark:text-slate-300 mb-2">
                     Phone
                   </label>
                   <input
@@ -157,14 +157,14 @@ export default function ContactPage() {
                     name="phone"
                     value={formData.phone}
                     onChange={handleChange}
-                    className="w-full px-4 py-2.5 bg-slate-900/50 border border-slate-600 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition"
+                    className="w-full px-4 py-2.5 bg-white/50 dark:bg-slate-900/50 border border-gray-300 dark:border-slate-600 rounded-lg text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition"
                     placeholder="0430 334 344"
                   />
                 </div>
 
                 {/* Email */}
                 <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-slate-300 mb-2">
+                  <label htmlFor="email" className="block text-sm font-medium text-gray-600 dark:text-slate-300 mb-2">
                     Email <span className="text-red-400">*</span>
                   </label>
                   <input
@@ -174,14 +174,14 @@ export default function ContactPage() {
                     required
                     value={formData.email}
                     onChange={handleChange}
-                    className="w-full px-4 py-2.5 bg-slate-900/50 border border-slate-600 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition"
+                    className="w-full px-4 py-2.5 bg-white/50 dark:bg-slate-900/50 border border-gray-300 dark:border-slate-600 rounded-lg text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition"
                     placeholder="john.smith@example.com"
                   />
                 </div>
 
                 {/* Message */}
                 <div>
-                  <label htmlFor="message" className="block text-sm font-medium text-slate-300 mb-2">
+                  <label htmlFor="message" className="block text-sm font-medium text-gray-600 dark:text-slate-300 mb-2">
                     Message <span className="text-red-400">*</span>
                   </label>
                   <textarea
@@ -191,7 +191,7 @@ export default function ContactPage() {
                     value={formData.message}
                     onChange={handleChange}
                     rows={5}
-                    className="w-full px-4 py-2.5 bg-slate-900/50 border border-slate-600 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition resize-none"
+                    className="w-full px-4 py-2.5 bg-white/50 dark:bg-slate-900/50 border border-gray-300 dark:border-slate-600 rounded-lg text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition resize-none"
                     placeholder="Tell us how we can help you..."
                   />
                 </div>
@@ -238,15 +238,15 @@ export default function ContactPage() {
             >
               {/* Location Title */}
               <div>
-                <h2 className="text-2xl font-bold text-white mb-4">LOCATION</h2>
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">LOCATION</h2>
               </div>
 
               {/* Physical Address */}
               <div className="flex items-start gap-4">
-                <MapPin className="w-6 h-6 text-slate-400 flex-shrink-0 mt-1" />
+                <MapPin className="w-6 h-6 text-gray-500 dark:text-slate-400 flex-shrink-0 mt-1" />
                 <div>
-                  <h3 className="text-white font-semibold mb-2">Physical Address</h3>
-                  <p className="text-slate-300 text-sm">
+                  <h3 className="text-gray-900 dark:text-white font-semibold mb-2">Physical Address</h3>
+                  <p className="text-gray-600 dark:text-slate-300 text-sm">
                     8 Fuhrmann Street<br />
                     Muirhead Northern Territory 0810<br />
                     Australia
@@ -256,10 +256,10 @@ export default function ContactPage() {
 
               {/* Phone Numbers */}
               <div className="flex items-start gap-4">
-                <Phone className="w-6 h-6 text-slate-400 flex-shrink-0 mt-1" />
+                <Phone className="w-6 h-6 text-gray-500 dark:text-slate-400 flex-shrink-0 mt-1" />
                 <div>
-                  <h3 className="text-white font-semibold mb-2">Phone</h3>
-                  <p className="text-slate-300 text-sm">
+                  <h3 className="text-gray-900 dark:text-white font-semibold mb-2">Phone</h3>
+                  <p className="text-gray-600 dark:text-slate-300 text-sm">
                     <a href="tel:+61430334344" className="hover:text-cyan-400 transition">0430 334 344</a>
                   </p>
                 </div>
@@ -267,12 +267,12 @@ export default function ContactPage() {
 
               {/* Email */}
               <div className="flex items-start gap-4">
-                <Mail className="w-6 h-6 text-slate-400 flex-shrink-0 mt-1" />
+                <Mail className="w-6 h-6 text-gray-500 dark:text-slate-400 flex-shrink-0 mt-1" />
                 <div>
-                  <h3 className="text-white font-semibold mb-2">Email</h3>
+                  <h3 className="text-gray-900 dark:text-white font-semibold mb-2">Email</h3>
                   <a
                     href="mailto:info@cgtbrain.com.au"
-                    className="text-slate-300 text-sm hover:text-cyan-400 transition"
+                    className="text-gray-600 dark:text-slate-300 text-sm hover:text-cyan-400 transition"
                   >
                     info@cgtbrain.com.au
                   </a>
@@ -280,9 +280,9 @@ export default function ContactPage() {
               </div>
 
               {/* Additional Info */}
-              <div className="p-6 bg-slate-800/30 border border-slate-700 rounded-lg">
-                <h3 className="text-white font-semibold mb-2">Credentials</h3>
-                <p className="text-slate-300 text-sm">
+              <div className="p-6 bg-gray-100/30 dark:bg-slate-800/30 border border-gray-300 dark:border-slate-700 rounded-lg">
+                <h3 className="text-gray-900 dark:text-white font-semibold mb-2">Credentials</h3>
+                <p className="text-gray-600 dark:text-slate-300 text-sm">
                   ABN: 79 684 289 843<br />
                   Registered Tax Agent: 26205217
                 </p>
@@ -295,7 +295,7 @@ export default function ContactPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.6 }}
-            className="w-full h-[400px] md:h-[500px] rounded-xl overflow-hidden border border-slate-700"
+            className="w-full h-[400px] md:h-[500px] rounded-xl overflow-hidden border border-gray-300 dark:border-slate-700"
           >
             <iframe
               src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3849.8286847287364!2d130.98024897590894!3d-12.492826887553683!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2cc0a1f0e7f0e7f1%3A0x1f0e7f0e7f0e7f0e!2s8%20Fuhrmann%20St%2C%20Muirhead%20NT%200810!5d0!3m2!1sen!2sau!4v1234567890124!5m2!1sen!2sau"

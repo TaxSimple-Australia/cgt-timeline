@@ -30,7 +30,7 @@ export default function FeaturesSection() {
   ];
 
   return (
-    <section id="features" className="relative pt-40 pb-24 px-4 bg-gradient-to-b from-slate-900 via-slate-900/95 to-slate-900">
+    <section id="features" className="relative pt-40 pb-24 px-4 bg-gradient-to-b from-gray-50 dark:from-slate-900 via-gray-50/95 dark:via-slate-900/95 to-gray-50 dark:to-slate-900">
       {/* Background pattern */}
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#1e293b_1px,transparent_1px),linear-gradient(to_bottom,#1e293b_1px,transparent_1px)] bg-[size:4rem_4rem] opacity-10" />
 
@@ -43,10 +43,10 @@ export default function FeaturesSection() {
           transition={{ duration: 0.5 }}
           className="text-center mb-8"
         >
-          <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
+          <h2 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">
             Everything You Need to Calculate CGT
           </h2>
-          <p className="text-xl text-slate-400 max-w-2xl mx-auto">
+          <p className="text-xl text-gray-500 dark:text-slate-400 max-w-2xl mx-auto">
             No more spreadsheets, no more guesswork. Just accurate, AI-verified calculations.
           </p>
         </motion.div>

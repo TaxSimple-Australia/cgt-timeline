@@ -68,9 +68,9 @@ export default function FAQsPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-slate-900 relative overflow-x-hidden">
+    <div className="min-h-screen bg-gray-50 dark:bg-slate-900 relative overflow-x-hidden">
       {/* Animated background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+      <div className="absolute inset-0 bg-gradient-to-br from-gray-50 dark:from-slate-900 via-gray-100 dark:via-slate-800 to-gray-50 dark:to-slate-900">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(6,182,212,0.1),transparent_50%)]" />
       </div>
 
@@ -82,7 +82,7 @@ export default function FAQsPage() {
       <div className="absolute bottom-20 right-10 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl" />
 
       {/* Scroll progress bar */}
-      <div className="fixed top-0 left-0 right-0 h-1 bg-slate-800 z-[60]">
+      <div className="fixed top-0 left-0 right-0 h-1 bg-gray-100 dark:bg-slate-800 z-[60]">
         <div
           className="h-full bg-gradient-to-r from-cyan-500 to-blue-500 transition-all duration-300"
           style={{ width: `${scrollProgress}%` }}
@@ -114,8 +114,8 @@ export default function FAQsPage() {
                 Frequently Asked Questions
               </span>
             </h1>
-            <p className="text-lg text-slate-400 max-w-2xl mx-auto">
-              Everything you need to know about CGT Brain—from accuracy and security to pricing and professional use
+            <p className="text-lg text-gray-500 dark:text-slate-400 max-w-2xl mx-auto">
+              Everything you need to know about CGT Brain--from accuracy and security to pricing and professional use
             </p>
           </motion.div>
 
@@ -134,10 +134,10 @@ export default function FAQsPage() {
                 transition={{ duration: 0.5, delay: index * 0.05 }}
               >
                 <div
-                  className={`bg-gradient-to-br from-slate-900/80 to-slate-800/80 backdrop-blur-xl border rounded-2xl transition-all duration-300 ${
+                  className={`bg-gradient-to-br from-white/80 dark:from-slate-900/80 to-gray-100/80 dark:to-slate-800/80 backdrop-blur-xl border rounded-2xl transition-all duration-300 ${
                     openIndex === index
                       ? 'border-cyan-500/50 shadow-2xl shadow-cyan-500/20'
-                      : 'border-slate-700/50 hover:border-cyan-500/30 hover:shadow-lg hover:shadow-cyan-500/10'
+                      : 'border-gray-300/50 dark:border-slate-700/50 hover:border-cyan-500/30 hover:shadow-lg hover:shadow-cyan-500/10'
                   }`}
                 >
                   {/* Question */}
@@ -146,12 +146,12 @@ export default function FAQsPage() {
                     className="w-full text-left px-6 py-5 flex items-center justify-between gap-4"
                   >
                     <span className={`text-base md:text-lg font-semibold transition-colors ${
-                      openIndex === index ? 'text-cyan-400' : 'text-white'
+                      openIndex === index ? 'text-cyan-400' : 'text-gray-900 dark:text-white'
                     }`}>
                       {faq.question}
                     </span>
                     <ChevronDown
-                      className={`w-5 h-5 text-slate-400 flex-shrink-0 transition-transform duration-300 ${
+                      className={`w-5 h-5 text-gray-500 dark:text-slate-400 flex-shrink-0 transition-transform duration-300 ${
                         openIndex === index ? 'rotate-180 text-cyan-400' : ''
                       }`}
                     />
@@ -169,7 +169,7 @@ export default function FAQsPage() {
                       >
                         <div className="px-6 pb-5 pt-0">
                           <div className="h-px bg-gradient-to-r from-transparent via-cyan-500/30 to-transparent mb-4" />
-                          <p className="text-slate-300 leading-relaxed">
+                          <p className="text-gray-600 dark:text-slate-300 leading-relaxed">
                             {faq.answer}
                           </p>
                         </div>
@@ -186,12 +186,12 @@ export default function FAQsPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.4 }}
-            className="text-center mt-12 p-8 bg-slate-800/50 backdrop-blur-sm border border-cyan-500/20 rounded-2xl"
+            className="text-center mt-12 p-8 bg-gray-100/50 dark:bg-slate-800/50 backdrop-blur-sm border border-cyan-500/20 rounded-2xl"
           >
-            <p className="text-lg text-slate-300 mb-4">
+            <p className="text-lg text-gray-600 dark:text-slate-300 mb-4">
               Still have questions?
             </p>
-            <p className="text-slate-400">
+            <p className="text-gray-500 dark:text-slate-400">
               Contact our support team at{' '}
               <a href="mailto:info@cgtbrain.com.au" className="text-cyan-400 hover:text-cyan-300 underline transition-colors font-medium">
                 info@cgtbrain.com.au

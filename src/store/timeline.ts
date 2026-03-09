@@ -374,6 +374,7 @@ interface TimelineState {
   clearAllData: () => void; // Clear all properties and events
   importTimelineData: (data: any) => void; // Import timeline data from JSON
   toggleTheme: () => void; // Cycle through themes: light -> dark -> golden -> light
+  setTheme: (theme: Theme) => void; // Set theme directly (used by useThemeSync)
   toggleEventDisplayMode: () => void; // Toggle between circle and card display
   toggleLockFutureDates: () => void; // Toggle lock future dates setting
   toggleDragEvents: () => void; // Toggle event dragging functionality
@@ -3192,19 +3193,12 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
 
   toggleTheme: () => {
     const state = get();
-    // Simple toggle between dark and light
     const nextTheme: Theme = state.theme === 'dark' ? 'light' : 'dark';
-
     set({ theme: nextTheme });
+  },
 
-    // Update document class for Tailwind dark mode
-    if (typeof window !== 'undefined') {
-      if (nextTheme === 'dark') {
-        document.documentElement.classList.add('dark');
-      } else {
-        document.documentElement.classList.remove('dark');
-      }
-    }
+  setTheme: (theme: Theme) => {
+    set({ theme });
   },
 
   toggleEventDisplayMode: () => {

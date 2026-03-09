@@ -41,7 +41,7 @@ export default function SolutionSection() {
   ];
 
   return (
-    <section className="relative py-24 px-4 bg-gray-50 dark:bg-slate-900">
+    <section className="relative py-24 px-4 bg-white dark:bg-slate-900">
       {/* Decorative gradients */}
       <div className="absolute top-20 right-0 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl" />
       <div className="absolute bottom-20 left-0 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl" />
@@ -60,7 +60,7 @@ export default function SolutionSection() {
             <span className="text-sm text-cyan-400 font-medium">The Solution</span>
           </div>
 
-          <h2 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-6">
+          <h2 className="text-4xl md:text-5xl font-bold text-slate-900 dark:text-white mb-6">
             We Built CGT Brain to Solve
             <br />
             <span className="bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
@@ -68,7 +68,7 @@ export default function SolutionSection() {
             </span>
           </h2>
 
-          <p className="text-xl text-gray-500 dark:text-slate-400 max-w-3xl mx-auto leading-relaxed">
+          <p className="text-xl text-slate-500 dark:text-slate-400 max-w-3xl mx-auto leading-relaxed">
             AI-powered automation meets Australian tax compliance. Here's how we're different:
           </p>
         </motion.div>
@@ -82,19 +82,19 @@ export default function SolutionSection() {
           className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-16"
         >
           {/* Old Way */}
-          <div className="bg-gray-100/30 dark:bg-slate-800/30 backdrop-blur-sm border border-red-500/20 rounded-2xl p-8">
+          <div className="bg-slate-50/50 dark:bg-slate-800/30 backdrop-blur-sm border border-red-500/20 rounded-2xl p-8">
             <div className="flex items-center gap-3 mb-6">
               <div className="flex items-center justify-center w-12 h-12 bg-red-500/10 rounded-xl">
                 <X className="w-6 h-6 text-red-400" />
               </div>
-              <h3 className="text-2xl font-bold text-gray-900 dark:text-white">The Old Way</h3>
+              <h3 className="text-2xl font-bold text-slate-900 dark:text-white">The Old Way</h3>
             </div>
 
             <ul className="space-y-4">
               {oldWay.map((item, index) => (
                 <li key={index} className="flex items-start gap-3">
                   <X className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
-                  <span className="text-gray-500 dark:text-slate-400">{item}</span>
+                  <span className="text-slate-500 dark:text-slate-400">{item}</span>
                 </li>
               ))}
             </ul>
@@ -119,7 +119,7 @@ export default function SolutionSection() {
                 {newWay.map((item, index) => (
                   <li key={index} className="flex items-start gap-3">
                     <Check className="w-5 h-5 text-cyan-400 flex-shrink-0 mt-0.5" />
-                    <span className="text-gray-900 dark:text-white font-medium">{item}</span>
+                    <span className="text-slate-900 dark:text-white font-medium">{item}</span>
                   </li>
                 ))}
               </ul>
@@ -136,8 +136,8 @@ export default function SolutionSection() {
           className="mt-12 text-center"
         >
           <div className="inline-flex items-center gap-4 bg-gradient-to-r from-cyan-500/10 to-blue-500/10 border border-cyan-500/20 rounded-full px-6 py-3">
-            <span className="text-gray-600 dark:text-slate-300">
-              <span className="font-semibold text-gray-900 dark:text-white">Ready to try it?</span> It's free to start
+            <span className="text-slate-600 dark:text-slate-300">
+              <span className="font-semibold text-slate-900 dark:text-white">Ready to try it?</span> It's free to start
             </span>
             <ArrowRight className="w-5 h-5 text-cyan-400" />
           </div>

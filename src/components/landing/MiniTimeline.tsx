@@ -24,7 +24,7 @@ export default function MiniTimeline() {
           className="absolute -left-4 top-1/2 -translate-y-1/2 bg-gradient-to-r from-cyan-500/20 to-blue-500/20 backdrop-blur-sm border border-cyan-500/30 rounded-lg px-3 py-2"
         >
           <div className="text-xs text-cyan-400 font-semibold">123 Smith St</div>
-          <div className="text-[10px] text-gray-500 dark:text-slate-400">Melbourne, VIC</div>
+          <div className="text-[10px] text-slate-500 dark:text-slate-400">Melbourne, VIC</div>
         </motion.div>
 
         {/* Timeline Track */}
@@ -60,10 +60,10 @@ export default function MiniTimeline() {
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.5 + index * 0.1 }}
-                  className="absolute -bottom-16 bg-gray-100/90 dark:bg-slate-800/90 backdrop-blur-sm border border-gray-300/10 dark:border-white/10 rounded-lg px-3 py-2 min-w-[80px] text-center"
+                  className="absolute -bottom-16 bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm border border-slate-200/10 dark:border-white/10 rounded-lg px-3 py-2 min-w-[80px] text-center"
                 >
-                  <div className="text-[10px] text-gray-500 dark:text-slate-400 mb-0.5">{event.date}</div>
-                  <div className="text-xs font-semibold text-gray-900 dark:text-white mb-0.5">{event.label}</div>
+                  <div className="text-[10px] text-slate-500 dark:text-slate-400 mb-0.5">{event.date}</div>
+                  <div className="text-xs font-semibold text-slate-900 dark:text-white mb-0.5">{event.label}</div>
                   {event.amount && (
                     <div className="text-[10px] font-bold" style={{ color: event.color }}>
                       {event.amount}
@@ -72,7 +72,7 @@ export default function MiniTimeline() {
                 </motion.div>
 
                 {/* Connector Line */}
-                <div className="absolute top-full w-px h-4 bg-gradient-to-b from-white/20 to-transparent" />
+                <div className="absolute top-full w-px h-4 bg-gradient-to-b from-slate-50/20 to-transparent" />
               </motion.div>
             );
           })}
@@ -87,13 +87,13 @@ export default function MiniTimeline() {
         >
           <div className="absolute inset-0 flex items-center justify-center gap-2">
             <div className="text-[10px] text-emerald-400 font-medium">Main Residence</div>
-            <div className="w-px h-3 bg-white/20" />
+            <div className="w-px h-3 bg-slate-50/30" />
             <div className="text-[10px] text-purple-400 font-medium">Rental</div>
           </div>
         </motion.div>
 
         {/* Decorative Grid */}
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#1e293b_1px,transparent_1px)] bg-[size:40px_40px] opacity-5 pointer-events-none" />
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#1e293b_1px,transparent_1px)] bg-[size:40px_40px] opacity-0 dark:opacity-5 pointer-events-none" />
       </div>
 
       {/* Floating Stats */}
@@ -103,7 +103,7 @@ export default function MiniTimeline() {
         transition={{ delay: 1.2 }}
         className="absolute bottom-4 right-4 bg-gradient-to-br from-cyan-500/10 to-blue-500/10 backdrop-blur-sm border border-cyan-500/30 rounded-lg px-4 py-2"
       >
-        <div className="text-[10px] text-gray-500 dark:text-slate-400 mb-0.5">Capital Gain</div>
+        <div className="text-[10px] text-slate-500 dark:text-slate-400 mb-0.5">Capital Gain</div>
         <div className="text-sm font-bold text-cyan-400">$270,000</div>
       </motion.div>
     </div>

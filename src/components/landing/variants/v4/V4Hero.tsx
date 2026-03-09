@@ -9,9 +9,9 @@ import { Button } from '@/components/ui/button';
 
 export default function V4Hero() {
   return (
-    <section className="relative h-screen bg-white dark:bg-slate-950 flex items-center justify-center overflow-hidden pt-28">
+    <section className="relative h-screen bg-slate-50 dark:bg-slate-950 flex items-center justify-center overflow-hidden pt-28">
       {/* Subtle grid pattern */}
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,#0f172a_1px,transparent_1px),linear-gradient(to_bottom,#0f172a_1px,transparent_1px)] bg-[size:4rem_4rem] opacity-20" />
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,#0f172a_1px,transparent_1px),linear-gradient(to_bottom,#0f172a_1px,transparent_1px)] bg-[size:4rem_4rem] opacity-0 dark:opacity-20" />
 
       <div className="relative z-10 w-full max-w-[1400px] mx-auto px-6 md:px-8 lg:px-12">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
@@ -28,7 +28,7 @@ export default function V4Hero() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.3 }}
-              className="text-4xl md:text-5xl lg:text-[50px] font-bold text-gray-900 dark:text-white leading-[1.2] tracking-tight"
+              className="text-4xl md:text-5xl lg:text-[50px] font-bold text-slate-900 dark:text-white leading-[1.2] tracking-tight"
             >
               <span className="block whitespace-nowrap">Calculate Your Residential</span>
               <span className="block mt-2">Capital Gains Tax</span>
@@ -42,7 +42,7 @@ export default function V4Hero() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.4 }}
-              className="text-[16px] text-gray-500 dark:text-slate-400 leading-relaxed max-w-xl"
+              className="text-[16px] text-slate-500 dark:text-slate-400 leading-relaxed max-w-xl"
             >
               Visualize your property timeline, track every cost,
               <br />
@@ -112,15 +112,15 @@ export default function V4Hero() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, delay: 1 }}
-                    className="absolute top-6 right-6 bg-gray-50/80 dark:bg-slate-900/80 backdrop-blur-md border border-gray-300/40 dark:border-slate-700/40 rounded-3xl px-4 py-3 shadow-[0_0_20px_rgba(100,116,139,0.15)]"
+                    className="absolute top-6 right-6 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border border-slate-200/40 dark:border-slate-700/40 rounded-3xl px-4 py-3 shadow-[0_0_20px_rgba(100,116,139,0.15)]"
                   >
                     <div className="flex items-center gap-3">
-                      <div className="p-2 bg-gray-100/50 dark:bg-slate-800/50 rounded-xl">
-                        <Building2 className="w-4 h-4 text-gray-600 dark:text-slate-300" />
+                      <div className="p-2 bg-white/80 dark:bg-slate-800/50 rounded-xl">
+                        <Building2 className="w-4 h-4 text-slate-600 dark:text-slate-300" />
                       </div>
                       <div>
-                        <p className="text-xs text-gray-500 dark:text-slate-400">Properties Analyzed</p>
-                        <p className="text-lg font-bold text-gray-900 dark:text-white">1,247</p>
+                        <p className="text-xs text-slate-500 dark:text-slate-400">Properties Analyzed</p>
+                        <p className="text-lg font-bold text-slate-900 dark:text-white">1,247</p>
                       </div>
                     </div>
                   </motion.div>
@@ -129,15 +129,15 @@ export default function V4Hero() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, delay: 1.2 }}
-                    className="absolute bottom-6 left-6 bg-gray-50/80 dark:bg-slate-900/80 backdrop-blur-md border border-gray-300/40 dark:border-slate-700/40 rounded-3xl px-4 py-3 shadow-[0_0_20px_rgba(100,116,139,0.15)]"
+                    className="absolute bottom-6 left-6 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border border-slate-200/40 dark:border-slate-700/40 rounded-3xl px-4 py-3 shadow-[0_0_20px_rgba(100,116,139,0.15)]"
                   >
                     <div className="flex items-center gap-3">
-                      <div className="p-2 bg-gray-100/50 dark:bg-slate-800/50 rounded-xl">
-                        <Calendar className="w-4 h-4 text-gray-600 dark:text-slate-300" />
+                      <div className="p-2 bg-white/80 dark:bg-slate-800/50 rounded-xl">
+                        <Calendar className="w-4 h-4 text-slate-600 dark:text-slate-300" />
                       </div>
                       <div>
-                        <p className="text-xs text-gray-500 dark:text-slate-400">Average Calculation Time</p>
-                        <p className="text-lg font-bold text-gray-900 dark:text-white">2.4 min</p>
+                        <p className="text-xs text-slate-500 dark:text-slate-400">Average Calculation Time</p>
+                        <p className="text-lg font-bold text-slate-900 dark:text-white">2.4 min</p>
                       </div>
                     </div>
                   </motion.div>

@@ -79,9 +79,9 @@ export default function PricingPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-slate-900 relative overflow-hidden">
+    <div className="min-h-screen bg-white dark:bg-slate-900 relative overflow-hidden">
       {/* Animated background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-gray-50 dark:from-slate-900 via-gray-100 dark:via-slate-800 to-gray-50 dark:to-slate-900">
+      <div className="absolute inset-0 bg-gradient-to-br from-white dark:from-slate-900 via-slate-50 dark:via-slate-800 to-white dark:to-slate-900">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(6,182,212,0.1),transparent_50%)]" />
       </div>
 
@@ -106,7 +106,7 @@ export default function PricingPage() {
                 Simple, Transparent Pricing
               </span>
             </h1>
-            <p className="text-xl text-gray-500 dark:text-slate-400 max-w-3xl mx-auto">
+            <p className="text-xl text-slate-500 dark:text-slate-400 max-w-3xl mx-auto">
               Build unlimited timelines for free. Only pay when you need a professional CGT report.
             </p>
           </motion.div>
@@ -132,7 +132,7 @@ export default function PricingPage() {
                   )}
 
                   <div
-                    className={`h-full bg-gray-100/50 dark:bg-slate-800/50 backdrop-blur-sm border ${plan.borderColor} rounded-2xl p-8
+                    className={`h-full bg-white/80 dark:bg-slate-800/50 backdrop-blur-sm border ${plan.borderColor} rounded-2xl p-8
                               transition-all duration-300 hover:scale-105 hover:shadow-2xl
                               ${plan.popular ? 'scale-105 shadow-2xl shadow-purple-500/20' : ''}`}
                   >
@@ -141,20 +141,20 @@ export default function PricingPage() {
                     <div className="relative">
                       {/* Icon */}
                       <div className="mb-4">
-                        <div className={`inline-flex p-3 rounded-xl bg-gray-200/50 dark:bg-slate-700/50 ${plan.iconColor}`}>
+                        <div className={`inline-flex p-3 rounded-xl bg-slate-100/50 dark:bg-slate-700/50 ${plan.iconColor}`}>
                           <Icon className="w-6 h-6" />
                         </div>
                       </div>
 
                       {/* Plan Name */}
-                      <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">{plan.name}</h3>
-                      <p className="text-gray-500 dark:text-slate-400 text-sm mb-6">{plan.description}</p>
+                      <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">{plan.name}</h3>
+                      <p className="text-slate-500 dark:text-slate-400 text-sm mb-6">{plan.description}</p>
 
                       {/* Price */}
                       <div className="mb-6">
                         <div className="flex items-baseline">
-                          <span className="text-5xl font-bold text-gray-900 dark:text-white">${plan.price}</span>
-                          <span className="text-gray-500 dark:text-slate-400 ml-2">/{plan.period}</span>
+                          <span className="text-5xl font-bold text-slate-900 dark:text-white">${plan.price}</span>
+                          <span className="text-slate-500 dark:text-slate-400 ml-2">/{plan.period}</span>
                         </div>
                       </div>
 
@@ -173,7 +173,7 @@ export default function PricingPage() {
                         {plan.features.map((feature, i) => (
                           <li key={i} className="flex items-start gap-3">
                             <Check className="w-5 h-5 text-green-400 flex-shrink-0 mt-0.5" />
-                            <span className="text-gray-600 dark:text-slate-300 text-sm">{feature}</span>
+                            <span className="text-slate-600 dark:text-slate-300 text-sm">{feature}</span>
                           </li>
                         ))}
                       </ul>
@@ -230,19 +230,19 @@ export default function PricingPage() {
 
                   <div
                     className={cn(
-                      "relative bg-gray-100/50 dark:bg-slate-800/50 backdrop-blur-sm rounded-xl overflow-hidden transition-all duration-300",
+                      "relative bg-white/80 dark:bg-slate-800/50 backdrop-blur-sm rounded-xl overflow-hidden transition-all duration-300",
                       openFaqIndex === index
                         ? "border border-cyan-500/30 shadow-[0_0_30px_rgba(6,182,212,0.15)]"
-                        : "border border-gray-300/50 dark:border-slate-700/50 hover:border-gray-400/70 dark:hover:border-slate-600/70"
+                        : "border border-slate-200/50 dark:border-slate-700/50 hover:border-slate-300/70 dark:hover:border-slate-600/70"
                     )}
                   >
                     <button
                       onClick={() => setOpenFaqIndex(openFaqIndex === index ? null : index)}
                       className={cn(
                         "relative w-full p-6 text-left flex items-center justify-between transition-all duration-300 ease-out",
-                        "hover:bg-gray-200/40 dark:hover:bg-slate-700/40 active:scale-[0.99]",
+                        "hover:bg-slate-100/40 dark:hover:bg-slate-700/40 active:scale-[0.99]",
                         "focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-slate-900",
-                        openFaqIndex === index && "bg-gray-200/20 dark:bg-slate-700/20"
+                        openFaqIndex === index && "bg-slate-100/20 dark:bg-slate-700/20"
                       )}
                       aria-expanded={openFaqIndex === index}
                       aria-controls={`faq-answer-${index}`}
@@ -254,7 +254,7 @@ export default function PricingPage() {
                           "inline-flex items-center justify-center w-7 h-7 rounded-full text-sm font-medium mr-4 transition-all duration-300 flex-shrink-0",
                           openFaqIndex === index
                             ? "bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-lg shadow-cyan-500/30"
-                            : "bg-gray-200/50 dark:bg-slate-700/50 text-gray-500 dark:text-slate-400 group-hover:bg-gray-300/50 dark:group-hover:bg-slate-600/50 group-hover:text-gray-600 dark:group-hover:text-slate-300"
+                            : "bg-slate-100/50 dark:bg-slate-700/50 text-slate-500 dark:text-slate-400 group-hover:bg-slate-200/50 dark:group-hover:bg-slate-600/50 group-hover:text-slate-600 dark:group-hover:text-slate-300"
                         )}>
                           {index + 1}
                         </span>
@@ -263,7 +263,7 @@ export default function PricingPage() {
                           "text-lg sm:text-xl font-semibold transition-colors duration-300 leading-tight",
                           openFaqIndex === index
                             ? "text-transparent bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text"
-                            : "text-gray-900 dark:text-white group-hover:text-cyan-700 dark:group-hover:text-cyan-100"
+                            : "text-slate-900 dark:text-white group-hover:text-cyan-700 dark:group-hover:text-cyan-100"
                         )}>
                           {faq.question}
                         </h3>
@@ -274,7 +274,7 @@ export default function PricingPage() {
                         "flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300",
                         openFaqIndex === index
                           ? "bg-cyan-500/20 text-cyan-400 rotate-180 shadow-inner"
-                          : "bg-gray-200/50 dark:bg-slate-700/50 text-gray-500 dark:text-slate-400 group-hover:bg-gray-300/50 dark:group-hover:bg-slate-600/50 group-hover:text-gray-600 dark:group-hover:text-slate-300"
+                          : "bg-slate-100/50 dark:bg-slate-700/50 text-slate-500 dark:text-slate-400 group-hover:bg-slate-200/50 dark:group-hover:bg-slate-600/50 group-hover:text-slate-600 dark:group-hover:text-slate-300"
                       )}>
                         <ChevronDown className="w-4 h-4" />
                       </div>
@@ -291,11 +291,11 @@ export default function PricingPage() {
                             opacity: { duration: 0.25, ease: 'easeOut' },
                             y: { duration: 0.3, ease: [0.4, 0.0, 0.2, 1] }
                           }}
-                          className="overflow-hidden border-t border-gray-300/50 dark:border-slate-700/50"
+                          className="overflow-hidden border-t border-slate-200/50 dark:border-slate-700/50"
                           id={`faq-answer-${index}`}
                           role="region"
                         >
-                          <p className="px-6 py-5 ml-11 text-gray-600 dark:text-slate-300 text-[15px] leading-relaxed">
+                          <p className="px-6 py-5 ml-11 text-slate-600 dark:text-slate-300 text-[15px] leading-relaxed">
                             {faq.answer}
                           </p>
                         </motion.div>
@@ -315,8 +315,8 @@ export default function PricingPage() {
             className="text-center mt-20"
           >
             <div className="inline-flex flex-col items-center gap-4 p-8 bg-gradient-to-br from-cyan-500/10 to-blue-500/10 border border-cyan-500/20 rounded-2xl">
-              <h3 className="text-2xl font-bold text-gray-900 dark:text-white">Still have questions?</h3>
-              <p className="text-gray-500 dark:text-slate-400">Our team is here to help you choose the right report option.</p>
+              <h3 className="text-2xl font-bold text-slate-900 dark:text-white">Still have questions?</h3>
+              <p className="text-slate-500 dark:text-slate-400">Our team is here to help you choose the right report option.</p>
               <Link href="/contact">
                 <button className="px-8 py-3 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white font-semibold rounded-xl shadow-lg shadow-cyan-500/30 transition-all">
                   Contact Sales

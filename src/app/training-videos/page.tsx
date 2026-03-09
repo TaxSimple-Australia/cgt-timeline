@@ -142,7 +142,7 @@ function FullscreenVideoPlayer({
       {/* Close button */}
       <button
         onClick={onClose}
-        className="absolute top-4 right-4 z-10 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors"
+        className="absolute top-4 right-4 z-10 w-10 h-10 rounded-full bg-slate-50/10 hover:bg-slate-50/30 text-white flex items-center justify-center transition-colors"
         aria-label="Close video"
       >
         <X className="w-6 h-6" />
@@ -312,7 +312,7 @@ export default function TrainingVideosPage() {
   });
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 dark:from-slate-900 via-gray-100 dark:via-slate-800 to-gray-50 dark:to-slate-900">
+    <div className="min-h-screen bg-gradient-to-b from-white dark:from-slate-900 via-slate-50 dark:via-slate-800 to-white dark:to-slate-900">
       <LandingHeader />
 
       {/* Hero Section */}
@@ -338,10 +338,10 @@ export default function TrainingVideosPage() {
                 Master CGT Brain
               </span>
               <br />
-              <span className="text-gray-900 dark:text-white">with Video Tutorials</span>
+              <span className="text-slate-900 dark:text-white">with Video Tutorials</span>
             </h1>
 
-            <p className="text-xl text-gray-600 dark:text-slate-300 mb-8 max-w-3xl mx-auto leading-relaxed">
+            <p className="text-xl text-slate-600 dark:text-slate-300 mb-8 max-w-3xl mx-auto leading-relaxed">
               Comprehensive video guides to help you get the most out of CGT Brain.
               From beginner basics to advanced features.
             </p>
@@ -350,19 +350,19 @@ export default function TrainingVideosPage() {
       </section>
 
       {/* Search and Filter */}
-      <section className="py-8 px-4 sm:px-6 lg:px-8 bg-gray-100/30 dark:bg-slate-800/30">
+      <section className="py-8 px-4 sm:px-6 lg:px-8 bg-slate-50/50 dark:bg-slate-800/30">
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col sm:flex-row gap-4">
             {/* Search Bar */}
             <div className="flex-1">
               <div className="relative">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 dark:text-slate-400" />
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500 dark:text-slate-400" />
                 <input
                   type="text"
                   placeholder="Search videos..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-12 pr-4 py-3 bg-gray-100 dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-lg text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-colors"
+                  className="w-full pl-12 pr-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-colors"
                 />
               </div>
             </div>
@@ -384,7 +384,7 @@ export default function TrainingVideosPage() {
                     "flex items-center gap-2 px-4 py-2.5 rounded-lg font-medium transition-all",
                     selectedCategory === category.id
                       ? "bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-lg shadow-cyan-500/30"
-                      : "bg-gray-100/50 dark:bg-slate-800/50 text-gray-600 dark:text-slate-300 hover:bg-gray-200 dark:hover:bg-slate-700 border border-gray-300 dark:border-slate-700"
+                      : "bg-white/80 dark:bg-slate-800/50 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700"
                   )}
                 >
                   <Icon className="w-4 h-4" />
@@ -392,8 +392,8 @@ export default function TrainingVideosPage() {
                   <span className={cn(
                     "px-2 py-0.5 rounded-full text-xs",
                     selectedCategory === category.id
-                      ? "bg-white/20"
-                      : "bg-gray-200 dark:bg-slate-700"
+                      ? "bg-slate-50/30"
+                      : "bg-slate-100 dark:bg-slate-700"
                   )}>
                     {category.count}
                   </span>
@@ -410,8 +410,8 @@ export default function TrainingVideosPage() {
           {filteredVideos.length === 0 ? (
             <div className="text-center py-20">
               <Video className="w-16 h-16 text-slate-600 mx-auto mb-4" />
-              <h3 className="text-xl font-semibold text-gray-500 dark:text-slate-400 mb-2">No videos found</h3>
-              <p className="text-gray-400 dark:text-slate-500">Try adjusting your search or filter</p>
+              <h3 className="text-xl font-semibold text-slate-500 dark:text-slate-400 mb-2">No videos found</h3>
+              <p className="text-slate-400 dark:text-slate-500">Try adjusting your search or filter</p>
             </div>
           ) : (
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -430,11 +430,11 @@ export default function TrainingVideosPage() {
                   }}
                 >
                   <div className={cn(
-                    "bg-gray-100/50 dark:bg-slate-800/50 backdrop-blur-sm border border-gray-300 dark:border-slate-700 rounded-xl overflow-hidden hover:border-cyan-500/50 transition-all",
+                    "bg-white/80 dark:bg-slate-800/50 backdrop-blur-sm border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden hover:border-cyan-500/50 transition-all",
                     video.videoId && "ring-2 ring-cyan-500/20 hover:ring-cyan-500/40"
                   )}>
                     {/* Thumbnail */}
-                    <div className="relative aspect-video bg-gray-50 dark:bg-slate-900 overflow-hidden">
+                    <div className="relative aspect-video bg-white dark:bg-slate-900 overflow-hidden">
                       <img
                         src={video.thumbnail}
                         alt={video.title}
@@ -481,17 +481,17 @@ export default function TrainingVideosPage() {
 
                     {/* Content */}
                     <div className="p-4">
-                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2 group-hover:text-cyan-400 transition-colors">
+                      <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2 group-hover:text-cyan-400 transition-colors">
                         {video.title}
                       </h3>
-                      <p className="text-sm text-gray-500 dark:text-slate-400 mb-4">
+                      <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">
                         {video.description}
                       </p>
                       <div className="flex items-center justify-between">
                         <span className="text-xs font-medium text-cyan-400 uppercase tracking-wider">
                           {categories.find(c => c.id === video.category)?.label}
                         </span>
-                        <ChevronRight className="w-4 h-4 text-gray-400 dark:text-slate-500 group-hover:text-cyan-400 transition-colors" />
+                        <ChevronRight className="w-4 h-4 text-slate-400 dark:text-slate-500 group-hover:text-cyan-400 transition-colors" />
                       </div>
                     </div>
                   </div>

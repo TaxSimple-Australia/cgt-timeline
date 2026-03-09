@@ -21,14 +21,14 @@ export default function ThemeToggle({ className = '' }: { className?: string }) 
   return (
     <button
       onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-      className={`p-2 rounded-lg transition-colors hover:bg-gray-200 dark:hover:bg-slate-700 ${className}`}
+      className={`p-2 rounded-lg transition-colors hover:bg-slate-100 dark:hover:bg-slate-700 ${className}`}
       aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
       title={theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
     >
       {theme === 'dark' ? (
         <Sun className="w-5 h-5 text-slate-300 hover:text-white" />
       ) : (
-        <Moon className="w-5 h-5 text-gray-600 hover:text-gray-900" />
+        <Moon className="w-5 h-5 text-slate-600 hover:text-slate-900" />
       )}
     </button>
   );

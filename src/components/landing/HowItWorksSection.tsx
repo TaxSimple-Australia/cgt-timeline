@@ -26,7 +26,7 @@ export default function HowItWorksSection() {
 
   return (
     <>
-      <section id="how-it-works" className="relative py-24 px-4 overflow-hidden bg-gradient-to-b from-white dark:from-slate-950 via-gray-50 dark:via-slate-900 to-white dark:to-slate-950">
+      <section id="how-it-works" className="relative py-24 px-4 overflow-hidden bg-gradient-to-b from-slate-50 dark:from-slate-950 via-white dark:via-slate-900 to-slate-50 dark:to-slate-950">
         {/* Decorative gradient orbs */}
         <div className="absolute top-20 left-1/4 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl" />
         <div className="absolute bottom-20 right-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl" />
@@ -42,12 +42,12 @@ export default function HowItWorksSection() {
           >
             <div className="flex items-center justify-center gap-6 mb-4">
               <div className="h-px w-16 bg-gradient-to-r from-transparent via-cyan-500 to-cyan-500" />
-              <h2 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white">
+              <h2 className="text-4xl md:text-5xl font-bold text-slate-900 dark:text-white">
                 How It Works
               </h2>
               <div className="h-px w-16 bg-gradient-to-l from-transparent via-cyan-500 to-cyan-500" />
             </div>
-            <p className="text-xl text-gray-500 dark:text-slate-400 max-w-2xl mx-auto">
+            <p className="text-xl text-slate-500 dark:text-slate-400 max-w-2xl mx-auto">
               From timeline to tax report in three simple steps
             </p>
           </motion.div>
@@ -117,7 +117,7 @@ export default function HowItWorksSection() {
             {/* Close button */}
             <button
               onClick={handleClose}
-              className="absolute top-4 right-4 z-10 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors"
+              className="absolute top-4 right-4 z-10 w-10 h-10 rounded-full bg-slate-50/10 hover:bg-slate-50/30 text-white flex items-center justify-center transition-colors"
               aria-label="Close video"
             >
               <X className="w-6 h-6" />

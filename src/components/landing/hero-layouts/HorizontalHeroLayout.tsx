@@ -87,7 +87,7 @@ export default function HorizontalHeroLayout() {
   return (
     <div className="relative w-full h-screen flex items-center overflow-hidden pt-20">
       {/* Dark base background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-white via-gray-50 to-white dark:from-slate-950 dark:via-slate-900 dark:to-slate-950" />
+      <div className="absolute inset-0 bg-gradient-to-br from-slate-50 via-white to-slate-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950" />
 
       {/* Dramatic glow blob from right fading to left */}
       <motion.div
@@ -146,7 +146,7 @@ export default function HorizontalHeroLayout() {
           </motion.div>
 
           {/* Headline */}
-          <h1 className="text-xl sm:text-2xl md:text-2xl lg:text-3xl xl:text-4xl 2xl:text-5xl font-bold text-gray-900 dark:text-white leading-[1.2] mb-4 md:mb-6">
+          <h1 className="text-xl sm:text-2xl md:text-2xl lg:text-3xl xl:text-4xl 2xl:text-5xl font-bold text-slate-900 dark:text-white leading-[1.2] mb-4 md:mb-6">
             <motion.span variants={slideInLeft} className="block">
               Calculate Your
             </motion.span>
@@ -164,7 +164,7 @@ export default function HorizontalHeroLayout() {
           {/* Subheading */}
           <motion.p
             variants={fadeInUp}
-            className="text-xs sm:text-sm md:text-sm lg:text-base xl:text-lg 2xl:text-xl text-gray-600 dark:text-slate-300 leading-relaxed mb-4 md:mb-6"
+            className="text-xs sm:text-sm md:text-sm lg:text-base xl:text-lg 2xl:text-xl text-slate-600 dark:text-slate-300 leading-relaxed mb-4 md:mb-6"
           >
             Visualize your property timeline, track every cost,
             <br />
@@ -186,7 +186,7 @@ export default function HorizontalHeroLayout() {
           {/* Trust indicator */}
           <motion.p
             variants={fadeInUp}
-            className="text-gray-500 dark:text-slate-400 text-sm mt-6"
+            className="text-slate-500 dark:text-slate-400 text-sm mt-6"
           >
             Trusted by property investors and tax professionals across Australia
           </motion.p>
@@ -204,15 +204,15 @@ export default function HorizontalHeroLayout() {
             initial={{ opacity: 0, y: 20, scale: 0.9 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             transition={{ delay: 0.8, duration: 0.5, type: 'spring', damping: 20 }}
-            className="absolute top-[24px] md:top-[28px] lg:top-[32px] -left-[12px] md:-left-[16px] lg:-left-[18px] px-3 py-2 md:px-4 md:py-2.5 bg-gray-100/80 dark:bg-slate-800/80 backdrop-blur-sm border border-cyan-500/40 rounded-xl shadow-lg shadow-cyan-500/20 z-20"
+            className="absolute top-[24px] md:top-[28px] lg:top-[32px] -left-[12px] md:-left-[16px] lg:-left-[18px] px-3 py-2 md:px-4 md:py-2.5 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border border-cyan-500/40 rounded-xl shadow-lg shadow-cyan-500/20 z-20"
           >
             <div className="flex items-center gap-2 md:gap-3">
               <div className="w-7 h-7 md:w-8 md:h-8 rounded-full bg-gradient-to-br from-cyan-400 to-blue-500 flex items-center justify-center">
                 <User className="w-3.5 h-3.5 md:w-4 md:h-4 text-white" />
               </div>
               <div>
-                <p className="text-[10px] md:text-xs text-gray-500 dark:text-slate-400">Welcome back</p>
-                <p className="text-xs md:text-sm text-gray-900 dark:text-white font-medium">Property Investor</p>
+                <p className="text-[10px] md:text-xs text-slate-500 dark:text-slate-400">Welcome back</p>
+                <p className="text-xs md:text-sm text-slate-900 dark:text-white font-medium">Property Investor</p>
               </div>
             </div>
           </motion.div>
@@ -222,7 +222,7 @@ export default function HorizontalHeroLayout() {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.4, duration: 0.7, type: 'spring', damping: 25 }}
-            className="relative rounded-2xl overflow-visible border border-cyan-500/50 bg-gray-50/90 dark:bg-slate-900/90 backdrop-blur-xl my-auto h-full flex items-center"
+            className="relative rounded-2xl overflow-visible border border-cyan-500/50 bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl my-auto h-full flex items-center"
             style={{
               boxShadow: '-8px 0 40px rgba(6, 182, 212, 0.5), 0 -8px 40px rgba(6, 182, 212, 0.5), 0 8px 40px rgba(6, 182, 212, 0.5), 8px 0 40px rgba(6, 182, 212, 0.5), 0 0 60px rgba(6, 182, 212, 0.3)'
             }}
@@ -237,11 +237,11 @@ export default function HorizontalHeroLayout() {
                 priority
               />
               {/* Overlay gradient for depth */}
-              <div className="absolute inset-0 bg-gradient-to-t from-gray-50/20 dark:from-slate-900/20 via-transparent to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-white/20 dark:from-slate-900/20 via-transparent to-transparent" />
             </div>
 
             {/* Shine overlay */}
-            <div className="absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-transparent pointer-events-none" />
+            <div className="absolute inset-0 bg-gradient-to-br from-slate-50/5 via-transparent to-transparent pointer-events-none" />
 
             {/* Inner glow border effect */}
             <div className="absolute inset-0 rounded-2xl border border-cyan-400/20 pointer-events-none" />
@@ -252,11 +252,11 @@ export default function HorizontalHeroLayout() {
             initial={{ opacity: 0, y: 20, scale: 0.9 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             transition={{ delay: 1, duration: 0.5, type: 'spring', damping: 20 }}
-            className="absolute -bottom-4 md:-bottom-5 lg:-bottom-6 left-4 md:left-6 lg:left-8 px-3 py-1.5 md:px-4 md:py-2 bg-gray-100/90 dark:bg-slate-800/90 backdrop-blur-sm border border-cyan-500/40 rounded-lg shadow-lg shadow-cyan-500/20"
+            className="absolute -bottom-4 md:-bottom-5 lg:-bottom-6 left-4 md:left-6 lg:left-8 px-3 py-1.5 md:px-4 md:py-2 bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm border border-cyan-500/40 rounded-lg shadow-lg shadow-cyan-500/20"
           >
             <div className="flex items-center gap-1.5 md:gap-2">
               <div className="w-1.5 h-1.5 md:w-2 md:h-2 bg-green-400 rounded-full animate-pulse" />
-              <span className="text-[10px] md:text-xs text-gray-600 dark:text-slate-300 font-medium">Live CGT Calculation</span>
+              <span className="text-[10px] md:text-xs text-slate-600 dark:text-slate-300 font-medium">Live CGT Calculation</span>
             </div>
           </motion.div>
         </motion.div>

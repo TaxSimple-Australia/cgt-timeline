@@ -8,11 +8,11 @@ import {
   Calendar, Search, FileCheck,
 } from 'lucide-react';
 
-const tile = 'bg-gray-100/50 dark:bg-slate-800/50 backdrop-blur-sm border border-gray-300 dark:border-slate-700 rounded-2xl p-8 hover:border-cyan-500/30 transition-all';
+const tile = 'bg-white/80 dark:bg-slate-800/50 backdrop-blur-sm border border-slate-200 dark:border-slate-700 rounded-2xl p-8 hover:border-cyan-500/30 transition-all';
 
 export default function BentoGridVariant() {
   return (
-    <section className="relative py-24 px-4 bg-gradient-to-b from-white dark:from-slate-950 via-gray-50 dark:via-slate-900 to-white dark:to-slate-950">
+    <section className="relative py-24 px-4 bg-gradient-to-b from-slate-50 dark:from-slate-950 via-white dark:via-slate-900 to-slate-50 dark:to-slate-950">
       <div className="max-w-7xl mx-auto">
 
         {/* Bento Grid */}
@@ -31,7 +31,7 @@ export default function BentoGridVariant() {
                 Redefining Property Tax Compliance
               </span>
             </h1>
-            <p className="text-gray-600 dark:text-slate-300 text-lg leading-relaxed">
+            <p className="text-slate-600 dark:text-slate-300 text-lg leading-relaxed">
               Selling a property is a milestone — navigating Australian Capital Gains Tax shouldn&apos;t take away from that achievement. CGT Brain AI provides homeowners with absolute clarity on their tax exemptions.
             </p>
           </motion.div>
@@ -71,8 +71,8 @@ export default function BentoGridVariant() {
               <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
                 <item.icon className="w-6 h-6 text-white" />
               </div>
-              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3">{item.title}</h3>
-              <p className="text-gray-600 dark:text-slate-300 text-sm leading-relaxed">{item.text}</p>
+              <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-3">{item.title}</h3>
+              <p className="text-slate-600 dark:text-slate-300 text-sm leading-relaxed">{item.text}</p>
             </motion.div>
           ))}
 
@@ -87,8 +87,8 @@ export default function BentoGridVariant() {
             <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center mb-5">
               <Brain className="w-6 h-6 text-white" />
             </div>
-            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-5">AI-Powered Intelligence</h3>
-            <ul className="space-y-3 text-gray-600 dark:text-slate-300 text-sm">
+            <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-5">AI-Powered Intelligence</h3>
+            <ul className="space-y-3 text-slate-600 dark:text-slate-300 text-sm">
               {[
                 'Process complex property histories in seconds',
                 'Cross-reference against thousands of ATO tax rulings',
@@ -115,8 +115,8 @@ export default function BentoGridVariant() {
             <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center mb-5">
               <Shield className="w-6 h-6 text-white" />
             </div>
-            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-5">Expert Human Oversight</h3>
-            <ul className="space-y-3 text-gray-600 dark:text-slate-300 text-sm">
+            <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-5">Expert Human Oversight</h3>
+            <ul className="space-y-3 text-slate-600 dark:text-slate-300 text-sm">
               {[
                 'Qualified Australian tax accountants review every analysis',
                 'Apply professional judgment to complex scenarios',
@@ -140,8 +140,8 @@ export default function BentoGridVariant() {
             transition={{ duration: 0.5, delay: 0.5 }}
             className={`${tile} md:col-span-12 text-center`}
           >
-            <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">AI + Human Partnership</h3>
-            <p className="text-gray-500 dark:text-slate-400 max-w-5xl mx-auto leading-relaxed">
+            <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">AI + Human Partnership</h3>
+            <p className="text-slate-500 dark:text-slate-400 max-w-5xl mx-auto leading-relaxed">
               The conversation around AI often focuses on replacement. However, at CGT Brain AI, we focus on amplification. We have redesigned the workflow of property tax advice to be more agile and data-rich, yet our core remains unchanged; human-led and specialist-verified. We operate under a strict mandate that no AI response is final until it has been vetted by a tax specialist who assumes full responsibility and indemnity.
             </p>
           </motion.div>
@@ -168,8 +168,8 @@ export default function BentoGridVariant() {
                   {step.num}
                 </div>
               </div>
-              <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">{step.title}</h3>
-              <ul className="space-y-2 text-sm text-gray-500 dark:text-slate-400">
+              <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4">{step.title}</h3>
+              <ul className="space-y-2 text-sm text-slate-500 dark:text-slate-400">
                 {step.bullets.map((b) => (
                   <li key={b} className="flex items-start gap-2">
                     <CheckCircle2 className="w-4 h-4 text-cyan-500 flex-shrink-0 mt-0.5" />

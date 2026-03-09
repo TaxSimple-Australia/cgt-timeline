@@ -18,14 +18,14 @@ export default function FinalCTA() {
   ];
 
   return (
-    <section className="relative py-24 px-4 bg-gray-50 dark:bg-slate-900 overflow-hidden">
+    <section className="relative py-24 px-4 bg-white dark:bg-slate-900 overflow-hidden">
       {/* Animated background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-gray-50 via-gray-100 to-gray-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
+      <div className="absolute inset-0 bg-gradient-to-br from-white via-slate-50 to-white dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(6,182,212,0.15),transparent_50%)]" />
       </div>
 
       {/* Animated grid pattern */}
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,#1e293b_1px,transparent_1px),linear-gradient(to_bottom,#1e293b_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_50%,#000_70%,transparent_100%)] opacity-20" />
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,#1e293b_1px,transparent_1px),linear-gradient(to_bottom,#1e293b_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_50%,#000_70%,transparent_100%)] opacity-0 dark:opacity-20" />
 
       {/* Decorative orbs */}
       <div className="absolute top-0 left-1/4 w-96 h-96 bg-cyan-500/20 rounded-full blur-3xl animate-pulse" />
@@ -40,7 +40,7 @@ export default function FinalCTA() {
           className="text-center"
         >
           {/* Headline */}
-          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 dark:text-white mb-6 leading-tight">
+          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-slate-900 dark:text-white mb-6 leading-tight">
             Ready to Stop Guessing
             <br />
             <span className="bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-500 bg-clip-text text-transparent">
@@ -49,9 +49,9 @@ export default function FinalCTA() {
           </h2>
 
           {/* Subheadline */}
-          <p className="text-xl md:text-2xl text-gray-600 dark:text-slate-300 mb-12 max-w-3xl mx-auto leading-relaxed">
+          <p className="text-xl md:text-2xl text-slate-600 dark:text-slate-300 mb-12 max-w-3xl mx-auto leading-relaxed">
             Get your personalized property timeline and AI-verified tax calculations
-            in the next 10 minutes—<span className="font-semibold text-gray-900 dark:text-white">completely free.</span>
+            in the next 10 minutes—<span className="font-semibold text-slate-900 dark:text-white">completely free.</span>
           </p>
 
           {/* CTA Button */}
@@ -78,7 +78,7 @@ export default function FinalCTA() {
                 <div className="flex items-center justify-center w-5 h-5 bg-green-500/20 rounded-full">
                   <Check className="w-3 h-3 text-green-400" />
                 </div>
-                <span className="text-gray-600 dark:text-slate-300 text-sm font-medium">{benefit}</span>
+                <span className="text-slate-600 dark:text-slate-300 text-sm font-medium">{benefit}</span>
               </motion.div>
             ))}
           </div>
@@ -91,8 +91,8 @@ export default function FinalCTA() {
             transition={{ duration: 0.5, delay: 1.2 }}
             className="mt-12"
           >
-            <div className="inline-block bg-gray-100/50 dark:bg-slate-800/50 backdrop-blur-sm border border-gray-300/50 dark:border-slate-700/50 rounded-2xl px-8 py-4">
-              <p className="text-gray-500 dark:text-slate-400 text-sm">
+            <div className="inline-block bg-white/80 dark:bg-slate-800/50 backdrop-blur-sm border border-slate-200/50 dark:border-slate-700/50 rounded-2xl px-8 py-4">
+              <p className="text-slate-500 dark:text-slate-400 text-sm">
                 Join <span className="font-semibold text-cyan-400">8,700+ Australian property owners</span> who've already simplified their CGT calculations
               </p>
             </div>
@@ -114,12 +114,12 @@ export default function FinalCTA() {
           ].map((stat, index) => (
             <div
               key={index}
-              className="bg-gray-100/30 dark:bg-slate-800/30 backdrop-blur-sm border border-gray-300/50 dark:border-slate-700/50 rounded-xl p-6 text-center"
+              className="bg-slate-50/50 dark:bg-slate-800/30 backdrop-blur-sm border border-slate-200/50 dark:border-slate-700/50 rounded-xl p-6 text-center"
             >
               <div className="text-3xl font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent mb-2">
                 {stat.value}
               </div>
-              <div className="text-gray-500 dark:text-slate-400 text-sm">
+              <div className="text-slate-500 dark:text-slate-400 text-sm">
                 {stat.label}
               </div>
             </div>

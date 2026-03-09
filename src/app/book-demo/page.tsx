@@ -149,7 +149,7 @@ ${formData.message || 'N/A'}
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 dark:from-slate-900 via-gray-100 dark:via-slate-800 to-gray-50 dark:to-slate-900">
+    <div className="min-h-screen bg-gradient-to-b from-white dark:from-slate-900 via-slate-50 dark:via-slate-800 to-white dark:to-slate-900">
       <LandingHeader />
 
       {/* Hero Section */}
@@ -175,10 +175,10 @@ ${formData.message || 'N/A'}
                 See CGT Brain
               </span>
               <br />
-              <span className="text-gray-900 dark:text-white">in Action</span>
+              <span className="text-slate-900 dark:text-white">in Action</span>
             </h1>
 
-            <p className="text-xl text-gray-600 dark:text-slate-300 mb-8 max-w-3xl mx-auto leading-relaxed">
+            <p className="text-xl text-slate-600 dark:text-slate-300 mb-8 max-w-3xl mx-auto leading-relaxed">
               Schedule a personalized demo and discover how CGT Brain can transform
               your Capital Gains Tax analysis workflow.
             </p>
@@ -187,7 +187,7 @@ ${formData.message || 'N/A'}
       </section>
 
       {/* What to Expect */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gray-100/30 dark:bg-slate-800/30">
+      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-slate-50/50 dark:bg-slate-800/30">
         <div className="max-w-7xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -196,8 +196,8 @@ ${formData.message || 'N/A'}
             transition={{ duration: 0.6 }}
             className="text-center mb-12"
           >
-            <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">What to Expect</h2>
-            <p className="text-lg text-gray-600 dark:text-slate-300">
+            <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-4">What to Expect</h2>
+            <p className="text-lg text-slate-600 dark:text-slate-300">
               Our demos are tailored to your practice and needs
             </p>
           </motion.div>
@@ -212,15 +212,15 @@ ${formData.message || 'N/A'}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.6, delay: index * 0.1 }}
-                  className="p-6 bg-gray-100/50 dark:bg-slate-800/50 backdrop-blur-sm border border-gray-300 dark:border-slate-700 rounded-xl hover:border-cyan-500/50 transition-all text-center"
+                  className="p-6 bg-white/80 dark:bg-slate-800/50 backdrop-blur-sm border border-slate-200 dark:border-slate-700 rounded-xl hover:border-cyan-500/50 transition-all text-center"
                 >
                   <div className="inline-flex p-3 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-xl mb-4">
                     <Icon className="w-6 h-6 text-white" />
                   </div>
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                  <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">
                     {feature.title}
                   </h3>
-                  <p className="text-sm text-gray-500 dark:text-slate-400">
+                  <p className="text-sm text-slate-500 dark:text-slate-400">
                     {feature.description}
                   </p>
                 </motion.div>
@@ -235,13 +235,13 @@ ${formData.message || 'N/A'}
             transition={{ duration: 0.6 }}
             className="max-w-2xl mx-auto"
           >
-            <div className="p-6 bg-gray-100/50 dark:bg-slate-800/50 backdrop-blur-sm border border-gray-300 dark:border-slate-700 rounded-xl">
-              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">You'll See:</h3>
+            <div className="p-6 bg-white/80 dark:bg-slate-800/50 backdrop-blur-sm border border-slate-200 dark:border-slate-700 rounded-xl">
+              <h3 className="text-xl font-semibold text-slate-900 dark:text-white mb-4">You'll See:</h3>
               <div className="grid sm:grid-cols-2 gap-3">
                 {benefits.map((benefit, index) => (
                   <div key={index} className="flex items-start gap-3">
                     <CheckCircle className="w-5 h-5 text-cyan-400 flex-shrink-0 mt-0.5" />
-                    <span className="text-gray-600 dark:text-slate-300">{benefit}</span>
+                    <span className="text-slate-600 dark:text-slate-300">{benefit}</span>
                   </div>
                 ))}
               </div>
@@ -258,15 +258,15 @@ ${formData.message || 'N/A'}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-            className="p-8 bg-gray-100/50 dark:bg-slate-800/50 backdrop-blur-sm border border-gray-300 dark:border-slate-700 rounded-2xl"
+            className="p-8 bg-white/80 dark:bg-slate-800/50 backdrop-blur-sm border border-slate-200 dark:border-slate-700 rounded-2xl"
           >
             <div className="text-center mb-8">
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-cyan-500/10 border border-cyan-500/20 mb-4">
                 <Sparkles className="w-4 h-4 text-cyan-400" />
                 <span className="text-sm font-medium text-cyan-400">Request Your Demo</span>
               </div>
-              <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Schedule Your Demo</h2>
-              <p className="text-gray-600 dark:text-slate-300">Fill out the form below and we'll be in touch within 24 hours</p>
+              <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">Schedule Your Demo</h2>
+              <p className="text-slate-600 dark:text-slate-300">Fill out the form below and we'll be in touch within 24 hours</p>
             </div>
 
             {submitStatus === 'success' && (
@@ -293,7 +293,7 @@ ${formData.message || 'N/A'}
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="grid sm:grid-cols-2 gap-6">
                 <div>
-                  <label htmlFor="name" className="block text-sm font-medium text-gray-600 dark:text-slate-300 mb-2">
+                  <label htmlFor="name" className="block text-sm font-medium text-slate-600 dark:text-slate-300 mb-2">
                     Name *
                   </label>
                   <input
@@ -303,12 +303,12 @@ ${formData.message || 'N/A'}
                     value={formData.name}
                     onChange={handleChange}
                     required
-                    className="w-full px-4 py-3 bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-600 rounded-lg text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-colors"
+                    className="w-full px-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-colors"
                     placeholder="John Smith"
                   />
                 </div>
                 <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-gray-600 dark:text-slate-300 mb-2">
+                  <label htmlFor="email" className="block text-sm font-medium text-slate-600 dark:text-slate-300 mb-2">
                     Email *
                   </label>
                   <input
@@ -318,7 +318,7 @@ ${formData.message || 'N/A'}
                     value={formData.email}
                     onChange={handleChange}
                     required
-                    className="w-full px-4 py-3 bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-600 rounded-lg text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-colors"
+                    className="w-full px-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-colors"
                     placeholder="john@example.com"
                   />
                 </div>
@@ -326,7 +326,7 @@ ${formData.message || 'N/A'}
 
               <div className="grid sm:grid-cols-2 gap-6">
                 <div>
-                  <label htmlFor="company" className="block text-sm font-medium text-gray-600 dark:text-slate-300 mb-2">
+                  <label htmlFor="company" className="block text-sm font-medium text-slate-600 dark:text-slate-300 mb-2">
                     Company *
                   </label>
                   <input
@@ -336,12 +336,12 @@ ${formData.message || 'N/A'}
                     value={formData.company}
                     onChange={handleChange}
                     required
-                    className="w-full px-4 py-3 bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-600 rounded-lg text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-colors"
+                    className="w-full px-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-colors"
                     placeholder="Your Company"
                   />
                 </div>
                 <div>
-                  <label htmlFor="phone" className="block text-sm font-medium text-gray-600 dark:text-slate-300 mb-2">
+                  <label htmlFor="phone" className="block text-sm font-medium text-slate-600 dark:text-slate-300 mb-2">
                     Phone *
                   </label>
                   <input
@@ -351,7 +351,7 @@ ${formData.message || 'N/A'}
                     value={formData.phone}
                     onChange={handleChange}
                     required
-                    className="w-full px-4 py-3 bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-600 rounded-lg text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-colors"
+                    className="w-full px-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-colors"
                     placeholder="0430 334 344"
                   />
                 </div>
@@ -359,7 +359,7 @@ ${formData.message || 'N/A'}
 
               <div className="grid sm:grid-cols-2 gap-6">
                 <div>
-                  <label htmlFor="role" className="block text-sm font-medium text-gray-600 dark:text-slate-300 mb-2">
+                  <label htmlFor="role" className="block text-sm font-medium text-slate-600 dark:text-slate-300 mb-2">
                     Role *
                   </label>
                   <input
@@ -369,12 +369,12 @@ ${formData.message || 'N/A'}
                     value={formData.role}
                     onChange={handleChange}
                     required
-                    className="w-full px-4 py-3 bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-600 rounded-lg text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-colors"
+                    className="w-full px-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-colors"
                     placeholder="e.g., Tax Adviser, Partner"
                   />
                 </div>
                 <div>
-                  <label htmlFor="teamSize" className="block text-sm font-medium text-gray-600 dark:text-slate-300 mb-2">
+                  <label htmlFor="teamSize" className="block text-sm font-medium text-slate-600 dark:text-slate-300 mb-2">
                     Team Size *
                   </label>
                   <select
@@ -383,7 +383,7 @@ ${formData.message || 'N/A'}
                     value={formData.teamSize}
                     onChange={handleChange}
                     required
-                    className="w-full px-4 py-3 bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-600 rounded-lg text-gray-900 dark:text-white focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-colors"
+                    className="w-full px-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-900 dark:text-white focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-colors"
                   >
                     <option value="">Select team size</option>
                     {teamSizes.map((size) => (
@@ -397,7 +397,7 @@ ${formData.message || 'N/A'}
 
               <div className="grid sm:grid-cols-2 gap-6">
                 <div>
-                  <label htmlFor="preferredDate" className="block text-sm font-medium text-gray-600 dark:text-slate-300 mb-2">
+                  <label htmlFor="preferredDate" className="block text-sm font-medium text-slate-600 dark:text-slate-300 mb-2">
                     Preferred Date *
                   </label>
                   <input
@@ -408,11 +408,11 @@ ${formData.message || 'N/A'}
                     onChange={handleChange}
                     required
                     min={new Date().toISOString().split('T')[0]}
-                    className="w-full px-4 py-3 bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-600 rounded-lg text-gray-900 dark:text-white focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-colors"
+                    className="w-full px-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-900 dark:text-white focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-colors"
                   />
                 </div>
                 <div>
-                  <label htmlFor="preferredTime" className="block text-sm font-medium text-gray-600 dark:text-slate-300 mb-2">
+                  <label htmlFor="preferredTime" className="block text-sm font-medium text-slate-600 dark:text-slate-300 mb-2">
                     Preferred Time (AEST) *
                   </label>
                   <select
@@ -421,7 +421,7 @@ ${formData.message || 'N/A'}
                     value={formData.preferredTime}
                     onChange={handleChange}
                     required
-                    className="w-full px-4 py-3 bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-600 rounded-lg text-gray-900 dark:text-white focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-colors"
+                    className="w-full px-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-900 dark:text-white focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-colors"
                   >
                     <option value="">Select time slot</option>
                     {timeSlots.map((slot) => (
@@ -434,7 +434,7 @@ ${formData.message || 'N/A'}
               </div>
 
               <div>
-                <label htmlFor="message" className="block text-sm font-medium text-gray-600 dark:text-slate-300 mb-2">
+                <label htmlFor="message" className="block text-sm font-medium text-slate-600 dark:text-slate-300 mb-2">
                   Additional Notes (Optional)
                 </label>
                 <textarea
@@ -443,7 +443,7 @@ ${formData.message || 'N/A'}
                   value={formData.message}
                   onChange={handleChange}
                   rows={4}
-                  className="w-full px-4 py-3 bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-600 rounded-lg text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-colors resize-none"
+                  className="w-full px-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-colors resize-none"
                   placeholder="Any specific features you'd like to focus on?"
                 />
               </div>
@@ -466,7 +466,7 @@ ${formData.message || 'N/A'}
                 )}
               </Button>
 
-              <p className="text-sm text-gray-500 dark:text-slate-400 text-center">
+              <p className="text-sm text-slate-500 dark:text-slate-400 text-center">
                 We'll confirm your demo time within 24 hours
               </p>
             </form>

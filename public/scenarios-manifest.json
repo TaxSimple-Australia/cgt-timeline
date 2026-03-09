@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "generatedAt": "2026-03-06T07:17:46.403Z",
+  "generatedAt": "2026-03-09T08:31:42.475Z",
   "totalScenarios": 85,
   "categories": {
     "Main Residence": 29,
@@ -4195,7 +4195,7 @@
               }
             ],
             "notes": "Original property subdivided into Lot A (dwelling retained) and Lot B (vacant land sold). Market value at subdivision: Lot A $1,200,000, Lot B $800,000. Subdivision costs: $65,000.",
-            "holdingYears": 20.5
+            "holdingYears": 20.6
           },
           {
             "address": "Lot A, 55 Acreage Court, Castle Hill NSW 2154",
@@ -6963,7 +6963,7 @@
               }
             ],
             "notes": "**Property 2 - New Residence**\n\nPurchased 1 May 2024. Moved in while still owning old residence, creating a 165-day overlap period (within 6-month limit).",
-            "holdingYears": 1.8
+            "holdingYears": 1.9
           }
         ],
         "financialSummary": {

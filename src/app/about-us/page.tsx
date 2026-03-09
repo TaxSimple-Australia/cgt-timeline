@@ -3,7 +3,7 @@
 import React from 'react';
 import LandingHeader from '@/components/landing/LandingHeader';
 import LandingFooter from '@/components/landing/LandingFooter';
-import AIHumanSection from '@/components/landing/AIHumanSection';
+import AboutVariantSelector from '@/components/landing/about-variants/AboutVariantSelector';
 
 export default function AboutUsPage() {
   return (
@@ -12,7 +12,7 @@ export default function AboutUsPage() {
 
       {/* AI + Human Expertise Section */}
       <div className="pt-20">
-        <AIHumanSection />
+        <AboutVariantSelector />
       </div>
 
       <LandingFooter />

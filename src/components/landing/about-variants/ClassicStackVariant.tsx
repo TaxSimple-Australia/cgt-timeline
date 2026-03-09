@@ -10,7 +10,7 @@ import {
 
 export default function ClassicStackVariant() {
   return (
-    <section className="relative py-24 px-4 bg-gradient-to-b from-slate-300 dark:from-slate-950 via-slate-200 dark:via-slate-900 to-slate-300 dark:to-slate-950">
+    <section className="relative py-24 px-4 bg-gradient-to-b from-slate-200 dark:from-slate-950 via-slate-200 dark:via-slate-900 to-slate-200 dark:to-slate-950">
       <div className="max-w-7xl mx-auto">
 
         {/* Hero with mascot */}
@@ -57,7 +57,7 @@ export default function ClassicStackVariant() {
           <h2 className="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white text-center mb-12">
             Why Choose CGT Brain AI?
           </h2>
-          <div className="flex flex-col md:flex-row divide-y md:divide-y-0 md:divide-x divide-slate-500/50 dark:divide-slate-700/50">
+          <div className="flex flex-col md:flex-row divide-y md:divide-y-0 md:divide-x divide-slate-400/50 dark:divide-slate-700/50">
             {[
               { icon: Shield, title: 'Confidence', text: 'We turn complex ATO legislation into actionable insights you can trust. Every calculation is backed by Australian tax law and expert verification.' },
               { icon: Zap, title: 'Speed', text: 'Our AI-first approach drastically reduces the time it takes to reach a tax determination — from weeks to minutes.' },
@@ -118,7 +118,7 @@ export default function ClassicStackVariant() {
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: 0.3 }}
-              className="bg-slate-200/80 dark:bg-slate-800/50 backdrop-blur-sm border border-slate-500 dark:border-slate-700 rounded-2xl p-8 hover:border-cyan-500/50 transition-all"
+              className="bg-slate-100/80 dark:bg-slate-800/50 backdrop-blur-sm border border-slate-400 dark:border-slate-700 rounded-2xl p-8 hover:border-cyan-500/50 transition-all"
             >
               <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center mb-6">
                 <Brain className="w-7 h-7 text-white" />
@@ -146,7 +146,7 @@ export default function ClassicStackVariant() {
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: 0.4 }}
-              className="bg-slate-200/80 dark:bg-slate-800/50 backdrop-blur-sm border border-slate-500 dark:border-slate-700 rounded-2xl p-8 hover:border-cyan-500/50 transition-all"
+              className="bg-slate-100/80 dark:bg-slate-800/50 backdrop-blur-sm border border-slate-400 dark:border-slate-700 rounded-2xl p-8 hover:border-cyan-500/50 transition-all"
             >
               <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center mb-6">
                 <Shield className="w-7 h-7 text-white" />
@@ -224,7 +224,7 @@ export default function ClassicStackVariant() {
                     <div className="w-20 h-20 rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center">
                       <step.icon className="w-9 h-9 text-white" />
                     </div>
-                    <div className="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-900 border-2 border-cyan-400 flex items-center justify-center text-sm font-bold text-cyan-400">
+                    <div className="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-900 border-2 border-cyan-400 flex items-center justify-center text-sm font-bold text-cyan-400">
                       {step.num}
                     </div>
                   </div>

@@ -142,7 +142,7 @@ function FullscreenVideoPlayer({
       {/* Close button */}
       <button
         onClick={onClose}
-        className="absolute top-4 right-4 z-10 w-10 h-10 rounded-full bg-slate-50/10 hover:bg-slate-300/30 text-white flex items-center justify-center transition-colors"
+        className="absolute top-4 right-4 z-10 w-10 h-10 rounded-full bg-slate-50/10 hover:bg-slate-200/30 text-white flex items-center justify-center transition-colors"
         aria-label="Close video"
       >
         <X className="w-6 h-6" />
@@ -350,7 +350,7 @@ export default function TrainingVideosPage() {
       </section>
 
       {/* Search and Filter */}
-      <section className="py-8 px-4 sm:px-6 lg:px-8 bg-slate-300/50 dark:bg-slate-800/30">
+      <section className="py-8 px-4 sm:px-6 lg:px-8 bg-slate-200/50 dark:bg-slate-800/30">
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col sm:flex-row gap-4">
             {/* Search Bar */}
@@ -362,7 +362,7 @@ export default function TrainingVideosPage() {
                   placeholder="Search videos..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-12 pr-4 py-3 bg-slate-200 dark:bg-slate-800 border border-slate-500 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-colors"
+                  className="w-full pl-12 pr-4 py-3 bg-slate-100 dark:bg-slate-800 border border-slate-400 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-colors"
                 />
               </div>
             </div>
@@ -384,7 +384,7 @@ export default function TrainingVideosPage() {
                     "flex items-center gap-2 px-4 py-2.5 rounded-lg font-medium transition-all",
                     selectedCategory === category.id
                       ? "bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-lg shadow-cyan-500/30"
-                      : "bg-slate-200/80 dark:bg-slate-800/50 text-slate-600 dark:text-slate-300 hover:bg-slate-500 dark:hover:bg-slate-700 border border-slate-500 dark:border-slate-700"
+                      : "bg-slate-100/80 dark:bg-slate-800/50 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-400 dark:border-slate-700"
                   )}
                 >
                   <Icon className="w-4 h-4" />
@@ -392,8 +392,8 @@ export default function TrainingVideosPage() {
                   <span className={cn(
                     "px-2 py-0.5 rounded-full text-xs",
                     selectedCategory === category.id
-                      ? "bg-slate-300/30"
-                      : "bg-slate-400 dark:bg-slate-700"
+                      ? "bg-slate-200/30"
+                      : "bg-slate-300 dark:bg-slate-700"
                   )}>
                     {category.count}
                   </span>
@@ -430,11 +430,11 @@ export default function TrainingVideosPage() {
                   }}
                 >
                   <div className={cn(
-                    "bg-slate-200/80 dark:bg-slate-800/50 backdrop-blur-sm border border-slate-500 dark:border-slate-700 rounded-xl overflow-hidden hover:border-cyan-500/50 transition-all",
+                    "bg-slate-100/80 dark:bg-slate-800/50 backdrop-blur-sm border border-slate-400 dark:border-slate-700 rounded-xl overflow-hidden hover:border-cyan-500/50 transition-all",
                     video.videoId && "ring-2 ring-cyan-500/20 hover:ring-cyan-500/40"
                   )}>
                     {/* Thumbnail */}
-                    <div className="relative aspect-video bg-slate-200 dark:bg-slate-900 overflow-hidden">
+                    <div className="relative aspect-video bg-slate-100 dark:bg-slate-900 overflow-hidden">
                       <img
                         src={video.thumbnail}
                         alt={video.title}

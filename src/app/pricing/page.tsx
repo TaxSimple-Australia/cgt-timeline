@@ -79,7 +79,7 @@ export default function PricingPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-slate-200 dark:bg-slate-900 relative overflow-hidden">
+    <div className="min-h-screen bg-slate-100 dark:bg-slate-900 relative overflow-hidden">
       {/* Animated background */}
       <div className="absolute inset-0 bg-gradient-to-br from-slate-200 dark:from-slate-900 via-slate-300 dark:via-slate-800 to-slate-200 dark:to-slate-900">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(6,182,212,0.1),transparent_50%)]" />
@@ -132,7 +132,7 @@ export default function PricingPage() {
                   )}
 
                   <div
-                    className={`h-full bg-slate-200/80 dark:bg-slate-800/50 backdrop-blur-sm border ${plan.borderColor} rounded-2xl p-8
+                    className={`h-full bg-slate-100/80 dark:bg-slate-800/50 backdrop-blur-sm border ${plan.borderColor} rounded-2xl p-8
                               transition-all duration-300 hover:scale-105 hover:shadow-2xl
                               ${plan.popular ? 'scale-105 shadow-2xl shadow-purple-500/20' : ''}`}
                   >
@@ -141,7 +141,7 @@ export default function PricingPage() {
                     <div className="relative">
                       {/* Icon */}
                       <div className="mb-4">
-                        <div className={`inline-flex p-3 rounded-xl bg-slate-400/50 dark:bg-slate-700/50 ${plan.iconColor}`}>
+                        <div className={`inline-flex p-3 rounded-xl bg-slate-300/50 dark:bg-slate-700/50 ${plan.iconColor}`}>
                           <Icon className="w-6 h-6" />
                         </div>
                       </div>
@@ -230,17 +230,17 @@ export default function PricingPage() {
 
                   <div
                     className={cn(
-                      "relative bg-slate-200/80 dark:bg-slate-800/50 backdrop-blur-sm rounded-xl overflow-hidden transition-all duration-300",
+                      "relative bg-slate-100/80 dark:bg-slate-800/50 backdrop-blur-sm rounded-xl overflow-hidden transition-all duration-300",
                       openFaqIndex === index
                         ? "border border-cyan-500/30 shadow-[0_0_30px_rgba(6,182,212,0.15)]"
-                        : "border border-slate-500/50 dark:border-slate-700/50 hover:border-slate-300/70 dark:hover:border-slate-600/70"
+                        : "border border-slate-400/50 dark:border-slate-700/50 hover:border-slate-300/70 dark:hover:border-slate-600/70"
                     )}
                   >
                     <button
                       onClick={() => setOpenFaqIndex(openFaqIndex === index ? null : index)}
                       className={cn(
                         "relative w-full p-6 text-left flex items-center justify-between transition-all duration-300 ease-out",
-                        "hover:bg-slate-400/40 dark:hover:bg-slate-700/40 active:scale-[0.99]",
+                        "hover:bg-slate-300/40 dark:hover:bg-slate-700/40 active:scale-[0.99]",
                         "focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-slate-900",
                         openFaqIndex === index && "bg-slate-400/20 dark:bg-slate-700/20"
                       )}
@@ -254,7 +254,7 @@ export default function PricingPage() {
                           "inline-flex items-center justify-center w-7 h-7 rounded-full text-sm font-medium mr-4 transition-all duration-300 flex-shrink-0",
                           openFaqIndex === index
                             ? "bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-lg shadow-cyan-500/30"
-                            : "bg-slate-400/50 dark:bg-slate-700/50 text-slate-600 dark:text-slate-400 group-hover:bg-slate-500/50 dark:group-hover:bg-slate-600/50 group-hover:text-slate-600 dark:group-hover:text-slate-600"
+                            : "bg-slate-300/50 dark:bg-slate-700/50 text-slate-600 dark:text-slate-400 group-hover:bg-slate-400/50 dark:group-hover:bg-slate-600/50 group-hover:text-slate-600 dark:group-hover:text-slate-600"
                         )}>
                           {index + 1}
                         </span>
@@ -274,7 +274,7 @@ export default function PricingPage() {
                         "flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300",
                         openFaqIndex === index
                           ? "bg-cyan-500/20 text-cyan-400 rotate-180 shadow-inner"
-                          : "bg-slate-400/50 dark:bg-slate-700/50 text-slate-600 dark:text-slate-400 group-hover:bg-slate-500/50 dark:group-hover:bg-slate-600/50 group-hover:text-slate-600 dark:group-hover:text-slate-600"
+                          : "bg-slate-300/50 dark:bg-slate-700/50 text-slate-600 dark:text-slate-400 group-hover:bg-slate-400/50 dark:group-hover:bg-slate-600/50 group-hover:text-slate-600 dark:group-hover:text-slate-600"
                       )}>
                         <ChevronDown className="w-4 h-4" />
                       </div>
@@ -291,7 +291,7 @@ export default function PricingPage() {
                             opacity: { duration: 0.25, ease: 'easeOut' },
                             y: { duration: 0.3, ease: [0.4, 0.0, 0.2, 1] }
                           }}
-                          className="overflow-hidden border-t border-slate-500/50 dark:border-slate-700/50"
+                          className="overflow-hidden border-t border-slate-400/50 dark:border-slate-700/50"
                           id={`faq-answer-${index}`}
                           role="region"
                         >

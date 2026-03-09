@@ -10,7 +10,7 @@ import {
 
 export default function MagazineEditorialVariant() {
   return (
-    <section className="relative py-24 px-4 bg-slate-300 dark:bg-slate-950">
+    <section className="relative py-24 px-4 bg-slate-200 dark:bg-slate-950">
       <div className="max-w-6xl mx-auto">
 
         {/* Hero: Extra-large heading with watermark mascot */}
@@ -40,7 +40,7 @@ export default function MagazineEditorialVariant() {
         </motion.div>
 
         {/* Divider */}
-        <div className="h-px bg-slate-400 dark:bg-slate-800 mb-24" />
+        <div className="h-px bg-slate-300 dark:bg-slate-800 mb-24" />
 
         {/* Why Choose Us - Giant background numbers */}
         {[
@@ -70,7 +70,7 @@ export default function MagazineEditorialVariant() {
         ))}
 
         {/* Divider */}
-        <div className="h-px bg-slate-400 dark:bg-slate-800 mb-24" />
+        <div className="h-px bg-slate-300 dark:bg-slate-800 mb-24" />
 
         {/* AI + Human Partnership — asymmetric 60/40 */}
         <motion.div
@@ -140,7 +140,7 @@ export default function MagazineEditorialVariant() {
         </motion.div>
 
         {/* Divider */}
-        <div className="h-px bg-slate-400 dark:bg-slate-800 mb-24" />
+        <div className="h-px bg-slate-300 dark:bg-slate-800 mb-24" />
 
         {/* How It Works - Large typographic blocks */}
         <motion.div

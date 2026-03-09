@@ -36,7 +36,7 @@ export default function AboutVariantSelector() {
   return (
     <>
       {/* Sticky variant selector bar */}
-      <div className="sticky top-16 z-40 bg-slate-200/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-500 dark:border-slate-800">
+      <div className="sticky top-16 z-40 bg-slate-100/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-400 dark:border-slate-800">
         <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
           <span className="text-sm text-slate-600 dark:text-slate-400 hidden sm:block">Layout Variant</span>
 
@@ -49,7 +49,7 @@ export default function AboutVariantSelector() {
                 className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${
                   activeVariant === v.key
                     ? 'bg-cyan-500 text-white shadow-lg shadow-cyan-500/25'
-                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-500 dark:hover:bg-slate-800'
+                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-800'
                 }`}
               >
                 {v.label}
@@ -61,13 +61,13 @@ export default function AboutVariantSelector() {
           <div className="relative md:hidden flex-1 ml-3">
             <button
               onClick={() => setIsOpen(!isOpen)}
-              className="w-full flex items-center justify-between px-4 py-2 bg-slate-200 dark:bg-slate-800 border border-slate-500 dark:border-slate-700 rounded-lg text-sm text-slate-900 dark:text-white"
+              className="w-full flex items-center justify-between px-4 py-2 bg-slate-100 dark:bg-slate-800 border border-slate-400 dark:border-slate-700 rounded-lg text-sm text-slate-900 dark:text-white"
             >
               {activeLabel}
               <ChevronDown className={`w-4 h-4 text-slate-600 dark:text-slate-400 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
             </button>
             {isOpen && (
-              <div className="absolute top-full left-0 right-0 mt-1 bg-slate-200 dark:bg-slate-800 border border-slate-500 dark:border-slate-700 rounded-lg overflow-hidden shadow-xl z-50">
+              <div className="absolute top-full left-0 right-0 mt-1 bg-slate-100 dark:bg-slate-800 border border-slate-400 dark:border-slate-700 rounded-lg overflow-hidden shadow-xl z-50">
                 {VARIANTS.map((v) => (
                   <button
                     key={v.key}
@@ -78,7 +78,7 @@ export default function AboutVariantSelector() {
                     className={`w-full px-4 py-2.5 text-left text-sm transition-colors ${
                       activeVariant === v.key
                         ? 'bg-cyan-500/20 text-cyan-400'
-                        : 'text-slate-600 dark:text-slate-300 hover:bg-slate-500 dark:hover:bg-slate-700'
+                        : 'text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
                     }`}
                   >
                     {v.label}

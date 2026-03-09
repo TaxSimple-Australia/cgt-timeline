@@ -8,11 +8,11 @@ import {
   Calendar, Search, FileCheck,
 } from 'lucide-react';
 
-const tile = 'bg-slate-200/80 dark:bg-slate-800/50 backdrop-blur-sm border border-slate-500 dark:border-slate-700 rounded-2xl p-8 hover:border-cyan-500/30 transition-all';
+const tile = 'bg-slate-100/80 dark:bg-slate-800/50 backdrop-blur-sm border border-slate-400 dark:border-slate-700 rounded-2xl p-8 hover:border-cyan-500/30 transition-all';
 
 export default function BentoGridVariant() {
   return (
-    <section className="relative py-24 px-4 bg-gradient-to-b from-slate-300 dark:from-slate-950 via-slate-200 dark:via-slate-900 to-slate-300 dark:to-slate-950">
+    <section className="relative py-24 px-4 bg-gradient-to-b from-slate-200 dark:from-slate-950 via-slate-200 dark:via-slate-900 to-slate-200 dark:to-slate-950">
       <div className="max-w-7xl mx-auto">
 
         {/* Bento Grid */}

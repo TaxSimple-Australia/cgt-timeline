@@ -34,7 +34,7 @@ export default function ProcessStep({ stepNumber, title, description, icon, isLa
         </div>
 
         {/* Step number badge */}
-        <div className="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-800 border-2 border-cyan-500 flex items-center justify-center">
+        <div className="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 border-2 border-cyan-500 flex items-center justify-center">
           <span className="text-cyan-400 font-bold text-sm">{stepNumber}</span>
         </div>
       </motion.div>

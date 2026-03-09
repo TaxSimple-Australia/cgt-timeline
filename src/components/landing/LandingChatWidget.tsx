@@ -184,17 +184,17 @@ export default function LandingChatWidget() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
             transition={{ duration: 0.2 }}
-            className="fixed bottom-6 right-6 z-50 w-[calc(100vw-3rem)] sm:w-[400px] h-[500px] max-h-[calc(100vh-3rem)] bg-slate-200 dark:bg-slate-900 border border-slate-500/50 dark:border-slate-700/50 rounded-2xl shadow-2xl shadow-black/40 backdrop-blur-xl flex flex-col overflow-hidden"
+            className="fixed bottom-6 right-6 z-50 w-[calc(100vw-3rem)] sm:w-[400px] h-[500px] max-h-[calc(100vh-3rem)] bg-slate-100 dark:bg-slate-900 border border-slate-400/50 dark:border-slate-700/50 rounded-2xl shadow-2xl shadow-black/40 backdrop-blur-xl flex flex-col overflow-hidden"
           >
             {/* Header */}
-            <div className="flex items-center justify-between px-4 py-3 border-b border-slate-500/50 dark:border-slate-700/50 bg-slate-200/80 dark:bg-slate-800/50">
+            <div className="flex items-center justify-between px-4 py-3 border-b border-slate-400/50 dark:border-slate-700/50 bg-slate-100/80 dark:bg-slate-800/50">
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
                 <span className="text-sm font-semibold text-slate-900 dark:text-white">CGT Brain Assistant</span>
               </div>
               <button
                 onClick={handleClose}
-                className="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors p-1 rounded-lg hover:bg-slate-400/50 dark:hover:bg-slate-700/50"
+                className="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors p-1 rounded-lg hover:bg-slate-300/50 dark:hover:bg-slate-700/50"
                 aria-label="Close chat"
               >
                 <X className="w-4 h-4" />
@@ -212,15 +212,15 @@ export default function LandingChatWidget() {
                     className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed whitespace-pre-wrap ${
                       msg.role === 'user'
                         ? 'bg-gradient-to-br from-blue-600 to-purple-600 text-white rounded-br-md'
-                        : 'bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-slate-200 rounded-bl-md'
+                        : 'bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 rounded-bl-md'
                     }`}
                   >
                     {msg.content}
                     {msg.role === 'assistant' && i === messages.length - 1 && isStreaming && !msg.content && (
                       <span className="inline-flex items-center gap-1">
-                        <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce [animation-delay:0ms]" />
-                        <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce [animation-delay:150ms]" />
-                        <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce [animation-delay:300ms]" />
+                        <span className="w-1.5 h-1.5 bg-slate-300 rounded-full animate-bounce [animation-delay:0ms]" />
+                        <span className="w-1.5 h-1.5 bg-slate-300 rounded-full animate-bounce [animation-delay:150ms]" />
+                        <span className="w-1.5 h-1.5 bg-slate-300 rounded-full animate-bounce [animation-delay:300ms]" />
                       </span>
                     )}
                   </div>
@@ -230,7 +230,7 @@ export default function LandingChatWidget() {
             </div>
 
             {/* Input */}
-            <div className="p-3 border-t border-slate-500/50 dark:border-slate-700/50 bg-slate-300/50 dark:bg-slate-800/30">
+            <div className="p-3 border-t border-slate-400/50 dark:border-slate-700/50 bg-slate-200/50 dark:bg-slate-800/30">
               <div className="flex items-center gap-2">
                 <input
                   ref={inputRef}
@@ -240,7 +240,7 @@ export default function LandingChatWidget() {
                   onKeyDown={handleKeyDown}
                   placeholder="Ask a question..."
                   disabled={isStreaming}
-                  className="flex-1 bg-slate-200 dark:bg-slate-800 border border-slate-500/50 dark:border-slate-600/50 rounded-xl px-4 py-2.5 text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-400 outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/25 transition-all disabled:opacity-50"
+                  className="flex-1 bg-slate-100 dark:bg-slate-800 border border-slate-400/50 dark:border-slate-600/50 rounded-xl px-4 py-2.5 text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-400 outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/25 transition-all disabled:opacity-50"
                 />
                 <button
                   onClick={handleSend}

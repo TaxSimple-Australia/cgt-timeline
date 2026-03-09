@@ -87,7 +87,7 @@ export default function HorizontalHeroLayout() {
   return (
     <div className="relative w-full h-screen flex items-center overflow-hidden pt-20">
       {/* Dark base background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-slate-300 via-slate-200 to-slate-300 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950" />
+      <div className="absolute inset-0 bg-gradient-to-br from-slate-200 via-slate-200 to-slate-200 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950" />
 
       {/* Dramatic glow blob from right fading to left */}
       <motion.div
@@ -204,7 +204,7 @@ export default function HorizontalHeroLayout() {
             initial={{ opacity: 0, y: 20, scale: 0.9 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             transition={{ delay: 0.8, duration: 0.5, type: 'spring', damping: 20 }}
-            className="absolute top-[24px] md:top-[28px] lg:top-[32px] -left-[12px] md:-left-[16px] lg:-left-[18px] px-3 py-2 md:px-4 md:py-2.5 bg-slate-200/80 dark:bg-slate-800/80 backdrop-blur-sm border border-cyan-500/40 rounded-xl shadow-lg shadow-cyan-500/20 z-20"
+            className="absolute top-[24px] md:top-[28px] lg:top-[32px] -left-[12px] md:-left-[16px] lg:-left-[18px] px-3 py-2 md:px-4 md:py-2.5 bg-slate-100/80 dark:bg-slate-800/80 backdrop-blur-sm border border-cyan-500/40 rounded-xl shadow-lg shadow-cyan-500/20 z-20"
           >
             <div className="flex items-center gap-2 md:gap-3">
               <div className="w-7 h-7 md:w-8 md:h-8 rounded-full bg-gradient-to-br from-cyan-400 to-blue-500 flex items-center justify-center">
@@ -222,7 +222,7 @@ export default function HorizontalHeroLayout() {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.4, duration: 0.7, type: 'spring', damping: 25 }}
-            className="relative rounded-2xl overflow-visible border border-cyan-500/50 bg-slate-200/90 dark:bg-slate-900/90 backdrop-blur-xl my-auto h-full flex items-center"
+            className="relative rounded-2xl overflow-visible border border-cyan-500/50 bg-slate-100/90 dark:bg-slate-900/90 backdrop-blur-xl my-auto h-full flex items-center"
             style={{
               boxShadow: '-8px 0 40px rgba(6, 182, 212, 0.5), 0 -8px 40px rgba(6, 182, 212, 0.5), 0 8px 40px rgba(6, 182, 212, 0.5), 8px 0 40px rgba(6, 182, 212, 0.5), 0 0 60px rgba(6, 182, 212, 0.3)'
             }}
@@ -241,7 +241,7 @@ export default function HorizontalHeroLayout() {
             </div>
 
             {/* Shine overlay */}
-            <div className="absolute inset-0 bg-gradient-to-br from-slate-300/5 via-transparent to-transparent pointer-events-none" />
+            <div className="absolute inset-0 bg-gradient-to-br from-slate-200/5 via-transparent to-transparent pointer-events-none" />
 
             {/* Inner glow border effect */}
             <div className="absolute inset-0 rounded-2xl border border-cyan-400/20 pointer-events-none" />
@@ -252,7 +252,7 @@ export default function HorizontalHeroLayout() {
             initial={{ opacity: 0, y: 20, scale: 0.9 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             transition={{ delay: 1, duration: 0.5, type: 'spring', damping: 20 }}
-            className="absolute -bottom-4 md:-bottom-5 lg:-bottom-6 left-4 md:left-6 lg:left-8 px-3 py-1.5 md:px-4 md:py-2 bg-slate-200/90 dark:bg-slate-800/90 backdrop-blur-sm border border-cyan-500/40 rounded-lg shadow-lg shadow-cyan-500/20"
+            className="absolute -bottom-4 md:-bottom-5 lg:-bottom-6 left-4 md:left-6 lg:left-8 px-3 py-1.5 md:px-4 md:py-2 bg-slate-100/90 dark:bg-slate-800/90 backdrop-blur-sm border border-cyan-500/40 rounded-lg shadow-lg shadow-cyan-500/20"
           >
             <div className="flex items-center gap-1.5 md:gap-2">
               <div className="w-1.5 h-1.5 md:w-2 md:h-2 bg-green-400 rounded-full animate-pulse" />

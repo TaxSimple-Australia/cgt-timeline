@@ -26,7 +26,7 @@ export default function HowItWorksSection() {
 
   return (
     <>
-      <section id="how-it-works" className="relative py-24 px-4 overflow-hidden bg-gradient-to-b from-slate-300 dark:from-slate-950 via-slate-200 dark:via-slate-900 to-slate-300 dark:to-slate-950">
+      <section id="how-it-works" className="relative py-24 px-4 overflow-hidden bg-gradient-to-b from-slate-200 dark:from-slate-950 via-slate-200 dark:via-slate-900 to-slate-200 dark:to-slate-950">
         {/* Decorative gradient orbs */}
         <div className="absolute top-20 left-1/4 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl" />
         <div className="absolute bottom-20 right-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl" />
@@ -74,7 +74,7 @@ export default function HowItWorksSection() {
               />
               {/* Play overlay */}
               <div className="absolute inset-0 bg-black/30 group-hover:bg-black/40 transition-colors flex items-center justify-center">
-                <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-slate-200/90 group-hover:bg-slate-200 group-hover:scale-110 transition-all flex items-center justify-center shadow-2xl">
+                <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-slate-100/90 group-hover:bg-slate-100 group-hover:scale-110 transition-all flex items-center justify-center shadow-2xl">
                   <Play className="w-7 h-7 md:w-9 md:h-9 text-slate-900 ml-1" fill="currentColor" />
                 </div>
               </div>
@@ -117,7 +117,7 @@ export default function HowItWorksSection() {
             {/* Close button */}
             <button
               onClick={handleClose}
-              className="absolute top-4 right-4 z-10 w-10 h-10 rounded-full bg-slate-50/10 hover:bg-slate-300/30 text-white flex items-center justify-center transition-colors"
+              className="absolute top-4 right-4 z-10 w-10 h-10 rounded-full bg-slate-50/10 hover:bg-slate-200/30 text-white flex items-center justify-center transition-colors"
               aria-label="Close video"
             >
               <X className="w-6 h-6" />

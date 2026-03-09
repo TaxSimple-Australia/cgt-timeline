@@ -47,7 +47,7 @@ export default function FAQSection() {
   };
 
   return (
-    <section className="relative py-24 px-6 md:px-8 lg:px-12 bg-gradient-to-b from-slate-300 via-slate-200 to-slate-300 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 overflow-hidden">
+    <section className="relative py-24 px-6 md:px-8 lg:px-12 bg-gradient-to-b from-slate-200 via-slate-200 to-slate-200 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 overflow-hidden">
       {/* Ambient background glow */}
       <div className="absolute inset-0">
         <div className="absolute top-1/3 left-0 w-96 h-96 bg-cyan-500/10 rounded-full blur-[120px]" />
@@ -100,10 +100,10 @@ export default function FAQSection() {
                 transition={{ duration: 0.5, delay: index * 0.05 }}
               >
                 <div
-                  className={`bg-gradient-to-br from-slate-200/80 to-slate-300/80 dark:from-slate-900/80 dark:to-slate-800/80 backdrop-blur-xl border rounded-2xl transition-all duration-300 ${
+                  className={`bg-gradient-to-br from-slate-200/80 to-slate-200/80 dark:from-slate-900/80 dark:to-slate-800/80 backdrop-blur-xl border rounded-2xl transition-all duration-300 ${
                     openIndex === index
                       ? 'border-cyan-500/50 shadow-2xl shadow-cyan-500/20'
-                      : 'border-slate-500/50 dark:border-slate-700/50 hover:border-cyan-500/30 hover:shadow-lg hover:shadow-cyan-500/10'
+                      : 'border-slate-400/50 dark:border-slate-700/50 hover:border-cyan-500/30 hover:shadow-lg hover:shadow-cyan-500/10'
                   }`}
                 >
                   {/* Question */}
@@ -152,7 +152,7 @@ export default function FAQSection() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: 0.6 }}
-              className="mt-8 pt-8 border-t border-slate-500/50 dark:border-slate-800/50"
+              className="mt-8 pt-8 border-t border-slate-400/50 dark:border-slate-800/50"
             >
               <p className="text-slate-600 dark:text-slate-400 text-center lg:text-left">
                 Still have questions?{' '}

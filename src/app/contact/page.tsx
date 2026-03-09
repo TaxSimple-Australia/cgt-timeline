@@ -91,7 +91,7 @@ export default function ContactPage() {
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
-              className="bg-slate-200/80 dark:bg-slate-800/50 backdrop-blur-sm border border-slate-500 dark:border-slate-700 rounded-xl p-8"
+              className="bg-slate-100/80 dark:bg-slate-800/50 backdrop-blur-sm border border-slate-400 dark:border-slate-700 rounded-xl p-8"
             >
               <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-6">CONTACT US</h2>
               <form onSubmit={handleSubmit} className="space-y-6">
@@ -108,7 +108,7 @@ export default function ContactPage() {
                       required
                       value={formData.firstName}
                       onChange={handleChange}
-                      className="w-full px-4 py-2.5 bg-slate-300/50 dark:bg-slate-900/50 border border-slate-500 dark:border-slate-600 rounded-lg text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition"
+                      className="w-full px-4 py-2.5 bg-slate-200/50 dark:bg-slate-900/50 border border-slate-400 dark:border-slate-600 rounded-lg text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition"
                       placeholder="John"
                     />
                   </div>
@@ -123,7 +123,7 @@ export default function ContactPage() {
                       required
                       value={formData.lastName}
                       onChange={handleChange}
-                      className="w-full px-4 py-2.5 bg-slate-300/50 dark:bg-slate-900/50 border border-slate-500 dark:border-slate-600 rounded-lg text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition"
+                      className="w-full px-4 py-2.5 bg-slate-200/50 dark:bg-slate-900/50 border border-slate-400 dark:border-slate-600 rounded-lg text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition"
                       placeholder="Smith"
                     />
                   </div>
@@ -141,7 +141,7 @@ export default function ContactPage() {
                     required
                     value={formData.organization}
                     onChange={handleChange}
-                    className="w-full px-4 py-2.5 bg-slate-300/50 dark:bg-slate-900/50 border border-slate-500 dark:border-slate-600 rounded-lg text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition"
+                    className="w-full px-4 py-2.5 bg-slate-200/50 dark:bg-slate-900/50 border border-slate-400 dark:border-slate-600 rounded-lg text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition"
                     placeholder="Your company or organization"
                   />
                 </div>
@@ -157,7 +157,7 @@ export default function ContactPage() {
                     name="phone"
                     value={formData.phone}
                     onChange={handleChange}
-                    className="w-full px-4 py-2.5 bg-slate-300/50 dark:bg-slate-900/50 border border-slate-500 dark:border-slate-600 rounded-lg text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition"
+                    className="w-full px-4 py-2.5 bg-slate-200/50 dark:bg-slate-900/50 border border-slate-400 dark:border-slate-600 rounded-lg text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition"
                     placeholder="0430 334 344"
                   />
                 </div>
@@ -174,7 +174,7 @@ export default function ContactPage() {
                     required
                     value={formData.email}
                     onChange={handleChange}
-                    className="w-full px-4 py-2.5 bg-slate-300/50 dark:bg-slate-900/50 border border-slate-500 dark:border-slate-600 rounded-lg text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition"
+                    className="w-full px-4 py-2.5 bg-slate-200/50 dark:bg-slate-900/50 border border-slate-400 dark:border-slate-600 rounded-lg text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition"
                     placeholder="john.smith@example.com"
                   />
                 </div>
@@ -191,7 +191,7 @@ export default function ContactPage() {
                     value={formData.message}
                     onChange={handleChange}
                     rows={5}
-                    className="w-full px-4 py-2.5 bg-slate-300/50 dark:bg-slate-900/50 border border-slate-500 dark:border-slate-600 rounded-lg text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition resize-none"
+                    className="w-full px-4 py-2.5 bg-slate-200/50 dark:bg-slate-900/50 border border-slate-400 dark:border-slate-600 rounded-lg text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition resize-none"
                     placeholder="Tell us how we can help you..."
                   />
                 </div>
@@ -280,7 +280,7 @@ export default function ContactPage() {
               </div>
 
               {/* Additional Info */}
-              <div className="p-6 bg-slate-300/50 dark:bg-slate-800/30 border border-slate-500 dark:border-slate-700 rounded-lg">
+              <div className="p-6 bg-slate-200/50 dark:bg-slate-800/30 border border-slate-400 dark:border-slate-700 rounded-lg">
                 <h3 className="text-slate-900 dark:text-white font-semibold mb-2">Credentials</h3>
                 <p className="text-slate-600 dark:text-slate-300 text-sm">
                   ABN: 79 684 289 843<br />
@@ -295,7 +295,7 @@ export default function ContactPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.6 }}
-            className="w-full h-[400px] md:h-[500px] rounded-xl overflow-hidden border border-slate-500 dark:border-slate-700"
+            className="w-full h-[400px] md:h-[500px] rounded-xl overflow-hidden border border-slate-400 dark:border-slate-700"
           >
             <iframe
               src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3849.8286847287364!2d130.98024897590894!3d-12.492826887553683!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2cc0a1f0e7f0e7f1%3A0x1f0e7f0e7f0e7f0e!2s8%20Fuhrmann%20St%2C%20Muirhead%20NT%200810!5d0!3m2!1sen!2sau!4v1234567890124!5m2!1sen!2sau"

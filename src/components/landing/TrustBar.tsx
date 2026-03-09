@@ -67,7 +67,7 @@ export default function TrustBar() {
   ];
 
   return (
-    <section className="relative py-16 px-4 bg-slate-200 dark:bg-slate-900 border-y border-slate-500 dark:border-slate-800">
+    <section className="relative py-16 px-4 bg-slate-100 dark:bg-slate-900 border-y border-slate-400 dark:border-slate-800">
       {/* Background gradient */}
       <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/5 via-transparent to-blue-500/5" />
 
@@ -83,7 +83,7 @@ export default function TrustBar() {
               transition={{ duration: 0.5, delay: index * 0.1 }}
               className="relative group"
             >
-              <div className="bg-slate-200/80 dark:bg-slate-800/50 backdrop-blur-sm border border-slate-500/50 dark:border-slate-700/50 rounded-2xl p-6 hover:border-cyan-500/30 transition-all duration-300">
+              <div className="bg-slate-100/80 dark:bg-slate-800/50 backdrop-blur-sm border border-slate-400/50 dark:border-slate-700/50 rounded-2xl p-6 hover:border-cyan-500/30 transition-all duration-300">
                 {/* Gradient glow on hover */}
                 <div className={`absolute inset-0 bg-gradient-to-r from-${stat.color}-500/10 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300`} />
 
@@ -116,7 +116,7 @@ export default function TrustBar() {
           {trustBadges.map((badge, index) => (
             <div
               key={index}
-              className="flex items-center gap-2 px-4 py-2 bg-slate-300/50 dark:bg-slate-800/30 border border-slate-500/50 dark:border-slate-700/50 rounded-lg"
+              className="flex items-center gap-2 px-4 py-2 bg-slate-200/50 dark:bg-slate-800/30 border border-slate-400/50 dark:border-slate-700/50 rounded-lg"
             >
               <span className="text-green-400">{badge.icon}</span>
               <span className="text-slate-600 dark:text-slate-300 text-sm font-medium">{badge.text}</span>

@@ -26,7 +26,7 @@ export default function TermsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-200 dark:bg-slate-900 relative overflow-hidden">
+    <div className="min-h-screen bg-slate-100 dark:bg-slate-900 relative overflow-hidden">
       {/* Animated background */}
       <div className="absolute inset-0 bg-gradient-to-br from-slate-200 dark:from-slate-900 via-slate-300 dark:via-slate-800 to-slate-200 dark:to-slate-900">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(6,182,212,0.1),transparent_50%)]" />
@@ -40,7 +40,7 @@ export default function TermsPage() {
       <div className="absolute bottom-20 right-10 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl" />
 
       {/* Scroll progress bar */}
-      <div className="fixed top-0 left-0 right-0 h-1 bg-slate-200 dark:bg-slate-800 z-[60]">
+      <div className="fixed top-0 left-0 right-0 h-1 bg-slate-100 dark:bg-slate-800 z-[60]">
         <div
           className="h-full bg-gradient-to-r from-blue-500 to-purple-500 transition-all duration-300"
           style={{ width: `${scrollProgress}%` }}
@@ -48,7 +48,7 @@ export default function TermsPage() {
       </div>
 
       {/* Header */}
-      <header className="fixed top-0 left-0 right-0 bg-slate-200/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-slate-500 dark:border-slate-800 z-50">
+      <header className="fixed top-0 left-0 right-0 bg-slate-100/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-slate-400 dark:border-slate-800 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <Link href="/" className="flex-shrink-0">
@@ -105,7 +105,7 @@ export default function TermsPage() {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="mb-8"
           >
-            <div className="bg-slate-200/80 dark:bg-slate-800/50 backdrop-blur-sm border border-blue-500/20 rounded-2xl p-8 shadow-xl relative overflow-hidden">
+            <div className="bg-slate-100/80 dark:bg-slate-800/50 backdrop-blur-sm border border-blue-500/20 rounded-2xl p-8 shadow-xl relative overflow-hidden">
               <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-transparent to-purple-500/10 rounded-2xl" />
 
               <div className="relative">
@@ -217,14 +217,14 @@ export default function TermsPage() {
           >
             <Link
               href="/privacy"
-              className="group flex items-center gap-2 px-6 py-3 bg-slate-200/80 dark:bg-slate-800/50 backdrop-blur-sm border border-blue-500/30 hover:border-blue-500/50 rounded-full text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-all duration-300 hover:scale-105"
+              className="group flex items-center gap-2 px-6 py-3 bg-slate-100/80 dark:bg-slate-800/50 backdrop-blur-sm border border-blue-500/30 hover:border-blue-500/50 rounded-full text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-all duration-300 hover:scale-105"
             >
               <ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform duration-300" />
               <span className="text-sm font-medium">Previous: Privacy Policy</span>
             </Link>
             <Link
               href="/data-retention"
-              className="group flex items-center gap-2 px-6 py-3 bg-slate-200/80 dark:bg-slate-800/50 backdrop-blur-sm border border-blue-500/30 hover:border-blue-500/50 rounded-full text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-all duration-300 hover:scale-105"
+              className="group flex items-center gap-2 px-6 py-3 bg-slate-100/80 dark:bg-slate-800/50 backdrop-blur-sm border border-blue-500/30 hover:border-blue-500/50 rounded-full text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-all duration-300 hover:scale-105"
             >
               <span className="text-sm font-medium">Next: Data Retention</span>
               <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" />
@@ -265,7 +265,7 @@ export default function TermsPage() {
       </AnimatePresence>
 
       {/* Footer */}
-      <footer className="relative z-10 bg-slate-200/90 dark:bg-slate-900/90 backdrop-blur-sm border-t border-slate-500 dark:border-slate-800 mt-24">
+      <footer className="relative z-10 bg-slate-100/90 dark:bg-slate-900/90 backdrop-blur-sm border-t border-slate-400 dark:border-slate-800 mt-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="text-center text-sm text-slate-600 dark:text-slate-400">
             <p>&copy; {new Date().getFullYear()} CGT Brain. All rights reserved.</p>

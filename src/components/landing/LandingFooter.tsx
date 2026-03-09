@@ -93,7 +93,7 @@ export default function LandingFooter() {
     setShowAdviserDashboard(false);
   }
   return (
-    <footer className="bg-slate-200 dark:bg-slate-900">
+    <footer className="bg-slate-100 dark:bg-slate-900">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Main Footer Content - 4 Columns */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
@@ -292,7 +292,7 @@ export default function LandingFooter() {
       </div>
 
       {/* Disclaimer Section */}
-      <div className="border-t border-slate-500 dark:border-slate-800 bg-slate-200 dark:bg-slate-900">
+      <div className="border-t border-slate-400 dark:border-slate-800 bg-slate-100 dark:bg-slate-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2">
           <div className="flex items-center gap-2 justify-center">
             <AlertCircle className="w-4 h-4 text-amber-500 flex-shrink-0" />
@@ -304,7 +304,7 @@ export default function LandingFooter() {
       </div>
 
       {/* Copyright Bar */}
-      <div className="border-t border-slate-500 dark:border-slate-800 bg-slate-300 dark:bg-slate-950">
+      <div className="border-t border-slate-400 dark:border-slate-800 bg-slate-200 dark:bg-slate-950">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
           <div className="flex flex-wrap justify-center items-center gap-x-4 gap-y-2">
             <button

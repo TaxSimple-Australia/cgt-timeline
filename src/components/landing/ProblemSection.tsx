@@ -78,7 +78,7 @@ export default function ProblemSection() {
               transition={{ duration: 0.5, delay: index * 0.1 }}
               className="group relative"
             >
-              <div className={`bg-slate-200/80 dark:bg-slate-800/50 backdrop-blur-sm border border-${problem.color}-500/20 rounded-2xl p-6 hover:border-${problem.color}-500/40 transition-all duration-300`}>
+              <div className={`bg-slate-100/80 dark:bg-slate-800/50 backdrop-blur-sm border border-${problem.color}-500/20 rounded-2xl p-6 hover:border-${problem.color}-500/40 transition-all duration-300`}>
                 {/* Gradient overlay on hover */}
                 <div className={`absolute inset-0 bg-gradient-to-br from-${problem.color}-500/5 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300`} />
 

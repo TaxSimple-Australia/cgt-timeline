@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 
 export default function V4Hero() {
   return (
-    <section className="relative h-screen bg-slate-300 dark:bg-slate-950 flex items-center justify-center overflow-hidden pt-28">
+    <section className="relative h-screen bg-slate-200 dark:bg-slate-950 flex items-center justify-center overflow-hidden pt-28">
       {/* Subtle grid pattern */}
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#0f172a_1px,transparent_1px),linear-gradient(to_bottom,#0f172a_1px,transparent_1px)] bg-[size:4rem_4rem] opacity-0 dark:opacity-20" />
 
@@ -112,10 +112,10 @@ export default function V4Hero() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, delay: 1 }}
-                    className="absolute top-6 right-6 bg-slate-200/80 dark:bg-slate-900/80 backdrop-blur-md border border-slate-500/40 dark:border-slate-700/40 rounded-3xl px-4 py-3 shadow-[0_0_20px_rgba(100,116,139,0.15)]"
+                    className="absolute top-6 right-6 bg-slate-100/80 dark:bg-slate-900/80 backdrop-blur-md border border-slate-400/40 dark:border-slate-700/40 rounded-3xl px-4 py-3 shadow-[0_0_20px_rgba(100,116,139,0.15)]"
                   >
                     <div className="flex items-center gap-3">
-                      <div className="p-2 bg-slate-200/80 dark:bg-slate-800/50 rounded-xl">
+                      <div className="p-2 bg-slate-100/80 dark:bg-slate-800/50 rounded-xl">
                         <Building2 className="w-4 h-4 text-slate-600 dark:text-slate-300" />
                       </div>
                       <div>
@@ -129,10 +129,10 @@ export default function V4Hero() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, delay: 1.2 }}
-                    className="absolute bottom-6 left-6 bg-slate-200/80 dark:bg-slate-900/80 backdrop-blur-md border border-slate-500/40 dark:border-slate-700/40 rounded-3xl px-4 py-3 shadow-[0_0_20px_rgba(100,116,139,0.15)]"
+                    className="absolute bottom-6 left-6 bg-slate-100/80 dark:bg-slate-900/80 backdrop-blur-md border border-slate-400/40 dark:border-slate-700/40 rounded-3xl px-4 py-3 shadow-[0_0_20px_rgba(100,116,139,0.15)]"
                   >
                     <div className="flex items-center gap-3">
-                      <div className="p-2 bg-slate-200/80 dark:bg-slate-800/50 rounded-xl">
+                      <div className="p-2 bg-slate-100/80 dark:bg-slate-800/50 rounded-xl">
                         <Calendar className="w-4 h-4 text-slate-600 dark:text-slate-300" />
                       </div>
                       <div>

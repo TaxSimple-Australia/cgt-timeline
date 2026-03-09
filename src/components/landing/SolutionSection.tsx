@@ -41,7 +41,7 @@ export default function SolutionSection() {
   ];
 
   return (
-    <section className="relative py-24 px-4 bg-slate-200 dark:bg-slate-900">
+    <section className="relative py-24 px-4 bg-slate-100 dark:bg-slate-900">
       {/* Decorative gradients */}
       <div className="absolute top-20 right-0 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl" />
       <div className="absolute bottom-20 left-0 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl" />
@@ -82,7 +82,7 @@ export default function SolutionSection() {
           className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-16"
         >
           {/* Old Way */}
-          <div className="bg-slate-300/50 dark:bg-slate-800/30 backdrop-blur-sm border border-red-500/20 rounded-2xl p-8">
+          <div className="bg-slate-200/50 dark:bg-slate-800/30 backdrop-blur-sm border border-red-500/20 rounded-2xl p-8">
             <div className="flex items-center gap-3 mb-6">
               <div className="flex items-center justify-center w-12 h-12 bg-red-500/10 rounded-xl">
                 <X className="w-6 h-6 text-red-400" />

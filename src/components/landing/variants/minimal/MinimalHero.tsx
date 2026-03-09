@@ -10,7 +10,7 @@ export default function MinimalHero() {
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden px-4">
       {/* Simple gradient background */}
-      <div className="absolute inset-0 bg-gradient-to-b from-slate-200 to-slate-300 dark:from-slate-900 dark:to-slate-800" />
+      <div className="absolute inset-0 bg-gradient-to-b from-slate-200 to-slate-200 dark:from-slate-900 dark:to-slate-800" />
 
       {/* Content */}
       <motion.div

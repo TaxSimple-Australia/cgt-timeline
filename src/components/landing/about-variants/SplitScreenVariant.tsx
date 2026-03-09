@@ -13,7 +13,7 @@ export default function SplitScreenVariant() {
     <section className="relative">
 
       {/* Section 1: Hero left, Mascot right */}
-      <div className="bg-slate-300 dark:bg-slate-950 py-24 px-4">
+      <div className="bg-slate-200 dark:bg-slate-950 py-24 px-4">
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           <motion.div
             initial={{ opacity: 0, x: -40 }}
@@ -52,7 +52,7 @@ export default function SplitScreenVariant() {
       </div>
 
       {/* Section 2: Icon composition left, Why Choose Us right */}
-      <div className="bg-slate-200 dark:bg-slate-900 py-24 px-4">
+      <div className="bg-slate-100 dark:bg-slate-900 py-24 px-4">
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           <motion.div
             initial={{ opacity: 0, x: -40 }}
@@ -95,7 +95,7 @@ export default function SplitScreenVariant() {
       </div>
 
       {/* Section 3: AI/Human cards left, Amplification right */}
-      <div className="bg-slate-300 dark:bg-slate-950 py-24 px-4">
+      <div className="bg-slate-200 dark:bg-slate-950 py-24 px-4">
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
           <motion.div
             initial={{ opacity: 0, x: -40 }}
@@ -120,7 +120,7 @@ export default function SplitScreenVariant() {
             className="space-y-6"
           >
             {/* AI Card */}
-            <div className="bg-slate-200/80 dark:bg-slate-800/50 backdrop-blur-sm border border-slate-500 dark:border-slate-700 rounded-2xl p-6">
+            <div className="bg-slate-100/80 dark:bg-slate-800/50 backdrop-blur-sm border border-slate-400 dark:border-slate-700 rounded-2xl p-6">
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center">
                   <Brain className="w-5 h-5 text-white" />
@@ -144,7 +144,7 @@ export default function SplitScreenVariant() {
             </div>
 
             {/* Human Card */}
-            <div className="bg-slate-200/80 dark:bg-slate-800/50 backdrop-blur-sm border border-slate-500 dark:border-slate-700 rounded-2xl p-6">
+            <div className="bg-slate-100/80 dark:bg-slate-800/50 backdrop-blur-sm border border-slate-400 dark:border-slate-700 rounded-2xl p-6">
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center">
                   <Shield className="w-5 h-5 text-white" />
@@ -171,7 +171,7 @@ export default function SplitScreenVariant() {
       </div>
 
       {/* Section 4: Vertical stepper left, Mascot right */}
-      <div className="bg-slate-200 dark:bg-slate-900 py-24 px-4">
+      <div className="bg-slate-100 dark:bg-slate-900 py-24 px-4">
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           <motion.div
             initial={{ opacity: 0, x: -40 }}

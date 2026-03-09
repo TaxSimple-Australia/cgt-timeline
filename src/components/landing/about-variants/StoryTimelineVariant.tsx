@@ -214,7 +214,7 @@ export default function StoryTimelineVariant() {
   ];
 
   return (
-    <section className="relative py-24 px-4 bg-gradient-to-b from-slate-300 dark:from-slate-950 via-slate-200 dark:via-slate-900 to-slate-300 dark:to-slate-950">
+    <section className="relative py-24 px-4 bg-gradient-to-b from-slate-200 dark:from-slate-950 via-slate-200 dark:via-slate-900 to-slate-200 dark:to-slate-950">
       <div className="max-w-6xl mx-auto relative">
 
         {/* Center vertical line */}
@@ -239,7 +239,7 @@ export default function StoryTimelineVariant() {
                   <div className="absolute left-1 md:left-1/2 top-0 md:-translate-x-1/2 w-8 h-8 rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center z-10">
                     <Icon className="w-4 h-4 text-white" />
                   </div>
-                  <div className="bg-slate-200/80 dark:bg-slate-800/50 backdrop-blur-sm border border-slate-500 dark:border-slate-700 rounded-2xl p-8 md:mt-12">
+                  <div className="bg-slate-100/80 dark:bg-slate-800/50 backdrop-blur-sm border border-slate-400 dark:border-slate-700 rounded-2xl p-8 md:mt-12">
                     {node.content}
                   </div>
                 </motion.div>
@@ -274,7 +274,7 @@ export default function StoryTimelineVariant() {
                 {/* Content card */}
                 {isLeft ? (
                   <>
-                    <div className="bg-slate-200/80 dark:bg-slate-800/50 backdrop-blur-sm border border-slate-500 dark:border-slate-700 rounded-2xl p-6 md:text-right">
+                    <div className="bg-slate-100/80 dark:bg-slate-800/50 backdrop-blur-sm border border-slate-400 dark:border-slate-700 rounded-2xl p-6 md:text-right">
                       {node.content}
                     </div>
                     <div className="hidden md:block" />
@@ -282,7 +282,7 @@ export default function StoryTimelineVariant() {
                 ) : (
                   <>
                     <div className="hidden md:block" />
-                    <div className="bg-slate-200/80 dark:bg-slate-800/50 backdrop-blur-sm border border-slate-500 dark:border-slate-700 rounded-2xl p-6">
+                    <div className="bg-slate-100/80 dark:bg-slate-800/50 backdrop-blur-sm border border-slate-400 dark:border-slate-700 rounded-2xl p-6">
                       {node.content}
                     </div>
                   </>

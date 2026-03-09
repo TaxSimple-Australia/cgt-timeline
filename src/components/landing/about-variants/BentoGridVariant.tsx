@@ -8,11 +8,11 @@ import {
   Calendar, Search, FileCheck,
 } from 'lucide-react';
 
-const tile = 'bg-white/80 dark:bg-slate-800/50 backdrop-blur-sm border border-slate-200 dark:border-slate-700 rounded-2xl p-8 hover:border-cyan-500/30 transition-all';
+const tile = 'bg-slate-200/80 dark:bg-slate-800/50 backdrop-blur-sm border border-slate-500 dark:border-slate-700 rounded-2xl p-8 hover:border-cyan-500/30 transition-all';
 
 export default function BentoGridVariant() {
   return (
-    <section className="relative py-24 px-4 bg-gradient-to-b from-slate-50 dark:from-slate-950 via-white dark:via-slate-900 to-slate-50 dark:to-slate-950">
+    <section className="relative py-24 px-4 bg-gradient-to-b from-slate-300 dark:from-slate-950 via-slate-200 dark:via-slate-900 to-slate-300 dark:to-slate-950">
       <div className="max-w-7xl mx-auto">
 
         {/* Bento Grid */}
@@ -141,7 +141,7 @@ export default function BentoGridVariant() {
             className={`${tile} md:col-span-12 text-center`}
           >
             <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">AI + Human Partnership</h3>
-            <p className="text-slate-500 dark:text-slate-400 max-w-5xl mx-auto leading-relaxed">
+            <p className="text-slate-600 dark:text-slate-400 max-w-5xl mx-auto leading-relaxed">
               The conversation around AI often focuses on replacement. However, at CGT Brain AI, we focus on amplification. We have redesigned the workflow of property tax advice to be more agile and data-rich, yet our core remains unchanged; human-led and specialist-verified. We operate under a strict mandate that no AI response is final until it has been vetted by a tax specialist who assumes full responsibility and indemnity.
             </p>
           </motion.div>
@@ -169,7 +169,7 @@ export default function BentoGridVariant() {
                 </div>
               </div>
               <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4">{step.title}</h3>
-              <ul className="space-y-2 text-sm text-slate-500 dark:text-slate-400">
+              <ul className="space-y-2 text-sm text-slate-600 dark:text-slate-400">
                 {step.bullets.map((b) => (
                   <li key={b} className="flex items-start gap-2">
                     <CheckCircle2 className="w-4 h-4 text-cyan-500 flex-shrink-0 mt-0.5" />

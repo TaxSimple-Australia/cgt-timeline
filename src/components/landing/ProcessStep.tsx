@@ -34,7 +34,7 @@ export default function ProcessStep({ stepNumber, title, description, icon, isLa
         </div>
 
         {/* Step number badge */}
-        <div className="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-white dark:bg-slate-800 border-2 border-cyan-500 flex items-center justify-center">
+        <div className="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-800 border-2 border-cyan-500 flex items-center justify-center">
           <span className="text-cyan-400 font-bold text-sm">{stepNumber}</span>
         </div>
       </motion.div>
@@ -47,7 +47,7 @@ export default function ProcessStep({ stepNumber, title, description, icon, isLa
         transition={{ duration: 0.5, delay: stepNumber * 0.2 + 0.2 }}
       >
         <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-3">{title}</h3>
-        <p className="text-slate-500 dark:text-slate-400 max-w-xs mx-auto leading-relaxed">{description}</p>
+        <p className="text-slate-600 dark:text-slate-400 max-w-xs mx-auto leading-relaxed">{description}</p>
       </motion.div>
     </div>
   );

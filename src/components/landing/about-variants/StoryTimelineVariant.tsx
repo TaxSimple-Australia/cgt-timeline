@@ -148,7 +148,7 @@ export default function StoryTimelineVariant() {
       content: (
         <div className="text-center">
           <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-6">AI + Human Partnership</h2>
-          <p className="text-slate-500 dark:text-slate-400 max-w-4xl mx-auto leading-relaxed">
+          <p className="text-slate-600 dark:text-slate-400 max-w-4xl mx-auto leading-relaxed">
             The conversation around AI often focuses on replacement. However, at CGT Brain AI, we focus on amplification. We have redesigned the workflow of property tax advice to be more agile and data-rich, yet our core remains unchanged; human-led and specialist-verified. We operate under a strict mandate that no AI response is final until it has been vetted by a tax specialist who assumes full responsibility and indemnity. By combining the efficiency of CGT Brain AI with our established, specialist-led review process, we provide a level of accuracy and security that technology alone cannot achieve.
           </p>
         </div>
@@ -162,7 +162,7 @@ export default function StoryTimelineVariant() {
         <div>
           <span className="text-cyan-400 font-bold text-sm">Step 1</span>
           <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-3 mt-1">Build Your Timeline</h3>
-          <ul className="space-y-2 text-sm text-slate-500 dark:text-slate-400">
+          <ul className="space-y-2 text-sm text-slate-600 dark:text-slate-400">
             {['Provide key property details through our guided interface', 'Track residency periods, rental history, and occupancy', 'Our AI guides you to capture every tax-saving detail'].map((b) => (
               <li key={b} className="flex items-start gap-2">
                 <CheckCircle2 className="w-4 h-4 text-cyan-500 flex-shrink-0 mt-0.5" />
@@ -181,7 +181,7 @@ export default function StoryTimelineVariant() {
         <div>
           <span className="text-cyan-400 font-bold text-sm">Step 2</span>
           <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-3 mt-1">AI-Powered Analysis</h3>
-          <ul className="space-y-2 text-sm text-slate-500 dark:text-slate-400">
+          <ul className="space-y-2 text-sm text-slate-600 dark:text-slate-400">
             {['Cross-reference data against latest ATO legislation', 'Calculate full or partial exemptions automatically', 'Identify the most tax-efficient cost base structure'].map((b) => (
               <li key={b} className="flex items-start gap-2">
                 <CheckCircle2 className="w-4 h-4 text-cyan-500 flex-shrink-0 mt-0.5" />
@@ -200,7 +200,7 @@ export default function StoryTimelineVariant() {
         <div>
           <span className="text-cyan-400 font-bold text-sm">Step 3</span>
           <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-3 mt-1">Expert Verification</h3>
-          <ul className="space-y-2 text-sm text-slate-500 dark:text-slate-400">
+          <ul className="space-y-2 text-sm text-slate-600 dark:text-slate-400">
             {['Qualified Australian tax accountant reviews AI findings', 'Professional judgment applied to complex variables', 'Comprehensive CGT report ready for your tax return'].map((b) => (
               <li key={b} className="flex items-start gap-2">
                 <CheckCircle2 className="w-4 h-4 text-cyan-500 flex-shrink-0 mt-0.5" />
@@ -214,7 +214,7 @@ export default function StoryTimelineVariant() {
   ];
 
   return (
-    <section className="relative py-24 px-4 bg-gradient-to-b from-slate-50 dark:from-slate-950 via-white dark:via-slate-900 to-slate-50 dark:to-slate-950">
+    <section className="relative py-24 px-4 bg-gradient-to-b from-slate-300 dark:from-slate-950 via-slate-200 dark:via-slate-900 to-slate-300 dark:to-slate-950">
       <div className="max-w-6xl mx-auto relative">
 
         {/* Center vertical line */}
@@ -239,7 +239,7 @@ export default function StoryTimelineVariant() {
                   <div className="absolute left-1 md:left-1/2 top-0 md:-translate-x-1/2 w-8 h-8 rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center z-10">
                     <Icon className="w-4 h-4 text-white" />
                   </div>
-                  <div className="bg-white/80 dark:bg-slate-800/50 backdrop-blur-sm border border-slate-200 dark:border-slate-700 rounded-2xl p-8 md:mt-12">
+                  <div className="bg-slate-200/80 dark:bg-slate-800/50 backdrop-blur-sm border border-slate-500 dark:border-slate-700 rounded-2xl p-8 md:mt-12">
                     {node.content}
                   </div>
                 </motion.div>
@@ -274,7 +274,7 @@ export default function StoryTimelineVariant() {
                 {/* Content card */}
                 {isLeft ? (
                   <>
-                    <div className="bg-white/80 dark:bg-slate-800/50 backdrop-blur-sm border border-slate-200 dark:border-slate-700 rounded-2xl p-6 md:text-right">
+                    <div className="bg-slate-200/80 dark:bg-slate-800/50 backdrop-blur-sm border border-slate-500 dark:border-slate-700 rounded-2xl p-6 md:text-right">
                       {node.content}
                     </div>
                     <div className="hidden md:block" />
@@ -282,7 +282,7 @@ export default function StoryTimelineVariant() {
                 ) : (
                   <>
                     <div className="hidden md:block" />
-                    <div className="bg-white/80 dark:bg-slate-800/50 backdrop-blur-sm border border-slate-200 dark:border-slate-700 rounded-2xl p-6">
+                    <div className="bg-slate-200/80 dark:bg-slate-800/50 backdrop-blur-sm border border-slate-500 dark:border-slate-700 rounded-2xl p-6">
                       {node.content}
                     </div>
                   </>

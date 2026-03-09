@@ -21,9 +21,9 @@ export default function FeatureCard({ icon, title, description, index = 0 }: Fea
       className="relative group"
     >
       {/* Glass card with gradient border */}
-      <div className="relative bg-slate-50/60 dark:bg-slate-900/40 backdrop-blur-xl rounded-2xl p-8 border border-slate-200/50 dark:border-white/10 hover:border-cyan-500/40 transition-all duration-300 shadow-xl">
+      <div className="relative bg-slate-300/60 dark:bg-slate-900/40 backdrop-blur-xl rounded-2xl p-8 border border-slate-500/50 dark:border-white/10 hover:border-cyan-500/40 transition-all duration-300 shadow-xl">
         {/* Inner glass layer */}
-        <div className="absolute inset-0 bg-gradient-to-br from-slate-50/5 to-transparent rounded-2xl" />
+        <div className="absolute inset-0 bg-gradient-to-br from-slate-300/5 to-transparent rounded-2xl" />
 
         {/* Glow effect on hover */}
         <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/0 to-blue-500/0 group-hover:from-cyan-500/10 group-hover:to-blue-500/10 rounded-2xl transition-all duration-300" />
@@ -43,7 +43,7 @@ export default function FeatureCard({ icon, title, description, index = 0 }: Fea
           </h3>
 
           {/* Description */}
-          <p className="text-slate-500 dark:text-slate-400 leading-relaxed">
+          <p className="text-slate-600 dark:text-slate-400 leading-relaxed">
             {description}
           </p>
         </div>

@@ -33,7 +33,7 @@ export default function ProblemSection() {
   ];
 
   return (
-    <section className="relative py-24 px-4 bg-gradient-to-b from-white via-white/98 to-white dark:from-slate-900 dark:via-slate-900/98 dark:to-slate-900">
+    <section className="relative py-24 px-4 bg-gradient-to-b from-slate-200 via-slate-200/98 to-slate-200 dark:from-slate-900 dark:via-slate-900/98 dark:to-slate-900">
       {/* Background pattern */}
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#1e293b_1px,transparent_1px),linear-gradient(to_bottom,#1e293b_1px,transparent_1px)] bg-[size:4rem_4rem] opacity-0 dark:opacity-5" />
 
@@ -62,7 +62,7 @@ export default function ProblemSection() {
             </span>
           </h2>
 
-          <p className="text-xl text-slate-500 dark:text-slate-400 max-w-3xl mx-auto leading-relaxed">
+          <p className="text-xl text-slate-600 dark:text-slate-400 max-w-3xl mx-auto leading-relaxed">
             But for most Australian property owners, it does. Here's what you're probably dealing with:
           </p>
         </motion.div>
@@ -78,7 +78,7 @@ export default function ProblemSection() {
               transition={{ duration: 0.5, delay: index * 0.1 }}
               className="group relative"
             >
-              <div className={`bg-white/80 dark:bg-slate-800/50 backdrop-blur-sm border border-${problem.color}-500/20 rounded-2xl p-6 hover:border-${problem.color}-500/40 transition-all duration-300`}>
+              <div className={`bg-slate-200/80 dark:bg-slate-800/50 backdrop-blur-sm border border-${problem.color}-500/20 rounded-2xl p-6 hover:border-${problem.color}-500/40 transition-all duration-300`}>
                 {/* Gradient overlay on hover */}
                 <div className={`absolute inset-0 bg-gradient-to-br from-${problem.color}-500/5 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300`} />
 
@@ -93,7 +93,7 @@ export default function ProblemSection() {
                     {problem.title}
                   </h3>
 
-                  <p className="text-slate-500 dark:text-slate-400 leading-relaxed">
+                  <p className="text-slate-600 dark:text-slate-400 leading-relaxed">
                     {problem.description}
                   </p>
                 </div>

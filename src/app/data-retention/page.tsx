@@ -26,21 +26,21 @@ export default function DataRetentionPage() {
   };
 
   return (
-    <div className="min-h-screen bg-white dark:bg-slate-900 relative overflow-hidden">
+    <div className="min-h-screen bg-slate-200 dark:bg-slate-900 relative overflow-hidden">
       {/* Animated background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-white dark:from-slate-900 via-slate-50 dark:via-slate-800 to-white dark:to-slate-900">
+      <div className="absolute inset-0 bg-gradient-to-br from-slate-200 dark:from-slate-900 via-slate-300 dark:via-slate-800 to-slate-200 dark:to-slate-900">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(6,182,212,0.1),transparent_50%)]" />
       </div>
 
       {/* Animated grid pattern */}
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,#1e293b_1px,transparent_1px),linear-gradient(to_bottom,#1e293b_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_50%,#000_70%,transparent_100%)] opacity-20" />
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,#1e293b_1px,transparent_1px),linear-gradient(to_bottom,#1e293b_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_50%,#000_70%,transparent_100%)] opacity-0 dark:opacity-20" />
 
       {/* Decorative elements */}
       <div className="absolute top-20 left-10 w-72 h-72 bg-green-500/10 rounded-full blur-3xl" />
       <div className="absolute bottom-20 right-10 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl" />
 
       {/* Scroll progress bar */}
-      <div className="fixed top-0 left-0 right-0 h-1 bg-white dark:bg-slate-800 z-[60]">
+      <div className="fixed top-0 left-0 right-0 h-1 bg-slate-200 dark:bg-slate-800 z-[60]">
         <div
           className="h-full bg-gradient-to-r from-green-500 to-emerald-500 transition-all duration-300"
           style={{ width: `${scrollProgress}%` }}
@@ -48,7 +48,7 @@ export default function DataRetentionPage() {
       </div>
 
       {/* Header */}
-      <header className="fixed top-0 left-0 right-0 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 z-50">
+      <header className="fixed top-0 left-0 right-0 bg-slate-200/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-slate-500 dark:border-slate-800 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <Link href="/" className="flex-shrink-0">
@@ -58,7 +58,7 @@ export default function DataRetentionPage() {
             </Link>
             <Link
               href="/"
-              className="text-sm text-slate-500 dark:text-slate-400 hover:text-cyan-400 transition-colors flex items-center gap-2"
+              className="text-sm text-slate-600 dark:text-slate-400 hover:text-cyan-400 transition-colors flex items-center gap-2"
             >
               ← Back to Home
             </Link>
@@ -93,7 +93,7 @@ export default function DataRetentionPage() {
                 Data Retention and Deletion
               </span>
             </h1>
-            <p className="text-lg text-slate-500 dark:text-slate-400 max-w-2xl mx-auto">
+            <p className="text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">
               How we handle and retain your data in compliance with Australian regulations
             </p>
           </motion.div>
@@ -105,7 +105,7 @@ export default function DataRetentionPage() {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="mb-8"
           >
-            <div className="bg-white/80 dark:bg-slate-800/50 backdrop-blur-sm border border-green-500/20 rounded-2xl p-8 shadow-xl relative overflow-hidden">
+            <div className="bg-slate-200/80 dark:bg-slate-800/50 backdrop-blur-sm border border-green-500/20 rounded-2xl p-8 shadow-xl relative overflow-hidden">
               <div className="absolute inset-0 bg-gradient-to-r from-green-500/10 via-transparent to-emerald-500/10 rounded-2xl" />
 
               <div className="relative">
@@ -122,39 +122,39 @@ export default function DataRetentionPage() {
                     <p className="mb-4 leading-relaxed">In accordance with Australian tax and corporate law, the following retention schedules apply:</p>
 
                     <div className="overflow-x-auto">
-                      <table className="w-full border-collapse border border-slate-200 dark:border-slate-700 rounded-lg overflow-hidden">
+                      <table className="w-full border-collapse border border-slate-500 dark:border-slate-700 rounded-lg overflow-hidden">
                         <thead>
-                          <tr className="bg-slate-100/50 dark:bg-slate-700/50">
-                            <th className="border border-slate-200 dark:border-slate-700 px-4 py-3 text-left text-slate-900 dark:text-white font-semibold">Data Type</th>
-                            <th className="border border-slate-200 dark:border-slate-700 px-4 py-3 text-left text-slate-900 dark:text-white font-semibold">Retention Period</th>
-                            <th className="border border-slate-200 dark:border-slate-700 px-4 py-3 text-left text-slate-900 dark:text-white font-semibold">Legal Basis</th>
+                          <tr className="bg-slate-400/50 dark:bg-slate-700/50">
+                            <th className="border border-slate-500 dark:border-slate-700 px-4 py-3 text-left text-slate-900 dark:text-white font-semibold">Data Type</th>
+                            <th className="border border-slate-500 dark:border-slate-700 px-4 py-3 text-left text-slate-900 dark:text-white font-semibold">Retention Period</th>
+                            <th className="border border-slate-500 dark:border-slate-700 px-4 py-3 text-left text-slate-900 dark:text-white font-semibold">Legal Basis</th>
                           </tr>
                         </thead>
                         <tbody>
-                          <tr className="hover:bg-slate-100/30 dark:hover:bg-slate-700/30 transition-colors">
-                            <td className="border border-slate-200 dark:border-slate-700 px-4 py-3">Active Asset Records</td>
-                            <td className="border border-slate-200 dark:border-slate-700 px-4 py-3">Duration of ownership + 5 years</td>
-                            <td className="border border-slate-200 dark:border-slate-700 px-4 py-3">Income Tax Assessment Act 1997</td>
+                          <tr className="hover:bg-slate-400/30 dark:hover:bg-slate-700/30 transition-colors">
+                            <td className="border border-slate-500 dark:border-slate-700 px-4 py-3">Active Asset Records</td>
+                            <td className="border border-slate-500 dark:border-slate-700 px-4 py-3">Duration of ownership + 5 years</td>
+                            <td className="border border-slate-500 dark:border-slate-700 px-4 py-3">Income Tax Assessment Act 1997</td>
                           </tr>
-                          <tr className="bg-slate-100/20 dark:bg-slate-700/20 hover:bg-slate-100/30 dark:hover:bg-slate-700/30 transition-colors">
-                            <td className="border border-slate-200 dark:border-slate-700 px-4 py-3">Disposed Asset Records</td>
-                            <td className="border border-slate-200 dark:border-slate-700 px-4 py-3">5 years from date of tax lodgement</td>
-                            <td className="border border-slate-200 dark:border-slate-700 px-4 py-3">ATO Record Keeping Rules</td>
+                          <tr className="bg-slate-400/20 dark:bg-slate-700/20 hover:bg-slate-400/30 dark:hover:bg-slate-700/30 transition-colors">
+                            <td className="border border-slate-500 dark:border-slate-700 px-4 py-3">Disposed Asset Records</td>
+                            <td className="border border-slate-500 dark:border-slate-700 px-4 py-3">5 years from date of tax lodgement</td>
+                            <td className="border border-slate-500 dark:border-slate-700 px-4 py-3">ATO Record Keeping Rules</td>
                           </tr>
-                          <tr className="hover:bg-slate-100/30 dark:hover:bg-slate-700/30 transition-colors">
-                            <td className="border border-slate-200 dark:border-slate-700 px-4 py-3">Capital Loss Records</td>
-                            <td className="border border-slate-200 dark:border-slate-700 px-4 py-3">5 years after the loss is fully applied</td>
-                            <td className="border border-slate-200 dark:border-slate-700 px-4 py-3">ATO Review Period Rules</td>
+                          <tr className="hover:bg-slate-400/30 dark:hover:bg-slate-700/30 transition-colors">
+                            <td className="border border-slate-500 dark:border-slate-700 px-4 py-3">Capital Loss Records</td>
+                            <td className="border border-slate-500 dark:border-slate-700 px-4 py-3">5 years after the loss is fully applied</td>
+                            <td className="border border-slate-500 dark:border-slate-700 px-4 py-3">ATO Review Period Rules</td>
                           </tr>
-                          <tr className="bg-slate-100/20 dark:bg-slate-700/20 hover:bg-slate-100/30 dark:hover:bg-slate-700/30 transition-colors">
-                            <td className="border border-slate-200 dark:border-slate-700 px-4 py-3">Identification (KYC) Data</td>
-                            <td className="border border-slate-200 dark:border-slate-700 px-4 py-3">7 years after account closure</td>
-                            <td className="border border-slate-200 dark:border-slate-700 px-4 py-3">Anti-Money Laundering (AML/CTF) Act</td>
+                          <tr className="bg-slate-400/20 dark:bg-slate-700/20 hover:bg-slate-400/30 dark:hover:bg-slate-700/30 transition-colors">
+                            <td className="border border-slate-500 dark:border-slate-700 px-4 py-3">Identification (KYC) Data</td>
+                            <td className="border border-slate-500 dark:border-slate-700 px-4 py-3">7 years after account closure</td>
+                            <td className="border border-slate-500 dark:border-slate-700 px-4 py-3">Anti-Money Laundering (AML/CTF) Act</td>
                           </tr>
-                          <tr className="hover:bg-slate-100/30 dark:hover:bg-slate-700/30 transition-colors">
-                            <td className="border border-slate-200 dark:border-slate-700 px-4 py-3">Technical/Analytics Logs</td>
-                            <td className="border border-slate-200 dark:border-slate-700 px-4 py-3">12 to 24 months</td>
-                            <td className="border border-slate-200 dark:border-slate-700 px-4 py-3">Internal Security & Fraud Prevention</td>
+                          <tr className="hover:bg-slate-400/30 dark:hover:bg-slate-700/30 transition-colors">
+                            <td className="border border-slate-500 dark:border-slate-700 px-4 py-3">Technical/Analytics Logs</td>
+                            <td className="border border-slate-500 dark:border-slate-700 px-4 py-3">12 to 24 months</td>
+                            <td className="border border-slate-500 dark:border-slate-700 px-4 py-3">Internal Security & Fraud Prevention</td>
                           </tr>
                         </tbody>
                       </table>
@@ -235,14 +235,14 @@ export default function DataRetentionPage() {
           >
             <Link
               href="/terms"
-              className="group flex items-center gap-2 px-6 py-3 bg-white/80 dark:bg-slate-800/50 backdrop-blur-sm border border-green-500/30 hover:border-green-500/50 rounded-full text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-all duration-300 hover:scale-105"
+              className="group flex items-center gap-2 px-6 py-3 bg-slate-200/80 dark:bg-slate-800/50 backdrop-blur-sm border border-green-500/30 hover:border-green-500/50 rounded-full text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-all duration-300 hover:scale-105"
             >
               <ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform duration-300" />
               <span className="text-sm font-medium">Previous: Terms & Conditions</span>
             </Link>
             <Link
               href="/quality"
-              className="group flex items-center gap-2 px-6 py-3 bg-white/80 dark:bg-slate-800/50 backdrop-blur-sm border border-green-500/30 hover:border-green-500/50 rounded-full text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-all duration-300 hover:scale-105"
+              className="group flex items-center gap-2 px-6 py-3 bg-slate-200/80 dark:bg-slate-800/50 backdrop-blur-sm border border-green-500/30 hover:border-green-500/50 rounded-full text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-all duration-300 hover:scale-105"
             >
               <span className="text-sm font-medium">Next: Quality Policy</span>
               <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" />
@@ -283,9 +283,9 @@ export default function DataRetentionPage() {
       </AnimatePresence>
 
       {/* Footer */}
-      <footer className="relative z-10 bg-white/90 dark:bg-slate-900/90 backdrop-blur-sm border-t border-slate-200 dark:border-slate-800 mt-24">
+      <footer className="relative z-10 bg-slate-200/90 dark:bg-slate-900/90 backdrop-blur-sm border-t border-slate-500 dark:border-slate-800 mt-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="text-center text-sm text-slate-500 dark:text-slate-400">
+          <div className="text-center text-sm text-slate-600 dark:text-slate-400">
             <p>&copy; {new Date().getFullYear()} CGT Brain. All rights reserved.</p>
             <p className="mt-2">CGT Brain AI Timeline - Capital Gains Tax Analysis Tool</p>
           </div>

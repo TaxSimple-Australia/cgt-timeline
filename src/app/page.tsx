@@ -25,18 +25,18 @@ function LandingContent() {
   const shareId = searchParams.get('share');
   if (shareId) {
     return (
-      <div className="fixed inset-0 z-[100] bg-slate-50 dark:bg-slate-950 flex items-center justify-center">
-        <div className="bg-white dark:bg-slate-900 rounded-lg p-8 max-w-sm text-center shadow-xl border border-slate-200 dark:border-slate-800">
+      <div className="fixed inset-0 z-[100] bg-slate-300 dark:bg-slate-950 flex items-center justify-center">
+        <div className="bg-slate-200 dark:bg-slate-900 rounded-lg p-8 max-w-sm text-center shadow-xl border border-slate-500 dark:border-slate-800">
           <div className="animate-spin h-10 w-10 border-4 border-cyan-500 border-t-transparent rounded-full mx-auto mb-4" />
           <p className="text-lg font-medium text-slate-900 dark:text-white">Loading shared timeline...</p>
-          <p className="text-sm text-slate-500 dark:text-slate-400 mt-2">Please wait while we redirect you</p>
+          <p className="text-sm text-slate-600 dark:text-slate-400 mt-2">Please wait while we redirect you</p>
         </div>
       </div>
     );
   }
 
   return (
-    <main className="min-h-screen bg-slate-50 dark:bg-slate-950">
+    <main className="min-h-screen bg-slate-300 dark:bg-slate-950">
       <LandingHeader />
       <V4Hero />
       <HowItWorksSection />
@@ -51,7 +51,7 @@ import { Suspense } from 'react';
 export default function LandingPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex items-center justify-center">
+      <div className="min-h-screen bg-slate-300 dark:bg-slate-950 flex items-center justify-center">
         <div className="animate-spin h-10 w-10 border-4 border-cyan-500 border-t-transparent rounded-full" />
       </div>
     }>

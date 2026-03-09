@@ -93,7 +93,7 @@ export default function LandingFooter() {
     setShowAdviserDashboard(false);
   }
   return (
-    <footer className="bg-white dark:bg-slate-900">
+    <footer className="bg-slate-200 dark:bg-slate-900">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Main Footer Content - 4 Columns */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
@@ -113,7 +113,7 @@ export default function LandingFooter() {
                   href="https://www.tiktok.com/@cgtbrainai"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
+                  className="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
                   aria-label="TikTok"
                 >
                   <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -124,7 +124,7 @@ export default function LandingFooter() {
                   href="https://vimeo.com/cgtbrainai"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
+                  className="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
                   aria-label="Vimeo"
                 >
                   <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -135,7 +135,7 @@ export default function LandingFooter() {
                   href="https://x.com/cgtbrainai"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
+                  className="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
                   aria-label="X (Twitter)"
                 >
                   <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -146,7 +146,7 @@ export default function LandingFooter() {
                   href="https://www.instagram.com/cgtbrainai/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
+                  className="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
                   aria-label="Instagram"
                 >
                   <Instagram className="w-5 h-5" />
@@ -159,7 +159,7 @@ export default function LandingFooter() {
                   href="https://www.facebook.com/profile.php?id=61580878777527"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
+                  className="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
                   aria-label="Facebook"
                 >
                   <Facebook className="w-5 h-5" />
@@ -168,7 +168,7 @@ export default function LandingFooter() {
                   href="https://www.linkedin.com/in/cgt-brain-ai-9a23423b4/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
+                  className="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
                   aria-label="LinkedIn"
                 >
                   <Linkedin className="w-5 h-5" />
@@ -177,7 +177,7 @@ export default function LandingFooter() {
                   href="#"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
+                  className="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
                   aria-label="YouTube"
                 >
                   <Youtube className="w-5 h-5" />
@@ -193,7 +193,7 @@ export default function LandingFooter() {
             </h3>
             <ul className="space-y-3">
               <li>
-                <Link href="/#how-it-works" className="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors text-sm">
+                <Link href="/#how-it-works" className="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors text-sm">
                   How It Works
                 </Link>
               </li>
@@ -202,33 +202,33 @@ export default function LandingFooter() {
                   href="https://www.ato.gov.au/individuals-and-families/investments-and-assets/capital-gains-tax"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors text-sm"
+                  className="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors text-sm"
                 >
                   ATO Resources
                 </a>
               </li>
               <li>
-                <Link href="/privacy" className="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors text-sm">
+                <Link href="/privacy" className="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors text-sm">
                   Privacy Policy
                 </Link>
               </li>
               <li>
                 <button
                   onClick={() => setShowCookieModal(true)}
-                  className="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors text-sm text-left"
+                  className="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors text-sm text-left"
                 >
                   Cookie Settings
                 </button>
               </li>
               <li>
-                <Link href="/terms" className="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors text-sm">
+                <Link href="/terms" className="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors text-sm">
                   Terms of Use
                 </Link>
               </li>
               <li>
                 <button
                   onClick={handleAdviserClick}
-                  className="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors text-sm text-left"
+                  className="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors text-sm text-left"
                 >
                   Adviser Portal
                 </button>
@@ -236,7 +236,7 @@ export default function LandingFooter() {
               <li>
                 <button
                   onClick={handleAdminClick}
-                  className="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors text-sm text-left"
+                  className="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors text-sm text-left"
                 >
                   Admin Portal
                 </button>
@@ -251,26 +251,26 @@ export default function LandingFooter() {
             </h3>
             <div className="space-y-4">
               <div className="flex items-start gap-3">
-                <Phone className="w-5 h-5 text-slate-400 dark:text-slate-500 flex-shrink-0 mt-0.5" />
-                <p className="text-slate-500 dark:text-slate-400 text-sm">
+                <Phone className="w-5 h-5 text-slate-600 dark:text-slate-500 flex-shrink-0 mt-0.5" />
+                <p className="text-slate-600 dark:text-slate-400 text-sm">
                   0430 334 344
                 </p>
               </div>
               <div className="flex items-start gap-3">
-                <Mail className="w-5 h-5 text-slate-400 dark:text-slate-500 flex-shrink-0 mt-0.5" />
-                <a href="mailto:info@cgtbrain.com.au" className="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors text-sm">
+                <Mail className="w-5 h-5 text-slate-600 dark:text-slate-500 flex-shrink-0 mt-0.5" />
+                <a href="mailto:info@cgtbrain.com.au" className="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors text-sm">
                   info@cgtbrain.com.au
                 </a>
               </div>
               <div className="flex items-start gap-3">
-                <Globe className="w-5 h-5 text-slate-400 dark:text-slate-500 flex-shrink-0 mt-0.5" />
-                <a href="https://cgtbrain.com.au" className="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors text-sm">
+                <Globe className="w-5 h-5 text-slate-600 dark:text-slate-500 flex-shrink-0 mt-0.5" />
+                <a href="https://cgtbrain.com.au" className="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors text-sm">
                   cgtbrain.com.au
                 </a>
               </div>
               <div className="flex items-start gap-3">
-                <MapPin className="w-5 h-5 text-slate-400 dark:text-slate-500 flex-shrink-0 mt-0.5" />
-                <p className="text-slate-500 dark:text-slate-400 text-sm">
+                <MapPin className="w-5 h-5 text-slate-600 dark:text-slate-500 flex-shrink-0 mt-0.5" />
+                <p className="text-slate-600 dark:text-slate-400 text-sm">
                   8 Fuhrmann Street<br />
                   Muirhead Northern Territory 0810<br />
                   Australia
@@ -284,7 +284,7 @@ export default function LandingFooter() {
             <h3 className="text-slate-900 dark:text-white font-semibold mb-4 uppercase text-xs tracking-wider">
               Acknowledgment
             </h3>
-            <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed">
+            <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
               We acknowledge the Traditional Owners and Custodians of Country throughout Australia and their continuing connection to land, waters and community. We pay our respects to them, their cultures, and Elders past and present.
             </p>
           </div>
@@ -292,11 +292,11 @@ export default function LandingFooter() {
       </div>
 
       {/* Disclaimer Section */}
-      <div className="border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
+      <div className="border-t border-slate-500 dark:border-slate-800 bg-slate-200 dark:bg-slate-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2">
           <div className="flex items-center gap-2 justify-center">
             <AlertCircle className="w-4 h-4 text-amber-500 flex-shrink-0" />
-            <p className="text-slate-500 dark:text-slate-400 text-xs whitespace-nowrap">
+            <p className="text-slate-600 dark:text-slate-400 text-xs whitespace-nowrap">
               <span className="font-semibold text-slate-600 dark:text-slate-300">Disclaimer:</span> This AI-generated report is for information only and does not constitute financial advice; please review and confirm with a qualified professional.
             </p>
           </div>
@@ -304,19 +304,19 @@ export default function LandingFooter() {
       </div>
 
       {/* Copyright Bar */}
-      <div className="border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950">
+      <div className="border-t border-slate-500 dark:border-slate-800 bg-slate-300 dark:bg-slate-950">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
           <div className="flex flex-wrap justify-center items-center gap-x-4 gap-y-2">
             <button
               onClick={() => setShowCopyrightModal(true)}
-              className="text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 text-sm transition-colors cursor-pointer"
+              className="text-slate-600 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-600 text-sm transition-colors cursor-pointer"
             >
               Copyright © CGT Brain AI 2026. All rights reserved.
             </button>
-            <span className="text-slate-300 dark:text-slate-600 text-sm">|</span>
-            <span className="text-sm text-slate-400 dark:text-slate-500">ABN: 79 684 289 843</span>
-            <span className="text-slate-300 dark:text-slate-600 text-sm">•</span>
-            <span className="text-sm text-slate-400 dark:text-slate-500">Registered Tax Agent: 26205217</span>
+            <span className="text-slate-600 dark:text-slate-600 text-sm">|</span>
+            <span className="text-sm text-slate-600 dark:text-slate-500">ABN: 79 684 289 843</span>
+            <span className="text-slate-600 dark:text-slate-600 text-sm">•</span>
+            <span className="text-sm text-slate-600 dark:text-slate-500">Registered Tax Agent: 26205217</span>
           </div>
         </div>
       </div>

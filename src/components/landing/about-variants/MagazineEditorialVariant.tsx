@@ -10,7 +10,7 @@ import {
 
 export default function MagazineEditorialVariant() {
   return (
-    <section className="relative py-24 px-4 bg-slate-50 dark:bg-slate-950">
+    <section className="relative py-24 px-4 bg-slate-300 dark:bg-slate-950">
       <div className="max-w-6xl mx-auto">
 
         {/* Hero: Extra-large heading with watermark mascot */}
@@ -34,13 +34,13 @@ export default function MagazineEditorialVariant() {
               Redefining Property Tax Compliance
             </span>
           </h1>
-          <p className="text-slate-500 dark:text-slate-400 text-xl md:text-2xl mt-8 max-w-2xl leading-relaxed">
+          <p className="text-slate-600 dark:text-slate-400 text-xl md:text-2xl mt-8 max-w-2xl leading-relaxed">
             Selling a property is a milestone — navigating Australian Capital Gains Tax shouldn&apos;t take away from that achievement.
           </p>
         </motion.div>
 
         {/* Divider */}
-        <div className="h-px bg-slate-100 dark:bg-slate-800 mb-24" />
+        <div className="h-px bg-slate-400 dark:bg-slate-800 mb-24" />
 
         {/* Why Choose Us - Giant background numbers */}
         {[
@@ -64,13 +64,13 @@ export default function MagazineEditorialVariant() {
                 <item.icon className="w-6 h-6 text-cyan-400" />
                 <h3 className="text-3xl font-bold text-slate-900 dark:text-white">{item.title}</h3>
               </div>
-              <p className="text-slate-500 dark:text-slate-400 text-lg leading-relaxed max-w-2xl">{item.text}</p>
+              <p className="text-slate-600 dark:text-slate-400 text-lg leading-relaxed max-w-2xl">{item.text}</p>
             </div>
           </motion.div>
         ))}
 
         {/* Divider */}
-        <div className="h-px bg-slate-100 dark:bg-slate-800 mb-24" />
+        <div className="h-px bg-slate-400 dark:bg-slate-800 mb-24" />
 
         {/* AI + Human Partnership — asymmetric 60/40 */}
         <motion.div
@@ -86,7 +86,7 @@ export default function MagazineEditorialVariant() {
 
           {/* Amplification with drop cap */}
           <div className="mb-16">
-            <p className="text-slate-500 dark:text-slate-400 text-lg leading-relaxed max-w-4xl">
+            <p className="text-slate-600 dark:text-slate-400 text-lg leading-relaxed max-w-4xl">
               <span className="float-left text-6xl font-bold text-cyan-400 leading-none mr-3 mt-1">T</span>
               he conversation around AI often focuses on replacement. However, at CGT Brain AI, we focus on amplification. We have redesigned the workflow of property tax advice to be more agile and data-rich, yet our core remains unchanged; human-led and specialist-verified. We operate under a strict mandate that no AI response is final until it has been vetted by a tax specialist who assumes full responsibility and indemnity. By combining the efficiency of CGT Brain AI with our established, specialist-led review process, we provide a level of accuracy and security that technology alone cannot achieve.
             </p>
@@ -140,7 +140,7 @@ export default function MagazineEditorialVariant() {
         </motion.div>
 
         {/* Divider */}
-        <div className="h-px bg-slate-100 dark:bg-slate-800 mb-24" />
+        <div className="h-px bg-slate-400 dark:bg-slate-800 mb-24" />
 
         {/* How It Works - Large typographic blocks */}
         <motion.div
@@ -151,7 +151,7 @@ export default function MagazineEditorialVariant() {
           className="mb-16"
         >
           <h2 className="text-4xl md:text-5xl font-bold text-slate-900 dark:text-white mb-4">How It Works</h2>
-          <p className="text-slate-400 dark:text-slate-500 text-lg mb-16">Three simple steps to tax certainty</p>
+          <p className="text-slate-600 dark:text-slate-500 text-lg mb-16">Three simple steps to tax certainty</p>
 
           <div className="space-y-20">
             {[
@@ -168,7 +168,7 @@ export default function MagazineEditorialVariant() {
                     <step.icon className="w-6 h-6 text-cyan-400" />
                     <h3 className="text-2xl font-bold text-slate-900 dark:text-white">{step.title}</h3>
                   </div>
-                  <ul className="space-y-2 text-slate-500 dark:text-slate-400 max-w-2xl">
+                  <ul className="space-y-2 text-slate-600 dark:text-slate-400 max-w-2xl">
                     {step.bullets.map((b) => (
                       <li key={b} className="flex items-start gap-2">
                         <CheckCircle2 className="w-4 h-4 text-cyan-500 flex-shrink-0 mt-0.5" />

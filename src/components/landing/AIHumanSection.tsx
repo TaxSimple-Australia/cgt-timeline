@@ -6,7 +6,7 @@ import { Shield, Zap, Users, Brain, CheckCircle2, ArrowRight, Calendar, Search, 
 
 export default function AIHumanSection() {
   return (
-    <section className="relative py-24 px-4 bg-gradient-to-b from-slate-50 via-white to-slate-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
+    <section className="relative py-24 px-4 bg-gradient-to-b from-slate-300 via-slate-200 to-slate-300 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
       <div className="max-w-7xl mx-auto">
 
         {/* Section 1: Hero */}
@@ -39,7 +39,7 @@ export default function AIHumanSection() {
             Why Choose CGT Brain AI?
           </h2>
 
-          <div className="flex flex-col md:flex-row divide-y md:divide-y-0 md:divide-x divide-slate-200/50 dark:divide-slate-700/50">
+          <div className="flex flex-col md:flex-row divide-y md:divide-y-0 md:divide-x divide-slate-500/50 dark:divide-slate-700/50">
             {/* Confidence */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -113,7 +113,7 @@ export default function AIHumanSection() {
             transition={{ duration: 0.5, delay: 0.3 }}
             className="mb-12 text-center"
           >
-            <p className="text-slate-500 dark:text-slate-400 max-w-6xl mx-auto leading-relaxed text-justify">
+            <p className="text-slate-600 dark:text-slate-400 max-w-6xl mx-auto leading-relaxed text-justify">
               The conversation around AI often focuses on replacement. However, at CGT Brain AI, we focus on amplification. We have redesigned the workflow of property tax advice to be more agile and data-rich, yet our core remains unchanged; human-led and specialist-verified. We operate under a strict mandate that no AI response is final until it has been vetted by a tax specialist who assumes full responsibility and indemnity. By combining the efficiency of CGT Brain AI with our established, specialist-led review process, we provide a level of accuracy and security that technology alone cannot achieve.
             </p>
           </motion.div>
@@ -125,7 +125,7 @@ export default function AIHumanSection() {
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: 0.3 }}
-              className="bg-white/80 dark:bg-slate-800/50 backdrop-blur-sm border border-slate-200 dark:border-slate-700 rounded-2xl p-8 hover:border-cyan-500/50 transition-all"
+              className="bg-slate-200/80 dark:bg-slate-800/50 backdrop-blur-sm border border-slate-500 dark:border-slate-700 rounded-2xl p-8 hover:border-cyan-500/50 transition-all"
             >
               <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center mb-6">
                 <Brain className="w-7 h-7 text-white" />
@@ -165,7 +165,7 @@ export default function AIHumanSection() {
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: 0.4 }}
-              className="bg-white/80 dark:bg-slate-800/50 backdrop-blur-sm border border-slate-200 dark:border-slate-700 rounded-2xl p-8 hover:border-cyan-500/50 transition-all"
+              className="bg-slate-200/80 dark:bg-slate-800/50 backdrop-blur-sm border border-slate-500 dark:border-slate-700 rounded-2xl p-8 hover:border-cyan-500/50 transition-all"
             >
               <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center mb-6">
                 <Shield className="w-7 h-7 text-white" />
@@ -212,7 +212,7 @@ export default function AIHumanSection() {
           <h2 className="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white text-center mb-4">
             How It Works
           </h2>
-          <p className="text-slate-500 dark:text-slate-400 text-center max-w-2xl mx-auto mb-12">
+          <p className="text-slate-600 dark:text-slate-400 text-center max-w-2xl mx-auto mb-12">
             Three simple steps to tax certainty
           </p>
 
@@ -229,12 +229,12 @@ export default function AIHumanSection() {
                 <div className="w-20 h-20 rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center">
                   <Calendar className="w-9 h-9 text-white" />
                 </div>
-                <div className="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-white dark:bg-slate-900 border-2 border-cyan-400 flex items-center justify-center text-sm font-bold text-cyan-400">
+                <div className="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-900 border-2 border-cyan-400 flex items-center justify-center text-sm font-bold text-cyan-400">
                   1
                 </div>
               </div>
               <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-3">Build Your Timeline</h3>
-              <ul className="space-y-2 text-sm text-slate-500 dark:text-slate-400">
+              <ul className="space-y-2 text-sm text-slate-600 dark:text-slate-400">
                 <li className="flex items-start gap-2">
                   <CheckCircle2 className="w-4 h-4 text-cyan-500 flex-shrink-0 mt-0.5" />
                   <span>Provide key property details through our guided interface</span>
@@ -280,12 +280,12 @@ export default function AIHumanSection() {
                 <div className="w-20 h-20 rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center">
                   <Search className="w-9 h-9 text-white" />
                 </div>
-                <div className="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-white dark:bg-slate-900 border-2 border-cyan-400 flex items-center justify-center text-sm font-bold text-cyan-400">
+                <div className="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-900 border-2 border-cyan-400 flex items-center justify-center text-sm font-bold text-cyan-400">
                   2
                 </div>
               </div>
               <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-3">AI-Powered Analysis</h3>
-              <ul className="space-y-2 text-sm text-slate-500 dark:text-slate-400">
+              <ul className="space-y-2 text-sm text-slate-600 dark:text-slate-400">
                 <li className="flex items-start gap-2">
                   <CheckCircle2 className="w-4 h-4 text-cyan-500 flex-shrink-0 mt-0.5" />
                   <span>Cross-reference data against latest ATO legislation</span>
@@ -331,12 +331,12 @@ export default function AIHumanSection() {
                 <div className="w-20 h-20 rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center">
                   <FileCheck className="w-9 h-9 text-white" />
                 </div>
-                <div className="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-white dark:bg-slate-900 border-2 border-cyan-400 flex items-center justify-center text-sm font-bold text-cyan-400">
+                <div className="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-900 border-2 border-cyan-400 flex items-center justify-center text-sm font-bold text-cyan-400">
                   3
                 </div>
               </div>
               <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-3">Expert Verification</h3>
-              <ul className="space-y-2 text-sm text-slate-500 dark:text-slate-400">
+              <ul className="space-y-2 text-sm text-slate-600 dark:text-slate-400">
                 <li className="flex items-start gap-2">
                   <CheckCircle2 className="w-4 h-4 text-cyan-500 flex-shrink-0 mt-0.5" />
                   <span>Qualified Australian tax accountant reviews AI findings</span>

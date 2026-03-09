@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 
 export default function V4Hero() {
   return (
-    <section className="relative h-screen bg-slate-50 dark:bg-slate-950 flex items-center justify-center overflow-hidden pt-28">
+    <section className="relative h-screen bg-slate-300 dark:bg-slate-950 flex items-center justify-center overflow-hidden pt-28">
       {/* Subtle grid pattern */}
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#0f172a_1px,transparent_1px),linear-gradient(to_bottom,#0f172a_1px,transparent_1px)] bg-[size:4rem_4rem] opacity-0 dark:opacity-20" />
 
@@ -42,7 +42,7 @@ export default function V4Hero() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.4 }}
-              className="text-[16px] text-slate-500 dark:text-slate-400 leading-relaxed max-w-xl"
+              className="text-[16px] text-slate-600 dark:text-slate-400 leading-relaxed max-w-xl"
             >
               Visualize your property timeline, track every cost,
               <br />
@@ -112,14 +112,14 @@ export default function V4Hero() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, delay: 1 }}
-                    className="absolute top-6 right-6 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border border-slate-200/40 dark:border-slate-700/40 rounded-3xl px-4 py-3 shadow-[0_0_20px_rgba(100,116,139,0.15)]"
+                    className="absolute top-6 right-6 bg-slate-200/80 dark:bg-slate-900/80 backdrop-blur-md border border-slate-500/40 dark:border-slate-700/40 rounded-3xl px-4 py-3 shadow-[0_0_20px_rgba(100,116,139,0.15)]"
                   >
                     <div className="flex items-center gap-3">
-                      <div className="p-2 bg-white/80 dark:bg-slate-800/50 rounded-xl">
+                      <div className="p-2 bg-slate-200/80 dark:bg-slate-800/50 rounded-xl">
                         <Building2 className="w-4 h-4 text-slate-600 dark:text-slate-300" />
                       </div>
                       <div>
-                        <p className="text-xs text-slate-500 dark:text-slate-400">Properties Analyzed</p>
+                        <p className="text-xs text-slate-600 dark:text-slate-400">Properties Analyzed</p>
                         <p className="text-lg font-bold text-slate-900 dark:text-white">1,247</p>
                       </div>
                     </div>
@@ -129,14 +129,14 @@ export default function V4Hero() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, delay: 1.2 }}
-                    className="absolute bottom-6 left-6 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border border-slate-200/40 dark:border-slate-700/40 rounded-3xl px-4 py-3 shadow-[0_0_20px_rgba(100,116,139,0.15)]"
+                    className="absolute bottom-6 left-6 bg-slate-200/80 dark:bg-slate-900/80 backdrop-blur-md border border-slate-500/40 dark:border-slate-700/40 rounded-3xl px-4 py-3 shadow-[0_0_20px_rgba(100,116,139,0.15)]"
                   >
                     <div className="flex items-center gap-3">
-                      <div className="p-2 bg-white/80 dark:bg-slate-800/50 rounded-xl">
+                      <div className="p-2 bg-slate-200/80 dark:bg-slate-800/50 rounded-xl">
                         <Calendar className="w-4 h-4 text-slate-600 dark:text-slate-300" />
                       </div>
                       <div>
-                        <p className="text-xs text-slate-500 dark:text-slate-400">Average Calculation Time</p>
+                        <p className="text-xs text-slate-600 dark:text-slate-400">Average Calculation Time</p>
                         <p className="text-lg font-bold text-slate-900 dark:text-white">2.4 min</p>
                       </div>
                     </div>

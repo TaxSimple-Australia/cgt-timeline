@@ -13,7 +13,7 @@ export default function SplitScreenVariant() {
     <section className="relative">
 
       {/* Section 1: Hero left, Mascot right */}
-      <div className="bg-slate-50 dark:bg-slate-950 py-24 px-4">
+      <div className="bg-slate-300 dark:bg-slate-950 py-24 px-4">
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           <motion.div
             initial={{ opacity: 0, x: -40 }}
@@ -52,7 +52,7 @@ export default function SplitScreenVariant() {
       </div>
 
       {/* Section 2: Icon composition left, Why Choose Us right */}
-      <div className="bg-white dark:bg-slate-900 py-24 px-4">
+      <div className="bg-slate-200 dark:bg-slate-900 py-24 px-4">
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           <motion.div
             initial={{ opacity: 0, x: -40 }}
@@ -95,7 +95,7 @@ export default function SplitScreenVariant() {
       </div>
 
       {/* Section 3: AI/Human cards left, Amplification right */}
-      <div className="bg-slate-50 dark:bg-slate-950 py-24 px-4">
+      <div className="bg-slate-300 dark:bg-slate-950 py-24 px-4">
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
           <motion.div
             initial={{ opacity: 0, x: -40 }}
@@ -107,7 +107,7 @@ export default function SplitScreenVariant() {
             <h2 className="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white mb-8">
               AI + Human Partnership
             </h2>
-            <p className="text-slate-500 dark:text-slate-400 leading-relaxed text-justify">
+            <p className="text-slate-600 dark:text-slate-400 leading-relaxed text-justify">
               The conversation around AI often focuses on replacement. However, at CGT Brain AI, we focus on amplification. We have redesigned the workflow of property tax advice to be more agile and data-rich, yet our core remains unchanged; human-led and specialist-verified. We operate under a strict mandate that no AI response is final until it has been vetted by a tax specialist who assumes full responsibility and indemnity. By combining the efficiency of CGT Brain AI with our established, specialist-led review process, we provide a level of accuracy and security that technology alone cannot achieve.
             </p>
           </motion.div>
@@ -120,7 +120,7 @@ export default function SplitScreenVariant() {
             className="space-y-6"
           >
             {/* AI Card */}
-            <div className="bg-white/80 dark:bg-slate-800/50 backdrop-blur-sm border border-slate-200 dark:border-slate-700 rounded-2xl p-6">
+            <div className="bg-slate-200/80 dark:bg-slate-800/50 backdrop-blur-sm border border-slate-500 dark:border-slate-700 rounded-2xl p-6">
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center">
                   <Brain className="w-5 h-5 text-white" />
@@ -144,7 +144,7 @@ export default function SplitScreenVariant() {
             </div>
 
             {/* Human Card */}
-            <div className="bg-white/80 dark:bg-slate-800/50 backdrop-blur-sm border border-slate-200 dark:border-slate-700 rounded-2xl p-6">
+            <div className="bg-slate-200/80 dark:bg-slate-800/50 backdrop-blur-sm border border-slate-500 dark:border-slate-700 rounded-2xl p-6">
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center">
                   <Shield className="w-5 h-5 text-white" />
@@ -171,7 +171,7 @@ export default function SplitScreenVariant() {
       </div>
 
       {/* Section 4: Vertical stepper left, Mascot right */}
-      <div className="bg-white dark:bg-slate-900 py-24 px-4">
+      <div className="bg-slate-200 dark:bg-slate-900 py-24 px-4">
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           <motion.div
             initial={{ opacity: 0, x: -40 }}
@@ -180,7 +180,7 @@ export default function SplitScreenVariant() {
             transition={{ duration: 0.6 }}
           >
             <h2 className="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white mb-4">How It Works</h2>
-            <p className="text-slate-500 dark:text-slate-400 mb-10">Three simple steps to tax certainty</p>
+            <p className="text-slate-600 dark:text-slate-400 mb-10">Three simple steps to tax certainty</p>
 
             <div className="space-y-8">
               {[
@@ -202,7 +202,7 @@ export default function SplitScreenVariant() {
                       <span className="text-cyan-400 font-bold text-sm">Step {step.num}</span>
                     </div>
                     <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-3">{step.title}</h3>
-                    <ul className="space-y-2 text-sm text-slate-500 dark:text-slate-400">
+                    <ul className="space-y-2 text-sm text-slate-600 dark:text-slate-400">
                       {step.bullets.map((b) => (
                         <li key={b} className="flex items-start gap-2">
                           <CheckCircle2 className="w-4 h-4 text-cyan-500 flex-shrink-0 mt-0.5" />

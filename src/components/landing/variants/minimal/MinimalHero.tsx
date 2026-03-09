@@ -10,7 +10,7 @@ export default function MinimalHero() {
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden px-4">
       {/* Simple gradient background */}
-      <div className="absolute inset-0 bg-gradient-to-b from-white to-slate-50 dark:from-slate-900 dark:to-slate-800" />
+      <div className="absolute inset-0 bg-gradient-to-b from-slate-200 to-slate-300 dark:from-slate-900 dark:to-slate-800" />
 
       {/* Content */}
       <motion.div
@@ -28,7 +28,7 @@ export default function MinimalHero() {
         </h1>
 
         {/* Subheading */}
-        <p className="text-xl md:text-2xl text-slate-500 dark:text-slate-400 mb-10 max-w-xl mx-auto">
+        <p className="text-xl md:text-2xl text-slate-600 dark:text-slate-400 mb-10 max-w-xl mx-auto">
           Calculate your Australian property capital gains tax with visual timelines and AI analysis.
         </p>
 

@@ -4,7 +4,7 @@ import React from 'react';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 import {
-  Shield, Brain, CheckCircle2, ArrowRight,
+  CheckCircle2,
   Calendar, Search, FileCheck,
 } from 'lucide-react';
 
@@ -96,13 +96,12 @@ export default function SplitScreenVariant() {
 
       {/* Section 3: AI/Human cards left, Amplification right */}
       <div className="bg-slate-200 dark:bg-slate-950 py-24 px-4">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-[2fr_3fr] gap-8 items-center">
           <motion.div
             initial={{ opacity: 0, x: -40 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-            className="lg:sticky lg:top-32"
           >
             <h2 className="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white mb-8">
               AI + Human Partnership
@@ -117,55 +116,15 @@ export default function SplitScreenVariant() {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="space-y-6"
+            className="flex justify-center"
           >
-            {/* AI Card */}
-            <div className="bg-slate-100/80 dark:bg-slate-800/50 backdrop-blur-sm border border-slate-400 dark:border-slate-700 rounded-2xl p-6">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center">
-                  <Brain className="w-5 h-5 text-white" />
-                </div>
-                <h3 className="text-lg font-bold text-slate-900 dark:text-white">AI-Powered Intelligence</h3>
-              </div>
-              <ul className="space-y-2 text-slate-600 dark:text-slate-300 text-sm">
-                {[
-                  'Process complex property histories in seconds',
-                  'Cross-reference against thousands of ATO tax rulings',
-                  'Identify exemption opportunities instantly',
-                  'Calculate precise cost base adjustments',
-                  'Provide consistent, data-rich analysis every time',
-                ].map((text) => (
-                  <li key={text} className="flex items-start gap-2">
-                    <ArrowRight className="w-4 h-4 text-cyan-500 flex-shrink-0 mt-0.5" />
-                    <span>{text}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* Human Card */}
-            <div className="bg-slate-100/80 dark:bg-slate-800/50 backdrop-blur-sm border border-slate-400 dark:border-slate-700 rounded-2xl p-6">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center">
-                  <Shield className="w-5 h-5 text-white" />
-                </div>
-                <h3 className="text-lg font-bold text-slate-900 dark:text-white">Expert Human Oversight</h3>
-              </div>
-              <ul className="space-y-2 text-slate-600 dark:text-slate-300 text-sm">
-                {[
-                  'Qualified Australian tax accountants review every analysis',
-                  'Apply professional judgment to complex scenarios',
-                  'Validate property valuations and absence claims',
-                  'Ensure 100% ATO compliance and accuracy',
-                  'Assume full professional responsibility and indemnity',
-                ].map((text) => (
-                  <li key={text} className="flex items-start gap-2">
-                    <ArrowRight className="w-4 h-4 text-cyan-500 flex-shrink-0 mt-0.5" />
-                    <span>{text}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
+            <Image
+              src="/ai_and_human.webp"
+              alt="AI-Powered Intelligence and Expert Human Oversight infographic"
+              width={910}
+              height={728}
+              className="rounded-2xl shadow-2xl object-contain w-full h-auto"
+            />
           </motion.div>
         </div>
       </div>

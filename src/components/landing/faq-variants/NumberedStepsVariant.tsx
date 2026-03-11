@@ -47,10 +47,10 @@ export default function NumberedStepsVariant() {
             return (
               <motion.div
                 key={index}
-                initial={{ opacity: 0, x: isEven ? -40 : 40 }}
+                initial={{ opacity: 0, x: isEven ? '50vw' : '-50vw' }}
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: false, amount: 0.3 }}
-                transition={{ duration: 0.6, ease: 'easeOut' }}
+                transition={{ duration: 0.8, ease: [0.25, 0.1, 0.25, 1] }}
                 className="relative"
               >
                 {/* Connecting dot on the center line (desktop) */}

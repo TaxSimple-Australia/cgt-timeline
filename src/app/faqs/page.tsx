@@ -8,14 +8,10 @@ import LandingFooter from '@/components/landing/LandingFooter';
 import NumberedStepsVariant from '@/components/landing/faq-variants/NumberedStepsVariant';
 
 export default function FAQsPage() {
-  const [scrollProgress, setScrollProgress] = useState(0);
   const [showBackToTop, setShowBackToTop] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
-      const totalScroll = document.documentElement.scrollHeight - window.innerHeight;
-      const currentProgress = (window.scrollY / totalScroll) * 100;
-      setScrollProgress(currentProgress);
       setShowBackToTop(window.scrollY > 500);
     };
 
@@ -40,14 +36,6 @@ export default function FAQsPage() {
       {/* Decorative elements */}
       <div className="absolute top-20 left-10 w-72 h-72 bg-cyan-500/10 rounded-full blur-3xl" />
       <div className="absolute bottom-20 right-10 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl" />
-
-      {/* Scroll progress bar */}
-      <div className="fixed top-0 left-0 right-0 h-1 bg-slate-100 dark:bg-slate-800 z-[60]">
-        <div
-          className="h-full bg-gradient-to-r from-cyan-500 to-blue-500 transition-all duration-300"
-          style={{ width: `${scrollProgress}%` }}
-        />
-      </div>
 
       {/* Header */}
       <LandingHeader />

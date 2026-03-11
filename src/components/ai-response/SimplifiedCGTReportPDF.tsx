@@ -2,7 +2,6 @@
 
 import React from 'react';
 import { Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
-import { transformPropertyToReport } from '@/lib/transform-api-to-report';
 
 // ============================================================================
 // STYLES
@@ -55,7 +54,6 @@ const styles = StyleSheet.create({
     fontFamily: 'Helvetica',
     backgroundColor: colors.white,
   },
-  // Footer
   footer: {
     position: 'absolute',
     bottom: 25,
@@ -69,7 +67,6 @@ const styles = StyleSheet.create({
     borderTopColor: '#e2e8f0',
     paddingTop: 6,
   },
-  // Section Headers
   sectionBanner: {
     backgroundColor: colors.primary,
     padding: 12,
@@ -103,7 +100,6 @@ const styles = StyleSheet.create({
     marginBottom: 6,
     marginTop: 10,
   },
-  // Cards
   card: {
     borderWidth: 1,
     borderColor: colors.grayBorder,
@@ -132,7 +128,6 @@ const styles = StyleSheet.create({
     fontSize: 7,
     marginTop: 2,
   },
-  // Tables
   table: {
     marginBottom: 12,
   },
@@ -172,7 +167,6 @@ const styles = StyleSheet.create({
     color: colors.black,
     fontWeight: 'bold',
   },
-  // Badges
   badge: {
     paddingHorizontal: 6,
     paddingVertical: 2,
@@ -180,7 +174,6 @@ const styles = StyleSheet.create({
     fontSize: 7,
     fontWeight: 'bold',
   },
-  // Text blocks
   textBlock: {
     backgroundColor: colors.primaryBg,
     padding: 10,
@@ -194,7 +187,6 @@ const styles = StyleSheet.create({
     color: colors.gray,
     lineHeight: 1.5,
   },
-  // Steps
   stepContainer: {
     flexDirection: 'row',
     marginBottom: 10,
@@ -235,7 +227,6 @@ const styles = StyleSheet.create({
     color: colors.primaryLight,
     fontWeight: 'bold',
   },
-  // Rules
   ruleItem: {
     flexDirection: 'row',
     marginBottom: 6,
@@ -247,13 +238,11 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 10,
   },
-  // Divider
   divider: {
     borderBottomWidth: 1,
     borderBottomColor: '#e2e8f0',
     marginVertical: 10,
   },
-  // Row layouts
   row: {
     flexDirection: 'row',
   },
@@ -261,14 +250,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
-  // Info box
   infoBox: {
     padding: 8,
     borderRadius: 4,
     borderWidth: 1,
     marginBottom: 8,
   },
-  // Property header bar
   propertyBar: {
     backgroundColor: '#f1f5f9',
     padding: 10,
@@ -318,22 +305,70 @@ const toNumber = (val: string | number | null | undefined): number => {
   return isNaN(num) ? 0 : num;
 };
 
-// Find matching calculations for a property
-const findPropertyCalc = (property: any, calculations: any) => {
-  return calculations?.per_property?.find(
-    (calc: any) =>
-      calc.property_id === property.property_id ||
-      calc.property_id === property.address ||
-      calc.property_address === property.address
-  );
+const formatNumber = (val: string | number | null | undefined): string => {
+  if (val === null || val === undefined) return '-';
+  const num = typeof val === 'string' ? parseFloat(val) : val;
+  if (isNaN(num)) return String(val);
+  return num.toLocaleString('en-AU');
 };
 
-// Find matching analysis for a property
-const findPropertyAnalysis = (property: any, analysis: any) => {
-  return analysis?.per_property_analysis?.find(
-    (a: any) => a.property_address === property.address
-  );
-};
+// ============================================================================
+// EXTRACT analysisData FROM RESPONSE (matches CGTAnalysisDisplay format detection)
+// ============================================================================
+
+interface ExtractedData {
+  analysisData: any;
+  queryAsked: string | null;
+  rulesAppliedSummary: string | null;
+  sourceReferences: any[];
+  llmUsed: string | null;
+  analysisDate: string | null;
+  disclaimer: string | null;
+}
+
+function extractAnalysisData(response: any): ExtractedData {
+  // Format detection - same as CGTAnalysisDisplay
+  const isDoubleWrapped = response.success !== undefined &&
+    response.data?.success !== undefined &&
+    response.data?.data?.properties?.length > 0;
+
+  const isWrapped = !isDoubleWrapped &&
+    response.success !== undefined &&
+    response.data?.properties?.length > 0;
+
+  const isDirect = !isDoubleWrapped && !isWrapped &&
+    response.properties?.length > 0 &&
+    response.properties[0]?.property_address;
+
+  const analysisData = isDoubleWrapped
+    ? response.data.data
+    : isWrapped
+      ? response.data
+      : isDirect
+        ? response
+        : null;
+
+  const queryAsked = response.query || response.data?.query || response.data?.data?.query || null;
+
+  const sources = response.sources || response.data?.sources || response.citations ||
+    response.data?.citations || analysisData?.sources || analysisData?.citations || null;
+
+  const rulesAppliedSummary = sources?.rules_summary || response.rules_summary ||
+    response.data?.rules_summary || analysisData?.rules_summary || null;
+
+  const sourceReferences = sources?.references || response.references ||
+    response.data?.references || analysisData?.references || [];
+
+  const llmUsed = response.llm_used || response.data?.llm_used ||
+    response.data?.data?.llm_used || analysisData?.llm_used || null;
+
+  const analysisDate = analysisData?.analysis_date || response.data?.data?.analysis_date ||
+    response.analysis_date || null;
+
+  const disclaimer = analysisData?.disclaimer || null;
+
+  return { analysisData, queryAsked, rulesAppliedSummary, sourceReferences, llmUsed, analysisDate, disclaimer };
+}
 
 // ============================================================================
 // SUB-COMPONENTS
@@ -366,44 +401,6 @@ const SectionBanner = ({ title, subtitle }: { title: string; subtitle?: string }
   </View>
 );
 
-const InfoBox = ({
-  text, bgColor, borderColor, textColor,
-}: {
-  text: string; bgColor: string; borderColor: string; textColor: string;
-}) => (
-  <View style={{ ...styles.infoBox, backgroundColor: bgColor, borderColor }}>
-    <Text style={{ fontSize: 8, color: textColor, lineHeight: 1.4 }}>{text}</Text>
-  </View>
-);
-
-const PropertyBadges = ({ property, propAnalysis }: { property: any; propAnalysis: any }) => {
-  const status = propAnalysis?.status || property?.status;
-  const exemption = propAnalysis?.exemption || property?.exemption_type;
-
-  return (
-    <View style={{ flexDirection: 'row', gap: 6 }}>
-      {status && (
-        <Text style={{
-          ...styles.badge,
-          backgroundColor: status === 'sold' ? colors.purpleBg : colors.primaryBg,
-          color: status === 'sold' ? colors.purple : colors.primaryLight,
-        }}>
-          {status.toUpperCase()}
-        </Text>
-      )}
-      {exemption && (
-        <Text style={{
-          ...styles.badge,
-          backgroundColor: exemption === 'full' ? colors.greenBg : exemption === 'partial' ? colors.amberBg : colors.redBg,
-          color: exemption === 'full' ? colors.green : exemption === 'partial' ? colors.amber : colors.red,
-        }}>
-          {exemption === 'full' ? 'FULL EXEMPTION' : exemption === 'partial' ? 'PARTIAL EXEMPTION' : 'NO EXEMPTION'}
-        </Text>
-      )}
-    </View>
-  );
-};
-
 // ============================================================================
 // MAIN COMPONENT
 // ============================================================================
@@ -413,48 +410,51 @@ interface SimplifiedCGTReportPDFProps {
 }
 
 export const SimplifiedCGTReportPDF: React.FC<SimplifiedCGTReportPDFProps> = ({ response }) => {
-  const {
-    properties: apiProperties,
-    calculations,
-    validation,
-    analysis,
-    verification,
-    timestamp,
-    analysis_id,
-    summary: responseSummary,
-  } = response || {};
+  const { analysisData, queryAsked, rulesAppliedSummary, sourceReferences, llmUsed, analysisDate, disclaimer } = extractAnalysisData(response);
 
-  const portfolioTotal = calculations?.portfolio_total;
-
-  // Calculate portfolio metrics
-  let totalCapitalGain = portfolioTotal?.total_capital_gain || 0;
-  let totalCGTLiability = portfolioTotal?.total_cgt_liability || 0;
-  let totalExemptAmount = portfolioTotal?.total_exempt_amount || 0;
-  let exemptProperties = 0;
-
-  if (apiProperties && calculations?.per_property) {
-    apiProperties.forEach((property: any) => {
-      if (property.exempt_percentage === 100 || property.exemption_type === 'full') {
-        exemptProperties += 1;
-      }
-    });
-    // Fallback if portfolio_total not present
-    if (!totalCapitalGain && !totalCGTLiability) {
-      calculations.per_property.forEach((calc: any) => {
-        totalCapitalGain += calc.raw_capital_gain || 0;
-        totalCGTLiability += calc.net_capital_gain || 0;
-      });
-    }
+  // If we have the json-sections format, use it directly
+  if (analysisData && analysisData.properties && analysisData.properties.length > 0) {
+    return <JSONSectionsReport
+      analysisData={analysisData}
+      queryAsked={queryAsked}
+      rulesAppliedSummary={rulesAppliedSummary}
+      sourceReferences={sourceReferences}
+      llmUsed={llmUsed}
+      analysisDate={analysisDate}
+      disclaimer={disclaimer}
+      response={response}
+    />;
   }
 
-  const totalProperties = apiProperties?.length || 0;
-  const reportDate = timestamp ? new Date(timestamp).toLocaleDateString('en-AU') : new Date().toLocaleDateString('en-AU');
+  // Fallback: legacy format or empty
+  return <LegacyReport response={response} />;
+};
+
+// ============================================================================
+// JSON SECTIONS FORMAT REPORT (matches the UI json-sections display)
+// ============================================================================
+
+function JSONSectionsReport({
+  analysisData, queryAsked, rulesAppliedSummary, sourceReferences, llmUsed, analysisDate, disclaimer, response,
+}: ExtractedData & { analysisData: any; response: any }) {
+
+  const properties = analysisData.properties || [];
+  const generalNotes = analysisData.general_notes || [];
+  const totalProperties = properties.length;
+  const reportDate = analysisDate || new Date().toLocaleDateString('en-AU');
+  const analysisId = response.analysis_id || response.data?.analysis_id || analysisData.analysis_id || 'N/A';
+
+  // Calculate portfolio totals from properties
+  let totalNetCapitalGain = toNumber(analysisData.total_net_capital_gain);
+  let totalExemptGains = toNumber(analysisData.total_exempt_gains);
+
+  const borderColors = ['#3b82f6', '#8b5cf6', '#ec4899', '#f97316', '#14b8a6', '#6366f1'];
 
   return (
     <Document>
-      {/* ================================================================== */}
-      {/* COVER PAGE                                                         */}
-      {/* ================================================================== */}
+      {/* ================================================================ */}
+      {/* COVER PAGE                                                       */}
+      {/* ================================================================ */}
       <Page size="A4" style={styles.page}>
         {/* Header */}
         <View style={{ marginBottom: 30, paddingBottom: 12, borderBottomWidth: 3, borderBottomColor: colors.primaryLight }}>
@@ -474,135 +474,93 @@ export const SimplifiedCGTReportPDF: React.FC<SimplifiedCGTReportPDFProps> = ({ 
           </View>
           <View>
             <Text style={{ fontSize: 9, color: colors.grayLight }}>Analysis ID</Text>
-            <Text style={{ fontSize: 11, fontWeight: 'bold', color: colors.black }}>{analysis_id || 'N/A'}</Text>
+            <Text style={{ fontSize: 11, fontWeight: 'bold', color: colors.black }}>{analysisId}</Text>
           </View>
           <View>
             <Text style={{ fontSize: 9, color: colors.grayLight }}>Properties Analysed</Text>
             <Text style={{ fontSize: 11, fontWeight: 'bold', color: colors.black }}>{totalProperties}</Text>
           </View>
-        </View>
-
-        {/* Portfolio Summary Card */}
-        <View style={{ backgroundColor: colors.primaryBg, padding: 16, borderRadius: 4, borderWidth: 2, borderColor: colors.primaryLight, marginBottom: 20 }}>
-          <Text style={{ fontSize: 16, fontWeight: 'bold', color: colors.primary, marginBottom: 12 }}>
-            Portfolio Summary
-          </Text>
-          <View style={{ flexDirection: 'row', marginBottom: 10 }}>
-            <MetricCard
-              label="Total CGT Liability"
-              value={formatCurrency(totalCGTLiability)}
-              sub={totalCGTLiability === 0 ? 'Fully exempt' : 'Tax return total'}
-              bgColor={totalCGTLiability === 0 ? colors.greenBg : colors.redBg}
-              borderColor={totalCGTLiability === 0 ? colors.greenBorder : colors.redBorder}
-              textColor={totalCGTLiability === 0 ? colors.green : colors.red}
-            />
-            <MetricCard
-              label="Total Capital Gain"
-              value={formatCurrency(totalCapitalGain)}
-              sub="Before exemptions"
-              bgColor={colors.emeraldBg}
-              borderColor={colors.emeraldBorder}
-              textColor={colors.emerald}
-            />
-            <MetricCard
-              label="Total Exempt Amount"
-              value={formatCurrency(totalExemptAmount)}
-              sub="Main residence"
-              bgColor={colors.purpleBg}
-              borderColor={colors.purpleBorder}
-              textColor={colors.purple}
-            />
-            <MetricCard
-              label="Exempt Properties"
-              value={`${exemptProperties}/${totalProperties}`}
-              sub="Fully exempt"
-              bgColor={colors.primaryBg}
-              borderColor={colors.primaryBorder}
-              textColor={colors.primaryLight}
-            />
-          </View>
-
-          {/* Carry-forward loss */}
-          {responseSummary?.carry_forward_loss !== undefined && responseSummary.carry_forward_loss !== null && (
-            <View style={{ flexDirection: 'row', marginTop: 4 }}>
-              <MetricCard
-                label="Carry-Forward Loss"
-                value={formatCurrency(responseSummary.carry_forward_loss)}
-                sub="Available"
-                bgColor={colors.amberBg}
-                borderColor={colors.amberBorder}
-                textColor={colors.amber}
-              />
-              <View style={{ flex: 3 }} />
+          {llmUsed && (
+            <View>
+              <Text style={{ fontSize: 9, color: colors.grayLight }}>AI Model</Text>
+              <Text style={{ fontSize: 11, fontWeight: 'bold', color: colors.black }}>{llmUsed}</Text>
             </View>
           )}
         </View>
 
-        {/* Portfolio Statistics */}
-        {(responseSummary?.main_residence_days || responseSummary?.total_ownership_days) && (
-          <View style={{ ...styles.card, backgroundColor: colors.grayBg }}>
-            <Text style={{ fontSize: 9, fontWeight: 'bold', color: colors.grayLight, marginBottom: 6 }}>PORTFOLIO STATISTICS</Text>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-              {responseSummary.main_residence_days !== undefined && (
-                <View style={{ flex: 1 }}>
-                  <Text style={{ fontSize: 8, color: colors.grayLight }}>Main Residence Days</Text>
-                  <Text style={{ fontSize: 11, fontWeight: 'bold', color: colors.black }}>{responseSummary.main_residence_days.toLocaleString()}</Text>
-                </View>
-              )}
-              {responseSummary.total_ownership_days !== undefined && (
-                <View style={{ flex: 1 }}>
-                  <Text style={{ fontSize: 8, color: colors.grayLight }}>Total Ownership Days</Text>
-                  <Text style={{ fontSize: 11, fontWeight: 'bold', color: colors.black }}>{responseSummary.total_ownership_days.toLocaleString()}</Text>
-                </View>
-              )}
-              {responseSummary.exemption_percentage !== undefined && (
-                <View style={{ flex: 1 }}>
-                  <Text style={{ fontSize: 8, color: colors.grayLight }}>Exemption %</Text>
-                  <Text style={{ fontSize: 11, fontWeight: 'bold', color: colors.black }}>{toNumber(responseSummary.exemption_percentage).toFixed(2)}%</Text>
-                </View>
-              )}
-              {portfolioTotal?.properties_with_cgt !== undefined && (
-                <View style={{ flex: 1 }}>
-                  <Text style={{ fontSize: 8, color: colors.grayLight }}>Properties with CGT</Text>
-                  <Text style={{ fontSize: 11, fontWeight: 'bold', color: colors.black }}>{portfolioTotal.properties_with_cgt}</Text>
-                </View>
-              )}
+        {/* Query Asked */}
+        {queryAsked && (
+          <View style={{ ...styles.infoBox, backgroundColor: colors.primaryBg, borderColor: colors.primaryBorder, marginBottom: 16 }}>
+            <Text style={{ fontSize: 7, fontWeight: 'bold', color: colors.primaryLight, marginBottom: 4, textTransform: 'uppercase' as any }}>Question Asked</Text>
+            <Text style={{ fontSize: 9, color: colors.black, lineHeight: 1.4 }}>{queryAsked}</Text>
+          </View>
+        )}
+
+        {/* Portfolio Summary */}
+        {(totalNetCapitalGain > 0 || totalExemptGains > 0 || properties.length > 0) && (
+          <View style={{ backgroundColor: colors.primaryBg, padding: 16, borderRadius: 4, borderWidth: 2, borderColor: colors.primaryLight, marginBottom: 20 }}>
+            <Text style={{ fontSize: 16, fontWeight: 'bold', color: colors.primary, marginBottom: 12 }}>
+              Portfolio Summary
+            </Text>
+            <View style={{ flexDirection: 'row', marginBottom: 10 }}>
+              <MetricCard
+                label="Total Net Capital Gain"
+                value={formatCurrency(totalNetCapitalGain)}
+                sub={totalNetCapitalGain === 0 ? 'No CGT payable' : 'After exemptions & discount'}
+                bgColor={totalNetCapitalGain === 0 ? colors.greenBg : colors.amberBg}
+                borderColor={totalNetCapitalGain === 0 ? colors.greenBorder : colors.amberBorder}
+                textColor={totalNetCapitalGain === 0 ? colors.green : colors.amber}
+              />
+              <MetricCard
+                label="Total Exempt Gains"
+                value={formatCurrency(totalExemptGains)}
+                sub="Main residence exemption"
+                bgColor={colors.greenBg}
+                borderColor={colors.greenBorder}
+                textColor={colors.green}
+              />
+              <MetricCard
+                label="Properties Analysed"
+                value={String(totalProperties)}
+                bgColor={colors.primaryBg}
+                borderColor={colors.primaryBorder}
+                textColor={colors.primaryLight}
+              />
             </View>
           </View>
         )}
 
-        {/* Executive Summary */}
-        {analysis?.summary && (
-          <View style={{ marginTop: 12 }}>
-            <Text style={styles.sectionTitle}>Executive Summary</Text>
+        {/* Summary / Description */}
+        {analysisData.description && (
+          <View style={{ marginTop: 8 }}>
+            <Text style={styles.sectionTitle}>Summary</Text>
             <View style={styles.textBlock}>
-              <Text style={styles.bodyText}>{analysis.summary}</Text>
+              <Text style={styles.bodyText}>{analysisData.description}</Text>
             </View>
           </View>
         )}
 
         {/* Properties Overview Table */}
-        {apiProperties && apiProperties.length > 0 && (
+        {properties.length > 0 && (
           <View style={{ marginTop: 12 }}>
             <Text style={styles.sectionTitle}>Properties Overview</Text>
             <View style={styles.table}>
               <View style={styles.tableHeader}>
-                <Text style={{ ...styles.tableHeaderCell, width: '40%' }}>Property</Text>
-                <Text style={{ ...styles.tableHeaderCell, width: '15%' }}>Status</Text>
-                <Text style={{ ...styles.tableHeaderCell, width: '15%' }}>Exemption</Text>
-                <Text style={{ ...styles.tableHeaderCell, width: '15%' }}>Capital Gain</Text>
-                <Text style={{ ...styles.tableHeaderCell, width: '15%' }}>Net CGT</Text>
+                <Text style={{ ...styles.tableHeaderCell, width: '45%' }}>Property</Text>
+                <Text style={{ ...styles.tableHeaderCell, width: '20%' }}>Result</Text>
+                <Text style={{ ...styles.tableHeaderCell, width: '15%' }}>CGT Payable</Text>
+                <Text style={{ ...styles.tableHeaderCell, width: '20%' }}>Net Capital Gain</Text>
               </View>
-              {apiProperties.map((property: any, idx: number) => {
-                const calc = findPropertyCalc(property, calculations);
-                const propAnalysis = findPropertyAnalysis(property, analysis);
+              {properties.map((property: any, idx: number) => {
+                const ncg = property.calculation_summary?.net_capital_gain;
                 return (
                   <View key={idx} style={idx % 2 === 0 ? styles.tableRow : styles.tableRowAlt}>
-                    <Text style={{ ...styles.tableCellBold, width: '40%' }}>{property.address}</Text>
-                    <Text style={{ ...styles.tableCell, width: '15%' }}>{(propAnalysis?.status || property?.status || 'N/A').toUpperCase()}</Text>
-                    <Text style={{ ...styles.tableCell, width: '15%' }}>{(propAnalysis?.exemption || property?.exemption_type || 'N/A').toUpperCase()}</Text>
-                    <Text style={{ ...styles.tableCell, width: '15%' }}>{formatCurrency(calc?.raw_capital_gain)}</Text>
-                    <Text style={{ ...styles.tableCellBold, width: '15%' }}>{formatCurrency(calc?.net_capital_gain)}</Text>
+                    <Text style={{ ...styles.tableCellBold, width: '45%' }}>{property.property_address}</Text>
+                    <Text style={{ ...styles.tableCell, width: '20%' }}>{property.result || 'N/A'}</Text>
+                    <Text style={{ ...styles.tableCell, width: '15%', color: property.cgt_payable ? colors.red : colors.green }}>
+                      {property.cgt_payable ? 'Yes' : 'No'}
+                    </Text>
+                    <Text style={{ ...styles.tableCellBold, width: '20%' }}>{ncg !== undefined ? formatCurrency(ncg) : 'N/A'}</Text>
                   </View>
                 );
               })}
@@ -613,308 +571,380 @@ export const SimplifiedCGTReportPDF: React.FC<SimplifiedCGTReportPDFProps> = ({ 
         <PageFooter pageLabel="Cover Page" />
       </Page>
 
-      {/* ================================================================== */}
-      {/* SECTION B: TAX RETURN ESSENTIALS - Per Property Pages               */}
-      {/* ================================================================== */}
-      {apiProperties && apiProperties.map((property: any, propIndex: number) => {
-        const propertyCalc = findPropertyCalc(property, calculations);
-        const propAnalysis = findPropertyAnalysis(property, analysis);
-
-        // Use transformation function for timeline events / calc steps / rules
-        const transformResult = transformPropertyToReport(property, propertyCalc, validation);
-        const { timelineEvents, calculationSteps, applicableRules } = transformResult.reportData;
-
-        // Cost base breakdown
-        const costBase = propertyCalc?.cost_base_breakdown;
-        const costBaseItems: Array<{ element: string; description: string; amount: number | string }> = [];
-
-        if (costBase) {
-          if (costBase.original_cost) costBaseItems.push({ element: '1st', description: 'Purchase Price', amount: costBase.original_cost });
-          if (costBase.stamp_duty) costBaseItems.push({ element: '2nd', description: 'Stamp Duty', amount: costBase.stamp_duty });
-          if (costBase.purchase_legal_fees || costBase.legal_fees_purchase) costBaseItems.push({ element: '2nd', description: 'Legal Fees (Purchase)', amount: costBase.purchase_legal_fees || costBase.legal_fees_purchase });
-          if (costBase.valuation_fees) costBaseItems.push({ element: '2nd', description: 'Valuation Fees', amount: costBase.valuation_fees });
-          // Capital improvements
-          const improvements = costBase.capital_improvements || [];
-          improvements.forEach((imp: any, i: number) => {
-            costBaseItems.push({ element: '3rd', description: imp.description || `Capital Improvement ${i + 1}`, amount: imp.amount });
-          });
-          if (costBase.agent_fees || costBase.selling_agent_fees) costBaseItems.push({ element: '5th', description: 'Agent Fees (Sale)', amount: costBase.agent_fees || costBase.selling_agent_fees });
-          if (costBase.legal_fees_sale || costBase.sale_legal_fees) costBaseItems.push({ element: '5th', description: 'Legal Fees (Sale)', amount: costBase.legal_fees_sale || costBase.sale_legal_fees });
-          if (costBase.advertising_costs) costBaseItems.push({ element: '5th', description: 'Advertising Costs', amount: costBase.advertising_costs });
-        }
-
-        // Period breakdown
-        const periodBreakdown = property?.period_breakdown;
-        const mainResidencePeriods = periodBreakdown?.main_residence_periods || [];
-        const rentalPeriods = periodBreakdown?.rental_periods || [];
-        const vacantPeriods = periodBreakdown?.vacant_periods || [];
-
-        const borderColors = ['#3b82f6', '#8b5cf6', '#ec4899', '#f97316', '#14b8a6', '#6366f1'];
+      {/* ================================================================ */}
+      {/* PER-PROPERTY PAGES                                               */}
+      {/* ================================================================ */}
+      {properties.map((property: any, propIndex: number) => {
         const borderColor = borderColors[propIndex % borderColors.length];
+        const timeline = property.timeline || property.timeline_of_events || [];
+        const ownershipPeriods = property.ownership_periods || [];
+        const calculationSteps = property.calculation_steps || [];
+        const costBaseItems = property.cost_base_items || [];
+        const calcSummary = property.calculation_summary || {};
+        const whatIfScenarios = property.what_if_scenarios || [];
+        const importantNotes = property.important_notes || [];
+        const warnings = property.warnings || [];
+        const applicableRules = property.applicable_rules || [];
 
         return (
           <Page key={`prop-${propIndex}`} size="A4" style={styles.page} wrap>
             {/* Property Header */}
             <View style={{ ...styles.propertyBar, borderLeftColor: borderColor }}>
-              <Text style={styles.propertyAddress}>{property.address}</Text>
-              <PropertyBadges property={property} propAnalysis={propAnalysis} />
+              <Text style={styles.propertyAddress}>{property.property_address}</Text>
+              <View style={{ flexDirection: 'row', gap: 6 }}>
+                <Text style={{
+                  ...styles.badge,
+                  backgroundColor: property.cgt_payable ? colors.redBg : colors.greenBg,
+                  color: property.cgt_payable ? colors.red : colors.green,
+                }}>
+                  {property.result || (property.cgt_payable ? 'CGT PAYABLE' : 'NO CGT')}
+                </Text>
+              </View>
             </View>
 
-            {/* Reasoning */}
-            {propAnalysis?.reasoning && (
+            {/* High-Level Description */}
+            {property.high_level_description && (
               <View style={{ marginBottom: 10 }}>
-                <Text style={styles.subsectionTitle}>Analysis Reasoning</Text>
-                <View style={{ backgroundColor: colors.primaryBg, borderLeftWidth: 3, borderLeftColor: colors.primaryLight, padding: 8, borderRadius: 2 }}>
-                  <Text style={styles.bodyText}>{propAnalysis.reasoning}</Text>
+                <View style={{ backgroundColor: colors.tealBg, borderLeftWidth: 3, borderLeftColor: colors.teal, padding: 8, borderRadius: 2 }}>
+                  <Text style={{ ...styles.bodyText, color: '#134e4a' }}>{property.high_level_description}</Text>
                 </View>
               </View>
             )}
 
-            {/* Cross-Property Impact */}
-            {propAnalysis?.cross_property_impact && (
-              <View style={{ marginBottom: 10 }}>
-                <Text style={styles.subsectionTitle}>Cross-Property Impact</Text>
-                <View style={{ backgroundColor: colors.amberBg, borderLeftWidth: 3, borderLeftColor: colors.amber, padding: 8, borderRadius: 2 }}>
-                  <Text style={{ ...styles.bodyText, color: '#92400e' }}>{propAnalysis.cross_property_impact}</Text>
-                </View>
-              </View>
-            )}
-
-            {/* Key Financial Summary */}
-            {propertyCalc && (
-              <View style={{ marginBottom: 10 }}>
-                <Text style={styles.subsectionTitle}>Financial Summary</Text>
-                <View style={{ flexDirection: 'row', marginBottom: 6 }}>
-                  <MetricCard
-                    label="Purchase Price"
-                    value={formatCurrency(property.purchase_price || costBase?.original_cost)}
-                    bgColor={colors.primaryBg}
-                    borderColor={colors.primaryBorder}
-                    textColor={colors.primaryLight}
-                  />
-                  <MetricCard
-                    label="Sale Price"
-                    value={formatCurrency(property.sale_price || propertyCalc.capital_proceeds)}
-                    bgColor={colors.emeraldBg}
-                    borderColor={colors.emeraldBorder}
-                    textColor={colors.emerald}
-                  />
-                  <MetricCard
-                    label="Total Cost Base"
-                    value={formatCurrency(propertyCalc.cost_base)}
-                    bgColor={colors.purpleBg}
-                    borderColor={colors.purpleBorder}
-                    textColor={colors.purple}
-                  />
-                  <MetricCard
-                    label="Net Capital Gain"
-                    value={formatCurrency(propertyCalc.net_capital_gain)}
-                    sub={propertyCalc.net_capital_gain === 0 ? 'Exempt' : 'After discount'}
-                    bgColor={propertyCalc.net_capital_gain === 0 ? colors.greenBg : colors.amberBg}
-                    borderColor={propertyCalc.net_capital_gain === 0 ? colors.greenBorder : colors.amberBorder}
-                    textColor={propertyCalc.net_capital_gain === 0 ? colors.green : colors.amber}
-                  />
-                </View>
-                {/* Exemption Info */}
-                {(propertyCalc.exemption_percentage !== undefined || propertyCalc.main_residence_exemption !== undefined) && (
-                  <View style={{ flexDirection: 'row' }}>
-                    <MetricCard
-                      label="Main Residence Days"
-                      value={String(property.main_residence_days || propertyCalc.main_residence_days || 'N/A')}
-                      sub={`of ${property.total_ownership_days || propertyCalc.total_ownership_days || '?'} total days`}
-                      bgColor={colors.greenBg}
-                      borderColor={colors.greenBorder}
-                      textColor={colors.green}
-                    />
-                    <MetricCard
-                      label="Exemption %"
-                      value={`${toNumber(propertyCalc.exemption_percentage).toFixed(2)}%`}
-                      sub="Main residence"
-                      bgColor={colors.tealBg}
-                      borderColor={colors.tealBorder}
-                      textColor={colors.teal}
-                    />
-                    {propertyCalc.cgt_discount !== undefined && (
-                      <MetricCard
-                        label="CGT Discount"
-                        value={propertyCalc.cgt_discount ? '50%' : 'N/A'}
-                        sub={propertyCalc.cgt_discount ? 'Applied (>12 months)' : 'Not applicable'}
-                        bgColor={colors.indigoBg}
-                        borderColor={colors.indigoBorder}
-                        textColor={colors.indigo}
-                      />
-                    )}
-                    <View style={{ flex: 1 }} />
+            {/* -------------------------------------------------- */}
+            {/* SECTION 1: Timeline of Events                      */}
+            {/* -------------------------------------------------- */}
+            {timeline.length > 0 && (
+              <View>
+                <Text style={styles.sectionTitle}>Timeline of Events</Text>
+                <View style={styles.table}>
+                  <View style={styles.tableHeader}>
+                    <Text style={{ ...styles.tableHeaderCell, width: '20%' }}>Date</Text>
+                    <Text style={{ ...styles.tableHeaderCell, width: '20%' }}>Event</Text>
+                    <Text style={{ ...styles.tableHeaderCell, width: '60%' }}>Details</Text>
                   </View>
-                )}
+                  {timeline.map((event: any, idx: number) => (
+                    <View key={idx} style={idx % 2 === 0 ? styles.tableRow : styles.tableRowAlt}>
+                      <Text style={{ ...styles.tableCell, width: '20%' }}>{event.date || ''}</Text>
+                      <Text style={{ ...styles.tableCellBold, width: '20%' }}>{event.event || ''}</Text>
+                      <Text style={{ ...styles.tableCell, width: '60%' }}>{event.details || ''}</Text>
+                    </View>
+                  ))}
+                </View>
               </View>
             )}
 
-            {/* Timeline of Events */}
-            <Text style={styles.sectionTitle}>Timeline of Events</Text>
-            <View style={styles.table}>
-              <View style={styles.tableHeader}>
-                <Text style={{ ...styles.tableHeaderCell, width: '20%' }}>Date</Text>
-                <Text style={{ ...styles.tableHeaderCell, width: '20%' }}>Event</Text>
-                <Text style={{ ...styles.tableHeaderCell, width: '60%' }}>Details</Text>
+            {/* -------------------------------------------------- */}
+            {/* SECTION 2: Ownership Periods                       */}
+            {/* -------------------------------------------------- */}
+            {ownershipPeriods.length > 0 && (
+              <View>
+                <Text style={styles.sectionTitle}>Ownership Periods</Text>
+                <View style={styles.table}>
+                  <View style={styles.tableHeader}>
+                    <Text style={{ ...styles.tableHeaderCell, width: '20%' }}>Period Type</Text>
+                    <Text style={{ ...styles.tableHeaderCell, width: '17%' }}>Start</Text>
+                    <Text style={{ ...styles.tableHeaderCell, width: '17%' }}>End</Text>
+                    <Text style={{ ...styles.tableHeaderCell, width: '10%' }}>Days</Text>
+                    <Text style={{ ...styles.tableHeaderCell, width: '12%' }}>%</Text>
+                    <Text style={{ ...styles.tableHeaderCell, width: '12%' }}>Exempt</Text>
+                    <Text style={{ ...styles.tableHeaderCell, width: '12%' }}>Rule</Text>
+                  </View>
+                  {ownershipPeriods.map((period: any, idx: number) => {
+                    const isExempt = period.exempt === 'yes' || period.exempt === true || period.is_exempt === 'yes' || period.is_exempt === true;
+                    const isPartial = period.exempt === 'partial' || period.is_exempt === 'partial';
+                    const bgColor = isExempt ? colors.greenBg : isPartial ? colors.amberBg : colors.white;
+                    return (
+                      <View key={idx} style={{ ...styles.tableRow, backgroundColor: bgColor }}>
+                        <Text style={{ ...styles.tableCellBold, width: '20%' }}>{period.period_type || ''}</Text>
+                        <Text style={{ ...styles.tableCell, width: '17%' }}>{period.start_date || ''}</Text>
+                        <Text style={{ ...styles.tableCell, width: '17%' }}>{period.end_date || ''}</Text>
+                        <Text style={{ ...styles.tableCell, width: '10%' }}>{formatNumber(period.days)}</Text>
+                        <Text style={{ ...styles.tableCell, width: '12%' }}>{period.percentage || ''}</Text>
+                        <Text style={{ ...styles.tableCellBold, width: '12%', color: isExempt ? colors.green : isPartial ? colors.amber : colors.gray }}>
+                          {isExempt ? 'Yes' : isPartial ? 'Partial' : 'No'}
+                        </Text>
+                        <Text style={{ ...styles.tableCell, width: '12%', fontSize: 7 }}>{period.rule_applied || period.note || ''}</Text>
+                      </View>
+                    );
+                  })}
+                </View>
               </View>
-              {timelineEvents.length > 0 ? timelineEvents.map((event, idx) => (
-                <View key={idx} style={idx % 2 === 0 ? styles.tableRow : styles.tableRowAlt}>
-                  <Text style={{ ...styles.tableCell, width: '20%' }}>{formatDate(event.date)}</Text>
-                  <Text style={{ ...styles.tableCellBold, width: '20%' }}>{event.event}</Text>
-                  <Text style={{ ...styles.tableCell, width: '60%' }}>{event.details}</Text>
-                </View>
-              )) : (
-                <View style={styles.tableRow}>
-                  <Text style={{ ...styles.tableCell, width: '100%', textAlign: 'center', fontStyle: 'italic', color: colors.grayLight }}>
-                    No timeline events available
-                  </Text>
-                </View>
-              )}
-            </View>
+            )}
 
-            {/* Cost Base Breakdown */}
+            {/* -------------------------------------------------- */}
+            {/* SECTION 3: Cost Base Items                         */}
+            {/* -------------------------------------------------- */}
             {costBaseItems.length > 0 && (
               <View wrap={false}>
                 <Text style={styles.sectionTitle}>Cost Base Breakdown</Text>
                 <View style={styles.table}>
                   <View style={styles.tableHeader}>
-                    <Text style={{ ...styles.tableHeaderCell, width: '15%' }}>Element</Text>
-                    <Text style={{ ...styles.tableHeaderCell, width: '55%' }}>Description</Text>
-                    <Text style={{ ...styles.tableHeaderCell, width: '30%', textAlign: 'right' }}>Amount</Text>
+                    <Text style={{ ...styles.tableHeaderCell, width: '60%' }}>Description</Text>
+                    <Text style={{ ...styles.tableHeaderCell, width: '40%', textAlign: 'right' }}>Amount</Text>
                   </View>
-                  {costBaseItems.map((item, idx) => {
-                    const elementColors: Record<string, string> = {
-                      '1st': colors.primaryBg,
-                      '2nd': colors.purpleBg,
-                      '3rd': '#fdf2f8',
-                      '5th': colors.amberBg,
-                    };
-                    return (
-                      <View key={idx} style={{ ...styles.tableRow, backgroundColor: elementColors[item.element] || colors.white }}>
-                        <Text style={{ ...styles.tableCellBold, width: '15%' }}>{item.element}</Text>
-                        <Text style={{ ...styles.tableCell, width: '55%' }}>{item.description}</Text>
-                        <Text style={{ ...styles.tableCellBold, width: '30%', textAlign: 'right' }}>{formatCurrency(item.amount)}</Text>
-                      </View>
-                    );
-                  })}
-                  {/* Total row */}
-                  <View style={{ ...styles.tableRow, backgroundColor: '#1e3a8a' }}>
-                    <Text style={{ fontSize: 9, color: colors.white, fontWeight: 'bold', width: '15%' }}></Text>
-                    <Text style={{ fontSize: 9, color: colors.white, fontWeight: 'bold', width: '55%' }}>TOTAL COST BASE</Text>
-                    <Text style={{ fontSize: 10, color: colors.white, fontWeight: 'bold', width: '30%', textAlign: 'right' }}>
-                      {formatCurrency(propertyCalc?.cost_base)}
-                    </Text>
-                  </View>
-                </View>
-              </View>
-            )}
-
-            {/* CGT Calculation Steps */}
-            {calculationSteps.length > 0 && (
-              <View>
-                <Text style={styles.sectionTitle}>CGT Calculation</Text>
-                {calculationSteps.map((step, idx) => {
-                  const cleanDesc = step.description?.replace(/\s*\([^)]*\)/g, '').trim() || '';
-                  return (
-                    <View key={idx} style={styles.stepContainer} wrap={false}>
-                      <Text style={styles.stepNumber}>{step.step}</Text>
-                      <View style={styles.stepContent}>
-                        <Text style={styles.stepTitle}>Step {step.step}: {cleanDesc}</Text>
-                        {step.calculation && (
-                          <Text style={styles.stepFormula}>{step.calculation}</Text>
-                        )}
-                        {step.result !== null && step.result !== undefined && (
-                          <Text style={styles.stepResult}>
-                            = {typeof step.result === 'number' ? formatCurrency(step.result) : step.result}
-                          </Text>
-                        )}
-                      </View>
-                    </View>
-                  );
-                })}
-              </View>
-            )}
-
-            {/* Ownership Periods */}
-            {(mainResidencePeriods.length > 0 || rentalPeriods.length > 0 || vacantPeriods.length > 0) && (
-              <View wrap={false}>
-                <Text style={styles.sectionTitle}>Ownership Period Breakdown</Text>
-                <View style={styles.table}>
-                  <View style={styles.tableHeader}>
-                    <Text style={{ ...styles.tableHeaderCell, width: '25%' }}>Period Type</Text>
-                    <Text style={{ ...styles.tableHeaderCell, width: '20%' }}>Start</Text>
-                    <Text style={{ ...styles.tableHeaderCell, width: '20%' }}>End</Text>
-                    <Text style={{ ...styles.tableHeaderCell, width: '15%' }}>Days</Text>
-                    <Text style={{ ...styles.tableHeaderCell, width: '20%' }}>CGT Status</Text>
-                  </View>
-                  {mainResidencePeriods.map((period: any, idx: number) => (
-                    <View key={`mr-${idx}`} style={{ ...styles.tableRow, backgroundColor: colors.greenBg }}>
-                      <Text style={{ ...styles.tableCellBold, width: '25%', color: colors.green }}>Main Residence</Text>
-                      <Text style={{ ...styles.tableCell, width: '20%' }}>{formatDate(period.start)}</Text>
-                      <Text style={{ ...styles.tableCell, width: '20%' }}>{formatDate(period.end)}</Text>
-                      <Text style={{ ...styles.tableCell, width: '15%' }}>{period.days || 'N/A'}</Text>
-                      <Text style={{ ...styles.tableCellBold, width: '20%', color: colors.green }}>Exempt</Text>
+                  {costBaseItems.map((item: any, idx: number) => (
+                    <View key={idx} style={idx % 2 === 0 ? styles.tableRow : styles.tableRowAlt}>
+                      <Text style={{ ...styles.tableCell, width: '60%' }}>{item.description || item.name || ''}</Text>
+                      <Text style={{ ...styles.tableCellBold, width: '40%', textAlign: 'right' }}>{formatCurrency(item.amount)}</Text>
                     </View>
                   ))}
-                  {rentalPeriods.map((period: any, idx: number) => (
-                    <View key={`r-${idx}`} style={{ ...styles.tableRow, backgroundColor: colors.primaryBg }}>
-                      <Text style={{ ...styles.tableCellBold, width: '25%', color: colors.primaryLight }}>Rental</Text>
-                      <Text style={{ ...styles.tableCell, width: '20%' }}>{formatDate(period.start)}</Text>
-                      <Text style={{ ...styles.tableCell, width: '20%' }}>{formatDate(period.end)}</Text>
-                      <Text style={{ ...styles.tableCell, width: '15%' }}>{period.days || 'N/A'}</Text>
-                      <Text style={{ ...styles.tableCellBold, width: '20%', color: period.six_year_rule ? colors.teal : colors.amber }}>
-                        {period.six_year_rule ? '6-Year Rule' : 'Taxable'}
+                  {/* Total row */}
+                  {property.total_cost_base && (
+                    <View style={{ ...styles.tableRow, backgroundColor: '#1e3a8a' }}>
+                      <Text style={{ fontSize: 9, color: colors.white, fontWeight: 'bold', width: '60%' }}>TOTAL COST BASE</Text>
+                      <Text style={{ fontSize: 10, color: colors.white, fontWeight: 'bold', width: '40%', textAlign: 'right' }}>
+                        {formatCurrency(property.total_cost_base)}
                       </Text>
                     </View>
-                  ))}
-                  {vacantPeriods.map((period: any, idx: number) => (
-                    <View key={`v-${idx}`} style={{ ...styles.tableRow, backgroundColor: colors.amberBg }}>
-                      <Text style={{ ...styles.tableCellBold, width: '25%', color: colors.amber }}>Vacant</Text>
-                      <Text style={{ ...styles.tableCell, width: '20%' }}>{formatDate(period.start)}</Text>
-                      <Text style={{ ...styles.tableCell, width: '20%' }}>{formatDate(period.end)}</Text>
-                      <Text style={{ ...styles.tableCell, width: '15%' }}>{period.days || 'N/A'}</Text>
-                      <Text style={{ ...styles.tableCellBold, width: '20%', color: colors.amber }}>Taxable</Text>
-                    </View>
-                  ))}
+                  )}
                 </View>
               </View>
             )}
 
-            {/* Six-Year Rule */}
-            {(property.six_year_rule_applied !== undefined) && (
-              <View style={{ ...styles.infoBox, backgroundColor: property.six_year_rule_applied ? colors.tealBg : colors.grayBg, borderColor: property.six_year_rule_applied ? colors.tealBorder : colors.grayBorder }} wrap={false}>
-                <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 4 }}>
-                  <Text style={{ fontSize: 10, fontWeight: 'bold', color: colors.teal, marginRight: 6 }}>Six-Year Rule</Text>
-                  <Text style={{
-                    ...styles.badge,
-                    backgroundColor: property.six_year_rule_applied ? colors.tealBg : colors.grayBg,
-                    color: property.six_year_rule_applied ? colors.teal : colors.grayLight,
-                    borderWidth: 1,
-                    borderColor: property.six_year_rule_applied ? colors.tealBorder : colors.grayBorder,
-                  }}>
-                    {property.six_year_rule_applied ? 'APPLIED' : 'NOT APPLIED'}
-                  </Text>
+            {/* -------------------------------------------------- */}
+            {/* SECTION 4: CGT Calculation Steps                   */}
+            {/* -------------------------------------------------- */}
+            {calculationSteps.length > 0 && (
+              <View>
+                <Text style={styles.sectionTitle}>CGT Calculation Steps</Text>
+                {calculationSteps.map((step: any, idx: number) => (
+                  <View key={idx} style={styles.stepContainer} wrap={false}>
+                    <Text style={styles.stepNumber}>{step.step_number || step.step || idx + 1}</Text>
+                    <View style={styles.stepContent}>
+                      <Text style={styles.stepTitle}>{step.title || `Step ${step.step_number || idx + 1}`}</Text>
+                      {step.description && (
+                        <Text style={{ fontSize: 8, color: colors.gray, lineHeight: 1.4, marginBottom: 2 }}>{step.description}</Text>
+                      )}
+                      {(step.formula || step.calculation) && (
+                        <Text style={styles.stepFormula}>{step.formula || step.calculation}</Text>
+                      )}
+                      {step.result !== null && step.result !== undefined && (
+                        <Text style={styles.stepResult}>
+                          = {typeof step.result === 'number' ? formatCurrency(step.result) : step.result}
+                        </Text>
+                      )}
+                    </View>
+                  </View>
+                ))}
+              </View>
+            )}
+
+            {/* -------------------------------------------------- */}
+            {/* SECTION 5: Calculation Summary                     */}
+            {/* -------------------------------------------------- */}
+            {Object.keys(calcSummary).length > 0 && (
+              <View wrap={false}>
+                <Text style={styles.sectionTitle}>Calculation Summary</Text>
+                <View style={{ ...styles.card, borderColor: colors.primaryBorder }}>
+                  {calcSummary.sale_price !== undefined && (
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4 }}>
+                      <Text style={{ fontSize: 9, color: colors.gray }}>Sale Price (Capital Proceeds)</Text>
+                      <Text style={{ fontSize: 9, fontWeight: 'bold', color: colors.black }}>{formatCurrency(calcSummary.sale_price)}</Text>
+                    </View>
+                  )}
+                  {calcSummary.total_cost_base !== undefined && (
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4 }}>
+                      <Text style={{ fontSize: 9, color: colors.gray }}>Less: Total Cost Base</Text>
+                      <Text style={{ fontSize: 9, fontWeight: 'bold', color: colors.red }}>- {formatCurrency(calcSummary.total_cost_base)}</Text>
+                    </View>
+                  )}
+                  {calcSummary.gross_capital_gain !== undefined && (
+                    <>
+                      <View style={styles.divider} />
+                      <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4 }}>
+                        <Text style={{ fontSize: 10, fontWeight: 'bold', color: colors.primary }}>Gross Capital Gain</Text>
+                        <Text style={{ fontSize: 10, fontWeight: 'bold', color: colors.primary }}>{formatCurrency(calcSummary.gross_capital_gain)}</Text>
+                      </View>
+                    </>
+                  )}
+                  {calcSummary.main_residence_exemption_percentage !== undefined && (
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4 }}>
+                      <Text style={{ fontSize: 9, color: colors.gray }}>Main Residence Exemption ({calcSummary.main_residence_exemption_percentage})</Text>
+                      <Text style={{ fontSize: 9, fontWeight: 'bold', color: colors.green }}>- {formatCurrency(calcSummary.main_residence_exemption_amount)}</Text>
+                    </View>
+                  )}
+                  {calcSummary.taxable_capital_gain !== undefined && (
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4 }}>
+                      <Text style={{ fontSize: 9, color: colors.gray }}>Taxable Capital Gain (after exemption)</Text>
+                      <Text style={{ fontSize: 9, fontWeight: 'bold', color: colors.amber }}>{formatCurrency(calcSummary.taxable_capital_gain)}</Text>
+                    </View>
+                  )}
+                  {calcSummary.cgt_discount_applicable && (
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4 }}>
+                      <Text style={{ fontSize: 9, color: colors.gray }}>CGT Discount ({calcSummary.cgt_discount_percentage || '50%'})</Text>
+                      <Text style={{ fontSize: 9, fontWeight: 'bold', color: colors.green }}>- {formatCurrency(calcSummary.cgt_discount_amount)}</Text>
+                    </View>
+                  )}
+                  {calcSummary.net_capital_gain !== undefined && (
+                    <>
+                      <View style={{ ...styles.divider, borderBottomWidth: 2, borderBottomColor: colors.primaryLight }} />
+                      <View style={{ flexDirection: 'row', justifyContent: 'space-between', backgroundColor: calcSummary.net_capital_gain === 0 || calcSummary.net_capital_gain === '$0' ? colors.greenBg : colors.amberBg, padding: 8, borderRadius: 4, marginTop: 4 }}>
+                        <Text style={{ fontSize: 12, fontWeight: 'bold', color: colors.primary }}>Net Capital Gain</Text>
+                        <Text style={{ fontSize: 12, fontWeight: 'bold', color: toNumber(calcSummary.net_capital_gain) === 0 ? colors.green : colors.amber }}>
+                          {formatCurrency(calcSummary.net_capital_gain)}
+                        </Text>
+                      </View>
+                    </>
+                  )}
                 </View>
-                {property.six_year_reason && (
-                  <Text style={{ fontSize: 8, color: colors.gray, lineHeight: 1.4 }}>{property.six_year_reason}</Text>
+              </View>
+            )}
+
+            {/* -------------------------------------------------- */}
+            {/* SECTION 5b: Tax on CGT                             */}
+            {/* -------------------------------------------------- */}
+            {calcSummary.tax_on_cgt && (
+              <View wrap={false}>
+                <Text style={styles.subsectionTitle}>Tax on Capital Gain</Text>
+                <View style={{ ...styles.card, borderColor: colors.indigoBorder }}>
+                  {calcSummary.tax_on_cgt.total_taxable_income !== undefined && (
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4 }}>
+                      <Text style={{ fontSize: 9, color: colors.gray }}>Total Taxable Income</Text>
+                      <Text style={{ fontSize: 9, fontWeight: 'bold', color: colors.black }}>{formatCurrency(calcSummary.tax_on_cgt.total_taxable_income)}</Text>
+                    </View>
+                  )}
+                  {calcSummary.tax_on_cgt.cgt_tax_impact !== undefined && (
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4 }}>
+                      <Text style={{ fontSize: 9, color: colors.gray }}>Tax Attributable to CGT</Text>
+                      <Text style={{ fontSize: 9, fontWeight: 'bold', color: colors.indigo }}>{formatCurrency(calcSummary.tax_on_cgt.cgt_tax_impact)}</Text>
+                    </View>
+                  )}
+                  {calcSummary.tax_on_cgt.effective_cgt_rate !== undefined && (
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4 }}>
+                      <Text style={{ fontSize: 9, color: colors.gray }}>Effective CGT Rate</Text>
+                      <Text style={{ fontSize: 9, fontWeight: 'bold', color: colors.indigo }}>{calcSummary.tax_on_cgt.effective_cgt_rate}</Text>
+                    </View>
+                  )}
+                  {calcSummary.tax_on_cgt.financial_year && (
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4 }}>
+                      <Text style={{ fontSize: 9, color: colors.gray }}>Financial Year</Text>
+                      <Text style={{ fontSize: 9, color: colors.black }}>{calcSummary.tax_on_cgt.financial_year}</Text>
+                    </View>
+                  )}
+                  {calcSummary.tax_on_cgt.note && (
+                    <View style={{ marginTop: 4 }}>
+                      <Text style={{ fontSize: 7, color: colors.grayLight, lineHeight: 1.4 }}>{calcSummary.tax_on_cgt.note}</Text>
+                    </View>
+                  )}
+                </View>
+
+                {/* Tax Bracket Breakdown */}
+                {calcSummary.tax_on_cgt.cgt_bracket_breakdown && calcSummary.tax_on_cgt.cgt_bracket_breakdown.length > 0 && (
+                  <View style={{ marginTop: 6 }}>
+                    <Text style={{ fontSize: 9, fontWeight: 'bold', color: colors.indigo, marginBottom: 4 }}>CGT Tax Bracket Breakdown</Text>
+                    <View style={styles.table}>
+                      <View style={{ ...styles.tableHeader, backgroundColor: colors.indigoBg }}>
+                        <Text style={{ ...styles.tableHeaderCell, width: '25%', color: colors.indigo }}>Marginal Rate</Text>
+                        <Text style={{ ...styles.tableHeaderCell, width: '25%', color: colors.indigo }}>Income From</Text>
+                        <Text style={{ ...styles.tableHeaderCell, width: '25%', color: colors.indigo }}>Income To</Text>
+                        <Text style={{ ...styles.tableHeaderCell, width: '25%', color: colors.indigo, textAlign: 'right' }}>Tax Amount</Text>
+                      </View>
+                      {calcSummary.tax_on_cgt.cgt_bracket_breakdown.map((bracket: any, idx: number) => (
+                        <View key={idx} style={styles.tableRow}>
+                          <Text style={{ ...styles.tableCellBold, width: '25%' }}>{bracket.marginal_rate}</Text>
+                          <Text style={{ ...styles.tableCell, width: '25%' }}>{formatCurrency(bracket.income_from)}</Text>
+                          <Text style={{ ...styles.tableCell, width: '25%' }}>{bracket.income_to ? formatCurrency(bracket.income_to) : 'Above'}</Text>
+                          <Text style={{ ...styles.tableCellBold, width: '25%', textAlign: 'right' }}>{formatCurrency(bracket.tax_amount)}</Text>
+                        </View>
+                      ))}
+                    </View>
+                  </View>
                 )}
               </View>
             )}
 
-            {/* Applicable Rules */}
+            {/* -------------------------------------------------- */}
+            {/* SECTION 6: What-If Scenarios                       */}
+            {/* -------------------------------------------------- */}
+            {whatIfScenarios.length > 0 && (
+              <View>
+                <Text style={styles.sectionTitle}>What-If Scenarios</Text>
+                {whatIfScenarios.map((scenario: any, idx: number) => (
+                  <View key={idx} style={{ ...styles.card, borderLeftWidth: 3, borderLeftColor: colors.purple, marginBottom: 10 }} wrap={false}>
+                    <Text style={{ fontSize: 10, fontWeight: 'bold', color: colors.purple, marginBottom: 4 }}>
+                      {scenario.title}
+                    </Text>
+                    {scenario.description && (
+                      <Text style={{ fontSize: 8, color: colors.gray, lineHeight: 1.4, marginBottom: 6 }}>
+                        {scenario.description}
+                      </Text>
+                    )}
+                    {scenario.calculation_steps && scenario.calculation_steps.length > 0 && (
+                      <View style={{ marginBottom: 6 }}>
+                        {scenario.calculation_steps.map((step: any, sIdx: number) => (
+                          <View key={sIdx} style={{ flexDirection: 'row', marginBottom: 3 }}>
+                            <Text style={{ fontSize: 7, color: colors.purple, fontWeight: 'bold', width: 16 }}>{step.step_number || sIdx + 1}.</Text>
+                            <View style={{ flex: 1 }}>
+                              <Text style={{ fontSize: 8, fontWeight: 'bold', color: colors.black }}>{step.title}</Text>
+                              <Text style={{ fontSize: 7, color: colors.gray }}>{step.details}</Text>
+                              {step.result && <Text style={{ fontSize: 7, color: colors.purple, fontWeight: 'bold' }}>= {step.result}</Text>}
+                            </View>
+                          </View>
+                        ))}
+                      </View>
+                    )}
+                    {scenario.result && (
+                      <View style={{ backgroundColor: colors.purpleBg, padding: 6, borderRadius: 3, marginTop: 4 }}>
+                        <Text style={{ fontSize: 8, color: colors.gray, lineHeight: 1.4 }}>{scenario.result}</Text>
+                        {scenario.net_capital_gain !== undefined && (
+                          <Text style={{ fontSize: 9, fontWeight: 'bold', color: colors.purple, marginTop: 2 }}>
+                            Net Capital Gain: {formatCurrency(scenario.net_capital_gain)}
+                          </Text>
+                        )}
+                      </View>
+                    )}
+                  </View>
+                ))}
+              </View>
+            )}
+
+            {/* -------------------------------------------------- */}
+            {/* SECTION 7: Important Notes                         */}
+            {/* -------------------------------------------------- */}
+            {importantNotes.length > 0 && (
+              <View wrap={false}>
+                <Text style={styles.sectionTitle}>Important Notes</Text>
+                <View style={{ ...styles.infoBox, backgroundColor: colors.amberBg, borderColor: colors.amberBorder }}>
+                  {importantNotes.map((note: string, idx: number) => (
+                    <View key={idx} style={{ flexDirection: 'row', marginBottom: 3 }}>
+                      <Text style={{ fontSize: 8, color: colors.amber, marginRight: 4 }}>!</Text>
+                      <Text style={{ fontSize: 8, color: '#92400e', lineHeight: 1.4, flex: 1 }}>{note}</Text>
+                    </View>
+                  ))}
+                </View>
+              </View>
+            )}
+
+            {/* -------------------------------------------------- */}
+            {/* SECTION 8: Applicable Rules                        */}
+            {/* -------------------------------------------------- */}
             {applicableRules.length > 0 && (
               <View>
                 <Text style={styles.sectionTitle}>Applicable Tax Rules</Text>
-                {applicableRules.map((rule, idx) => (
+                {applicableRules.map((rule: any, idx: number) => (
                   <View key={`rule-${idx}`} style={styles.ruleItem}>
                     <Text style={styles.bullet}>•</Text>
                     <View style={{ flex: 1 }}>
                       <Text style={{ fontSize: 9, color: colors.primary, lineHeight: 1.4 }}>
-                        <Text style={{ fontWeight: 'bold' }}>{rule.name}: </Text>
-                        {rule.description}
+                        <Text style={{ fontWeight: 'bold' }}>{rule.rule_name || rule.name}: </Text>
+                        {rule.description || rule.explanation || ''}
                       </Text>
                     </View>
+                  </View>
+                ))}
+              </View>
+            )}
+
+            {/* -------------------------------------------------- */}
+            {/* SECTION 9: Warnings                                */}
+            {/* -------------------------------------------------- */}
+            {warnings.length > 0 && (
+              <View wrap={false}>
+                <Text style={styles.subsectionTitle}>Warnings</Text>
+                {warnings.map((warning: string, idx: number) => (
+                  <View key={idx} style={{ ...styles.infoBox, backgroundColor: colors.redBg, borderColor: colors.redBorder, borderLeftWidth: 3, borderLeftColor: colors.red }}>
+                    <Text style={{ fontSize: 8, color: '#991b1b', lineHeight: 1.4 }}>{warning}</Text>
                   </View>
                 ))}
               </View>
@@ -925,354 +955,136 @@ export const SimplifiedCGTReportPDF: React.FC<SimplifiedCGTReportPDFProps> = ({ 
         );
       })}
 
-      {/* ================================================================== */}
-      {/* SECTION C: SPECIAL RULES, VERIFICATION & AUDIT TRAIL               */}
-      {/* ================================================================== */}
+      {/* ================================================================ */}
+      {/* GENERAL NOTES, RULES & REFERENCES PAGE                          */}
+      {/* ================================================================ */}
       <Page size="A4" style={styles.page} wrap>
-        <SectionBanner title="Verification & Audit Trail" subtitle="Timeline quality, validation results, and source citations" />
+        <SectionBanner title="General Notes, Rules & References" subtitle="Portfolio-level notes, CGT rules applied, and source references" />
 
-        {/* ITAA Tax Law Sections */}
-        {calculations?.method && (
+        {/* General Notes */}
+        {generalNotes.length > 0 && (
           <View style={{ marginBottom: 12 }}>
-            <Text style={styles.sectionTitle}>ITAA Tax Law Sections Applied</Text>
-            <View style={{ ...styles.infoBox, backgroundColor: colors.indigoBg, borderColor: colors.indigoBorder }}>
-              <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginBottom: 6 }}>
-                {calculations.method.split(',').map((section: string, idx: number) => (
-                  <Text key={idx} style={{
-                    ...styles.badge,
-                    backgroundColor: '#e0e7ff',
-                    color: colors.indigo,
-                    marginRight: 4,
-                    marginBottom: 4,
-                    fontFamily: 'Courier',
-                    fontSize: 8,
-                  }}>
-                    {section.trim()}
-                  </Text>
-                ))}
+            <Text style={styles.sectionTitle}>General Notes</Text>
+            {generalNotes.map((note: string, idx: number) => (
+              <View key={idx} style={styles.ruleItem}>
+                <Text style={styles.bullet}>•</Text>
+                <Text style={{ flex: 1, fontSize: 9, color: colors.gray, lineHeight: 1.4 }}>{note}</Text>
               </View>
-              <Text style={{ fontSize: 8, color: colors.gray }}>
-                These sections of the Income Tax Assessment Act 1997 (ITAA 1997) were applied in calculating your CGT.
-              </Text>
-            </View>
+            ))}
           </View>
         )}
 
-        {/* Timeline Quality Assessment */}
-        {verification?.timeline_analysis?.statistics && (
+        {/* Rules Applied Summary */}
+        {rulesAppliedSummary && (
           <View style={{ marginBottom: 12 }}>
-            <Text style={styles.sectionTitle}>Timeline Quality Assessment</Text>
-            <View style={{ flexDirection: 'row', marginBottom: 6 }}>
-              {verification.timeline_analysis.statistics.accounted_percentage !== undefined && (
-                <MetricCard
-                  label="Timeline Coverage"
-                  value={`${verification.timeline_analysis.statistics.accounted_percentage.toFixed(2)}%`}
-                  sub={verification.timeline_analysis.statistics.accounted_percentage >= 99 ? 'Excellent' : verification.timeline_analysis.statistics.accounted_percentage >= 95 ? 'Good' : 'Needs Review'}
-                  bgColor={verification.timeline_analysis.statistics.accounted_percentage >= 99 ? colors.greenBg : colors.amberBg}
-                  borderColor={verification.timeline_analysis.statistics.accounted_percentage >= 99 ? colors.greenBorder : colors.amberBorder}
-                  textColor={verification.timeline_analysis.statistics.accounted_percentage >= 99 ? colors.green : colors.amber}
-                />
-              )}
-              {verification.timeline_analysis.statistics.total_days !== undefined && (
-                <MetricCard
-                  label="Total Days"
-                  value={verification.timeline_analysis.statistics.total_days.toLocaleString()}
-                  sub="Ownership period"
-                  bgColor={colors.primaryBg}
-                  borderColor={colors.primaryBorder}
-                  textColor={colors.primaryLight}
-                />
-              )}
-              {verification.timeline_analysis.statistics.gap_days !== undefined && (
-                <MetricCard
-                  label="Gap Days"
-                  value={verification.timeline_analysis.statistics.gap_days.toLocaleString()}
-                  sub="Missing data"
-                  bgColor={colors.amberBg}
-                  borderColor={colors.amberBorder}
-                  textColor={colors.amber}
-                />
-              )}
-              {verification.timeline_analysis.statistics.overlap_days !== undefined && (
-                <MetricCard
-                  label="Overlap Days"
-                  value={verification.timeline_analysis.statistics.overlap_days.toLocaleString()}
-                  sub="Conflicts"
-                  bgColor={colors.purpleBg}
-                  borderColor={colors.purpleBorder}
-                  textColor={colors.purple}
-                />
-              )}
+            <Text style={styles.sectionTitle}>CGT Rules Applied</Text>
+            <View style={{ ...styles.infoBox, backgroundColor: colors.tealBg, borderColor: colors.tealBorder }}>
+              <Text style={{ fontSize: 8, color: colors.gray, lineHeight: 1.5 }}>{rulesAppliedSummary}</Text>
             </View>
           </View>
         )}
 
-        {/* Gap Analysis */}
-        {verification?.timeline_analysis?.gaps && verification.timeline_analysis.gaps.length > 0 && (
-          <View style={{ marginBottom: 12 }} wrap={false}>
-            <Text style={styles.subsectionTitle}>Timeline Gaps</Text>
-            <View style={styles.table}>
-              <View style={{ ...styles.tableHeader, backgroundColor: colors.amberBg }}>
-                <Text style={{ ...styles.tableHeaderCell, width: '30%', color: '#92400e' }}>Property</Text>
-                <Text style={{ ...styles.tableHeaderCell, width: '20%', color: '#92400e' }}>Gap Start</Text>
-                <Text style={{ ...styles.tableHeaderCell, width: '20%', color: '#92400e' }}>Gap End</Text>
-                <Text style={{ ...styles.tableHeaderCell, width: '10%', color: '#92400e' }}>Days</Text>
-                <Text style={{ ...styles.tableHeaderCell, width: '20%', color: '#92400e' }}>Description</Text>
-              </View>
-              {verification.timeline_analysis.gaps.map((gap: any, idx: number) => (
-                <View key={idx} style={styles.tableRow}>
-                  <Text style={{ ...styles.tableCell, width: '30%' }}>{gap.property_address || gap.property_id || 'Unknown'}</Text>
-                  <Text style={{ ...styles.tableCell, width: '20%' }}>{gap.start ? formatDate(gap.start) : 'N/A'}</Text>
-                  <Text style={{ ...styles.tableCell, width: '20%' }}>{gap.end ? formatDate(gap.end) : 'N/A'}</Text>
-                  <Text style={{ ...styles.tableCellBold, width: '10%', color: colors.amber }}>{gap.days || gap.duration || 'N/A'}</Text>
-                  <Text style={{ ...styles.tableCell, width: '20%', fontSize: 7 }}>{gap.description || gap.message || 'Gap detected'}</Text>
-                </View>
-              ))}
-            </View>
-          </View>
-        )}
-
-        {/* Overlap Analysis */}
-        {verification?.timeline_analysis?.overlaps && verification.timeline_analysis.overlaps.length > 0 && (
-          <View style={{ marginBottom: 12 }} wrap={false}>
-            <Text style={styles.subsectionTitle}>Timeline Overlaps</Text>
-            <View style={styles.table}>
-              <View style={{ ...styles.tableHeader, backgroundColor: colors.purpleBg }}>
-                <Text style={{ ...styles.tableHeaderCell, width: '30%', color: colors.purple }}>Properties</Text>
-                <Text style={{ ...styles.tableHeaderCell, width: '20%', color: colors.purple }}>Start</Text>
-                <Text style={{ ...styles.tableHeaderCell, width: '20%', color: colors.purple }}>End</Text>
-                <Text style={{ ...styles.tableHeaderCell, width: '10%', color: colors.purple }}>Days</Text>
-                <Text style={{ ...styles.tableHeaderCell, width: '20%', color: colors.purple }}>Description</Text>
-              </View>
-              {verification.timeline_analysis.overlaps.map((overlap: any, idx: number) => (
-                <View key={idx} style={styles.tableRow}>
-                  <Text style={{ ...styles.tableCell, width: '30%' }}>
-                    {overlap.properties
-                      ? (Array.isArray(overlap.properties) ? overlap.properties.join(', ') : overlap.properties)
-                      : (overlap.property_1 && overlap.property_2 ? `${overlap.property_1} & ${overlap.property_2}` : 'Multiple')}
-                  </Text>
-                  <Text style={{ ...styles.tableCell, width: '20%' }}>{overlap.start ? formatDate(overlap.start) : 'N/A'}</Text>
-                  <Text style={{ ...styles.tableCell, width: '20%' }}>{overlap.end ? formatDate(overlap.end) : 'N/A'}</Text>
-                  <Text style={{ ...styles.tableCellBold, width: '10%', color: colors.purple }}>{overlap.days || overlap.duration || 'N/A'}</Text>
-                  <Text style={{ ...styles.tableCell, width: '20%', fontSize: 7 }}>{overlap.description || overlap.message || 'Overlap detected'}</Text>
-                </View>
-              ))}
-            </View>
-          </View>
-        )}
-
-        {/* Validation Metrics */}
-        {validation && (
+        {/* Source References */}
+        {sourceReferences.length > 0 && (
           <View style={{ marginBottom: 12 }}>
-            <Text style={styles.sectionTitle}>Analysis Validation</Text>
-            <View style={{ flexDirection: 'row', marginBottom: 6 }}>
-              {validation.citation_check && (
-                <MetricCard
-                  label="ATO Citations"
-                  value={`${validation.citation_check.valid_citations || 0}/${validation.citation_check.total_citations || 0}`}
-                  sub="Valid references"
-                  bgColor={colors.greenBg}
-                  borderColor={colors.greenBorder}
-                  textColor={colors.green}
-                />
-              )}
-              {validation.calculation_check && (
-                <MetricCard
-                  label="Calculations"
-                  value={`${validation.calculation_check.calculations_verified || 0}/${validation.calculation_check.calculations_found || 0}`}
-                  sub="Verified"
-                  bgColor={colors.primaryBg}
-                  borderColor={colors.primaryBorder}
-                  textColor={colors.primaryLight}
-                />
-              )}
-              {validation.logic_check && (
-                <MetricCard
-                  label="Completeness"
-                  value={`${validation.logic_check.completeness_score || 0}%`}
-                  sub="Data quality"
-                  bgColor={colors.purpleBg}
-                  borderColor={colors.purpleBorder}
-                  textColor={colors.purple}
-                />
-              )}
-              {validation.overall_confidence !== undefined && (
-                <MetricCard
-                  label="Confidence"
-                  value={`${validation.overall_confidence}%`}
-                  sub="Overall"
-                  bgColor={colors.amberBg}
-                  borderColor={colors.amberBorder}
-                  textColor={colors.amber}
-                />
-              )}
-            </View>
-
-            {/* Logic Checks Passed */}
-            {validation.logic_check?.checks_passed && validation.logic_check.checks_passed.length > 0 && (
-              <View style={{ ...styles.infoBox, backgroundColor: colors.greenBg, borderColor: colors.greenBorder }}>
-                <Text style={{ fontSize: 8, fontWeight: 'bold', color: colors.green, marginBottom: 4 }}>Validation Checks Passed</Text>
-                {validation.logic_check.checks_passed.map((check: string, idx: number) => (
-                  <Text key={idx} style={{ fontSize: 8, color: colors.greenDark, marginBottom: 2 }}>• {check}</Text>
-                ))}
-              </View>
-            )}
-          </View>
-        )}
-
-        {/* ATO Source Citations */}
-        {validation?.citation_check?.citation_details && validation.citation_check.citation_details.length > 0 && (
-          <View style={{ marginBottom: 12 }}>
-            <Text style={styles.sectionTitle}>ATO Source Citations</Text>
-            {validation.citation_check.citation_details.map((citation: any, idx: number) => (
+            <Text style={styles.sectionTitle}>Source References</Text>
+            {sourceReferences.map((ref: any, idx: number) => (
               <View key={idx} style={{ ...styles.card, borderLeftWidth: 3, borderLeftColor: colors.emerald }} wrap={false}>
-                <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 4 }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 2 }}>
                   <Text style={{ ...styles.badge, backgroundColor: colors.emerald, color: colors.white, marginRight: 4 }}>
-                    {citation.rule_number || `CITATION ${idx + 1}`}
+                    {idx + 1}
                   </Text>
-                  <Text style={{ fontSize: 9, fontWeight: 'bold', color: colors.emerald }}>{citation.source}</Text>
-                  {citation.page && citation.page !== 'N/A' && (
-                    <Text style={{ fontSize: 7, color: colors.grayLight, marginLeft: 4 }}>(Page {citation.page})</Text>
-                  )}
+                  <Text style={{ fontSize: 9, fontWeight: 'bold', color: colors.emerald }}>{ref.title || ref.source_document || `Reference ${idx + 1}`}</Text>
                 </View>
-                <Text style={{ fontSize: 8, color: colors.gray, lineHeight: 1.4 }}>
-                  {citation.source_text_preview || (citation.source_text ? citation.source_text.substring(0, 300) + '...' : '')}
-                </Text>
-                {citation.used_in_analysis && (
-                  <Text style={{ fontSize: 7, color: colors.emerald, marginTop: 4, fontWeight: 'bold' }}>
-                    Applied in: {citation.used_in_analysis}
-                  </Text>
+                {ref.source_document && ref.title && (
+                  <Text style={{ fontSize: 7, color: colors.grayLight }}>{ref.source_document}{ref.page ? ` | Page ${ref.page}` : ''}</Text>
                 )}
               </View>
             ))}
           </View>
         )}
-
-        {/* Knowledge Base Rules */}
-        {validation?.knowledge_base_rules && validation.knowledge_base_rules.length > 0 && (
-          <View style={{ marginBottom: 12 }}>
-            <Text style={styles.sectionTitle}>Rules Applied</Text>
-            {validation.knowledge_base_rules.map((rule: any, idx: number) => (
-              <View key={idx} style={{ ...styles.infoBox, backgroundColor: colors.greenBg, borderColor: colors.greenBorder }} wrap={false}>
-                <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 4 }}>
-                  <Text style={{ ...styles.badge, backgroundColor: '#dcfce7', color: colors.green, borderWidth: 1, borderColor: colors.greenBorder, marginRight: 4 }}>
-                    {rule.rule_id || `RULE ${idx + 1}`}
-                  </Text>
-                  <Text style={{ fontSize: 9, fontWeight: 'bold', color: colors.black }}>{rule.rule_title}</Text>
-                </View>
-                {rule.summary && (
-                  <Text style={{ fontSize: 8, color: colors.gray, lineHeight: 1.4 }}>{rule.summary}</Text>
-                )}
-              </View>
-            ))}
-          </View>
-        )}
-
-        {/* Recommendations */}
-        {analysis?.recommendations && analysis.recommendations.length > 0 && (
-          <View style={{ marginBottom: 12 }}>
-            <Text style={styles.sectionTitle}>Recommendations</Text>
-            {analysis.recommendations.map((rec: any, idx: number) => {
-              const recText = typeof rec === 'string' ? rec : rec.text || rec.recommendation || JSON.stringify(rec);
-              return (
-                <View key={idx} style={styles.ruleItem}>
-                  <Text style={{ ...styles.bullet, color: colors.amber }}>•</Text>
-                  <Text style={{ flex: 1, fontSize: 9, color: colors.gray, lineHeight: 1.4 }}>{recText}</Text>
-                </View>
-              );
-            })}
-          </View>
-        )}
-
-        {/* Validation Warnings */}
-        {validation?.warnings && validation.warnings.length > 0 && (
-          <View style={{ marginBottom: 12 }}>
-            <Text style={styles.subsectionTitle}>Validation Warnings</Text>
-            {validation.warnings.map((warning: string, idx: number) => (
-              <View key={idx} style={{ ...styles.infoBox, backgroundColor: colors.redBg, borderColor: colors.redBorder, borderLeftWidth: 3, borderLeftColor: colors.red }}>
-                <Text style={{ fontSize: 8, color: '#991b1b', lineHeight: 1.4 }}>{warning}</Text>
-              </View>
-            ))}
-          </View>
-        )}
-
-        {/* Verification Summary */}
-        {verification?.llm_summary && (
-          <View style={{ marginBottom: 12 }}>
-            <Text style={styles.sectionTitle}>Verification Summary</Text>
-            <View style={{ ...styles.infoBox, backgroundColor: colors.primaryBg, borderColor: colors.primaryBorder }}>
-              <Text style={{ fontSize: 8, color: colors.gray, lineHeight: 1.5 }}>{verification.llm_summary}</Text>
-            </View>
-          </View>
-        )}
-
-        {/* Portfolio Intelligence */}
-        {analysis?.cross_property_intelligence && (
-          <View style={{ marginBottom: 12 }}>
-            <Text style={styles.sectionTitle}>Portfolio Intelligence</Text>
-            <View style={{ ...styles.infoBox, backgroundColor: colors.purpleBg, borderColor: colors.purpleBorder }}>
-              <Text style={styles.bodyText}>{analysis.cross_property_intelligence}</Text>
-            </View>
-          </View>
-        )}
-
-        {/* Analysis Metadata */}
-        {analysis?.metadata && (
-          <View style={{ marginBottom: 12 }}>
-            <Text style={styles.sectionTitle}>Analysis Metadata</Text>
-            <View style={{ flexDirection: 'row' }}>
-              {analysis.metadata.llm_used && (
-                <MetricCard
-                  label="AI Model Used"
-                  value={analysis.metadata.llm_used}
-                  bgColor={colors.indigoBg}
-                  borderColor={colors.indigoBorder}
-                  textColor={colors.indigo}
-                />
-              )}
-              {analysis.metadata.chunks_retrieved !== undefined && (
-                <MetricCard
-                  label="KB Chunks"
-                  value={String(analysis.metadata.chunks_retrieved)}
-                  sub="Retrieved"
-                  bgColor={colors.tealBg}
-                  borderColor={colors.tealBorder}
-                  textColor={colors.teal}
-                />
-              )}
-              {analysis.metadata.confidence !== undefined && (
-                <MetricCard
-                  label="Confidence"
-                  value={`${analysis.metadata.confidence}%`}
-                  sub="Model confidence"
-                  bgColor={colors.cyanBg}
-                  borderColor={colors.cyanBorder}
-                  textColor={colors.cyan}
-                />
-              )}
-              <View style={{ flex: 1 }} />
-            </View>
-          </View>
-        )}
-
-        {/* Analysis ID Footer */}
-        <View style={styles.divider} />
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-          <Text style={{ fontSize: 8, color: colors.grayLighter }}>Analysis ID: {analysis_id || 'N/A'}</Text>
-          <Text style={{ fontSize: 8, color: colors.grayLighter }}>Generated: {reportDate}</Text>
-        </View>
 
         {/* Disclaimer */}
         <View style={{ ...styles.infoBox, backgroundColor: colors.grayBg, borderColor: colors.grayBorder, marginTop: 10 }}>
           <Text style={{ fontSize: 7, color: colors.grayLight, lineHeight: 1.4 }}>
-            DISCLAIMER: This report is generated by an AI-powered analysis tool and is intended for informational purposes only. It does not constitute professional tax advice. Capital gains tax calculations involve complex rules and individual circumstances may vary. Always consult with a qualified tax professional or registered tax agent before making decisions based on this analysis. Tax Simple Australia and CGT Brain accept no liability for decisions made based on this report.
+            {disclaimer || 'DISCLAIMER: This report is generated by an AI-powered analysis tool and is intended for informational purposes only. It does not constitute professional tax advice. Capital gains tax calculations involve complex rules and individual circumstances may vary. Always consult with a qualified tax professional or registered tax agent before making decisions based on this analysis. Tax Simple Australia and CGT Brain accept no liability for decisions made based on this report.'}
           </Text>
         </View>
 
-        <PageFooter pageLabel="Verification & Audit" />
+        {/* Analysis ID Footer */}
+        <View style={styles.divider} />
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+          <Text style={{ fontSize: 8, color: colors.grayLighter }}>Report generated by CGT Brain AI{llmUsed ? ` (${llmUsed})` : ''}</Text>
+          <Text style={{ fontSize: 8, color: colors.grayLighter }}>Generated: {new Date().toLocaleDateString('en-AU')}</Text>
+        </View>
+
+        <PageFooter pageLabel="Notes & References" />
       </Page>
     </Document>
   );
-};
+}
+
+// ============================================================================
+// LEGACY FORMAT REPORT (fallback for old status-based responses)
+// ============================================================================
+
+function LegacyReport({ response }: { response: any }) {
+  const reportDate = new Date().toLocaleDateString('en-AU');
+
+  // Try to get any useful data for display
+  const markdownContent = typeof response.answer === 'string' ? response.answer :
+    typeof response.analysis === 'string' ? response.analysis : null;
+
+  return (
+    <Document>
+      <Page size="A4" style={styles.page}>
+        <View style={{ marginBottom: 30, paddingBottom: 12, borderBottomWidth: 3, borderBottomColor: colors.primaryLight }}>
+          <Text style={{ fontSize: 28, fontWeight: 'bold', color: colors.primary }}>
+            CGT Analysis Report
+          </Text>
+          <Text style={{ fontSize: 11, color: colors.grayLight, marginTop: 4 }}>
+            Capital Gains Tax Portfolio Analysis
+          </Text>
+        </View>
+
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 24 }}>
+          <View>
+            <Text style={{ fontSize: 9, color: colors.grayLight }}>Generated</Text>
+            <Text style={{ fontSize: 11, fontWeight: 'bold', color: colors.black }}>{reportDate}</Text>
+          </View>
+        </View>
+
+        {markdownContent && (
+          <View style={{ marginTop: 8 }}>
+            <Text style={styles.sectionTitle}>Analysis</Text>
+            <View style={styles.textBlock}>
+              <Text style={styles.bodyText}>{markdownContent}</Text>
+            </View>
+          </View>
+        )}
+
+        {!markdownContent && (
+          <View style={{ marginTop: 20 }}>
+            <Text style={{ fontSize: 11, color: colors.grayLight, textAlign: 'center' }}>
+              Analysis data could not be parsed for PDF generation.
+            </Text>
+            <Text style={{ fontSize: 9, color: colors.grayLighter, textAlign: 'center', marginTop: 8 }}>
+              Please use the web interface to view the full analysis.
+            </Text>
+          </View>
+        )}
+
+        {/* Disclaimer */}
+        <View style={{ ...styles.infoBox, backgroundColor: colors.grayBg, borderColor: colors.grayBorder, marginTop: 20 }}>
+          <Text style={{ fontSize: 7, color: colors.grayLight, lineHeight: 1.4 }}>
+            DISCLAIMER: This report is generated by an AI-powered analysis tool and is intended for informational purposes only. It does not constitute professional tax advice. Always consult with a qualified tax professional.
+          </Text>
+        </View>
+
+        <PageFooter pageLabel="Report" />
+      </Page>
+    </Document>
+  );
+}
 
 export default SimplifiedCGTReportPDF;

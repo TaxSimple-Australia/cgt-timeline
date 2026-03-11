@@ -11,10 +11,22 @@ interface ShareLinkEmailRequest {
   includesAnalysis?: boolean;
 }
 
+// Build the logo URL from the request origin or fallback to production
+function getLogoUrl(request: NextRequest): string {
+  const origin = request.headers.get('origin')
+    || request.headers.get('referer')?.replace(/\/[^/]*$/, '')
+    || process.env.NEXT_PUBLIC_APP_URL
+    || 'https://cgtbrain.com.au';
+  return `${origin}/logos/logo-20-dark.png`;
+}
+
 export async function POST(request: NextRequest) {
   try {
     const body: ShareLinkEmailRequest = await request.json();
     const { email, phoneNumber, shareLink, includesAnalysis } = body;
+
+    // Build dynamic logo URL
+    const logoUrl = getLogoUrl(request);
 
     // Validate required fields
     if (!email || !shareLink) {
@@ -99,7 +111,7 @@ export async function POST(request: NextRequest) {
                           <table cellpadding="0" cellspacing="0" border="0">
                             <tr>
                               <td style="width: 60px; height: 60px; background: rgba(255,255,255,0.15); border-radius: 12px; text-align: center; vertical-align: middle; padding: 8px;">
-                                <img src="https://cgtbrain.com.au/logos/logo-20-dark.png" alt="CGT Brain Logo" style="width: 44px; height: 44px; display: block;" />
+                                <img src="${logoUrl}" alt="CGT Brain Logo" style="width: 44px; height: 44px; display: block;" />
                               </td>
                             </tr>
                           </table>

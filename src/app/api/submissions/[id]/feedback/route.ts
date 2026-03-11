@@ -10,6 +10,15 @@ const redis = new Redis({
 
 const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
 
+// Build the logo URL from the request origin or fallback to production
+function getLogoUrl(request: NextRequest): string {
+  const origin = request.headers.get('origin')
+    || request.headers.get('referer')?.replace(/\/[^/]*$/, '')
+    || process.env.NEXT_PUBLIC_APP_URL
+    || 'https://cgtbrain.com.au';
+  return `${origin}/logos/logo-20-dark.png`;
+}
+
 // Helper to format current date
 function getCurrentDate() {
   return new Date().toLocaleDateString('en-AU', {
@@ -21,7 +30,7 @@ function getCurrentDate() {
 }
 
 // Beautiful email template for feedback
-function getFeedbackEmailHtml(agent: TaxAgent, message: string, timelineLink: string) {
+function getFeedbackEmailHtml(agent: TaxAgent, message: string, timelineLink: string, logoUrl: string) {
   const currentDate = getCurrentDate();
   // Escape HTML in message and preserve line breaks
   const escapedMessage = message
@@ -60,7 +69,7 @@ function getFeedbackEmailHtml(agent: TaxAgent, message: string, timelineLink: st
                         <table cellpadding="0" cellspacing="0" border="0">
                           <tr>
                             <td style="width: 60px; height: 60px; background: rgba(255,255,255,0.15); border-radius: 12px; text-align: center; vertical-align: middle; padding: 8px;">
-                              <img src="https://cgtbrain.com.au/logos/logo-20-dark.png" alt="CGT Brain Logo" style="width: 44px; height: 44px; display: block;" />
+                              <img src="${logoUrl}" alt="CGT Brain Logo" style="width: 44px; height: 44px; display: block;" />
                             </td>
                           </tr>
                         </table>
@@ -275,7 +284,7 @@ export async function POST(
         from: 'CGT Brain AI <info@cgtbrain.com.au>',
         to: submission.userEmail,
         subject: `Feedback on Your CGT Timeline from ${agent.name}`,
-        html: getFeedbackEmailHtml(agent, message, submission.timelineLink),
+        html: getFeedbackEmailHtml(agent, message, submission.timelineLink, getLogoUrl(request)),
       });
 
       console.log(`📧 Feedback email sent to: ${submission.userEmail}`);

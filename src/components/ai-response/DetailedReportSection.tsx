@@ -139,41 +139,78 @@ export default function DetailedReportSection({ properties, analysis, calculatio
   const handleSendEmail = async (email: string) => {
     setIsSendingEmail(true);
     try {
-      // Generate share URL for the timeline
-      const shareUrl = await generateShareUrl();
+      // Guard: ensure we have a response/analysis to generate a PDF from
+      if (!response) {
+        throw new Error('No analysis report available. Please run a CGT analysis first.');
+      }
 
-      // Generate PDF with simplified format
-      const blob = await pdf(
-        <SimplifiedCGTReportPDF
-          response={response}
-        />
-      ).toBlob();
+      console.log('📧 Starting email send flow...');
+      console.log('📊 Response data available:', {
+        hasProperties: !!response.properties,
+        hasCalculations: !!response.calculations,
+        hasAnalysis: !!response.analysis,
+        analysisId: response.analysis_id || 'N/A',
+      });
 
-      // Create FormData to send email with PDF attachment
+      // Step 1: Generate the PDF document behind the scenes
+      console.log('📄 Step 1: Generating PDF document...');
+      let blob: Blob;
+      try {
+        blob = await pdf(
+          <SimplifiedCGTReportPDF
+            response={response}
+          />
+        ).toBlob();
+      } catch (pdfError) {
+        console.error('❌ PDF generation failed:', pdfError);
+        throw new Error('Failed to generate PDF report. Please try downloading the PDF first to verify it works.');
+      }
+
+      // Validate the generated PDF has actual content
+      if (!blob || blob.size === 0) {
+        console.error('❌ PDF blob is empty (size: 0)');
+        throw new Error('Generated PDF is empty. The report data may be incomplete.');
+      }
+
+      console.log('✅ PDF generated successfully:', {
+        size: `${(blob.size / 1024).toFixed(1)} KB`,
+        type: blob.type,
+      });
+
+      // Step 2: Send the email with the PDF attachment
+      console.log('📤 Step 2: Sending email with PDF attachment...');
+      const filename = `CGT-Analysis-${response.analysis_id || 'report'}.pdf`;
+
       const formData = new FormData();
       formData.append('email', email);
-      formData.append('pdf', blob, `CGT-Analysis-${response?.analysis_id || 'report'}.pdf`);
-      formData.append('filename', `CGT-Analysis-${response?.analysis_id || 'report'}.pdf`);
+      formData.append('pdf', blob, filename);
+      formData.append('filename', filename);
 
       const res = await fetch('/api/send-email', {
         method: 'POST',
         body: formData,
       });
 
+      const result = await res.json();
+
       if (!res.ok) {
-        throw new Error('Failed to send email');
+        console.error('❌ Email API error:', result);
+        throw new Error(result.error || `Email send failed (HTTP ${res.status})`);
       }
 
-      const result = await res.json();
       if (result.success) {
+        console.log('✅ Email sent successfully:', { emailId: result.emailId });
         showSuccess('Email sent', 'Report sent to your email successfully!');
         setShowEmailModal(false);
       } else {
         throw new Error(result.error || 'Failed to send email');
       }
     } catch (error) {
-      console.error('Error sending email:', error);
-      showError('Email failed', 'Failed to send email. Please try again or download the PDF instead.');
+      console.error('❌ Email flow error:', error);
+      showError(
+        'Email failed',
+        error instanceof Error ? error.message : 'Failed to send email. Please try again or download the PDF instead.'
+      );
     } finally {
       setIsSendingEmail(false);
     }

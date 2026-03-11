@@ -19,6 +19,7 @@ import { AnalysisData, Citations } from '@/types/model-response';
 import { AnalysisStickyNotesLayer, ShareLinkButton } from '../sticky-notes';
 import { SendToTaxAgentButton } from '../send-to-agent';
 import FeedbackPopup from '../FeedbackPopup';
+import DownloadReportButton from './DownloadReportButton';
 import TimelineSummaryTable from './TimelineSummaryTable';
 import OwnershipPeriodsTable from './OwnershipPeriodsTable';
 import PropertyTimelineTable from './PropertyTimelineTable';
@@ -305,6 +306,9 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
         <div className="flex items-center justify-between gap-4">
           <DisplayModeToggle />
           <div className="flex items-center gap-2">
+            {/* Download Report PDF Button */}
+            <DownloadReportButton response={response} />
+
             {/* Share Link Button */}
             <ShareLinkButton variant="analysis" includeAnalysis={true} className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white border-blue-600 dark:border-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 dark:text-white" />
 
@@ -424,6 +428,9 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
                 Follow-up
               </button>
             )}
+
+            {/* Download Report PDF Button */}
+            <DownloadReportButton response={response} />
 
             {/* Share Link Button */}
             <ShareLinkButton variant="analysis" includeAnalysis={true} className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white border-blue-600 dark:border-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 dark:text-white" />
@@ -729,6 +736,9 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
                 Follow-up
               </button>
             )}
+
+            {/* Download Report PDF Button */}
+            <DownloadReportButton response={response} />
 
             {/* Share Link Button */}
             <ShareLinkButton variant="analysis" includeAnalysis={true} className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white border-blue-600 dark:border-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 dark:text-white" />
@@ -1122,6 +1132,9 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
         <div className="flex items-center justify-between gap-4">
           <DisplayModeToggle />
           <div className="flex items-center gap-2">
+            {/* Download Report PDF Button */}
+            <DownloadReportButton response={response} />
+
             {/* Share Link Button */}
             <ShareLinkButton variant="analysis" includeAnalysis={true} className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white border-blue-600 dark:border-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 dark:text-white" />
 
@@ -1317,6 +1330,9 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
       <div className="flex items-center justify-between gap-4">
         <DisplayModeToggle />
         <div className="flex items-center gap-2">
+          {/* Download Report PDF Button */}
+          <DownloadReportButton response={response} />
+
           {/* Share Link Button */}
           <ShareLinkButton variant="analysis" includeAnalysis={true} className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white border-blue-600 dark:border-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 dark:text-white" />
 

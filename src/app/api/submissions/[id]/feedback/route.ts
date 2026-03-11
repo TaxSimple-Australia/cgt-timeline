@@ -62,7 +62,7 @@ function getFeedbackEmailHtml(agent: TaxAgent, message: string, timelineLink: st
                         <table cellpadding="0" cellspacing="0" border="0">
                           <tr>
                             <td style="width: 60px; height: 60px; background: rgba(255,255,255,0.15); border-radius: 12px; text-align: center; vertical-align: middle; padding: 8px;">
-                              <img src="${logoCidUrl}" alt="CGT Brain Logo" style="width: 44px; height: 44px; display: block;" />
+                              <img src="${logoCidUrl}" alt="CGT Brain Logo" style="width: 44px; height: 44px; display: block; margin: 0 auto; border: 0;" />
                             </td>
                           </tr>
                         </table>

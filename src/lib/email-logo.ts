@@ -12,7 +12,7 @@ export function getLogoBase64(): string {
   if (cachedLogoBase64) return cachedLogoBase64;
 
   try {
-    const logoPath = path.join(process.cwd(), 'public', 'logos', 'logo-20-dark.png');
+    const logoPath = path.join(process.cwd(), 'public', 'logos', 'logo-light-theme.png');
     const logoBuffer = fs.readFileSync(logoPath);
     cachedLogoBase64 = logoBuffer.toString('base64');
     return cachedLogoBase64;

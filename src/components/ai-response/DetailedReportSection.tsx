@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown, ChevronUp, FileText, Book, Download, Mail, Printer, Code, Copy, Check, AlertTriangle, Scale, FileCheck, Home, PieChart, BarChart3, Lightbulb } from 'lucide-react';
 import { getBrandedProviderName } from '@/lib/utils';
@@ -39,11 +39,62 @@ export default function DetailedReportSection({ properties, analysis, calculatio
   const [showEmailModal, setShowEmailModal] = useState(false);
   const [showJsonModal, setShowJsonModal] = useState(false);
   const [jsonCopied, setJsonCopied] = useState(false);
+  const [isPdfReady, setIsPdfReady] = useState(false);
+
+  // Standby PDF: generated in background after analysis, ready for instant email attachment
+  const standbyPdfRef = useRef<Blob | null>(null);
+  const pdfGenerationIdRef = useRef<number>(0);
 
   // Get properties and events from timeline store for PDF flowchart (or use passed-in props)
   const storeData = useTimelineStore();
   const _timelineProperties = timelineProperties || storeData.properties;
   const _events = timelineEvents || storeData.events;
+
+  // Generate PDF in background whenever a new analysis response arrives
+  const generateStandbyPdf = useCallback(async (responseData: any, generationId: number) => {
+    try {
+      console.log('📄 Generating standby PDF in background...');
+      setIsPdfReady(false);
+      standbyPdfRef.current = null;
+
+      const blob = await pdf(
+        <SimplifiedCGTReportPDF response={responseData} />
+      ).toBlob();
+
+      // Only update if this is still the latest generation request
+      if (pdfGenerationIdRef.current !== generationId) {
+        console.log('📄 Standby PDF generation superseded by newer request, discarding.');
+        return;
+      }
+
+      if (blob && blob.size > 0) {
+        standbyPdfRef.current = blob;
+        setIsPdfReady(true);
+        console.log('✅ Standby PDF ready:', {
+          size: `${(blob.size / 1024).toFixed(1)} KB`,
+        });
+      } else {
+        console.warn('⚠️ Standby PDF generated but empty');
+      }
+    } catch (error) {
+      console.error('❌ Background PDF generation failed:', error);
+      // Don't block the user — they can still generate on-the-fly when sending
+    }
+  }, []);
+
+  useEffect(() => {
+    if (response) {
+      // Increment generation ID to invalidate any in-flight generation
+      const generationId = ++pdfGenerationIdRef.current;
+      // Reset standby state for new report
+      standbyPdfRef.current = null;
+      setIsPdfReady(false);
+      generateStandbyPdf(response, generationId);
+    } else {
+      standbyPdfRef.current = null;
+      setIsPdfReady(false);
+    }
+  }, [response, generateStandbyPdf]);
 
   if (!analysis && !calculations && !validation) return null;
 
@@ -91,19 +142,27 @@ export default function DetailedReportSection({ properties, analysis, calculatio
       console.log('📊 Exporting PDF with:', {
         properties: _timelineProperties.length,
         events: _events.length,
-        response: response ? 'present' : 'missing'
+        response: response ? 'present' : 'missing',
+        standbyReady: isPdfReady,
       });
 
       // Generate share URL for the timeline
       const shareUrl = await generateShareUrl();
       console.log('📎 Share URL for PDF:', shareUrl || 'not generated');
 
-      // Generate PDF using @react-pdf/renderer with simplified format
-      const blob = await pdf(
-        <SimplifiedCGTReportPDF
-          response={response}
-        />
-      ).toBlob();
+      // Use standby PDF if available, otherwise generate on the fly
+      let blob: Blob;
+      if (standbyPdfRef.current && standbyPdfRef.current.size > 0) {
+        console.log('📄 Using standby PDF for export');
+        blob = standbyPdfRef.current;
+      } else {
+        console.log('📄 Generating PDF on the fly for export...');
+        blob = await pdf(
+          <SimplifiedCGTReportPDF
+            response={response}
+          />
+        ).toBlob();
+      }
 
       // Create download link
       const url = URL.createObjectURL(blob);
@@ -145,25 +204,24 @@ export default function DetailedReportSection({ properties, analysis, calculatio
       }
 
       console.log('📧 Starting email send flow...');
-      console.log('📊 Response data available:', {
-        hasProperties: !!response.properties,
-        hasCalculations: !!response.calculations,
-        hasAnalysis: !!response.analysis,
-        analysisId: response.analysis_id || 'N/A',
-      });
 
-      // Step 1: Generate the PDF document behind the scenes
-      console.log('📄 Step 1: Generating PDF document...');
+      // Step 1: Get the PDF — use standby if ready, otherwise generate on the fly
       let blob: Blob;
-      try {
-        blob = await pdf(
-          <SimplifiedCGTReportPDF
-            response={response}
-          />
-        ).toBlob();
-      } catch (pdfError) {
-        console.error('❌ PDF generation failed:', pdfError);
-        throw new Error('Failed to generate PDF report. Please try downloading the PDF first to verify it works.');
+      if (standbyPdfRef.current && standbyPdfRef.current.size > 0) {
+        console.log('📄 Using standby PDF for email attachment');
+        blob = standbyPdfRef.current;
+      } else {
+        console.log('📄 Standby PDF not ready, generating on the fly...');
+        try {
+          blob = await pdf(
+            <SimplifiedCGTReportPDF
+              response={response}
+            />
+          ).toBlob();
+        } catch (pdfError) {
+          console.error('❌ PDF generation failed:', pdfError);
+          throw new Error('Failed to generate PDF report. Please try downloading the PDF first to verify it works.');
+        }
       }
 
       // Validate the generated PDF has actual content
@@ -172,9 +230,9 @@ export default function DetailedReportSection({ properties, analysis, calculatio
         throw new Error('Generated PDF is empty. The report data may be incomplete.');
       }
 
-      console.log('✅ PDF generated successfully:', {
+      console.log('✅ PDF ready for attachment:', {
         size: `${(blob.size / 1024).toFixed(1)} KB`,
-        type: blob.type,
+        source: standbyPdfRef.current ? 'standby' : 'on-the-fly',
       });
 
       // Step 2: Send the email with the PDF attachment

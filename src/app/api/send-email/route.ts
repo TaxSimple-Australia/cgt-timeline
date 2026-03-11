@@ -1,19 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { Resend } from 'resend';
+import { getLogoAttachment, LOGO_CID } from '@/lib/email-logo';
 
 // Initialize Resend with API key from environment variable (use placeholder for build)
 const resend = new Resend(process.env.RESEND_API_KEY || 'placeholder_key');
 
-// Build the logo URL from the request origin or fallback to production
-function getLogoUrl(request: NextRequest): string {
-  const origin = request.headers.get('origin')
-    || request.headers.get('referer')?.replace(/\/[^/]*$/, '')
-    || process.env.NEXT_PUBLIC_APP_URL
-    || 'https://cgtbrain.com.au';
-  return `${origin}/logos/logo-20-dark.png`;
-}
-
-function getEmailHtml(logoUrl: string): string {
+function getEmailHtml(): string {
+  const logoCidUrl = `cid:${LOGO_CID}`;
   return `
     <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #ffffff;">
       <!-- Header -->
@@ -32,7 +25,7 @@ function getEmailHtml(logoUrl: string): string {
               <table cellpadding="0" cellspacing="0" border="0">
                 <tr>
                   <td style="width: 60px; height: 60px; background: rgba(255,255,255,0.15); border-radius: 12px; text-align: center; vertical-align: middle; padding: 8px;">
-                    <img src="${logoUrl}" alt="CGT Brain Logo" width="44" height="44" style="width: 44px; height: 44px; display: block; border: 0;" />
+                    <img src="${logoCidUrl}" alt="CGT Brain Logo" width="44" height="44" style="width: 44px; height: 44px; display: block; border: 0;" />
                   </td>
                 </tr>
               </table>
@@ -168,25 +161,22 @@ export async function POST(request: NextRequest) {
       console.warn('⚠️ PDF buffer suspiciously small:', buffer.length, 'bytes');
     }
 
-    // Build dynamic logo URL from request origin
-    const logoUrl = getLogoUrl(request);
-    console.log('🖼️ Logo URL:', logoUrl);
-
     // Convert buffer to base64 for maximum compatibility with Resend
     const base64Content = buffer.toString('base64');
 
-    // Send email with PDF attachment using Resend
+    // Send email with PDF attachment and inline logo using Resend
     const { data, error } = await resend.emails.send({
       from: 'CGT Brain Analysis <info@cgtbrain.com.au>',
       to: [email],
       subject: 'Your CGT Analysis Report - Tax Simple Australia',
-      html: getEmailHtml(logoUrl),
+      html: getEmailHtml(),
       attachments: [
         {
           filename: filename,
           content: base64Content,
           contentType: 'application/pdf',
         },
+        getLogoAttachment(),
       ],
     });
 

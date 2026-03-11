@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { Redis } from '@upstash/redis';
 import { Resend } from 'resend';
 import type { TaxAgent, TaxAgentSubmission, TaxAgentSession } from '@/types/tax-agent';
+import { getLogoAttachment, LOGO_CID } from '@/lib/email-logo';
 
 const redis = new Redis({
   url: process.env.KV_REST_API_URL!,
@@ -9,15 +10,6 @@ const redis = new Redis({
 });
 
 const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
-
-// Build the logo URL from the request origin or fallback to production
-function getLogoUrl(request: NextRequest): string {
-  const origin = request.headers.get('origin')
-    || request.headers.get('referer')?.replace(/\/[^/]*$/, '')
-    || process.env.NEXT_PUBLIC_APP_URL
-    || 'https://cgtbrain.com.au';
-  return `${origin}/logos/logo-20-dark.png`;
-}
 
 // Helper to format current date
 function getCurrentDate() {
@@ -30,7 +22,8 @@ function getCurrentDate() {
 }
 
 // Beautiful email template for feedback
-function getFeedbackEmailHtml(agent: TaxAgent, message: string, timelineLink: string, logoUrl: string) {
+function getFeedbackEmailHtml(agent: TaxAgent, message: string, timelineLink: string) {
+  const logoCidUrl = `cid:${LOGO_CID}`;
   const currentDate = getCurrentDate();
   // Escape HTML in message and preserve line breaks
   const escapedMessage = message
@@ -69,7 +62,7 @@ function getFeedbackEmailHtml(agent: TaxAgent, message: string, timelineLink: st
                         <table cellpadding="0" cellspacing="0" border="0">
                           <tr>
                             <td style="width: 60px; height: 60px; background: rgba(255,255,255,0.15); border-radius: 12px; text-align: center; vertical-align: middle; padding: 8px;">
-                              <img src="${logoUrl}" alt="CGT Brain Logo" style="width: 44px; height: 44px; display: block;" />
+                              <img src="${logoCidUrl}" alt="CGT Brain Logo" style="width: 44px; height: 44px; display: block;" />
                             </td>
                           </tr>
                         </table>
@@ -284,7 +277,8 @@ export async function POST(
         from: 'CGT Brain AI <info@cgtbrain.com.au>',
         to: submission.userEmail,
         subject: `Feedback on Your CGT Timeline from ${agent.name}`,
-        html: getFeedbackEmailHtml(agent, message, submission.timelineLink, getLogoUrl(request)),
+        html: getFeedbackEmailHtml(agent, message, submission.timelineLink),
+        attachments: [getLogoAttachment()],
       });
 
       console.log(`📧 Feedback email sent to: ${submission.userEmail}`);

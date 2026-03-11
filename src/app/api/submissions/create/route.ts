@@ -3,6 +3,7 @@ import { Redis } from '@upstash/redis';
 import { nanoid } from 'nanoid';
 import { Resend } from 'resend';
 import type { TaxAgent, TaxAgentSubmission, CreateSubmissionRequest, CreateSubmissionResponse } from '@/types/tax-agent';
+import { getLogoAttachment, LOGO_CID } from '@/lib/email-logo';
 
 const redis = new Redis({
   url: process.env.KV_REST_API_URL!,
@@ -10,15 +11,6 @@ const redis = new Redis({
 });
 
 const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
-
-// Build the logo URL from the request origin or fallback to production
-function getLogoUrl(request: NextRequest): string {
-  const origin = request.headers.get('origin')
-    || request.headers.get('referer')?.replace(/\/[^/]*$/, '')
-    || process.env.NEXT_PUBLIC_APP_URL
-    || 'https://cgtbrain.com.au';
-  return `${origin}/logos/logo-20-dark.png`;
-}
 
 // Helper to format current date
 function getCurrentDate() {
@@ -31,8 +23,9 @@ function getCurrentDate() {
 }
 
 // Beautiful email template for Tax Agent notification
-function getTaxAgentEmailHtml(agent: TaxAgent, userEmail: string, userPhone: string | undefined, propertiesCount: number, eventsCount: number, hasAnalysis: boolean, analysisProvider: string | undefined, timelineLink: string, logoUrl: string) {
+function getTaxAgentEmailHtml(agent: TaxAgent, userEmail: string, userPhone: string | undefined, propertiesCount: number, eventsCount: number, hasAnalysis: boolean, analysisProvider: string | undefined, timelineLink: string) {
   const currentDate = getCurrentDate();
+  const logoCidUrl = `cid:${LOGO_CID}`;
 
   return `
     <!DOCTYPE html>
@@ -64,7 +57,7 @@ function getTaxAgentEmailHtml(agent: TaxAgent, userEmail: string, userPhone: str
                         <table cellpadding="0" cellspacing="0" border="0">
                           <tr>
                             <td style="width: 60px; height: 60px; background: rgba(255,255,255,0.15); border-radius: 12px; text-align: center; vertical-align: middle; padding: 8px;">
-                              <img src="${logoUrl}" alt="CGT Brain Logo" style="width: 44px; height: 44px; display: block;" />
+                              <img src="${logoCidUrl}" alt="CGT Brain Logo" style="width: 44px; height: 44px; display: block;" />
                             </td>
                           </tr>
                         </table>
@@ -220,8 +213,9 @@ function getTaxAgentEmailHtml(agent: TaxAgent, userEmail: string, userPhone: str
 }
 
 // Beautiful email template for User confirmation
-function getUserConfirmationEmailHtml(agentName: string, userEmail: string, propertiesCount: number, eventsCount: number, hasAnalysis: boolean, timelineLink: string, logoUrl: string) {
+function getUserConfirmationEmailHtml(agentName: string, userEmail: string, propertiesCount: number, eventsCount: number, hasAnalysis: boolean, timelineLink: string) {
   const currentDate = getCurrentDate();
+  const logoCidUrl = `cid:${LOGO_CID}`;
 
   return `
     <!DOCTYPE html>
@@ -253,7 +247,7 @@ function getUserConfirmationEmailHtml(agentName: string, userEmail: string, prop
                         <table cellpadding="0" cellspacing="0" border="0">
                           <tr>
                             <td style="width: 60px; height: 60px; background: rgba(255,255,255,0.15); border-radius: 12px; text-align: center; vertical-align: middle; padding: 8px;">
-                              <img src="${logoUrl}" alt="CGT Brain Logo" style="width: 44px; height: 44px; display: block;" />
+                              <img src="${logoCidUrl}" alt="CGT Brain Logo" style="width: 44px; height: 44px; display: block;" />
                             </td>
                           </tr>
                         </table>
@@ -459,7 +453,6 @@ export async function POST(request: NextRequest) {
     const submissionId = nanoid(12);
     const origin = request.headers.get('origin') || process.env.NEXT_PUBLIC_APP_URL || 'https://cgtbrain.com.au';
     const timelineLink = `${origin}?share=${shareId}`;
-    const logoUrl = getLogoUrl(request);
     const now = new Date().toISOString();
 
     // Create submission
@@ -500,7 +493,8 @@ export async function POST(request: NextRequest) {
           from: 'CGT Brain AI <info@cgtbrain.com.au>',
           to: agent.email,
           subject: `New CGT Timeline Submission - ${propertiesCount} ${propertiesCount === 1 ? 'Property' : 'Properties'}`,
-          html: getTaxAgentEmailHtml(agent, userEmail, userPhone, propertiesCount || 0, eventsCount || 0, hasAnalysis || false, analysisProvider, timelineLink, logoUrl),
+          html: getTaxAgentEmailHtml(agent, userEmail, userPhone, propertiesCount || 0, eventsCount || 0, hasAnalysis || false, analysisProvider, timelineLink),
+          attachments: [getLogoAttachment()],
         });
         console.log(`📧 Notification email sent to Tax Agent: ${agent.email}`);
       } catch (emailError) {
@@ -515,7 +509,8 @@ export async function POST(request: NextRequest) {
           from: 'CGT Brain AI <info@cgtbrain.com.au>',
           to: userEmail,
           subject: `Your CGT Timeline Has Been Sent to ${agent.name}`,
-          html: getUserConfirmationEmailHtml(agent.name, userEmail, propertiesCount || 0, eventsCount || 0, hasAnalysis || false, timelineLink, logoUrl),
+          html: getUserConfirmationEmailHtml(agent.name, userEmail, propertiesCount || 0, eventsCount || 0, hasAnalysis || false, timelineLink),
+          attachments: [getLogoAttachment()],
         });
         console.log(`📧 Confirmation email sent to user: ${userEmail}`);
       } catch (emailError) {

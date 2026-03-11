@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { Resend } from 'resend';
+import { getLogoAttachment, LOGO_CID } from '@/lib/email-logo';
 
 // Initialize Resend with API key from environment variable
 const resend = new Resend(process.env.RESEND_API_KEY || 'placeholder_key');
@@ -11,22 +12,12 @@ interface ShareLinkEmailRequest {
   includesAnalysis?: boolean;
 }
 
-// Build the logo URL from the request origin or fallback to production
-function getLogoUrl(request: NextRequest): string {
-  const origin = request.headers.get('origin')
-    || request.headers.get('referer')?.replace(/\/[^/]*$/, '')
-    || process.env.NEXT_PUBLIC_APP_URL
-    || 'https://cgtbrain.com.au';
-  return `${origin}/logos/logo-20-dark.png`;
-}
-
 export async function POST(request: NextRequest) {
   try {
     const body: ShareLinkEmailRequest = await request.json();
     const { email, phoneNumber, shareLink, includesAnalysis } = body;
 
-    // Build dynamic logo URL
-    const logoUrl = getLogoUrl(request);
+    const logoCidUrl = `cid:${LOGO_CID}`;
 
     // Validate required fields
     if (!email || !shareLink) {
@@ -111,7 +102,7 @@ export async function POST(request: NextRequest) {
                           <table cellpadding="0" cellspacing="0" border="0">
                             <tr>
                               <td style="width: 60px; height: 60px; background: rgba(255,255,255,0.15); border-radius: 12px; text-align: center; vertical-align: middle; padding: 8px;">
-                                <img src="${logoUrl}" alt="CGT Brain Logo" style="width: 44px; height: 44px; display: block;" />
+                                <img src="${logoCidUrl}" alt="CGT Brain Logo" style="width: 44px; height: 44px; display: block;" />
                               </td>
                             </tr>
                           </table>
@@ -252,13 +243,14 @@ Powered by CGT Brain AI
 © ${new Date().getFullYear()} CGT Brain. All rights reserved.
     `;
 
-    // Send email using Resend
+    // Send email using Resend with inline logo
     const { data, error } = await resend.emails.send({
       from: 'CGT Brain AI <info@cgtbrain.com.au>',
       to: [email],
       subject: 'Your CGT Timeline Link - CGT Brain AI',
       html: htmlContent,
       text: textContent,
+      attachments: [getLogoAttachment()],
     });
 
     if (error) {

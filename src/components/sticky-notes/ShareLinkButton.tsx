@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Share2, Check, Copy, Link, X, Loader2, Mail, Phone, Send, MessageCircle, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTimelineStore } from '@/store/timeline';
+import { getStandbyPdf } from '@/lib/standby-pdf';
 
 const COUNTRY_CODES = [
   { code: '+61', country: 'AU', label: 'Australia', flag: '🇦🇺' },
@@ -151,7 +152,7 @@ export default function ShareLinkButton({
     }
   };
 
-  // Send share link via email
+  // Send share link via email (with PDF attachment if analysis is available)
   const handleSendEmail = async () => {
     if (!shareLink || !email) return;
 
@@ -166,15 +167,29 @@ export default function ShareLinkButton({
     setEmailError(null);
 
     try {
+      const hasAnalysisData = includeAnalysis && !!aiResponse;
+      const { blob: pdfBlob, filename: pdfFilename } = getStandbyPdf();
+
+      // Use FormData to support optional PDF attachment
+      const formData = new FormData();
+      formData.append('email', email);
+      formData.append('shareLink', shareLink);
+      formData.append('includesAnalysis', String(hasAnalysisData));
+      if (phoneNumber) formData.append('phoneNumber', phoneNumber);
+
+      // Attach the standby PDF if analysis is available
+      if (hasAnalysisData && pdfBlob && pdfBlob.size > 0) {
+        formData.append('pdf', pdfBlob, pdfFilename);
+        formData.append('pdfFilename', pdfFilename);
+        console.log('📎 Attaching standby PDF to share email:', {
+          size: `${(pdfBlob.size / 1024).toFixed(1)} KB`,
+          filename: pdfFilename,
+        });
+      }
+
       const response = await fetch('/api/send-share-link', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email,
-          phoneNumber: phoneNumber || undefined,
-          shareLink,
-          includesAnalysis: includeAnalysis && !!aiResponse,
-        }),
+        body: formData,
       });
 
       const result = await response.json();

@@ -20,6 +20,7 @@ import TwoColumnLayout from '../timeline-viz/TwoColumnLayout';
 import RecommendationsSection from './RecommendationsSection';
 import { useTimelineStore } from '@/store/timeline';
 import { serializeTimeline } from '@/lib/timeline-serialization';
+import { setStandbyPdf, clearStandbyPdf } from '@/lib/standby-pdf';
 
 interface DetailedReportSectionProps {
   properties?: any[];
@@ -69,16 +70,19 @@ export default function DetailedReportSection({ properties, analysis, calculatio
 
       if (blob && blob.size > 0) {
         standbyPdfRef.current = blob;
+        const filename = `CGT-Analysis-${responseData?.analysis_id || 'report'}.pdf`;
+        setStandbyPdf(blob, filename);
         setIsPdfReady(true);
         console.log('✅ Standby PDF ready:', {
           size: `${(blob.size / 1024).toFixed(1)} KB`,
         });
       } else {
         console.warn('⚠️ Standby PDF generated but empty');
+        clearStandbyPdf();
       }
     } catch (error) {
       console.error('❌ Background PDF generation failed:', error);
-      // Don't block the user — they can still generate on-the-fly when sending
+      clearStandbyPdf();
     }
   }, []);
 
@@ -93,6 +97,7 @@ export default function DetailedReportSection({ properties, analysis, calculatio
     } else {
       standbyPdfRef.current = null;
       setIsPdfReady(false);
+      clearStandbyPdf();
     }
   }, [response, generateStandbyPdf]);
 

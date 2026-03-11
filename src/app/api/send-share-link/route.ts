@@ -14,8 +14,40 @@ interface ShareLinkEmailRequest {
 
 export async function POST(request: NextRequest) {
   try {
-    const body: ShareLinkEmailRequest = await request.json();
-    const { email, phoneNumber, shareLink, includesAnalysis } = body;
+    // Parse request — supports both FormData (with optional PDF) and JSON
+    let email: string;
+    let phoneNumber: string | undefined;
+    let shareLink: string;
+    let includesAnalysis: boolean;
+    let pdfBuffer: Buffer | null = null;
+    let pdfFilename: string = 'CGT-Analysis-Report.pdf';
+
+    const contentType = request.headers.get('content-type') || '';
+
+    if (contentType.includes('multipart/form-data')) {
+      const formData = await request.formData();
+      email = formData.get('email') as string;
+      phoneNumber = (formData.get('phoneNumber') as string) || undefined;
+      shareLink = formData.get('shareLink') as string;
+      includesAnalysis = formData.get('includesAnalysis') === 'true';
+
+      const pdfFile = formData.get('pdf') as File | Blob | null;
+      if (pdfFile && pdfFile.size > 0) {
+        const arrayBuffer = await pdfFile.arrayBuffer();
+        pdfBuffer = Buffer.from(arrayBuffer);
+        pdfFilename = (formData.get('pdfFilename') as string) || pdfFilename;
+        console.log('📎 PDF attachment received:', {
+          filename: pdfFilename,
+          size: `${(pdfBuffer.length / 1024).toFixed(1)} KB`,
+        });
+      }
+    } else {
+      const body: ShareLinkEmailRequest = await request.json();
+      email = body.email;
+      phoneNumber = body.phoneNumber;
+      shareLink = body.shareLink;
+      includesAnalysis = body.includesAnalysis || false;
+    }
 
     const logoCidUrl = `cid:${LOGO_CID}`;
 
@@ -172,6 +204,17 @@ export async function POST(request: NextRequest) {
                       </p>
                     </div>
 
+                    ${pdfBuffer ? `
+                    <div style="background: #EFF6FF; border: 1px solid #BFDBFE; border-radius: 8px; padding: 16px; margin: 24px 0;">
+                      <p style="margin: 0; color: #1E40AF; font-size: 14px; font-weight: 600;">
+                        &#128206; CGT Analysis Report Attached
+                      </p>
+                      <p style="margin: 8px 0 0; color: #3B82F6; font-size: 13px;">
+                        A detailed PDF report of the CGT analysis is attached to this email for your records.
+                      </p>
+                    </div>
+                    ` : ''}
+
                     <p style="margin: 24px 0 0; color: #9CA3AF; font-size: 13px; line-height: 1.6;">
                       This link provides read-only access to the shared timeline. You can view all the information but modifications will not be saved.
                     </p>
@@ -232,7 +275,7 @@ What's Included:
 - All property events and milestones
 - Sticky notes and annotations
 ${includesAnalysis ? '- Complete CGT analysis results\n- Analysis notes and annotations' : ''}
-
+${pdfBuffer ? '\nA detailed CGT Analysis Report PDF is attached to this email.\n' : ''}
 This link provides read-only access to the shared timeline.
 
 ---
@@ -243,14 +286,25 @@ Powered by CGT Brain AI
 © ${new Date().getFullYear()} CGT Brain. All rights reserved.
     `;
 
-    // Send email using Resend with inline logo
+    // Build attachments: always include logo, optionally include PDF
+    const attachments: any[] = [getLogoAttachment()];
+
+    if (pdfBuffer && pdfBuffer.length > 0) {
+      attachments.push({
+        filename: pdfFilename,
+        content: pdfBuffer.toString('base64'),
+        contentType: 'application/pdf',
+      });
+    }
+
+    // Send email using Resend with inline logo and optional PDF
     const { data, error } = await resend.emails.send({
       from: 'CGT Brain AI <info@cgtbrain.com.au>',
       to: [email],
       subject: 'Your CGT Timeline Link - CGT Brain AI',
       html: htmlContent,
       text: textContent,
-      attachments: [getLogoAttachment()],
+      attachments,
     });
 
     if (error) {
@@ -265,6 +319,7 @@ Powered by CGT Brain AI
       emailId: data?.id,
       to: email,
       includesAnalysis,
+      hasPdf: !!pdfBuffer,
     });
 
     return NextResponse.json(

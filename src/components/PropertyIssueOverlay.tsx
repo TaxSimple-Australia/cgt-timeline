@@ -11,6 +11,8 @@ interface PropertyIssueOverlayProps {
   onClose?: () => void;
   alertNumber?: number;
   totalAlerts?: number;
+  /** Whether market value has already been provided for this property (via rent_start event or previous alert) */
+  marketValueAlreadyProvided?: boolean;
 }
 
 export default function PropertyIssueOverlay({
@@ -19,6 +21,7 @@ export default function PropertyIssueOverlay({
   onClose,
   alertNumber = 1,
   totalAlerts = 1,
+  marketValueAlreadyProvided = false,
 }: PropertyIssueOverlayProps) {
   const [selectedAnswer, setSelectedAnswer] = useState<string>('');
   const [customAnswer, setCustomAnswer] = useState('');
@@ -88,11 +91,19 @@ export default function PropertyIssueOverlay({
       setMarketValue('');
       setSelectedAnswer('other');
     } else if (isVacantForRent(answer)) {
-      // Don't auto-resolve — need market value input first
-      setShowMarketValueInput(true);
-      setShowCustomInput(false);
-      setCustomAnswer('');
-      setSelectedAnswer(answer);
+      if (marketValueAlreadyProvided) {
+        // Market value already known — resolve immediately, no input needed
+        setShowMarketValueInput(false);
+        setShowCustomInput(false);
+        setSelectedAnswer(answer);
+        onResolve(alert.id, answer);
+      } else {
+        // Need market value input first
+        setShowMarketValueInput(true);
+        setShowCustomInput(false);
+        setCustomAnswer('');
+        setSelectedAnswer(answer);
+      }
     } else {
       setShowCustomInput(false);
       setShowMarketValueInput(false);
@@ -465,9 +476,9 @@ export default function PropertyIssueOverlay({
                       setError('Please enter your answer');
                     }
                   } : handleSubmit}
-                  disabled={isSubmitting || !customAnswer.trim()}
+                  disabled={isSubmitting || (showMarketValueInput ? !marketValue.trim() : !customAnswer.trim())}
                   className={`px-6 py-2.5 rounded-lg font-semibold transition-all flex items-center gap-2 ${
-                    isSubmitting || !customAnswer.trim()
+                    isSubmitting || (showMarketValueInput ? !marketValue.trim() : !customAnswer.trim())
                       ? 'bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed'
                       : 'bg-gradient-to-r from-purple-600 to-blue-600 text-white hover:from-purple-700 hover:to-blue-700 shadow-lg hover:shadow-xl'
                   }`}

@@ -1023,10 +1023,34 @@ function HomeContent() {
       />
 
       {/* Property Verification Issue Overlay - Shows when user clicks on alert */}
-      {selectedAlertForModal && (
+      {selectedAlertForModal && (() => {
+        const currentAlert = verificationAlerts.find((a) => a.id === selectedAlertForModal)!;
+        // Check if market value is already provided for this property:
+        // 1. Via a rent_start event with marketValuation
+        // 2. Via a previously resolved alert for the same property that included "Market value:"
+        const alertPropertyAddress = currentAlert?.propertyAddress?.toLowerCase() || '';
+        const hasMarketValueOnEvent = events.some(e =>
+          e.type === 'rent_start' &&
+          e.marketValuation &&
+          e.marketValuation > 0 &&
+          properties.some(p =>
+            p.id === e.propertyId &&
+            p.address?.toLowerCase() === alertPropertyAddress
+          )
+        );
+        const hasMarketValueFromPreviousAlert = verificationAlerts.some(a =>
+          a.id !== selectedAlertForModal &&
+          a.resolved &&
+          a.propertyAddress?.toLowerCase() === alertPropertyAddress &&
+          a.userResponse?.toLowerCase().includes('market value:')
+        );
+        const marketValueAlreadyProvided = hasMarketValueOnEvent || hasMarketValueFromPreviousAlert;
+
+        return (
         <PropertyIssueOverlay
-          alert={verificationAlerts.find((a) => a.id === selectedAlertForModal)!}
+          alert={currentAlert}
           onClose={() => setSelectedAlertForModal(null)}
+          marketValueAlreadyProvided={marketValueAlreadyProvided}
           onResolve={(alertId, userResponse) => {
             console.log('✅ Resolving alert:', alertId, 'with response:', userResponse);
             resolveVerificationAlert(alertId, userResponse);
@@ -1066,7 +1090,8 @@ function HomeContent() {
           }
           totalAlerts={verificationAlerts.length}
         />
-      )}
+        );
+      })()}
 
       {/* Notes Modal - Timeline notes/feedback */}
       <NotesModal />

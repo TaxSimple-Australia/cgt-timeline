@@ -14,7 +14,8 @@ export default function NumberedStepsVariant() {
       <div className="py-20 px-4 text-center">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: false, amount: 0.3 }}
           transition={{ duration: 0.6 }}
           className="max-w-3xl mx-auto space-y-6"
         >
@@ -46,9 +47,10 @@ export default function NumberedStepsVariant() {
             return (
               <motion.div
                 key={index}
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.08 }}
+                initial={{ opacity: 0, x: isEven ? -40 : 40 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: false, amount: 0.3 }}
+                transition={{ duration: 0.6, ease: 'easeOut' }}
                 className="relative"
               >
                 {/* Connecting dot on the center line (desktop) */}
@@ -96,8 +98,9 @@ export default function NumberedStepsVariant() {
       {/* CTA */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.6 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: false, amount: 0.3 }}
+        transition={{ duration: 0.5 }}
         className="max-w-7xl mx-auto px-4 pb-20"
       >
         <div className="border-t border-slate-400/50 dark:border-slate-700/50 pt-8 space-y-6 text-center">

@@ -41,12 +41,27 @@ export async function POST(request: NextRequest) {
         <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #ffffff;">
           <!-- Header -->
           <div style="background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%); padding: 32px 24px; border-radius: 8px 8px 0 0;">
-            <h1 style="color: #ffffff; margin: 0 0 4px 0; font-size: 22px; font-weight: 700;">
-              CGT Analysis Report
-            </h1>
-            <p style="color: #bfdbfe; margin: 0; font-size: 14px;">
-              Capital Gains Tax Portfolio Analysis
-            </p>
+            <table width="100%" cellpadding="0" cellspacing="0">
+              <tr>
+                <td>
+                  <h1 style="color: #ffffff; margin: 0 0 4px 0; font-size: 22px; font-weight: 700;">
+                    CGT Analysis Report
+                  </h1>
+                  <p style="color: #bfdbfe; margin: 0; font-size: 14px;">
+                    Capital Gains Tax Portfolio Analysis
+                  </p>
+                </td>
+                <td align="right" style="vertical-align: middle;">
+                  <table cellpadding="0" cellspacing="0" border="0">
+                    <tr>
+                      <td style="width: 60px; height: 60px; background: rgba(255,255,255,0.15); border-radius: 12px; text-align: center; vertical-align: middle; padding: 8px;">
+                        <img src="https://cgtbrain.com.au/logos/logo-20-dark.png" alt="CGT Brain Logo" style="width: 44px; height: 44px; display: block;" />
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+            </table>
           </div>
 
           <!-- Body -->

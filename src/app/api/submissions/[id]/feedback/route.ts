@@ -59,8 +59,8 @@ function getFeedbackEmailHtml(agent: TaxAgent, message: string, timelineLink: st
                       <td align="right" style="vertical-align: middle;">
                         <table cellpadding="0" cellspacing="0" border="0">
                           <tr>
-                            <td style="width: 60px; height: 60px; background: rgba(255,255,255,0.15); border-radius: 12px; text-align: center; vertical-align: middle;">
-                              <span style="font-size: 28px; line-height: 60px;">&#128172;</span>
+                            <td style="width: 60px; height: 60px; background: rgba(255,255,255,0.15); border-radius: 12px; text-align: center; vertical-align: middle; padding: 8px;">
+                              <img src="https://cgtbrain.com.au/logos/logo-20-dark.png" alt="CGT Brain Logo" style="width: 44px; height: 44px; display: block;" />
                             </td>
                           </tr>
                         </table>

@@ -25,12 +25,22 @@ export default function CGTBrainLogo({
   return (
     <div className={cn('flex flex-col', className)}>
       <div className={cn('relative bg-transparent', imageSizeClasses[size])}>
+        {/* Light theme logo */}
+        <Image
+          src="/cgt_brain_ai_logo_light_theme_transparent.webp"
+          alt="CGT Brain Logo"
+          width={200}
+          height={50}
+          className="h-full w-auto object-contain bg-transparent dark:hidden"
+          priority
+        />
+        {/* Dark theme logo */}
         <Image
           src="/logos/logo-20-dark.png"
           alt="CGT Brain Logo"
           width={200}
           height={50}
-          className="h-full w-auto object-contain bg-transparent"
+          className="h-full w-auto object-contain bg-transparent hidden dark:block"
           priority
         />
       </div>

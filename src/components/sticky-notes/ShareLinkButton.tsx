@@ -170,26 +170,38 @@ export default function ShareLinkButton({
       const hasAnalysisData = includeAnalysis && !!aiResponse;
       const { blob: pdfBlob, filename: pdfFilename } = getStandbyPdf();
 
-      // Use FormData to support optional PDF attachment
-      const formData = new FormData();
-      formData.append('email', email);
-      formData.append('shareLink', shareLink);
-      formData.append('includesAnalysis', String(hasAnalysisData));
-      if (phoneNumber) formData.append('phoneNumber', phoneNumber);
-
-      // Attach the standby PDF if analysis is available
+      // Convert PDF blob to base64 on the client side for reliable transmission
+      let pdfBase64: string | undefined;
       if (hasAnalysisData && pdfBlob && pdfBlob.size > 0) {
-        formData.append('pdf', pdfBlob, pdfFilename);
-        formData.append('pdfFilename', pdfFilename);
+        pdfBase64 = await new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onloadend = () => {
+            const dataUrl = reader.result as string;
+            const b64 = dataUrl.split(',')[1];
+            if (b64) resolve(b64);
+            else reject(new Error('Failed to convert PDF to base64'));
+          };
+          reader.onerror = () => reject(new Error('FileReader error'));
+          reader.readAsDataURL(pdfBlob);
+        });
         console.log('📎 Attaching standby PDF to share email:', {
           size: `${(pdfBlob.size / 1024).toFixed(1)} KB`,
+          base64Length: pdfBase64.length,
           filename: pdfFilename,
         });
       }
 
       const response = await fetch('/api/send-share-link', {
         method: 'POST',
-        body: formData,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email,
+          shareLink,
+          includesAnalysis: hasAnalysisData,
+          phoneNumber: phoneNumber || undefined,
+          pdfBase64,
+          pdfFilename: pdfBase64 ? pdfFilename : undefined,
+        }),
       });
 
       const result = await response.json();

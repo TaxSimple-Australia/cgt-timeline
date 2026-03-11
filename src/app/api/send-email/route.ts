@@ -108,10 +108,12 @@ function getEmailHtml(): string {
 
 export async function POST(request: NextRequest) {
   try {
-    const formData = await request.formData();
-    const email = formData.get('email') as string;
-    const pdfFile = formData.get('pdf') as File | Blob | null;
-    const filename = formData.get('filename') as string;
+    const body = await request.json();
+    const { email, pdfBase64, filename } = body as {
+      email: string;
+      pdfBase64: string;
+      filename: string;
+    };
 
     // Validate inputs
     if (!email || !filename) {
@@ -121,7 +123,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (!pdfFile) {
+    if (!pdfBase64) {
       return NextResponse.json(
         { error: 'Missing PDF attachment. The report must be generated before sending.' },
         { status: 400 }
@@ -137,34 +139,19 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Convert blob/file to buffer and validate it has content
-    const arrayBuffer = await pdfFile.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
-
-    console.log('📎 PDF attachment received:', {
+    console.log('📎 PDF attachment received (base64):', {
       filename,
-      blobSize: pdfFile.size,
-      bufferSize: buffer.length,
-      blobType: pdfFile.type,
+      base64Length: pdfBase64.length,
+      estimatedSizeKB: `${(pdfBase64.length * 0.75 / 1024).toFixed(1)} KB`,
     });
 
-    if (buffer.length === 0) {
-      console.error('❌ PDF buffer is empty after conversion');
-      return NextResponse.json(
-        { error: 'PDF attachment is empty. Please regenerate the report and try again.' },
-        { status: 400 }
-      );
+    // Minimum sanity check
+    if (pdfBase64.length < 100) {
+      console.warn('⚠️ PDF base64 suspiciously small:', pdfBase64.length, 'chars');
     }
-
-    // Minimum sanity check: a valid PDF should be at least a few KB
-    if (buffer.length < 500) {
-      console.warn('⚠️ PDF buffer suspiciously small:', buffer.length, 'bytes');
-    }
-
-    // Convert buffer to base64 for maximum compatibility with Resend
-    const base64Content = buffer.toString('base64');
 
     // Send email with PDF attachment and inline logo using Resend
+    // Pass base64 string directly — Resend SDK handles base64 content natively
     const { data, error } = await resend.emails.send({
       from: 'CGT Brain Analysis <info@cgtbrain.com.au>',
       to: [email],
@@ -173,7 +160,7 @@ export async function POST(request: NextRequest) {
       attachments: [
         {
           filename: filename,
-          content: base64Content,
+          content: pdfBase64,
           contentType: 'application/pdf',
         },
         getLogoAttachment(),
@@ -191,7 +178,7 @@ export async function POST(request: NextRequest) {
     console.log('✅ Email sent successfully:', {
       emailId: data?.id,
       to: email,
-      attachmentSize: `${(buffer.length / 1024).toFixed(1)} KB`,
+      attachmentSize: `${(pdfBase64.length * 0.75 / 1024).toFixed(1)} KB`,
     });
 
     return NextResponse.json(

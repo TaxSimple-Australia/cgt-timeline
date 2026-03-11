@@ -10,43 +10,23 @@ interface ShareLinkEmailRequest {
   phoneNumber?: string;
   shareLink: string;
   includesAnalysis?: boolean;
+  pdfBase64?: string;
+  pdfFilename?: string;
 }
 
 export async function POST(request: NextRequest) {
   try {
-    // Parse request — supports both FormData (with optional PDF) and JSON
-    let email: string;
-    let phoneNumber: string | undefined;
-    let shareLink: string;
-    let includesAnalysis: boolean;
-    let pdfBuffer: Buffer | null = null;
-    let pdfFilename: string = 'CGT-Analysis-Report.pdf';
+    const body: ShareLinkEmailRequest = await request.json();
+    const { email, phoneNumber, shareLink, pdfBase64 } = body;
+    const includesAnalysis = body.includesAnalysis || false;
+    const pdfFilename = body.pdfFilename || 'CGT-Analysis-Report.pdf';
 
-    const contentType = request.headers.get('content-type') || '';
-
-    if (contentType.includes('multipart/form-data')) {
-      const formData = await request.formData();
-      email = formData.get('email') as string;
-      phoneNumber = (formData.get('phoneNumber') as string) || undefined;
-      shareLink = formData.get('shareLink') as string;
-      includesAnalysis = formData.get('includesAnalysis') === 'true';
-
-      const pdfFile = formData.get('pdf') as File | Blob | null;
-      if (pdfFile && pdfFile.size > 0) {
-        const arrayBuffer = await pdfFile.arrayBuffer();
-        pdfBuffer = Buffer.from(arrayBuffer);
-        pdfFilename = (formData.get('pdfFilename') as string) || pdfFilename;
-        console.log('📎 PDF attachment received:', {
-          filename: pdfFilename,
-          size: `${(pdfBuffer.length / 1024).toFixed(1)} KB`,
-        });
-      }
-    } else {
-      const body: ShareLinkEmailRequest = await request.json();
-      email = body.email;
-      phoneNumber = body.phoneNumber;
-      shareLink = body.shareLink;
-      includesAnalysis = body.includesAnalysis || false;
+    if (pdfBase64) {
+      console.log('📎 PDF attachment received (base64):', {
+        filename: pdfFilename,
+        base64Length: pdfBase64.length,
+        estimatedSizeKB: `${(pdfBase64.length * 0.75 / 1024).toFixed(1)} KB`,
+      });
     }
 
     const logoCidUrl = `cid:${LOGO_CID}`;
@@ -204,7 +184,7 @@ export async function POST(request: NextRequest) {
                       </p>
                     </div>
 
-                    ${pdfBuffer ? `
+                    ${pdfBase64 ? `
                     <div style="background: #EFF6FF; border: 1px solid #BFDBFE; border-radius: 8px; padding: 16px; margin: 24px 0;">
                       <p style="margin: 0; color: #1E40AF; font-size: 14px; font-weight: 600;">
                         &#128206; CGT Analysis Report Attached
@@ -275,7 +255,7 @@ What's Included:
 - All property events and milestones
 - Sticky notes and annotations
 ${includesAnalysis ? '- Complete CGT analysis results\n- Analysis notes and annotations' : ''}
-${pdfBuffer ? '\nA detailed CGT Analysis Report PDF is attached to this email.\n' : ''}
+${pdfBase64 ? '\nA detailed CGT Analysis Report PDF is attached to this email.\n' : ''}
 This link provides read-only access to the shared timeline.
 
 ---
@@ -289,10 +269,10 @@ Powered by CGT Brain AI
     // Build attachments: always include logo, optionally include PDF
     const attachments: any[] = [getLogoAttachment()];
 
-    if (pdfBuffer && pdfBuffer.length > 0) {
+    if (pdfBase64 && pdfBase64.length > 0) {
       attachments.push({
         filename: pdfFilename,
-        content: pdfBuffer.toString('base64'),
+        content: pdfBase64,
         contentType: 'application/pdf',
       });
     }
@@ -319,7 +299,7 @@ Powered by CGT Brain AI
       emailId: data?.id,
       to: email,
       includesAnalysis,
-      hasPdf: !!pdfBuffer,
+      hasPdf: !!pdfBase64,
     });
 
     return NextResponse.json(

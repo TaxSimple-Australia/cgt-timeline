@@ -5,7 +5,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Share2, Check, Copy, Link, X, Loader2, Mail, Phone, Send, MessageCircle, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTimelineStore } from '@/store/timeline';
-import { getStandbyPdf } from '@/lib/standby-pdf';
+import { pdf } from '@react-pdf/renderer';
+import { SimplifiedCGTReportPDF } from '../ai-response/SimplifiedCGTReportPDF';
 
 const COUNTRY_CODES = [
   { code: '+61', country: 'AU', label: 'Australia', flag: '🇦🇺' },
@@ -168,27 +169,37 @@ export default function ShareLinkButton({
 
     try {
       const hasAnalysisData = includeAnalysis && !!aiResponse;
-      const { blob: pdfBlob, filename: pdfFilename } = getStandbyPdf();
 
-      // Convert PDF blob to base64 on the client side for reliable transmission
+      // Generate PDF on-demand if analysis data is available
       let pdfBase64: string | undefined;
-      if (hasAnalysisData && pdfBlob && pdfBlob.size > 0) {
-        pdfBase64 = await new Promise<string>((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onloadend = () => {
-            const dataUrl = reader.result as string;
-            const b64 = dataUrl.split(',')[1];
-            if (b64) resolve(b64);
-            else reject(new Error('Failed to convert PDF to base64'));
-          };
-          reader.onerror = () => reject(new Error('FileReader error'));
-          reader.readAsDataURL(pdfBlob);
-        });
-        console.log('📎 Attaching standby PDF to share email:', {
-          size: `${(pdfBlob.size / 1024).toFixed(1)} KB`,
-          base64Length: pdfBase64.length,
-          filename: pdfFilename,
-        });
+      let pdfFilename: string | undefined;
+      if (hasAnalysisData) {
+        try {
+          console.log('📄 Generating PDF for email attachment...');
+          const blob = await pdf(
+            <SimplifiedCGTReportPDF response={aiResponse} />
+          ).toBlob();
+
+          if (blob && blob.size > 0) {
+            pdfFilename = `CGT-Analysis-${(aiResponse as any).analysis_id || (aiResponse as any).data?.analysis_id || 'report'}.pdf`;
+            pdfBase64 = await new Promise<string>((resolve, reject) => {
+              const reader = new FileReader();
+              reader.onloadend = () => {
+                const b64 = (reader.result as string).split(',')[1];
+                if (b64) resolve(b64);
+                else reject(new Error('Failed to convert PDF to base64'));
+              };
+              reader.onerror = () => reject(new Error('FileReader error'));
+              reader.readAsDataURL(blob);
+            });
+            console.log('📎 PDF generated for email:', {
+              size: `${(blob.size / 1024).toFixed(0)} KB`,
+              filename: pdfFilename,
+            });
+          }
+        } catch (pdfErr) {
+          console.warn('⚠️ PDF generation failed, sending email without attachment:', pdfErr);
+        }
       }
 
       const response = await fetch('/api/send-share-link', {
@@ -200,7 +211,7 @@ export default function ShareLinkButton({
           includesAnalysis: hasAnalysisData,
           phoneNumber: phoneNumber || undefined,
           pdfBase64,
-          pdfFilename: pdfBase64 ? pdfFilename : undefined,
+          pdfFilename,
         }),
       });
 

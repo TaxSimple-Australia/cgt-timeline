@@ -301,7 +301,7 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
     const { summary, verification, properties: apiProperties } = verificationData;
 
     return (
-      <div ref={analysisContainerRef} className="relative space-y-6">
+      <div ref={analysisContainerRef} data-analysis-container className="relative space-y-6">
         {/* Toolbar: Display Mode Toggle + Raw JSON Button */}
         <div className="flex items-center justify-between gap-4">
           <DisplayModeToggle />
@@ -413,7 +413,7 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
     const propertiesAnalyzed = isNewMarkdownFormat ? response.properties_analyzed : null;
 
     return (
-      <div ref={analysisContainerRef} className="relative space-y-6">
+      <div ref={analysisContainerRef} data-analysis-container className="relative space-y-6">
         {/* Toolbar: Display Mode Toggle + Raw JSON Button */}
         <div className="flex items-center justify-between gap-4">
           <DisplayModeToggle />
@@ -721,7 +721,7 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
       || null;
 
     return (
-      <div ref={analysisContainerRef} className="relative space-y-6">
+      <div ref={analysisContainerRef} data-analysis-container className="relative space-y-6">
         {/* Toolbar: Display Mode Toggle + Raw JSON Button */}
         <div className="flex items-center justify-between gap-4">
           <DisplayModeToggle />
@@ -1127,7 +1127,7 @@ export default function CGTAnalysisDisplay({ response, onRetryWithAnswers }: CGT
     }
 
     return (
-      <div ref={analysisContainerRef} className="relative space-y-8">
+      <div ref={analysisContainerRef} data-analysis-container className="relative space-y-8">
         {/* Toolbar: Display Mode Toggle + Raw JSON Button */}
         <div className="flex items-center justify-between gap-4">
           <DisplayModeToggle />

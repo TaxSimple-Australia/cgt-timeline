@@ -497,13 +497,58 @@ function extractAnalysisData(response: any): ExtractedData {
     response.properties?.length > 0 &&
     response.properties[0]?.property_address;
 
-  const analysisData = isDoubleWrapped
+  // Check for legacy status-based format: { status: 'success', summary, properties, analysis, calculations }
+  const isLegacySuccess = !isDoubleWrapped && !isWrapped && !isDirect &&
+    response.status === 'success' &&
+    response.properties?.length > 0;
+
+  let analysisData = isDoubleWrapped
     ? response.data.data
     : isWrapped
       ? response.data
       : isDirect
         ? response
         : null;
+
+  // Transform legacy format into json-sections structure
+  if (isLegacySuccess) {
+    let parsedAnalysis: any = { summary: '', per_property_analysis: [], recommendations: [] };
+    try {
+      if (response.analysis?.content) {
+        parsedAnalysis = JSON.parse(response.analysis.content);
+      }
+    } catch { /* ignore parse errors */ }
+
+    const normalizedProperties = response.properties.map((prop: any, idx: number) => {
+      const perPropAnalysis = parsedAnalysis.per_property_analysis?.[idx] || {};
+      const propCalc = response.calculations?.properties?.[idx] ||
+        (response.calculations && response.calculations[prop.address]) || {};
+
+      return {
+        property_address: prop.address || prop.name || `Property ${idx + 1}`,
+        high_level_description: perPropAnalysis.analysis || perPropAnalysis.summary || '',
+        result: prop.result || (prop.capital_gain === 0 ? 'FULLY EXEMPT' : 'CGT PAYABLE'),
+        cgt_payable: (prop.capital_gain || 0) > 0,
+        timeline: prop.property_history || [],
+        ownership_periods: propCalc.ownership_periods || [],
+        calculation_steps: propCalc.calculation_steps || propCalc.steps || [],
+        cost_base_items: propCalc.cost_base_items || [],
+        calculation_summary: propCalc.summary || {},
+        what_if_scenarios: perPropAnalysis.what_if_scenarios || [],
+        important_notes: perPropAnalysis.important_notes || perPropAnalysis.notes || [],
+        warnings: perPropAnalysis.warnings || [],
+        applicable_rules: perPropAnalysis.applicable_rules || [],
+      };
+    });
+
+    analysisData = {
+      properties: normalizedProperties,
+      description: parsedAnalysis.summary || response.summary?.description || '',
+      general_notes: parsedAnalysis.recommendations || [],
+      total_net_capital_gain: response.summary?.total_capital_gain || 0,
+      total_exempt_gains: response.summary?.total_exempt_gains || 0,
+    };
+  }
 
   const queryAsked = response.query || response.data?.query || response.data?.data?.query || null;
 

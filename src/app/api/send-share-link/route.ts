@@ -270,10 +270,11 @@ Powered by CGT Brain AI
     const attachments: any[] = [getLogoAttachment()];
 
     if (pdfBase64 && pdfBase64.length > 0) {
+      // Convert base64 string to Buffer — Resend SDK requires Buffer for binary attachments
+      const pdfBuffer = Buffer.from(pdfBase64, 'base64');
       attachments.push({
         filename: pdfFilename,
-        content: pdfBase64,
-        contentType: 'application/pdf',
+        content: pdfBuffer,
       });
     }
 

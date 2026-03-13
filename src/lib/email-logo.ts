@@ -34,10 +34,11 @@ export const LOGO_CID = 'cgt-brain-logo';
  * Add this to the `attachments` array in resend.emails.send().
  */
 export function getLogoAttachment() {
+  // Convert base64 to Buffer — Resend SDK requires Buffer for binary attachments
+  const logoBuffer = Buffer.from(getLogoBase64(), 'base64');
   return {
     filename: 'cgt-brain-logo.png',
-    content: getLogoBase64(),
-    contentType: 'image/png',
+    content: logoBuffer,
     contentId: LOGO_CID,
   };
 }

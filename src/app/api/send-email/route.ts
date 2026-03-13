@@ -150,8 +150,11 @@ export async function POST(request: NextRequest) {
       console.warn('⚠️ PDF base64 suspiciously small:', pdfBase64.length, 'chars');
     }
 
+    // Convert base64 string to Buffer — Resend SDK requires Buffer for binary attachments
+    // (JSON.stringify serializes Buffer as {"type":"Buffer","data":[...]} which Resend API recognizes)
+    const pdfBuffer = Buffer.from(pdfBase64, 'base64');
+
     // Send email with PDF attachment and inline logo using Resend
-    // Pass base64 string directly — Resend SDK handles base64 content natively
     const { data, error } = await resend.emails.send({
       from: 'CGT Brain Analysis <info@cgtbrain.com.au>',
       to: [email],
@@ -160,8 +163,7 @@ export async function POST(request: NextRequest) {
       attachments: [
         {
           filename: filename,
-          content: pdfBase64,
-          contentType: 'application/pdf',
+          content: pdfBuffer,
         },
         getLogoAttachment(),
       ],

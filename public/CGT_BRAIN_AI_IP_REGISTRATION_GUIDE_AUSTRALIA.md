@@ -2,7 +2,7 @@
 
 ## Comprehensive Guide to Copyright, Patents, Trademarks, and Trade Names
 
-**Prepared for:** Tax Simple Australia / CGT Brain AI
+**Prepared for:** CGT Brain AI
 **Date:** January 2026
 **Document Version:** 1.0
 
@@ -85,7 +85,7 @@ While registration is not required, the following practices help prove ownership
 2. **Keep development records** - Preserve drafts, iterations, and development logs
 3. **Include copyright notices** - Add notices to your code and materials:
    ```
-   © 2024-2026 Tax Simple Australia Pty Ltd. All rights reserved.
+   © 2024-2026 CGT Brain AI Pty Ltd. All rights reserved.
    ```
 4. **Use NDA agreements** - When sharing confidential information
 5. **Employment contracts** - Ensure clear IP assignment clauses for developers
@@ -1100,7 +1100,7 @@ Fees and procedures may change. Always verify current information with the relev
 
 ---
 
-**Prepared for CGT Brain AI / Tax Simple Australia**
+**Prepared for CGT Brain AI**
 **Document saved:** `public/CGT_BRAIN_AI_IP_REGISTRATION_GUIDE_AUSTRALIA.md`
 
 ---

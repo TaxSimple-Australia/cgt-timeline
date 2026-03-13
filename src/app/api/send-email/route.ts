@@ -96,7 +96,7 @@ function getEmailHtml(): string {
       <!-- Footer -->
       <div style="padding: 20px 24px; text-align: center;">
         <p style="color: #94a3b8; font-size: 12px; margin: 0 0 4px 0;">
-          Tax Simple Australia | CGT Brain
+          CGT Brain AI
         </p>
         <p style="color: #cbd5e1; font-size: 11px; margin: 0;">
           This is an automated email. Please do not reply to this message.
@@ -158,7 +158,7 @@ export async function POST(request: NextRequest) {
     const { data, error } = await resend.emails.send({
       from: 'CGT Brain Analysis <info@cgtbrain.com.au>',
       to: [email],
-      subject: 'Your CGT Analysis Report - Tax Simple Australia',
+      subject: 'Your CGT Analysis Report - CGT Brain AI',
       html: getEmailHtml(),
       attachments: [
         {

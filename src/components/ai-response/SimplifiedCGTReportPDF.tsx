@@ -458,10 +458,10 @@ const DisclaimerPage = () => (
     {/* Footer line */}
     <View style={{ marginTop: 'auto', paddingTop: 12, borderTopWidth: 1, borderTopColor: colors.grayBorder }}>
       <Text style={{ fontSize: 7, color: colors.grayLighter, textAlign: 'center' }}>
-        Tax Simple Australia | CGT Brain AI | This document is generated for informational purposes only.
+        CGT Brain AI | This document is generated for informational purposes only.
       </Text>
       <Text style={{ fontSize: 7, color: colors.grayLighter, textAlign: 'center', marginTop: 2 }}>
-        © {new Date().getFullYear()} Tax Simple Australia. All rights reserved.
+        © {new Date().getFullYear()} CGT Brain AI. All rights reserved.
       </Text>
     </View>
 
@@ -533,7 +533,7 @@ function extractAnalysisData(response: any): ExtractedData {
 
 const PageFooter = ({ pageLabel }: { pageLabel: string }) => (
   <View style={styles.footer} fixed>
-    <Text>CGT Analysis Report | Tax Simple Australia | CGT Brain</Text>
+    <Text>CGT Analysis Report | CGT Brain AI</Text>
     <Text>{pageLabel}</Text>
   </View>
 );

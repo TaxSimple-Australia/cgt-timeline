@@ -112,7 +112,7 @@ function createTable(headers, rows, options = {}) {
 // Create the document
 async function generateDocument() {
   const doc = new Document({
-    creator: "Tax Simple Australia",
+    creator: "CGT Brain AI",
     title: "CGT Brain AI - IP Registration Guide Australia",
     description:
       "Comprehensive guide to intellectual property registration in Australia",
@@ -185,7 +185,7 @@ async function generateDocument() {
                     size: 20,
                   }),
                   new TextRun({
-                    text: "  |  Tax Simple Australia  |  January 2026",
+                    text: "  |  CGT Brain AI  |  January 2026",
                     size: 20,
                     color: "666666",
                   }),
@@ -246,7 +246,7 @@ async function generateDocument() {
             children: [
               new TextRun({ text: "Prepared for: ", size: 24 }),
               new TextRun({
-                text: "Tax Simple Australia / CGT Brain AI",
+                text: "CGT Brain AI / CGT Brain AI",
                 size: 24,
                 bold: true,
               }),
@@ -645,7 +645,7 @@ async function generateDocument() {
           new Paragraph({
             children: [
               new TextRun({
-                text: '   Example: "© 2024-2026 Tax Simple Australia Pty Ltd. All rights reserved."',
+                text: '   Example: "© 2024-2026 CGT Brain AI Pty Ltd. All rights reserved."',
                 size: 24,
                 italics: true,
               }),
@@ -3463,7 +3463,7 @@ async function generateDocument() {
           new Paragraph({
             children: [
               new TextRun({
-                text: "Prepared for CGT Brain AI / Tax Simple Australia",
+                text: "Prepared for CGT Brain AI / CGT Brain AI",
                 size: 24,
                 bold: true,
               }),

@@ -141,6 +141,36 @@ export const COST_BASE_DEFINITIONS: CostBaseDefinition[] = [
     applicableEvents: ['purchase'],
   },
 
+  // ===== SUBDIVISION COSTS =====
+  {
+    id: 'subdivision_survey_fees',
+    name: 'Subdivision Survey Fees',
+    category: 'element2',
+    description: 'Licensed surveyor fees for preparing subdivision plans, lot measurements, and boundary identification. These professional costs are essential to the subdivision process and form part of the cost base.',
+    applicableEvents: ['subdivision'],
+  },
+  {
+    id: 'subdivision_planning_fees',
+    name: 'Planning/Application Fees',
+    category: 'element2',
+    description: 'Council or government fees for subdivision applications, planning permits, development approvals, and related administrative costs. These are incidental costs of subdividing the property.',
+    applicableEvents: ['subdivision'],
+  },
+  {
+    id: 'subdivision_legal_fees',
+    name: 'Legal Fees (Subdivision)',
+    category: 'element2',
+    description: 'Solicitor and legal professional fees for handling the subdivision process, including contract preparation, council liaisons, and compliance with subdivision regulations.',
+    applicableEvents: ['subdivision'],
+  },
+  {
+    id: 'subdivision_title_fees',
+    name: 'Title Registration Fees',
+    category: 'element2',
+    description: 'Government fees for registering new titles and plans of subdivision with the land registry. These administrative costs create the separate legal titles for each subdivided lot.',
+    applicableEvents: ['subdivision'],
+  },
+
   // ===== SALE PROCEEDS (Capital Proceeds - not a cost base) =====
   {
     id: 'sale_price',

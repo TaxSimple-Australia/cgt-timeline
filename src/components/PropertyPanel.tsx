@@ -42,8 +42,8 @@ export default function PropertyPanel() {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   const [isEditingOwners, setIsEditingOwners] = useState(false);
-  const [owners, setOwners] = useState<{name: string; percentage: number}[]>([]);
-  const [editedOwners, setEditedOwners] = useState<{name: string; percentage: number}[]>([{ name: '', percentage: 100 }]);
+  const [owners, setOwners] = useState<{id: string; name: string; percentage: number}[]>([]);
+  const [editedOwners, setEditedOwners] = useState<{id: string; name: string; percentage: number}[]>([{ id: `owner-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`, name: '', percentage: 100 }]);
   const [showOwnershipSection, setShowOwnershipSection] = useState(false);
   const [showOwnershipPeriodTooltip, setShowOwnershipPeriodTooltip] = useState(false);
 
@@ -54,7 +54,7 @@ export default function PropertyPanel() {
     if (property?.owners && property.owners.length > 0) {
       setOwners(property.owners);
     } else {
-      setOwners([{ name: '', percentage: 100 }]);
+      setOwners([{ id: `owner-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`, name: '', percentage: 100 }]);
     }
   }, [property?.id, property?.owners]);
 
@@ -181,7 +181,7 @@ export default function PropertyPanel() {
 
   // Ownership handlers
   const handleAddOwner = () => {
-    setOwners([...owners, { name: '', percentage: 0 }]);
+    setOwners([...owners, { id: `owner-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`, name: '', percentage: 0 }]);
   };
 
   const handleRemoveOwner = (index: number) => {
@@ -339,9 +339,19 @@ export default function PropertyPanel() {
                           )}
 
                           {/* Leaving owners */}
-                          {event.leavingOwners && event.leavingOwners.length > 0 && (
+                          {event.previousOwners && event.leavingOwners && event.leavingOwners.length > 0 && (
                             <div className="text-red-600 dark:text-red-400">
-                              <span className="font-medium">Leaving:</span> {event.leavingOwners.join(', ')}
+                              <span className="font-medium">Leaving:</span>
+                              <div className="mt-0.5 space-y-0.5 ml-2">
+                                {event.previousOwners
+                                  .filter((o: any) => event.leavingOwners?.includes(o.id))
+                                  .map((owner: any, oidx: number) => (
+                                    <div key={oidx} className="flex justify-between">
+                                      <span>{owner.name}</span>
+                                      <span className="font-semibold">{owner.percentage}%</span>
+                                    </div>
+                                  ))}
+                              </div>
                             </div>
                           )}
 
@@ -350,12 +360,20 @@ export default function PropertyPanel() {
                             <div className="text-green-600 dark:text-green-400">
                               <span className="font-medium">New owners:</span>
                               <div className="mt-0.5 space-y-0.5 ml-2">
-                                {event.newOwners.map((owner: any, oidx: number) => (
-                                  <div key={oidx} className="flex justify-between">
-                                    <span>{owner.name}</span>
-                                    <span className="font-semibold">{owner.percentage}%</span>
-                                  </div>
-                                ))}
+                                {event.newOwners.map((owner: any, oidx: number) => {
+                                  // Calculate final percentage (existing + transferred)
+                                  const existingOwner = event.previousOwners?.find((o: any) => o.id === owner.id);
+                                  const finalPercentage = existingOwner
+                                    ? existingOwner.percentage + owner.percentage
+                                    : owner.percentage;
+
+                                  return (
+                                    <div key={oidx} className="flex justify-between">
+                                      <span>{owner.name}</span>
+                                      <span className="font-semibold">{finalPercentage}%</span>
+                                    </div>
+                                  );
+                                })}
                               </div>
                             </div>
                           )}
@@ -416,8 +434,8 @@ export default function PropertyPanel() {
                     // Display mode - show existing owners
                     <>
                       <div className="space-y-2">
-                        {property.owners?.map((owner, idx) => (
-                          <div key={idx} className="flex justify-between items-center text-sm">
+                        {property.owners?.map((owner) => (
+                          <div key={owner.id} className="flex justify-between items-center text-sm">
                             <span className="text-orange-800 dark:text-orange-200 font-medium">
                               {owner.name}
                             </span>
@@ -436,7 +454,7 @@ export default function PropertyPanel() {
 
                       <button
                         onClick={() => {
-                          setEditedOwners(property.owners || [{ name: '', percentage: 100 }]);
+                          setEditedOwners(property.owners || [{ id: `owner-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`, name: '', percentage: 100 }]);
                           setIsEditingOwners(true);
                         }}
                         className="mt-3 w-full px-3 py-2 text-sm font-medium text-orange-600 dark:text-orange-400 hover:bg-orange-100 dark:hover:bg-orange-800 rounded-lg border border-orange-300 dark:border-orange-700 transition-colors"
@@ -452,7 +470,7 @@ export default function PropertyPanel() {
                       </p>
 
                       {editedOwners.map((owner, index) => (
-                        <div key={index} className="flex gap-2 items-start">
+                        <div key={owner.id} className="flex gap-2 items-start">
                           <div className="flex-1">
                             <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">
                               Owner {index + 1} Name
@@ -507,7 +525,7 @@ export default function PropertyPanel() {
 
                       <button
                         type="button"
-                        onClick={() => setEditedOwners([...editedOwners, { name: '', percentage: 0 }])}
+                        onClick={() => setEditedOwners([...editedOwners, { id: `owner-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`, name: '', percentage: 0 }])}
                         className="w-full px-3 py-2 text-sm font-medium text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg border border-blue-300 dark:border-blue-700 transition-colors"
                       >
                         + Add Another Owner

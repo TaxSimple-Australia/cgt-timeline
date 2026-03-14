@@ -144,11 +144,11 @@ export interface TimelineEvent {
   };
 
   // NEW: Ownership Change fields
-  leavingOwners?: string[];  // Array of owner names who are leaving
-  newOwners?: Array<{name: string; percentage: number}>;  // New owners being added
+  leavingOwners?: string[];  // Array of owner IDs who are leaving
+  newOwners?: Array<{id: string; name: string; percentage: number}>;  // New owners being added
   ownershipChangeReason?: OwnershipChangeReason;  // Reason for ownership change
   ownershipChangeReasonOther?: string;  // Custom reason if "other" selected
-  previousOwners?: Array<{name: string; percentage: number}>;  // Snapshot of owners BEFORE this change (for revert on delete)
+  previousOwners?: Array<{id: string; name: string; percentage: number}>;  // Snapshot of owners BEFORE this change (for revert on delete)
 
   // NEW: Subdivision fields
   subdivisionDetails?: {
@@ -226,6 +226,7 @@ export interface Property {
 
   // NEW: Multi-owner support
   owners?: Array<{
+    id: string;  // Unique identifier to prevent duplicate name bugs
     name: string;
     percentage: number;  // Ownership percentage (must total 100%)
   }>;
@@ -742,6 +743,15 @@ export const calculateStatusPeriods = (events: TimelineEvent[]): StatusPeriod[] 
 const defaultAbsoluteStart = new Date(1900, 0, 1);
 const defaultAbsoluteEnd = new Date();
 defaultAbsoluteEnd.setFullYear(defaultAbsoluteEnd.getFullYear() + 3);
+
+// Helper function to ensure all owners have unique IDs (backward compatibility)
+const ensureOwnerIds = (owners?: Array<{id?: string; name: string; percentage: number}>): Array<{id: string; name: string; percentage: number}> | undefined => {
+  if (!owners || owners.length === 0) return undefined;
+  return owners.map(owner => ({
+    ...owner,
+    id: owner.id || `owner-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+  }));
+};
 
 export const useTimelineStore = create<TimelineState>((set, get) => {
   // Calculate initial 30-year range
@@ -2466,6 +2476,7 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
           currentStatus: prop.currentStatus || 'ppr',
           branch: prop.branch !== undefined ? prop.branch : index,
           isRental: prop.isRental,
+          owners: ensureOwnerIds(prop.owners),
           // Subdivision fields
           parentPropertyId: prop.parentPropertyId,
           subdivisionDate: safeParseDate(prop.subdivisionDate),
@@ -2906,7 +2917,7 @@ export const useTimelineStore = create<TimelineState>((set, get) => {
             currentStatus,
             branch: prop.branch ?? propIndex,
             isRental: prop.isRental,
-            owners: prop.owners,
+            owners: ensureOwnerIds(prop.owners),
             currentValue: prop.currentValue,
             // Subdivision fields
             parentPropertyId: prop.parentPropertyId,

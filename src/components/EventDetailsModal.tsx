@@ -412,10 +412,19 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
   const [mixedUseMoveInDateError, setMixedUseMoveInDateError] = useState('');
 
   // NEW: Ownership change state variables
-  const [leavingOwners, setLeavingOwners] = useState<string[]>(event.leavingOwners || []);
-  const [newOwners, setNewOwners] = useState<Array<{name: string; percentage: number}>>(
-    event.newOwners || []
-  );
+  // Always start with empty arrays when reopening - editable fields show CURRENT property state
+  // The read-only "Ownership Transfer Summary" will show the historical data from event
+  const [leavingOwners, setLeavingOwners] = useState<string[]>([]);
+  const [newOwners, setNewOwners] = useState<Array<{id?: string; name: string; percentage: number}>>([]);
+
+  // Track transfers to existing co-owners (those not leaving)
+  const [transfersToExisting, setTransfersToExisting] = useState<Array<{
+    ownerId: string;
+    name: string;
+    currentPercentage: number;
+    receivingPercentage: number;
+  }>>([]);
+
   const [ownershipChangeReason, setOwnershipChangeReason] = useState(event.ownershipChangeReason || 'sale_transfer');
   const [ownershipChangeReasonOther, setOwnershipChangeReasonOther] = useState(event.ownershipChangeReasonOther || '');
 
@@ -1007,9 +1016,9 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
           return;
         }
 
-        // Validate that at least one new owner is added
-        if (!newOwners || newOwners.length === 0) {
-          showWarning('Missing information', 'Please add at least one new owner.');
+        // Validate that at least one new owner is added OR one existing owner is receiving transfer
+        if ((!newOwners || newOwners.length === 0) && (!transfersToExisting || transfersToExisting.length === 0)) {
+          showWarning('Missing information', 'Please add at least one new owner or transfer to an existing co-owner.');
           setIsSaving(false);
           return;
         }
@@ -1026,23 +1035,27 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
         // (re-editing a saved event), fall back to event.previousOwners snapshot
         const ownersSource = currentProperty?.owners || [];
         let leavingOwnersTotal = ownersSource
-          .filter(owner => leavingOwners.includes(owner.name))
+          .filter(owner => leavingOwners.includes(owner.id))
           .reduce((sum, owner) => sum + owner.percentage, 0);
 
         // If no leaving owners found in current property (already transferred),
         // use the previousOwners snapshot from the first save
         if (leavingOwnersTotal === 0 && event.previousOwners && event.previousOwners.length > 0) {
           leavingOwnersTotal = event.previousOwners
-            .filter(owner => leavingOwners.includes(owner.name))
+            .filter(owner => leavingOwners.includes(owner.id))
             .reduce((sum, owner) => sum + owner.percentage, 0);
         }
 
         // Validate that new owners' percentages equal the leaving owners' total
-        const totalPercentage = newOwners.reduce((sum, owner) => sum + (owner.percentage || 0), 0);
+        // Include both transfers to existing co-owners AND completely new owners
+        const totalFromExisting = transfersToExisting.reduce((sum, t) => sum + t.receivingPercentage, 0);
+        const totalFromNew = newOwners.reduce((sum, owner) => sum + (owner.percentage || 0), 0);
+        const totalPercentage = totalFromExisting + totalFromNew;
+
         if (Math.abs(totalPercentage - leavingOwnersTotal) > 0.1) {
           showWarning(
             'Invalid percentages',
-            `New owners' percentages must equal ${leavingOwnersTotal}% (the leaving owners' total). Current total: ${totalPercentage.toFixed(1)}%`
+            `Transferred percentages must equal ${leavingOwnersTotal}% (the leaving owners' total). Current total: ${totalPercentage.toFixed(1)}%`
           );
           setIsSaving(false);
           return;
@@ -1059,11 +1072,22 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
 
         // Save ownership change data
         updates.leavingOwners = leavingOwners;
-        updates.newOwners = newOwners;
+
+        // Merge transfers to existing co-owners with completely new owners
+        // For existing co-owners receiving transfers, save just the receiving percentage
+        const ownersFromExisting = transfersToExisting.map(transfer => ({
+          id: transfer.ownerId,
+          name: transfer.name,
+          percentage: transfer.receivingPercentage
+        }));
+
+        // Combine both arrays into newOwners
+        updates.newOwners = [...ownersFromExisting, ...newOwners];
+
         // Capture previousOwners snapshot ONLY on first save (preserve on re-saves)
         if (!event.previousOwners) {
           updates.previousOwners = currentProperty?.owners
-            ? currentProperty.owners.map(o => ({ name: o.name, percentage: o.percentage }))
+            ? currentProperty.owners.map(o => ({ id: o.id, name: o.name, percentage: o.percentage }))
             : [];
         }
         // Only save reason for ownership_change events, not inherit (refinance)
@@ -1619,17 +1643,42 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
       if ((eventType === 'ownership_change' || eventType === 'refinance') && event.propertyId) {
         const currentProperty = properties.find(p => p.id === event.propertyId);
         if (currentProperty) {
-          // If re-saving (previousOwners exists), rebuild from previousOwners to avoid duplicates
-          const baseOwners = event.previousOwners && event.previousOwners.length > 0
-            ? event.previousOwners
-            : (currentProperty.owners || []);
-          const updatedOwners = [
-            ...baseOwners.filter(owner => !leavingOwners.includes(owner.name)),
-            ...newOwners.map(owner => ({
-              name: owner.name,
-              percentage: owner.percentage
-            }))
+          // Always use current property state as base for ownership updates
+          // previousOwners is only for historical display, not for calculating new state
+          const baseOwners = currentProperty.owners || [];
+
+          // Step 1: Remove leaving owners (filter by ID, not name)
+          const remainingOwners = baseOwners.filter(owner => !leavingOwners.includes(owner.id));
+
+          // Step 2: Merge newOwners with remainingOwners
+          // For each newOwner, check if they already exist in remainingOwners (transfer to existing co-owner)
+          // If yes, ADD the percentage. If no, add as new owner entry.
+          const updatedOwnersMap = new Map(
+            remainingOwners.map(owner => [owner.id, { ...owner }])
+          );
+
+          // Process transfers from both transfersToExisting and newOwners
+          const allTransfers = [
+            ...transfersToExisting.map(t => ({ id: t.ownerId, name: t.name, percentage: t.receivingPercentage })),
+            ...newOwners
           ];
+
+          allTransfers.forEach(transfer => {
+            const existingOwner = updatedOwnersMap.get(transfer.id || transfer.name);
+            if (existingOwner) {
+              // This is a transfer to an existing co-owner - ADD the percentage
+              existingOwner.percentage += transfer.percentage;
+            } else {
+              // This is a completely new owner - add as new entry
+              updatedOwnersMap.set(transfer.id || transfer.name, {
+                id: transfer.id || `new-${Date.now()}-${Math.random()}`,
+                name: transfer.name,
+                percentage: transfer.percentage
+              });
+            }
+          });
+
+          const updatedOwners = Array.from(updatedOwnersMap.values());
 
           // Update the property with new owners
           updateProperty(event.propertyId, {
@@ -3297,50 +3346,6 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
                   Ownership Transfer Details
                 </h3>
 
-                {/* Ownership Summary - Shows for existing events */}
-                {(leavingOwners.length > 0 || newOwners.length > 0) && (
-                  <div className="p-4 bg-slate-50 dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 space-y-3">
-                    <h4 className="text-sm font-semibold text-slate-700 dark:text-slate-300">
-                      Ownership Transfer Summary
-                    </h4>
-
-                    {/* Previous Owners */}
-                    {leavingOwners.length > 0 && (
-                      <div>
-                        <p className="text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">
-                          Previous Owner(s):
-                        </p>
-                        <div className="flex flex-wrap gap-2">
-                          {leavingOwners.map((ownerName, idx) => {
-                            const ownerData = currentProperty?.owners?.find(o => o.name === ownerName);
-                            return (
-                              <span key={idx} className="text-xs px-2 py-1 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 rounded">
-                                {ownerName} {ownerData && `(${ownerData.percentage}%)`}
-                              </span>
-                            );
-                          })}
-                        </div>
-                      </div>
-                    )}
-
-                    {/* New Owners */}
-                    {newOwners.length > 0 && (
-                      <div>
-                        <p className="text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">
-                          New Owner(s):
-                        </p>
-                        <div className="flex flex-wrap gap-2">
-                          {newOwners.map((owner, idx) => (
-                            <span key={idx} className="text-xs px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded">
-                              {owner.name} ({owner.percentage}%)
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                )}
-
                 {/* Reason Dropdown - Only for ownership_change events, not inherit (refinance) */}
                 {eventType === 'ownership_change' && (
                   <>
@@ -3468,47 +3473,62 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
                   <p className="text-xs text-slate-500 dark:text-slate-400 mb-2">
                     Select the owner(s) who are transferring their ownership
                   </p>
-                  {currentProperty?.owners && currentProperty.owners.length > 0 ? (
-                    <div className="space-y-2">
-                      {currentProperty.owners.map((owner, index) => (
-                        <div
-                          key={index}
-                          className="flex items-center gap-3 p-3 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800"
-                        >
-                          <input
-                            type="checkbox"
-                            id={`leaving-owner-${index}`}
-                            checked={leavingOwners.includes(owner.name)}
-                            onChange={(e) => {
-                              if (e.target.checked) {
-                                setLeavingOwners([...leavingOwners, owner.name]);
-                              } else {
-                                setLeavingOwners(leavingOwners.filter(name => name !== owner.name));
-                              }
-                            }}
-                            className="w-4 h-4 text-blue-600 bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 rounded focus:ring-2 focus:ring-blue-500 cursor-pointer"
-                          />
-                          <label
-                            htmlFor={`leaving-owner-${index}`}
-                            className="flex-1 text-sm text-slate-700 dark:text-slate-300 cursor-pointer"
+                  {(() => {
+                    // Always use current property owners for the checkbox list
+                    // (The read-only summary box above shows the historical data)
+                    const ownersSource = currentProperty?.owners || [];
+
+                    return ownersSource.length > 0 ? (
+                      <div className="space-y-2">
+                        {ownersSource.map((owner) => (
+                          <div
+                            key={owner.id}
+                            className="flex items-center gap-3 p-3 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800"
                           >
-                            {owner.name} ({owner.percentage}%)
-                          </label>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="p-3 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800 text-sm text-amber-800 dark:text-amber-200">
-                      No owners found for this property. Please add owners in the Property Panel first.
-                    </div>
-                  )}
+                            <input
+                              type="checkbox"
+                              id={`leaving-owner-${owner.id}`}
+                              checked={leavingOwners.includes(owner.id)}
+                              onChange={(e) => {
+                                if (e.target.checked) {
+                                  setLeavingOwners([...leavingOwners, owner.id]);
+                                } else {
+                                  setLeavingOwners(leavingOwners.filter(id => id !== owner.id));
+                                }
+                              }}
+                              className="w-4 h-4 text-blue-600 bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 rounded focus:ring-2 focus:ring-blue-500 cursor-pointer"
+                            />
+                            <label
+                              htmlFor={`leaving-owner-${owner.id}`}
+                              className="flex-1 text-sm text-slate-700 dark:text-slate-300 cursor-pointer"
+                            >
+                              {owner.name} ({owner.percentage}%)
+                            </label>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="p-3 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800 text-sm text-amber-800 dark:text-amber-200">
+                        No owners found for this property. Please add owners in the Property Panel first.
+                      </div>
+                    );
+                  })()}
                 </div>
 
                 {/* Percentage Being Transferred Summary */}
                 {leavingOwners.length > 0 && (() => {
-                  const leavingOwnersTotal = currentProperty?.owners
-                    ?.filter(owner => leavingOwners.includes(owner.name))
-                    .reduce((sum, owner) => sum + owner.percentage, 0) || 0;
+                  // Try currentProperty.owners first, fall back to previousOwners if calculation returns 0
+                  const propertyOwners = currentProperty?.owners || [];
+                  const matchedOwners = propertyOwners.filter(owner => leavingOwners.includes(owner.id));
+                  let leavingOwnersTotal = matchedOwners.reduce((sum, owner) => sum + owner.percentage, 0);
+
+                  // Fallback to previousOwners if current calc is 0 (happens when re-editing saved event)
+                  if (leavingOwnersTotal === 0 && event.previousOwners && event.previousOwners.length > 0) {
+                    leavingOwnersTotal = event.previousOwners
+                      .filter(owner => leavingOwners.includes(owner.id))
+                      .reduce((sum, owner) => sum + owner.percentage, 0);
+                  }
+
                   return (
                     <div className="flex items-center gap-2 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
                       <TrendingUp className="w-4 h-4 text-blue-600 dark:text-blue-400" />
@@ -3519,21 +3539,153 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
                   );
                 })()}
 
-                {/* New Owners */}
+                {/* Transfer to Existing Co-Owners */}
+                {(() => {
+                  // Calculate remaining owners (those NOT leaving)
+                  // Always use current property owners
+                  const ownersSource = currentProperty?.owners || [];
+
+                  const remainingOwners = ownersSource.filter(
+                    owner => !leavingOwners.includes(owner.id)
+                  );
+
+                  if (remainingOwners.length === 0) return null;
+
+                  return (
+                    <div className="space-y-3">
+                      <div>
+                        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                          Transfer to Existing Co-Owner(s)
+                        </label>
+                        <p className="text-xs text-slate-500 dark:text-slate-400">
+                          These owners are staying in the property
+                        </p>
+                      </div>
+
+                      <div className="space-y-2">
+                        {remainingOwners.map(owner => {
+                          const transfer = transfersToExisting.find(t => t.ownerId === owner.id);
+                          const isSelected = !!transfer;
+                          const receivingPercentage = transfer?.receivingPercentage || 0;
+                          const finalPercentage = owner.percentage + receivingPercentage;
+
+                          return (
+                            <div
+                              key={owner.id}
+                              className={`p-3 rounded-lg border transition-colors ${
+                                isSelected
+                                  ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800'
+                                  : 'bg-slate-50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700'
+                              }`}
+                            >
+                              <div className="flex items-start gap-3">
+                                <input
+                                  type="checkbox"
+                                  id={`transfer-to-${owner.id}`}
+                                  checked={isSelected}
+                                  onChange={(e) => {
+                                    if (e.target.checked) {
+                                      setTransfersToExisting([
+                                        ...transfersToExisting,
+                                        {
+                                          ownerId: owner.id,
+                                          name: owner.name,
+                                          currentPercentage: owner.percentage,
+                                          receivingPercentage: 0
+                                        }
+                                      ]);
+                                    } else {
+                                      setTransfersToExisting(
+                                        transfersToExisting.filter(t => t.ownerId !== owner.id)
+                                      );
+                                    }
+                                  }}
+                                  className="w-4 h-4 mt-0.5 text-green-600 bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 rounded focus:ring-2 focus:ring-green-500 cursor-pointer"
+                                />
+                                <div className="flex-1">
+                                  <label
+                                    htmlFor={`transfer-to-${owner.id}`}
+                                    className="font-medium text-sm text-slate-700 dark:text-slate-300 cursor-pointer block mb-1"
+                                  >
+                                    {owner.name}
+                                  </label>
+
+                                  {isSelected ? (
+                                    <div className="flex items-center gap-2 text-sm mt-2">
+                                      <span className="text-slate-600 dark:text-slate-400">
+                                        Current: <strong>{owner.percentage}%</strong>
+                                      </span>
+                                      <span className="text-slate-400">+</span>
+                                      <input
+                                        type="number"
+                                        min="0"
+                                        max="100"
+                                        step="0.1"
+                                        value={receivingPercentage}
+                                        onChange={(e) => {
+                                          const newPercentage = parseFloat(e.target.value) || 0;
+                                          setTransfersToExisting(
+                                            transfersToExisting.map(t =>
+                                              t.ownerId === owner.id
+                                                ? { ...t, receivingPercentage: newPercentage }
+                                                : t
+                                            )
+                                          );
+                                        }}
+                                        onWheel={(e) => e.currentTarget.blur()}
+                                        className="w-20 px-2 py-1 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 rounded focus:ring-2 focus:ring-green-500 text-sm"
+                                        placeholder="0"
+                                      />
+                                      <span className="text-slate-400">% =</span>
+                                      <span className={`font-semibold ${
+                                        finalPercentage > 100
+                                          ? 'text-red-600 dark:text-red-400'
+                                          : 'text-green-600 dark:text-green-400'
+                                      }`}>
+                                        {finalPercentage.toFixed(1)}%
+                                      </span>
+                                    </div>
+                                  ) : (
+                                    <span className="text-xs text-slate-500 dark:text-slate-400">
+                                      Currently owns {owner.percentage}%
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  );
+                })()}
+
+                {/* Add Completely New Owner(s) */}
                 <div className="space-y-2">
                   {(() => {
-                    const leavingOwnersTotal = currentProperty?.owners
-                      ?.filter(owner => leavingOwners.includes(owner.name))
-                      .reduce((sum, owner) => sum + owner.percentage, 0) || 0;
+                    // Try currentProperty.owners first, fall back to previousOwners if calculation returns 0
+                    let leavingOwnersTotal = (currentProperty?.owners || [])
+                      .filter(owner => leavingOwners.includes(owner.id))
+                      .reduce((sum, owner) => sum + owner.percentage, 0);
+
+                    // Fallback to previousOwners if current calc is 0 (happens when re-editing saved event)
+                    if (leavingOwnersTotal === 0 && event.previousOwners && event.previousOwners.length > 0) {
+                      leavingOwnersTotal = event.previousOwners
+                        .filter(owner => leavingOwners.includes(owner.id))
+                        .reduce((sum, owner) => sum + owner.percentage, 0);
+                    }
+
+                    // Calculate how much has already been allocated to existing co-owners
+                    const totalAllocatedToExisting = transfersToExisting.reduce((sum, t) => sum + t.receivingPercentage, 0);
+                    const remainingAvailable = leavingOwnersTotal - totalAllocatedToExisting;
+
                     return (
                       <>
                         <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">
-                          New Owner(s) Receiving {leavingOwnersTotal > 0 ? `${leavingOwnersTotal}%` : 'Ownership'} *
+                          Add Completely New Owner(s) {leavingOwnersTotal > 0 ? `(${remainingAvailable.toFixed(1)}% remaining available)` : ''}
                         </label>
                         <p className="text-xs text-slate-500 dark:text-slate-400 mb-2">
-                          {leavingOwnersTotal > 0
-                            ? `New owner percentages must total ${leavingOwnersTotal}%`
-                            : 'Select leaving owner(s) above first'}
+                          Owner not listed above? Add someone completely new to the property
                         </p>
                       </>
                     );
@@ -3590,7 +3742,11 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
                   <button
                     type="button"
                     onClick={() => {
-                      setNewOwners([...newOwners, { name: '', percentage: 0 }]);
+                      setNewOwners([...newOwners, {
+                        id: `new-${Date.now()}-${Math.random()}`,
+                        name: '',
+                        percentage: 0
+                      }]);
                     }}
                     className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/30 rounded-lg border border-blue-200 dark:border-blue-800 transition-colors"
                   >
@@ -3601,11 +3757,26 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
 
                 {/* Percentage Validation Summary */}
                 {newOwners.length > 0 && (() => {
-                  const leavingOwnersTotal = currentProperty?.owners
-                    ?.filter(owner => leavingOwners.includes(owner.name))
-                    .reduce((sum, owner) => sum + owner.percentage, 0) || 0;
+                  // Try currentProperty.owners first, fall back to previousOwners if calculation returns 0
+                  let leavingOwnersTotal = (currentProperty?.owners || [])
+                    .filter(owner => leavingOwners.includes(owner.id))
+                    .reduce((sum, owner) => sum + owner.percentage, 0);
+
+                  // Fallback to previousOwners if current calc is 0 (happens when re-editing saved event)
+                  if (leavingOwnersTotal === 0 && event.previousOwners && event.previousOwners.length > 0) {
+                    leavingOwnersTotal = event.previousOwners
+                      .filter(owner => leavingOwners.includes(owner.id))
+                      .reduce((sum, owner) => sum + owner.percentage, 0);
+                  }
+
+                  // Calculate remaining available after transfers to existing co-owners
+                  const totalAllocatedToExisting = transfersToExisting.reduce((sum, t) => sum + t.receivingPercentage, 0);
+                  const remainingAvailable = leavingOwnersTotal - totalAllocatedToExisting;
+
+                  // Only validate new owners total against remaining available
                   const total = newOwners.reduce((sum, owner) => sum + (owner.percentage || 0), 0);
-                  const isValid = Math.abs(total - leavingOwnersTotal) < 0.1 && leavingOwnersTotal > 0;
+
+                  const isValid = Math.abs(total - remainingAvailable) < 0.1 && remainingAvailable >= 0;
                   const isEmpty = total === 0;
                   const noLeavingOwners = leavingOwnersTotal === 0;
 
@@ -3625,7 +3796,7 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
                       <div className="flex items-center gap-2 p-3 bg-slate-50 dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700">
                         <AlertCircle className="w-4 h-4 text-slate-500 dark:text-slate-400" />
                         <span className="text-xs text-slate-600 dark:text-slate-400">
-                          Enter ownership percentages totaling {leavingOwnersTotal}%
+                          Enter ownership percentages totaling {remainingAvailable.toFixed(1)}%
                         </span>
                       </div>
                     );
@@ -3646,7 +3817,7 @@ export default function EventDetailsModal({ event, onClose, propertyName }: Even
                       ) : (
                         <>
                           <AlertCircle className="w-4 h-4" />
-                          <span className="text-sm">Total: {total.toFixed(1)}% (must equal {leavingOwnersTotal}%)</span>
+                          <span className="text-sm">Total: {total.toFixed(1)}% (must equal {remainingAvailable.toFixed(1)}%)</span>
                         </>
                       )}
                     </div>

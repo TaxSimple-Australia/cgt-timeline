@@ -320,9 +320,12 @@ export function transformTimelineToAPIFormat(
           ownershipParts.push(`Reason: ${reasonLabels[event.ownershipChangeReason]}`);
         }
 
-        // Add leaving owners
+        // Add leaving owners (look up names from previousOwners)
         if (event.leavingOwners && event.leavingOwners.length > 0) {
-          ownershipParts.push(`Leaving owner(s): ${event.leavingOwners.join(', ')}`);
+          const leavingNames = event.leavingOwners.map(id =>
+            event.previousOwners?.find((o: any) => o.id === id)?.name || id
+          ).join(', ');
+          ownershipParts.push(`Leaving owner(s): ${leavingNames}`);
         }
 
         // Add new owners with percentages
@@ -810,41 +813,77 @@ export function transformTimelineToAPIFormat(
         structuredData.push(structuredText);
       }
       
-      // Ownership changes
+      // Ownership changes - Generate natural language description for AI model understanding
       if (event.type === 'ownership_change' || event.type === 'refinance') {
-        const parts: string[] = [`${eventDate} - ${event.type === 'refinance' ? 'INHERIT' : 'OWNERSHIP CHANGE'}`];
+        const eventType = event.type === 'refinance' ? 'INHERITANCE' : 'OWNERSHIP CHANGE';
 
-        // Add reason if available (only for ownership_change, not refinance/inherit)
-        if (event.type === 'ownership_change' && event.ownershipChangeReason) {
-          const reasonMap: any = { divorce: 'Divorce', sale_transfer: 'Sale/Transfer', gift: 'Gift', other: event.ownershipChangeReasonOther || 'Other' };
-          parts.push(`Reason: ${reasonMap[event.ownershipChangeReason]}`);
-        }
+        // Build natural language description
+        let description = `${eventDate} - ${eventType}: `;
 
-        // Add leaving owners with percentage information
-        if (event.leavingOwners && event.leavingOwners.length > 0) {
-          // Try to find percentages for leaving owners from current property state
-          const leavingWithPercentages = event.leavingOwners.map((leavingName: string) => {
-            // Look in property.owners (current state) - these are already updated
-            // So we can't get previous percentages from there directly
-            // Instead, just show the names for "leaving"
-            return leavingName;
+        // Get leaving owners with their previous percentages
+        const leavingOwnersDetails = event.leavingOwners?.map((leavingId: string) => {
+          const owner = event.previousOwners?.find((o: any) => o.id === leavingId);
+          return owner ? { name: owner.name, percentage: owner.percentage } : null;
+        }).filter((o: any) => o !== null) || [];
+
+        // Build contextual sentence based on reason and transfer details
+        if (leavingOwnersDetails.length > 0 && event.newOwners && event.newOwners.length > 0) {
+          // Get reason verb for natural language
+          let reasonVerb = '';
+          if (event.type === 'ownership_change' && event.ownershipChangeReason) {
+            const reasonMap: any = {
+              divorce: 'divorced and transferred',
+              sale_transfer: 'sold/transferred',
+              gift: 'gifted',
+              other: event.ownershipChangeReasonOther ? `${event.ownershipChangeReasonOther} and transferred` : 'transferred'
+            };
+            reasonVerb = reasonMap[event.ownershipChangeReason] || 'transferred';
+          } else if (event.type === 'refinance') {
+            reasonVerb = 'inherited ownership and transferred';
+          } else {
+            reasonVerb = 'transferred';
+          }
+
+          // Calculate total percentage leaving
+          const totalLeavingPercentage = leavingOwnersDetails.reduce((sum: number, owner: any) => sum + (owner.percentage || 0), 0);
+
+          // Build leaving owners part
+          const leavingNames = leavingOwnersDetails.map((o: any) => o.name).join(' and ');
+          const leavingPercentage = leavingOwnersDetails.length === 1 ? `their ${leavingOwnersDetails[0].percentage}%` : `a total of ${totalLeavingPercentage}%`;
+
+          description += `${leavingNames} ${reasonVerb} ${leavingPercentage} ownership to `;
+
+          // Build receiving owners part with context about whether they're new or existing co-owners
+          const receivingParts = event.newOwners.map((newOwner: any) => {
+            // Check if this person was already a co-owner (in previousOwners but not leaving)
+            const wasExistingCoOwner = event.previousOwners?.find((prev: any) =>
+              prev.name === newOwner.name && !event.leavingOwners?.includes(prev.id)
+            );
+
+            if (wasExistingCoOwner) {
+              // They were already a co-owner, receiving additional percentage
+              const previousPercentage = wasExistingCoOwner.percentage || 0;
+              const receivingPercentage = newOwner.percentage;
+              const newTotalPercentage = previousPercentage + receivingPercentage;
+              return `${newOwner.name} (who previously owned ${previousPercentage}% and now owns ${newTotalPercentage}% as a joint owner)`;
+            } else {
+              // Completely new owner
+              return `${newOwner.name} (new co-owner with ${newOwner.percentage}% ownership)`;
+            }
           });
-          parts.push(`Leaving: ${leavingWithPercentages.join(', ')}`);
-        }
 
-        // Add new owners (these come with percentages from the event)
-        if (event.newOwners && event.newOwners.length > 0) {
+          description += receivingParts.join(' and ') + '.';
+        } else if (leavingOwnersDetails.length > 0) {
+          // Only leaving owners, no new owners
+          const leavingNames = leavingOwnersDetails.map((o: any) => `${o.name} (${o.percentage}%)`).join(', ');
+          description += `${leavingNames} left ownership.`;
+        } else if (event.newOwners && event.newOwners.length > 0) {
+          // Only new owners, no one leaving
           const newOwnerStr = event.newOwners.map((o: any) => `${o.name} (${o.percentage}%)`).join(', ');
-          parts.push(`New Owners: ${newOwnerStr}`);
+          description += `New owners added: ${newOwnerStr}.`;
         }
 
-        // Add a summary of the transfer context
-        if (event.leavingOwners && event.newOwners) {
-          const summary = `Transfer: ${event.leavingOwners.length} leaving, ${event.newOwners.length} joining`;
-          parts.push(summary);
-        }
-
-        structuredData.push(parts.join(' | '));
+        structuredData.push(description);
       }
       
       // Subdivision details

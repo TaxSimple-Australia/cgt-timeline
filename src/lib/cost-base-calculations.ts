@@ -165,10 +165,18 @@ export function getImprovementAmount(improvementEvent: TimelineEvent | undefined
 /**
  * Get Division 43 (Capital Works) deductions from a sale event
  * These deductions reduce the property's cost base
- * Note: Division 40 (Depreciating Assets) does NOT reduce cost base
  */
 export function getDivision43Deductions(saleEvent: TimelineEvent | undefined): number {
   return saleEvent?.division43Deductions || 0;
+}
+
+/**
+ * Get Division 40 (Depreciating Assets) value from a purchase event
+ * This value represents plant & equipment (appliances, carpets, etc.) that are
+ * separate CGT assets and should be subtracted from the property's cost base
+ */
+export function getDepreciatingAssetsValue(purchaseEvent: TimelineEvent | undefined): number {
+  return purchaseEvent?.depreciatingAssetsValue || 0;
 }
 
 /**
@@ -184,8 +192,10 @@ export function calculateTotalCostBase(
   const improvementCosts = calculateImprovementCosts(improvementEvents);
   const sellingCosts = calculateSellingCosts(saleEvent);
   const div43Deductions = getDivision43Deductions(saleEvent);
+  const depreciatingAssets = getDepreciatingAssetsValue(purchaseEvent);
 
-  return purchasePrice + purchaseCosts + improvementCosts + sellingCosts - div43Deductions;
+  // Division 40 assets are separate CGT assets, so subtract from property cost base
+  return purchasePrice + purchaseCosts + improvementCosts + sellingCosts - div43Deductions - depreciatingAssets;
 }
 
 /**

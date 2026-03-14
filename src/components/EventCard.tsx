@@ -223,7 +223,9 @@ export default function EventCard({
               {event.leavingOwners && event.leavingOwners.length > 0 && (
                 <div className="text-xs opacity-90">
                   <span className="font-semibold">Leaving: </span>
-                  {event.leavingOwners.join(', ')}
+                  {event.leavingOwners.map(id =>
+                    event.previousOwners?.find((o: any) => o.id === id)?.name || id
+                  ).join(', ')}
                 </div>
               )}
               {event.newOwners && event.newOwners.length > 0 && (
